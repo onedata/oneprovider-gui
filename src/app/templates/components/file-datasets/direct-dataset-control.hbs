@@ -51,8 +51,8 @@
             as |popover|
           }}
             {{#click-outside
-              action=(action "toggleActionsOpen" false)
-              except-selector=actionsTriggerSelector
+              onClickOutside=(action "toggleActionsOpen" false)
+              exceptSelector=actionsTriggerSelector
             }}
               {{actions-popover-content
                 actionsArray=directDatasetActions

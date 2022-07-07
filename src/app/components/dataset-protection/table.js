@@ -21,7 +21,6 @@ export default Component.extend(I18n, {
   classNames: ['dataset-protection-table'],
 
   i18n: service(),
-  media: service(),
   fileManager: service(),
 
   /**

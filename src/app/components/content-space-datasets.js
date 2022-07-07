@@ -33,7 +33,7 @@ import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import { isEmpty } from '@ember/utils';
-import SplitGrid from 'npm:split-grid';
+import SplitGrid from 'split-grid';
 import _ from 'lodash';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';

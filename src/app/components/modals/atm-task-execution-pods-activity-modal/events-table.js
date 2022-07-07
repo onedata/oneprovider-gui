@@ -18,6 +18,7 @@ import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { camelize } from '@ember/string';
+import $ from 'jquery';
 
 /**
  * @typedef {Object} EventsTableApi
@@ -262,11 +263,12 @@ export default Component.extend(I18n, {
   },
 
   createListWatcher() {
+    const $element = $(this.get('element'));
     return new ListWatcher(
-      this.$('.ps'),
+      $element.find('.ps'),
       '.data-row',
       (items, headerVisible) => {
-        if (this.$().parents('.global-modal').hasClass('in')) {
+        if ($element.parents('.global-modal').hasClass('in')) {
           return safeExec(this, 'onTableScroll', items, headerVisible);
         }
       },
@@ -299,8 +301,9 @@ export default Component.extend(I18n, {
       const {
         _window,
         rowHeight,
-      } = this.getProperties('_window', 'rowHeight');
-      const $firstRow = this.$('.first-row');
+        element,
+      } = this.getProperties('_window', 'rowHeight', 'element');
+      const $firstRow = $(element).find('.first-row');
       const firstRowTop = $firstRow.offset().top;
       const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + _window.innerHeight;

@@ -22,7 +22,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
-import { resolve, all as allFulfilled, Promise } from 'rsvp';
+import { resolve, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -479,64 +479,31 @@ export default Component.extend(I18n, {
    */
   api: computed(function api() {
     return {
-      refresh: (animated = true) => {
-        const fallbackTimeoutMs = 300;
-        const {
-          refreshStarted,
-          element,
-        } = this.getProperties('refreshStarted', 'element');
+      refresh: async (animated = true) => {
+        const refreshStarted = this.get('refreshStarted');
+        // should be the same as $refresh-transition-duration in fb-table.scss
+        const fadeTime = 300;
         if (refreshStarted) {
-          return resolve();
+          return;
         }
         if (!animated) {
           return this.refreshFileList();
         }
         this.set('renderRefreshSpinner', true);
-        // wait for refresh spinner to render because it needs to transition
-        return new Promise((resolve, reject) => {
-          scheduleOnce('afterRender', () => {
-            safeExec(this, 'set', 'refreshStarted', true);
-            const animationPromise = new Promise((resolve) => {
-              // TODO: VFS-9503 handle edge-cases of refresh animation
-
-              // If special view is visible, then table is hidden with `display: none`
-              // and there is no `animationend` event after toggling on opacity.
-              // Resolving animation promise after 300ms of "non-existing" animation.
-              if (this.get('specialViewClass')) {
-                sleep(fallbackTimeoutMs).then(() => resolve());
-                return;
+        // wait for refresh spinner to render because it needs parent class to transition
+        scheduleOnce('afterRender', async () => {
+          safeExec(this, 'set', 'refreshStarted', true);
+          try {
+            await sleep(fadeTime);
+            return await this.refreshFileList();
+          } finally {
+            safeExec(this, 'set', 'refreshStarted', false);
+            later(() => {
+              if (!this.get('refreshStarted')) {
+                safeExec(this, 'set', 'renderRefreshSpinner', false);
               }
-
-              const transitionEventHandler = (event) => {
-                if (
-                  event.propertyName === 'opacity' &&
-                  event.target.matches('.fb-files-table')
-                ) {
-                  element.removeEventListener(
-                    'transitionend',
-                    transitionEventHandler,
-                  );
-                  resolve();
-                }
-              };
-              element.addEventListener(
-                'transitionend',
-                transitionEventHandler,
-              );
-            });
-            this.refreshFileList()
-              .finally(() => {
-                animationPromise.finally(() => {
-                  safeExec(this, 'set', 'refreshStarted', false);
-                  later(() => {
-                    if (!this.get('refreshStarted')) {
-                      safeExec(this, 'set', 'renderRefreshSpinner', false);
-                    }
-                  }, fallbackTimeoutMs);
-                });
-              })
-              .then(resolve, reject);
-          });
+            }, fadeTime);
+          }
         });
       },
       getFilesArray: () => {
@@ -816,10 +783,13 @@ export default Component.extend(I18n, {
    * @returns {{ element: HTMLElement, renderedRowIndex: Number }}
    */
   getFirstVisibleRow() {
-    const viewTester = this.get('viewTester');
+    const {
+      viewTester,
+      element,
+    } = this.getProperties('viewTester', 'element');
     let firstRow;
     let renderedRowIndex;
-    this.$('[data-row-id]').each((index, element) => {
+    $(element).find('[data-row-id]').each((index, element) => {
       if (viewTester.isInView(element)) {
         renderedRowIndex = index;
         firstRow = element;
@@ -840,7 +810,7 @@ export default Component.extend(I18n, {
    * @returns {HTMLElement|null}
    */
   getNthRenderedRow(index) {
-    return this.$('[data-row-id]')[index] || null;
+    return $(this.get('element')).find('[data-row-id]')[index] || null;
   },
 
   /**
@@ -871,13 +841,16 @@ export default Component.extend(I18n, {
       filesArray,
       viewTester,
       containerScrollTop,
+      element,
     } = this.getProperties(
       'dir',
       'filesArray',
       'viewTester',
       'containerScrollTop',
+      'element',
     );
-    const visibleLengthBeforeReload = this.$('.data-row').toArray()
+    const $element = $(element);
+    const visibleLengthBeforeReload = $element.find('.data-row').toArray()
       .filter(row => viewTester.isInView(row)).length;
 
     const promises = [];
@@ -908,13 +881,7 @@ export default Component.extend(I18n, {
             return;
           }
 
-          const $dataRows = this.$('.data-row');
-          // a strange bug - despite of checking if component is destroyed and scheduling
-          // afterRender sometimes this.$() returns null or undefined
-          if (!$dataRows) {
-            return;
-          }
-
+          const $dataRows = $(this.get('element')).find('.data-row');
           const anyRowVisible = $dataRows.toArray()
             .some(row => viewTester.isInView(row));
 
@@ -1200,7 +1167,10 @@ export default Component.extend(I18n, {
       if (isPopoverOpened() || this.isItemDisabled(file)) {
         return;
       }
-      const selectedItems = this.get('selectedItems');
+      const {
+        selectedItems,
+        element,
+      } = this.getProperties('selectedItems', 'element');
       if (get(selectedItems, 'length') === 0 || !selectedItems.includes(file)) {
         this.selectOnlySingleFile(file);
       }
@@ -1216,11 +1186,11 @@ export default Component.extend(I18n, {
         left = mouseEvent.clientX;
         top = mouseEvent.clientY;
       }
-      const $this = this.$();
+      const $this = $(element);
       const tableOffset = $this.offset();
       left = left - tableOffset.left;
       top = top - tableOffset.top;
-      this.$('.file-actions-trigger').css({
+      $this.find('.file-actions-trigger').css({
         top,
         left,
       });

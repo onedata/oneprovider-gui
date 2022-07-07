@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import Service from '@ember/service';
 import { registerService, lookupService } from '../../helpers/stub-service';
-import wait from 'ember-test-helpers/wait';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
@@ -34,9 +34,7 @@ const ErrorExtractor = Service.extend({
 });
 
 describe('Integration | Component | space transfers', function () {
-  setupComponentTest('space-transfers', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     const spaceId = 'dummySpaceId';
@@ -48,9 +46,9 @@ describe('Integration | Component | space transfers', function () {
     const resetQueryParams = spy();
     const changeListTab = spy();
     const closeFileTab = spy();
-    this.on('resetQueryParams', resetQueryParams);
-    this.on('changeListTab', changeListTab);
-    this.on('closeFileTab', closeFileTab);
+    this.set('resetQueryParams', resetQueryParams);
+    this.set('changeListTab', changeListTab);
+    this.set('closeFileTab', closeFileTab);
     const providerListProxy = promiseObject(resolve({
       list: promiseArray(resolve(providers)),
     }));
@@ -84,7 +82,7 @@ describe('Integration | Component | space transfers', function () {
     });
   });
 
-  it('does not call getTransfersForFile if fileId is not injected', function () {
+  it('does not call getTransfersForFile if fileId is not injected', async function () {
     const transferManager = this.get('transferManager');
     const getTransfersForFile =
       stub(transferManager, 'getTransfersForFile').resolves([]);
@@ -96,22 +94,20 @@ describe('Integration | Component | space transfers', function () {
       timestamp: 0,
     });
 
-    this.render(hbs `<div id="content-scroll">{{space-transfers
+    await render(hbs `<div id="content-scroll">{{space-transfers
       space=space
       fileId=undefined
       defaultTab=defaultTab
       providerId=providerId
-      resetQueryParams=(action "resetQueryParams")
-      changeListTab=(action "changeListTab")
-      closeFileTab=(action "closeFileTab")
+      resetQueryParams=(action resetQueryParams)
+      changeListTab=(action changeListTab)
+      closeFileTab=(action closeFileTab)
     }}</div>`);
 
-    return wait().then(() => {
-      expect(getTransfersForFile).to.have.not.been.called;
-    });
+    expect(getTransfersForFile).to.have.not.been.called;
   });
 
-  it('calls getTransfersForFile if fileId is injected', function () {
+  it('calls getTransfersForFile if fileId is injected', async function () {
     const fileId = this.get('fileId');
     const file = {
       entityId: fileId,
@@ -137,28 +133,25 @@ describe('Integration | Component | space transfers', function () {
     findRecord.withArgs('file', expectedFileGri).resolves(file);
     this.set('tab', 'file');
 
-    this.render(hbs `<div id="content-scroll">{{space-transfers
+    await render(hbs `<div id="content-scroll">{{space-transfers
       space=space
       fileId=fileId
       tab=tab
       providerId=providerId
-      resetQueryParams=(action "resetQueryParams")
-      changeListTab=(action "changeListTab")
-      closeFileTab=(action "closeFileTab")
+      resetQueryParams=(action resetQueryParams)
+      changeListTab=(action changeListTab)
+      closeFileTab=(action closeFileTab)
     }}</div>`);
 
-    return wait()
-      .then(() => {
-        expect(this.$('.row-transfers-tables'), '.row-transfers-tables').to
-          .exist;
-        expect(findRecord).to.have.been.calledOnce;
-        expect(findRecord).to.have.been.calledWith('file', expectedFileGri);
-        expect(getTransfersForFile).to.have.been.calledWith(file, true);
-      });
+    expect(find('.row-transfers-tables'), '.row-transfers-tables').to
+      .exist;
+    expect(findRecord).to.have.been.calledOnce;
+    expect(findRecord).to.have.been.calledWith('file', expectedFileGri);
+    expect(getTransfersForFile).to.have.been.calledWith(file, true);
   });
 
   it('does not render tab link for file tab if fileId is not provided',
-    function () {
+    async function () {
       const fileId = this.get('fileId');
       const file = {
         entityId: fileId,
@@ -178,23 +171,20 @@ describe('Integration | Component | space transfers', function () {
       findRecord.withArgs('file', `file.${fileId}.instance:private`)
         .resolves(file);
 
-      this.render(hbs `<div id="content-scroll">{{space-transfers
+      await render(hbs `<div id="content-scroll">{{space-transfers
         space=space
         defaultTab=defaultTab
         providerId=providerId
-        resetQueryParams=(action "resetQueryParams")
-        changeListTab=(action "changeListTab")
-        closeFileTab=(action "closeFileTab")
+        resetQueryParams=(action resetQueryParams)
+        changeListTab=(action changeListTab)
+        closeFileTab=(action closeFileTab)
       }}</div>`);
 
-      return wait()
-        .then(() => {
-          expect(this.$('.nav-link-file'), '.nav-link-file').to.not.exist;
-        });
+      expect(find('.nav-link-file'), '.nav-link-file').to.not.exist;
     });
 
   it('renders tab link for file tab with file name if fileId is provided',
-    function () {
+    async function () {
       const fileId = this.get('fileId');
       const file = {
         entityId: fileId,
@@ -214,21 +204,18 @@ describe('Integration | Component | space transfers', function () {
       findRecord.withArgs('file', `file.${fileId}.instance:private`)
         .resolves(file);
 
-      this.render(hbs `<div id="content-scroll">{{space-transfers
+      await render(hbs `<div id="content-scroll">{{space-transfers
         space=space
         defaultTab=defaultTab
         fileId=fileId
         providerId=providerId
-        resetQueryParams=(action "resetQueryParams")
-        changeListTab=(action "changeListTab")
-        closeFileTab=(action "closeFileTab")
+        resetQueryParams=(action resetQueryParams)
+        changeListTab=(action changeListTab)
+        closeFileTab=(action closeFileTab)
       }}</div>`);
 
-      return wait()
-        .then(() => {
-          const navLinkFile = this.$('.nav-link-file');
-          expect(navLinkFile, '.nav-link-file').to.exist;
-          expect(navLinkFile.text().trim()).to.equal(file.name);
-        });
+      const navLinkFile = find('.nav-link-file');
+      expect(navLinkFile, '.nav-link-file').to.exist;
+      expect(navLinkFile).to.have.trimmed.text(file.name);
     });
 });

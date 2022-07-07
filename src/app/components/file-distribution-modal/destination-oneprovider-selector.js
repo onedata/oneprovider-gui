@@ -1,7 +1,7 @@
 /**
  * Provides migration destination selector. Filters out Oneproviders,
  * which are in the middle of evicting or have readonly support only.
- * 
+ *
  * @module components/file-distribution-modal/confirm-subsequent-transfer
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -19,7 +19,6 @@ import { inject as service } from '@ember/service';
 export default Component.extend(I18n, {
   classNames: ['destination-oneprovider-selector'],
 
-  media: service(),
   i18n: service(),
 
   /**
@@ -54,7 +53,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * Ids of Oneproviders that support this space only with readonly storages
-   * @type {Array<String>} 
+   * @type {Array<String>}
    */
   providersWithReadonlySupport: Object.freeze([]),
 

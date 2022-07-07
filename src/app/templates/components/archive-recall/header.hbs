@@ -2,7 +2,7 @@
   <span class="header-text">
     {{tt this "headerText"}}
   </span>
-  {{#if media.isMobile}}
+  {{#if (media "isMobile")}}
     {{one-icon
       icon="sign-question-rounded"
       class="archive-recall-header-hint-trigger hint-trigger clickable"
@@ -34,7 +34,7 @@
 {{#modal-archive-subheader archives=(array archive)}}
   <span class="archive-files-info">({{archive-content-count archive=archive}})</span>
 {{/modal-archive-subheader}}
-{{#unless media.isMobile}}
+{{#unless (media "isMobile")}}
   <p class="intro-text">
     {{tt this "intro"}}
   </p>

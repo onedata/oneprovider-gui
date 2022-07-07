@@ -23,7 +23,7 @@
             class=(concat "form-control toggle-field-dir-size-stats-config")
             inputId="dir-size-stats-config"
             checked=isDirStatsCount
-            spinnerSide=(if media.isMobile "left" "right")
+            spinnerSide=(if (media "isMobile") "left" "right")
             update=(action "changeStatsCount")
             isReadOnly=dirStatsToggleDisabled
             lockHint=dirStatsToggleLockHint

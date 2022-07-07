@@ -28,7 +28,7 @@
 </div>
 {{share-show/public-url-viewer
   class="row share-header-row share-header-public-url"
-  compact=media.isMobile
+  compact=(media "isMobile")
   share=share
   showHandle=showHandle
   selectedUrlType=selectedUrlType
@@ -44,7 +44,10 @@
     open=actionsOpened
     onToggle=(action "toggleActions")
   }}
-    {{#click-outside action=(action "toggleActions" false) except-selector=menuTriggerSelector}}
+    {{#click-outside
+      onClickOutside=(action "toggleActions" false)
+      exceptSelector=menuTriggerSelector
+    }}
       {{actions-popover-content
         actionsArray=menuActions
         actionClicked=(action "toggleActions" false)

@@ -67,7 +67,7 @@
         {{/one-carousel}}
       {{else}}
         {{content-info
-          class=(if media.isMobile "scroll-breakpoint-600" "scroll-breakpoint-500")
+          class=(if (media "isMobile") "scroll-breakpoint-600" "scroll-breakpoint-500")
           header=(tt this "noHandleServices.title")
           text=(tt this "noHandleServices.content")
         }}

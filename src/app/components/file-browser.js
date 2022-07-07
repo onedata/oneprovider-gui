@@ -530,16 +530,19 @@ export default Component.extend(I18n, {
         return;
       }
 
-      if (mouseEvent.target.closest(ignoreCurrentDirContextMenuSelector)) {
+      if (
+        ignoreCurrentDirContextMenuSelector &&
+        mouseEvent.target.closest(ignoreCurrentDirContextMenuSelector)
+      ) {
         return true;
       }
 
       const element = this.get('element');
-      const $this = this.$();
+      const $this = $(element);
       const tableOffset = $this.offset();
       const left = mouseEvent.clientX - tableOffset.left + element.offsetLeft;
       const top = mouseEvent.clientY - tableOffset.top + element.offsetTop;
-      this.$('.current-dir-actions-trigger').css({
+      $this.find('.current-dir-actions-trigger').css({
         top,
         left,
       });

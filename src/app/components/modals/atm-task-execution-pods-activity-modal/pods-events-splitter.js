@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import SplitGrid from 'npm:split-grid';
+import SplitGrid from 'split-grid';
 
 export default Component.extend({
   classNames: ['pods-events-splitter'],

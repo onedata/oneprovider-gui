@@ -43,6 +43,7 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   errorExtractor: service(),
   isMobile: service(),
+  media: service(),
   currentUser: service(),
   i18n: service(),
 

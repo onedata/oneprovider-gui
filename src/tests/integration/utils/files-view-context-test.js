@@ -1,5 +1,5 @@
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
 import { expect } from 'chai';
 import FilesViewContext, { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import { get } from '@ember/object';
@@ -14,12 +14,10 @@ import {
 } from '../../helpers/files';
 
 describe('Integration | Utility | files view context', function () {
-  setupComponentTest('test-component', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
-    const factory = FilesViewContextFactory.create({ ownerSource: this });
+    const factory = FilesViewContextFactory.create({ ownerSource: this.owner });
     this.set('factory', factory);
   });
 
@@ -232,8 +230,12 @@ function testCompare(testCase, options) {
   } = options;
   it(`when compared to other context returns ${expectedResult} if ${name}`,
     async function () {
-      const filesViewContextA = FilesViewContext.create({ ownerSource: testCase }, dataA);
-      const filesViewContextB = FilesViewContext.create({ ownerSource: testCase }, dataB);
+      const filesViewContextA = FilesViewContext.create({
+        ownerSource: testCase.owner,
+      }, dataA);
+      const filesViewContextB = FilesViewContext.create({
+        ownerSource: testCase.owner,
+      }, dataB);
 
       const resultAB = filesViewContextA.isEqual(filesViewContextB);
       const resultBA = filesViewContextB.isEqual(filesViewContextA);

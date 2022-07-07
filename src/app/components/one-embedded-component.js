@@ -11,6 +11,7 @@
  */
 
 import Component from '@ember/component';
+import { defineProperty } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
@@ -66,7 +67,11 @@ export default Component.extend({
 
       // fetch declared injected properties
       this.get('iframeInjectedProperties').forEach(propertyName => {
-        this[propertyName] = reads(`appProxy.injectedData.${propertyName}`);
+        defineProperty(
+          this,
+          propertyName,
+          reads(`appProxy.injectedData.${propertyName}`)
+        );
       });
     } else {
       throw new Error(

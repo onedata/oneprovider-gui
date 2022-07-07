@@ -1,6 +1,6 @@
 /**
  * Content of db-view-modal for showing source of one of Database View (Index) functions
- * 
+ *
  * @module components/db-view-modal/tab-function
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import unescapeBackendFunction from 'oneprovider-gui/utils/unescape-backend-function';
-import JsBeautify from 'npm:js-beautify';
+import JsBeautify from 'js-beautify';
 
 export default Component.extend(I18n, {
   classNames: ['tab-function'],

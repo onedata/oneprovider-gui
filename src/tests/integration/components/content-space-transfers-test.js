@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import Service from '@ember/service';
 import { registerService, lookupService } from '../../helpers/stub-service';
-import wait from 'ember-test-helpers/wait';
 import { resolve } from 'rsvp';
 import { set } from '@ember/object';
 
@@ -26,9 +26,7 @@ const FilesViewResolver = Service.extend({
 });
 
 describe('Integration | Component | content space transfers', function () {
-  setupComponentTest('content-space-transfers', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function beforeEach() {
     registerService(this, 'store', Store);
@@ -59,7 +57,7 @@ describe('Integration | Component | content space transfers', function () {
       this.set('_window', _window);
     });
 
-    it('with internal components and transfer row', function () {
+    it('with internal components and transfer row', async function () {
       const transfersActiveChannels = {};
       const provider1 = {
         entityId: 'p1',
@@ -122,25 +120,21 @@ describe('Integration | Component | content space transfers', function () {
           timestamp: 0,
         });
       guiContext.clusterId = provider1.entityId;
-      this.render(hbs `
+      await render(hbs `
         <div id="content-scroll">
           {{content-space-transfers _window=_window}}
         </div>
       `);
 
-      return wait()
-        .then(() => {
-          expect(this.$()).to.exist;
-          expect(this.$('.space-transfers'), 'space-transfers').to.exist;
-          expect(this.$('.transfers-overview'), 'transfers-overview').to.exist;
-          expect(this.$('.tables-container'), 'tables-container').to.exist;
-          expect(this.$('.providers-map'), 'providers-map').to.exist;
-          expect(this.$('.transfers-table').text(), 'transfers-table')
-            .to.contain('onefile');
-        });
+      expect(find('.space-transfers'), 'space-transfers').to.exist;
+      expect(find('.transfers-overview'), 'transfers-overview').to.exist;
+      expect(find('.tables-container'), 'tables-container').to.exist;
+      expect(find('.providers-map'), 'providers-map').to.exist;
+      expect(find('.transfers-table'), 'transfers-table')
+        .to.contain.text('onefile');
     });
 
-    it('with forbidden message if user has no viewTransfers privilege', function () {
+    it('with forbidden message if user has no viewTransfers privilege', async function () {
       const spaceEntityId = 'seid';
       const provider1 = {
         entityId: 'p1',
@@ -176,19 +170,16 @@ describe('Integration | Component | content space transfers', function () {
         .withArgs('space', sinon.match(new RegExp(spaceEntityId)))
         .resolves(space);
       guiContext.clusterId = provider1.entityId;
-      this.render(hbs `
+      await render(hbs `
         <div id="content-scroll">
           {{content-space-transfers _window=_window}}
         </div>
       `);
 
-      return wait()
-        .then(() => {
-          expect(
-            this.$('.no-permissions-space-transfers'),
-            'no-permissions-space-transfers'
-          ).to.exist;
-        });
+      expect(
+        find('.no-permissions-space-transfers'),
+        'no-permissions-space-transfers'
+      ).to.exist;
     });
   });
 });

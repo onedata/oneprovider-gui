@@ -1,18 +1,15 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, findAll, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { resolve } from 'rsvp';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
 import { lookupService } from '../../../helpers/stub-service';
 
 describe('Integration | Component | space automation/atm workflow schemas list', function () {
-  setupComponentTest('space-automation/atm-workflow-schemas-list', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     const atmWorkflowSchemas1 = [{
@@ -51,31 +48,31 @@ describe('Integration | Component | space automation/atm workflow schemas list',
   });
 
   it('has class "atm-workflow-schemas-list"', async function () {
-    await render(this);
+    await renderComponent();
 
-    expect(this.$().children()).to.have.class('atm-workflow-schemas-list')
-      .and.to.have.length(1);
+    expect(this.element.children).to.have.length(1);
+    expect(this.element.children[0]).to.have.class('atm-workflow-schemas-list');
   });
 
   it('lists available workflow schemas from all inventories', async function () {
-    await render(this);
+    await renderComponent();
 
-    const $entries = this.$('.list-entry');
-    expect($entries).to.have.length(4);
+    const entries = findAll('.list-entry');
+    expect(entries).to.have.length(4);
     [1, 2, 3, 4].forEach(entryNo => {
-      expect($entries.eq(entryNo - 1).find('.workflow-schema-name').text().trim())
-        .to.equal(`workflow${entryNo}`);
-      expect($entries.eq(entryNo - 1).find('.workflow-schema-summary').text().trim())
-        .to.equal(`w${entryNo} summary`);
+      expect(entries[entryNo - 1].querySelector('.workflow-schema-name'))
+        .to.have.trimmed.text(`workflow${entryNo}`);
+      expect(entries[entryNo - 1].querySelector('.workflow-schema-summary'))
+        .to.have.trimmed.text(`w${entryNo} summary`);
     });
   });
 
   it('notifies about workflow schema selection', async function () {
     const onAtmWorkflowSchemaRevisionSelect = this.get('onAtmWorkflowSchemaRevisionSelect');
-    await render(this);
+    await renderComponent();
 
     expect(onAtmWorkflowSchemaRevisionSelect).to.be.not.called;
-    await click(this.$('.list-entry').eq(1).find('.revisions-table-revision-entry')[0]);
+    await click(findAll('.list-entry')[1].querySelector('.revisions-table-revision-entry'));
 
     expect(onAtmWorkflowSchemaRevisionSelect).to.be.calledOnce.and.to.be.calledWith(
       sinon.match({ name: 'workflow2' }), 1
@@ -83,11 +80,10 @@ describe('Integration | Component | space automation/atm workflow schemas list',
   });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `
+async function renderComponent() {
+  await render(hbs `
     {{space-automation/atm-workflow-schemas-list
       onAtmWorkflowSchemaRevisionSelect=onAtmWorkflowSchemaRevisionSelect
     }}
   `);
-  await wait();
 }
