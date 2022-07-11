@@ -12,6 +12,7 @@ import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe } from '@ember/string';
+import { or, eq } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: ['progress-bar-visualizer'],
@@ -26,12 +27,6 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {boolean}
-   */
-  unknownData: false,
-
-  /**
-   * @virtual
    * @type {number}
    */
   percentage: undefined,
@@ -40,38 +35,47 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {number}
    */
-  fileSize: undefined,
+  size: undefined,
+
+  /**
+   * @type {boolean}
+   */
+  isDataIncomplete: or(
+    eq('percentage', undefined),
+    eq('size', undefined),
+  ),
 
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  percentageText: computed('percentage', function percentageText() {
-    const percentage = this.get('percentage');
+  percentageText: computed('percentageNormalized', function percentageText() {
+    const percentage = this.get('percentageNormalized');
     return percentage !== undefined ? `${Math.floor(percentage)}%` : '';
   }),
 
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  _occupiedSpaceBarStyle: computed('_barOccupiedPercentsNormalized', function () {
-    const _barOccupiedPercentsNormalized =
-      this.get('_barOccupiedPercentsNormalized');
-    return htmlSafe(
-      _barOccupiedPercentsNormalized === undefined ?
-      '' : `flex: 0 0 ${_barOccupiedPercentsNormalized}%`
-    );
-  }),
+  occupiedSpaceBarStyle: computed(
+    'percentageNormalized',
+    function occupiedSpaceBarStyle() {
+      const percentageNormalized =
+        this.get('percentageNormalized');
+      return htmlSafe(
+        percentageNormalized === undefined ?
+        '' : `flex-basis: ${percentageNormalized}%`
+      );
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<number|undefined>}
    */
-  _barOccupiedPercentsNormalized: computed('percentage', function () {
-    const percentage = this.get('percentage');
-    return percentage === undefined ?
-      undefined : Math.min(percentage, 100);
-  }),
-
-  didInsertElement() {
-    this._super(...arguments);
-  },
+  percentageNormalized: computed(
+    'percentage',
+    function percentageNormalized() {
+      const percentage = this.get('percentage');
+      return percentage === undefined ? undefined : Math.min(percentage, 100);
+    }
+  ),
 });

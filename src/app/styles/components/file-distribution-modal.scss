@@ -282,6 +282,7 @@
 
     .progress-bar {
       display: flex;
+      flex: 0 0 0;
       min-width: 0;
       height: $one-pill-button-height;
       width: 0px;

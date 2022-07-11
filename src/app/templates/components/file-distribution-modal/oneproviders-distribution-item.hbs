@@ -39,15 +39,14 @@
 {{#if (and hasSingleFile hasOnlyFiles)}}
   {{file-distribution-modal/chunks-visualizer
     neverSynchronized=neverSynchronized
-    fileSize=filesSizePerProvider
+    fileSize=filesSizeOnStorage
     chunks=chunksBarData
     percentage=percentage
     chunksRange=chunksRange
   }}
 {{else}}
   {{file-distribution-modal/progress-bar-visualizer
-    unknownData=unknownData
-    fileSize=filesSizePerProvider
+    size=filesSizeOnStorage
     percentage=percentage
   }}
 {{/if}}

@@ -268,7 +268,7 @@ export default Component.extend(I18n, {
 
     fileDistributionData.forEach(fileDistributionContainer => {
       oneproviders.forEach(oneprovider => {
-        fileDistributionContainer.getStoragesForOneprovider(oneprovider).forEach(
+        fileDistributionContainer.getStorageIdsForOneprovider(oneprovider).forEach(
           storage => {
             if (!(storage in storages)) {
               storages[storage] = oneprovider;

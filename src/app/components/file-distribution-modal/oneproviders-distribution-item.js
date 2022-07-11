@@ -187,28 +187,28 @@ export default Component.extend(I18n, {
   filesSize: sum(array.mapBy('fileDistributionData', raw('fileSize'))),
 
   /**
-   * @type {Ember.ComputedProperty<number>}
+   * @type {Ember.ComputedProperty<number|undefined>}
    */
-  filesSizePerProvider: computed(
-    'fileDistributionData.@each.{fileDistribution}',
+  filesSizeOnStorage: computed(
+    'fileDistributionData.@each.fileDistribution',
     'oneprovider',
     'storageId',
-    'unknownData',
-    function filesSizePerProvider() {
+    'isDistributionDataIncomplete',
+    function filesSizeOnStorage() {
       const {
         fileDistributionData,
         oneprovider,
         storageId,
-        unknownData,
+        isDistributionDataIncomplete,
       } = this.getProperties(
         'fileDistributionData',
         'oneprovider',
         'storageId',
-        'unknownData'
+        'isDistributionDataIncomplete'
       );
       let size = 0;
-      if (unknownData) {
-        return size;
+      if (isDistributionDataIncomplete) {
+        return undefined;
       }
       fileDistributionData.forEach(fileDistDataContainer => {
         const fileDistribution =
@@ -236,10 +236,10 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  unknownData: computed(
+  isDistributionDataIncomplete: computed(
     'fileDistributionData.@each.{fileDistribution}',
     'oneprovider',
-    function unknownData() {
+    function isDistributionDataIncomplete() {
       const {
         fileDistributionData,
         oneprovider,
@@ -257,33 +257,33 @@ export default Component.extend(I18n, {
     }),
 
   /**
-   * @type {Ember.ComputedProperty<number>}
+   * @type {Ember.ComputedProperty<number|undefined>}
    */
   percentage: computed(
-    'filesSizePerProvider',
+    'filesSizeOnStorage',
     'filesSize',
     'allFilesDistributionsLoaded',
-    'unknownData',
+    'isDistributionDataIncomplete',
     function () {
       const {
         filesSize,
-        filesSizePerProvider,
+        filesSizeOnStorage,
         allFilesDistributionsLoaded,
-        unknownData,
+        isDistributionDataIncomplete,
       } = this.getProperties(
         'filesSize',
-        'filesSizePerProvider',
+        'filesSizeOnStorage',
         'allFilesDistributionsLoaded',
-        'unknownData',
+        'isDistributionDataIncomplete',
       );
 
-      if (allFilesDistributionsLoaded && filesSize && !unknownData) {
+      if (allFilesDistributionsLoaded && filesSize && !isDistributionDataIncomplete) {
         const percentage = Math.floor(
-          (Math.min(filesSizePerProvider, filesSize) / filesSize) * 100
+          (Math.min(filesSizeOnStorage, filesSize) / filesSize) * 100
         );
-        return filesSizePerProvider ? Math.max(percentage, 1) : 0;
+        return filesSizeOnStorage ? Math.max(percentage, 1) : 0;
       } else {
-        return 0;
+        return undefined;
       }
     }
   ),
@@ -417,7 +417,7 @@ export default Component.extend(I18n, {
     'oneprovider',
     'replicationForbidden',
     'storageId',
-    'unknownData',
+    'isDistributionDataIncomplete',
     'filesSize',
     function replicateHereActionState() {
       const {
@@ -429,7 +429,7 @@ export default Component.extend(I18n, {
         percentage,
         oneprovider,
         storageId,
-        unknownData,
+        isDistributionDataIncomplete,
         filesSize,
       } = this.getProperties(
         'i18n',
@@ -440,13 +440,13 @@ export default Component.extend(I18n, {
         'percentage',
         'oneprovider',
         'storageId',
-        'unknownData',
+        'isDistributionDataIncomplete',
         'filesSize',
       );
 
       const state = { enabled: false };
       let tooltipI18nKey;
-      if (unknownData || filesSize === 0) {
+      if (isDistributionDataIncomplete || filesSize === 0) {
         return state;
       }
 
@@ -667,23 +667,23 @@ export default Component.extend(I18n, {
     'spaceHasSingleOneprovider',
     'fileDistributionData.@each.{fileType,fileDistribution}',
     'filesSize',
-    'unknownData',
+    'isDistributionDataIncomplete',
     function dataExistOnOtherOneproviders() {
       const {
         fileDistributionData,
         spaceHasSingleOneprovider,
         oneprovider,
         filesSize,
-        unknownData,
+        isDistributionDataIncomplete,
       } = this.getProperties(
         'fileDistributionData',
         'spaceHasSingleOneprovider',
         'oneprovider',
         'filesSize',
-        'unknownData',
+        'isDistributionDataIncomplete',
       );
       const oneproviderId = get(oneprovider, 'entityId');
-      if (spaceHasSingleOneprovider || unknownData) {
+      if (spaceHasSingleOneprovider || isDistributionDataIncomplete) {
         return false;
       } else if (!filesSize) {
         return false;
@@ -699,14 +699,16 @@ export default Component.extend(I18n, {
               singleFileDistribution,
               `${otherOneproviderIds.objectAt(j)}.distributionPerStorage`
             );
-            for (const elem in distributionPerStorage) {
+            for (const storageId in distributionPerStorage) {
               if (type === 'file') {
-                const blocksPercentage = get(distributionPerStorage[elem], 'blocksPercentage');
+                const blocksPercentage = get(
+                  distributionPerStorage[storageId], 'blocksPercentage'
+                );
                 if (blocksPercentage) {
                   return true;
                 }
               } else {
-                if (distributionPerStorage[elem] > 0) {
+                if (distributionPerStorage[storageId] > 0) {
                   return true;
                 }
               }

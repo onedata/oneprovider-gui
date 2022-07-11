@@ -93,7 +93,7 @@ export default Component.extend(I18n, {
     } = this.getProperties('fileSize', 'blocksNumber');
     return this.t('blocksSize', {
       size: bytesToString(fileSize),
-      blocksNumber: blocksNumber,
+      blocksNumber,
       blockNoun: blocksNumber > 1 ? this.t('blocks') : this.t('block'),
     });
   }),

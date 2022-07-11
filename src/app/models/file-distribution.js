@@ -31,8 +31,9 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
  *   some file on specified Oneprovider
  * @property {number} logicalSize
  * @property {boolean} success
- * @property {Object} distributionPerStorage If success is True
- * @property {Object} perStorage if success is False 
+ * @property { Object } distributionPerStorage Present when success == true. 
+ * Contains map storageId -> StorageDistribution
+ * @property { Object } perStorage Present when success == false.
  */
 
 export default Model.extend(GraphSingleModelMixin, {

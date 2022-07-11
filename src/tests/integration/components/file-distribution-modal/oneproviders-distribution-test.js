@@ -55,7 +55,7 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
     getDistributionForOneprovider(oneprovider) {
       return this.get(`fileDistribution.${oneprovider.entityId}`);
     },
-    getStoragesForOneprovider(oneprovider) {
+    getStorageIdsForOneprovider(oneprovider) {
       if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
         return Object.keys(this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`));
       } else {
@@ -451,7 +451,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             getDistributionForOneprovider(oneprovider) {
               return this.get(`fileDistribution.${oneprovider.entityId}`);
             },
-            getStoragesForOneprovider(oneprovider) {
+            getStorageIdsForOneprovider(oneprovider) {
               if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
                 return Object.keys(this.get(
                   `fileDistribution.${oneprovider.entityId}.distributionPerStorage`));

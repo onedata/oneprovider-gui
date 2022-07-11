@@ -78,13 +78,13 @@ export default EmberObject.extend(
     fileType: reads('file.type'),
 
     /**
-     * File size. If file is a directory and statistics are turn off, then size is null.
+     * File size. If file is a directory and statistics are turned off, then size is null.
      * @type {Ember.ComputedProperty<number>}
      */
     fileSize: computed('fileDistribution', function fileSize() {
       const fileDistribution = this.get('fileDistribution');
       let fileSizeMax = 0;
-      for(const elem in fileDistribution) {
+      for (const elem in fileDistribution) {
         const logicalSize = get(fileDistribution[elem], 'logicalSize');
         if (logicalSize) {
           fileSizeMax = Math.max(fileSizeMax, logicalSize);
@@ -267,18 +267,16 @@ export default EmberObject.extend(
     },
 
     /**
-     * Returns list of storages for given Oneprovider
+     * Returns list of storage ids for given Oneprovider
      * @param {Models.Provider} oneprovider
      * @returns {Array<String>}
      */
-    getStoragesForOneprovider(oneprovider) {
+    getStorageIdsForOneprovider(oneprovider) {
       const {
         isFileDistributionLoaded,
-        fileDistribution,
-      } = this.getProperties('isFileDistributionLoaded', 'fileDistribution');
+      } = this.getProperties('isFileDistributionLoaded');
       if (isFileDistributionLoaded) {
-        const oneproviderEntityId = get(oneprovider, 'entityId');
-        const oneproviderData = get(fileDistribution, oneproviderEntityId);
+        const oneproviderData = this.getDistributionForOneprovider(oneprovider);
         if (get(oneproviderData, 'success')) {
           return Object.keys(get(oneproviderData, 'distributionPerStorage'));
         } else {
@@ -290,8 +288,7 @@ export default EmberObject.extend(
     },
 
     /**
-     * Returns distribution information
-     for given Storage on given Oneprovider
+     * Returns distribution information for given Storage on given Oneprovider
      * @param {Models.Provider} oneprovider
      * @param {String} storage
      * @returns {StorageDistribution|Number}

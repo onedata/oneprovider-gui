@@ -28,7 +28,7 @@ export default {
   },
   progressBarVisualizer: {
     na: 'n/a',
-    naTip: 'Directory size statistics are disabled',
+    naTip: 'Directory statistics are disabled',
   },
   oneprovidersDistribution: {
     file: 'file',
