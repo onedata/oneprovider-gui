@@ -1,9 +1,10 @@
 /**
- * Show basic information about file or directory
+ * Modal with detailed views about file or directory.
  *
- * @module components/file-browser/fb-info-modal
+ * Evolved from simple `file-browser/fb-info-modal` component.
+ *
  * @author Jakub Liput
- * @copyright (C) 2019-2021 ACK CYFRONET AGH
+ * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -22,7 +23,12 @@ import { next } from '@ember/runloop';
 import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlink-utils';
 import _ from 'lodash';
 
-export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
+const mixins = [
+  I18n,
+  createDataProxyMixin('fileHardlinks'),
+];
+
+export default Component.extend(...mixins, {
   i18n: service(),
   fileManager: service(),
   errorExtractor: service(),
@@ -33,7 +39,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.fbInfoModal',
+  i18nPrefix: 'components.fileInfoModal',
 
   /**
    * @virtual
@@ -286,6 +292,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   init() {
     this._super(...arguments);
     const initialTab = this.get('initialTab');
+    // FIXME: add custom tabs
     if (['general', 'hardlinks', 'size', 'apiSamples'].includes(initialTab)) {
       this.set('activeTab', initialTab);
     }

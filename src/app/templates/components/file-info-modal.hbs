@@ -1,6 +1,6 @@
 {{#one-modal
   class=(concat-classes
-    "fb-info-modal modal-content-overlay without-footer with-close-button"
+    "file-info-modal modal-content-overlay without-footer with-close-button"
     modalClass
   )
   open=open
@@ -10,22 +10,21 @@
   onHide=(action "close")
   as |modal|
 }}
-  {{#modal.header}}
+  {{#modal.header class="file-info-modal-header"}}
     <h1>{{tt this "header" type=typeTranslation}}</h1>
     {{modal-file-subheader files=(array file)}}
-  {{/modal.header}}
-  {{#modal.body}}
     {{#bs-tab
-      class="bs-tab-onedata bs-tab-modern"
+      class="bs-tab-onedata bs-tab-modern file-info-tabbar"
       activeId=activeTab
       customTabs=true
       as |tab|
     }}
       {{#bs-nav
         type="tabs"
-        class="nav-tabs-share-mode"
+        class="nav-tabs-file-info"
         as |nav|
       }}
+        {{!-- FIXME: ticket with refactor old tabs --}}
         {{#nav.item
           active=(eq tab.activeId "general")
         }}
@@ -104,8 +103,34 @@
             </a>
           {{/nav.item}}
         {{/if}}
+
+        {{#each visibleTabModels as |tabModel|}}
+          {{#nav.item
+            active=(eq tab.activeId tabModel.tabId)
+            as |navItem|
+          }}
+            <a
+              class={{concat-classes
+                "nav-link nav-link-general"
+                (if (eq tab.activeId tabModel.tabId) "active")
+              }}
+              role="tab"
+              {{action (mut activeTab tabModel.tabId)}}
+            >
+              {{#if tabModel.navComponent}}
+                {{component tabModel.navComponent
+                  model=tabModel.model
+                }}
+              {{else}}
+                {{tabModel.title}}
+              {{/if}}
+            </a>
+          {{/nav.item}}
+        {{/each}}
       {{/bs-nav}}
     {{/bs-tab}}
+  {{/modal.header}}
+  {{#modal.body class="file-info-modal-body"}}
     {{#if (eq activeTab "general")}}
       <table class="table table-info table-info-large table-info-collapsible">
         <tbody>
@@ -233,7 +258,7 @@
         {{/if}}
         <ul class="file-hardlinks-list">
           {{#each fileHardlinks.hardlinks as |fileHardlink|}}
-            {{file-browser/fb-info-modal/hardlink-entry
+            {{file-info-modal/hardlink-entry
               class="file-hardlink"
               file=fileHardlink.file
               fileUrl=fileHardlink.fileUrl
@@ -282,6 +307,8 @@
           apiSamples=apiSamples
         }}
       {{/promise-proxy-container}}
+    {{else}}
+      {{component activeTabModel.bodyComponent}}
     {{/if}}
   {{/modal.body}}
 {{/one-modal}}

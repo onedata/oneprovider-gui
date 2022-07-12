@@ -8,14 +8,14 @@ import {
   owner1,
   exampleCdmiObjectId,
 } from 'oneprovider-gui/components/dummy-file-info';
-import { lookupService } from '../../../helpers/stub-service';
+import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
-import OneTooltipHelper from '../../../helpers/one-tooltip';
+import OneTooltipHelper from '../../helpers/one-tooltip';
 import { selectChoose, clickTrigger } from 'ember-power-select/test-support/helpers';
 import { Promise } from 'rsvp';
-import { findByText } from '../../../helpers/find';
+import { findByText } from '../../helpers/find';
 
-describe('Integration | Component | file browser/fb info modal', function () {
+describe('Integration | Component | file info modal', function () {
   setupRenderingTest();
 
   const apiSamples = [{
@@ -434,7 +434,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 });
 
 async function renderComponent() {
-  await render(hbs `{{file-browser/fb-info-modal
+  await render(hbs `{{file-info-modal
     open=true
     file=file
     previewMode=previewMode

@@ -1,7 +1,6 @@
 /**
  * Renders single hardlink entry.
  *
- * @module components/file-browser/fb-info-modal/hardlink-entry
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -20,7 +19,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.fbInfoModal.hardlinkEntry',
+  i18nPrefix: 'components.fileInfoModal.hardlinkEntry',
 
   /**
    * @virtual

@@ -1,12 +1,18 @@
-.fb-info-modal {
+.file-info-modal {
   @media (min-width: $screen-md-min) {
     .modal-lg {
       width: 1000px;
     }
   }
 
-  .bs-tab-onedata {
-    padding-bottom: 36px;
+  .file-info-modal-header {
+    padding-bottom: 0;
+  }
+
+  .file-info-modal-body {
+    .bs-modal-body-scroll {
+      padding-top: $modal-title-padding;
+    }
   }
 
   .file-info-row-size .file-info-detail-size {
@@ -199,9 +205,5 @@
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 3px;
     border: 1px solid rgba(0, 0, 0, 0.03);
     border-radius: $border-radius-base;
-  }
-
-  .bs-tab-onedata {
-    padding-bottom: 2 * $padding-large-vertical;
   }
 }
