@@ -10,6 +10,7 @@ import _ from 'lodash';
 import Service from '@ember/service';
 import sinon from 'sinon';
 import { openFileContextMenu } from '../../helpers/item-browser';
+import { findByText } from '../../helpers/find';
 
 const ArchiveManager = Service.extend({
   createArchive() {},
@@ -181,6 +182,62 @@ describe('Integration | Component | archive browser', function () {
     expect(openArchivePropertiesModal).to.have.been.calledOnce;
     expect(openArchivePropertiesModal).to.have.been.calledWith(archive);
   });
+
+  it('has non-disabled "cancel archivization" action for archive item that invokes settings modal on click',
+    async function () {
+      const itemsCount = 1;
+      const mockArray = mockItems({
+        testCase: this,
+        itemsCount,
+      });
+      const archive = mockArray.array[0];
+      archive.set('state', 'building');
+      await archive.save();
+      const firstArchiveName = mockArray.array[0].name;
+      const openCancelModal = sinon.spy();
+      this.set('openCancelModal', openCancelModal);
+      this.set('spacePrivileges', {
+        viewArchives: true,
+        manageDatasets: true,
+        createArchives: true,
+      });
+
+      await renderComponent(this);
+
+      const actions = await openFileContextMenu({ name: firstArchiveName });
+      const actionLi = findByText('Cancel archivization', `#${actions.id} li`);
+      expect(actionLi, 'archive menu item').to.exist;
+      expect(actionLi).to.not.match('.disabled');
+      expect(actionLi).to.match(':last-of-type');
+      await click(actionLi.querySelector('a'));
+      expect(openCancelModal).to.have.been.calledOnce;
+      expect(openCancelModal).to.have.been.calledWith([archive]);
+    }
+  );
+
+  it('does not have "cancel archivization" action for created archive',
+    async function () {
+      const itemsCount = 1;
+      const mockArray = mockItems({
+        testCase: this,
+        itemsCount,
+      });
+      const firstArchiveName = mockArray.array[0].name;
+      const openCancelModal = sinon.spy();
+      this.set('openCancelModal', openCancelModal);
+      this.set('spacePrivileges', {
+        viewArchives: true,
+        manageDatasets: true,
+        createArchives: true,
+      });
+
+      await renderComponent(this);
+
+      const actions = await openFileContextMenu({ name: firstArchiveName });
+      const actionLi = findByText('Cancel archivization', `#${actions.id} li`);
+      expect(actionLi, 'archive menu item').to.not.exist;
+    }
+  );
 });
 
 async function renderComponent(testCase) {
@@ -189,11 +246,13 @@ async function renderComponent(testCase) {
     openCreateArchiveModal,
     openRecallModal,
     openArchivePropertiesModal,
+    openCancelModal,
   } = testCase.getProperties(
     'refreshInterval',
     'openCreateArchiveModal',
     'openRecallModal',
     'openArchivePropertiesModal',
+    'openCancelModal',
   );
   const defaultDataset = {
     name: 'Default dataset',
@@ -226,6 +285,8 @@ async function renderComponent(testCase) {
       notStubbed('openRecallModal'),
     openArchivePropertiesModal: openArchivePropertiesModal ||
       notStubbed('openArchivePropertiesModal'),
+    openCancelModal: openCancelModal ||
+      notStubbed('openCancelModal'),
   }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   await render(hbs `<div id="content-scroll">{{file-browser

@@ -133,9 +133,11 @@ export default Model.extend(GraphSingleModelMixin, {
       case 'pending':
       case 'building':
       case 'verifying':
+      case 'cancelling':
         return 'creating';
       case 'preserved':
         return 'succeeded';
+      case 'cancelled':
       case 'verification_failed':
       case 'failed':
         return 'failed';

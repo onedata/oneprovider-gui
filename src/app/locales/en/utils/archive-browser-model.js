@@ -7,6 +7,7 @@ export default _.merge({}, BaseBrowserModel, {
   startingDownload: 'starting archive download',
   archiveList: 'Archives list',
   alreadyDeleting: 'Not available for archives that are being deleted.',
+  alreadyCancelling: 'Not available for archives that are being cancelled.',
   notAvailableForCreating: 'Not available for archives that are not built yet.',
   notAvailableForDetached: 'Not available in detached dataset.',
   fileActions: {
@@ -21,6 +22,7 @@ export default _.merge({}, BaseBrowserModel, {
       multi: 'Delete archives',
       single: 'Delete archive',
     },
+    cancel: 'Cancel archivization',
     browseDip: 'Browse DIP',
   },
   archiveId: 'archive ID',

@@ -37,6 +37,7 @@ const allButtonNames = Object.freeze([
   'btnDownloadTar',
   'btnBrowseDip',
   'btnDelete',
+  'btnCancel',
 ]);
 
 export default BaseBrowserModel.extend(DownloadInBrowser, {
@@ -91,6 +92,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {(archives: Array<Utils.BrowsableArchive>) => any}
    */
   openDeleteModal: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {(archives: Array<Utils.BrowsableArchive>) => any}
+   */
+  openCancelModal: notImplementedThrow,
 
   /**
    * @virtual
@@ -184,13 +191,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  buttonNames: computed('attachmentState', function buttonNames() {
-    if (this.get('attachmentState') === 'detached') {
-      return _.without(allButtonNames, 'btnCreateArchive');
-    } else {
-      return [...allButtonNames];
+  buttonNames: computed(
+    'attachmentState',
+    'isEverySelectedCreating',
+    function buttonNames() {
+      const {
+        attachmentState,
+        isEverySelectedCreating,
+      } = this.getProperties(
+        'attachmentState',
+        'isEverySelectedCreating',
+      );
+      let visibleButtons = [...allButtonNames];
+      if (attachmentState === 'detached') {
+        visibleButtons = _.without(visibleButtons, 'btnCreateArchive');
+      }
+      if (!isEverySelectedCreating) {
+        visibleButtons = _.without(visibleButtons, 'btnCancel');
+      }
+      return visibleButtons;
     }
-  }),
+  ),
 
   /**
    * @type {Looper}
@@ -206,6 +227,24 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {ComputedProperty<Boolean>}
    */
   isAnySelectedCreating: array.isAny(
+    'selectedItems',
+    raw('metaState'),
+    raw('creating')
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isAnySelectedCancelling: array.isAny(
+    'selectedItems',
+    raw('state'),
+    raw('cancelling')
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isEverySelectedCreating: array.isEvery(
     'selectedItems',
     raw('metaState'),
     raw('creating')
@@ -488,6 +527,44 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         disabled: Boolean(disabledTip),
         action: (archives) => {
           return this.openDeleteModal(archives);
+        },
+        showIn: [
+          ...anySelectedContexts,
+        ],
+      });
+    }
+  ),
+
+  btnCancel: computed(
+    function btnCancel() {
+      const {
+        i18n,
+        spacePrivileges,
+        isAnySelectedCancelling,
+      } = this.getProperties(
+        'i18n',
+        'spacePrivileges',
+        'isAnySelectedCancelling',
+      );
+      let disabledTip;
+      const hasPrivileges = spacePrivileges.createArchives;
+      if (isAnySelectedCancelling) {
+        disabledTip = this.t('alreadyCancelling');
+      } else if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_create_archives'],
+        });
+      }
+      return this.createFileAction({
+        id: 'delete',
+        icon: 'cancelled',
+        title: this.t('fileActions.cancel'),
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
+        action: (archives) => {
+          return this.openCancelModal(archives);
         },
         showIn: [
           ...anySelectedContexts,
