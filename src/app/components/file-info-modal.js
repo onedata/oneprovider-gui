@@ -330,6 +330,7 @@ export default Component.extend(...mixins, {
   tabModelFactory: computed(function tabModelFactory() {
     return TabModelFactory.create({
       fileInfoModal: this,
+      ownerSource: this,
     });
   }),
 

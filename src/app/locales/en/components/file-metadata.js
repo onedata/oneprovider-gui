@@ -18,14 +18,18 @@ export default {
       saved: '{{typeCapitalized}} metadata is present and saved.',
       validating: '{{typeCapitalized}} metadata validation in progress...',
     },
+    unsavedChanges: 'Unsaved changes',
+    updatingMetadata: 'updating metadata',
+    updatingXattrs: 'updating xattrs',
+  },
+  footer: {
     disabledReason: {
       validating: 'Metadata validation in progress...',
       noChanges: 'No unsaved changes',
       someInvalid: 'Entered metadata is invalid – please correct',
     },
-    unsavedChanges: 'Unsaved changes',
-    updatingMetadata: 'updating metadata',
-    updatingXattrs: 'updating xattrs',
+    save: 'Save',
+    discard: 'Discard',
   },
   rdf: {
     invalidXml: 'XML is not valid',

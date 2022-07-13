@@ -15,13 +15,21 @@
         <a href={{concat "#" type}}
           class={{concat "nav-link nav-link-metadata-type nav-link-" type}}
           role="tab"
-          {{action (mut activeTab) type}}
+          {{action "changeTab" type}}
         >
-          <span class={{concat "tab-name tab-state tab-state-" (get tabStateClassTypes (get this (concat type "TabState")))}}>
+          <span class={{concat-classes
+            "tab-name"
+            "tab-state"
+            (concat
+              "tab-state-"
+              (get tabStateClassTypes (get this (concat "viewModel." type "TabState")))
+            )
+          }}>
             {{capitalize (tt this (concat "types." type))}}
           </span>
+          {{!-- FIXME: fix line length or use let helper to remove redundancy --}}
           {{one-tooltip
-            title=(tt this (concat "tabStateHint." (get this (concat type "TabState")))
+            title=(tt this (concat "tabStateHint." (get this (concat "viewModel." type "TabState")))
               type=(tt this (concat "types." type))
               typeCapitalized=(capitalize (tt this (concat "types." type)))
             )
@@ -35,8 +43,13 @@
     {{#each metadataTypes as |type|}}
       {{#bsTab.pane elementId=type class="full-height"}}
         {{#render-later triggerRender=(eq bsTab.activeId type)}}
-          {{#promise-proxy-container proxy=(get this (concat type "OriginalProxy"))}}
-            {{#if (and effectiveReadonly (eq (get this (concat type "TabState")) "blank"))}}
+          {{#promise-proxy-container
+            proxy=(get this (concat "viewModel." type "OriginalProxy"))
+          }}
+            {{#if (and
+              effectiveReadonly
+              (eq (get this (concat "viewModel." type "TabState")) "blank")
+            )}}
               <em>
                 {{tt this "tabStateHint.blank" type=(tt this (concat "types." type))}}
               </em>
@@ -45,9 +58,9 @@
                 (concat "file-metadata/" type)
                 class="full-height"
                 isActive=(eq bsTab.activeId type)
-                metadata=(get this (concat type "Current"))
+                metadata=(get this (concat "viewModel." type "Current"))
                 metadataChanged=(action "metadataChanged" type)
-                isValid=(get this (concat type "IsValid"))
+                isValid=(get this (concat "viewModel." type "IsValid"))
                 readonly=effectiveReadonly
               }}
             {{/if}}
