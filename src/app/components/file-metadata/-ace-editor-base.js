@@ -1,20 +1,19 @@
 /**
  * Base functionality for integrating ACE editor in metadata tab components
  *
- * @module components/file-browser/-fb-metadata-ace-editor-base
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { emptyValue } from 'oneprovider-gui/components/file-browser/fb-metadata-modal';
+import { emptyValue } from 'oneprovider-gui/utils/file-metadata-view-model';
 import { conditional, eq, raw } from 'ember-awesome-macros';
 import { computed, observer } from '@ember/object';
 import $ from 'jquery';
 
 export default Component.extend({
-  classNames: ['fb-metadata-ace-editor-base'],
+  classNames: ['file-metadata-ace-editor-base'],
 
   metadataForEditor: conditional(
     eq('metadata', raw(emptyValue)),

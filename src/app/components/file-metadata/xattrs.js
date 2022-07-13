@@ -1,7 +1,6 @@
 /**
  * Content for Xattrs (aka Basic) metadata tab in file metadata modal: key-value editor
  *
- * @module components/file-browser/fb-metadata-xattrs
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -11,7 +10,7 @@ import Component from '@ember/component';
 import config from 'ember-get-config';
 import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { emptyValue } from 'oneprovider-gui/components/file-browser/fb-metadata-modal';
+import { emptyValue } from 'oneprovider-gui/utils/file-metadata-view-model';
 import { conditional, eq, raw } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
 
@@ -23,12 +22,12 @@ const invalidKeyRegex = /(onedata|cdmi)_.*/;
 
 export default Component.extend(I18n, {
   layoutConfig,
-  classNames: ['fb-metadata-xattrs'],
+  classNames: ['file-metadata-xattrs'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.fbMetadataXattrs',
+  i18nPrefix: 'components.fileMetadata.xattrs',
 
   /**
    * @virtual

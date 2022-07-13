@@ -1,12 +1,11 @@
-.fb-metadata-modal {
+.file-metadata-body {
+  &.full-height {
+    @include fill-flex-using-column;
+  }
   .bs-tab {
     $nav-tabs-height: 44px;
     .nav-tabs {
       height: $nav-tabs-height;
-    }
-    &.full-height {
-      // because of a strange bug with perfect scroll
-      height: calc(100% - 2px);
     }
     .tab-content-metadata {
       height: calc(100% - #{$nav-tabs-height});
@@ -16,6 +15,12 @@
     .ember-ace.full-height {
       // make some space for one-line error message
       height: calc(100% - 1em);
+    }
+  }
+  .file-metadata-xattrs {
+    .xattrs-params-editor {
+      // 1.2em - qos params editor remove icon width
+      width: calc(100% - #{$padding-small-horizontal} - 1.2em);
     }
   }
 }

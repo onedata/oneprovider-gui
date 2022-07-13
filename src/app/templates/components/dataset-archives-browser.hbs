@@ -34,16 +34,6 @@
   }}
 {{/if}}
 
-{{#if fileToShowMetadata}}
-  {{file-browser/fb-metadata-modal
-    open=true
-    file=fileToShowMetadata
-    previewMode=true
-    fileModelScope="private"
-    onHide=(action closeMetadataModal)
-  }}
-{{/if}}
-
 {{#if filesToEditPermissions}}
   {{edit-permissions-modal
     readonly=true

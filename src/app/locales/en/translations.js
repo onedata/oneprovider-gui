@@ -40,6 +40,7 @@ import archiveContentCount from './components/archive-content-count';
 import archiveState from './components/archive-state';
 import archivePropertiesModal from './components/archive-properties-modal';
 import fileInfoModal from './components/file-info-modal';
+import fileMetadata from './components/file-metadata';
 
 import uploadManager from './services/upload-manager';
 
@@ -98,6 +99,7 @@ const translations = {
     archiveState,
     archivePropertiesModal,
     fileInfoModal,
+    fileMetadata,
   },
   services: {
     uploadManager,

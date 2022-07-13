@@ -36,15 +36,6 @@
     }}
   {{/if}}
 
-  {{#if fileToShowMetadata}}
-    {{file-browser/fb-metadata-modal
-      open=true
-      file=fileToShowMetadata
-      previewMode=true
-      onHide=(action closeMetadataModal)
-    }}
-  {{/if}}
-
   {{file-browser/fb-download-modal
     file=fileForConfirmDownload
     confirmDownload=(action confirmFileDownload)

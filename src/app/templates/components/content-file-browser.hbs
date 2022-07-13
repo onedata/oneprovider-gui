@@ -96,14 +96,6 @@
     }}
   {{/if}}
 
-  {{#if fileToShowMetadata}}
-    {{file-browser/fb-metadata-modal
-      open=true
-      file=fileToShowMetadata
-      onHide=(action closeMetadataModal)
-    }}
-  {{/if}}
-
   {{#if filesToShowDatasets}}
     {{datasets-modal
       open=true

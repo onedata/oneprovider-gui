@@ -29,8 +29,10 @@ export default EmberObject.extend({
 
   createMetadataTabModel() {
     const fileMetadataViewModel = FileMetadataViewModel.extend({
-      file: reads('ownerSource.fileInfoModal.file'),
-    }).create();
+      file: reads('fileInfoModal.file'),
+    }).create({
+      fileInfoModal: this.fileInfoModal,
+    });
     return MetadataTabModel.extend({
       viewModel: fileMetadataViewModel,
     }).create({
