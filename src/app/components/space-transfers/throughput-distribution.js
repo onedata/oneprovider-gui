@@ -939,16 +939,17 @@ export default Component.extend(
      * It positions descriptions for halves of the chart
      */
     _positionHalvesDescriptions() {
-      const verticalGrid = this.$('.ct-grid.ct-vertical');
+      const $element = $(this.get('element'));
+      const verticalGrid = $element.find('.ct-grid.ct-vertical');
       const highestLineY = parseFloat(verticalGrid.last().attr('y1'));
       const lowestLineY = parseFloat(verticalGrid.first().attr('y1'));
       const midLineY = (highestLineY + lowestLineY) / 2;
       const halfDescriptionWidth = lowestLineY - midLineY;
-      this.$('.output-half').css({
+      $element.find('.output-half').css({
         top: ((lowestLineY + midLineY) / 2) + 'px',
         width: halfDescriptionWidth + 'px',
       }).show();
-      this.$('.input-half').css({
+      $element.find('.input-half').css({
         top: ((highestLineY + midLineY) / 2) + 'px',
         width: halfDescriptionWidth + 'px',
       }).show();
@@ -958,7 +959,7 @@ export default Component.extend(
      * Makes X0 axis bold
      */
     _boldX0Axis() {
-      const verticalGrid = this.$('.ct-grid.ct-vertical');
+      const verticalGrid = $(this.get('element')).find('.ct-grid.ct-vertical');
       $(verticalGrid.get(Math.floor(verticalGrid.length / 2))).addClass(
         'x-axis-line');
     },

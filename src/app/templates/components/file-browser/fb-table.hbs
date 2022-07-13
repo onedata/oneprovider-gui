@@ -38,7 +38,7 @@
         file=file
         browserModel=browserModel
         previewMode=previewMode
-        dirSizeStatsConfig=dirSizeStatsConfig
+        dirStatsServiceState=dirStatsServiceState
         noItemsActions=noItemsActions
         isSpaceOwned=isSpaceOwned
         spacePrivileges=spacePrivileges
@@ -108,7 +108,7 @@
     placement="horizontal"
     as |popover|
   }}
-    {{#click-outside action=(action "toggleFileActions" false)}}
+    {{#click-outside onClickOutside=(action "toggleFileActions" false)}}
       {{#popover-content-limit
         opened=(and popover.visible contextMenuRepositionTime)
       }}

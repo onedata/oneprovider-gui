@@ -53,7 +53,7 @@
     fileClipboardFiles=fileClipboardFiles
     customFetchDirChildren=customFetchDirChildren
     previewMode=previewMode
-    dirSizeStatsConfig=dirSizeStatsConfig
+    dirStatsServiceState=dirStatsServiceState
     isSpaceOwned=isSpaceOwned
     spacePrivileges=spacePrivileges
     loadingIconFileIds=loadingIconFileIds
@@ -78,7 +78,7 @@
   open=(and currentDirActionsOpen showCurrentDirActions)
   as |popover|
 }}
-  {{#click-outside action=(action "toggleCurrentDirActions" false)}}
+  {{#click-outside onClickOutside=(action "toggleCurrentDirActions" false)}}
     {{#popover-content-limit opened=popover.visible}}
       {{actions-popover-content
         actionsArray=currentDirMenuButtons

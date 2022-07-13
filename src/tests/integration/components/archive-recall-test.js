@@ -1,14 +1,13 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, find, findAll, click, fillIn } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { createFile, mockRootFiles } from '../../helpers/files';
 import { lookupService } from '../../helpers/stub-service';
 import {
   getFileRow,
 } from '../../helpers/item-browser';
-import { click, fillIn } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import gri from 'onedata-gui-websocket-client/utils/gri';
@@ -16,9 +15,7 @@ import { get } from '@ember/object';
 import { generateDirEntityId } from 'oneprovider-gui/services/mock-backend';
 
 describe('Integration | Component | archive recall (internal)', function () {
-  setupComponentTest('archive-recall', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     this.setProperties({
@@ -125,9 +122,9 @@ describe('Integration | Component | archive recall (internal)', function () {
     });
     stubDefaultCheckFileNameExists(this);
 
-    await render(this);
+    await renderComponent();
 
-    expect(this.$('.fb-table-row')).to.have.length(filesCount);
+    expect(findAll('.fb-table-row')).to.have.length(filesCount);
   });
 
   it('invokes recallArchive with selected directory id and target name', async function () {
@@ -147,14 +144,14 @@ describe('Integration | Component | archive recall (internal)', function () {
     const recallArchiveSpy = sinon.spy(archiveManager, 'recallArchive');
     stubDefaultCheckFileNameExists(this);
 
-    await render(this);
+    await renderComponent();
 
-    const row = getFileRow(dir1)[0];
+    const row = getFileRow(dir1);
     await click(row);
     await fillIn('.target-name-input', 'expected_target_name');
-    expect(this.$('.file-selected')).to.have.length(1);
-    expect(this.$('.target-name-input').val()).to.contain('expected_target_name');
-    expect(this.$('.submit-btn')).to.not.have.attr('disabled');
+    expect(findAll('.file-selected')).to.have.length(1);
+    expect(find('.target-name-input').value).to.contain('expected_target_name');
+    expect(find('.submit-btn')).to.not.have.attr('disabled');
     await click('.submit-btn');
     expect(recallArchiveSpy).to.have.been.calledOnce;
     expect(recallArchiveSpy).to.have.been.calledWith(
@@ -168,29 +165,28 @@ describe('Integration | Component | archive recall (internal)', function () {
     async function () {
       prepareAlreadyExistEnv(this);
 
-      await render(this);
+      await renderComponent();
 
-      const $this = this.$();
-      const $submitBtn = this.$('.submit-btn');
-      const $targetNameFormGroup = this.$('.target-name-form');
+      const submitBtn = find('.submit-btn');
+      const targetNameFormGroup = find('.target-name-form');
 
       // right after render - file with initial name does not exist
-      expect($targetNameFormGroup).to.not.have.class('has-error');
-      expect($submitBtn).to.not.have.attr('disabled');
-      expect($this.text()).to.not.contain(this.expectedMessage);
+      expect(targetNameFormGroup).to.not.have.class('has-error');
+      expect(submitBtn).to.not.have.attr('disabled');
+      expect(this.element).to.not.contain.text(this.expectedMessage);
 
       // change name to existing - show validation error
       await fillIn('.target-name-input', this.existingName);
 
-      expect($targetNameFormGroup).to.have.class('has-error');
-      expect($submitBtn).to.have.attr('disabled');
-      expect($this.text()).to.contain(this.expectedMessage);
+      expect(targetNameFormGroup).to.have.class('has-error');
+      expect(submitBtn).to.have.attr('disabled');
+      expect(this.element).to.contain.text(this.expectedMessage);
     }
   );
 });
 
-async function render(testCase) {
-  testCase.render(hbs `
+async function renderComponent() {
+  await render(hbs `
     {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
       {{archive-recall
         modal=modal
@@ -203,7 +199,6 @@ async function render(testCase) {
       }}
     {{/one-pseudo-modal}}
   `);
-  await wait();
 }
 
 function stubDefaultCheckFileNameExists(testCase) {

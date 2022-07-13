@@ -1,25 +1,14 @@
-// Execution of this test suite is postponed, hence "postponed-" prefix to move
-// it down in the order of tests execution. When it was executed at the beginning,
-// it caused random failures due to the execution timeout.
-// Probably acl-editor component uses a very specific combination of utils
-// and subcomponents, which causes many loading-related computations. When
-// postponed, then some of the things used by acl-editor are already loaded and
-// tests are not so much biased by the loading time.
-
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
-import { click } from 'ember-native-dom-helpers';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, find, findAll, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { resolve } from 'rsvp';
-import EmberPowerSelectHelper from '../../helpers/ember-power-select-helper';
-import $ from 'jquery';
+import { selectChoose } from 'ember-power-select/test-support/helpers';
 import sinon from 'sinon';
 
 describe('Integration | Component | acl editor', function () {
-  setupComponentTest('acl-editor', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     const users = [{
@@ -68,9 +57,9 @@ describe('Integration | Component | acl editor', function () {
     });
   });
 
-  it('renders empty ACL', function () {
+  it('renders empty ACL', async function () {
     this.set('acl', []);
-    this.render(hbs `
+    await render(hbs `
       {{acl-editor
         context="file"
         users=users
@@ -79,12 +68,12 @@ describe('Integration | Component | acl editor', function () {
         acl=acl}}
     `);
 
-    expect(this.$('.ace')).to.not.exist;
-    expect(this.$('.no-ace')).to.exist;
+    expect(find('.ace')).to.not.exist;
+    expect(find('.no-ace')).to.exist;
   });
 
-  it('renders passed ACL', function () {
-    this.render(hbs `
+  it('renders passed ACL', async function () {
+    await render(hbs `
       {{acl-editor
         context="file"
         users=users
@@ -111,12 +100,12 @@ describe('Integration | Component | acl editor', function () {
       testPromise = testPromise.then(() =>
         click(selectorPrefix + '.one-collapsible-list-item-header')
       ).then(() => {
-        expect(this.$(selectorPrefix + '.subject-name')).to.contain(name);
+        expect(find(selectorPrefix + '.subject-name')).to.contain.text(name);
         selected.forEach(toggleField => {
-          expect(this.$(selectorPrefix + '.' + toggleField))
+          expect(find(selectorPrefix + '.' + toggleField))
             .to.have.class('checked');
         });
-        expect(this.$(selectorPrefix +
+        expect(findAll(selectorPrefix +
             '.has-checkbox-group .one-tree .one-way-toggle.checked'))
           .to.have.length(selected.length);
       });
@@ -125,12 +114,12 @@ describe('Integration | Component | acl editor', function () {
     return testPromise;
   });
 
-  it('adds new ACE', function () {
+  it('adds new ACE', async function () {
     const changeSpy = sinon.spy();
-    this.on('change', changeSpy);
-    this.render(hbs `
+    this.set('change', changeSpy);
+    await render(hbs `
       {{acl-editor
-        onChange=(action "change")
+        onChange=(action change)
         context="file"
         users=users
         groups=groups
@@ -148,21 +137,18 @@ describe('Integration | Component | acl editor', function () {
       subjectType: 'user',
     }];
 
-    const addAceDropdown =
-      new EmberPowerSelectHelper('.add-user-group-ace', '.add-user-group-ace-dropdown');
-    return addAceDropdown.selectOption(4).then(() => {
-      expect(this.$('.ace')).to.have.length(3);
-      expect(this.$('.ace:nth-child(3) .subject-name')).to.contain('User 2');
-      expect(changeSpy).to.be.calledWith(targetAcl);
-    });
+    await selectChoose('.add-user-group-ace', 'User 2');
+    expect(findAll('.ace')).to.have.length(3);
+    expect(find('.ace:nth-child(3) .subject-name')).to.contain.text('User 2');
+    expect(changeSpy).to.be.calledWith(targetAcl);
   });
 
-  it('removes ACE', function () {
+  it('removes ACE', async function () {
     const changeSpy = sinon.spy();
-    this.on('change', changeSpy);
-    this.render(hbs `
+    this.set('change', changeSpy);
+    await render(hbs `
       {{acl-editor
-        onChange=(action "change")
+        onChange=(action change)
         context="file"
         users=users
         groups=groups
@@ -174,19 +160,19 @@ describe('Integration | Component | acl editor', function () {
     const targetAcl = [acl[1]];
 
     return click('.one-collapsible-list-item:first-child .btn-menu-toggle')
-      .then(() => click($('body .webui-popover .remove-action')[0]))
+      .then(() => click(document.querySelector('.webui-popover .remove-action')))
       .then(() => {
-        expect(this.$('.ace')).to.have.length(1);
+        expect(findAll('.ace')).to.have.length(1);
         expect(changeSpy).to.be.calledWith(targetAcl);
       });
   });
 
-  it('moves ACE up', function () {
+  it('moves ACE up', async function () {
     const changeSpy = sinon.spy();
-    this.on('change', changeSpy);
-    this.render(hbs `
+    this.set('change', changeSpy);
+    await render(hbs `
       {{acl-editor
-        onChange=(action "change")
+        onChange=(action change)
         context="file"
         users=users
         groups=groups
@@ -198,19 +184,19 @@ describe('Integration | Component | acl editor', function () {
     const targetAcl = [acl[1], acl[0]];
 
     return click('.one-collapsible-list-item:nth-child(2) .btn-menu-toggle')
-      .then(() => click($('body .webui-popover .move-up-action')[0]))
+      .then(() => click(document.querySelector('.webui-popover .move-up-action')))
       .then(() => {
-        expect(this.$('.ace:first-child .subject-name')).to.contain('Group 1');
+        expect(find('.ace:first-child .subject-name')).to.contain.text('Group 1');
         expect(changeSpy).to.be.calledWith(targetAcl);
       });
   });
 
-  it('moves ACE down', function () {
+  it('moves ACE down', async function () {
     const changeSpy = sinon.spy();
-    this.on('change', changeSpy);
-    this.render(hbs `
+    this.set('change', changeSpy);
+    await render(hbs `
       {{acl-editor
-        onChange=(action "change")
+        onChange=(action change)
         context="file"
         users=users
         groups=groups
@@ -222,19 +208,19 @@ describe('Integration | Component | acl editor', function () {
     const targetAcl = [acl[1], acl[0]];
 
     return click('.one-collapsible-list-item:first-child .btn-menu-toggle')
-      .then(() => click($('body .webui-popover .move-down-action')[0]))
+      .then(() => click(document.querySelector('.webui-popover .move-down-action')))
       .then(() => {
-        expect(this.$('.ace:nth-child(2) .subject-name')).to.contain('User 1');
+        expect(find('.ace:nth-child(2) .subject-name')).to.contain.text('User 1');
         expect(changeSpy).to.be.calledWith(targetAcl);
       });
   });
 
-  it('changes ACE type', function () {
+  it('changes ACE type', async function () {
     const changeSpy = sinon.spy();
-    this.on('change', changeSpy);
-    this.render(hbs `
+    this.set('change', changeSpy);
+    await render(hbs `
       {{acl-editor
-        onChange=(action "change")
+        onChange=(action change)
         context="file"
         users=users
         groups=groups
@@ -251,12 +237,12 @@ describe('Integration | Component | acl editor', function () {
       .then(() => expect(changeSpy).to.be.calledWith(targetAcl));
   });
 
-  it('adds permission restriction', function () {
+  it('adds permission restriction', async function () {
     const changeSpy = sinon.spy();
-    this.on('change', changeSpy);
-    this.render(hbs `
+    this.set('change', changeSpy);
+    await render(hbs `
       {{acl-editor
-        onChange=(action "change")
+        onChange=(action change)
         context="file"
         users=users
         groups=groups
@@ -273,12 +259,12 @@ describe('Integration | Component | acl editor', function () {
       .then(() => expect(changeSpy).to.be.calledWith(targetAcl));
   });
 
-  it('removes permission restriction', function () {
+  it('removes permission restriction', async function () {
     const changeSpy = sinon.spy();
-    this.on('change', changeSpy);
-    this.render(hbs `
+    this.set('change', changeSpy);
+    await render(hbs `
       {{acl-editor
-        onChange=(action "change")
+        onChange=(action change)
         context="file"
         users=users
         groups=groups

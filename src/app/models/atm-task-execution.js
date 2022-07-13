@@ -13,7 +13,7 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 
 export const entityType = 'op_atm_task_execution';
 export const aspects = {
-  openfaasFunctionActivityRegistry: 'openfaas_function_activity_registry',
+  openfaasFunctionPodStatusRegistry: 'openfaas_function_pod_status_registry',
   openfaasFunctionPodEventLog: 'openfaas_function_pod_event_log',
 };
 

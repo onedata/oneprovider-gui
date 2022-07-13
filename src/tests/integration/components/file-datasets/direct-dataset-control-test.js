@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, click, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 import { lookupService } from '../../../helpers/stub-service';
@@ -8,13 +9,10 @@ import { findByText } from '../../../helpers/find';
 import { run } from '@ember/runloop';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
-import { click, find } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
 
 describe('Integration | Component | file datasets/direct dataset control', function () {
-  setupComponentTest('file-datasets/direct-dataset-control', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(async function () {
     this.helper = new DirectDatsetControlHelper(this);
@@ -162,7 +160,7 @@ class DirectDatsetControlHelper {
   }
   async renderComponent() {
     await this.testCase.get('directDatasetProxy');
-    this.testCase.render(hbs `
+    await render(hbs `
       {{file-datasets/direct-dataset-control
         file=file
         directDatasetProxy=directDatasetProxy

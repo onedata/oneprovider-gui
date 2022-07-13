@@ -236,8 +236,9 @@ export default Component.extend(I18n, {
       const {
         _window,
         rowHeight,
-      } = this.getProperties('_window', 'rowHeight');
-      const $firstRow = this.$('.first-row');
+        element,
+      } = this.getProperties('_window', 'rowHeight', 'element');
+      const $firstRow = $(element).find('.first-row');
       const firstRowTop = $firstRow.offset().top;
       const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + _window.innerHeight;

@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
-import { find } from 'ember-native-dom-helpers';
 import {
   getBrowsableArchiveName,
   createArchive,
@@ -11,10 +10,8 @@ import {
 } from '../../helpers/datasets-archives';
 import { run } from '@ember/runloop';
 
-describe('Integration | Component | archive settings', function () {
-  setupComponentTest('archive-properties', {
-    integration: true,
-  });
+describe('Integration | Component | archive properties', function () {
+  setupRenderingTest();
 
   beforeEach(async function () {
     await run(() => createDataset(this));
@@ -88,7 +85,7 @@ async function renderComponent(testCase) {
       viewArchives: true,
     });
   }
-  testCase.render(hbs `
+  await render(hbs `
     {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
       {{archive-properties
         browsableArchive=browsableArchive
@@ -99,7 +96,6 @@ async function renderComponent(testCase) {
       }}
     {{/one-pseudo-modal}}
   `);
-  await wait();
 }
 
 function whenInEditMode(testCase) {

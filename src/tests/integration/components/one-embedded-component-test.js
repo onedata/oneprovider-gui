@@ -1,19 +1,17 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, find, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { next } from '@ember/runloop';
-import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../helpers/stub-service';
 import { set } from '@ember/object';
 
 describe('Integration | Component | one embedded component', function () {
-  setupComponentTest('one-embedded-component', {
-    integration: true,
-  });
+  setupRenderingTest();
 
-  it('exposes updated injected properties', function () {
+  it('exposes updated injected properties', async function () {
     const callParent = sinon.spy();
     const appProxyService = lookupService(this, 'app-proxy');
     const _window = {
@@ -31,7 +29,7 @@ describe('Integration | Component | one embedded component', function () {
     set(appProxyService, '_window', _window);
 
     this.set('_window', _window);
-    this.render(hbs `{{#one-embedded-component
+    await render(hbs `{{#one-embedded-component
       _window=_window
       iframeInjectedProperties=(array "iprop")
       as |component|
@@ -43,9 +41,8 @@ describe('Integration | Component | one embedded component', function () {
       _window.frameElement.appProxy.data.iprop = 'world';
       _window.frameElement.appProxy.propertyChanged('iprop');
     });
-    expect(this.$('#iprop-val')).to.contain('hello');
-    return wait().then(() => {
-      expect(this.$('#iprop-val')).to.contain('world');
-    });
+    expect(find('#iprop-val')).to.contain.text('hello');
+    await settled();
+    expect(find('#iprop-val')).to.contain.text('world');
   });
 });

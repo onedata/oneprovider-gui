@@ -179,14 +179,14 @@ export default OneEmbeddedComponent.extend(
       return spaceManager.getSpace(spaceEntityId);
     })),
 
-    dirSizeStatsConfigProxy: promise.object(computed(
+    dirStatsServiceStateProxy: promise.object(computed(
       'spaceEntityId',
-      function dirSizeStatsConfigProxy() {
+      function dirStatsServiceStateProxy() {
         const {
           spaceManager,
           spaceEntityId,
         } = this.getProperties('spaceManager', 'spaceEntityId');
-        return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
+        return spaceManager.fetchDirStatsServiceState(spaceEntityId);
       }
     )),
 
@@ -208,7 +208,7 @@ export default OneEmbeddedComponent.extend(
       'initialSelectedItemsForJumpProxy',
       'initialDirProxy',
       'bagitUploaderLoaderProxy',
-      'dirSizeStatsConfigProxy'
+      'dirStatsServiceStateProxy'
     )),
 
     selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
@@ -293,7 +293,7 @@ export default OneEmbeddedComponent.extend(
     },
 
     getItemById(itemId) {
-      return this.get('fileManager').getFileById(itemId, 'private');
+      return this.get('fileManager').getFileById(itemId, { scope: 'private' });
     },
 
     createBrowserModel() {

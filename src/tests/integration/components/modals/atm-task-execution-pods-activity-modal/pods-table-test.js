@@ -1,82 +1,80 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, find, findAll, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
-import { click } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
 
 describe('Integration | Component | modals/atm task execution pods activity modal/pods table', function () {
-  setupComponentTest('modals/atm-task-execution-pods-activity-modal/pods-table', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   it('has class "pods-table"', async function () {
-    await render(this);
+    await renderComponent();
 
-    expect(this.$().children()).to.have.class('pods-table').and.to.have.length(1);
+    expect(this.element.children).to.have.length(1);
+    expect(this.element.children[0]).to.have.class('pods-table');
   });
 
   it('shows header and pods with filter set to "current" on init', async function () {
-    this.set('activityRegistry', generateActivityRegistry());
-    await render(this);
+    this.set('statusRegistry', generateStatusRegistry());
+    await renderComponent();
 
-    expect(this.$('.pods-table-header-row')).to.exist;
-    expect(this.$('.filter-current')).to.have.class('active');
-    const $podRows = this.$('.pods-table-pod-row');
-    expect($podRows).to.have.length(2);
-    expect($podRows.eq(0).text()).to.contain('pod3').and.to.contain('Running');
-    expect($podRows.eq(1).text()).to.contain('pod2').and.to.contain('Pending');
+    expect(find('.pods-table-header-row')).to.exist;
+    expect(find('.filter-current')).to.have.class('active');
+    const podRows = findAll('.pods-table-pod-row');
+    expect(podRows).to.have.length(2);
+    expect(podRows[0]).to.contain.text('pod3').and.to.contain.text('Running');
+    expect(podRows[1]).to.contain.text('pod2').and.to.contain.text('Pending');
   });
 
   it('allows changing pods filter to "all"', async function () {
-    this.set('activityRegistry', generateActivityRegistry());
-    await render(this);
+    this.set('statusRegistry', generateStatusRegistry());
+    await renderComponent();
 
     await click('.filter-all');
 
-    expect(this.$('.filter-all')).to.have.class('active');
-    const $podRows = this.$('.pods-table-pod-row');
-    expect($podRows).to.have.length(3);
-    expect($podRows.eq(0).text()).to.contain('pod3');
-    expect($podRows.eq(1).text()).to.contain('pod2');
-    expect($podRows.eq(2).text()).to.contain('pod1');
+    expect(find('.filter-all')).to.have.class('active');
+    const podRows = findAll('.pods-table-pod-row');
+    expect(podRows).to.have.length(3);
+    expect(podRows[0]).to.contain.text('pod3');
+    expect(podRows[1]).to.contain.text('pod2');
+    expect(podRows[2]).to.contain.text('pod1');
   });
 
   it('automatically changes pods filter to "all" on init when there are no pods in "current" but are some in "all"',
     async function () {
-      this.set('activityRegistry', generateActivityRegistry(['Terminated', 'Terminated']));
-      await render(this);
+      this.set('statusRegistry', generateStatusRegistry(['Terminated', 'Terminated']));
+      await renderComponent();
 
-      expect(this.$('.filter-all')).to.have.class('active');
-      expect(this.$('.pods-table-pod-row')).to.have.length(2);
+      expect(find('.filter-all')).to.have.class('active');
+      expect(findAll('.pods-table-pod-row')).to.have.length(2);
     });
 
   it('shows table with pods filter equal to "current" when there are no pods',
     async function () {
-      this.set('activityRegistry', generateActivityRegistry([]));
-      await render(this);
+      this.set('statusRegistry', generateStatusRegistry([]));
+      await renderComponent();
 
-      expect(this.$('.filter-current')).to.have.class('active');
-      expect(this.$('.pods-table-pod-row')).to.have.length(0);
+      expect(find('.filter-current')).to.have.class('active');
+      expect(findAll('.pods-table-pod-row')).to.have.length(0);
     });
 
   it('shows row selection', async function () {
     this.setProperties({
-      activityRegistry: generateActivityRegistry(),
+      statusRegistry: generateStatusRegistry(),
       selectedPodId: 'pod2',
     });
-    await render(this);
+    await renderComponent();
 
-    expect(this.$('[data-pod-id="pod2"]')).to.have.class('is-selected');
+    expect(find('[data-pod-id="pod2"]')).to.have.class('is-selected');
   });
 
   it('allows selecting row', async function () {
     const { onPodSelect } = this.setProperties({
-      activityRegistry: generateActivityRegistry(),
+      statusRegistry: generateStatusRegistry(),
       onPodSelect: sinon.spy(),
     });
-    await render(this);
+    await renderComponent();
     expect(onPodSelect).to.be.not.called;
 
     await click('[data-pod-id="pod2"]');
@@ -84,31 +82,30 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 
   it('shows info that there are no current pods to show', async function () {
-    await render(this);
+    await renderComponent();
 
-    expect(this.$('.pods-table-no-pods-row').text().trim())
-      .to.equal('There are no current pods.');
+    expect(find('.pods-table-no-pods-row'))
+      .to.have.trimmed.text('There are no current pods.');
   });
 
   it('shows info that there are no pods to show', async function () {
-    await render(this);
+    await renderComponent();
     await click('.filter-all');
 
-    expect(this.$('.pods-table-no-pods-row').text().trim())
-      .to.equal('There are no pods.');
+    expect(find('.pods-table-no-pods-row'))
+      .to.have.trimmed.text('There are no pods.');
   });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table
-    activityRegistry=activityRegistry
+async function renderComponent() {
+  await render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table
+    statusRegistry=statusRegistry
     selectedPodId=selectedPodId
     onPodSelect=onPodSelect
   }}`);
-  await wait();
 }
 
-function generateActivityRegistry(statuses = ['Terminated', 'Pending', 'Running']) {
+function generateStatusRegistry(statuses = ['Terminated', 'Pending', 'Running']) {
   return statuses.reduce((acc, status, idx) => {
     acc[`pod${idx + 1}`] = {
       currentStatus: status,

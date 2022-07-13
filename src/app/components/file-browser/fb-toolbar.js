@@ -22,7 +22,6 @@ import { array } from 'ember-awesome-macros';
 export default Component.extend(I18n, {
   classNames: ['fb-toolbar'],
 
-  media: service(),
   workflowManager: service(),
 
   /**

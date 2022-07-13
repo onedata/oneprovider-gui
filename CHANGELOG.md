@@ -6,6 +6,16 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9316 Removed usages of EmberPowerSelectHelper
+* VFS-9394 Removed ember-browser-info
+* VFS-9419 Added locking directory statistics toggle when accounting is enabled
+* VFS-9508 Updated EmberJS to v3.4.8
+* VFS-9567 Fixed opening background-click context menu in archives and datasets browsers
+* VFS-8045 Added QoS audit log
+* VFS-9499 Fixed too many rerendering cycles of the transfer menu
+* VFS-9501 Fixed broken directory size charts in archive browser
+* VFS-9502 Fixed hanging spinner after reloading empty directory
+* VFS-9202 Added byte size of file in file details modal
 * VFS-9439 Added subgroups to charts, added showing remote providers in directory size statistics
 * VFS-9235 Added "jump to file by prefix" feature
 * VFS-9355 Added more possible units to time series charts

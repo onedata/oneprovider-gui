@@ -263,20 +263,20 @@ export default Service.extend({
    * @param {string} atmTaskExecutionId
    * @param {Boolean} [fetchOptions.reload=false]
    * @param {Boolean} [fetchOptions.backgroundReload=false]
-   * @returns {Promise<Models.OpenfaasFunctionActivityRegistry>}
+   * @returns {Promise<Models.OpenfaasFunctionPodStatusRegistry>}
    */
-  async getAtmTaskExecutionOpenfaasActivityRegistry(atmTaskExecutionId, {
+  async getAtmTaskExecutionOpenfaasPodStatusRegistry(atmTaskExecutionId, {
     reload = false,
     backgroundReload = false,
   } = {}) {
-    const activityRegistryGri = gri({
+    const podStatusRegistryGri = gri({
       entityType: atmTaskExecutionEntityType,
       entityId: atmTaskExecutionId,
-      aspect: atmTaskExecutionAspects.openfaasFunctionActivityRegistry,
+      aspect: atmTaskExecutionAspects.openfaasFunctionPodStatusRegistry,
     });
     return await this.get('store').findRecord(
-      'openfaasFunctionActivityRegistry',
-      activityRegistryGri, { reload, backgroundReload }
+      'openfaasFunctionPodStatusRegistry',
+      podStatusRegistryGri, { reload, backgroundReload }
     );
   },
 

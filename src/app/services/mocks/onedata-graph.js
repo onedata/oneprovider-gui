@@ -310,12 +310,13 @@ const spaceHandlers = {
       isLast: atmWorkflowExecutionSummaries.length < limit,
     };
   },
-  dir_size_stats_config(operation) {
+  dir_stats_service_state(operation) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
     return {
-      statsCollectionStatus: 'enabled',
+      enforcedByAccounting: false,
+      status: 'enabled',
     };
   },
 };
@@ -527,8 +528,8 @@ const fileHandlers = {
             hardlinks: this.getHardlinks(entityId),
           };
         }
-        default:
-          return messageNotSupported;
+      default:
+        return messageNotSupported;
     }
   },
   symlink_target(operation, entityId) {
@@ -711,6 +712,87 @@ const qosRequirementHandlers = {
       }
     }
     return { windows: result };
+  },
+  audit_log(operation, entityId, data) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+
+    const {
+      index,
+    } = data;
+
+    const file = this.get('mockBackend.entityRecords.file.0');
+    const fileId = get(file, 'cdmiObjectId');
+
+    if (index !== null) {
+      return {
+        logEntries: [],
+        isLast: true,
+      };
+    }
+
+    const errorMessage = {
+      timestamp: 1655137705932,
+      index: '2',
+      content: {
+        status: 'failed',
+        severity: 'error',
+        fileId,
+        description: 'Failed to reconcile local replica: no space left on device.',
+        reason: {
+          id: 'posix',
+          details: {
+            errno: 'enospc',
+          },
+        },
+      },
+    };
+
+    const result = {
+      logEntries: [{
+        timestamp: 1655137705791,
+        index: '0',
+        content: {
+          status: 'scheduled',
+          severity: 'info',
+          description: 'Remote replica differs, reconciliation started.',
+          fileId,
+        },
+      }, {
+        timestamp: 1655137705818,
+        index: '1',
+        content: {
+          status: 'skipped',
+          severity: 'info',
+          description: 'Remote replica differs, reconciliation already in progress.',
+          fileId,
+        },
+      }, {
+        timestamp: 1655137705818,
+        index: '1b',
+        content: {
+          status: 'skipped',
+          severity: 'info',
+          description: 'Remote replica differs, ignoring since the file has been deleted locally.',
+          fileId,
+        },
+      }, {
+        timestamp: 1655137705932,
+        index: '2',
+        content: {
+          status: 'completed',
+          severity: 'info',
+          description: 'Local replica reconciled.',
+          fileId,
+        },
+      }],
+      isLast: true,
+    };
+    for (let i = 0; i < 25; ++i) {
+      result.logEntries.push(errorMessage);
+    }
+    return result;
   },
 };
 

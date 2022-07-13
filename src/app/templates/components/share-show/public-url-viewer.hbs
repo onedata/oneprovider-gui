@@ -37,7 +37,7 @@
               {{one-icon icon=(if compactUrlTypeSelectorOpened "arrow-up" "arrow-down")}}
             </div>
           </div>
-        
+
           {{#one-webui-popover
             class="compact-url-type-selector-popover"
             popoverStyle="with-dropdown"
@@ -47,8 +47,8 @@
             as |popover|
           }}
             {{#click-outside
-              action=(action (mut compactUrlTypeSelectorOpened) false)
-              except-selector=".url-type-selector-trigger, .compact-url-type-selector-actions"
+              onClickOutside=(action (mut compactUrlTypeSelectorOpened) false)
+              exceptSelector=".url-type-selector-trigger, .compact-url-type-selector-actions"
             }}
               {{actions-popover-content
                 actionsArray=compactUrlTypeSelectorActions
@@ -80,8 +80,8 @@
           as |popover|
         }}
           {{#click-outside
-            action=(action (mut urlTypeInfoOpened) false)
-            except-selector=".url-type-info-trigger, .webui-popover-url-type-info"
+            onClickOutside=(action (mut urlTypeInfoOpened) false)
+            exceptSelector=".url-type-info-trigger, .webui-popover-url-type-info"
           }}
             {{component (concat "share-show/url-info-" effSelectedUrlType)
               class=(concat-classes

@@ -169,7 +169,7 @@ export default Component.extend(I18n, {
         return;
       }
       const fileId = get(fileData, 'guid');
-      const file = await fileManager.getFileById(fileId, parentScope);
+      const file = await fileManager.getFileById(fileId, { scope: parentScope });
       await this.tableSelectAndJump(file);
       if (isLastJumpFailed) {
         cancel(this.get('showNotFoundTooltipTimeoutId'));

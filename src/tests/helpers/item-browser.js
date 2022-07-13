@@ -1,39 +1,38 @@
-import $ from 'jquery';
+import { click, findAll, settled } from '@ember/test-helpers';
 import { expect } from 'chai';
-import { click } from 'ember-native-dom-helpers';
 import sleep from 'onedata-gui-common/utils/sleep';
-import wait from 'ember-test-helpers/wait';
+import { findAllByText } from './find';
 
 export function getFileRow({ entityId, name }) {
-  let $row;
+  let row;
   if (entityId) {
-    $row = $(`.fb-table-row[data-row-id="${entityId}"]`);
+    row = findAll(`.fb-table-row[data-row-id="${entityId}"]`);
   } else {
-    $row = $(`.fb-table-row:contains("${name}")`);
+    row = findAllByText(name, '.fb-table-row');
   }
-  expect($row).to.have.length(1);
-  return $row;
+  expect(row).to.have.length(1);
+  return row[0];
 }
 
 export async function doubleClickFile(file) {
-  const row = getFileRow(file)[0];
+  const row = getFileRow(file);
   click(row);
   await sleep(1);
   await click(row);
 }
 
 export async function openFileContextMenu(file) {
-  const $row = getFileRow(file);
-  $row[0].dispatchEvent(new Event('contextmenu'));
-  await wait();
-  const $fileActions = $('.file-actions');
-  expect($fileActions, 'file-actions').to.have.length(1);
-  return $fileActions;
+  const row = getFileRow(file);
+  row.dispatchEvent(new Event('contextmenu'));
+  await settled();
+  const fileActions = document.querySelectorAll('.file-actions');
+  expect(fileActions, 'file-actions').to.have.length(1);
+  return fileActions[0];
 }
 
 export async function chooseFileContextMenuAction(file, actionId) {
-  const $fileActions = await openFileContextMenu(file);
-  const action = $fileActions.find(`.file-action-${actionId}`)[0];
+  const fileActions = await openFileContextMenu(file);
+  const action = fileActions.querySelector(`.file-action-${actionId}`);
   expect(action, `action item ${actionId}`).to.exist;
   await click(action);
 }

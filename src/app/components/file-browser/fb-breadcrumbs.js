@@ -26,6 +26,7 @@ import { htmlSafe } from '@ember/string';
 import { isEmpty } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
+import $ from 'jquery';
 
 /**
  * @type {number}
@@ -277,12 +278,13 @@ export default Component.extend(
     },
 
     checkWidth(noAnimation) {
-      const $fileBreadcrumbs = this.$();
+      const element = this.get('element');
+      const $fileBreadcrumbs = $(element);
       if (this.get('isDestroyed') || !$fileBreadcrumbs.length) {
         return;
       }
       const itemsCount = this.get('filteredBreadcrumbsItems.length');
-      const $fileBreadcrumbsInner = this.$('.fb-breadcrumbs-inner');
+      const $fileBreadcrumbsInner = $fileBreadcrumbs.find('.fb-breadcrumbs-inner');
       const elementsToShow = this.get('elementsToShow');
       const innerBreadcrumbsWidth = $fileBreadcrumbsInner.width();
       const containerWidth = $fileBreadcrumbs.width();
@@ -301,9 +303,9 @@ export default Component.extend(
         }, noAnimation ? 0 : recomputePathAnimationDuration);
       } else {
         const lastItem =
-          this.$('.fb-breadcrumbs-current-dir-button')[0];
+          $fileBreadcrumbs.find('.fb-breadcrumbs-current-dir-button')[0];
         const lastItemLeft = lastItem.offsetLeft;
-        const containerWidth = this.get('element').offsetWidth;
+        const containerWidth = element.offsetWidth;
         const lastItemMaxWidth = containerWidth - lastItemLeft;
         this.setProperties({
           lastItemStyle: htmlSafe(`max-width: ${lastItemMaxWidth}px;`),

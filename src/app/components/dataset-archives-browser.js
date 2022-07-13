@@ -36,6 +36,7 @@ export default Component.extend(...mixins, {
 
   archiveManager: service(),
   datasetManager: service(),
+  spaceManager: service(),
   fileManager: service(),
   appProxy: service(),
   filesViewResolver: service(),
@@ -405,7 +406,10 @@ export default Component.extend(...mixins, {
    * `file-browser` to be re-rendered.
    * @type {PromiseObject}
    */
-  initialRequiredDataProxy: reads('initialBrowsableItemProxy'),
+  initialRequiredDataProxy: promise.object(promise.all(
+    'initialBrowsableItemProxy',
+    'dirStatsServiceStateProxy'
+  )),
 
   /**
    * @type {ComputedProperty<String>}
@@ -450,6 +454,17 @@ export default Component.extend(...mixins, {
       } else {
         return this.getArchivesForView(selectedIds);
       }
+    }
+  )),
+
+  dirStatsServiceStateProxy: promise.object(computed(
+    'space.entityId',
+    function dirStatsServiceStateProxy() {
+      const {
+        spaceManager,
+        space,
+      } = this.getProperties('spaceManager', 'space');
+      return space && spaceManager.fetchDirStatsServiceState(get(space, 'entityId'));
     }
   )),
 
@@ -592,7 +607,7 @@ export default Component.extend(...mixins, {
     if (!fileId || fileId === archiveRootDirId) {
       return this.get('archiveRootDirProxy');
     } else {
-      return fileManager.getFileById(fileId, 'private');
+      return fileManager.getFileById(fileId, { scope: 'private' });
     }
   },
 
@@ -906,7 +921,7 @@ export default Component.extend(...mixins, {
   },
 
   getItemById(itemId) {
-    return this.get('fileManager').getFileById(itemId, 'private');
+    return this.get('fileManager').getFileById(itemId, { scope: 'private' });
   },
 
   //#region URL generating methods

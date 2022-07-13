@@ -11,7 +11,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { getProperties, computed, observer, get } from '@ember/object';
+import EmberObject, { getProperties, computed, observer, get, defineProperty } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { dasherize } from '@ember/string';
@@ -35,7 +35,9 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   //#region API for file-browser component
 
   /**
-   * @virtualignoreCurrentDirContextMenuSelector
+   * @virtual
+   * @type {Components.FileBrowser}
+   */
   browserInstance: undefined,
 
   /**
@@ -250,9 +252,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     'buttonNames.[]',
     function generateAllButtonsArray() {
       const buttonNames = this.get('buttonNames');
-      this.allButtonsArray = computed(...buttonNames, function allButtonsArray() {
-        return buttonNames.map(btnName => this.get(btnName));
-      });
+      defineProperty(
+        this,
+        'allButtonsArray',
+        computed(...buttonNames, function allButtonsArray() {
+          return buttonNames.map(btnName => this.get(btnName));
+        })
+      );
+      this.notifyPropertyChange('allButtonsArray');
     }
   ),
 
