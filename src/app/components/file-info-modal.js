@@ -13,7 +13,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { promise, raw, or, gt } from 'ember-awesome-macros';
+import { promise, raw, or, gt, and, notEqual, collect } from 'ember-awesome-macros';
 import { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -22,6 +22,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { next } from '@ember/runloop';
 import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlink-utils';
 import _ from 'lodash';
+import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 
 const mixins = [
   I18n,
@@ -219,19 +220,6 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  showSizeTab: computed(
-    'previewMode',
-    'file.effFile.type',
-    function showSizeTab() {
-      const previewMode = this.get('previewMode');
-      const effItemType = this.get('file.effFile.type');
-      return !previewMode && effItemType !== 'file';
-    }
-  ),
-
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
@@ -289,12 +277,74 @@ export default Component.extend(...mixins, {
     return this.get('elementId') + '-row-cdmi';
   }),
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isHardlinksTabVisible: gt('hardlinksCount', raw(1)),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSizeTabVisible: computed(
+    'previewMode',
+    'file.effFile.type',
+    function isSizeTabVisible() {
+      const previewMode = this.get('previewMode');
+      const effItemType = this.get('file.effFile.type');
+      return !previewMode && effItemType !== 'file';
+    }
+  ),
+
+  isApiSamplesTabVisible: and('showApiSection', notEqual('itemType', raw('symlink'))),
+
+  // TODO: VFS-9628 this is a temporary list of tabs moved from separate modals
+  specialFileTabs: Object.freeze(['metadata']),
+
+  visibleTabs: computed(
+    'isHardlinksTabVisible',
+    'isSizeTabVisible',
+    'isApiSamplesTabVisible',
+    function visibleTabs() {
+      const tabs = ['general'];
+      if (this.isHardlinksTabVisible) {
+        tabs.push('hardlinks');
+      }
+      if (this.isSizeTabVisible) {
+        tabs.push('size');
+      }
+      if (this.isApiSamplesTabVisible) {
+        tabs.push('apiSamples');
+      }
+      tabs.push(...this.specialFileTabs);
+      return tabs;
+    },
+  ),
+
+  // TODO: VFS-9628 will contain all tab models after refactor
+  visibleTabsModels: collect('metadataTabModel'),
+
+  metadataTabModel: computed(function metadataTabModel() {
+    return this.tabModelFactory.createTabModel('metadata');
+  }),
+
+  tabModelFactory: computed(function tabModelFactory() {
+    return TabModelFactory.create({
+      fileInfoModal: this,
+    });
+  }),
+
+  activeTabModel: computed('activeTab', function activeTabModel() {
+    if (!this.specialFileTabs.includes(this.activeTab)) {
+      return null;
+    }
+    return this[`${this.activeTab}TabModel`];
+  }),
+
   init() {
     this._super(...arguments);
-    const initialTab = this.get('initialTab');
-    // FIXME: add custom tabs
-    if (['general', 'hardlinks', 'size', 'apiSamples'].includes(initialTab)) {
-      this.set('activeTab', initialTab);
+    const initialTab = this.initialTab;
+    if (this.visibleTabs.includes(initialTab)) {
+      this.activeTab = initialTab;
     }
   },
 

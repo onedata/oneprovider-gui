@@ -1,7 +1,6 @@
 import Component from '@ember/component';
 import { resolve } from 'rsvp';
 import { inject as service } from '@ember/service';
-import { reads } from '@ember/object/computed';
 
 export const exampleCdmiObjectId =
   '0000000000466F8867756964233666396333666230366265366163353530343634616537383831306430656662233732333065663438326234333936376463373332313734373435306535363134';

@@ -38,7 +38,7 @@
             {{tt this "tabs.general.tabTitle"}}
           </a>
         {{/nav.item}}
-        {{#if (gt hardlinksCount 1)}}
+        {{#if isHardlinksTabVisible}}
           {{#nav.item
             active=(eq tab.activeId "hardlinks")
           }}
@@ -57,7 +57,7 @@
             </a>
           {{/nav.item}}
         {{/if}}
-        {{#if showSizeTab}}
+        {{#if isSizeTabVisible}}
           {{#nav.item
             active=(eq tab.activeId "size")
             disabled=isSizeTabDisabled
@@ -84,7 +84,7 @@
             {{/if}}
           {{/nav.item}}
         {{/if}}
-        {{#if (and showApiSection (not-eq itemType "symlink"))}}
+        {{#if isApiSamplesTabVisible}}
           {{#nav.item
             active=(eq tab.activeId "apiSamples")
           }}
@@ -104,26 +104,26 @@
           {{/nav.item}}
         {{/if}}
 
-        {{#each visibleTabModels as |tabModel|}}
+        {{#each visibleTabsModels as |tabModel|}}
           {{#nav.item
             active=(eq tab.activeId tabModel.tabId)
             as |navItem|
           }}
             <a
               class={{concat-classes
-                "nav-link nav-link-general"
+                "nav-link"
+                (concat "nav-link-" tabModel.tabId)
                 (if (eq tab.activeId tabModel.tabId) "active")
               }}
               role="tab"
-              {{action (mut activeTab tabModel.tabId)}}
+              {{action (mut activeTab) tabModel.tabId}}
             >
-              {{#if tabModel.navComponent}}
-                {{component tabModel.navComponent
-                  model=tabModel.model
-                }}
-              {{else}}
+                {{!--
+                  TODO: VFS-9626
+                  make something like navComponent in addition
+                  to simple title to implement custom tabs look (eg. indicators)
+                --}}
                 {{tabModel.title}}
-              {{/if}}
             </a>
           {{/nav.item}}
         {{/each}}
@@ -308,7 +308,7 @@
         }}
       {{/promise-proxy-container}}
     {{else}}
-      {{component activeTabModel.bodyComponent}}
+      {{component activeTabModel.bodyComponent viewModel=activeTabModel.viewModel}}
     {{/if}}
   {{/modal.body}}
 {{/one-modal}}

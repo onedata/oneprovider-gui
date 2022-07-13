@@ -7,7 +7,7 @@ import {
   file1,
   owner1,
   exampleCdmiObjectId,
-} from 'oneprovider-gui/components/dummy-file-info';
+} from 'oneprovider-gui/components/dummy-file-info-modal';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import OneTooltipHelper from '../../helpers/one-tooltip';
@@ -329,56 +329,63 @@ describe('Integration | Component | file info modal', function () {
     );
   });
 
-  context('for file', function () {
-    beforeEach(function () {
-      this.set('file', file1);
-    });
+  it('renders size of file', async function () {
+    this.set('file', Object.assign({}, file1, { size: Math.pow(1024, 3) }));
 
-    it('renders size', async function (done) {
-      this.set('file', Object.assign({}, file1, { size: Math.pow(1024, 3) }));
+    await renderComponent();
 
-      await renderComponent();
-
-      expect(
-        find('.file-info-row-size .property-value').textContent
-      ).to.contain('1 GiB');
-      done();
-    });
-
-    it('renders name', async function (done) {
-      await renderComponent();
-
-      expect(
-        find('.file-info-row-name .property-value .clipboard-input').value
-      ).to.contain(this.get('file.name'));
-
-      done();
-    });
-
-    it('renders space id', async function (done) {
-      const spaceEntityId = 's893y37439';
-      this.set('space', { entityId: spaceEntityId });
-
-      await renderComponent();
-
-      expect(
-        find('.file-info-row-space-id .property-value .clipboard-input').value
-      ).to.contain(spaceEntityId);
-
-      done();
-    });
-
-    it('renders cdmi object id', async function (done) {
-      await renderComponent();
-
-      expect(
-        find('.file-info-row-cdmi-object-id .property-value .clipboard-input')
-        .value
-      ).to.contain(exampleCdmiObjectId);
-
-      done();
-    });
+    expect(
+      find('.file-info-row-size .property-value').textContent
+    ).to.contain('1 GiB');
   });
+
+  it('renders name for file', async function () {
+    givenDummyFile(this);
+
+    await renderComponent();
+
+    expect(
+      find('.file-info-row-name .property-value .clipboard-input').value
+    ).to.contain(this.get('file.name'));
+  });
+
+  it('renders space id', async function () {
+    givenDummyFile(this);
+    const spaceEntityId = 's893y37439';
+    this.set('space', { entityId: spaceEntityId });
+
+    await renderComponent();
+
+    expect(
+      find('.file-info-row-space-id .property-value .clipboard-input').value
+    ).to.contain(spaceEntityId);
+  });
+
+  it('renders cdmi object id for file', async function () {
+    givenDummyFile(this);
+
+    await renderComponent();
+
+    expect(
+      find('.file-info-row-cdmi-object-id .property-value .clipboard-input')
+      .value
+    ).to.contain(exampleCdmiObjectId);
+  });
+
+  it('has active "Metadata" tab and renders metadata view body when initialTab = metadata is given',
+    async function () {
+      givenDummyFile(this);
+      this.set('initialTab', 'metadata');
+
+      await renderComponent();
+
+      const metadataNav = find('.nav-link-metadata');
+      expect(metadataNav).to.exist;
+      expect(metadataNav).to.have.class('active');
+      expect(metadataNav).to.have.trimmed.text('Metadata');
+      expect(find('.modal-body .file-metadata-body')).to.exist;
+    }
+  );
 
   context('for file type and API samples tab', function () {
     beforeEach(async function () {
@@ -437,10 +444,15 @@ async function renderComponent() {
   await render(hbs `{{file-info-modal
     open=true
     file=file
+    initialTab=initialTab
     previewMode=previewMode
     share=share
     space=space
     selectedRestUrlType=selectedRestUrlType
     getDataUrl=getDataUrl
   }}`);
+}
+
+function givenDummyFile(testCase) {
+  testCase.set('file', file1);
 }

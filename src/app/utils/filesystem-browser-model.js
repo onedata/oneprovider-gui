@@ -90,13 +90,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @virtual
    * @type {Function}
-   * @param {Models.File} file file to edit its metadata
-   */
-  openMetadata: notImplementedThrow,
-
-  /**
-   * @virtual
-   * @type {Function}
    * @param {Array<Models.File>} file file to show in confirm download modal
    */
   openConfirmDownload: notImplementedThrow,
@@ -471,7 +464,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: (files) => {
-        return this.get('openMetadata')(files[0]);
+        return this.get('openInfo')(files[0], 'metadata');
       },
       showIn: [
         actionContext.singleDir,

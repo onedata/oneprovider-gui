@@ -647,7 +647,6 @@ export default Component.extend(...mixins, {
       archiveDipMode: reads('ownerSource.archiveDipMode'),
       onArchiveDipModeChange: this.changeArchiveDipMode.bind(this),
       openInfo: this.openInfoModal.bind(this),
-      openMetadata: this.openMetadataModal.bind(this),
       openShare: this.openShareModal.bind(this),
       openEditPermissions: this.openEditPermissionsModal.bind(this),
       openFileDistribution: this.openFileDistributionModal.bind(this),
@@ -707,10 +706,6 @@ export default Component.extend(...mixins, {
   },
   closeInfoModal() {
     this.set('fileToShowInfo', null);
-  },
-
-  openMetadataModal(file) {
-    this.set('fileToShowMetadata', file);
   },
 
   closeMetadataModal() {

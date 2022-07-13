@@ -213,7 +213,6 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
       rootIcon: 'share',
       readonlyFilesystem: true,
       openInfo: this.openInfoModal.bind(this),
-      openMetadata: this.openMetadataModal.bind(this),
     });
   },
 
@@ -223,10 +222,6 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
 
   closeInfoModal() {
     this.set('fileToShowInfo', null);
-  },
-
-  openMetadataModal(file) {
-    this.set('fileToShowMetadata', file);
   },
 
   closeMetadataModal() {
