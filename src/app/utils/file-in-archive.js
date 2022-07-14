@@ -54,4 +54,13 @@ export default BrowsableWrapper.extend({
     conditional('isArchiveRootDir', raw('direct'), raw('ancestor')),
     raw('none'),
   ),
+
+  /**
+   * @type {ComputedProperty<ItemFeatureMembership>}
+   */
+  archiveCancelled: conditional(
+    equal('archive.metaState', raw('cancelled')),
+    conditional('isArchiveRootDir', raw('direct'), raw('ancestor')),
+    raw('none'),
+  ),
 });

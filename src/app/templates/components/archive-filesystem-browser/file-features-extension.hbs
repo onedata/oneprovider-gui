@@ -64,4 +64,40 @@
     </div>
   </div>
 {{/if}}
+
+{{#if displayedState.archiveCancelled.isShown}}
+  <div
+    class={{concat-classes
+      "file-status-tag-group archive-cancelled-file-status-tag-group"
+      (if (eq displayedState.archiveCancelled.membership "ancestor")
+        "file-status-tag-group-fully-inherited"
+      )
+    }}
+    onmouseover={{action "changeTagHover" "archive-cancelled" true}}
+    onmouseout={{action "changeTagHover" "archive-cancelled" false}}
+  >
+    <div
+      class={{concat-classes
+        "file-status-tag"
+        "file-status-archive-cancelled"
+        "file-status-tag-warning"
+      }}
+    >
+      <span class="tag-text">
+        {{tt this "cancelled"}}
+      </span>
+      {{#if (eq displayedState.archiveCancelled.membership "ancestor")}}
+        {{one-icon
+          class="tag-icon archive-cancelled-inherited-icon inherited-icon"
+          icon=inheritedIcon
+        }}
+      {{/if}}
+      {{#one-tooltip}}
+        {{tt this "cancelledArchiveBuild"}}
+      {{/one-tooltip}}
+    </div>
+  </div>
+{{/if}}
+
+
 {{yield displayedState item}}
