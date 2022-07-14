@@ -19,7 +19,7 @@ import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import { all as allFulfilled, allSettled } from 'rsvp';
-import { conditional, equal, raw, array, and } from 'ember-awesome-macros';
+import { conditional, equal, raw, array, and, or } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -230,6 +230,22 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
+  isAnySelectedEndedIncomplete: or(
+    array.isAny(
+      'selectedItems',
+      raw('metaState'),
+      raw('failed')
+    ),
+    array.isAny(
+      'selectedItems',
+      raw('metaState'),
+      raw('cancelled')
+    ),
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
   isAnySelectedCancelling: array.isAny(
     'selectedItems',
     raw('state'),
@@ -393,21 +409,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'attachmentState',
     'spacePrivileges.{manageDatasets,createArchives}',
     'isAnySelectedCreating',
+    'isAnySelected',
+    'isAnySelectedEndedIncomplete',
     function btnCreateArchive() {
       const {
         spacePrivileges,
         attachmentState,
         isAnySelectedCreating,
+        isAnySelectedEndedIncomplete,
         i18n,
       } = this.getProperties(
         'spacePrivileges',
         'attachmentState',
         'isAnySelectedCreating',
+        'isAnySelectedEndedIncomplete',
         'i18n',
       );
       let disabledTip;
       if (isAnySelectedCreating) {
         disabledTip = this.t('notAvailableForCreating');
+      } else if (isAnySelectedEndedIncomplete) {
+        disabledTip = this.t('notAvailableForIncomplete');
       } else if (attachmentState === 'detached') {
         disabledTip = this.t('notAvailableForDetached');
       } else {
@@ -443,14 +465,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnRecall: computed(
     'spacePrivileges.recallArchives',
     'isAnySelectedCreating',
+    'isAnySelectedEndedIncomplete',
     function btnDelete() {
       const {
         isAnySelectedCreating,
+        isAnySelectedEndedIncomplete,
         spacePrivileges,
         i18n,
       } =
       this.getProperties(
         'isAnySelectedCreating',
+        'isAnySelectedEndedIncomplete',
         'spacePrivileges',
         'i18n',
       );
@@ -458,6 +483,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       let disabledTip;
       if (isAnySelectedCreating) {
         disabledTip = this.t('notAvailableForCreating');
+      } else if (isAnySelectedEndedIncomplete) {
+        disabledTip = this.t('notAvailableForIncomplete');
       } else if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,

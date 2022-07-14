@@ -9,6 +9,7 @@ export default _.merge({}, BaseBrowserModel, {
   alreadyDeleting: 'Not available for archives that are being deleted.',
   alreadyCancelling: 'Not available for archives that are being cancelled.',
   notAvailableForCreating: 'Not available for archives that are not built yet.',
+  notAvailableForIncomplete: 'Not available for archives that are not built successfully.',
   notAvailableForDetached: 'Not available in detached dataset.',
   fileActions: {
     archiveProperties: 'Properties',
