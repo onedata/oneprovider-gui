@@ -10,7 +10,7 @@
     getItemByIdFun=(action getItemById)
     changeSelectedItems=(action "changeSelectedItems")
     updateDirEntityId=(action "updateDirEntityId")
-    dirSizeStatsConfig=dirSizeStatsConfigProxy.content
+    dirStatsServiceState=dirStatsServiceStateProxy.content
   }}
   <div class="upload-drop-zone {{if effUploadDisabled "upload-disabled"}}">
     <div class="upload-info">
@@ -47,7 +47,7 @@
       space=spaceProxy.content
       getDataUrl=(action "getFileUrl")
       onHide=(action closeInfoModal)
-      dirSizeStatsConfig=dirSizeStatsConfigProxy.content
+      dirStatsServiceState=dirStatsServiceStateProxy.content
     }}
   {{/if}}
 

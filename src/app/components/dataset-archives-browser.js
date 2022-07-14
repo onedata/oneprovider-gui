@@ -408,7 +408,7 @@ export default Component.extend(...mixins, {
    */
   initialRequiredDataProxy: promise.object(promise.all(
     'initialBrowsableItemProxy',
-    'dirSizeStatsConfigProxy'
+    'dirStatsServiceStateProxy'
   )),
 
   /**
@@ -457,14 +457,14 @@ export default Component.extend(...mixins, {
     }
   )),
 
-  dirSizeStatsConfigProxy: promise.object(computed(
+  dirStatsServiceStateProxy: promise.object(computed(
     'space.entityId',
-    function dirSizeStatsConfigProxy() {
+    function dirStatsServiceStateProxy() {
       const {
         spaceManager,
         space,
       } = this.getProperties('spaceManager', 'space');
-      return space && spaceManager.fetchDirSizeStatsConfig(get(space, 'entityId'));
+      return space && spaceManager.fetchDirStatsServiceState(get(space, 'entityId'));
     }
   )),
 

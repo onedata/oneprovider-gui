@@ -35,29 +35,29 @@ export default FbTableRowColumns.extend(I18n, {
 
   /**
    * @virtual
-   * @type {DirSizeStatsConfig}
+   * @type {DirStatsServiceState}
    */
-  dirSizeStatsConfig: undefined,
+  dirStatsServiceState: undefined,
 
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isDirSizeStatsStarted: array.includes(
+  isDirStatsServiceStarted: array.includes(
     raw(['enabled', 'initializing']),
-    'dirSizeStatsConfig.statsCollectionStatus'
+    'dirStatsServiceState.status'
   ),
 
   /**
    * @type {ComputedProperty<String>}
    */
   tooltipText: computed(
-    'dirSizeStatsConfig.statsCollectionStatus',
+    'dirStatsServiceState.dirStatsServiceStatus',
     function tooltipText() {
-      let statsCollectionStatus = this.get('dirSizeStatsConfig.statsCollectionStatus');
-      if (statsCollectionStatus === 'stopping') {
-        statsCollectionStatus = 'disabled';
+      let dirStatsServiceStatus = this.get('dirStatsServiceState.status');
+      if (dirStatsServiceStatus === 'stopping') {
+        dirStatsServiceStatus = 'disabled';
       }
-      return this.t(statsCollectionStatus + 'StatsInfo', {}, { defaultValue: '' });
+      return this.t(dirStatsServiceStatus + 'StatsInfo', {}, { defaultValue: '' });
     }
   ),
 

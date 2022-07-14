@@ -1,7 +1,7 @@
 /**
- * Container for space configuration per provider view to use in an iframe 
+ * Container for space configuration per provider view to use in an iframe
  * with injected properties.
- * 
+ *
  * @author Agnieszka Warchoł
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -13,14 +13,14 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { promise } from 'ember-awesome-macros';
+import { promise, or, not } from 'ember-awesome-macros';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 
 const mixins = [
   I18n,
   ContentSpaceBaseMixin,
-  createDataProxyMixin('dirSizeStatsConfig'),
+  createDataProxyMixin('dirStatsServiceState'),
 ];
 
 export default OneEmbeddedComponent.extend(...mixins, {
@@ -46,16 +46,21 @@ export default OneEmbeddedComponent.extend(...mixins, {
   /**
    * @type {ComputedProperty<'enabled'|'disabled'|'stopping'|'initializing'>}
    */
-  statsCollectionStatus: reads('dirSizeStatsConfigProxy.content.statsCollectionStatus'),
+  dirStatsServiceStatus: reads('dirStatsServiceStateProxy.content.status'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  enforcedByAccounting: reads('dirStatsServiceStateProxy.content.enforcedByAccounting'),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
   isDirStatsCount: computed(
-    'statsCollectionStatus',
+    'dirStatsServiceStatus',
     function isDirStatsCount() {
-      const statsCollectionStatus = this.get('statsCollectionStatus');
-      return ['enabled', 'initializing'].includes(statsCollectionStatus);
+      const dirStatsServiceStatus = this.get('dirStatsServiceStatus');
+      return ['enabled', 'initializing'].includes(dirStatsServiceStatus);
     }
   ),
 
@@ -83,6 +88,36 @@ export default OneEmbeddedComponent.extend(...mixins, {
   ),
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  dirStatsToggleDisabled: or(not('hasEditPrivilege'), 'enforcedByAccounting'),
+
+  /**
+   * @type {ComputedProperty<SafeString|undefined>}
+   */
+  dirStatsToggleLockHint: computed(
+    'hasEditPrivilege',
+    'enforcedByAccounting',
+    function dirStatsToggleLockHint() {
+      const {
+        hasEditPrivilege,
+        enforcedByAccounting,
+        insufficientEditPrivilegesMessage,
+      } = this.getProperties(
+        'hasEditPrivilege',
+        'enforcedByAccounting',
+        'insufficientEditPrivilegesMessage'
+      );
+
+      if (!hasEditPrivilege) {
+        return insufficientEditPrivilegesMessage;
+      } else if (enforcedByAccounting) {
+        return this.t('toggleDisabledDueAccounting');
+      }
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<String>}
    */
   providerName: reads('providerProxy.content.name'),
@@ -101,19 +136,19 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   init() {
     this._super(...arguments);
-    this.updateDirSizeStatsConfigProxy();
+    this.updateDirStatsServiceStateProxy();
   },
 
   /**
    * @override
-   * @returns {Promise<DirSizeStatsConfig>}
+   * @returns {Promise<DirStatsServiceState>}
    */
-  fetchDirSizeStatsConfig() {
+  fetchDirStatsServiceState() {
     const {
       spaceManager,
       spaceEntityId,
     } = this.getProperties('spaceManager', 'spaceEntityId');
-    return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
+    return spaceManager.fetchDirStatsServiceState(spaceEntityId);
   },
 
   actions: {
@@ -126,14 +161,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
         spaceManager,
         spaceEntityId,
       } = this.getProperties('spaceManager', 'spaceEntityId');
-      const dirSizeStatsConfig = {
-        statsCollectionEnabled: enabled,
+      const dirStatsServiceState = {
+        enabled,
       };
-      return spaceManager.saveDirSizeStatsConfig(spaceEntityId, dirSizeStatsConfig)
-        .then(() => this.updateDirSizeStatsConfigProxy())
+      return spaceManager
+        .saveDirStatsServiceState(spaceEntityId, dirStatsServiceState)
+        .then(() => this.updateDirStatsServiceStateProxy())
         .catch(error => {
           this.get('globalNotify').backendError(
-            this.t('configuringDirSizeStats'),
+            this.t('configuringDirStats'),
             error
           );
           throw error;

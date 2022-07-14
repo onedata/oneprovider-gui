@@ -1,6 +1,6 @@
 {{#one-modal
-  class=(concat-classes 
-    "fb-info-modal modal-content-overlay without-footer with-close-button" 
+  class=(concat-classes
+    "fb-info-modal modal-content-overlay without-footer with-close-button"
     modalClass
   )
   open=open
@@ -29,8 +29,8 @@
         {{#nav.item
           active=(eq tab.activeId "general")
         }}
-          <a class={{concat-classes 
-              "nav-link nav-link-general" 
+          <a class={{concat-classes
+              "nav-link nav-link-general"
               (if (eq tab.activeId "general") "active")
             }}
             role="tab"
@@ -43,8 +43,8 @@
           {{#nav.item
             active=(eq tab.activeId "hardlinks")
           }}
-            <a class={{concat-classes 
-                "nav-link nav-link-hardlinks" 
+            <a class={{concat-classes
+                "nav-link nav-link-hardlinks"
                 (if (eq tab.activeId "hardlinks") "active")
               }}
               role="tab"
@@ -63,20 +63,20 @@
             active=(eq tab.activeId "size")
             disabled=isSizeTabDisabled
           }}
-            <a class={{concat-classes 
-                "nav-link nav-link-metadata-type nav-link-size" 
+            <a class={{concat-classes
+                "nav-link nav-link-metadata-type nav-link-size"
                 (if (eq tab.activeId "size") "active")
               }}
               role="tab"
               {{action (mut activeTab) "size"}}
-            > 
+            >
               <div class="tab-label-size">
                {{tt this "tabs.size.tabTitle"}}
               </div>
             </a>
             {{#if isSizeTabDisabled}}
-              {{one-tooltip 
-                title=(tt this (if 
+              {{one-tooltip
+                title=(tt this (if
                   (eq itemType "symlink")
                   "tabs.size.disabledTip"
                   "tabs.size.turnOffTip"
@@ -89,17 +89,17 @@
           {{#nav.item
             active=(eq tab.activeId "apiSamples")
           }}
-            <a class={{concat-classes 
-                "nav-link nav-link-metadata-type nav-link-apiSamples" 
+            <a class={{concat-classes
+                "nav-link nav-link-metadata-type nav-link-apiSamples"
                 (if (eq tab.activeId "apiSamples") "active")
               }}
               role="tab"
               {{action (mut activeTab) "apiSamples"}}
-            > 
+            >
               {{one-icon class="tab-icon" icon="rest"}}
               <div class="tab-label-api-samples">
                 {{tt this "tabs.apiSamples.tabTitle"}}
-                
+
               </div>
             </a>
           {{/nav.item}}
@@ -269,10 +269,10 @@
       {{file-browser/file-entry-charts
         space=space
         file=file
-        dirSizeStatsConfig=dirSizeStatsConfig
+        dirStatsServiceState=dirStatsServiceState
       }}
     {{else if (eq activeTab "apiSamples")}}
-      {{#promise-proxy-container 
+      {{#promise-proxy-container
         proxy=apiSamplesProxy
         sizeClass="sm"
         centered=false
