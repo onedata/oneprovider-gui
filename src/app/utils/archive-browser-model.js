@@ -531,6 +531,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnCancel: computed(
+    'isAnySelectedCancelling',
     function btnCancel() {
       const {
         i18n,
