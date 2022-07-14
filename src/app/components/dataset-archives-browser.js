@@ -623,7 +623,6 @@ export default Component.extend(...mixins, {
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openDeleteModal: this.openArchivesDeleteModal.bind(this),
-      openCancelModal: this.openArchivizationCancelModal.bind(this),
       openRecallModal: this.openArchiveRecallModal.bind(this),
       openArchivePropertiesModal: this.openArchivePropertiesModal.bind(this),
       browseArchiveDip: this.browseArchiveDip.bind(this),
@@ -703,21 +702,6 @@ export default Component.extend(...mixins, {
 
   closeArchivesDeleteModal() {
     this.set('archivesToDelete', null);
-  },
-
-  /**
-   * @param {Array<Models.Archive>} archives
-   */
-  openArchivizationCancelModal(archives) {
-    // FIXME: for testing the backend
-    archives.forEach(archive => {
-      this.get('archiveManager').cancelArchivization(archive);
-    });
-    // this.set('archivesToCancel', archives);
-  },
-
-  closeArchivizationDeleteModal() {
-    this.set('archivesToCancel', null);
   },
 
   openInfoModal(file, activeTab) {

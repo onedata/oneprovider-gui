@@ -18,7 +18,7 @@ import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, allSettled } from 'rsvp';
 import { conditional, equal, raw, array, and } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
@@ -43,6 +43,7 @@ const allButtonNames = Object.freeze([
 export default BaseBrowserModel.extend(DownloadInBrowser, {
   modalManager: service(),
   datasetManager: service(),
+  archiveManager: service(),
 
   // required by DownloadInBrowser mixin
   fileManager: service(),
@@ -92,12 +93,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {(archives: Array<Utils.BrowsableArchive>) => any}
    */
   openDeleteModal: notImplementedThrow,
-
-  /**
-   * @virtual
-   * @type {(archives: Array<Utils.BrowsableArchive>) => any}
-   */
-  openCancelModal: notImplementedThrow,
 
   /**
    * @virtual
@@ -641,5 +636,46 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       archive: dipArchiveId,
     });
     return parentAppNavigation.openUrl(url);
+  },
+
+  /**
+   * @type {(archives: Array<Utils.BrowsableArchive>) => any}
+   */
+  openCancelModal(archives) {
+    const isMultiple = archives.length > 1;
+    return this.modalManager.show('question-modal', {
+      headerIcon: 'sign-warning-rounded',
+      headerText: this.t('cancelModal.header'),
+      descriptionParagraphs: [{
+        text: this.t(
+          `cancelModal.message.${isMultiple ? 'multi' : 'single'}`, {
+            archivesCount: archives.length,
+          }
+        ),
+      }],
+      yesButtonText: this.t('cancelModal.yes'),
+      yesButtonType: 'warning',
+      noButtonText: this.t('cancelModal.no'),
+      onSubmit: async () => {
+        const submitResult = await this.cancelMultipleArchivization(archives);
+        const firstRejected = submitResult.findBy('state', 'rejected');
+        if (firstRejected) {
+          const error = get(firstRejected, 'reason');
+          this.globalNotify.backendError(
+            this.t('cancelModal.cancelling'),
+            error
+          );
+          throw error;
+        }
+        return submitResult;
+      },
+    }).hiddenPromise;
+  },
+
+  async cancelMultipleArchivization(archives) {
+    const archiveManager = this.archiveManager;
+    return await allSettled(archives.map(archive =>
+      archiveManager.cancelArchivization(archive)
+    ));
   },
 });
