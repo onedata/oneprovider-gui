@@ -183,7 +183,7 @@ describe('Integration | Component | archive browser', function () {
     expect(openArchivePropertiesModal).to.have.been.calledWith(archive);
   });
 
-  it('has non-disabled "cancel archivization" action for archive item that invokes settings modal on click',
+  it('has non-disabled "cancel archivization" action for archive item that invokes cancel confirmation modal on click',
     async function () {
       const itemsCount = 1;
       const mockArray = mockItems({
