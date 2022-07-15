@@ -188,20 +188,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   buttonNames: computed(
     'attachmentState',
-    'isEverySelectedCreating',
+    'isAnySelectedCreating',
     function buttonNames() {
       const {
         attachmentState,
-        isEverySelectedCreating,
+        isAnySelectedCreating,
       } = this.getProperties(
         'attachmentState',
-        'isEverySelectedCreating',
+        'isAnySelectedCreating',
       );
       let visibleButtons = [...allButtonNames];
       if (attachmentState === 'detached') {
         visibleButtons = _.without(visibleButtons, 'btnCreateArchive');
       }
-      if (!isEverySelectedCreating) {
+      if (!isAnySelectedCreating) {
         visibleButtons = _.without(visibleButtons, 'btnCancel');
       }
       return visibleButtons;
@@ -250,15 +250,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'selectedItems',
     raw('state'),
     raw('cancelling')
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isEverySelectedCreating: array.isEvery(
-    'selectedItems',
-    raw('metaState'),
-    raw('creating')
   ),
 
   selectedArchiveHasDip: and(
@@ -581,7 +572,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         });
       }
       return this.createFileAction({
-        id: 'delete',
+        id: 'cancel',
         icon: 'cancelled',
         title: this.t('fileActions.cancel'),
         tip: disabledTip,

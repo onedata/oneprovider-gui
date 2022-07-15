@@ -170,7 +170,6 @@ export default Service.extend({
     try {
       await archive.reload();
     } catch (error) {
-      console.dir(error);
       if (!error || error && error.id !== 'notFound') {
         console.error(
           'services:archive-manager#deleteArchive: error updating archive',
@@ -201,7 +200,6 @@ export default Service.extend({
     try {
       await archive.reload();
     } catch (error) {
-      console.dir(error);
       if (!error || error && error.id !== 'notFound') {
         console.error(
           'services:archive-manager#cancelArchivization: error updating archive',
