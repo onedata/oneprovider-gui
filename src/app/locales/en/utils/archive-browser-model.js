@@ -41,7 +41,7 @@ export default _.merge({}, BaseBrowserModel, {
 });
 
 function cancelModalMessage(isMultiple) {
-  const selectedArchivesText = isMultiple ? ' of {{archivesCount}} selected archives' : '';
+  const selectedArchivesText = isMultiple ? ' for the {{archivesCount}} selected archives' : '';
   const pluralSuffix = isMultiple ? 's' : '';
   return `Are you sure you want to cancel the archivization process${selectedArchivesText}? The resulting archive${pluralSuffix} will be incomplete. Once cancelled, the process cannot be resumed.`;
 }
