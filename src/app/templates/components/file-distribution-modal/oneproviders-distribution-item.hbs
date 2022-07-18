@@ -36,13 +36,14 @@
     }}
   {{/status-toolbar}}
 {{/one-pill-button}}
-{{#if (and hasSingleFile hasOnlyFiles)}}
+{{#if hasSingleRegFile}}
   {{file-distribution-modal/chunks-visualizer
     neverSynchronized=neverSynchronized
     fileSize=filesSizeOnStorage
     chunks=chunksBarData
     percentage=percentage
     chunksRange=chunksRange
+    blockCount=blockCount
   }}
 {{else}}
   {{file-distribution-modal/progress-bar-visualizer

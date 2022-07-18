@@ -98,6 +98,8 @@ export default Component.extend(
 
     /**
      * @type {Ember.ComputedProperty<number>}
+     * if array is empty, the sum is 0
+     * if one of element in array is null, the sum is also null
      */
     itemsSize: sum(array.mapBy('files', raw('size'))),
 
@@ -108,6 +110,8 @@ export default Component.extend(
 
     /**
      * @type {Ember.ComputedProperty<number>}
+     * if array is empty, the sum is 0
+     * if one of element in array is null, the sum is also null
      */
     dirsSize: sum(array.mapBy('filesOfTypeDir', raw('size'))),
 

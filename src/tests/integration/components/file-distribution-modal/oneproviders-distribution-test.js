@@ -30,11 +30,12 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
       providerkrk: {
         success: successOnKrakow,
         distributionPerStorage: {
-          storage1: type === 'dir' ? normalizedOnKrakowDir : {
+          storage1: type === 'dir' ? { physicalSize: normalizedOnKrakowDir } : {
             blocksPercentage: normalizedOnKrakow,
             chunksBarData: {
               0: normalizedOnKrakow,
             },
+            blockCount: 1,
             physicalSize: 1024 * normalizedOnKrakow / 100,
           },
         },
@@ -42,11 +43,12 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
       providerpar: {
         success: successOnParis,
         distributionPerStorage: {
-          storage2: type === 'dir' ? normalizedOnParis : {
+          storage2: type === 'dir' ? { physicalSize: normalizedOnParis } : {
             blocksPercentage: normalizedOnParis,
             chunksBarData: {
               0: normalizedOnParis,
             },
+            blockCount: 1,
             physicalSize: 1024 * normalizedOnParis / 100,
           },
         },
@@ -62,7 +64,7 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
         return {};
       }
     },
-    getDistributionForStorage(oneprovider, storage) {
+    getDistributionForStorageId(oneprovider, storage) {
       if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
         return this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage.${storage}`);
       } else {
@@ -103,7 +105,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       };
 
       sinon.stub(lookupService(this, 'storageManager'), 'getStorageById')
-        .returns('storage');
+        .resolves({ name: 'storage' });
 
       this.setProperties({
         oneproviders,
@@ -459,7 +461,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
                 return {};
               }
             },
-            getDistributionForStorage(oneprovider, storage) {
+            getDistributionForStorageId(oneprovider, storage) {
               return this.get(
                 `fileDistribution.${oneprovider.entityId}.distributionPerStorage.${storage}`);
             },

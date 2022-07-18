@@ -76,7 +76,7 @@
     }
   }
 
-  .transfers-counter-info {
+  .bottom-distribution-description {
     margin-top: $padding-base-vertical;
     min-height: 1em;
     display: flex;
@@ -396,6 +396,6 @@
   }
 
   .main-legend {
-    flex-grow: 5;
+    flex-grow: 1;
   }
 }

@@ -70,6 +70,7 @@ export default Component.extend({
                           120: 0,
                           220: 100,
                         },
+                        blockCount: 2,
                       },
                     },
                   },
@@ -85,6 +86,7 @@ export default Component.extend({
                           120: 0,
                           220: 100,
                         },
+                        blockCount: 2,
                       },
                     },
                   },
@@ -98,6 +100,7 @@ export default Component.extend({
                         chunksBarData: {
                           0: 0,
                         },
+                        blockCount: 0,
                       },
                     },
                   },
@@ -127,6 +130,7 @@ export default Component.extend({
                         chunksBarData: {
                           0: 100,
                         },
+                        blockCount: 1,
                       },
                     },
                   },
@@ -140,6 +144,7 @@ export default Component.extend({
                         chunksBarData: {
                           0: 0,
                         },
+                        blockCount: 0,
                       },
                     },
                   },
@@ -153,6 +158,7 @@ export default Component.extend({
                         chunksBarData: {
                           0: 0,
                         },
+                        blockCount: 0,
                       },
                     },
                   },
@@ -176,19 +182,23 @@ export default Component.extend({
                     success: true,
                     logicalSize: 1024,
                     distributionPerStorage: {
-                      storage1: 1024,
+                      storage1: {
+                        physicalSize: 1024,
+                      },
                     },
                   },
                   456: {
                     success: true,
                     logicalSize: 0,
                     distributionPerStorage: {
-                      storage2: 0,
+                      storage2: {
+                        physicalSize: 0,
+                      },
                     },
                   },
                   789: {
                     success: false,
-                    perStorage: {
+                    distributionPerStorage: {
                       storage3: {
                         description: 'Directory statistics collection is disabled for this space.',
                         id: 'dirStatsDisabledForSpace',

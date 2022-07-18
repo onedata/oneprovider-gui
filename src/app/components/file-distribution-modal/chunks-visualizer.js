@@ -41,6 +41,12 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {number}
    */
+  blockCount: undefined,
+
+  /**
+   * @virtual
+   * @type {number}
+   */
   percentage: undefined,
 
   /**
@@ -70,31 +76,17 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * @type {Ember.ComputedProperty<number>}
-   */
-  blocksNumber: computed('chunks', function blocksNumber() {
-    const chunks = this.get('chunks');
-    let blocksCount = 0;
-    for (const offset in chunks) {
-      if (chunks[offset] > 0) {
-        blocksCount++;
-      }
-    }
-    return blocksCount;
-  }),
-
-  /**
    * @type {Ember.ComputedProperty<string>}
    */
-  blocksSizeText: computed('fileSize', 'blocksNumber', function blocksSizeText() {
+  blocksSizeText: computed('fileSize', 'blockCount', function blocksSizeText() {
     const {
       fileSize,
-      blocksNumber,
-    } = this.getProperties('fileSize', 'blocksNumber');
+      blockCount,
+    } = this.getProperties('fileSize', 'blockCount');
     return this.t('blocksSize', {
       size: bytesToString(fileSize),
-      blocksNumber,
-      blockNoun: blocksNumber > 1 ? this.t('blocks') : this.t('block'),
+      blockCount,
+      blockNoun: blockCount > 1 ? this.t('blocks') : this.t('block'),
     });
   }),
 

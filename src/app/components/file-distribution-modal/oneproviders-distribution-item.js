@@ -11,7 +11,7 @@
 import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { collect, notEmpty } from '@ember/object/computed';
-import { sum, array, equal, raw, or } from 'ember-awesome-macros';
+import { sum, array, equal, raw, or, and } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -49,9 +49,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {string|undefined}
+   * @type {Models.Storage}
    */
-  storageId: undefined,
+  storage: undefined,
 
   /**
    * @virtual
@@ -125,19 +125,9 @@ export default Component.extend(I18n, {
   chunksRange: 320,
 
   /**
-   * @type {Models.Storage}
+   * @type {ComputedProperty<String>}
    */
-  storage: computed('storageId', 'spaceId', function storage() {
-    const {
-      storageId,
-      spaceId,
-      storageManager,
-    } = this.getProperties('storageId', 'spaceId', 'storageManager');
-    return storageManager.getStorageById(storageId, {
-      throughSpaceId: spaceId,
-      backgroundReload: false,
-    });
-  }),
+  storageId: reads('storage.entityId'),
 
   /**
    * @type {ComputedProperty<String>}
@@ -179,12 +169,49 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasSingleFile: equal('fileDistributionData.length', raw(1)),
+  hasSingleRegFile: and(
+    equal('fileDistributionData.length', raw(1)),
+    array.isEvery('fileDistributionData', raw('fileType'), raw('file'))
+  ),
 
   /**
    * @type {Ember.ComputedProperty<number>}
    */
   filesSize: sum(array.mapBy('fileDistributionData', raw('fileSize'))),
+
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   */
+  blockCount: computed(
+    'hasSingleRegFile',
+    'fileDistDataContainer',
+    'oneprovider',
+    'storageId',
+    'allFilesDistributionsLoaded',
+    function blockCount() {
+      const {
+        hasSingleRegFile,
+        fileDistributionData,
+        oneprovider,
+        storageId,
+        allFilesDistributionsLoaded,
+      } = this.getProperties(
+        'hasSingleRegFile',
+        'fileDistributionData',
+        'oneprovider',
+        'storageId',
+        'allFilesDistributionsLoaded'
+      );
+      if (hasSingleRegFile && allFilesDistributionsLoaded) {
+        const fileDistribution =
+          fileDistributionData[0].getDistributionForStorageId(oneprovider, storageId);
+        return get(fileDistribution, 'blockCount');
+      } else {
+        return undefined;
+      }
+
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<number|undefined>}
@@ -212,12 +239,8 @@ export default Component.extend(I18n, {
       }
       fileDistributionData.forEach(fileDistDataContainer => {
         const fileDistribution =
-          fileDistDataContainer.getDistributionForStorage(oneprovider, storageId);
-        if (get(fileDistDataContainer, 'fileType') === 'file') {
-          size += get(fileDistribution, 'physicalSize');
-        } else {
-          size += fileDistribution;
-        }
+          fileDistDataContainer.getDistributionForStorageId(oneprovider, storageId);
+        size += get(fileDistribution, 'physicalSize');
       });
       return size;
     }
@@ -295,7 +318,7 @@ export default Component.extend(I18n, {
     'allFilesDistributionsLoaded',
     'filesSize',
     'fileDistributionData.@each.{fileSize,fileDistribution}',
-    'hasSingleFile',
+    'hasSingleRegFile',
     'oneprovider',
     'chunksRange',
     'hasOnlyFiles',
@@ -305,24 +328,22 @@ export default Component.extend(I18n, {
         fileDistributionData,
         filesSize,
         allFilesDistributionsLoaded,
-        hasSingleFile,
+        hasSingleRegFile,
         oneprovider,
         storageId,
-        hasOnlyFiles,
       } = this.getProperties(
         'fileDistributionData',
         'filesSize',
         'allFilesDistributionsLoaded',
-        'hasSingleFile',
+        'hasSingleRegFile',
         'oneprovider',
         'storageId',
-        'hasOnlyFiles',
       );
       if (!allFilesDistributionsLoaded || !filesSize) {
         return emptyChunksBarData;
-      } else if (hasSingleFile && hasOnlyFiles) {
+      } else if (hasSingleRegFile) {
         const fileDistribution =
-          fileDistributionData[0].getDistributionForStorage(oneprovider, storageId);
+          fileDistributionData[0].getDistributionForStorageId(oneprovider, storageId);
         return (fileDistribution && get(fileDistribution, 'chunksBarData')) ||
           emptyChunksBarData;
       } else {
@@ -424,38 +445,24 @@ export default Component.extend(I18n, {
         i18n,
         hasReadonlySupport,
         spaceHasSingleOneprovider,
-        fileDistributionData,
         replicationForbidden,
         percentage,
-        oneprovider,
-        storageId,
-        isDistributionDataIncomplete,
         filesSize,
       } = this.getProperties(
         'i18n',
         'hasReadonlySupport',
         'spaceHasSingleOneprovider',
-        'fileDistributionData',
         'replicationForbidden',
         'percentage',
-        'oneprovider',
-        'storageId',
-        'isDistributionDataIncomplete',
         'filesSize',
       );
 
       const state = { enabled: false };
       let tooltipI18nKey;
-      if (isDistributionDataIncomplete || filesSize === 0) {
+
+      if (filesSize === 0) {
         return state;
       }
-
-      const someNeverSynchronized = fileDistributionData
-        .map(fileDistDataContainer =>
-          fileDistDataContainer.getDistributionForStorage(oneprovider, storageId)
-        )
-        .includes(undefined);
-
       if (replicationForbidden) {
         state.tooltip = insufficientPrivilegesMessage({
           i18n,
@@ -464,7 +471,7 @@ export default Component.extend(I18n, {
         });
       } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledReplicationSingleOneprovider';
-      } else if (!(someNeverSynchronized || percentage < 100)) {
+      } else if (percentage >= 100) {
         tooltipI18nKey = 'disabledReplicationIsComplete';
       } else if (hasReadonlySupport) {
         tooltipI18nKey = 'disabledReplicationReadonly';
@@ -660,7 +667,7 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {Ember.ComputedProperty<boolean>}
+   * @type {Ember.ComputedProperty<boolean|undefined>}
    */
   dataExistOnOtherOneproviders: computed(
     'oneprovider',
@@ -683,7 +690,10 @@ export default Component.extend(I18n, {
         'isDistributionDataIncomplete',
       );
       const oneproviderId = get(oneprovider, 'entityId');
-      if (spaceHasSingleOneprovider || isDistributionDataIncomplete) {
+      if (isDistributionDataIncomplete) {
+        return undefined;
+      }
+      if (spaceHasSingleOneprovider) {
         return false;
       } else if (!filesSize) {
         return false;

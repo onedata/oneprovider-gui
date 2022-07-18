@@ -11,17 +11,19 @@
 import Component from '@ember/component';
 import { observer, get, set, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, notEmpty, array, equal } from 'ember-awesome-macros';
+import { conditional, raw, notEmpty, array, equal, and, promise } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { Promise } from 'rsvp';
+import { Promise, all as allSettled } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import _ from 'lodash';
 
 export default Component.extend(I18n, {
   classNames: ['oneproviders-distribution'],
 
   i18n: service(),
+  storageManager: service(),
 
   /**
    * @override
@@ -281,14 +283,56 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * @type {Ember.ComputedProperty<boolean>}
+   *
+   * @type {ComputedProperty<PromiseArray<Object>>}
    */
-  hasSingleFile: equal('fileDistributionData.length', raw(1)),
+  distributionItemsProxy: promise.array(
+    computed(
+      'fileDistributionData',
+      'oneproviders',
+      'storageManager',
+      'space',
+      function distributionItemsProxy() {
+        const {
+          fileDistributionData,
+          oneproviders,
+          storageManager,
+          space,
+        } = this.getProperties(
+          'fileDistributionData',
+          'oneproviders',
+          'storageManager',
+          'space'
+        );
+        const spaceId = get(space, 'entityId');
+
+        return Promise.all(oneproviders.map(oneprovider => {
+          return Promise.all(
+            fileDistributionData[0].getStorageIdsForOneprovider(oneprovider).map(
+              storageId => {
+                return storageManager.getStorageById(storageId, {
+                  throughSpaceId: spaceId,
+                  backgroundReload: false,
+                });
+              }
+            )
+          ).then(storages => {
+            return storages.map(storage => ({ storage, oneprovider }));
+          });
+        })).then(storagesPerOneprovider =>
+          array.sort(_.flatten(storagesPerOneprovider), ['oneprovider.name'])
+        );
+      }
+    )
+  ),
 
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasOnlyFiles: array.isEvery('fileDistributionData', raw('fileType'), raw('file')),
+  hasSingleRegFile: and(
+    equal('fileDistributionData.length', raw(1)),
+    array.isEvery('fileDistributionData', raw('fileType'), raw('file'))
+  ),
 
   init() {
     this._super(...arguments);

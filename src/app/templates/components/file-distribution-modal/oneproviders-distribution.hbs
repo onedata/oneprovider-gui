@@ -19,26 +19,28 @@
   {{/if}}
   <div class="{{if (or isMigrationDestinationSelectorVisible isStartSubsequentTransferConfirmationVisible) "hidden"}}">
     <ul>
-      {{#each-in storageList as |storageId oneprovider|}}
-        {{file-distribution-modal/oneproviders-distribution-item
-          class=(concat "oneprovider-" oneprovider.entityId)
-          oneprovider=oneprovider
-          hasReadonlySupport=(contains
-            oneprovider.entityId
-            space.providersWithReadonlySupport
-          )
-          spaceHasSingleOneprovider=(eq oneproviders.length 1)
-          fileDistributionData=fileDistributionData
-          replicationForbidden=(not space.privileges.scheduleReplication)
-          evictionForbidden=(not space.privileges.scheduleEviction)
-          onReplicate=(action "tryStartReplication" oneprovider)
-          onMigrate=(action "selectMigrationDestination" oneprovider)
-          onEvict=(action "tryStartEviction" oneprovider)
-          storageId=storageId
-          space=space
-        }}
-      {{/each-in}}
-      <div class="transfers-counter-info">
+      {{#promise-proxy-container proxy=distributionItemsProxy}}
+        {{#each distributionItemsProxy.content as |distributionItem|}}
+          {{file-distribution-modal/oneproviders-distribution-item
+            class=(concat "oneprovider-" oneprovider.entityId)
+            oneprovider=distributionItem.oneprovider
+            hasReadonlySupport=(contains
+              distributionItem.oneprovider.entityId
+              space.providersWithReadonlySupport
+            )
+            spaceHasSingleOneprovider=(eq oneproviders.length 1)
+            fileDistributionData=fileDistributionData
+            replicationForbidden=(not space.privileges.scheduleReplication)
+            evictionForbidden=(not space.privileges.scheduleEviction)
+            onReplicate=(action "tryStartReplication" distributionItem.oneprovider)
+            onMigrate=(action "selectMigrationDestination" distributionItem.oneprovider)
+            onEvict=(action "tryStartEviction" distributionItem.oneprovider)
+            storage=distributionItem.storage
+            space=space
+          }}
+        {{/each}}
+      {{/promise-proxy-container}}
+      <div class="bottom-distribution-description">
         {{#unless batchMode}}
           {{#promise-proxy-container
             proxy=fileDistributionData.firstObject.transfersProxy
@@ -48,7 +50,7 @@
             absoluteCentered=false
             sizeClass="xxs"
           }}
-            <div>
+            <p class="transfers-counter-info">
               {{#if fileDistributionData.firstObject.transfersProxy.content}}
                 {{#if activeTransfersExist}}
                   {{tt this "currentlyTransferredText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
@@ -69,12 +71,12 @@
                   {{tt this "noTransfersText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
                 {{/if}}
               {{/if}}
-            </div>
+            </p>
           {{/promise-proxy-container}}
         {{/unless}}
         <div class="main-legend">
           <div class="legend">
-            {{#if (and hasSingleFile hasOnlyFiles)}}
+            {{#if hasSingleRegFile}}
               <div class="block-legend"></div>{{tt this "blockDistributionLegend"}}
             {{else}}
               <div class="replication-legend"></div>{{tt this "replicationRatioLegend"}}
