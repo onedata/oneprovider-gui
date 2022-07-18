@@ -184,10 +184,11 @@ export default Component.extend(I18n, {
    */
   blockCount: computed(
     'hasSingleRegFile',
-    'fileDistDataContainer',
+    'fileDistributionData[0].fileSize',
     'oneprovider',
     'storageId',
     'allFilesDistributionsLoaded',
+    'percentage',
     function blockCount() {
       const {
         hasSingleRegFile,
@@ -300,11 +301,15 @@ export default Component.extend(I18n, {
         'isDistributionDataIncomplete',
       );
 
-      if (allFilesDistributionsLoaded && filesSize && !isDistributionDataIncomplete) {
-        const percentage = Math.floor(
-          (Math.min(filesSizeOnStorage, filesSize) / filesSize) * 100
-        );
-        return filesSizeOnStorage ? Math.max(percentage, 1) : 0;
+      if (allFilesDistributionsLoaded && !isDistributionDataIncomplete) {
+        if (filesSize) {
+          const percentage = Math.floor(
+            (Math.min(filesSizeOnStorage, filesSize) / filesSize) * 100
+          );
+          return filesSizeOnStorage ? Math.max(percentage, 1) : 0;
+        } else if (filesSize === 0) {
+          return 0;
+        }
       } else {
         return undefined;
       }

@@ -200,8 +200,10 @@ export default Component.extend({
                     success: false,
                     distributionPerStorage: {
                       storage3: {
-                        description: 'Directory statistics collection is disabled for this space.',
-                        id: 'dirStatsDisabledForSpace',
+                        error: {
+                          description: 'Directory statistics collection is disabled for this space.',
+                          id: 'dirStatsDisabledForSpace',
+                        },
                       },
                     },
 

@@ -29,8 +29,9 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
     fileDistribution: {
       providerkrk: {
         success: successOnKrakow,
+        logicalSize: 1024,
         distributionPerStorage: {
-          storage1: type === 'dir' ? { physicalSize: normalizedOnKrakowDir } : {
+          storage: type === 'dir' ? { physicalSize: normalizedOnKrakowDir } : {
             blocksPercentage: normalizedOnKrakow,
             chunksBarData: {
               0: normalizedOnKrakow,
@@ -42,8 +43,9 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
       },
       providerpar: {
         success: successOnParis,
+        logicalSize: 1024,
         distributionPerStorage: {
-          storage2: type === 'dir' ? { physicalSize: normalizedOnParis } : {
+          storage: type === 'dir' ? { physicalSize: normalizedOnParis } : {
             blocksPercentage: normalizedOnParis,
             chunksBarData: {
               0: normalizedOnParis,
@@ -105,7 +107,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       };
 
       sinon.stub(lookupService(this, 'storageManager'), 'getStorageById')
-        .resolves({ name: 'storage' });
+        .resolves({ name: 'storage', entityId: 'storage' });
 
       this.setProperties({
         oneproviders,

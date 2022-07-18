@@ -22,7 +22,7 @@
       {{#promise-proxy-container proxy=distributionItemsProxy}}
         {{#each distributionItemsProxy.content as |distributionItem|}}
           {{file-distribution-modal/oneproviders-distribution-item
-            class=(concat "oneprovider-" oneprovider.entityId)
+            class=(concat "oneprovider-" distributionItem.oneprovider.entityId)
             oneprovider=distributionItem.oneprovider
             hasReadonlySupport=(contains
               distributionItem.oneprovider.entityId
