@@ -284,7 +284,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             builderRecipe: {
               dynamicSeriesConfigsSource: {
                 sourceType: 'external',
-                "sourceSpec": {
+                sourceSpec: {
                   externalSourceName: 'qosEntryData',
                   externalSourceParameters: {
                     collectionId: 'files',

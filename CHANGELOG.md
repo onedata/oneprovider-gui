@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9335 Added charts dashboards to workflow GUI
 * VFS-9316 Removed usages of EmberPowerSelectHelper
 * VFS-9394 Removed ember-browser-info
 * VFS-9419 Added locking directory statistics toggle when accounting is enabled
