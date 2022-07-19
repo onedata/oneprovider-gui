@@ -378,7 +378,7 @@
   .replication-legend, .block-legend {
     width: 10px;
     height: 10px;
-    min-width: 10px;
+    flex-shrink: 0;
     margin-right: 5px;
     margin-left: 5px;
     align-self: center;

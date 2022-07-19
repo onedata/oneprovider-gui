@@ -184,11 +184,10 @@ export default Component.extend(I18n, {
    */
   blockCount: computed(
     'hasSingleRegFile',
-    'fileDistributionData.firstObject.fileSize',
+    'fileDistributionData.firstObject.{fileSize,fileDistribution}',
     'oneprovider',
     'storageId',
     'allFilesDistributionsLoaded',
-    'percentage',
     function blockCount() {
       const {
         hasSingleRegFile,
@@ -436,7 +435,6 @@ export default Component.extend(I18n, {
     'oneprovider',
     'replicationForbidden',
     'storageId',
-    'isDistributionDataIncomplete',
     function replicateHereActionState() {
       const {
         i18n,
