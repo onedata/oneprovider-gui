@@ -15,12 +15,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import config from 'ember-get-config';
 import { debounce } from '@ember/runloop';
-import {
-  getTargetStoreTypesForType,
-  getTargetDataTypesForType,
-  dataSpecToType,
-  getStoreWriteDataSpec,
-} from 'onedata-gui-common/utils/workflow-visualiser/data-spec-converters';
+import { doesDataSpecFitToStoreWrite } from 'onedata-gui-common/utils/atm-workflow/store-config';
 
 const typingActionDebouce = config.timing.typingActionDebouce;
 
@@ -141,26 +136,15 @@ export default Component.extend(I18n, {
   getMatchingRevisionNumbers(atmWorkflowSchema, requiredInputStoreSpec) {
     const revisionRegistry = get(atmWorkflowSchema, 'revisionRegistry') || {};
     const allRevisionNumbers = Object.keys(revisionRegistry).map(key => parseInt(key));
-    if (!requiredInputStoreSpec) {
+    if (!requiredInputStoreSpec?.dataSpec) {
       return allRevisionNumbers;
     }
-    const requiredDataType = dataSpecToType(requiredInputStoreSpec.dataSpec);
-    const targetStoreTypes = getTargetStoreTypesForType(
-      requiredDataType.type,
-      requiredInputStoreSpec.valuesCount > 1
-    );
-    const targetDataTypes = getTargetDataTypesForType(requiredDataType.type);
     return allRevisionNumbers.filter(revisionNumber => {
       const stores = get(revisionRegistry[revisionNumber] || {}, 'stores') || [];
       const inputStores = stores.filterBy('requiresInitialContent');
-      return inputStores.some(store => {
-        const storeType = get(store, 'type');
-        const storeWriteDataSpec = getStoreWriteDataSpec(store);
-        const storeWriteDataType = storeWriteDataSpec ?
-          dataSpecToType(storeWriteDataSpec) : null;
-        return storeWriteDataType && targetStoreTypes.includes(storeType) &&
-          targetDataTypes.includes(storeWriteDataType.type);
-      });
+      return inputStores.some(store =>
+        doesDataSpecFitToStoreWrite(requiredInputStoreSpec.dataSpec, store)
+      );
     });
   },
 

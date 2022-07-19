@@ -28,12 +28,8 @@ import { resolve, all as allFulfilled } from 'rsvp';
 import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
 import DatasetModel from 'oneprovider-gui/utils/items-select-browser/dataset-model';
 import { normalizedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
-import {
-  getTargetStoreTypesForType,
-  getTargetDataTypesForType,
-  dataSpecToType,
-  getStoreWriteDataSpec,
-} from 'onedata-gui-common/utils/workflow-visualiser/data-spec-converters';
+import { getStoreWriteDataSpec } from 'onedata-gui-common/utils/workflow-visualiser/data-spec-converters';
+import { doesDataSpecFitToStoreWrite } from 'onedata-gui-common/utils/atm-workflow/store-config';
 
 export const executeWorkflowDataLocalStorageKey = 'executeWorkflowInputData';
 
@@ -856,16 +852,5 @@ function hasUseSelectionInputMethod(inputStore, localStorageData) {
   if (!dataSpec || !data || !data.length) {
     return false;
   }
-
-  const requiredDataType = dataSpecToType(dataSpec);
-  const targetStoreTypes = getTargetStoreTypesForType(
-    requiredDataType.type,
-    data.length > 1
-  );
-  const targetDataTypes = getTargetDataTypesForType(requiredDataType.type);
-  const storeType = get(inputStore, 'type');
-  const storeWriteDataSpec = getStoreWriteDataSpec(inputStore);
-  const storeDataType = dataSpecToType(storeWriteDataSpec);
-  return targetStoreTypes.includes(storeType) &&
-    targetDataTypes.includes(storeDataType.type);
+  return doesDataSpecFitToStoreWrite(dataSpec, inputStore);
 }
