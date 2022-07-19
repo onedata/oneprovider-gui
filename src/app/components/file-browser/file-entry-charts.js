@@ -190,20 +190,20 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             name: String(this.t('axes.files')),
             minInterval: 1,
           }],
-          seriesGroups: [{
-            factoryName: 'static',
-            factoryArguments: {
+          seriesGroupBuilders: [{
+            builderType: 'static',
+            builderRecipe: {
               seriesGroupTemplate: {
                 id: 'totalCount',
                 name: String(this.t('seriesGroups.totalCount')),
-                stack: true,
-                showSeriesSum: true,
+                stacked: true,
+                showSum: true,
               },
             },
           }],
-          series: [{
-            factoryName: 'static',
-            factoryArguments: {
+          seriesBuilders: [{
+            builderType: 'static',
+            builderRecipe: {
               seriesTemplate: {
                 id: 'directoriesCount',
                 name: String(this.t('series.directoriesCount')),
@@ -211,27 +211,47 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 type: 'line',
                 yAxisId: 'countAxis',
                 groupId: 'totalCount',
-                data: {
+                dataProvider: {
                   functionName: 'loadSeries',
                   functionArguments: {
                     sourceType: 'external',
-                    sourceParameters: {
-                      externalSourceName: 'dirStatisticsData',
-                      externalSourceParameters: {
-                        seriesId: 'dir_count',
+                    sourceSpecProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          externalSourceName: 'dirStatisticsData',
+                          externalSourceParameters: {
+                            seriesId: 'dir_count',
+                          },
+                        },
                       },
                     },
-                    replaceEmptyOptions: {
-                      strategy: 'usePrevious',
-                      fallbackValue: 0,
+                    replaceEmptyParametersProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          strategyProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 'usePrevious',
+                            },
+                          },
+                          fallbackValueProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 0,
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
               },
             },
           }, {
-            factoryName: 'static',
-            factoryArguments: {
+            builderType: 'static',
+            builderRecipe: {
               seriesTemplate: {
                 id: 'regAndLinksCount',
                 name: String(this.t('series.regAndLinksCount')),
@@ -239,19 +259,39 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 type: 'line',
                 yAxisId: 'countAxis',
                 groupId: 'totalCount',
-                data: {
+                dataProvider: {
                   functionName: 'loadSeries',
                   functionArguments: {
                     sourceType: 'external',
-                    sourceParameters: {
-                      externalSourceName: 'dirStatisticsData',
-                      externalSourceParameters: {
-                        seriesId: 'reg_file_and_link_count',
+                    sourceSpecProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          externalSourceName: 'dirStatisticsData',
+                          externalSourceParameters: {
+                            seriesId: 'reg_file_and_link_count',
+                          },
+                        },
                       },
                     },
-                    replaceEmptyOptions: {
-                      strategy: 'usePrevious',
-                      fallbackValue: 0,
+                    replaceEmptyParametersProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          strategyProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 'usePrevious',
+                            },
+                          },
+                          fallbackValueProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 0,
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
@@ -294,32 +334,44 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             name: String(this.t('axes.bytes')),
             color: this.get('seriesColorsConfig.bytesColor'),
             minInterval: 1,
-            valueFormatter: {
-              functionName: 'formatWithUnit',
-              functionArguments: {
-                unitName: 'bytes',
-                data: {
-                  functionName: 'supplyValue',
-                },
-              },
-            },
+            unitName: 'bytes',
           }],
-          seriesGroups: [{
-            factoryName: 'dynamic',
-            factoryArguments: {
+          seriesGroupBuilders: [{
+            builderType: 'dynamic',
+            builderRecipe: {
               dynamicSeriesGroupConfigsSource: {
                 sourceType: 'external',
-                sourceParameters: {
+                sourceSpec: {
                   externalSourceName: 'dirStatisticsData',
                 },
               },
               seriesGroupTemplate: {
-                id: 'totalPhysicalSize',
-                name: String(this.t('seriesGroups.totalPhysicalSize')),
-                stack: true,
-                showSeriesSum: true,
-                subgroups: {
-                  functionName: 'getDynamicSeriesGroupConfigData',
+                idProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: 'totalPhysicalSize',
+                  },
+                },
+                nameProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: String(this.t('seriesGroups.totalPhysicalSize')),
+                  },
+                },
+                stackedProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: true,
+                  },
+                },
+                showSumProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: true,
+                  },
+                },
+                subgroupsProvider: {
+                  functionName: 'getDynamicSeriesGroupConfig',
                   functionArguments: {
                     propertyName: 'subgroups',
                   },
@@ -327,81 +379,126 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
               },
             },
           }],
-          series: [{
-            factoryName: 'static',
-            factoryArguments: {
+          seriesBuilders: [{
+            builderType: 'static',
+            builderRecipe: {
               seriesTemplate: {
                 id: 'totalLogicalSize',
                 name: String(this.t('series.totalLogicalSize')),
                 type: 'line',
                 yAxisId: 'bytesAxis',
-                data: {
+                dataProvider: {
                   functionName: 'loadSeries',
                   functionArguments: {
                     sourceType: 'external',
-                    sourceParameters: {
-                      externalSourceName: 'dirStatisticsData',
-                      externalSourceParameters: {
-                        seriesId: 'total_size',
+                    sourceSpecProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          externalSourceName: 'dirStatisticsData',
+                          externalSourceParameters: {
+                            seriesId: 'total_size',
+                          },
+                        },
                       },
                     },
-                    replaceEmptyOptions: {
-                      strategy: 'usePrevious',
-                      fallbackValue: 0,
+                    replaceEmptyParametersProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          strategyProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 'usePrevious',
+                            },
+                          },
+                          fallbackValueProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 0,
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
               },
             },
           }, {
-            factoryName: 'dynamic',
-            factoryArguments: {
+            builderType: 'dynamic',
+            builderRecipe: {
               dynamicSeriesConfigsSource: {
                 sourceType: 'external',
-                sourceParameters: {
+                sourceSpec: {
                   externalSourceName: 'dirStatisticsData',
                 },
               },
               seriesTemplate: {
-                id: {
-                  functionName: 'getDynamicSeriesConfigData',
+                idProvider: {
+                  functionName: 'getDynamicSeriesConfig',
                   functionArguments: {
                     propertyName: 'id',
                   },
                 },
-                name: {
-                  functionName: 'getDynamicSeriesConfigData',
+                nameProvider: {
+                  functionName: 'getDynamicSeriesConfig',
                   functionArguments: {
                     propertyName: 'name',
                   },
                 },
-                color: {
-                  functionName: 'getDynamicSeriesConfigData',
+                colorProvider: {
+                  functionName: 'getDynamicSeriesConfig',
                   functionArguments: {
                     propertyName: 'color',
                   },
                 },
-                type: 'bar',
-                yAxisId: 'bytesAxis',
-                groupId: {
-                  functionName: 'getDynamicSeriesConfigData',
+                typeProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: 'bar',
+                  },
+                },
+                yAxisIdProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: 'bytesAxis',
+                  },
+                },
+                groupIdProvider: {
+                  functionName: 'getDynamicSeriesConfig',
                   functionArguments: {
                     propertyName: 'groupId',
                   },
                 },
-                data: {
+                dataProvider: {
                   functionName: 'loadSeries',
                   functionArguments: {
                     sourceType: 'external',
-                    sourceParameters: {
-                      functionName: 'getDynamicSeriesConfigData',
+                    sourceSpecProvider: {
+                      functionName: 'getDynamicSeriesConfig',
                       functionArguments: {
                         propertyName: 'pointsSource',
                       },
                     },
-                    replaceEmptyOptions: {
-                      strategy: 'usePrevious',
-                      fallbackValue: 0,
+                    replaceEmptyParametersProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          strategyProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 'usePrevious',
+                            },
+                          },
+                          fallbackValueProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 0,
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
@@ -615,13 +712,13 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       return {
         id: `provider_${entityId}`,
         name,
-        showSeriesSum: true,
+        showSum: true,
       };
     });
     const allProvidersGroups = [...knownProvidersGroups, {
       id: 'provider_unknown',
       name: this.t('unknownProvider'),
-      showSeriesSum: true,
+      showSum: true,
     }];
 
     // There is only one dynamic series group - total physical size. So we don't
