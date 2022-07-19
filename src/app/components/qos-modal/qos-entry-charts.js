@@ -216,63 +216,75 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),
             minInterval: 1,
-            valueFormatter: {
-              functionName: 'formatWithUnit',
-              functionArguments: {
-                unitName: 'bytes',
-                data: {
-                  functionName: 'supplyValue',
-                },
-              },
-            },
+            unitName: 'bytes',
           }, {
             id: 'filesAxis',
             name: String(this.t('axes.files')),
             minInterval: 1,
           }],
-          seriesGroups: [{
-            factoryName: 'static',
-            factoryArguments: {
+          seriesGroupBuilders: [{
+            builderType: 'static',
+            builderRecipe: {
               seriesGroupTemplate: {
                 id: 'transferredFiles',
-                stack: true,
+                stacked: true,
               },
             },
           }],
-          series: [{
-            factoryName: 'static',
-            factoryArguments: {
+          seriesBuilders: [{
+            builderType: 'static',
+            builderRecipe: {
               seriesTemplate: {
                 id: 'totalBytes',
                 name: String(this.t('series.totalBytes')),
                 color: '#4A6089',
                 type: 'line',
                 yAxisId: 'bytesAxis',
-                data: {
+                dataProvider: {
                   functionName: 'loadSeries',
                   functionArguments: {
                     sourceType: 'external',
-                    sourceParameters: {
-                      externalSourceName: 'qosEntryData',
-                      externalSourceParameters: {
-                        collectionId: 'bytes',
-                        seriesId: 'total',
+                    sourceSpecProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          externalSourceName: 'qosEntryData',
+                          externalSourceParameters: {
+                            collectionId: 'bytes',
+                            seriesId: 'total',
+                          },
+                        },
                       },
                     },
-                    replaceEmptyOptions: {
-                      strategy: 'useFallback',
-                      fallbackValue: 0,
+                    replaceEmptyParametersProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          strategyProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 'useFallback',
+                            },
+                          },
+                          fallbackValueProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 0,
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
               },
             },
           }, {
-            factoryName: 'dynamic',
-            factoryArguments: {
+            builderType: 'dynamic',
+            builderRecipe: {
               dynamicSeriesConfigsSource: {
                 sourceType: 'external',
-                sourceParameters: {
+                sourceSpec: {
                   externalSourceName: 'qosEntryData',
                   externalSourceParameters: {
                     collectionId: 'files',
@@ -280,40 +292,70 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 },
               },
               seriesTemplate: {
-                id: {
-                  functionName: 'getDynamicSeriesConfigData',
+                idProvider: {
+                  functionName: 'getDynamicSeriesConfig',
                   functionArguments: {
                     propertyName: 'id',
                   },
                 },
-                name: {
-                  functionName: 'getDynamicSeriesConfigData',
+                nameProvider: {
+                  functionName: 'getDynamicSeriesConfig',
                   functionArguments: {
                     propertyName: 'name',
                   },
                 },
-                color: {
-                  functionName: 'getDynamicSeriesConfigData',
+                colorProvider: {
+                  functionName: 'getDynamicSeriesConfig',
                   functionArguments: {
                     propertyName: 'color',
                   },
                 },
-                type: 'bar',
-                yAxisId: 'filesAxis',
-                groupId: 'transferredFiles',
-                data: {
+                typeProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: 'bar',
+                  },
+                },
+                yAxisIdProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: 'filesAxis',
+                  },
+                },
+                groupIdProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: 'transferredFiles',
+                  },
+                },
+                dataProvider: {
                   functionName: 'loadSeries',
                   functionArguments: {
                     sourceType: 'external',
-                    sourceParameters: {
-                      functionName: 'getDynamicSeriesConfigData',
+                    sourceSpecProvider: {
+                      functionName: 'getDynamicSeriesConfig',
                       functionArguments: {
                         propertyName: 'pointsSource',
                       },
                     },
-                    replaceEmptyOptions: {
-                      strategy: 'useFallback',
-                      fallbackValue: 0,
+                    replaceEmptyParametersProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          strategyProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 'useFallback',
+                            },
+                          },
+                          fallbackValueProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 0,
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
@@ -363,31 +405,23 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),
             minInterval: 1,
-            valueFormatter: {
-              functionName: 'formatWithUnit',
-              functionArguments: {
-                unitName: 'bytes',
-                data: {
-                  functionName: 'supplyValue',
-                },
-              },
-            },
+            unitName: 'bytes',
           }],
-          seriesGroups: [{
-            factoryName: 'static',
-            factoryArguments: {
+          seriesGroupBuilders: [{
+            builderType: 'static',
+            builderRecipe: {
               seriesGroupTemplate: {
                 id: 'sentBytes',
-                stack: true,
+                stacked: true,
               },
             },
           }],
-          series: [{
-            factoryName: 'dynamic',
-            factoryArguments: {
+          seriesBuilders: [{
+            builderType: 'dynamic',
+            builderRecipe: {
               dynamicSeriesConfigsSource: {
                 sourceType: 'external',
-                sourceParameters: {
+                sourceSpec: {
                   externalSourceName: 'qosEntryData',
                   externalSourceParameters: {
                     collectionId: 'bytes',
@@ -395,40 +429,70 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 },
               },
               seriesTemplate: {
-                id: {
-                  functionName: 'getDynamicSeriesConfigData',
+                idProvider: {
+                  functionName: 'getDynamicSeriesConfig',
                   functionArguments: {
                     propertyName: 'id',
                   },
                 },
-                name: {
-                  functionName: 'getDynamicSeriesConfigData',
+                nameProvider: {
+                  functionName: 'getDynamicSeriesConfig',
                   functionArguments: {
                     propertyName: 'name',
                   },
                 },
-                color: {
-                  functionName: 'getDynamicSeriesConfigData',
+                colorProvider: {
+                  functionName: 'getDynamicSeriesConfig',
                   functionArguments: {
                     propertyName: 'color',
                   },
                 },
-                type: 'line',
-                yAxisId: 'bytesAxis',
-                groupId: 'sentBytes',
-                data: {
+                typeProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: 'line',
+                  },
+                },
+                yAxisIdProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: 'bytesAxis',
+                  },
+                },
+                groupIdProvider: {
+                  functionName: 'literal',
+                  functionArguments: {
+                    data: 'sentBytes',
+                  },
+                },
+                dataProvider: {
                   functionName: 'loadSeries',
                   functionArguments: {
                     sourceType: 'external',
-                    sourceParameters: {
-                      functionName: 'getDynamicSeriesConfigData',
+                    sourceSpecProvider: {
+                      functionName: 'getDynamicSeriesConfig',
                       functionArguments: {
                         propertyName: 'pointsSource',
                       },
                     },
-                    replaceEmptyOptions: {
-                      strategy: 'useFallback',
-                      fallbackValue: 0,
+                    replaceEmptyParametersProvider: {
+                      functionName: 'literal',
+                      functionArguments: {
+                        data: {
+                          strategyProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 'useFallback',
+                            },
+                          },
+                          fallbackValueProvider: {
+                            functionName: 'literal',
+                            functionArguments: {
+                              data: 0,
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
