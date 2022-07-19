@@ -14,10 +14,11 @@ import { reads } from '@ember/object/computed';
 import { conditional, raw, notEmpty, array, equal, and, promise } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { Promise, all as allSettled } from 'rsvp';
+import { Promise } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import _ from 'lodash';
+import sortByProperties from 'onedata-gui-common/utils/ember/sort-by-properties';
 
 export default Component.extend(I18n, {
   classNames: ['oneproviders-distribution'],
@@ -320,7 +321,7 @@ export default Component.extend(I18n, {
             return storages.map(storage => ({ storage, oneprovider }));
           });
         })).then(storagesPerOneprovider =>
-          array.sort(_.flatten(storagesPerOneprovider), ['oneprovider.name'])
+          sortByProperties(_.flatten(storagesPerOneprovider), ['oneprovider.name'])
         );
       }
     )

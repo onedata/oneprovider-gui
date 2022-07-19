@@ -378,7 +378,9 @@
   .replication-legend, .block-legend {
     width: 10px;
     height: 10px;
+    min-width: 10px;
     margin-right: 5px;
+    margin-left: 5px;
     align-self: center;
   }
 
@@ -397,5 +399,6 @@
 
   .main-legend {
     flex-grow: 1;
+    margin-left: $padding-small-horizontal;
   }
 }

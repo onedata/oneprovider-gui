@@ -38,7 +38,7 @@ export default Component.extend(I18n, {
   size: undefined,
 
   /**
-   * @type {boolean}
+   * @type {ComputedProperty<boolean>}
    */
   isDataIncomplete: or(
     eq('percentage', undefined),
