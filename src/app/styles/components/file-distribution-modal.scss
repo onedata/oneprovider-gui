@@ -22,8 +22,16 @@
     }
 
     &:first-child {
-      .chunks-scale-container {
-        top: -14px;
+      .progress-bar-visualizer {
+        .progress-bar-scale-container {
+          top: 0px;
+        }
+      }
+
+      .chunks-visualizer {
+        .chunks-scale-container {
+          top: -14px;
+        }
       }
 
       .chunks-scale {
@@ -39,7 +47,7 @@
       min-width: 0;
     }
 
-    .oneprovider-name {
+    .distribution-row-name {
       flex-grow: 1;
     }
 
@@ -60,7 +68,7 @@
       }
     }
 
-    .chunks-visualizer {
+    .chunks-visualizer, .progress-bar-visualizer {
       display: flex;
       flex-shrink: 0;
       width: 40%;
@@ -68,9 +76,11 @@
     }
   }
 
-  .transfers-counter-info {
+  .bottom-distribution-description {
     margin-top: $padding-base-vertical;
     min-height: 1em;
+    display: flex;
+    justify-content: space-between;
   }
 
   .destination-oneprovider-selector {
@@ -86,7 +96,7 @@
       .oneprovider-icon {
         font-size: 40px;
       }
-      .oneprovider-name {
+      .distribution-row-name {
         font-size: 90%;
         word-break: break-all;
       }
@@ -226,44 +236,69 @@
 
   .batch-mode-intro {
     margin-bottom: $padding-large-vertical;
+
+    .details-size-info {
+      .one-icon {
+        transform: translateY(-4%);
+        position: absolute;
+        font-size: 150%;
+      }
+    }
   }
 
-  .chunks-visualizer {
+  .chunks-visualizer, .progress-bar-visualizer {
     position: relative;
     display: flex;
     align-items: center;
 
-    .chunks-text {
+    .chunks-text, .size-label, .progress-bar-text {
       @include absolute-align-middle-center();
+      @include font-semibold;
       white-space: nowrap;
       font-size: 80%;
+      color: $color-one-dark-gray;
+      text-shadow:
+        0.2em 0 10px white,
+        0 0.2em 10px white,
+        -0.2em 0 10px white,
+        0 -0.2em 10px white;
     }
 
-    .chunks-background {
+    .chunks-background, .progress-bar-background {
       flex-grow: 1;
       min-width: 0;
       height: $one-pill-button-height;
-      background-image: linear-gradient(
-        -45deg,
-        $color-one-light-blue 25%,
-        transparent 25%,
-        transparent 50%,
-        $color-one-light-blue 25%,
-        $color-one-light-blue 75%,
-        transparent 75%,
-        transparent
-      );
+      background-color: $color-one-light-blue;
       background-size: 50px 50px;
     }
 
-    .chunks-container {
+    .chunks-container, .progress-bar-container {
       position: relative;
       display: flex;
       flex-grow: 1;
       min-width: 0;
+      background-color: $color-one-light-blue;
     }
 
-    .chunks-scale-container {
+    .progress-bar {
+      display: flex;
+      flex: 0 0 0;
+      min-width: 0;
+      height: $one-pill-button-height;
+      width: 0px;
+      background-color: $color-one-azure;
+      $gradient-size: 8px;
+      @include fill-container();
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.1) $gradient-size,
+        transparent $gradient-size,
+        transparent $gradient-size * 2
+      );
+    }
+
+    .chunks-scale-container, .progress-bar-scale-container {
       display: flex;
       position: absolute;
       top: -$padding-small-vertical - 2px;
@@ -290,7 +325,7 @@
       background-color: $color-one-light-blue;
     }
 
-    .percentage-text {
+    .percentage-text, .size-text {
       flex-shrink: 0;
       width: 3em;
       text-align: right;
@@ -310,7 +345,7 @@
         order: 3;
         margin-bottom: $padding-small-vertical;
       }
-      .chunks-visualizer {
+      .chunks-visualizer, .progress-bar-visualizer {
         flex-grow: 1;
         order: 4;
         margin: 0;
@@ -338,5 +373,32 @@
     .list-content {
       padding: $padding-large-vertical;
     }
+  }
+
+  .replication-legend, .block-legend {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    margin-right: 5px;
+    margin-left: 5px;
+    align-self: center;
+  }
+
+  .replication-legend {
+    background-color: $color-one-azure;
+  }
+
+  .block-legend {
+    background-color: $color-one-mint;
+  }
+
+  .legend {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .main-legend {
+    flex-grow: 1;
+    margin-left: $padding-small-horizontal;
   }
 }

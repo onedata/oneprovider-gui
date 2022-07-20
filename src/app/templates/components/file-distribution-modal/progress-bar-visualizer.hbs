@@ -1,0 +1,24 @@
+<div class="progress-bar-container">
+  <div class="progress-bar-scale-container"></div>
+  {{#if isDataIncomplete}}
+    <div class="progress-bar-text na-text hidden-xs">
+      {{tt this "na"}}
+    </div>
+    <div class="progress-bar-background"></div>
+    {{one-tooltip title=(tt this "naTip")}}
+  {{else}}
+    <div class="progress-bar bar" style={{occupiedSpaceBarStyle}}>
+      <div class="size-label">
+        {{bytes-to-string size}}
+      </div>
+    </div>
+  {{/if}}
+</div>
+  <div class="percentage-text">
+    {{#if isDataIncomplete}}
+      <span>{{tt this "na"}}</span>
+    {{else}}
+      {{percentageText}}
+    {{/if}}
+  </div>
+{{yield}}

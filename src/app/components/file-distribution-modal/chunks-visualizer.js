@@ -12,6 +12,7 @@ import { computed, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { scheduleOnce } from '@ember/runloop';
+import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 
 export default Component.extend(I18n, {
   classNames: ['chunks-visualizer'],
@@ -40,14 +41,13 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {number}
    */
-  percentage: undefined,
+  blockCount: undefined,
 
   /**
-   * One of 'file', 'dir'
    * @virtual
-   * @type {string}
+   * @type {number}
    */
-  fileType: undefined,
+  percentage: undefined,
 
   /**
    * @virtual
@@ -73,6 +73,21 @@ export default Component.extend(I18n, {
   percentageText: computed('percentage', function percentageText() {
     const percentage = this.get('percentage');
     return percentage !== undefined ? `${Math.floor(percentage)}%` : '';
+  }),
+
+  /**
+   * @type {Ember.ComputedProperty<string>}
+   */
+  blocksSizeText: computed('fileSize', 'blockCount', function blocksSizeText() {
+    const {
+      fileSize,
+      blockCount,
+    } = this.getProperties('fileSize', 'blockCount');
+    return this.t('blocksSize', {
+      size: bytesToString(fileSize),
+      blockCount,
+      blockNoun: blockCount > 1 ? this.t('blocks') : this.t('block'),
+    });
   }),
 
   canvasRedrawer: observer(
