@@ -58,6 +58,12 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * @type {number}
+   */
+  fileSizeOnStorage: undefined,
+
+  /**
+   * @virtual
+   * @type {number}
    * Used to define proper coordinates while drawing chunks bar
    */
   chunksRange: undefined,
@@ -78,13 +84,13 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  blocksSizeText: computed('fileSize', 'blockCount', function blocksSizeText() {
+  blocksSizeText: computed('fileSizeOnStorage', 'blockCount', function blocksSizeText() {
     const {
-      fileSize,
+      fileSizeOnStorage,
       blockCount,
-    } = this.getProperties('fileSize', 'blockCount');
+    } = this.getProperties('fileSizeOnStorage', 'blockCount');
     return this.t('blocksSize', {
-      size: bytesToString(fileSize),
+      size: bytesToString(fileSizeOnStorage),
       blockCount,
       blockNoun: blockCount > 1 ? this.t('blocks') : this.t('block'),
     });
