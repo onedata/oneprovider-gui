@@ -12,7 +12,7 @@ import { reads } from '@ember/object/computed';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import InfiniteScroll from 'oneprovider-gui/utils/infinite-scroll';
+import InfiniteScroll from 'onedata-gui-common/utils/infinite-scroll';
 import { conditional, equal, raw, not } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {

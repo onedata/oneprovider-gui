@@ -13,7 +13,7 @@ import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-arra
 import { not } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import InfiniteScroll from 'oneprovider-gui/utils/infinite-scroll';
+import InfiniteScroll from 'onedata-gui-common/utils/infinite-scroll';
 
 export default Component.extend(I18n, {
   classNames: ['file-recall-event-log'],
