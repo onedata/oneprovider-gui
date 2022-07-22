@@ -20,21 +20,16 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
  */
 
 /**
- * @type {'scheduled'|'skipped'|'completed'|'failed'} QosLogStatus
+ * @typedef {'scheduled'|'skipped'|'completed'|'failed'} QosLogStatus
  */
 
 /**
- * @type {'info'|'error'} QosLogSeverity
+ * @typedef {Object} QosLogErrorReason
  */
 
 /**
- * @type {Object} QosLogErrorReason
- */
-
-/**
- * @typedef {Object} QosLogData
+ * @typedef {Object} QosAuditLogEntryContent
  * @param {QosLogStatus} status
- * @param {QosLogSeverity} severity
  * @param {string} fileId CDMI Object ID of the file that the event is about
  * @param {string} description a human-readable description of event
  * @param {QosLogErrorReason} [reason] error object - only if status is failed
@@ -64,7 +59,7 @@ export default Service.extend({
   store: service(),
   onedataGraph: service(),
   timeSeriesManager: service(),
-  infiniteLogManager: service(),
+  auditLogManager: service(),
 
   async getRecord(qosGri, reload = false) {
     const cachedRecord = reload ?
@@ -131,25 +126,44 @@ export default Service.extend({
 
   /**
    * @param {string} qosRequirementId
-   * @param {JsonInfiniteLogPagingParams} pagingParams
-   * @returns {Promise<JsonInfiniteLogPage<QosLogData>>}
+   * @param {AuditLogListingParams} listingParams
+   * @returns {Promise<AuditLogEntriesPage<QosAuditLogEntryContent>>}
    */
-  async getAuditLog(qosRequirementId, pagingParams) {
-    const infiniteLogManager = this.get('infiniteLogManager');
+  async getAuditLog(qosRequirementId, listingParams) {
     const requestGri = gri({
       entityType: qosRequirementEntityType,
       entityId: qosRequirementId,
       aspect: auditLogAspect,
     });
-    return await infiniteLogManager.getJsonInfiniteLogContent(requestGri, pagingParams);
+    return await this.get('auditLogManager').getAuditLogEntries(
+      requestGri,
+      listingParams,
+      normalizeQosAuditLogEntryContent
+    );
   },
 });
 
-export function isValidQosLogStatus(status) {
+function isValidQosLogStatus(status) {
   return [
     'scheduled',
     'skipped',
     'completed',
     'failed',
   ].includes(status);
+}
+
+/**
+ * @param {unknown} content
+ * @returns {QosAuditLogEntryContent|null}
+ */
+function normalizeQosAuditLogEntryContent(content) {
+  if (
+    !isValidQosLogStatus(content?.status) ||
+    typeof content?.fileId !== 'string' ||
+    !(!content?.description || typeof content?.description === 'string')
+  ) {
+    return null;
+  }
+
+  return content;
 }

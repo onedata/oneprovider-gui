@@ -7,4 +7,16 @@ export default {
     singleProvider: headerTooltipBeginning,
     manyProviders: `${headerTooltipBeginning}<p>In order to view the audit log for a different Oneprovider, switch to a different one in the top menu of the Data view.</p>`,
   },
+  noEntries: 'No system events concerning replica reconciliation have occurred for this Oneprovider.',
+  customColumns: {
+    file: 'File',
+    event: 'Event',
+  },
+  cellContentMessage: {
+    unknownReason: 'unknown reason',
+    failed: 'Failed to reconcile local replica:',
+  },
+  cellFile: {
+    fileNotAvailable: 'Not available',
+  },
 };

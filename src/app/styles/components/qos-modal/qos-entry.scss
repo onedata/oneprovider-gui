@@ -198,41 +198,34 @@ $color-qos-entry-info-block-bg-level-2: #f2f2f2;
   }
 
   .qos-entry-logs {
+    display: flex;
     min-height: 320px;
     // standard size for multiple-file or multiple-entries qos-modal
     height: 50vh;
-    .event-log-table-container {
-      height: 100%;
-      position: relative;
-    }
-    .table.event-log-table.with-sticky-header thead {
-      // a hack to prevent rendering issues (transparent 1px line on top of sticky header)
-      // probably caused by rendering rounded corner of container
-      top: -1px;
-      background-color: $color-qos-entry-info-block-bg-level-1;
-    }
-    .event-log-table-container.on-bottom + .bottom-shadow-keeper {
-      @include hide-before-shadow;
-    }
-  }
+    margin-top: 0.8em;
 
-  // make a pseudo-shadow on bottom of the above container
-  .bottom-shadow-keeper {
-    position: relative;
-    width: 100%;
-    @include before-top-shadow;
-
-    &::before {
-      bottom: calc(100% + 1px);
-      width: calc(100% - 2px);
-      left: 1px;
-      border-radius: $border-radius-base;
+    .file-column-header {
+      width: 12em;
     }
-  }
 
-  // this rule should be declared after bottom-shadow-keeper overrides
-  .qos-entry-logs.on-bottom + .bottom-shadow-keeper {
-    @include hide-before-shadow;
+    .file-not-available {
+      font-style: italic;
+    }
+
+    .cell-content-message {
+      .severity-icon {
+        font-size: 200%;
+        margin-right: 0.1em;
+        // custom alignment to left, because of icon internal padding
+        margin-left: -0.15em;
+      }
+    }
+
+    @media (max-width: $screen-xs-max) {
+      .file-column-header {
+        width: 7em;
+      }
+    }
   }
 }
 

@@ -54,7 +54,7 @@ export default Service.extend({
   onedataRpc: service(),
   onedataGraph: service(),
   timeSeriesManager: service(),
-  infiniteLogManager: service(),
+  auditLogManager: service(),
   apiSamplesManager: service(),
 
   /**

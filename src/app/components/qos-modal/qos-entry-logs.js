@@ -10,13 +10,15 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { promise } from 'ember-awesome-macros';
+import { promise, equal, raw } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['qos-entry-logs'],
 
   spaceManager: service(),
+  qosManager: service(),
+  appProxy: service(),
   i18n: service(),
 
   /**
@@ -48,10 +50,16 @@ export default Component.extend(I18n, {
    */
   spaceId: undefined,
 
+  fileUrlGenerator: computed(function fileUrlGenerator() {
+    return new FileUrlGenerator(this.get('appProxy'));
+  }),
+
+  isFileColumnVisible: equal('fileType', raw('dir')),
+
   /**
-   * @type {ComputedProperty<PromiseObject<{ current: Model.Provider, all: Array<Model.Provider>}>>}
+   * @type {ComputedProperty<PromiseObject<Array<Model.Provider>>>}
    */
-  allSpaceProvidersProxy: promise.object(computed(
+  spaceProvidersProxy: promise.object(computed(
     'spaceId',
     async function spaceProvidersProxy() {
       const {
@@ -70,7 +78,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<number>}
    */
-  spaceProvidersCount: reads('spaceProvidersProxy.content.all.length'),
+  spaceProvidersCount: reads('spaceProvidersProxy.content.length'),
 
   /**
    * @type {ComputedProperty<SafeString>}
@@ -85,4 +93,106 @@ export default Component.extend(I18n, {
       return this.t(translationKey);
     }
   ),
+
+  /**
+   * @type {Object<QosLogEntryType, string>}
+   */
+  statusToClassNames: Object.freeze({
+    scheduled: 'audit-log-theme-default',
+    completed: 'audit-log-theme-success',
+  }),
+
+  /**
+   * @type {ComputedProperty<Array<AuditLogBrowserCustomColumnHeader>>}
+   */
+  customColumnHeaders: computed('isFileColumnVisible', function customColumnHeaders() {
+    const columns = [];
+
+    if (this.get('isFileColumnVisible')) {
+      columns.push({
+        classNames: 'file-column-header',
+        content: this.t('customColumns.file'),
+      });
+    }
+
+    columns.push({
+      classNames: 'event-column-header',
+      content: this.t('customColumns.event'),
+    });
+
+    return columns;
+  }),
+
+  /**
+   * @type {ComputedProperty<(logEntry: AuditLogEntry<QosAuditLogEntryContent>) => string>}
+   */
+  getClassNamesForLogEntryCallback: computed(
+    'statusToClassNames',
+    function getClassNamesForLogEntryCallback() {
+      const statusToClassNames = this.get('statusToClassNames');
+      return (logEntry) => {
+        const status = logEntry.content.status;
+        if (status in statusToClassNames) {
+          return statusToClassNames[status];
+        }
+      };
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<(listingParams: AuditLogListingParams) => Promise<AuditLogEntriesPage<QosAuditLogEntryContent>>>}
+   */
+  fetchLogEntriesCallback: computed(
+    'qosRequirementId',
+    function fetchLogEntriesCallback() {
+      const {
+        qosRequirementId,
+        qosManager,
+      } = this.getProperties(
+        'qosRequirementId',
+        'qosManager'
+      );
+      return (listingParams) => qosManager.getAuditLog(
+        qosRequirementId,
+        listingParams
+      );
+    }
+  ),
+
+  actions: {
+    /**
+     * @param {string} fileId ID of file in archive
+     * @returns {string} URL of file in archive
+     */
+    generateFileUrl(fileId) {
+      return this.get('fileUrlGenerator').getUrl(fileId);
+    },
+  },
 });
+
+class FileUrlGenerator {
+  constructor(appProxy) {
+    this.appProxy = appProxy;
+    this.clearCache();
+  }
+  getUrl(fileId) {
+    const cachedUrl = this.cache[fileId];
+    if (cachedUrl) {
+      return cachedUrl;
+    } else {
+      this.cache[fileId] = this.generateNewUrl(fileId);
+      return this.cache[fileId];
+    }
+  }
+  generateNewUrl(fileId) {
+    if (!fileId) {
+      return null;
+    }
+    return this.appProxy.callParent('getDataUrl', {
+      selected: [fileId],
+    });
+  }
+  clearCache() {
+    this.cache = {};
+  }
+}

@@ -181,3 +181,8 @@ p.last {
     height: $row-height * 1.5;
   }
 }
+
+.flex-vertical-center {
+  display: flex;
+  align-items: center;
+}

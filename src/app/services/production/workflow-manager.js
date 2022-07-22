@@ -38,7 +38,7 @@ export default Service.extend({
   onedataGraph: service(),
   onedataConnection: service(),
   currentUser: service(),
-  infiniteLogManager: service(),
+  auditLogManager: service(),
 
   /**
    * @type {ComputedProperty<Boolean>}
