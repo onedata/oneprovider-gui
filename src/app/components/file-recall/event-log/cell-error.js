@@ -45,7 +45,7 @@ export default Component.extend({
   messageClass: or(
     and(
       equal('errorInfo.type', raw('raw')),
-      raw('monospace-font')
+      raw('font-monospace')
     ),
     raw(''),
   ),
