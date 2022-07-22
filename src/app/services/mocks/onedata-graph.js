@@ -735,9 +735,10 @@ const qosRequirementHandlers = {
     const errorMessage = {
       timestamp: 1655137705932,
       index: '2',
+      severity: 'error',
+      source: 'system',
       content: {
         status: 'failed',
-        severity: 'error',
         fileId,
         description: 'Failed to reconcile local replica: no space left on device.',
         reason: {
@@ -753,36 +754,40 @@ const qosRequirementHandlers = {
       logEntries: [{
         timestamp: 1655137705791,
         index: '0',
+        severity: 'info',
+        source: 'system',
         content: {
           status: 'scheduled',
-          severity: 'info',
           description: 'Remote replica differs, reconciliation started.',
           fileId,
         },
       }, {
         timestamp: 1655137705818,
         index: '1',
+        severity: 'info',
+        source: 'system',
         content: {
           status: 'skipped',
-          severity: 'info',
           description: 'Remote replica differs, reconciliation already in progress.',
           fileId,
         },
       }, {
         timestamp: 1655137705818,
         index: '1b',
+        severity: 'info',
+        source: 'system',
         content: {
           status: 'skipped',
-          severity: 'info',
           description: 'Remote replica differs, ignoring since the file has been deleted locally.',
           fileId,
         },
       }, {
         timestamp: 1655137705932,
         index: '2',
+        severity: 'info',
+        source: 'system',
         content: {
           status: 'completed',
-          severity: 'info',
           description: 'Local replica reconciled.',
           fileId,
         },
