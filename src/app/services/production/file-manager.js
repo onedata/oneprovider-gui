@@ -28,7 +28,7 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
  */
 
 /**
- * @typedef {Object} RecallLogData
+ * @typedef {Object} RecallAuditLogEntryContent
  * @property {string} fileId CDMI Object ID of file that message is about
  * @property {string} relativePath relative path to error-affected file from archive
  * @property {RecallError} reason object with error reason
@@ -37,10 +37,6 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
 /**
  * An error object from backend in standard format, parsable using ErrorExtractor
  * @typedef {RecallError} Object
- */
-
-/**
- * @typedef {JsonInfiniteLogEntry<RecallLogData>} RecallLogEntry
  */
 
 const cancelRecallAspect = 'cancel_archive_recall';
@@ -539,20 +535,22 @@ export default Service.extend({
   },
 
   /**
-   * Begins a procedure of cancelling archive recall process that has root in
-   * file with `recallRootId` entity ID.
+   * Loads recall process logs for specific recall root.
    * @param {string} recallRootId
-   * @param {JsonInfiniteLogPagingParams} pagingParams
-   * @returns {Promise<JsonInfiniteLogPage<RecallLogData>>}
+   * @param {AuditLogListingParams} listingParams
+   * @returns {Promise<AuditLogEntriesPage<RecallAuditLogEntryContent>>}
    */
-  async getRecallLogs(recallRootId, pagingParams) {
-    const infiniteLogManager = this.get('infiniteLogManager');
+  async getRecallLogs(recallRootId, listingParams) {
     const requestGri = gri({
       entityType: fileEntityType,
       entityId: recallRootId,
       aspect: recallLogAspect,
     });
-    return await infiniteLogManager.getJsonInfiniteLogContent(requestGri, pagingParams);
+    return await this.get('auditLogManager').getAuditLogEntries(
+      requestGri,
+      listingParams,
+      normalizeRecallAuditLogEntryContent
+    );
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service
@@ -655,4 +653,19 @@ export function dirSizeStatsGri(fileId) {
     aspect: 'dir_size_stats',
     scope: 'private',
   });
+}
+
+/**
+ * @param {unknown} content
+ * @returns {QosAuditLogEntryContent|null}
+ */
+function normalizeRecallAuditLogEntryContent(content) {
+  if (
+    typeof content?.fileId !== 'string' ||
+    typeof content?.relativePath !== 'string'
+  ) {
+    return null;
+  }
+
+  return content;
 }

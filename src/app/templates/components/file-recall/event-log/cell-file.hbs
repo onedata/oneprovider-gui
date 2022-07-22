@@ -1,0 +1,17 @@
+<div class="flex-vertical-center">
+  {{#if fileHref}}
+    <a
+      class="source-file navy underlined truncate"
+      target={{navigateTarget}}
+      href={{fileHref}}
+    >
+      <span class="file-name">{{fileName}}</span>
+      {{one-tooltip title=relativePath class="string-path-tooltip"}}
+    </a>
+  {{else}}
+    <div class="source-file truncate">
+      <span class="file-name">{{fileName}}</span>
+      {{one-tooltip title=relativePath class="string-path-tooltip"}}
+    </div>
+  {{/if}}
+</div>
