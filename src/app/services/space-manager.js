@@ -162,21 +162,6 @@ export default Service.extend({
       subscribe: false,
     });
   },
-
-  /**
-   * @param {String} spaceId
-   * @param {{ enabled: boolean }} dirStatsServiceState
-   * @returns {Promise<Object>}
-   */
-  saveDirStatsServiceState(spaceId, dirStatsServiceState) {
-    const requestGri = dirStatsServiceStateGri(spaceId);
-    return this.get('onedataGraph').request({
-      gri: requestGri,
-      operation: 'update',
-      data: dirStatsServiceState,
-      subscribe: false,
-    });
-  },
 });
 
 /**
