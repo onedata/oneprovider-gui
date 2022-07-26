@@ -28,7 +28,7 @@ import config from 'ember-get-config';
 /**
  * @typedef {Object} OpenfaasFunctionEvent
  * For more information about fields used in this object see Kubernetes documentation.
- * @property {'Normal'|'Warning'} type
+ * @property {string} type
  * @property {string} reason
  * @property {string} message
  */
@@ -359,23 +359,24 @@ export default Service.extend({
   /**
    * @param {string} atmTaskExecutionId
    * @param {string} podId
-   * @param {JsonInfiniteLogPagingParams} pagingParams
-   * @returns {Promise<JsonInfiniteLogPage<OpenfaasFunctionEvent>>}
+   * @param {AuditLogListingParams} listingParams
+   * @returns {Promise<AuditLogEntriesPage<OpenfaasFunctionEvent>>}
    */
   async getAtmTaskExecutionOpenfaasPodEventLogs(
     atmTaskExecutionId,
     podId,
-    pagingParams
+    listingParams
   ) {
-    const eventLogGri = gri({
+    const requestGri = gri({
       entityType: atmTaskExecutionEntityType,
       entityId: atmTaskExecutionId,
       aspect: atmTaskExecutionAspects.openfaasFunctionPodEventLog,
       aspectId: podId,
     });
-    return this.get('infiniteLogManager').getJsonInfiniteLogContent(
-      eventLogGri,
-      pagingParams
+    return await this.get('auditLogManager').getAuditLogEntries(
+      requestGri,
+      listingParams,
+      normalizeOpenfaasFunctionEvent
     );
   },
 
@@ -402,3 +403,15 @@ export default Service.extend({
     });
   },
 });
+
+function normalizeOpenfaasFunctionEvent(event) {
+  if (
+    typeof event?.type !== 'string' ||
+    typeof event?.reason !== 'string' ||
+    typeof event?.message !== 'string'
+  ) {
+    return null;
+  }
+
+  return event;
+}
