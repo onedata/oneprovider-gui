@@ -2,7 +2,7 @@
  * Executes backend operations related to audit logs.
  *
  * @author Michał Borzęcki
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -15,7 +15,7 @@ export default Service.extend({
   /**
    * @param {string} auditLogGri
    * @param {AuditLogListingParams} listingParams
-   * @param {(content: unknown) => T|null} normalizeEntryContent
+   * @param {(content: unknown) => T|null} [normalizeEntryContent]
    * @returns {Promise<AuditLogEntriesPage<T>>}
    */
   async getAuditLogEntries(auditLogGri, listingParams, normalizeEntryContent) {

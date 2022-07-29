@@ -95,7 +95,7 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {Object<QosLogEntryType, string>}
+   * @type {Object<QosLogStatus, string>}
    */
   statusToClassNames: Object.freeze({
     scheduled: 'audit-log-theme-default',

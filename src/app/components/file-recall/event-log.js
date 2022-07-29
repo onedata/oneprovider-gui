@@ -50,7 +50,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Array<AuditLogBrowserCustomColumnHeader>>}
    */
-  customColumnHeaders: computed('isFileColumnVisible', function customColumnHeaders() {
+  customColumnHeaders: computed(function customColumnHeaders() {
     return [{
       classNames: 'file-column-header',
       content: this.t('customColumns.sourceFile'),

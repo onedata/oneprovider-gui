@@ -663,7 +663,7 @@ const atmTaskExecutionHandlers = {
     if (operation !== 'get' || !aspectId) {
       return messageNotSupported;
     }
-    return generateJsonInfiniteLogEntries('openfaasActivity', data, { podId: aspectId });
+    return generateAuditLogEntries('openfaasActivity', data, { podId: aspectId });
   },
 };
 
@@ -1267,7 +1267,7 @@ function generateStoreContentEntry({ startPosition, index }) {
   };
 }
 
-function generateJsonInfiniteLogEntries(type, pagingParams, extraData = {}) {
+function generateAuditLogEntries(type, pagingParams, extraData = {}) {
   const firstEntryDate = new Date();
   firstEntryDate.setMinutes(0, 0, 0);
   const firstEntryTimestamp = Math.floor(firstEntryDate.valueOf() / 1000) - 3600;
@@ -1285,7 +1285,7 @@ function generateJsonInfiniteLogEntries(type, pagingParams, extraData = {}) {
   for (
     let i = startEntryTimestamp; i <= nowTimestamp && entries.length < limit; i += 10
   ) {
-    entries.push(generateJsonInfiniteLogEntry({
+    entries.push(generateAuditLogEntry({
       index: String(entryIdx),
       timestamp: i,
       type,
@@ -1300,7 +1300,7 @@ function generateJsonInfiniteLogEntries(type, pagingParams, extraData = {}) {
   };
 }
 
-function generateJsonInfiniteLogEntry({ index, timestamp, type, extraData }) {
+function generateAuditLogEntry({ index, timestamp, type, extraData }) {
   const entry = {
     index,
     // infinite log timestamps are in milliseconds

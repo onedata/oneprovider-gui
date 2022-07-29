@@ -35,10 +35,6 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
  * @param {QosLogErrorReason} [reason] error object - only if status is failed
  */
 
-/**
- * @typedef {JsonInfiniteLogEntry<QosLogData>} QosLogEntry
- */
-
 const auditLogAspect = 'audit_log';
 
 /**
@@ -160,7 +156,7 @@ function normalizeQosAuditLogEntryContent(content) {
   if (
     !isValidQosLogStatus(content?.status) ||
     typeof content?.fileId !== 'string' ||
-    !(!content?.description || typeof content?.description === 'string')
+    typeof content?.description !== 'string'
   ) {
     return null;
   }

@@ -150,10 +150,6 @@ $color-qos-entry-info-block-bg-level-2: #f2f2f2;
     background-color: $color-qos-entry-info-block-bg-level-1;
     border: 1px solid $color-qos-entry-info-block-border;
     border-radius: $border-radius-base;
-
-    .qos-entry-logs .table.event-log-table.with-sticky-header thead {
-      background-color: $color-qos-entry-info-block-bg-level-1;
-    }
   }
 
   .info-block-header {
@@ -231,10 +227,6 @@ $color-qos-entry-info-block-bg-level-2: #f2f2f2;
 
 .one-collapsible-list-item-content {
   .qos-entry-info-block {
-    background-color: $color-qos-entry-info-block-bg-level-2;
-  }
-
-  .qos-entry-logs .table.event-log-table.with-sticky-header thead {
     background-color: $color-qos-entry-info-block-bg-level-2;
   }
 }
