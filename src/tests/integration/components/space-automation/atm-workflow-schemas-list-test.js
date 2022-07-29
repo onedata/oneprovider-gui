@@ -18,6 +18,7 @@ describe('Integration | Component | space automation/atm workflow schemas list',
       revisionRegistry: {
         1: {},
       },
+      isCompatible: true,
       isLoaded: true,
     }, {
       name: 'workflow1',
@@ -25,6 +26,7 @@ describe('Integration | Component | space automation/atm workflow schemas list',
       revisionRegistry: {
         1: {},
       },
+      isCompatible: true,
       isLoaded: true,
     }];
     const atmWorkflowSchemas2 = [{
@@ -33,6 +35,7 @@ describe('Integration | Component | space automation/atm workflow schemas list',
       revisionRegistry: {
         1: {},
       },
+      isCompatible: true,
       isLoaded: true,
     }, {
       name: 'workflow4',
@@ -40,6 +43,7 @@ describe('Integration | Component | space automation/atm workflow schemas list',
       revisionRegistry: {
         1: {},
       },
+      isCompatible: true,
       isLoaded: true,
     }];
     sinon.stub(lookupService(this, 'workflow-manager'), 'getAllKnownAtmWorkflowSchemas')
