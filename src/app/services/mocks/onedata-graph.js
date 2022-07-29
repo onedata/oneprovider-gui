@@ -315,8 +315,8 @@ const spaceHandlers = {
       return messageNotSupported;
     }
     return {
-      enforcedByAccounting: false,
       status: 'enabled',
+      since: Math.floor(Date.now() / 1000) - 3600,
     };
   },
 };

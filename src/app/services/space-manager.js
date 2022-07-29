@@ -27,7 +27,6 @@ import { all as allFulfilled } from 'rsvp';
 /**
  * @typedef {Object} DirStatsServiceState
  * @property {string} status One of `enabled`, `disabled`, `stopping`, `initializing`
- * @property {boolean} enforcedByAccounting
  * @property {number} since
  */
 
