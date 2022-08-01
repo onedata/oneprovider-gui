@@ -12,7 +12,7 @@ describe('Integration | Component | space automation/atm workflow schemas list',
   setupRenderingTest();
 
   beforeEach(function () {
-    const atmWorkflowSchemas1 = [{
+    const atmWorkflowSchemas = [{
       name: 'workflow3',
       summary: 'w3 summary',
       revisionRegistry: {
@@ -28,8 +28,7 @@ describe('Integration | Component | space automation/atm workflow schemas list',
       },
       isCompatible: true,
       isLoaded: true,
-    }];
-    const atmWorkflowSchemas2 = [{
+    }, {
       name: 'workflow2',
       summary: 'w2 summary',
       revisionRegistry: {
@@ -47,8 +46,11 @@ describe('Integration | Component | space automation/atm workflow schemas list',
       isLoaded: true,
     }];
     sinon.stub(lookupService(this, 'workflow-manager'), 'getAllKnownAtmWorkflowSchemas')
-      .returns(promiseArray(resolve([...atmWorkflowSchemas1, ...atmWorkflowSchemas2])));
-    this.set('onAtmWorkflowSchemaRevisionSelect', sinon.spy());
+      .returns(promiseArray(resolve([...atmWorkflowSchemas])));
+    this.setProperties({
+      onAtmWorkflowSchemaRevisionSelect: sinon.spy(),
+      atmWorkflowSchemas,
+    });
   });
 
   it('has class "atm-workflow-schemas-list"', async function () {
@@ -80,6 +82,20 @@ describe('Integration | Component | space automation/atm workflow schemas list',
 
     expect(onAtmWorkflowSchemaRevisionSelect).to.be.calledOnce.and.to.be.calledWith(
       sinon.match({ name: 'workflow2' }), 1
+    );
+  });
+
+  it('disabled incompatible workflow schemas', async function () {
+    this.get('atmWorkflowSchemas').findBy('name', 'workflow2').isCompatible = false;
+
+    await renderComponent();
+
+    const workflowEntry = findAll('.list-entry')[1];
+
+    expect(workflowEntry).to.have.class('disabled-workflow-schema');
+    expect(workflowEntry).to.not.contain('.revisions-table');
+    expect(workflowEntry).to.contain.text(
+      'This workflow is not compatible with the current Oneprovider version.'
     );
   });
 });
