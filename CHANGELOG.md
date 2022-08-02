@@ -6,7 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
-* VFS-9654 Added blocking incompatible workflows from running.
+* VFS-9654 Added blocking incompatible workflows from running
 * VFS-9655 Fixed showing size in scale for file in data distribution
 * VFS-9422 Added data distribution for directories
 * VFS-9335 Added charts dashboards to workflow GUI
