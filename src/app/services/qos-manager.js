@@ -29,9 +29,9 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
 
 /**
  * @typedef {Object} QosAuditLogEntryContent
- * @param {QosLogStatus} status
- * @param {string} fileId CDMI Object ID of the file that the event is about
- * @param {string} description a human-readable description of event
+ * @param {QosLogStatus|null} status
+ * @param {string|null} fileId CDMI Object ID of the file that the event is about
+ * @param {string|null} description a human-readable description of event
  * @param {QosLogErrorReason} [reason] error object - only if status is failed
  */
 
@@ -149,17 +149,21 @@ function isValidQosLogStatus(status) {
 }
 
 /**
- * @param {unknown} content
- * @returns {QosAuditLogEntryContent|null}
+ * @param {unknown} content shoold be a `QosAuditLogEntryContent`-like object
+ * @returns {QosAuditLogEntryContent}
  */
 function normalizeQosAuditLogEntryContent(content) {
-  if (
-    !isValidQosLogStatus(content?.status) ||
-    typeof content?.fileId !== 'string' ||
-    typeof content?.description !== 'string'
-  ) {
-    return null;
+  const normalizedContent = content || {};
+
+  if (!isValidQosLogStatus(normalizedContent.status)) {
+    normalizedContent.status = null;
+  }
+  if (typeof normalizedContent.fileId !== 'string') {
+    normalizedContent.fileId = null;
+  }
+  if (typeof normalizedContent.description !== 'string') {
+    normalizedContent.description = null;
   }
 
-  return content;
+  return normalizedContent;
 }

@@ -5,12 +5,12 @@
       target={{navigateTarget}}
       href={{fileHref}}
     >
-      <span class="file-name">{{fileName}}</span>
+      <span class="file-name">{{or fileName "–"}}</span>
       {{one-tooltip title=relativePath class="string-path-tooltip"}}
     </a>
   {{else}}
     <div class="source-file truncate">
-      <span class="file-name">{{fileName}}</span>
+      <span class="file-name">{{or fileName "–"}}</span>
       {{one-tooltip title=relativePath class="string-path-tooltip"}}
     </div>
   {{/if}}

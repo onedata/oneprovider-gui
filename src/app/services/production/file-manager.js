@@ -29,8 +29,8 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
 
 /**
  * @typedef {Object} RecallAuditLogEntryContent
- * @property {string} fileId CDMI Object ID of file that message is about
- * @property {string} relativePath relative path to error-affected file from archive
+ * @property {string|null} fileId CDMI Object ID of file that message is about
+ * @property {string|null} relativePath relative path to error-affected file from archive
  * @property {RecallError} reason object with error reason
  */
 
@@ -656,16 +656,18 @@ export function dirSizeStatsGri(fileId) {
 }
 
 /**
- * @param {unknown} content
- * @returns {QosAuditLogEntryContent|null}
+ * @param {unknown} content should be a `RecallAuditLogEntryContent`-like object
+ * @returns {RecallAuditLogEntryContent}
  */
 function normalizeRecallAuditLogEntryContent(content) {
-  if (
-    typeof content?.fileId !== 'string' ||
-    typeof content?.relativePath !== 'string'
-  ) {
-    return null;
+  const normalizedContent = content || {};
+
+  if (typeof normalizedContent.fileId !== 'string') {
+    normalizedContent.fileId = null;
+  }
+  if (typeof normalizedContent.relativePath !== 'string') {
+    normalizedContent.relativePath = null;
   }
 
-  return content;
+  return normalizedContent;
 }

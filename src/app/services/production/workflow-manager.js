@@ -28,9 +28,9 @@ import config from 'ember-get-config';
 /**
  * @typedef {Object} OpenfaasFunctionEvent
  * For more information about fields used in this object see Kubernetes documentation.
- * @property {string} type
- * @property {string} reason
- * @property {string} message
+ * @property {string|null} type
+ * @property {string|null} reason
+ * @property {string|null} message
  */
 
 export default Service.extend({
@@ -404,13 +404,21 @@ export default Service.extend({
   },
 });
 
+/**
+ * @param {unknown} content should be an `OpenfaasFunctionEvent`-like object
+ * @returns {QosAuditLogEntryContent}
+ */
 function normalizeOpenfaasFunctionEvent(event) {
-  if (
-    typeof event?.type !== 'string' ||
-    typeof event?.reason !== 'string' ||
-    typeof event?.message !== 'string'
-  ) {
-    return null;
+  const normalizedEvent = event || {};
+
+  if (typeof normalizedEvent.type !== 'string') {
+    normalizedEvent.type = null;
+  }
+  if (typeof normalizedEvent.reason !== 'string') {
+    normalizedEvent.reason = null;
+  }
+  if (typeof normalizedEvent.message !== 'string') {
+    normalizedEvent.message = null;
   }
 
   return event;
