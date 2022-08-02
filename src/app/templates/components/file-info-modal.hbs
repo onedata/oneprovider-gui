@@ -311,4 +311,9 @@
       {{component activeTabModel.bodyComponent viewModel=activeTabModel.viewModel}}
     {{/if}}
   {{/modal.body}}
+  {{#if isFooterShown}}
+    {{#modal.footer}}
+      {{component activeTabModel.footerComponent viewModel=activeTabModel.viewModel}}
+    {{/modal.footer}}
+  {{/if}}
 {{/one-modal}}

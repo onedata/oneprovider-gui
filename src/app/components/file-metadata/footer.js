@@ -5,10 +5,12 @@ import { metadataTypes } from 'oneprovider-gui/utils/file-metadata-view-model';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
+  classNames: ['text-left'],
+
   /**
    * @override
    */
-  i18nPrefix: 'compoennts.fileMetadata.footer',
+  i18nPrefix: 'components.fileMetadata.footer',
 
   /**
    * @virtual
@@ -41,6 +43,9 @@ export default Component.extend(I18n, {
   actions: {
     discardChanges() {
       // FIXME: implement
+    },
+    async save() {
+      return await this.viewModel.save(this.viewModel.activeTab);
     },
   },
 });

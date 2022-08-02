@@ -36,6 +36,7 @@ const mixins = [
 
 export default EmberObject.extend(...mixins, {
   metadataManager: service(),
+  fileManager: service(),
   globalNotify: service(),
 
   /**
@@ -234,15 +235,16 @@ export default EmberObject.extend(...mixins, {
     });
   },
 
-  save(type) {
-    const {
-      metadataManager,
-      file,
-    } = this.getProperties('metadataManager', 'file');
+  async save(type) {
+    const file = this.file;
+    if (!file) {
+      throw new Error('no file to set metadata');
+    }
     const currentName = metadataCurrentName(type);
     const originalName = metadataOriginalName(type);
-    const currentValue = this.get(currentName);
-    const originalValue = this.get(originalName);
+    const updaterName = metadataUpdaterName(type);
+    const currentValue = this[currentName];
+    const originalValue = this[originalName];
     let savePromise;
     if (type === 'xattrs') {
       savePromise = this.saveXattrs(
@@ -251,21 +253,30 @@ export default EmberObject.extend(...mixins, {
       );
     } else {
       if (currentValue === emptyValue) {
-        savePromise = metadataManager.removeMetadata(file, type);
+        savePromise = this.metadataManager.removeMetadata(file, type);
       } else {
-        savePromise = metadataManager.setMetadata(file, type, currentValue);
+        savePromise = this.metadataManager.setMetadata(file, type, currentValue);
       }
     }
-    return savePromise
-      .catch(error => {
-        this.get('globalNotify').backendError(
-          this.t('updatingMetadata', {
-            type: this.t(`types.${type}`),
-          }),
-          error
-        );
-        throw error;
+    try {
+      await savePromise;
+      await file.reload();
+      await this[updaterName]({ replace: true });
+      safeExec(this, function setAliasedValueProperty() {
+        this.set(currentName, this[originalName]);
       });
+      if (file && get(file, 'hardlinksCount') > 1) {
+        this.fileManager.fileParentRefresh(file);
+      }
+    } catch (error) {
+      this.globalNotify.backendError(
+        this.t('updatingMetadata', {
+          type: this.t(`types.${type}`),
+        }),
+        error
+      );
+      throw error;
+    }
   },
 
   saveXattrs(originalXattrs, newXattrs) {
@@ -310,38 +321,6 @@ export default EmberObject.extend(...mixins, {
     if (data.isValid !== undefined) {
       this.set(metadataIsValidName(type), data.isValid);
     }
-  },
-
-  saveAll() {
-    const modifiedTypes = this.metadataTypes
-      .filter(type => this.get(metadataIsModifiedName(type)));
-    return allFulfilled(
-        modifiedTypes
-        .map(type => this.save(type))
-      )
-      .then(() => {
-        this.get('file').reload().then(() => {
-          modifiedTypes.forEach(type => {
-            const currentName = metadataCurrentName(type);
-            const originalName = metadataOriginalName(type);
-            this[metadataUpdaterName(type)]({ replace: true }).then(() => {
-              safeExec(this, function setAliasedValueProperty() {
-                this.set(currentName, this.get(originalName));
-              });
-            });
-          });
-        });
-        const {
-          file,
-          fileManager,
-        } = this.getProperties('file', 'fileManager');
-        if (get(file, 'hardlinksCount') > 1) {
-          fileManager.fileParentRefresh(file);
-        }
-      })
-      .then(() => {
-        this.get('onHide')();
-      });
   },
 
   changeTab(tabId) {

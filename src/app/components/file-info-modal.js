@@ -13,7 +13,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { promise, raw, or, gt, and, notEqual, collect } from 'ember-awesome-macros';
+import { promise, raw, or, gt, and, notEqual, collect, bool } from 'ember-awesome-macros';
 import { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -276,6 +276,8 @@ export default Component.extend(...mixins, {
   cdmiRowId: computed('elementId', function cdmiRowId() {
     return this.get('elementId') + '-row-cdmi';
   }),
+
+  isFooterShown: bool('activeTabModel.footerComponent'),
 
   /**
    * @type {ComputedProperty<boolean>}

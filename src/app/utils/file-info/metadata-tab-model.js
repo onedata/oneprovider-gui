@@ -16,4 +16,9 @@ export default BaseTabModel.extend({
    * @override
    */
   bodyComponent: 'file-metadata/body',
+
+  /**
+   * @override
+   */
+  footerComponent: 'file-metadata/footer',
 });
