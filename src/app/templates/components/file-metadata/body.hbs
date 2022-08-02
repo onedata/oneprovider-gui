@@ -11,62 +11,71 @@
     as |nav|
   }}
     {{#each metadataTypes as |type|}}
-      {{#nav.item active=(eq bsTab.activeId type) class="nav-item-wide"}}
-        <a href={{concat "#" type}}
-          class={{concat "nav-link nav-link-metadata-type nav-link-" type}}
-          role="tab"
-          {{action "changeTab" type}}
-        >
-          <span class={{concat-classes
-            "tab-name"
-            "tab-state"
-            (concat
-              "tab-state-"
-              (get tabStateClassTypes (get this (concat "viewModel." type "TabState")))
-            )
-          }}>
-            {{capitalize (tt this (concat "types." type))}}
-          </span>
-          {{!-- FIXME: fix line length or use let helper to remove redundancy --}}
-          {{one-tooltip
-            title=(tt this (concat "tabStateHint." (get this (concat "viewModel." type "TabState")))
-              type=(tt this (concat "types." type))
-              typeCapitalized=(capitalize (tt this (concat "types." type)))
-            )
-            triggerEvents="hover"
-          }}
-        </a>
-      {{/nav.item}}
+      {{#let
+        (get this (concat "viewModel." type "TabState"))
+        as |tabState|
+      }}
+        {{#nav.item active=(eq bsTab.activeId type) class="nav-item-wide"}}
+          <a href={{concat "#" type}}
+            class={{concat "nav-link nav-link-metadata-type nav-link-" type}}
+            role="tab"
+            {{action "changeTab" type}}
+          >
+            <span class={{concat-classes
+              "tab-name"
+              "tab-state"
+              (concat
+                "tab-state-"
+                (get tabStateClassTypes tabState)
+              )
+            }}>
+              {{capitalize (tt this (concat "types." type))}}
+            </span>
+            {{one-tooltip
+              title=(tt this (concat "tabStateHint." tabState)
+                type=(tt this (concat "types." type))
+                typeCapitalized=(capitalize (tt this (concat "types." type)))
+              )
+              triggerEvents="hover"
+            }}
+          </a>
+        {{/nav.item}}
+      {{/let}}
     {{/each}}
   {{/bs-nav}}
   <div class="tab-content tab-content-metadata no-vertical-padding">
     {{#each metadataTypes as |type|}}
-      {{#bsTab.pane elementId=type class="full-height"}}
-        {{#render-later triggerRender=(eq bsTab.activeId type)}}
-          {{#promise-proxy-container
-            proxy=(get this (concat "viewModel." type "OriginalProxy"))
-          }}
-            {{#if (and
-              effectiveReadonly
-              (eq (get this (concat "viewModel." type "TabState")) "blank")
-            )}}
-              <em>
-                {{tt this "tabStateHint.blank" type=(tt this (concat "types." type))}}
-              </em>
-            {{else}}
-              {{component
-                (concat "file-metadata/" type)
-                class="full-height"
-                isActive=(eq bsTab.activeId type)
-                metadata=(get this (concat "viewModel." type "Current"))
-                metadataChanged=(action "metadataChanged" type)
-                isValid=(get this (concat "viewModel." type "IsValid"))
-                readonly=effectiveReadonly
-              }}
-            {{/if}}
-          {{/promise-proxy-container}}
-        {{/render-later}}
-      {{/bsTab.pane}}
+      {{#let
+        (get this (concat "viewModel." type "OriginalProxy"))
+        (get this (concat "viewModel." type "TabState"))
+        (get this (concat "viewModel." type "Current"))
+        (get this (concat "viewModel." type "IsValid"))
+        as |originalProxy tabState current isValid|
+      }}
+        {{#bsTab.pane elementId=type class="full-height"}}
+          {{#render-later triggerRender=(eq bsTab.activeId type)}}
+            {{#promise-proxy-container
+              proxy=originalProxy
+            }}
+              {{#if (and effectiveReadonly (eq tabState "blank"))}}
+                <em>
+                  {{tt this "tabStateHint.blank" type=(tt this (concat "types." type))}}
+                </em>
+              {{else}}
+                {{component
+                  (concat "file-metadata/" type)
+                  class="full-height"
+                  isActive=(eq bsTab.activeId type)
+                  metadata=current
+                  metadataChanged=(action "metadataChanged" type)
+                  isValid=isValid
+                  readonly=effectiveReadonly
+                }}
+              {{/if}}
+            {{/promise-proxy-container}}
+          {{/render-later}}
+        {{/bsTab.pane}}
+      {{/let}}
     {{/each}}
   </div>
 {{/bs-tab}}
