@@ -1347,6 +1347,7 @@ export default Service.extend({
               }],
             },
           },
+          isCompatible: idx !== 2,
         }).save();
         inventoryAtmWorkflowSchemas.push(atmWorkflowSchema);
       }
