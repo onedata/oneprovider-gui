@@ -6,6 +6,8 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9625 Fixed hiding tooltip when it is controlled manually
+* VFS-9655 Fixed showing size in scale for file in data distribution
 * VFS-9422 Added data distribution for directories
 * VFS-9335 Added charts dashboards to workflow GUI
 * VFS-8716 Introduced new data specs editor to the automation gui
