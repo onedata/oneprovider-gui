@@ -8,35 +8,41 @@
       <div class="workflow-schema-summary">{{atmWorkflowSchema.summary}}</div>
     {{/if}}
   </div>
-  {{#if hasMatchingRevisions}}
-    {{#revisions-table
-      revisionRegistry=matchingRevisionRegistry
-      customColumnsCount=1
-      isReadOnly=true
-      onRevisionClick=(action "revisionClick")
-      as |section data|
-    }}
-      {{#if (eq section "header")}}
-        <th class="revisions-table-header-cell description-column filling-column">
-          {{tt this "columns.description.title"}}
-        </th>
-      {{else}}
-        <td class="revisions-table-data-cell description filling-column {{unless data.revision.description "no-value"}}">
-          {{or
-            data.revision.description
-            (tt this "columns.description.fallback")
-          }}
-        </td>
+  {{#if isCompatible}}
+    {{#if hasMatchingRevisions}}
+      {{#revisions-table
+        revisionRegistry=matchingRevisionRegistry
+        customColumnsCount=1
+        isReadOnly=true
+        onRevisionClick=(action "revisionClick")
+        as |section data|
+      }}
+        {{#if (eq section "header")}}
+          <th class="revisions-table-header-cell description-column filling-column">
+            {{tt this "columns.description.title"}}
+          </th>
+        {{else}}
+          <td class="revisions-table-data-cell description filling-column {{unless data.revision.description "no-value"}}">
+            {{or
+              data.revision.description
+              (tt this "columns.description.fallback")
+            }}
+          </td>
+        {{/if}}
+      {{/revisions-table}}
+      {{#if hiddenRevisionsCount}}
+        <small class="hidden-revisions-info text-muted">
+          {{tt this "someRevisionsNotSuitable"}}
+        </small>
       {{/if}}
-    {{/revisions-table}}
-    {{#if hiddenRevisionsCount}}
+    {{else}}
       <small class="hidden-revisions-info text-muted">
-        {{tt this "someRevisionsNotSuitable"}}
+        {{tt this (if hiddenRevisionsCount "noSuitableRevision" "noRevision")}}
       </small>
     {{/if}}
   {{else}}
-    <small class="hidden-revisions-info text-muted">
-      {{tt this (if hiddenRevisionsCount "noSuitableRevision" "noRevision")}}
+    <small class="incompatible-info text-muted">
+      {{tt this "incompatible"}}
     </small>
   {{/if}}
 </div>
