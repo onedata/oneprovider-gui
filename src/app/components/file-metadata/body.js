@@ -48,8 +48,6 @@ export default Component.extend(...mixins, {
 
   effectiveReadonly: reads('viewModel.effectiveReadonly'),
 
-  tabStateClassTypes: reads('viewModel.tabStateClassTypes'),
-
   /**
    * @type {ComputedProperty<string>} one of: file, dir
    */
@@ -67,9 +65,6 @@ export default Component.extend(...mixins, {
   fullVertical: not(eq('activeTab', raw('xattrs'))),
 
   actions: {
-    changeTab(tabId) {
-      this.viewModel.changeTab(tabId);
-    },
     saveAll() {
       this.viewModel.saveAll();
     },

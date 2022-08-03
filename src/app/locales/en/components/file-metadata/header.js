@@ -1,9 +1,4 @@
 export default {
-  // FIXME: to implement below
-  editorDisabled: 'Editor disabled',
-  metadataIsProtected: '{{fileTypeUpper}} metadata is write protected.',
-  file: 'File',
-  dir: 'Directory',
   // FIXME: move to generic for metadata
   types: {
     xattrs: 'basic',
@@ -19,8 +14,4 @@ export default {
     saved: '{{typeCapitalized}} metadata is present and saved.',
     validating: '{{typeCapitalized}} metadata validation in progress...',
   },
-  unsavedChanges: 'Unsaved changes',
-  // FIXME: is this used?
-  updatingMetadata: 'updating metadata',
-  updatingXattrs: 'updating xattrs',
 };

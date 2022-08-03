@@ -7,6 +7,9 @@
 
   .file-info-modal-header {
     padding-bottom: 0;
+    .file-info-header-extension {
+      margin-top: $modal-title-padding;
+    }
   }
 
   .file-info-modal-body {

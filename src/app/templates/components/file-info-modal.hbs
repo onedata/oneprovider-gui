@@ -129,6 +129,12 @@
         {{/each}}
       {{/bs-nav}}
     {{/bs-tab}}
+    {{#if activeTabModel.headerComponent}}
+      {{component activeTabModel.headerComponent
+        class="file-info-header-extension"
+        viewModel=activeTabModel.viewModel
+      }}
+    {{/if}}
   {{/modal.header}}
   {{#modal.body class="file-info-modal-body"}}
     {{#if (eq activeTab "general")}}

@@ -1,14 +1,19 @@
+$metadata-nav-tabs-height: 44px;
+.file-metadata-header {
+  .bs-tab {
+    .nav-tabs {
+      height: $metadata-nav-tabs-height;
+    }
+  }
+}
 .file-metadata-body {
   &.full-height {
     @include fill-flex-using-column;
   }
   .bs-tab {
     $nav-tabs-height: 44px;
-    .nav-tabs {
-      height: $nav-tabs-height;
-    }
     .tab-content-metadata {
-      height: calc(100% - #{$nav-tabs-height});
+      height: calc(100% - #{$metadata-nav-tabs-height});
     }
   }
   .form-group.form-group-ace-editor {

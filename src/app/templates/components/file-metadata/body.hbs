@@ -5,44 +5,6 @@
   activeId=activeTab
   as |bsTab|
 }}
-  {{#bs-nav
-    type="tabs"
-    class="nav-tabs-metadata"
-    as |nav|
-  }}
-    {{#each metadataTypes as |type|}}
-      {{#let
-        (get this (concat "viewModel." type "TabState"))
-        as |tabState|
-      }}
-        {{#nav.item active=(eq bsTab.activeId type) class="nav-item-wide"}}
-          <a href={{concat "#" type}}
-            class={{concat "nav-link nav-link-metadata-type nav-link-" type}}
-            role="tab"
-            {{action "changeTab" type}}
-          >
-            <span class={{concat-classes
-              "tab-name"
-              "tab-state"
-              (concat
-                "tab-state-"
-                (get tabStateClassTypes tabState)
-              )
-            }}>
-              {{capitalize (tt this (concat "types." type))}}
-            </span>
-            {{one-tooltip
-              title=(tt this (concat "tabStateHint." tabState)
-                type=(tt this (concat "types." type))
-                typeCapitalized=(capitalize (tt this (concat "types." type)))
-              )
-              triggerEvents="hover"
-            }}
-          </a>
-        {{/nav.item}}
-      {{/let}}
-    {{/each}}
-  {{/bs-nav}}
   <div class="tab-content tab-content-metadata no-vertical-padding">
     {{#each metadataTypes as |type|}}
       {{#let

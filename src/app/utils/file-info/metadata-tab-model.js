@@ -22,6 +22,11 @@ export default BaseTabModel.extend({
   /**
    * @override
    */
+  headerComponent: 'file-metadata/header',
+
+  /**
+   * @override
+   */
   bodyComponent: 'file-metadata/body',
 
   /**
