@@ -1,6 +1,6 @@
 /**
  * Backend operations on file metadata
- * 
+ *
  * @module services/metadata-manager
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -67,7 +67,7 @@ export default Service.extend({
    * @param {String} scope one of: private, public
    * @returns {Promise<Object>} with `metadata` key
    */
-  getMetadata(file, metadataType, scope) {
+  async getMetadata(file, metadataType, scope) {
     return this.get('onedataGraph').request({
       operation: 'get',
       gri: metadataGri(get(file, 'entityId'), metadataType, scope),
@@ -76,7 +76,7 @@ export default Service.extend({
   },
 
   /**
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @param {String} metadataType one of: xattrs, json, rdf
    * @param {any} metadata Object for xattrs, String for RDF and JSON
    * @returns {Promise<Object>} with `metadata` key
@@ -102,7 +102,7 @@ export default Service.extend({
   },
 
   /**
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @param {Array<String>} keys keys that will be removed from xattrs
    * @returns {Promise}
    */
@@ -116,7 +116,7 @@ export default Service.extend({
   },
 
   /**
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @param {String} metadataType
    * @returns {Promise}
    */

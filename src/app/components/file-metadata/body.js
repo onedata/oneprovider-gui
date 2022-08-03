@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads } from '@ember/object/computed';
-import { conditional, equal, raw, not, eq } from 'ember-awesome-macros';
+import { conditional, equal, raw } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { inject as service } from '@ember/service';
 
@@ -18,8 +18,7 @@ const mixins = [
 ];
 
 export default Component.extend(...mixins, {
-  classNames: ['file-metadata-body'],
-  classNameBindings: ['fullVertical:full-height'],
+  classNames: ['file-metadata-body', 'full-height'],
 
   i18n: service(),
   fileManager: service(),
@@ -61,8 +60,6 @@ export default Component.extend(...mixins, {
     computedT('file'),
     computedT('dir'),
   ),
-
-  fullVertical: not(eq('activeTab', raw('xattrs'))),
 
   actions: {
     saveAll() {
