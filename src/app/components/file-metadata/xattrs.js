@@ -55,7 +55,7 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {number}
    */
-  lastResetTime: 0,
+  lastResetTime: undefined,
 
   metadataForEditor: conditional(
     eq('metadata', raw(emptyValue)),
