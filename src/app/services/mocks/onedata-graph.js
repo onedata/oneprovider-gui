@@ -735,7 +735,7 @@ const qosRequirementHandlers = {
 
     const errorMessage = {
       timestamp: 1655137705932,
-      index: '2',
+      index: '3',
       severity: 'error',
       source: 'system',
       content: {
@@ -796,7 +796,9 @@ const qosRequirementHandlers = {
       isLast: true,
     };
     for (let i = 0; i < 25; ++i) {
-      result.logEntries.push(errorMessage);
+      result.logEntries.push(Object.assign({}, errorMessage, {
+        index: String(Number(errorMessage.index) + i),
+      }));
     }
     return result;
   },
