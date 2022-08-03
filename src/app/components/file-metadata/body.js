@@ -9,17 +9,9 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads } from '@ember/object/computed';
-import { conditional, equal, raw, or, not, eq, and, bool } from 'ember-awesome-macros';
+import { conditional, equal, raw, not, eq } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import { computed, get } from '@ember/object';
 import { inject as service } from '@ember/service';
-import _ from 'lodash';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { camelize } from '@ember/string';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { all as allFulfilled } from 'rsvp';
-import { capitalize } from '@ember/string';
-import { emptyValue, metadataTypes } from 'oneprovider-gui/utils/file-metadata-view-model';
 
 const mixins = [
   I18n,

@@ -1,9 +1,10 @@
-{{#bs-button
+{{#one-button
   onClick=(action "discardChanges")
   type="warning"
+  disabled=isDiscardDisabled
 }}
   {{tt this "discard"}}
-{{/bs-button}}
+{{/one-button}}
 {{#unless effectiveReadonly}}
   <div class="btn-tooltip-container">
     {{#one-button
@@ -11,13 +12,13 @@
       buttonType="submit"
       onClick=(action "save")
       isPending=processing
-      disabled=saveAllDisabled
+      disabled=isSaveDisabled
       class="btn-save-all"
     }}
       {{tt this "save"}}
     {{/one-button}}
-    {{#if saveAllDisabledMessage}}
-      {{one-tooltip title=saveAllDisabledMessage}}
+    {{#if isSaveDisabledMessage}}
+      {{one-tooltip title=isSaveDisabledMessage}}
     {{/if}}
   </div>
 {{/unless}}

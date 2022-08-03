@@ -1,7 +1,6 @@
 import Component from '@ember/component';
-import { or, and, not, eq, raw } from 'ember-awesome-macros';
+import { or, and, not } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import { metadataTypes } from 'oneprovider-gui/utils/file-metadata-view-model';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
@@ -18,23 +17,18 @@ export default Component.extend(I18n, {
    */
   viewModel: undefined,
 
-  /**
-   * If any value is invalid, we suppose that it must be modified (data from DB cannot
-   * be invalid).
-   * @type {ComputedProperty<boolean>}
-   */
-  areSaveButtonsShown: and(
-    not('viewModel.effectiveReadonly'),
-    or('viewModel.isAnyModified', 'viewModel.isAnyInvalid')
-  ),
-
-  saveAllDisabled: or(
+  isSaveDisabled: or(
     not('viewModel.isAnyModified'),
     'viewModel.isAnyInvalid',
     'viewModel.isAnyValidating'
   ),
 
-  saveAllDisabledMessage: or(
+  isDiscardDisabled: or(
+    not('viewModel.isAnyModified'),
+    'viewModel.isAnyValidating'
+  ),
+
+  isSaveDisabledMessage: or(
     and('viewModel.isAnyInvalid', computedT('disabledReason.someInvalid')),
     and('viewModel.isAnyValidating', computedT('disabledReason.validating')),
     and(not('viewModel.isAnyModified'), computedT('disabledReason.noChanges')),
@@ -42,7 +36,7 @@ export default Component.extend(I18n, {
 
   actions: {
     discardChanges() {
-      // FIXME: implement
+      this.viewModel.restoreOriginalMetadata(this.viewModel.activeTab);
     },
     async save() {
       return await this.viewModel.save(this.viewModel.activeTab);

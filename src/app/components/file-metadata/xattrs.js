@@ -49,6 +49,14 @@ export default Component.extend(I18n, {
 
   areXattrsValid: true,
 
+  /**
+   * TODO: VFS-9695 A hack to force re-generate editor values when this property changes,
+   * special for non-refactored qos-params-editor (used for xattrs editor).
+   * @virtual optional
+   * @type {number}
+   */
+  lastResetTime: 0,
+
   metadataForEditor: conditional(
     eq('metadata', raw(emptyValue)),
     raw({}),

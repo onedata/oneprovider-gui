@@ -62,6 +62,7 @@
                   {{tt this "tabStateHint.blank" type=(tt this (concat "types." type))}}
                 </em>
               {{else}}
+                {{!-- TODO: VFS-9695 remove used of lastResetTime --}}
                 {{component
                   (concat "file-metadata/" type)
                   class="full-height"
@@ -70,6 +71,7 @@
                   metadataChanged=(action "metadataChanged" type)
                   isValid=isValid
                   readonly=effectiveReadonly
+                  lastResetTime=viewModel.lastResetTime
                 }}
               {{/if}}
             {{/promise-proxy-container}}

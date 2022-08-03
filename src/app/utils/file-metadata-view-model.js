@@ -1,18 +1,23 @@
 import EmberObject, { computed, get, defineProperty } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { or, and, not, eq, raw, conditional, bool } from 'ember-awesome-macros';
-import computedT from 'onedata-gui-common/utils/computed-t';
+import { or, eq, raw, conditional, bool } from 'ember-awesome-macros';
 import _ from 'lodash';
 import { camelize, capitalize } from '@ember/string';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { all as allFulfilled } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
+/**
+ * @typedef {'xattrs'|'json'|'rdf'} FileMetadataType
+ */
+
 export const emptyValue = { ___empty___: true };
 
+/**
+ * @type Array<FileMetadataType>
+ */
 export const metadataTypes = ['xattrs', 'json', 'rdf'];
 
 /**
@@ -233,6 +238,22 @@ export default EmberObject.extend(...mixins, {
         computedState
       );
     });
+  },
+
+  /**
+   * Clears not-saved user metadata changes by replacing it with saved metadata.
+   * @param {FileMetadataType} type
+   */
+  restoreOriginalMetadata(type) {
+    const originalName = metadataOriginalName(type);
+    const originalMetadata = this[originalName];
+    this.onMetadataChanged(type, {
+      metadata: originalMetadata === emptyValue ?
+        emptyValue : _.cloneDeep(this[originalName]),
+      isValidating: false,
+      isValid: true,
+    });
+    this.set('lastResetTime', Date.now());
   },
 
   async save(type) {
