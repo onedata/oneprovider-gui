@@ -1,6 +1,13 @@
 import BaseTabModel from './base-tab-model';
+import { conditional, raw } from 'ember-awesome-macros';
 
 export default BaseTabModel.extend({
+  /**
+   * @virtual
+   * @type {Utils.FileMetadataViewModel}
+   */
+  viewModel: undefined,
+
   /**
    * @override
    */
@@ -20,5 +27,9 @@ export default BaseTabModel.extend({
   /**
    * @override
    */
-  footerComponent: 'file-metadata/footer',
+  footerComponent: conditional(
+    'viewModel.previewMode',
+    raw(''),
+    raw('file-metadata/footer'),
+  ),
 });

@@ -84,7 +84,7 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
 
   fileToShowInfo: null,
 
-  fileToShowMetadata: null,
+  showInfoInitialTab: undefined,
 
   fileForConfirmDownload: null,
 
@@ -216,8 +216,11 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
     });
   },
 
-  openInfoModal(file) {
-    this.set('fileToShowInfo', file);
+  openInfoModal(file, activeTab) {
+    this.setProperties({
+      fileToShowInfo: file,
+      showInfoInitialTab: activeTab || 'general',
+    });
   },
 
   closeInfoModal() {

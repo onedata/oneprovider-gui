@@ -194,7 +194,7 @@ export default Component.extend(...mixins, {
   fileToShowInfo: null,
 
   /**
-   * One of: general, hardlinks.
+   * See `component:file-info-modal` for available tabs.
    * @type {String}
    */
   showInfoInitialTab: undefined,

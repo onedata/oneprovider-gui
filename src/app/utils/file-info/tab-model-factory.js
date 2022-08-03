@@ -17,27 +17,28 @@ export default EmberObject.extend(OwnerInjector, {
 
   /**
    * @param {FileInfoTabType} type
+   * @param {Object} options options passed to specific tab model constructor/object
    * @returns {EmberObject}
    */
-  createTabModel(type) {
+  createTabModel(type, options) {
     switch (type) {
       case 'metadata':
-        return this.createMetadataTabModel();
+        return this.createMetadataTabModel(options);
       default:
         throw new Error(`no such file info tab type: "${type}"`);
     }
   },
 
-  createMetadataTabModel() {
+  createMetadataTabModel(options) {
     const fileMetadataViewModel = FileMetadataViewModel.extend({
       file: reads('fileInfoModal.file'),
     }).create({
       fileInfoModal: this.fileInfoModal,
       ownerSource: this,
+      ...options,
     });
-    return MetadataTabModel.extend({
+    return MetadataTabModel.create({
       viewModel: fileMetadataViewModel,
-    }).create({
       ownerSource: this,
     });
   },

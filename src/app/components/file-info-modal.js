@@ -326,7 +326,9 @@ export default Component.extend(...mixins, {
   visibleTabsModels: collect('metadataTabModel'),
 
   metadataTabModel: computed(function metadataTabModel() {
-    return this.tabModelFactory.createTabModel('metadata');
+    return this.tabModelFactory.createTabModel('metadata', {
+      previewMode: this.previewMode,
+    });
   }),
 
   tabModelFactory: computed(function tabModelFactory() {
