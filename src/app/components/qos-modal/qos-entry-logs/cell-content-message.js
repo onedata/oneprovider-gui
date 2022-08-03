@@ -1,5 +1,5 @@
 /**
- * Content of table cell in entry-row with message from QoS audit log.
+ * Content of table cell with message from QoS audit log.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
@@ -15,6 +15,7 @@ import { or, getBy, raw, eq, conditional } from 'ember-awesome-macros';
 import _ from 'lodash';
 
 export default Component.extend(I18n, {
+  tagName: 'td',
   classNames: ['cell-content-message'],
 
   errorExtractor: service(),
@@ -22,7 +23,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.qosModal.auditLog.cellContentMessage',
+  i18nPrefix: 'components.qosModal.qosEntryLogs.cellContentMessage',
 
   /**
    * @virtual

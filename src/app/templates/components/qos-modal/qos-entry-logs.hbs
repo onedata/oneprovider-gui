@@ -1,21 +1,24 @@
-{{#perfect-scrollbar-element
-  class="event-log-table-container qos-entry-info-block"
-}}
-  <div class="info-block-header">
-    <div class="title">
-      {{tt this "header"}}
-      <span class="space"></span>
-      {{one-label-tip
-        title=headerTooltip
-        tooltipClass="tooltip-lg tooltip-text-left"
+{{#if isRendered}}
+  {{#audit-log-browser
+    title=(tt this "header")
+    titleTip=headerTooltip
+    titleTipClassNames="tooltip-lg tooltip-text-left"
+    onFetchLogEntries=fetchLogEntriesCallback
+    onGetClassNamesForLogEntry=getClassNamesForLogEntryCallback
+    customColumnHeaders=customColumnHeaders
+    noLogEntriesText=(tt this "noEntries")
+    as |logEntry|
+  }}
+    {{#if isFileColumnVisible}}
+      {{qos-modal/qos-entry-logs/cell-file
+        fileCdmiObjectId=logEntry.content.fileId
+        onGenerateFileUrl=(action "generateFileUrl")
       }}
-    </div>
-  </div>
-  {{#if isRendered}}
-    {{qos-modal/audit-log
-      qosRequirementId=qosRequirementId
-      fileType=fileType
+    {{/if}}
+    {{qos-modal/qos-entry-logs/cell-content-message
+      reason=logEntry.content.reason
+      status=logEntry.content.status
+      description=logEntry.content.description
     }}
-  {{/if}}
-{{/perfect-scrollbar-element}}
-<div class="bottom-shadow-keeper"></div>
+  {{/audit-log-browser}}
+{{/if}}

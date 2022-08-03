@@ -1,6 +1,8 @@
-import headerRow from './events-table/header-row';
-
 export default {
-  headerRow,
+  columnLabels: {
+    type: 'Type',
+    reason: 'Reason',
+    message: 'Message',
+  },
   noEvents: 'No events to show.',
 };

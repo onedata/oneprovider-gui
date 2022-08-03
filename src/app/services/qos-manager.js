@@ -20,28 +20,19 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
  */
 
 /**
- * @type {'scheduled'|'skipped'|'completed'|'failed'} QosLogStatus
+ * @typedef {'scheduled'|'skipped'|'completed'|'failed'} QosLogStatus
  */
 
 /**
- * @type {'info'|'error'} QosLogSeverity
+ * @typedef {Object} QosLogErrorReason
  */
 
 /**
- * @type {Object} QosLogErrorReason
- */
-
-/**
- * @typedef {Object} QosLogData
- * @param {QosLogStatus} status
- * @param {QosLogSeverity} severity
- * @param {string} fileId CDMI Object ID of the file that the event is about
- * @param {string} description a human-readable description of event
+ * @typedef {Object} QosAuditLogEntryContent
+ * @param {QosLogStatus|null} status
+ * @param {string|null} fileId CDMI Object ID of the file that the event is about
+ * @param {string|null} description a human-readable description of event
  * @param {QosLogErrorReason} [reason] error object - only if status is failed
- */
-
-/**
- * @typedef {JsonInfiniteLogEntry<QosLogData>} QosLogEntry
  */
 
 const auditLogAspect = 'audit_log';
@@ -64,7 +55,7 @@ export default Service.extend({
   store: service(),
   onedataGraph: service(),
   timeSeriesManager: service(),
-  infiniteLogManager: service(),
+  auditLogManager: service(),
 
   async getRecord(qosGri, reload = false) {
     const cachedRecord = reload ?
@@ -131,25 +122,48 @@ export default Service.extend({
 
   /**
    * @param {string} qosRequirementId
-   * @param {JsonInfiniteLogPagingParams} pagingParams
-   * @returns {Promise<JsonInfiniteLogPage<QosLogData>>}
+   * @param {AuditLogListingParams} listingParams
+   * @returns {Promise<AuditLogEntriesPage<QosAuditLogEntryContent>>}
    */
-  async getAuditLog(qosRequirementId, pagingParams) {
-    const infiniteLogManager = this.get('infiniteLogManager');
+  async getAuditLog(qosRequirementId, listingParams) {
     const requestGri = gri({
       entityType: qosRequirementEntityType,
       entityId: qosRequirementId,
       aspect: auditLogAspect,
     });
-    return await infiniteLogManager.getJsonInfiniteLogContent(requestGri, pagingParams);
+    return await this.get('auditLogManager').getAuditLogEntries(
+      requestGri,
+      listingParams,
+      normalizeQosAuditLogEntryContent
+    );
   },
 });
 
-export function isValidQosLogStatus(status) {
+function isValidQosLogStatus(status) {
   return [
     'scheduled',
     'skipped',
     'completed',
     'failed',
   ].includes(status);
+}
+
+/**
+ * @param {unknown} content shoold be a `QosAuditLogEntryContent`-like object
+ * @returns {QosAuditLogEntryContent}
+ */
+function normalizeQosAuditLogEntryContent(content) {
+  const normalizedContent = content || {};
+
+  if (!isValidQosLogStatus(normalizedContent.status)) {
+    normalizedContent.status = null;
+  }
+  if (typeof normalizedContent.fileId !== 'string') {
+    normalizedContent.fileId = null;
+  }
+  if (typeof normalizedContent.description !== 'string') {
+    normalizedContent.description = null;
+  }
+
+  return normalizedContent;
 }

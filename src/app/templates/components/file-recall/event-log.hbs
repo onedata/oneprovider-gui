@@ -1,57 +1,12 @@
-{{#loading-container isLoading=entries.isLoading sizeClass="sm"}}
-  <table class="table one-infinite-list event-log-table">
-    <thead>
-      {{file-recall/event-log/header-row}}
-    </thead>
-    <tbody>
-      <tr class="table-start-row"></tr>
-      <tr class="first-row">
-        <td colspan={{columnsCount}} style={{infiniteScroll.firstRowStyle}}></td>
-      </tr>
-      {{#if noEntries}}
-        <tr class="table-is-empty-row">
-          <td class="table-is-empty-cell" colspan={{columnsCount}}>
-            {{tt this "noEntries"}}
-          </td>
-        </tr>
-      {{else}}
-        {{#if (and
-          entries.initialLoad.isSettled
-          infiniteScroll.fetchingStatus.isFetchingPrev
-          tableTopVisible
-        )}}
-          <tr class="loading-row">
-            <td colspan={{columnsCount}} class="loading-row-cell">
-              {{spin-spinner-block
-                sizeClass="xs"
-                class="absolute-middle-centered"
-              }}
-            </td>
-          </tr>
-        {{/if}}
-
-        {{#each entries key="index" as |entry|}}
-          {{file-recall/event-log/entry-row
-            entry=entry
-            onGenerateSourceFileUrl=(action "generateSourceFileUrl")
-          }}
-        {{/each}}
-
-        {{#if (and
-          entries.initialLoad.isSettled
-          infiniteScroll.fetchingStatus.isFetchingNext
-        )}}
-          <tr class="loading-row">
-            <td colspan={{columnsCount}} class="loading-row-cell">
-              {{spin-spinner-block
-                sizeClass="xs"
-                class="absolute-middle-centered"
-              }}
-            </td>
-          </tr>
-        {{/if}}
-      {{/if}}
-    </tbody>
-  </table>
-{{/loading-container}}
-{{yield}}
+{{#audit-log-browser
+  onFetchLogEntries=fetchLogEntriesCallback
+  customColumnHeaders=customColumnHeaders
+  as |logEntry|
+}}
+  {{file-recall/event-log/cell-file
+    fileCdmiObjectId=logEntry.content.fileId
+    relativePath=logEntry.content.relativePath
+    onGenerateSourceFileUrl=(action "generateSourceFileUrl")
+  }}
+  {{file-recall/event-log/cell-error reason=logEntry.content.reason}}
+{{/audit-log-browser}}

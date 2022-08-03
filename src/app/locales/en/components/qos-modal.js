@@ -5,7 +5,6 @@ import qosEntryDetailsSwitch from './qos-modal/qos-entry-details-switch';
 import qosEntryCharts from './qos-modal/qos-entry-charts';
 import qosEntryLogs from './qos-modal/qos-entry-logs';
 import qosAdd from './qos-modal/qos-add';
-import auditLog from './qos-modal/audit-log';
 
 export default {
   headerShow: 'Quality of Service',
@@ -46,6 +45,5 @@ export default {
   qosEntryDetailsSwitch,
   qosEntryCharts,
   qosAdd,
-  auditLog,
   qosEntryLogs,
 };
