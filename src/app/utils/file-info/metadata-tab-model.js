@@ -33,7 +33,7 @@ export default BaseTabModel.extend({
    * @override
    */
   footerComponent: conditional(
-    'viewModel.previewMode',
+    'viewModel.effectiveReadonly',
     raw(''),
     raw('file-metadata/footer'),
   ),
