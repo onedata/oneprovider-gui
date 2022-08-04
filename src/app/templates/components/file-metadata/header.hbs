@@ -1,46 +1,44 @@
-{{#bs-tab
-  class="bs-tab bs-tab-onedata bs-tab-modern full-height"
-  fade=false
-  customTabs=true
-  activeId=activeTab
-  as |bsTab|
-}}
-  {{#bs-nav
-    type="tabs"
-    class="nav-tabs-metadata"
-    as |nav|
+<div class="btn-group-tabs">
+  {{#bs-button-group
+    class="metadata-type-selector"
+    value=activeTab
+    type="radio"
+    onChange=(action "changeTab") as |bg|
   }}
     {{#each metadataTypes as |type|}}
       {{#let
         (get this (concat "viewModel." type "TabState"))
-        as |tabState|
+        (tt this (concat "types." type))
+        as |tabState typeTranslation|
       }}
-        {{#nav.item active=(eq bsTab.activeId type) class="nav-item-wide"}}
-          <a href={{concat "#" type}}
-            class={{concat "nav-link nav-link-metadata-type nav-link-" type}}
-            role="tab"
-            {{action "changeTab" type}}
-          >
-            <span class={{concat-classes
-              "tab-name"
-              "tab-state"
-              (concat
-                "tab-state-"
-                (get tabStateClassTypes tabState)
-              )
-            }}>
-              {{capitalize (tt this (concat "types." type))}}
-            </span>
-            {{one-tooltip
-              title=(tt this (concat "tabStateHint." tabState)
-                type=(tt this (concat "types." type))
-                typeCapitalized=(capitalize (tt this (concat "types." type)))
-              )
-              triggerEvents="hover"
-            }}
-          </a>
-        {{/nav.item}}
+        {{#bg.button
+          type="default"
+          class=(concat-classes
+            "btn-sm"
+            "metadata-type-btn"
+            (concat "metadata-type-btn-" type)
+          )
+          value=type
+        }}
+          <span class={{concat-classes
+            "tab-name"
+            "tab-state"
+            (concat
+              "tab-state-"
+              (get tabStateClassTypes tabState)
+            )
+          }}>
+            {{capitalize typeTranslation}}
+          </span>
+          {{one-tooltip
+            title=(tt this (concat "tabStateHint." tabState)
+              type=typeTranslation
+              typeCapitalized=(capitalize typeTranslation)
+            )
+            triggerEvents="hover"
+          }}
+        {{/bg.button}}
       {{/let}}
     {{/each}}
-  {{/bs-nav}}
-{{/bs-tab}}
+  {{/bs-button-group}}
+</div>

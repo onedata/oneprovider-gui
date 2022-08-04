@@ -14,7 +14,7 @@
 
   .file-info-modal-body {
     .bs-modal-body-scroll {
-      padding-top: $modal-title-padding;
+      padding-top: $modal-title-padding + $btn-group-tabs-vertical-offset;
     }
   }
 

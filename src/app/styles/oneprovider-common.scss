@@ -61,3 +61,109 @@ p.last {
 .one-embedded-component.content-items-browser {
   padding-top: 0;
 }
+
+// Adds a colored circle state indicator to some element inside bs-tab nav or btn-group
+// button. May also look good in other containers but it is not tested.
+.tab-state {
+  $size: 10px;
+  $states: empty inactive disabled danger warning success;
+  $stateColors: (
+    empty: transparent,
+    inactive: $color-one-semiwhite,
+    disabled: $color-one-light-gray,
+    danger: $color-one-danger,
+    warning: $color-one-warning,
+    success: $color-one-success,
+  );
+  @mixin stateAfter($type) {
+    &.tab-state-#{$type}::after {
+      background-color: map-get($stateColors, $type);
+    }
+  }
+  display: inline-block;
+  position: relative;
+  margin-right: $size * 0.5;
+  &::after {
+    position: absolute;
+    background-color: map-get($stateColors, inactive);
+    top: 0;
+    right: -$size * 1.5;
+    content: ' ';
+    width: $size;
+    height: $size;
+    border-radius: 100%;
+  }
+  @each $state in $states {
+    @include stateAfter($state)
+  }
+}
+
+// btn-group-tabs: A tab bar created using a btn-group inside that acts as a nav
+// The current version is written to use it especially inside modal header and detect
+// scroll top. It needs refactor if needed to be used outside modal.
+
+.btn-group-tabs {
+  $line-margin: 3em;
+  @mixin line {
+    flex-grow: 1;
+    content: ' ';
+    height: 1px;
+    width: 100%;
+    @include shadow-transition(all);
+    border-bottom: 1px solid transparent;
+  }
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &::before {
+    @include line;
+    margin-right: $line-margin;
+  }
+  &::after {
+    @include line;
+    margin-left: $line-margin;
+  }
+  .btn-group {
+    flex-grow: 1;
+    display: flex;
+  }
+}
+
+// empirical value - a half of btn-group tab bar height with single line text
+// defined as variable to use it in external elements (eg. modal body)
+$btn-group-tabs-vertical-offset: 14px;
+
+.modal-dialog {
+  .modal-header .btn-group-tabs {
+    // make tabs to be in the middle of the header bottom line
+    position: relative;
+    transform: translateY(50%) translateY(2px);
+    z-index: $top-shadow-zindex + 1;
+    margin-top: -$btn-group-tabs-vertical-offset;
+    .btn-group {
+      // empirically modal-scroll-shadow-like shadow to the bottom
+      filter: drop-shadow(0px 4px 3px #eee);
+      @include shadow-transition(all);
+    }
+  }
+  // turn on special decoration, because shadow of header is off when on top
+  &.scroll-on-top {
+    .modal-header .btn-group-tabs {
+      @mixin line-border-color {
+        border-bottom-color: $color-one-gray-sand;
+      }
+      &::before {
+        @include line-border-color;
+      }
+      &::after {
+        @include line-border-color;
+      }
+    }
+    .btn-group-tabs {
+      .btn-group {
+        filter: none;
+      }
+    }
+  }
+}
