@@ -17,8 +17,4 @@ export default {
     saved: '{{typeCapitalized}} metadata is present and saved.',
     validating: '{{typeCapitalized}} metadata validation in progress...',
   },
-  unsavedChanges: 'Unsaved changes',
-  // FIXME: is this used?
-  updatingMetadata: 'updating metadata',
-  updatingXattrs: 'updating xattrs',
 };
