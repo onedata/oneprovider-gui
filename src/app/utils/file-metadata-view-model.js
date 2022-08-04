@@ -8,6 +8,7 @@ import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 /**
  * @typedef {'xattrs'|'json'|'rdf'} FileMetadataType
@@ -361,10 +362,10 @@ export default EmberObject.extend(...mixins, {
 
   /**
    *
-   * @param {() => Promise|any} onSuccessClose
+   * @param {() => Promise|any} onWillClose
    * @returns {boolean} true if view can be closed
    */
-  async handleUnsavedChanged(onSuccessClose) {
+  async handleUnsavedChanged(onWillClose) {
     const activeTab = this.activeTab;
     let canClose = false;
     await this.modalManager.show('unsaved-changes-question-modal', {
@@ -378,20 +379,26 @@ export default EmberObject.extend(...mixins, {
           }
         } else {
           this.restoreOriginalMetadata(activeTab);
+          // workaround for issue: when chaning content of ACE editor and immediately
+          // changing tab, the ACE editor is not getting updated when coming back
+          // to this tab
+          if (activeTab === 'json' || activeTab === 'rdf') {
+            await sleep(0);
+          }
           canClose = true;
         }
-        await onSuccessClose?.();
+        await onWillClose?.();
         return canClose;
       },
     }).hiddenPromise;
     return canClose;
   },
 
-  async tryCloseCurrentTypeTab(onSuccessClose) {
+  async tryCloseCurrentTypeTab(onWillClose) {
     if (this.isCurrentModified) {
-      return await this.handleUnsavedChanged(onSuccessClose);
+      return await this.handleUnsavedChanged(onWillClose);
     } else {
-      await onSuccessClose?.();
+      await onWillClose?.();
       return true;
     }
   },
