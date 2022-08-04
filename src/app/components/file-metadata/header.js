@@ -34,6 +34,10 @@ export default Component.extend(...mixins, {
 
   tabStateClassTypes: reads('viewModel.tabStateClassTypes'),
 
+  effectiveReadonly: reads('viewModel.effectiveReadonly'),
+
+  effectiveReadonlyTip: reads('viewModel.effectiveReadonlyTip'),
+
   actions: {
     changeTab(tabId) {
       this.viewModel.changeTab(tabId);

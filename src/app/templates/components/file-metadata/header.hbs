@@ -1,6 +1,6 @@
-<div class="btn-group-tabs">
+<div class="btn-group-tabs metadata-type-tabs">
   {{#bs-button-group
-    class="metadata-type-selector"
+    class="metadata-type-selector with-scroll-shadow"
     value=activeTab
     type="radio"
     onChange=(action "changeTab") as |bg|
@@ -41,4 +41,13 @@
       {{/let}}
     {{/each}}
   {{/bs-button-group}}
+  {{#if effectiveReadonly}}
+    <div class="editor-disabled-lock-container with-scroll-shadow">
+      <div class="editor-disabled-lock-text">Editor disabled</div>
+      {{one-icon class="editor-disabled-lock-icon" icon="lock"}}
+      {{#if effectiveReadonlyTip}}
+        {{one-tooltip title=effectiveReadonlyTip}}
+      {{/if}}
+    </div>
+  {{/if}}
 </div>

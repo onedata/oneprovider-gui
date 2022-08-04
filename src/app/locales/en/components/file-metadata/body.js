@@ -1,7 +1,5 @@
 export default {
   // FIXME: to implement below
-  editorDisabled: 'Editor disabled',
-  metadataIsProtected: '{{fileTypeUpper}} metadata is write protected.',
   file: 'File',
   dir: 'Directory',
   // FIXME: move to generic for metadata

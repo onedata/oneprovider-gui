@@ -14,4 +14,5 @@ export default {
     saved: '{{typeCapitalized}} metadata is present and saved.',
     validating: '{{typeCapitalized}} metadata validation in progress...',
   },
+  editorDisabled: 'Editor disabled',
 };

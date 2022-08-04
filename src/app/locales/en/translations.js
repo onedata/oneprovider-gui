@@ -57,6 +57,7 @@ import workflowVisualiser from './utils/workflow-visualiser';
 import archiveFormBaseModel from './utils/archive-form/-base-model';
 import archiveFormViewModel from './utils/archive-form/view-model';
 import datasetActions from './utils/dataset/actions';
+import fileMetadataViewModel from './utils/file-metadata-view-model';
 
 const translations = {
   components: {
@@ -115,6 +116,7 @@ const translations = {
     itemsSelectBrowser: itemsSelectBrowserUtils,
     workflowActions,
     workflowVisualiser,
+    fileMetadataViewModel,
     archiveForm: {
       baseModel: archiveFormBaseModel,
       viewModel: archiveFormViewModel,

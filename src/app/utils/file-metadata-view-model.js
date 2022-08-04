@@ -40,9 +40,15 @@ const mixins = [
 ];
 
 export default EmberObject.extend(...mixins, {
+  i18n: service(),
   metadataManager: service(),
   fileManager: service(),
   globalNotify: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.fileMetadataViewModel',
 
   /**
    * @virtual
