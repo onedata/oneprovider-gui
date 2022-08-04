@@ -44,6 +44,7 @@ export default EmberObject.extend(...mixins, {
   metadataManager: service(),
   fileManager: service(),
   globalNotify: service(),
+  modalManager: service(),
 
   /**
    * @override
@@ -97,6 +98,14 @@ export default EmberObject.extend(...mixins, {
 
   isAnyModified: or(
     ...metadataTypes.map(type => `${type}IsModified`)
+  ),
+
+  isCurrentModified: computed(
+    'activeTab',
+    'isAnyModified',
+    function isCurrentModified() {
+      return this[metadataIsModifiedName(this.activeTab)];
+    }
   ),
 
   isAnyInvalid: or(
@@ -350,8 +359,27 @@ export default EmberObject.extend(...mixins, {
     }
   },
 
-  changeTab(tabId) {
-    this.set('activeTab', tabId);
+  async changeTab(tabId) {
+    const activeTab = this.activeTab;
+    if (this.isCurrentModified) {
+      await this.modalManager.show('unsaved-changes-question-modal', {
+        onSubmit: async (data) => {
+          if (data.shouldSaveChanges) {
+            try {
+              await this.save(activeTab);
+            } catch (error) {
+              throw error;
+            }
+          } else {
+            this.restoreOriginalMetadata(activeTab);
+          }
+          // immediately change tab, to not wait until modal is hidden
+          this.set('activeTab', tabId);
+        },
+      }).hiddenPromise;
+    } else {
+      this.set('activeTab', tabId);
+    }
   },
 });
 
