@@ -37,4 +37,11 @@ export default BaseTabModel.extend({
     raw(''),
     raw('file-metadata/footer'),
   ),
+
+  /**
+   * @override
+   */
+  tryClose() {
+    return this.viewModel.tryCloseCurrentTypeTab();
+  },
 });

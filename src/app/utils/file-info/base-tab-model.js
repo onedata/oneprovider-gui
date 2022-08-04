@@ -40,4 +40,16 @@ export default EmberObject.extend({
    * @type {string}
    */
   footerComponent: undefined,
+
+  /**
+   * Invoked by file info modal when it wants to close the current tab.
+   * Return true to allow tab close.
+   * Return false to cancel closing the file info modal.
+   * Returing null or undefined will be considered as true.
+   * @virtual optional
+   * @returns {boolean}
+   */
+  tryClose() {
+    return true;
+  },
 });

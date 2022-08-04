@@ -33,7 +33,7 @@
               (if (eq tab.activeId "general") "active")
             }}
             role="tab"
-            {{action (mut activeTab) "general"}}
+            {{action "changeTab" "general"}}
           >
             {{tt this "tabs.general.tabTitle"}}
           </a>
@@ -47,7 +47,7 @@
                 (if (eq tab.activeId "hardlinks") "active")
               }}
               role="tab"
-              {{action (mut activeTab) "hardlinks"}}
+              {{action "changeTab" "hardlinks"}}
             >
               {{tt this "tabs.hardlinks.tabTitle" hardlinksCount=(if
                 hardlinksLimitExceeded
@@ -67,7 +67,7 @@
                 (if (eq tab.activeId "size") "active")
               }}
               role="tab"
-              {{action (mut activeTab) "size"}}
+              {{action "changeTab" "size"}}
             >
               <div class="tab-label-size">
                {{tt this "tabs.size.tabTitle"}}
@@ -93,7 +93,7 @@
                 (if (eq tab.activeId "apiSamples") "active")
               }}
               role="tab"
-              {{action (mut activeTab) "apiSamples"}}
+              {{action "changeTab" "apiSamples"}}
             >
               {{one-icon class="tab-icon" icon="rest"}}
               <div class="tab-label-api-samples">
@@ -116,7 +116,7 @@
                 (if (eq tab.activeId tabModel.tabId) "active")
               }}
               role="tab"
-              {{action (mut activeTab) tabModel.tabId}}
+              {{action "changeTab" tabModel.tabId}}
             >
                 {{!--
                   TODO: VFS-9626

@@ -401,8 +401,21 @@ export default Component.extend(...mixins, {
   },
 
   actions: {
+    async changeTab(tabName) {
+      if (tabName === this.activeTab) {
+        return;
+      }
+      if ((await this.activeTabModel?.tryClose?.()) ?? true) {
+        this.set('activeTab', tabName);
+      }
+    },
     close() {
-      return this.get('onHide')();
+      (async () => {
+        if ((await this.activeTabModel?.tryClose?.()) ?? true) {
+          this.onHide?.();
+        }
+      })();
+      return false;
     },
   },
 });

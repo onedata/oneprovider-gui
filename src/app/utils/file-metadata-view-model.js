@@ -359,27 +359,50 @@ export default EmberObject.extend(...mixins, {
     }
   },
 
-  async changeTab(tabId) {
+  /**
+   *
+   * @param {() => Promise|any} onSuccessClose
+   * @returns {boolean} true if view can be closed
+   */
+  async handleUnsavedChanged(onSuccessClose) {
     const activeTab = this.activeTab;
-    if (this.isCurrentModified) {
-      await this.modalManager.show('unsaved-changes-question-modal', {
-        onSubmit: async (data) => {
-          if (data.shouldSaveChanges) {
-            try {
-              await this.save(activeTab);
-            } catch (error) {
-              throw error;
-            }
-          } else {
-            this.restoreOriginalMetadata(activeTab);
+    let canClose = false;
+    await this.modalManager.show('unsaved-changes-question-modal', {
+      onSubmit: async (data) => {
+        if (data.shouldSaveChanges) {
+          try {
+            await this.save(activeTab);
+            canClose = true;
+          } catch (error) {
+            canClose = false;
           }
-          // immediately change tab, to not wait until modal is hidden
-          this.set('activeTab', tabId);
-        },
-      }).hiddenPromise;
+        } else {
+          this.restoreOriginalMetadata(activeTab);
+          canClose = true;
+        }
+        await onSuccessClose?.();
+        return canClose;
+      },
+    }).hiddenPromise;
+    return canClose;
+  },
+
+  async tryCloseCurrentTypeTab(onSuccessClose) {
+    if (this.isCurrentModified) {
+      return await this.handleUnsavedChanged(onSuccessClose);
     } else {
-      this.set('activeTab', tabId);
+      await onSuccessClose?.();
+      return true;
     }
+  },
+
+  async changeTab(tabId) {
+    if (tabId === this.activeTab) {
+      return;
+    }
+    return this.tryCloseCurrentTypeTab(() => {
+      this.set('activeTab', tabId);
+    });
   },
 });
 
