@@ -5,5 +5,5 @@ export default {
     someInvalid: 'Entered metadata is invalid – please correct',
   },
   save: 'Save',
-  discard: 'Discard',
+  discard: 'Discard changes',
 };

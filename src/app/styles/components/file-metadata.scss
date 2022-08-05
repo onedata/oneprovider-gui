@@ -24,12 +24,12 @@ $metadata-nav-tabs-height: 44px;
     @include fill-flex-using-column;
   }
   .bs-tab {
-    $nav-tabs-height: 44px;
     .tab-content-metadata {
-      height: calc(100% - #{$metadata-nav-tabs-height});
+      height: 100%;
     }
   }
   .form-group.form-group-ace-editor {
+    margin-bottom: 0;
     .ember-ace.full-height {
       // make some space for one-line error message
       height: calc(100% - 1em);

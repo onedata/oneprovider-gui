@@ -1,7 +1,8 @@
 {{#one-button
-  onClick=(action "discardChanges")
   type="warning"
+  onClick=(action "discardChanges")
   disabled=isDiscardDisabled
+  class="btn-discard"
 }}
   {{tt this "discard"}}
 {{/one-button}}
@@ -13,7 +14,7 @@
       onClick=(action "save")
       isPending=processing
       disabled=isSaveDisabled
-      class="btn-save-all"
+      class="btn-save"
     }}
       {{tt this "save"}}
     {{/one-button}}
