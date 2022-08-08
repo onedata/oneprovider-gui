@@ -1,8 +1,6 @@
 export default {
-  // FIXME: to implement below
   file: 'File',
   dir: 'Directory',
-  // FIXME: move to generic for metadata
   types: {
     xattrs: 'basic',
     json: 'JSON',

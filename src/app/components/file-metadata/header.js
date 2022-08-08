@@ -1,5 +1,5 @@
 /**
- * FIXME: jsdoc
+ * Selector of metadata type and other global information about file metadata.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH

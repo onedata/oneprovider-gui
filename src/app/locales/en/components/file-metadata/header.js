@@ -1,5 +1,4 @@
 export default {
-  // FIXME: move to generic for metadata
   types: {
     xattrs: 'basic',
     json: 'JSON',
