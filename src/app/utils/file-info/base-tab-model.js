@@ -20,8 +20,21 @@ export default EmberObject.extend({
   viewModel: undefined,
 
   /**
+   * Icon that will be rendered on the right of text as tab status.
+   * @virtual optional
+   * @type {string}
+   */
+  statusIcon: undefined,
+
+  /**
+   * @virtual optional
+   * @type {string}
+   */
+  tabClass: '',
+
+  /**
    * Name of component to render in modal header.
-   * @virtual
+   * @virtual optional
    * @type {string}
    */
   headerComponent: undefined,

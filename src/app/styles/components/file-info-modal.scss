@@ -101,6 +101,21 @@
     .tab-label-api-samples {
       margin-left: 14px;
     }
+
+    &.with-status-icon {
+      display: inline-flex;
+      align-items: center;
+      .tab-status-icon {
+        margin-right: -0.3em;
+        line-height: 0;
+        margin-left: 0.2em;
+      }
+      &.tab-status-success {
+        .tab-status-icon {
+          color: $color-one-success;
+        }
+      }
+    }
   }
 
   .shows-first-n-hardlinks {

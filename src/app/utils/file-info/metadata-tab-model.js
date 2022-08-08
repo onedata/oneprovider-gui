@@ -9,6 +9,7 @@
 import BaseTabModel from './base-tab-model';
 import { conditional, raw } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import FileMetadataViewModel from 'oneprovider-gui/utils/file-metadata-view-model';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -32,6 +33,12 @@ export default BaseTabModel.extend(...mixins, {
    * @override
    */
   i18nPrefix: 'utils.fileInfo.metadataTabModel',
+
+  /**
+   * @virtual
+   * @type {Models.File}
+   */
+  file: undefined,
 
   /**
    * Data needed to lazily instantiate ViewModel.
@@ -70,7 +77,25 @@ export default BaseTabModel.extend(...mixins, {
   ),
 
   /**
-   * @type {Utils.FileMetadataViewModel}
+   * @override
+   */
+  statusIcon: conditional(
+    'hasMetadata',
+    raw('checkbox-filled'),
+    raw(undefined),
+  ),
+
+  /**
+   * @override
+   */
+  tabClass: conditional(
+    'hasMetadata',
+    raw('tab-status-success'),
+    raw(undefined),
+  ),
+
+  /**
+   * @type {ComputedProperty<Utils.FileMetadataViewModel>}
    */
   viewModel: computed('file', function viewModel() {
     return FileMetadataViewModel.create({
@@ -79,6 +104,11 @@ export default BaseTabModel.extend(...mixins, {
       ...this.viewModelCreateData,
     });
   }),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasMetadata: reads('file.hasMetadata'),
 
   /**
    * @override
