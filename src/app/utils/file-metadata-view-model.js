@@ -1,3 +1,12 @@
+/**
+ * Implements behavior and provides state of file metadata view (see set of
+ * `file-metadata` components), that is typically rendered as a tab in file-info-modal.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, { computed, get, defineProperty } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { or, eq, raw, conditional, bool } from 'ember-awesome-macros';

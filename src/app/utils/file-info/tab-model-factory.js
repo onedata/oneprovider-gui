@@ -1,3 +1,11 @@
+/**
+ * A central point for creating all known file-info-modals tab models.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import MetadataTabModel from './metadata-tab-model';
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';

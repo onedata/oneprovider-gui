@@ -1,3 +1,11 @@
+/**
+ * Save/discard buttons for edited metadata.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { or, and, not } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
