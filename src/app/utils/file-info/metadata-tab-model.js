@@ -1,12 +1,25 @@
 import BaseTabModel from './base-tab-model';
 import { conditional, raw } from 'ember-awesome-macros';
+import { computed } from '@ember/object';
+import FileMetadataViewModel from 'oneprovider-gui/utils/file-metadata-view-model';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 
-export default BaseTabModel.extend({
+/**
+ * @typedef {Object} MetadataViewModelCreateData
+ * @property {boolean} previewMode
+ */
+
+const mixins = [
+  OwnerInjector,
+];
+
+export default BaseTabModel.extend(...mixins, {
   /**
+   * Data needed to lazily instantiate ViewModel.
    * @virtual
-   * @type {Utils.FileMetadataViewModel}
+   * @type {MetadataViewModelCreateData}
    */
-  viewModel: undefined,
+  viewModelCreateData: undefined,
 
   /**
    * @override
@@ -37,6 +50,17 @@ export default BaseTabModel.extend({
     raw(''),
     raw('file-metadata/footer'),
   ),
+
+  /**
+   * @type {Utils.FileMetadataViewModel}
+   */
+  viewModel: computed('file', function viewModel() {
+    return FileMetadataViewModel.create({
+      ownerSource: this,
+      file: this.file,
+      ...this.viewModelCreateData,
+    });
+  }),
 
   /**
    * @override

@@ -1,5 +1,4 @@
 import MetadataTabModel from './metadata-tab-model';
-import FileMetadataViewModel from 'oneprovider-gui/utils/file-metadata-view-model';
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
@@ -30,15 +29,11 @@ export default EmberObject.extend(OwnerInjector, {
   },
 
   createMetadataTabModel(options) {
-    const fileMetadataViewModel = FileMetadataViewModel.extend({
+    return MetadataTabModel.extend({
       file: reads('fileInfoModal.file'),
     }).create({
+      viewModelCreateData: options,
       fileInfoModal: this.fileInfoModal,
-      ownerSource: this,
-      ...options,
-    });
-    return MetadataTabModel.create({
-      viewModel: fileMetadataViewModel,
       ownerSource: this,
     });
   },
