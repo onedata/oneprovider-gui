@@ -84,6 +84,9 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
 
   fileToShowInfo: null,
 
+  /**
+   * @type {FileInfoTabId} activeTab
+   */
   showInfoInitialTab: undefined,
 
   fileForConfirmDownload: null,
@@ -216,6 +219,10 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
     });
   },
 
+  /**
+   * @param {Models.File} file
+   * @param {FileInfoTabId} activeTab
+   */
   openInfoModal(file, activeTab) {
     this.setProperties({
       fileToShowInfo: file,

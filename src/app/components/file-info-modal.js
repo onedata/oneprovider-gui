@@ -1,8 +1,6 @@
 /**
  * Modal with detailed views about file or directory.
  *
- * Evolved from simple `file-browser/fb-info-modal` component.
- *
  * @author Jakub Liput
  * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -14,7 +12,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
 import { promise, raw, or, gt, and, notEqual, collect, bool } from 'ember-awesome-macros';
-import { computed, get, getProperties } from '@ember/object';
+import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
@@ -28,6 +26,10 @@ const mixins = [
   I18n,
   createDataProxyMixin('fileHardlinks'),
 ];
+
+/**
+ * @typedef {'general'|'hardlinks'|'size'|'apiSamples'|'metadata'} FileInfoTabId
+ */
 
 export default Component.extend(...mixins, {
   i18n: service(),
@@ -109,8 +111,7 @@ export default Component.extend(...mixins, {
   dirStatsServiceState: undefined,
 
   /**
-   * One of: general, hardlinks, size, apiSamples
-   * @type {String}
+   * @type {FileInfoTabId}
    */
   activeTab: 'general',
 
@@ -302,6 +303,9 @@ export default Component.extend(...mixins, {
   // TODO: VFS-9628 this is a temporary list of tabs moved from separate modals
   specialFileTabs: Object.freeze(['metadata']),
 
+  /**
+   * @type {Array<FileInfoTabId>}
+   */
   visibleTabs: computed(
     'isHardlinksTabVisible',
     'isSizeTabVisible',
@@ -323,11 +327,20 @@ export default Component.extend(...mixins, {
   ),
 
   // TODO: VFS-9628 will contain all tab models after refactor
-  visibleTabsModels: collect('metadataTabModel'),
+  visibleTabsModels: collect('tabModels.metadata'),
 
-  metadataTabModel: computed(function metadataTabModel() {
-    return this.tabModelFactory.createTabModel('metadata', {
-      previewMode: this.previewMode,
+  tabModels: computed(function tabModels() {
+    return EmberObject.extend({
+      previewMode: reads('fileInfoModal.previewModal'),
+      tabModelFactory: reads('fileInfoModal.tabModelFactory'),
+
+      metadata: computed(function metadata() {
+        return this.tabModelFactory.createTabModel('metadata', {
+          previewMode: this.previewMode,
+        });
+      }),
+    }).create({
+      fileInfoModal: this,
     });
   }),
 
@@ -342,7 +355,7 @@ export default Component.extend(...mixins, {
     if (!this.specialFileTabs.includes(this.activeTab)) {
       return null;
     }
-    return this[`${this.activeTab}TabModel`];
+    return this.tabModels[this.activeTab];
   }),
 
   init() {

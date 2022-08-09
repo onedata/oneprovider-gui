@@ -110,6 +110,9 @@ export default OneEmbeddedComponent.extend(
 
     fileToShowInfo: undefined,
 
+    /**
+     * @type {FileInfoTabId} activeTab
+     */
     showInfoInitialTab: undefined,
 
     fileToShowRecallInfo: undefined,
@@ -440,6 +443,11 @@ export default OneEmbeddedComponent.extend(
     openRenameModal(file) {
       this.set('fileToRename', file);
     },
+
+    /**
+     * @param {Models.File} file
+     * @param {FileInfoTabId} activeTab
+     */
     openInfoModal(file, activeTab) {
       this.setProperties({
         fileToShowInfo: file,

@@ -194,8 +194,7 @@ export default Component.extend(...mixins, {
   fileToShowInfo: null,
 
   /**
-   * See `component:file-info-modal` for available tabs.
-   * @type {String}
+   * @type {FileInfoTabId} activeTab
    */
   showInfoInitialTab: undefined,
 
@@ -698,6 +697,10 @@ export default Component.extend(...mixins, {
     this.set('archivesToDelete', null);
   },
 
+  /**
+   * @param {Models.File} file
+   * @param {FileInfoTabId} activeTab
+   */
   openInfoModal(file, activeTab) {
     this.setProperties({
       fileToShowInfo: file,

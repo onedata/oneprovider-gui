@@ -23,8 +23,6 @@ export default Component.extend(...mixins, {
   i18n: service(),
   fileManager: service(),
 
-  open: false,
-
   /**
    * @override
    */
@@ -62,9 +60,6 @@ export default Component.extend(...mixins, {
   ),
 
   actions: {
-    saveAll() {
-      this.viewModel.saveAll();
-    },
     metadataChanged(type, data) {
       this.viewModel.onMetadataChanged(type, data);
     },
