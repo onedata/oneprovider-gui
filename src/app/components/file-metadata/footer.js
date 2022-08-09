@@ -33,6 +33,8 @@ export default Component.extend(I18n, {
 
   isDiscardDisabled: or(
     not('viewModel.isAnyModified'),
+    // discard action sets isAnyValidating flag to false, so to avoid race do not allow
+    // to invoke it when validating
     'viewModel.isAnyValidating'
   ),
 
