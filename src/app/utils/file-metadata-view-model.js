@@ -145,7 +145,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effectiveReadonly: or('readonly', 'previewMode', 'effectiveReadonlyTip'),
+  effectiveReadonly: or('readonly', 'effectiveReadonlyTip'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -155,16 +155,26 @@ export default EmberObject.extend(...mixins, {
     'metadataIsProtected',
     'file.type',
     'space.privileges.update',
+    'previewMode',
     function effectiveReadonlyTip() {
       const {
         i18n,
         readonlyTip,
         metadataIsProtected,
         file,
-      } = this.getProperties('i18n', 'readonlyTip', 'metadataIsProtected', 'file');
+        previewMode,
+      } = this.getProperties(
+        'i18n',
+        'readonlyTip',
+        'metadataIsProtected',
+        'file',
+        'previewMode',
+      );
       const canUpdateSpace = this.space?.privileges?.update;
       if (readonlyTip) {
         return readonlyTip;
+      } else if (previewMode) {
+        return this.t('readonlyFileBrowser');
       } else if (metadataIsProtected) {
         return this.t('metadataIsProtected', {
           fileTypeUpper: capitalize(

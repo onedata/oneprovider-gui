@@ -331,7 +331,7 @@ export default Component.extend(...mixins, {
 
   tabModels: computed(function tabModels() {
     return EmberObject.extend({
-      previewMode: reads('fileInfoModal.previewModal'),
+      previewMode: reads('fileInfoModal.previewMode'),
       tabModelFactory: reads('fileInfoModal.tabModelFactory'),
 
       metadata: computed(function metadata() {
@@ -362,7 +362,7 @@ export default Component.extend(...mixins, {
     this._super(...arguments);
     const initialTab = this.initialTab;
     if (this.visibleTabs.includes(initialTab)) {
-      this.activeTab = initialTab;
+      this.set('activeTab', initialTab);
     }
   },
 
