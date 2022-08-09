@@ -18,7 +18,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import sleep from 'onedata-gui-common/utils/sleep';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { assert } from '@ember/debug';
 import { Promise } from 'rsvp';
 
@@ -417,7 +417,7 @@ export default EmberObject.extend(...mixins, {
             // changing tab, the ACE editor is not getting updated when coming back
             // to this tab
             if (activeTab === 'json' || activeTab === 'rdf') {
-              await sleep(0);
+              await waitForRender();
             }
             resolve(true);
           }
