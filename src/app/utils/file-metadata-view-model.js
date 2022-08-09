@@ -17,6 +17,7 @@ import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import sleep from 'onedata-gui-common/utils/sleep';
 
 /**
@@ -60,6 +61,12 @@ export default EmberObject.extend(...mixins, {
    * @override
    */
   i18nPrefix: 'utils.fileMetadataViewModel',
+
+  /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
 
   /**
    * @virtual
@@ -135,7 +142,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effectiveReadonly: or('readonly', 'previewMode', 'metadataIsProtected'),
+  effectiveReadonly: or('readonly', 'previewMode', 'effectiveReadonlyTip'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -144,12 +151,15 @@ export default EmberObject.extend(...mixins, {
     'readonlyTip',
     'metadataIsProtected',
     'file.type',
+    'space.privileges.update',
     function effectiveReadonlyTip() {
       const {
+        i18n,
         readonlyTip,
         metadataIsProtected,
         file,
-      } = this.getProperties('readonlyTip', 'metadataIsProtected', 'file');
+      } = this.getProperties('i18n', 'readonlyTip', 'metadataIsProtected', 'file');
+      const canUpdateSpace = this.space?.privileges?.update;
       if (readonlyTip) {
         return readonlyTip;
       } else if (metadataIsProtected) {
@@ -157,6 +167,12 @@ export default EmberObject.extend(...mixins, {
           fileTypeUpper: capitalize(
             this.t(file && get(file, 'type') || 'file').toString()
           ),
+        });
+      } else if (!canUpdateSpace) {
+        return insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_update',
         });
       } else {
         return '';

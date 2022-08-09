@@ -39,8 +39,9 @@ export default EmberObject.extend(OwnerInjector, {
   createMetadataTabModel(options) {
     return MetadataTabModel.extend({
       file: reads('fileInfoModal.file'),
+      space: reads('fileInfoModal.space'),
     }).create({
-      viewModelCreateData: options,
+      viewModelCreateData: { ...options },
       fileInfoModal: this.fileInfoModal,
       ownerSource: this,
     });

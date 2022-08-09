@@ -41,6 +41,12 @@ export default BaseTabModel.extend(...mixins, {
   file: undefined,
 
   /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
    * Data needed to lazily instantiate ViewModel.
    * @virtual
    * @type {MetadataViewModelCreateData}
@@ -97,10 +103,11 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @type {ComputedProperty<Utils.FileMetadataViewModel>}
    */
-  viewModel: computed('file', function viewModel() {
+  viewModel: computed('file', 'space', function viewModel() {
     return FileMetadataViewModel.create({
       ownerSource: this,
       file: this.file,
+      space: this.space,
       ...this.viewModelCreateData,
     });
   }),
