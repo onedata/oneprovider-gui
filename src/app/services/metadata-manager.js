@@ -68,11 +68,12 @@ export default Service.extend({
    * @returns {Promise<Object>} with `metadata` key
    */
   async getMetadata(file, metadataType, scope) {
-    return this.get('onedataGraph').request({
+    const data = await this.onedataGraph.request({
       operation: 'get',
       gri: metadataGri(get(file, 'entityId'), metadataType, scope),
       subscribe: false,
-    }).then(data => deserializers[metadataType](data.metadata));
+    });
+    return deserializers[metadataType](data.metadata);
   },
 
   /**
@@ -81,23 +82,15 @@ export default Service.extend({
    * @param {any} metadata Object for xattrs, String for RDF and JSON
    * @returns {Promise<Object>} with `metadata` key
    */
-  setMetadata(file, metadataType, metadata) {
-    const onedataGraph = this.get('onedataGraph');
-    return new Promise((resolve, reject) => {
-      try {
-        resolve(serializers[metadataType](metadata));
-      } catch (error) {
-        reject(error);
-      }
-    }).then(metadata => {
-      return onedataGraph.request({
-        operation: 'create',
-        gri: metadataGri(get(file, 'entityId'), metadataType),
-        data: {
-          metadata,
-        },
-        subscribe: false,
-      });
+  async setMetadata(file, metadataType, metadata) {
+    const serializedMetadata = serializers[metadataType](metadata);
+    return this.onedataGraph.request({
+      operation: 'create',
+      gri: metadataGri(get(file, 'entityId'), metadataType),
+      data: {
+        metadata: serializedMetadata,
+      },
+      subscribe: false,
     });
   },
 
@@ -106,8 +99,8 @@ export default Service.extend({
    * @param {Array<String>} keys keys that will be removed from xattrs
    * @returns {Promise}
    */
-  removeXattrs(file, keys) {
-    return this.get('onedataGraph').request({
+  async removeXattrs(file, keys) {
+    return this.onedataGraph.request({
       operation: 'delete',
       gri: metadataGri(get(file, 'entityId'), 'xattrs'),
       data: { keys },
@@ -120,8 +113,8 @@ export default Service.extend({
    * @param {String} metadataType
    * @returns {Promise}
    */
-  removeMetadata(file, metadataType) {
-    return this.get('onedataGraph').request({
+  async removeMetadata(file, metadataType) {
+    return this.onedataGraph.request({
       operation: 'delete',
       gri: metadataGri(get(file, 'entityId'), metadataType),
       subscribe: false,
