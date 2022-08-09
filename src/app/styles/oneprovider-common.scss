@@ -81,6 +81,7 @@ p.last {
   }
   display: inline-block;
   position: relative;
+  vertical-align: middle;
   margin-right: $size * 0.5;
   &::after {
     position: absolute;
