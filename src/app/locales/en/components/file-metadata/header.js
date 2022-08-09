@@ -1,11 +1,9 @@
+import { noMetadataSet, types } from './-common';
+
 export default {
-  types: {
-    xattrs: 'basic',
-    json: 'JSON',
-    rdf: 'RDF',
-  },
+  types,
   tabStateHint: {
-    blank: 'There is no {{type}} metadata set.',
+    blank: noMetadataSet,
     error: '{{typeCapitalized}} metadata could not be fetched.',
     invalid: 'Entered {{type}} metadata is invalid – please correct.',
     modified: 'There are unsaved changes in {{type}} metadata.',

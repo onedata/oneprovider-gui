@@ -66,7 +66,6 @@ p.last {
 // button. May also look good in other containers but it is not tested.
 .tab-state {
   $size: 10px;
-  $states: empty inactive disabled danger warning success;
   $stateColors: (
     empty: transparent,
     inactive: $color-one-semiwhite,
@@ -93,7 +92,7 @@ p.last {
     height: $size;
     border-radius: 100%;
   }
-  @each $state in $states {
+  @each $state, $color in $stateColors {
     @include stateAfter($state)
   }
 }
@@ -111,7 +110,6 @@ $btn-group-tabs-horizontal-spacing-small: 0.5em;
 $btn-group-tabs-line-border-color: $color-one-gray-sand;
 
 .btn-group-tabs {
-
   position: relative;
   display: flex;
   align-items: center;
@@ -151,9 +149,6 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
   // turn on special decoration, because shadow of header is off when on top
   &.scroll-on-top {
     .modal-header .btn-group-tabs {
-      @mixin line-border-color {
-        border-bottom-color: $color-one-gray-sand;
-      }
       &::before, &::after {
         border-bottom-color: $btn-group-tabs-line-border-color;
       }

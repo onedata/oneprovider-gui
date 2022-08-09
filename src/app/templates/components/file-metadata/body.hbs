@@ -21,7 +21,7 @@
             }}
               {{#if (and effectiveReadonly (eq tabState "blank"))}}
                 <em>
-                  {{tt this "tabStateHint.blank" type=(tt this (concat "types." type))}}
+                  {{tt this "noMetadataSet" type=(tt this (concat "types." type))}}
                 </em>
               {{else}}
                 {{!-- TODO: VFS-9695 remove used of lastResetTime --}}
