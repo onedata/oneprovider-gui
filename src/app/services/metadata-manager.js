@@ -12,7 +12,6 @@ import { get } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import _ from 'lodash';
-import { Promise } from 'rsvp';
 
 const BackendMetadataType = Object.freeze({
   xattrs: 'xattrs',
