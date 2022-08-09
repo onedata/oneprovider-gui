@@ -19,6 +19,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import sleep from 'onedata-gui-common/utils/sleep';
+import { assert } from '@ember/debug';
 
 /**
  * @typedef {'xattrs'|'json'|'rdf'} FileMetadataType
@@ -100,7 +101,8 @@ export default EmberObject.extend(...mixins, {
   //#region state
 
   /**
-   * One of `metadataTypes` values. Computed value if for default value.
+   * One of `metadataTypes` value. By default it is the first known metadata type, but
+   * it is overriden with regular value in `changeTab`.
    * @type {string}
    */
   activeTab: reads('metadataTypes.firstObject'),
@@ -298,29 +300,27 @@ export default EmberObject.extend(...mixins, {
   },
 
   async save(type) {
-    const file = this.file;
-    if (!file) {
-      throw new Error('no file to set metadata');
-    }
-    const currentName = metadataCurrentName(type);
-    const originalName = metadataOriginalName(type);
-    const updaterName = metadataUpdaterName(type);
-    const currentValue = this[currentName];
-    const originalValue = this[originalName];
-    let savePromise;
-    if (type === 'xattrs') {
-      savePromise = this.saveXattrs(
-        originalValue,
-        currentValue === emptyValue ? {} : currentValue
-      );
-    } else {
-      if (currentValue === emptyValue) {
-        savePromise = this.metadataManager.removeMetadata(file, type);
-      } else {
-        savePromise = this.metadataManager.setMetadata(file, type, currentValue);
-      }
-    }
     try {
+      const file = this.file;
+      assert('no file set in metadata view model', file);
+      const currentName = metadataCurrentName(type);
+      const originalName = metadataOriginalName(type);
+      const updaterName = metadataUpdaterName(type);
+      const currentValue = this[currentName];
+      const originalValue = this[originalName];
+      let savePromise;
+      if (type === 'xattrs') {
+        savePromise = this.saveXattrs(
+          originalValue,
+          currentValue === emptyValue ? {} : currentValue
+        );
+      } else {
+        if (currentValue === emptyValue) {
+          savePromise = this.metadataManager.removeMetadata(file, type);
+        } else {
+          savePromise = this.metadataManager.setMetadata(file, type, currentValue);
+        }
+      }
       await savePromise;
       await file.reload();
       await this[updaterName]({ replace: true });
@@ -366,7 +366,7 @@ export default EmberObject.extend(...mixins, {
       .finally(() => {
         if (errors.length) {
           for (let i = 0; i < errors.length; ++i) {
-            console.error(`fb-metadata-modal#saveXattrs: ${errors[i]}`);
+            console.error(`saveXattrs failed: ${JSON.stringify(errors[i])}`);
           }
           throw errors[0];
         }
