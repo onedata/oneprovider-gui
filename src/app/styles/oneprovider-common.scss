@@ -138,7 +138,7 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
   .modal-header .btn-group-tabs {
     // make tabs to be in the middle of the header bottom line
     position: relative;
-    transform: translateY(50%) translateY(2px);
+    transform: translateY(50%) translateY(1px);
     z-index: $top-shadow-zindex + 1;
     margin-top: -$btn-group-tabs-vertical-offset;
     .with-scroll-shadow {
