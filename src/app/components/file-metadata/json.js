@@ -7,9 +7,9 @@
  */
 
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import FileMetadataEditorBase from 'oneprovider-gui/components/file-metadata/-ace-editor-base';
+import AceEditorBase from 'oneprovider-gui/components/file-metadata/-ace-editor-base';
 
-export default FileMetadataEditorBase.extend(I18n, {
+export default AceEditorBase.extend(I18n, {
   classNames: ['file-metadata-json'],
 
   /**

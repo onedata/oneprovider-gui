@@ -7,12 +7,12 @@
  */
 
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import FbMetadataEditorBase from 'oneprovider-gui/components/file-metadata/-ace-editor-base';
+import AceEditorBase from 'oneprovider-gui/components/file-metadata/-ace-editor-base';
 import { conditional, eq, raw } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
 import { emptyValue } from 'oneprovider-gui/utils/file-metadata-view-model';
 
-export default FbMetadataEditorBase.extend(I18n, {
+export default AceEditorBase.extend(I18n, {
   classNames: ['file-metadata-rdf'],
 
   /**

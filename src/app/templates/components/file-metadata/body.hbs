@@ -2,7 +2,7 @@
   class="bs-tab bs-tab-onedata bs-tab-modern full-height"
   fade=false
   customTabs=true
-  activeId=activeTab
+  activeId=(concat elementId "-" activeTab)
   as |bsTab|
 }}
   <div class="tab-content tab-content-metadata no-vertical-padding">
@@ -14,8 +14,11 @@
         (get this (concat "viewModel." type "IsValid"))
         as |originalProxy tabState current isValid|
       }}
-        {{#bsTab.pane elementId=type class="full-height"}}
-          {{#render-later triggerRender=(eq bsTab.activeId type)}}
+        {{#bsTab.pane
+          elementId=(concat elementId "-" type)
+          class=(concat "full-height tab-pane-metadata-" type)
+        }}
+          {{#render-later triggerRender=(eq activeTab type)}}
             {{#promise-proxy-container
               proxy=originalProxy
             }}
@@ -28,7 +31,7 @@
                 {{component
                   (concat "file-metadata/" type)
                   class="full-height"
-                  isActive=(eq bsTab.activeId type)
+                  isActive=(eq activeTab type)
                   metadata=current
                   metadataChanged=(action "metadataChanged" type)
                   isValid=isValid
