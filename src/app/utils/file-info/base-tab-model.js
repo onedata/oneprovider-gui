@@ -78,7 +78,7 @@ export default EmberObject.extend({
    * @virtual optional
    * @returns {boolean}
    */
-  tryClose() {
+  checkClose() {
     return true;
   },
 });

@@ -20,6 +20,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import sleep from 'onedata-gui-common/utils/sleep';
 import { assert } from '@ember/debug';
+import { Promise } from 'rsvp';
 
 /**
  * @typedef {'xattrs'|'json'|'rdf'} FileMetadataType
@@ -386,55 +387,54 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
-   *
-   * @param {() => Promise|any} onWillClose
-   * @returns {boolean} true if view can be closed
+   * @returns {Promise<boolean>} true if current tab can be closed
    */
-  async handleUnsavedChanged(onWillClose) {
+  async handleUnsavedChanges() {
     const activeTab = this.activeTab;
-    let canClose = false;
-    await this.modalManager.show('unsaved-changes-question-modal', {
-      onSubmit: async (data) => {
-        if (data.shouldSaveChanges) {
-          try {
-            await this.save(activeTab);
-            canClose = true;
-          } catch (error) {
-            canClose = false;
+    return await new Promise(resolve => {
+      this.modalManager.show('unsaved-changes-question-modal', {
+        onSubmit: async (data) => {
+          if (data.shouldSaveChanges) {
+            try {
+              await this.save(activeTab);
+              resolve(true);
+            } catch (error) {
+              resolve(false);
+            }
+          } else {
+            this.restoreOriginalMetadata(activeTab);
+            // workaround for issue: when changing content of ACE editor and immediately
+            // changing tab, the ACE editor is not getting updated when coming back
+            // to this tab
+            if (activeTab === 'json' || activeTab === 'rdf') {
+              await sleep(0);
+            }
+            resolve(true);
           }
-        } else {
-          this.restoreOriginalMetadata(activeTab);
-          // workaround for issue: when chaning content of ACE editor and immediately
-          // changing tab, the ACE editor is not getting updated when coming back
-          // to this tab
-          if (activeTab === 'json' || activeTab === 'rdf') {
-            await sleep(0);
-          }
-          canClose = true;
-        }
-        await onWillClose?.();
-        return canClose;
-      },
-    }).hiddenPromise;
-    return canClose;
+        },
+        onHide() {
+          resolve(false);
+        },
+      });
+    });
   },
 
-  async tryCloseCurrentTypeTab(onWillClose) {
-    if (this.isCurrentModified) {
-      return await this.handleUnsavedChanged(onWillClose);
-    } else {
-      await onWillClose?.();
-      return true;
-    }
+  /**
+   * If needed, show unsaved changes prompt with save/restore actions.
+   * @returns {Promise<boolean>} If `true` is returned, the tab can be safely closed.
+   *   If `false` is returned, you should not close the tab due to unsaved changes.
+   */
+  async checkCurrentTabClose() {
+    return this.isCurrentModified ? await this.handleUnsavedChanges() : true;
   },
 
   async changeTab(tabId) {
     if (tabId === this.activeTab) {
       return;
     }
-    return this.tryCloseCurrentTypeTab(() => {
+    if (await this.checkCurrentTabClose()) {
       this.set('activeTab', tabId);
-    });
+    }
   },
 });
 

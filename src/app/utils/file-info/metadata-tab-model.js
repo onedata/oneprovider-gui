@@ -120,7 +120,7 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @override
    */
-  tryClose() {
-    return this.viewModel.tryCloseCurrentTypeTab();
+  checkClose() {
+    return this.viewModel.checkCurrentTabClose();
   },
 });
