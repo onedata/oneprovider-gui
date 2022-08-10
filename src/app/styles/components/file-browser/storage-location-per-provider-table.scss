@@ -3,7 +3,7 @@
 
   .storage-locations-oneprovider {
     border: 1px solid #d6d6d6;
-    border-radius: 4px;
+    border-radius: $border-radius-base;
 
     .storage-locations-table {
       width: 100%;
@@ -12,8 +12,8 @@
         border-top: 1px solid #ddd;
 
         &.storage-name-cell { 
-          padding-top: 4px;
-          padding-bottom: 4px;
+          padding-top: $padding-small-vertical;
+          padding-bottom: $padding-small-vertical;
           margin-top: 0;
           height: 33px;
         }
@@ -33,7 +33,7 @@
         }
 
         .clipboard-line {
-          margin-bottom: 20px;
+          margin-bottom: $table-cell-padding;
         }
       }
 

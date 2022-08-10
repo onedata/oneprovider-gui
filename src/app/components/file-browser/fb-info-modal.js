@@ -180,7 +180,10 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
    * @type {PromiseObject<Ember.Array<Object>|null>}
    */
   storageLocationsPerProvider: promise.object(computed(
-    'locationsPerStorage', 'currentProviderName',
+    'locationsPerStorage',
+    'currentProviderName',
+    'storageManager',
+    'spaceId',
     async function storageLocationsPerProvider() {
       const {
         locationsPerStorage,

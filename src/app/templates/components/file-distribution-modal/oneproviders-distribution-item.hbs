@@ -3,14 +3,14 @@
     {{#truncated-string class="distribution-row-name"}}
       <span class="storage-name">{{storageName}}</span> @ <span class="oneprovider-name">{{oneprovider.name}}</span>
     {{/truncated-string}}
-    {{#if storageFilePath}}
+    {{#if storageFileLocation}}
       <div class="distribution-row-name path-container">
         <table class="path-text">
           <tbody>
             <tr>
               <td class="location-path-clipboard storage-file-path-clipboard">
                 {{clipboard-line
-                  value=storageFilePath
+                  value=storageFileLocation
                   size="sm"
                   class="storage-file-path-clipboard"
                 }}

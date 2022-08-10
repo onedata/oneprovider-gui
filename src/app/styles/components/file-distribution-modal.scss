@@ -64,7 +64,7 @@
           background-color: inherit;
           font-style: italic;
           font-size: inherit;
-          height: 14px;
+          height: $font-size-base;
         }
       }
       .storage-file-path {
@@ -85,7 +85,7 @@
     }
 
     .path-string {
-      width:0.1%;
+      width: 0.1%;
       white-space: nowrap;
     }
 
@@ -94,8 +94,8 @@
       justify-content: flex-start;
 
       input.clipboard-input {
-        flex-grow: 2;
-        padding-left: 18px;
+        flex-grow: 1;
+        padding-left: $padding-large-vertical;
       }
 
       .copy-btn {

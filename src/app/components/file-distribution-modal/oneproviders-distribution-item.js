@@ -706,10 +706,13 @@ export default Component.extend(I18n, {
     }
   ),
 
-  storageFilePath: computed(
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  storageFileLocation: computed(
     'storageId',
     'locationsPerStorage',
-    function storageFilePath() {
+    function storageFileLocation() {
       const {
         locationsPerStorage,
         storageId,
