@@ -45,6 +45,8 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
     sinon.stub(lookupService(this, 'file-manager'), 'getFileHardlinks')
       .resolves(fileHardlinksResult);
+    sinon.stub(lookupService(this, 'providerManager'), 'getCurrentProvider')
+      .resolves({ name: 'provider' });
     const getDataUrl = ({ selected: [firstSelected] }) => `link-${firstSelected}`;
     lookupService(this, 'app-proxy').callParent =
       function callParent(methodName, ...args) {

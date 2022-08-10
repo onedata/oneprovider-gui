@@ -66,6 +66,47 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * @type {PromiseObject}
+   */
+  initialRequiredDataProxy: promise.object(promise.all(
+    'distributionItemsProxy',
+    'storageLocationsProxy',
+  )),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isSingleFile: equal('fileDistributionData.length', 1),
+
+  /**
+   * @type {ComputedProperty<Models.File|undefined>}
+   */
+  singleFile: computed('fileDistributionData', function singleFile() {
+    const isSingleFile = this.get('isSingleFile');
+    const file = this.get('fileDistributionData')[0].file;
+    if (isSingleFile && get(file, 'type') === 'file') {
+      return file;
+    } else {
+      return undefined;
+    }
+  }),
+
+  /**
+   * @type {PromiseObject<Models.StorageLocations>}
+   */
+  storageLocationsProxy: reads('singleFile.storageLocations'),
+
+  /**
+   * @type {ComputedProperty<Models.StorageLocations>}
+   */
+  storageLocations: reads('storageLocationsProxy.content'),
+
+  /**
+   * @type {ComputedProperty<LocationsPerStorage>}
+   */
+  locationsPerStorage: reads('storageLocations.locationsPerStorage'),
+
+  /**
    * @virtual
    * @type {Function}
    */

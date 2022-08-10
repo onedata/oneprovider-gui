@@ -5,10 +5,14 @@
   }
 
   .oneproviders-distribution-item {
+    border-bottom: 1px solid $main-border-color;
+    margin-bottom: $padding-base-vertical;
+  }
+
+  .oneproviders-distribution-item-content {
     display: flex;
     align-items: center;
     padding: $padding-small-vertical 0;
-    border-bottom: 1px solid $main-border-color;
 
     .one-pill-button {
       flex-shrink: 0;
@@ -41,14 +45,64 @@
 
     .name-section {
       display: flex;
-      align-items: center;
+      flex-direction: column;
       flex-grow: 1;
       width: 60%;
       min-width: 0;
+
+      .distribution-row-name.path-container {
+        opacity: 0.6;
+        font-style: italic;
+        font-size: 80%;
+      }
+
+      .storage-file-path-clipboard {
+        input {
+          border: none;
+          box-shadow: none;
+          padding: 0;
+          background-color: inherit;
+          font-style: italic;
+          font-size: inherit;
+          height: 14px;
+        }
+      }
+      .storage-file-path {
+        user-select: all;
+      }
     }
 
     .distribution-row-name {
-      flex-grow: 1;
+      padding-right: 5px;
+
+      .oneicon-browser-copy {
+        font-size: 130%;
+        opacity: 0.4;
+      }
+    }
+    .path-text {
+      width: 100%;
+    }
+
+    .path-string {
+      width:0.1%;
+      white-space: nowrap;
+    }
+
+    .storage-file-path-clipboard {
+      display: flex;
+      justify-content: flex-start;
+
+      input.clipboard-input {
+        flex-grow: 2;
+        padding-left: 18px;
+      }
+
+      .copy-btn {
+        position: absolute;
+        left: -12px;
+        transform: translateY(-50%) translateY(-1px);
+      }
     }
 
     .status-toolbar {

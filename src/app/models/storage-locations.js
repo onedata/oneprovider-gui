@@ -10,6 +10,11 @@ import attr from 'ember-data/attr';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
+/**
+ * An object where keys are storage id. Values are file location on that storage.
+ * @typedef {Object} LocationsPerStorage
+ */
+
 export default Model.extend(GraphSingleModelMixin, {
   locationsPerStorage: attr('object'),
 }).reopenClass(StaticGraphModelMixin);

@@ -12,7 +12,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { promise, raw, or, gt } from 'ember-awesome-macros';
+import { promise, raw, or, gt, equal } from 'ember-awesome-macros';
 import { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -27,6 +27,8 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   fileManager: service(),
   errorExtractor: service(),
   spaceManager: service(),
+  storageManager: service(),
+  providerManager: service(),
 
   open: false,
 
@@ -136,6 +138,95 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   })),
 
   apiSamples: reads('apiSamplesProxy.content'),
+
+  /**
+   * @type {PromiseObject<Models.StorageLocations>}
+   */
+  storageLocationsProxy: reads('file.storageLocations'),
+
+  /**
+   * @type {ComputedProperty<Models.StorageLocations>}
+   */
+  storageLocations: reads('storageLocationsProxy.content'),
+
+  /**
+   * @type {ComputedProperty<LocationsPerStorage>}
+   */
+  locationsPerStorage: reads('storageLocations.locationsPerStorage'),
+
+  /**
+   * @type {PromiseObject<Models.Provider>}
+   */
+  currentProviderProxy: promise.object(computed(function currentProviderProxy() {
+    return this.get('providerManager').getCurrentProvider();
+  })),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  currentProviderName: reads('currentProviderProxy.content.name'),
+
+  /**
+   * @type {ComputedProperty<Ember.Array<Object>>}
+   */
+  currentProviderLocations: Array(),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  areStorageLocationsExpanded: equal('currentProviderLocations.length', 0),
+
+  /**
+   * @type {PromiseObject<Ember.Array<Object>|null>}
+   */
+  storageLocationsPerProvider: promise.object(computed(
+    'locationsPerStorage', 'currentProviderName',
+    async function storageLocationsPerProvider() {
+      const {
+        locationsPerStorage,
+        spaceId,
+        storageManager,
+      } = this.getProperties(
+        'locationsPerStorage',
+        'spaceId',
+        'storageManager',
+      );
+      const currentProviderName = await this.get('currentProviderName');
+
+      const locationsPerProvider = {};
+      this.set('currentProviderLocations', []);
+
+      for (const storageId in locationsPerStorage) {
+        const storage = await storageManager.getStorageById(storageId, {
+          throughSpaceId: spaceId,
+          backgroundReload: false,
+        });
+        const provider = await get(storage, 'provider');
+        const providerName = get(provider, 'name');
+        const storageName = get(storage, 'name');
+
+        if (locationsPerStorage[storageId]) {
+          const storageNameWithPath = {
+            storageName,
+            path: locationsPerStorage[storageId],
+          };
+          if (providerName === currentProviderName) {
+            this.get('currentProviderLocations').push(storageNameWithPath);
+          } else if (providerName in locationsPerProvider) {
+            locationsPerProvider[providerName].push(storageNameWithPath);
+          } else {
+            locationsPerProvider[providerName] = [storageNameWithPath];
+          }
+        }
+      }
+
+      if (Object.keys(locationsPerProvider).length === 0) {
+        return null;
+      } else {
+        return locationsPerProvider;
+      }
+    }
+  )),
 
   fileGuiUrlProxy: promise.object(computed('file.entityId', async function fileGuiUrl() {
     const {
@@ -341,6 +432,9 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   actions: {
     close() {
       return this.get('onHide')();
+    },
+    toggleStorageLocations() {
+      this.toggleProperty('areStorageLocationsExpanded');
     },
   },
 });

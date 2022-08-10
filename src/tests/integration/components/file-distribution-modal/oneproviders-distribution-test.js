@@ -26,6 +26,9 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
     fileType: type || 'file',
     fileSize: 1024,
     isFileDistributionLoaded: true,
+    file: {
+      type,
+    },
     fileDistribution: {
       providerkrk: {
         success: successOnKrakow,

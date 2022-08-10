@@ -79,6 +79,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {LocationsPerStorage}
+   */
+  locationsPerStorage: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    * @returns {undefined}
    */
@@ -696,6 +702,22 @@ export default Component.extend(I18n, {
           }
         }
         return true;
+      }
+    }
+  ),
+
+  storageFilePath: computed(
+    'storageId',
+    'locationsPerStorage',
+    function storageFilePath() {
+      const {
+        locationsPerStorage,
+        storageId,
+      } = this.getProperties('locationsPerStorage', 'storageId');
+      if (locationsPerStorage) {
+        return locationsPerStorage[storageId];
+      } else {
+        return undefined;
       }
     }
   ),
