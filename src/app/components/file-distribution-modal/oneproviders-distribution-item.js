@@ -79,9 +79,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {LocationsPerStorage}
+   * @type {LocationsPerProvider}
    */
-  locationsPerStorage: undefined,
+  locationsPerProvider: undefined,
 
   /**
    * @virtual
@@ -711,14 +711,16 @@ export default Component.extend(I18n, {
    */
   storageFileLocation: computed(
     'storageId',
-    'locationsPerStorage',
+    'locationsPerProvider',
+    'oneproviderId',
     function storageFileLocation() {
       const {
-        locationsPerStorage,
+        locationsPerProvider,
         storageId,
-      } = this.getProperties('locationsPerStorage', 'storageId');
-      if (locationsPerStorage) {
-        return locationsPerStorage[storageId];
+      } = this.getProperties('locationsPerProvider', 'storageId');
+      if (locationsPerProvider) {
+        const oneproviderId = this.get('oneprovider.entityId');
+        return locationsPerProvider[oneproviderId].locationsPerStorage[storageId];
       } else {
         return undefined;
       }

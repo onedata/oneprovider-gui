@@ -79,32 +79,16 @@ export default Component.extend(I18n, {
   isSingleFile: equal('fileDistributionData.length', 1),
 
   /**
-   * @type {ComputedProperty<Models.File|undefined>}
-   */
-  singleFile: computed('fileDistributionData', function singleFile() {
-    const isSingleFile = this.get('isSingleFile');
-    const file = this.get('fileDistributionData')[0].file;
-    if (isSingleFile && get(file, 'type') === 'file') {
-      return file;
-    } else {
-      return undefined;
-    }
-  }),
-
-  /**
-   * @type {PromiseObject<Models.StorageLocations>}
-   */
-  storageLocationsProxy: reads('singleFile.storageLocations'),
-
-  /**
    * @type {ComputedProperty<Models.StorageLocations>}
    */
-  storageLocations: reads('storageLocationsProxy.content'),
-
-  /**
-   * @type {ComputedProperty<LocationsPerStorage>}
-   */
-  locationsPerStorage: reads('storageLocations.locationsPerStorage'),
+  locationsPerProvider: computed(
+    'fileDistributionData.@each.storageLocationsPerProvider',
+    function locationsPerProvider() {
+      const filesDistributionData = this.get('fileDistributionData');
+      const fileDistributionData = get(filesDistributionData, 'firstObject');
+      return get(fileDistributionData, 'storageLocationsPerProvider');
+    }
+  ),
 
   /**
    * @virtual
@@ -380,6 +364,7 @@ export default Component.extend(I18n, {
     this._super(...arguments);
 
     this.visibleObserver();
+    this.set('shouldUpdate', true);
   },
 
   willDestroyElement() {

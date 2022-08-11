@@ -12,12 +12,12 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 
 /**
  * An object where keys are storage id. Values are file location on that storage.
- * @typedef {Object<string, string>} LocationsPerStorage
+ * @typedef {Object<string, string>} LocationsPerProvider
  */
 
 export default Model.extend(GraphSingleModelMixin, {
   /**
-   * @type {ComputedProperty<LocationsPerStorage>}
+   * @type {ComputedProperty<LocationsPerProvider>}
    */
-  locationsPerStorage: attr('object'),
+  locationsPerProvider: attr('object'),
 }).reopenClass(StaticGraphModelMixin);

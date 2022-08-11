@@ -213,27 +213,32 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
 
       const locationsPerProvider = {};
       const storageLocationsProxy = await this.get('storageLocationsProxy');
-      const locationsPerStorage = get(storageLocationsProxy, 'locationsPerStorage');
+      const locations = get(storageLocationsProxy, 'locationsPerProvider');
+      let locationsPerStorage;
 
-      for (const storageId in locationsPerStorage) {
-        const storage = await storageManager.getStorageById(storageId, {
-          throughSpaceId: spaceId,
-          backgroundReload: false,
-        });
+      for (const providerId in locations) {
+        locationsPerStorage = locations[providerId].locationsPerStorage;
 
-        const provider = await get(storage, 'provider');
-        const providerName = get(provider, 'name');
-        const storageName = get(storage, 'name');
+        for (const storageId in locationsPerStorage) {
+          const storage = await storageManager.getStorageById(storageId, {
+            throughSpaceId: spaceId,
+            backgroundReload: false,
+          });
 
-        const storageNameWithPath = {
-          storageName,
-          path: locationsPerStorage[storageId],
-        };
+          const provider = await get(storage, 'provider');
+          const providerName = get(provider, 'name');
+          const storageName = get(storage, 'name');
 
-        if (providerName in locationsPerProvider) {
-          locationsPerProvider[providerName].push(storageNameWithPath);
-        } else {
-          locationsPerProvider[providerName] = [storageNameWithPath];
+          const storageNameWithPath = {
+            storageName,
+            path: locationsPerStorage[storageId],
+          };
+
+          if (providerName in locationsPerProvider) {
+            locationsPerProvider[providerName].push(storageNameWithPath);
+          } else {
+            locationsPerProvider[providerName] = [storageNameWithPath];
+          }
         }
       }
 
