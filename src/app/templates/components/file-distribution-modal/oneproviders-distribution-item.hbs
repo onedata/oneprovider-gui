@@ -1,23 +1,15 @@
 <div class="oneproviders-distribution-item-content">
   <div class="name-section">
     {{#truncated-string class="distribution-row-name"}}
-      <span class="storage-name">{{storageName}}</span> @ <span class="oneprovider-name">{{oneprovider.name}}</span>
+      <span class="storage-name">{{storageName}}</span> @ <span class="oneprovider-name"><strong>{{oneprovider.name}}</strong></span>
     {{/truncated-string}}
     {{#if storageFileLocation}}
       <div class="distribution-row-name path-container">
-        <table class="path-text">
-          <tbody>
-            <tr>
-              <td class="location-path-clipboard storage-file-path-clipboard">
-                {{clipboard-line
-                  value=storageFileLocation
-                  size="sm"
-                  class="storage-file-path-clipboard"
-                }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {{clipboard-line
+          value=storageFileLocation
+          size="sm"
+          class="storage-file-path-clipboard"
+        }}
       </div>
     {{/if}}
   </div>

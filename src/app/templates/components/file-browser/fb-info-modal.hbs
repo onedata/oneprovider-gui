@@ -143,7 +143,7 @@
               </td>
               <td class="property-value">
                 {{#promise-proxy-container
-                  proxy=storageLocationsPerProvider
+                  proxy=storageLocationRequiredDataProxy
                   sizeClass="xs"
                   centered=false
                   spinnerBlockClass="loading-file-path"
@@ -152,17 +152,19 @@
                     {{file-browser/storage-location-per-provider-table
                       spaceId=spaceId
                       oneproviderName=currentProviderName
-                      locations=currentProviderLocations
+                      locations=currentProviderLocations.content
                     }}
                   {{/if}}
                   {{#if storageLocationsPerProvider}}
                     {{#if areStorageLocationsExpanded}}
                       {{#each-in storageLocationsPerProvider as |providerName locations|}}
-                        {{file-browser/storage-location-per-provider-table
-                          spaceId=spaceId
-                          oneproviderName=providerName
-                          locations=locations
-                        }}
+                        {{#if (not-eq providerName currentProviderName)}}
+                          {{file-browser/storage-location-per-provider-table
+                            spaceId=spaceId
+                            oneproviderName=providerName
+                            locations=locations
+                          }}
+                        {{/if}}
                       {{/each-in}}
                     {{else}}
                       <div class="storage-locations-expand">

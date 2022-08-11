@@ -18,11 +18,15 @@
             {{/truncated-string}}
           </td>
           <td class="location-cell">
-            {{clipboard-line
-              value=location.path
-              size="sm"
-              class="location-cell-clipboard"
-            }}
+            {{#if location.path}}
+              {{clipboard-line
+                value=location.path
+                size="sm"
+                class="location-cell-clipboard"
+              }}
+            {{else}}
+              <span class="empty-location-cell">–</span>
+            {{/if}}
           </td>
         </tr>
       {{/each}}

@@ -21,6 +21,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { next } from '@ember/runloop';
 import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlink-utils';
 import _ from 'lodash';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   i18n: service(),
@@ -142,17 +143,10 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   /**
    * @type {PromiseObject<Models.StorageLocations>}
    */
-  storageLocationsProxy: reads('file.storageLocations'),
-
-  /**
-   * @type {ComputedProperty<Models.StorageLocations>}
-   */
-  storageLocations: reads('storageLocationsProxy.content'),
-
-  /**
-   * @type {ComputedProperty<LocationsPerStorage>}
-   */
-  locationsPerStorage: reads('storageLocations.locationsPerStorage'),
+  storageLocationsProxy: computedRelationProxy(
+    'file',
+    'storageLocations'
+  ),
 
   /**
    * @type {PromiseObject<Models.Provider>}
@@ -167,9 +161,34 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   currentProviderName: reads('currentProviderProxy.content.name'),
 
   /**
-   * @type {ComputedProperty<Ember.Array<Object>>}
+   * @type {PromiseObject<Ember.Array<Object>|null> }
    */
-  currentProviderLocations: Array(),
+  currentProviderLocations: promise.object(computed(
+    'storageLocationsPerProvider',
+    'currentProviderProxy',
+    async function currentProviderLocations() {
+      const currentProvider = await this.get('currentProviderProxy');
+      const currentProviderName = get(currentProvider, 'name');
+      const storageLocationsPerProvider = await this.get('storageLocationsPerProvider');
+      if (
+        storageLocationsPerProvider &&
+        currentProviderName in storageLocationsPerProvider
+      ) {
+        return storageLocationsPerProvider[currentProviderName];
+      } else {
+        return null;
+      }
+    }
+  )),
+
+  /**
+   * @type {PromiseObject}
+   */
+  storageLocationRequiredDataProxy: promise.object(promise.all(
+    'storageLocationsPerProvider',
+    'currentProviderProxy',
+    'currentProviderLocations',
+  )),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -180,50 +199,45 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
    * @type {PromiseObject<Ember.Array<Object>|null>}
    */
   storageLocationsPerProvider: promise.object(computed(
-    'locationsPerStorage',
-    'currentProviderName',
+    'storageLocationsProxy',
     'storageManager',
     'spaceId',
     async function storageLocationsPerProvider() {
       const {
-        locationsPerStorage,
         spaceId,
         storageManager,
       } = this.getProperties(
-        'locationsPerStorage',
         'spaceId',
         'storageManager',
       );
-      const currentProviderName = await this.get('currentProviderName');
 
       const locationsPerProvider = {};
-      this.set('currentProviderLocations', []);
+      const storageLocationsProxy = await this.get('storageLocationsProxy');
+      const locationsPerStorage = get(storageLocationsProxy, 'locationsPerStorage');
 
       for (const storageId in locationsPerStorage) {
         const storage = await storageManager.getStorageById(storageId, {
           throughSpaceId: spaceId,
           backgroundReload: false,
         });
+
         const provider = await get(storage, 'provider');
         const providerName = get(provider, 'name');
         const storageName = get(storage, 'name');
 
-        if (locationsPerStorage[storageId]) {
-          const storageNameWithPath = {
-            storageName,
-            path: locationsPerStorage[storageId],
-          };
-          if (providerName === currentProviderName) {
-            this.get('currentProviderLocations').push(storageNameWithPath);
-          } else if (providerName in locationsPerProvider) {
-            locationsPerProvider[providerName].push(storageNameWithPath);
-          } else {
-            locationsPerProvider[providerName] = [storageNameWithPath];
-          }
+        const storageNameWithPath = {
+          storageName,
+          path: locationsPerStorage[storageId],
+        };
+
+        if (providerName in locationsPerProvider) {
+          locationsPerProvider[providerName].push(storageNameWithPath);
+        } else {
+          locationsPerProvider[providerName] = [storageNameWithPath];
         }
       }
 
-      if (Object.keys(locationsPerProvider).length === 0) {
+      if (_.isEmpty(locationsPerProvider)) {
         return null;
       } else {
         return locationsPerProvider;

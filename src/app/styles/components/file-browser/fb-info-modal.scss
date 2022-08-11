@@ -76,9 +76,21 @@
     }
   }
   .table.table-info td.property-name {
-    width: 10em;
+    width: 11em;
     @media (max-width: $screen-xs-max) {
       width: auto;
+    }
+  }
+
+
+  .file-info-row-storage-location {
+    td.property-value {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    td.property-name.with-input-sm {
+      padding-top: 20px;
     }
   }
 
@@ -206,6 +218,6 @@
   }
 
   .storage-locations-expand {
-    padding-bottom: $table-cell-padding;
+    padding-bottom: 10px;
   }
 }

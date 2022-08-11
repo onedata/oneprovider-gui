@@ -51,9 +51,10 @@
       min-width: 0;
 
       .distribution-row-name.path-container {
-        opacity: 0.6;
-        font-style: italic;
+        opacity: 0.8;
+        @include font-monospace();
         font-size: 80%;
+        margin-top: 2px;
       }
 
       .storage-file-path-clipboard {
@@ -62,11 +63,12 @@
           box-shadow: none;
           padding: 0;
           background-color: inherit;
-          font-style: italic;
+          @include font-monospace();
           font-size: inherit;
           height: $font-size-base;
         }
       }
+
       .storage-file-path {
         user-select: all;
       }
@@ -79,14 +81,6 @@
         font-size: 130%;
         opacity: 0.4;
       }
-    }
-    .path-text {
-      width: 100%;
-    }
-
-    .path-string {
-      width: 0.1%;
-      white-space: nowrap;
     }
 
     .storage-file-path-clipboard {

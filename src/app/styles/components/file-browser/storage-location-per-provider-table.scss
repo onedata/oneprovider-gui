@@ -1,5 +1,6 @@
 .storage-location-per-provider-table {
-  padding-bottom: $table-cell-padding;
+  padding-bottom: 10px;
+  padding-top: 10px;
 
   .storage-locations-oneprovider {
     border: 1px solid #d6d6d6;
@@ -12,15 +13,25 @@
         border-top: 1px solid #ddd;
 
         &.storage-name-cell { 
-          padding-top: $padding-small-vertical;
+          padding-top: 6px;
           padding-bottom: $padding-small-vertical;
           margin-top: 0;
           height: 33px;
+
+          @media (min-width: $screen-md-min) {
+            width: 0.1%;
+            white-space: nowrap;
+            padding-top: 4px;
+          }
         }
 
         &.location-cell {
           padding: 0;
           margin-top: 0;
+        }
+
+        .empty-location-cell {
+          padding-left: 14px;
         }
 
         .location-cell-clipboard.clipboard-line {
@@ -29,6 +40,7 @@
           input {
             border: none;
             box-shadow: none;
+            @include font-monospace();
           }
         }
 
