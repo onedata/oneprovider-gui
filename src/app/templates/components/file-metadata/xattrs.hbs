@@ -21,6 +21,7 @@
       </div>
     {{/each}}
   {{else}}
+    {{!-- TODO: VFS-9695 remove used of lastResetTime --}}
     {{qos-params-editor
       mode="edit"
       qosParams=metadataForEditor
@@ -28,6 +29,7 @@
       class="xattrs-params-editor"
       showHeader=false
       layoutConfig=layoutConfig
+      lastResetTime=lastResetTime
       onChange=(action "xattrsChanged")
       validateKey=(action "validateKey")
     }}

@@ -1,5 +1,6 @@
 import Component from '@ember/component';
 import { resolve } from 'rsvp';
+import { inject as service } from '@ember/service';
 
 export const exampleCdmiObjectId =
   '0000000000466F8867756964233666396333666230366265366163353530343634616537383831306430656662233732333065663438326234333936376463373332313734373435306535363134';
@@ -62,10 +63,19 @@ export const parentShare = {
 };
 
 export default Component.extend({
+  mockBackend: service(),
+
   opened: true,
-  fileToShowInfo: fileParent1,
+
+  // uncomment for locally-mocked file
   space: space1,
   share: parentShare,
+  fileToShowInfo: fileParent1,
+
+  // uncomment for globally-mocked file
+  // space: reads('mockBackend.entityRecords.space.0'),
+  // share: null,
+  // fileToShowInfo: reads('mockBackend.entityRecords.file.5'),
 
   actions: {
     closeInfoModal() {

@@ -1,6 +1,6 @@
 {{#one-modal
   class=(concat-classes
-    "fb-info-modal modal-content-overlay without-footer with-close-button"
+    "file-info-modal modal-content-overlay without-footer with-close-button"
     modalClass
   )
   open=open
@@ -10,22 +10,21 @@
   onHide=(action "close")
   as |modal|
 }}
-  {{#modal.header}}
+  {{#modal.header class="file-info-modal-header"}}
     <h1>{{tt this "header" type=typeTranslation}}</h1>
     {{modal-file-subheader files=(array file)}}
-  {{/modal.header}}
-  {{#modal.body}}
     {{#bs-tab
-      class="bs-tab-onedata bs-tab-modern"
+      class="bs-tab-onedata bs-tab-modern file-info-tabbar"
       activeId=activeTab
       customTabs=true
       as |tab|
     }}
       {{#bs-nav
         type="tabs"
-        class="nav-tabs-share-mode"
+        class="nav-tabs-file-info"
         as |nav|
       }}
+        {{!-- TODO: VFS-9628 Refactor original file info modal tabs to separate comp. --}}
         {{#nav.item
           active=(eq tab.activeId "general")
         }}
@@ -34,12 +33,12 @@
               (if (eq tab.activeId "general") "active")
             }}
             role="tab"
-            {{action (mut activeTab) "general"}}
+            {{action "changeTab" "general"}}
           >
             {{tt this "tabs.general.tabTitle"}}
           </a>
         {{/nav.item}}
-        {{#if (gt hardlinksCount 1)}}
+        {{#if isHardlinksTabVisible}}
           {{#nav.item
             active=(eq tab.activeId "hardlinks")
           }}
@@ -48,7 +47,7 @@
                 (if (eq tab.activeId "hardlinks") "active")
               }}
               role="tab"
-              {{action (mut activeTab) "hardlinks"}}
+              {{action "changeTab" "hardlinks"}}
             >
               {{tt this "tabs.hardlinks.tabTitle" hardlinksCount=(if
                 hardlinksLimitExceeded
@@ -58,17 +57,17 @@
             </a>
           {{/nav.item}}
         {{/if}}
-        {{#if showSizeTab}}
+        {{#if isSizeTabVisible}}
           {{#nav.item
             active=(eq tab.activeId "size")
             disabled=isSizeTabDisabled
           }}
             <a class={{concat-classes
-                "nav-link nav-link-metadata-type nav-link-size"
+                "nav-link nav-link-size"
                 (if (eq tab.activeId "size") "active")
               }}
               role="tab"
-              {{action (mut activeTab) "size"}}
+              {{action "changeTab" "size"}}
             >
               <div class="tab-label-size">
                {{tt this "tabs.size.tabTitle"}}
@@ -85,27 +84,63 @@
             {{/if}}
           {{/nav.item}}
         {{/if}}
-        {{#if (and showApiSection (not-eq itemType "symlink"))}}
+        {{#if isApiSamplesTabVisible}}
           {{#nav.item
             active=(eq tab.activeId "apiSamples")
           }}
             <a class={{concat-classes
-                "nav-link nav-link-metadata-type nav-link-apiSamples"
+                "nav-link nav-link-apiSamples"
                 (if (eq tab.activeId "apiSamples") "active")
               }}
               role="tab"
-              {{action (mut activeTab) "apiSamples"}}
+              {{action "changeTab" "apiSamples"}}
             >
               {{one-icon class="tab-icon" icon="rest"}}
               <div class="tab-label-api-samples">
                 {{tt this "tabs.apiSamples.tabTitle"}}
-
               </div>
             </a>
           {{/nav.item}}
         {{/if}}
+
+        {{#each visibleTabsModels as |tabModel|}}
+          {{#nav.item
+            active=(eq tab.activeId tabModel.tabId)
+            as |navItem|
+          }}
+            <a
+              class={{concat-classes
+                "nav-link"
+                (concat "nav-link-" tabModel.tabId)
+                (if (eq tab.activeId tabModel.tabId) "active")
+                (if tabModel.statusIcon "with-status-icon")
+                tabModel.tabClass
+              }}
+              role="tab"
+              {{action "changeTab" tabModel.tabId}}
+            >
+                {{!--
+                  TODO: VFS-9626
+                  make something like navComponent in addition
+                  to simple title to implement custom tabs look (eg. indicators)
+                --}}
+                <span class="tab-text">{{tabModel.title}}</span>
+                {{#if tabModel.statusIcon}}
+                  {{one-icon class="tab-status-icon" icon=tabModel.statusIcon}}
+                {{/if}}
+            </a>
+          {{/nav.item}}
+        {{/each}}
       {{/bs-nav}}
     {{/bs-tab}}
+    {{#if activeTabModel.headerComponent}}
+      {{component activeTabModel.headerComponent
+        class="file-info-header-extension"
+        viewModel=activeTabModel.viewModel
+      }}
+    {{/if}}
+  {{/modal.header}}
+  {{#modal.body class="file-info-modal-body"}}
     {{#if (eq activeTab "general")}}
       <table class="table table-info table-info-large table-info-collapsible">
         <tbody>
@@ -233,7 +268,7 @@
         {{/if}}
         <ul class="file-hardlinks-list">
           {{#each fileHardlinks.hardlinks as |fileHardlink|}}
-            {{file-browser/fb-info-modal/hardlink-entry
+            {{file-info-modal/hardlink-entry
               class="file-hardlink"
               file=fileHardlink.file
               fileUrl=fileHardlink.fileUrl
@@ -282,6 +317,13 @@
           apiSamples=apiSamples
         }}
       {{/promise-proxy-container}}
+    {{else}}
+      {{component activeTabModel.bodyComponent viewModel=activeTabModel.viewModel}}
     {{/if}}
   {{/modal.body}}
+  {{#if isFooterShown}}
+    {{#modal.footer}}
+      {{component activeTabModel.footerComponent viewModel=activeTabModel.viewModel}}
+    {{/modal.footer}}
+  {{/if}}
 {{/one-modal}}

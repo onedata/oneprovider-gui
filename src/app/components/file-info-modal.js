@@ -1,9 +1,8 @@
 /**
- * Show basic information about file or directory
+ * Modal with detailed views about file or directory.
  *
- * @module components/file-browser/fb-info-modal
  * @author Jakub Liput
- * @copyright (C) 2019-2021 ACK CYFRONET AGH
+ * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,8 +11,8 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { promise, raw, or, gt } from 'ember-awesome-macros';
-import { computed, get, getProperties } from '@ember/object';
+import { promise, raw, or, gt, and, notEqual, collect, bool } from 'ember-awesome-macros';
+import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
@@ -21,8 +20,18 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { next } from '@ember/runloop';
 import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlink-utils';
 import _ from 'lodash';
+import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 
-export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
+const mixins = [
+  I18n,
+  createDataProxyMixin('fileHardlinks'),
+];
+
+/**
+ * @typedef {'general'|'hardlinks'|'size'|'apiSamples'|'metadata'} FileInfoTabId
+ */
+
+export default Component.extend(...mixins, {
   i18n: service(),
   fileManager: service(),
   errorExtractor: service(),
@@ -33,7 +42,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.fbInfoModal',
+  i18nPrefix: 'components.fileInfoModal',
 
   /**
    * @virtual
@@ -102,8 +111,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   dirStatsServiceState: undefined,
 
   /**
-   * One of: general, hardlinks, size, apiSamples
-   * @type {String}
+   * @type {FileInfoTabId}
    */
   activeTab: 'general',
 
@@ -213,19 +221,6 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
     }
   ),
 
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  showSizeTab: computed(
-    'previewMode',
-    'file.effFile.type',
-    function showSizeTab() {
-      const previewMode = this.get('previewMode');
-      const effItemType = this.get('file.effFile.type');
-      return !previewMode && effItemType !== 'file';
-    }
-  ),
-
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
@@ -283,10 +278,90 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
     return this.get('elementId') + '-row-cdmi';
   }),
 
+  isFooterShown: bool('activeTabModel.footerComponent'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isHardlinksTabVisible: gt('hardlinksCount', raw(1)),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSizeTabVisible: computed(
+    'previewMode',
+    'file.effFile.type',
+    function isSizeTabVisible() {
+      const previewMode = this.get('previewMode');
+      const effItemType = this.get('file.effFile.type');
+      return !previewMode && effItemType !== 'file';
+    }
+  ),
+
+  isApiSamplesTabVisible: and('showApiSection', notEqual('itemType', raw('symlink'))),
+
+  // TODO: VFS-9628 this is a temporary list of tabs moved from separate modals
+  specialFileTabs: Object.freeze(['metadata']),
+
+  /**
+   * @type {Array<FileInfoTabId>}
+   */
+  visibleTabs: computed(
+    'isHardlinksTabVisible',
+    'isSizeTabVisible',
+    'isApiSamplesTabVisible',
+    function visibleTabs() {
+      const tabs = ['general'];
+      if (this.isHardlinksTabVisible) {
+        tabs.push('hardlinks');
+      }
+      if (this.isSizeTabVisible) {
+        tabs.push('size');
+      }
+      if (this.isApiSamplesTabVisible) {
+        tabs.push('apiSamples');
+      }
+      tabs.push(...this.specialFileTabs);
+      return tabs;
+    },
+  ),
+
+  // TODO: VFS-9628 will contain all tab models after refactor
+  visibleTabsModels: collect('tabModels.metadata'),
+
+  tabModels: computed(function tabModels() {
+    return EmberObject.extend({
+      previewMode: reads('fileInfoModal.previewMode'),
+      tabModelFactory: reads('fileInfoModal.tabModelFactory'),
+
+      metadata: computed(function metadata() {
+        return this.tabModelFactory.createTabModel('metadata', {
+          previewMode: this.previewMode,
+        });
+      }),
+    }).create({
+      fileInfoModal: this,
+    });
+  }),
+
+  tabModelFactory: computed(function tabModelFactory() {
+    return TabModelFactory.create({
+      fileInfoModal: this,
+      ownerSource: this,
+    });
+  }),
+
+  activeTabModel: computed('activeTab', function activeTabModel() {
+    if (!this.specialFileTabs.includes(this.activeTab)) {
+      return null;
+    }
+    return this.tabModels[this.activeTab];
+  }),
+
   init() {
     this._super(...arguments);
-    const initialTab = this.get('initialTab');
-    if (['general', 'hardlinks', 'size', 'apiSamples'].includes(initialTab)) {
+    const initialTab = this.initialTab;
+    if (this.visibleTabs.includes(initialTab)) {
       this.set('activeTab', initialTab);
     }
   },
@@ -339,8 +414,21 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   },
 
   actions: {
+    async changeTab(tabName) {
+      if (tabName === this.activeTab) {
+        return;
+      }
+      if ((await this.activeTabModel?.checkClose?.()) ?? true) {
+        this.set('activeTab', tabName);
+      }
+    },
     close() {
-      return this.get('onHide')();
+      (async () => {
+        if ((await this.activeTabModel?.checkClose?.()) ?? true) {
+          this.onHide?.();
+        }
+      })();
+      return false;
     },
   },
 });
