@@ -7,6 +7,7 @@
  */
 
 import Component from '@ember/component';
+import { reads } from '@ember/object/computed';
 
 export default Component.extend({
   tagName: 'div',
@@ -14,13 +15,12 @@ export default Component.extend({
 
   /**
    * @virtual
-   * @type {string}
-   */
-  oneproviderName: undefined,
-
-  /**
-   * @virtual
    * @type {Ember.Array<Object>}
    */
   locations: undefined,
+
+  /**
+   * @type {string}
+   */
+  oneproviderName: reads('locations.firstObject.providerName'),
 });

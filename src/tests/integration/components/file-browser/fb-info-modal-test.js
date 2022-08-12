@@ -35,17 +35,17 @@ describe('Integration | Component | file browser/fb info modal', function () {
     name: 'Test xrootd command',
     description: 'Test xrootd.',
     command: ['xrdcp', '-r', 'root://root.example.com//data/test', '.'],
-    }];
-  
+  }];
+
   const storageLocations = {
-  locationsPerProvider: {
-    provider: {
-      locationsPerStorage: {
-        storage: 'path',
-      }
-    }
-  }
-};
+    locationsPerProvider: {
+      provider: {
+        locationsPerStorage: {
+          storage: 'path',
+        },
+      },
+    },
+  };
 
   beforeEach(function () {
     const fileHardlinksResult = this.set('fileHardlinksResult', {
@@ -56,7 +56,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     sinon.stub(lookupService(this, 'file-manager'), 'getFileHardlinks')
       .resolves(fileHardlinksResult);
     sinon.stub(lookupService(this, 'providerManager'), 'getCurrentProvider')
-      .resolves({ name: 'provider' });
+      .resolves({ name: 'provider', entityId: 'providerId' });
     sinon.stub(lookupService(this, 'storageManager'), 'getStorageById')
       .resolves({ name: 'storage', entityId: 'storage', provider: { name: 'provider' } });
     const getDataUrl = ({ selected: [firstSelected] }) => `link-${firstSelected}`;
@@ -67,6 +67,8 @@ describe('Integration | Component | file browser/fb info modal', function () {
         }
       };
     this.set('getDataUrl', getDataUrl);
+    const storageLocationsProxy = sinon.stub().resolves(storageLocations);
+    this.set('storageLocationsProxy', storageLocationsProxy);
   });
 
   // NOTE: context is not used for async render tests, because mocha's context is buggy
@@ -110,7 +112,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('file', {
       type: 'file',
       targetPath: 'some/path',
-      storageLocations,
     });
 
     await renderComponent();
@@ -122,7 +123,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('file', {
       type: 'symlink',
       targetPath: 'some/path',
-      storageLocations,
     });
 
     await renderComponent();
@@ -137,7 +137,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
         file: {
           type: 'symlink',
           targetPath: '<__onedata_space_id:space1>/some/path',
-          storageLocations,
         },
         space: {
           entityId: 'space1',
@@ -158,7 +157,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
         file: {
           type: 'symlink',
           targetPath: '<__onedata_space_id:space2>/some/path',
-          storageLocations,
         },
         space: {
           entityId: 'space1',
@@ -179,7 +177,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
         file: {
           type: 'symlink',
           targetPath: '<__onedata_space_id:space1>/some/path',
-          storageLocations,
         },
         space: undefined,
       });
@@ -195,7 +192,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('file', {
       type: 'file',
       hardlinksCount: 1,
-      storageLocations,
     });
 
     await renderComponent();
@@ -207,7 +203,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('file', {
       type: 'file',
       hardlinksCount: 2,
-      storageLocations,
     });
 
     await renderComponent();
@@ -218,7 +213,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
   it('shows api sample tab when previewMode is true', async function () {
     this.set('file', {
       type: 'file',
-      storageLocations,
     });
     this.set('previewMode', true);
 
@@ -229,7 +223,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
   it('does not show api sample tab when file type is symlink', async function () {
     this.set('file', {
       type: 'symlink',
-      storageLocations,
     });
     this.set('previewMode', true);
 
@@ -241,7 +234,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
   it('does not show api sample tab when previewMode is false', async function () {
     this.set('file', {
       type: 'file',
-      storageLocations,
     });
     this.set('previewMode', false);
 
@@ -254,7 +246,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('file', {
       type: 'file',
       hardlinksCount: 2,
-      storageLocations,
     });
     Object.assign(this.get('fileHardlinksResult'), {
       hardlinksCount: 2,
@@ -293,7 +284,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('file', {
       type: 'file',
       hardlinksCount: 2,
-      storageLocations,
     });
     Object.assign(this.get('fileHardlinksResult'), {
       hardlinksCount: 4,
@@ -329,7 +319,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('file', {
       type: 'file',
       hardlinksCount: 2,
-      storageLocations,
     });
     Object.assign(this.get('fileHardlinksResult'), {
       hardlinksCount: 2,
@@ -413,7 +402,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
         sinon.stub(lookupService(this, 'fileManager'), 'getFileApiSamples')
         .resolves(apiSamples);
       this.setProperties({
-        file: { type: 'file', storageLocations },
+        file: { type: 'file' },
         previewMode: true,
         fileApiSamples,
       });
@@ -469,5 +458,6 @@ async function renderComponent() {
     space=space
     selectedRestUrlType=selectedRestUrlType
     getDataUrl=getDataUrl
+    storageLocationsProxy = storageLocationsProxy
   }}`);
 }

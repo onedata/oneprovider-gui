@@ -143,7 +143,10 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   /**
    * @type {PromiseObject<Models.StorageLocations>}
    */
-  storageLocationsProxy: reads('file.storageLocations'),
+  storageLocationsProxy: computedRelationProxy(
+    'file',
+    'storageLocations'
+  ),
 
   /**
    * @type {PromiseObject<Models.Provider>}
@@ -158,20 +161,25 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   currentProviderName: reads('currentProviderProxy.content.name'),
 
   /**
+   * @type {ComputedProperty<String>}
+   */
+  currentProviderId: reads('currentProviderProxy.content.entityId'),
+
+  /**
    * @type {PromiseObject<Ember.Array<Object>|null> }
    */
-  currentProviderLocations: promise.object(computed(
+  currentProviderLocationsProxy: promise.object(computed(
     'storageLocationsPerProvider',
     'currentProviderProxy',
-    async function currentProviderLocations() {
+    async function currentProviderLocationsProxy() {
       const currentProvider = await this.get('currentProviderProxy');
-      const currentProviderName = get(currentProvider, 'name');
+      const currentProviderId = get(currentProvider, 'entityId');
       const storageLocationsPerProvider = await this.get('storageLocationsPerProvider');
       if (
         storageLocationsPerProvider &&
-        currentProviderName in storageLocationsPerProvider
+        currentProviderId in storageLocationsPerProvider
       ) {
-        return storageLocationsPerProvider[currentProviderName];
+        return storageLocationsPerProvider[currentProviderId];
       } else {
         return null;
       }
@@ -184,13 +192,13 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   storageLocationRequiredDataProxy: promise.object(promise.all(
     'storageLocationsPerProvider',
     'currentProviderProxy',
-    'currentProviderLocations',
+    'currentProviderLocationsProxy',
   )),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  areStorageLocationsExpanded: equal('currentProviderLocations.length', 0),
+  areStorageLocationsExpanded: equal('currentProviderLocationsProxy.length', 0),
 
   /**
    * @type {PromiseObject<Ember.Array<Object>|null>}
@@ -208,13 +216,13 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
         'storageManager',
       );
 
-      const locationsPerProvider = {};
+      const locationsPerProviderWithStorageName = {};
       const storageLocationsProxy = await this.get('storageLocationsProxy');
-      const locations = get(storageLocationsProxy, 'locationsPerProvider');
-      let locationsPerStorage;
 
-      for (const providerId in locations) {
-        locationsPerStorage = locations[providerId].locationsPerStorage;
+      const locationsPerProvider = get(storageLocationsProxy, 'locationsPerProvider');
+
+      for (const providerId in locationsPerProvider) {
+        const locationsPerStorage = locationsPerProvider[providerId].locationsPerStorage;
 
         for (const storageId in locationsPerStorage) {
           const storage = await storageManager.getStorageById(storageId, {
@@ -228,13 +236,14 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
 
           const storageNameWithPath = {
             storageName,
+            providerName,
             path: locationsPerStorage[storageId],
           };
 
-          if (providerName in locationsPerProvider) {
-            locationsPerProvider[providerName].push(storageNameWithPath);
+          if (providerId in locationsPerProviderWithStorageName) {
+            locationsPerProviderWithStorageName[providerId].push(storageNameWithPath);
           } else {
-            locationsPerProvider[providerName] = [storageNameWithPath];
+            locationsPerProviderWithStorageName[providerId] = [storageNameWithPath];
           }
         }
       }
@@ -242,7 +251,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
       if (_.isEmpty(locationsPerProvider)) {
         return null;
       } else {
-        return locationsPerProvider;
+        return locationsPerProviderWithStorageName;
       }
     }
   )),

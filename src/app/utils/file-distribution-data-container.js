@@ -125,7 +125,7 @@ export default EmberObject.extend(
     fileDistribution: reads('fileDistributionModel.distributionPerProvider'),
 
     /**
-     * @type {ComputedProperty<Models.StorageLocations>}
+     * @type {ComputedProperty<LocationsPerProvider>}
      */
     storageLocationsPerProvider: reads('storageLocations.locationsPerProvider'),
 
@@ -145,6 +145,12 @@ export default EmberObject.extend(
      * @type {Ember.ComputedProperty<boolean>}
      */
     endedTransfersOverflow: reads('transfers.endedOverflow'),
+
+    /**
+     * If true, storage locations will be reloaded 
+     * @type {Boolean}
+     */
+    isStorageLocationsUpdated: true,
 
     pollingTimeObserver: observer('pollingTime', function pollingTimeObserver() {
       const {
@@ -243,8 +249,6 @@ export default EmberObject.extend(
       return file.belongsTo('storageLocations').reload();
     },
 
-    isStorageLocationsUpdated: true,
-
     /**
      * @returns {Promise}
      */
@@ -259,7 +263,7 @@ export default EmberObject.extend(
         !get(transfersProxy, 'isRejected') ?
         this.updateTransfersProxy({ replace: true }) : resolve(),
         this.get('isStorageLocationsUpdated') ?
-        this.updateStorageLocationsProxy() : resolve(),
+        this.updateStorageLocationsProxy({ replace: true }) : resolve(),
       ]);
     },
 

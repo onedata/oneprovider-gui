@@ -82,11 +82,15 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.StorageLocations>}
    */
   locationsPerProvider: computed(
-    'fileDistributionData.@each.storageLocationsPerProvider',
+    'fileDistributionData.firstObject.storageLocationsPerProvider',
     function locationsPerProvider() {
       const filesDistributionData = this.get('fileDistributionData');
-      const fileDistributionData = get(filesDistributionData, 'firstObject');
-      return get(fileDistributionData, 'storageLocationsPerProvider');
+      if (filesDistributionData.length > 1) {
+        return undefined;
+      } else {
+        const fileDistributionData = get(filesDistributionData, 'firstObject');
+        return get(fileDistributionData, 'storageLocationsPerProvider');
+      }
     }
   ),
 

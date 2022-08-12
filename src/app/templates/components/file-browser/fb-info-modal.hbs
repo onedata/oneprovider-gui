@@ -148,20 +148,18 @@
                   centered=false
                   spinnerBlockClass="loading-file-path"
                 }}
-                  {{#if currentProviderLocations}}
+                  {{#if currentProviderLocationsProxy}}
                     {{file-browser/storage-location-per-provider-table
                       spaceId=spaceId
-                      oneproviderName=currentProviderName
-                      locations=currentProviderLocations.content
+                      locations=currentProviderLocationsProxy.content
                     }}
                   {{/if}}
                   {{#if storageLocationsPerProvider}}
                     {{#if areStorageLocationsExpanded}}
-                      {{#each-in storageLocationsPerProvider as |providerName locations|}}
-                        {{#if (not-eq providerName currentProviderName)}}
+                      {{#each-in storageLocationsPerProvider as |providerId locations|}}
+                        {{#if (not-eq providerId currentProviderId)}}
                           {{file-browser/storage-location-per-provider-table
                             spaceId=spaceId
-                            oneproviderName=providerName
                             locations=locations
                           }}
                         {{/if}}

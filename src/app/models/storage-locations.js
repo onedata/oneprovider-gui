@@ -11,8 +11,10 @@ import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/st
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 /**
- * An object where keys are storage id. Values are file location on that storage.
- * @typedef {Object<string, string>} LocationsPerProvider
+ * An object where keys are provider id. 
+ * Values are object where keys are storage id 
+ * and values are file location on that storage.
+ * @typedef {Object<string, Object<string, string>} LocationsPerProvider
  */
 
 export default Model.extend(GraphSingleModelMixin, {

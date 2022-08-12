@@ -712,7 +712,6 @@ export default Component.extend(I18n, {
   storageFileLocation: computed(
     'storageId',
     'locationsPerProvider',
-    'oneproviderId',
     function storageFileLocation() {
       const {
         locationsPerProvider,
