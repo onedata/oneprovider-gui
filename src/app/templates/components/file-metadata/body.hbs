@@ -1,0 +1,48 @@
+{{#bs-tab
+  class="bs-tab bs-tab-onedata bs-tab-modern full-height"
+  fade=false
+  customTabs=true
+  activeId=(concat elementId "-" activeTab)
+  as |bsTab|
+}}
+  <div class="tab-content tab-content-metadata no-vertical-padding">
+    {{#each metadataTypes as |type|}}
+      {{#let
+        (get this (concat "viewModel." type "OriginalProxy"))
+        (get this (concat "viewModel." type "TabState"))
+        (get this (concat "viewModel." type "Current"))
+        (get this (concat "viewModel." type "IsValid"))
+        as |originalProxy tabState current isValid|
+      }}
+        {{#bsTab.pane
+          elementId=(concat elementId "-" type)
+          class=(concat "full-height tab-pane-metadata-" type)
+        }}
+          {{#render-later triggerRender=(eq activeTab type)}}
+            {{#promise-proxy-container
+              proxy=originalProxy
+            }}
+              {{#if (and effectiveReadonly (eq tabState "blank"))}}
+                <em>
+                  {{tt this "noMetadataSet" type=(tt this (concat "types." type))}}
+                </em>
+              {{else}}
+                {{!-- TODO: VFS-9695 remove used of lastResetTime --}}
+                {{component
+                  (concat "file-metadata/" type)
+                  class="full-height"
+                  isActive=(eq activeTab type)
+                  metadata=current
+                  metadataChanged=(action "metadataChanged" type)
+                  isValid=isValid
+                  readonly=effectiveReadonly
+                  lastResetTime=viewModel.lastResetTime
+                }}
+              {{/if}}
+            {{/promise-proxy-container}}
+          {{/render-later}}
+        {{/bsTab.pane}}
+      {{/let}}
+    {{/each}}
+  </div>
+{{/bs-tab}}

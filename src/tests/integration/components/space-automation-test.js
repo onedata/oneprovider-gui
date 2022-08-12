@@ -39,6 +39,7 @@ describe('Integration | Component | space automation', function () {
           }],
         },
       },
+      isCompatible: true,
       isLoaded: true,
     }];
     const atmInventory = {

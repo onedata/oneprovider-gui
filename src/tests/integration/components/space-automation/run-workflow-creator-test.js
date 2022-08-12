@@ -32,6 +32,7 @@ describe('Integration | Component | space automation/run workflow creator', func
           }],
         },
       },
+      isCompatible: true,
       isLoaded: true,
     }, {
       entityId: 'workflow2',
@@ -52,6 +53,7 @@ describe('Integration | Component | space automation/run workflow creator', func
           }],
         },
       },
+      isCompatible: true,
       isLoaded: true,
     }];
     const workflowManager = lookupService(this, 'workflow-manager');

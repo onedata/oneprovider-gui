@@ -6,6 +6,13 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9604 Moved file metadata settings from separate modal to file info panel
+* VFS-9654 Added blocking incompatible workflows from running
+* VFS-9625 Fixed hiding tooltip when it is controlled manually
+* VFS-9655 Fixed showing size in scale for file in data distribution
+* VFS-9422 Added data distribution for directories
+* VFS-9335 Added charts dashboards to workflow GUI
+* VFS-8716 Introduced new data specs editor to the automation gui
 * VFS-9316 Removed usages of EmberPowerSelectHelper
 * VFS-9394 Removed ember-browser-info
 * VFS-9419 Added locking directory statistics toggle when accounting is enabled

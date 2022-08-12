@@ -7,4 +7,26 @@
   &.modal.modal-content-overlay.in .modal-dialog {
     max-width: 800px;
   }
+
+  #logs.tab-pane.active {
+    display: flex;
+  }
+
+  .main-recall-tab-bar,
+  .tab-content,
+  .tab-pane {
+    min-height: 0;
+  }
+
+  .file-recall-event-log {
+    .file-column-header {
+      width: 12em;
+    }
+
+    @media (max-width: $screen-xs-max) {
+      .file-column-header {
+        width: 7em;
+      }
+    }
+  }
 }

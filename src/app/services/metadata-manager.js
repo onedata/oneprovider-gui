@@ -1,9 +1,9 @@
 /**
  * Backend operations on file metadata
- * 
+ *
  * @module services/metadata-manager
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,7 +12,6 @@ import { get } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import _ from 'lodash';
-import { Promise } from 'rsvp';
 
 const BackendMetadataType = Object.freeze({
   xattrs: 'xattrs',
@@ -67,47 +66,40 @@ export default Service.extend({
    * @param {String} scope one of: private, public
    * @returns {Promise<Object>} with `metadata` key
    */
-  getMetadata(file, metadataType, scope) {
-    return this.get('onedataGraph').request({
+  async getMetadata(file, metadataType, scope) {
+    const data = await this.onedataGraph.request({
       operation: 'get',
       gri: metadataGri(get(file, 'entityId'), metadataType, scope),
       subscribe: false,
-    }).then(data => deserializers[metadataType](data.metadata));
+    });
+    return deserializers[metadataType](data.metadata);
   },
 
   /**
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @param {String} metadataType one of: xattrs, json, rdf
    * @param {any} metadata Object for xattrs, String for RDF and JSON
    * @returns {Promise<Object>} with `metadata` key
    */
-  setMetadata(file, metadataType, metadata) {
-    const onedataGraph = this.get('onedataGraph');
-    return new Promise((resolve, reject) => {
-      try {
-        resolve(serializers[metadataType](metadata));
-      } catch (error) {
-        reject(error);
-      }
-    }).then(metadata => {
-      return onedataGraph.request({
-        operation: 'create',
-        gri: metadataGri(get(file, 'entityId'), metadataType),
-        data: {
-          metadata,
-        },
-        subscribe: false,
-      });
+  async setMetadata(file, metadataType, metadata) {
+    const serializedMetadata = serializers[metadataType](metadata);
+    return this.onedataGraph.request({
+      operation: 'create',
+      gri: metadataGri(get(file, 'entityId'), metadataType),
+      data: {
+        metadata: serializedMetadata,
+      },
+      subscribe: false,
     });
   },
 
   /**
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @param {Array<String>} keys keys that will be removed from xattrs
    * @returns {Promise}
    */
-  removeXattrs(file, keys) {
-    return this.get('onedataGraph').request({
+  async removeXattrs(file, keys) {
+    return this.onedataGraph.request({
       operation: 'delete',
       gri: metadataGri(get(file, 'entityId'), 'xattrs'),
       data: { keys },
@@ -116,12 +108,12 @@ export default Service.extend({
   },
 
   /**
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @param {String} metadataType
    * @returns {Promise}
    */
-  removeMetadata(file, metadataType) {
-    return this.get('onedataGraph').request({
+  async removeMetadata(file, metadataType) {
+    return this.onedataGraph.request({
       operation: 'delete',
       gri: metadataGri(get(file, 'entityId'), metadataType),
       subscribe: false,

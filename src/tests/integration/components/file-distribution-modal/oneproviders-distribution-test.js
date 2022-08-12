@@ -8,36 +8,70 @@ import sinon from 'sinon';
 import { Promise } from 'rsvp';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { findByText } from '../../../helpers/find';
+import { lookupService } from '../../../helpers/stub-service';
 
 /**
  * @param {Object} distributionParams
  *   { type: file|dir, onKrakow: percentage, onParis: percentage}
  * @returns {EmberObject}
  */
-function createFileDistributionContainerStub({ type, onKrakow, onParis } = {}) {
+function createFileDistributionContainerStub({ type, onKrakow, onParis, success } = {}) {
   const normalizedOnKrakow = onKrakow || 50;
+  const normalizedOnKrakowDir = onKrakow / 100 * 1024 || 512;
   const normalizedOnParis = onParis || 0;
+  const successOnKrakow = success ? success.onKrakow : true;
+  const successOnParis = success ? success.onParis : true;
 
   return EmberObject.create({
     fileType: type || 'file',
     fileSize: 1024,
     isFileDistributionLoaded: true,
     fileDistribution: {
-      providerkrk: normalizedOnKrakow ? {
-        blocksPercentage: normalizedOnKrakow,
-        chunksBarData: {
-          0: normalizedOnKrakow,
+      providerkrk: {
+        success: successOnKrakow,
+        logicalSize: 1024,
+        distributionPerStorage: {
+          storage: type === 'dir' ? { physicalSize: normalizedOnKrakowDir } : {
+            blocksPercentage: normalizedOnKrakow,
+            chunksBarData: {
+              0: normalizedOnKrakow,
+            },
+            blockCount: 1,
+            physicalSize: 1024 * normalizedOnKrakow / 100,
+          },
         },
-      } : undefined,
-      providerpar: normalizedOnParis ? {
-        blocksPercentage: normalizedOnParis,
-        chunksBarData: {
-          0: normalizedOnParis,
+      },
+      providerpar: {
+        success: successOnParis,
+        logicalSize: 1024,
+        distributionPerStorage: {
+          storage: type === 'dir' ? { physicalSize: normalizedOnParis } : {
+            blocksPercentage: normalizedOnParis,
+            chunksBarData: {
+              0: normalizedOnParis,
+            },
+            blockCount: 1,
+            physicalSize: 1024 * normalizedOnParis / 100,
+          },
         },
-      } : undefined,
+      },
     },
     getDistributionForOneprovider(oneprovider) {
       return this.get(`fileDistribution.${oneprovider.entityId}`);
+    },
+    getStorageIdsForOneprovider(oneprovider) {
+      if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
+        return Object.keys(this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`));
+      } else {
+        return {};
+      }
+    },
+    getDistributionForStorageId(oneprovider, storage) {
+      if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
+        return this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage.${storage}`);
+      } else {
+        return {};
+      }
     },
   });
 }
@@ -72,6 +106,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         },
       };
 
+      sinon.stub(lookupService(this, 'storageManager'), 'getStorageById')
+        .resolves({ name: 'storage', entityId: 'storage' });
+
       this.setProperties({
         oneproviders,
         space,
@@ -99,25 +136,23 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData
-        space=space
-      }}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
 
       expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
       expect(find('.oneprovider-providerkrk .chunks-canvas')).to.exist;
       expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
-      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
-        .exist;
       expect(find('.oneprovider-providerkrk .never-synchronized-background'))
         .to.not.exist;
     });
 
-    it('renders never-synchronized info', async function () {
-      const fileDistributionData = [createFileDistributionContainerStub()];
+    it('renders percentage and progress bar representation', async function () {
+      const fileDistributionData = [createFileDistributionContainerStub({ type: 'dir' })];
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
@@ -128,12 +163,33 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
-        .to.exist;
-      expect(find('.oneprovider-providerpar .never-synchronized-background')).to
+      expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
         .exist;
-      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('n/a');
-      expect(find('.oneprovider-providerpar .chunks-canvas')).to.not.exist;
+      expect(find('.oneprovider-providerkrk .progress-bar')).to.exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
+      expect(find('.oneprovider-providerkrk .never-synchronized-background'))
+        .to.not.exist;
+    });
+
+    it('renders n/a info', async function () {
+      const fileDistributionData = [createFileDistributionContainerStub({
+        success: { onKrakow: false, onParis: false },
+        type: 'dir',
+      })];
+
+      this.set('fileDistributionData', fileDistributionData);
+      await render(hbs `
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
+
+      expect(find('.oneprovider-providerkrk .progress-bar-visualizer')).to
+        .exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerkrk .progress-bar-text')).to.contain.text('n/a');
     });
 
     it('renders distribution for single file', async function () {
@@ -150,10 +206,14 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.exist;
       expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
-      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('1 KiB');
-      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
-        .to.exist;
+      expect(find('.oneprovider-providerkrk .size-label')).to.contain.text('512 B');
+
+      expect(find('.oneprovider-providerpar .chunks-visualizer.synchronized')).to
+        .exist;
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('0%');
+      expect(find('.oneprovider-providerpar .size-label')).to.contain.text('0 B');
     });
 
     it('renders distribution for two files', async function () {
@@ -171,18 +231,50 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
         .exist;
       expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('75%');
-      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('2 KiB');
-      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
-        .to.exist;
+      expect(find('.oneprovider-providerkrk .size-label')).to.contain.text('1.5 KiB');
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('0%');
+      expect(find('.oneprovider-providerpar .size-label')).to.contain.text('0 B');
     });
 
-    it('renders distribution for single file and single dir', async function () {
+    it('renders distribution for single dir with one provider dir stats off', async function () {
+      const fileDistributionData = [createFileDistributionContainerStub({
+        success: { onKrakow: true, onParis: false },
+        type: 'dir',
+      })];
+
+      this.set('fileDistributionData', fileDistributionData);
+      await render(hbs `
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
+
+      expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
+        .exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
+      expect(find('.oneprovider-providerkrk .size-label')).to.contain.text('512 B');
+
+      expect(find('.oneprovider-providerpar .progress-bar-visualizer')).to
+        .exist;
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerpar .progress-bar-text')).to.contain.text('n/a');
+    });
+
+    it('renders distribution for two dir with one provider dir stats off', async function () {
       const fileDistributionData = [
-        createFileDistributionContainerStub(),
-        createFileDistributionContainerStub({ type: 'dir' }),
+        createFileDistributionContainerStub({
+          success: { onKrakow: true, onParis: false },
+          type: 'dir',
+        }),
+        createFileDistributionContainerStub({
+          success: { onKrakow: true, onParis: false },
+          type: 'dir',
+        }),
       ];
 
       this.set('fileDistributionData', fileDistributionData);
@@ -194,12 +286,43 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
         .exist;
       expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
-      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('1 KiB');
-      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
-        .to.exist;
+      expect(find('.oneprovider-providerkrk .size-label')).to.contain.text('1 KiB');
+
+      expect(find('.oneprovider-providerpar .progress-bar-visualizer')).to
+        .exist;
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerpar .progress-bar-text')).to.contain.text('n/a');
+    });
+
+    it('renders distribution for single file and single dir with one provider dir stats off', async function () {
+      const fileDistributionData = [
+        createFileDistributionContainerStub(),
+        createFileDistributionContainerStub({
+          success: { onKrakow: true, onParis: false },
+          type: 'dir',
+        }),
+      ];
+      this.set('fileDistributionData', fileDistributionData);
+      await render(hbs `
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
+
+      expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
+        .exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
+      expect(find('.oneprovider-providerkrk .size-label')).to.contain.text('1 KiB');
+
+      expect(find('.oneprovider-providerpar .progress-bar-visualizer')).to
+        .exist;
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerpar .progress-bar-text')).to.contain.text('n/a');
     });
 
     it('shows that replication is in progress', async function () {
@@ -321,11 +444,29 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             };
           }
           const fetchTransfers = sinon.stub().resolves(transfers);
+          const fetchFileDistributionModel = sinon.stub().resolves();
           const fileDistributionData = [FileDistributionDataContainer.create({
             transferManager: null,
             onedataConnection: null,
             fetchTransfers,
             file,
+            fetchFileDistributionModel,
+            fileDistribution: createFileDistributionContainerStub().fileDistribution,
+            getDistributionForOneprovider(oneprovider) {
+              return this.get(`fileDistribution.${oneprovider.entityId}`);
+            },
+            getStorageIdsForOneprovider(oneprovider) {
+              if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
+                return Object.keys(this.get(
+                  `fileDistribution.${oneprovider.entityId}.distributionPerStorage`));
+              } else {
+                return {};
+              }
+            },
+            getDistributionForStorageId(oneprovider, storage) {
+              return this.get(
+                `fileDistribution.${oneprovider.entityId}.distributionPerStorage.${storage}`);
+            },
           })];
           const generatedHref = 'generatedHref';
           const getTransfersUrl = sinon.stub();
@@ -377,13 +518,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
         await render(hbs `
-            {{file-distribution-modal/oneproviders-distribution
-              oneproviders=oneproviders
-              fileDistributionData=fileDistributionData
-              space=space
-              onReplicate=(action startAction)
-            }}
-          `);
+          {{file-distribution-modal/oneproviders-distribution
+            oneproviders=oneproviders
+            fileDistributionData=fileDistributionData
+            space=space
+            onReplicate=(action startAction)
+          }}
+        `);
 
         return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
           .then(() => click(
@@ -409,13 +550,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
         await render(hbs `
-            {{file-distribution-modal/oneproviders-distribution
-              oneproviders=oneproviders
-              fileDistributionData=fileDistributionData
-              space=space
-              onMigrate=(action startAction)
-            }}
-          `);
+          {{file-distribution-modal/oneproviders-distribution
+            oneproviders=oneproviders
+            fileDistributionData=fileDistributionData
+            space=space
+            onMigrate=(action startAction)
+          }}
+        `);
 
         return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
           .then(() => click(
@@ -445,13 +586,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         ]);
 
         await render(hbs `
-            {{file-distribution-modal/oneproviders-distribution
-              oneproviders=oneproviders
-              fileDistributionData=fileDistributionData
-              space=space
-              onEvict=(action startAction)
-            }}
-          `);
+          {{file-distribution-modal/oneproviders-distribution
+            oneproviders=oneproviders
+            fileDistributionData=fileDistributionData
+            space=space
+            onEvict=(action startAction)
+          }}
+        `);
 
         return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
           .then(() => click(
@@ -476,13 +617,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           this.set('space.privileges.scheduleReplication', false);
 
           await render(hbs `
-              {{file-distribution-modal/oneproviders-distribution
-                oneproviders=oneproviders
-                fileDistributionData=fileDistributionData
-                space=space
-                onReplicate=(action startAction)
-              }}
-            `);
+            {{file-distribution-modal/oneproviders-distribution
+              oneproviders=oneproviders
+              fileDistributionData=fileDistributionData
+              space=space
+              onReplicate=(action startAction)
+            }}
+          `);
 
           return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
             .then(() => click(
@@ -504,13 +645,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           ]);
 
           await render(hbs `
-              {{file-distribution-modal/oneproviders-distribution
-                oneproviders=oneproviders
-                fileDistributionData=fileDistributionData
-                space=space
-                onEvict=(action startAction)
-              }}
-            `);
+            {{file-distribution-modal/oneproviders-distribution
+              oneproviders=oneproviders
+              fileDistributionData=fileDistributionData
+              space=space
+              onEvict=(action startAction)
+            }}
+          `);
 
           return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
             .then(() => click(
@@ -532,13 +673,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             ]);
 
             await render(hbs `
-            {{file-distribution-modal/oneproviders-distribution
-              oneproviders=oneproviders
-              fileDistributionData=fileDistributionData
-              space=space
-              onMigrate=(action startAction)
-            }}
-          `);
+              {{file-distribution-modal/oneproviders-distribution
+                oneproviders=oneproviders
+                fileDistributionData=fileDistributionData
+                space=space
+                onMigrate=(action startAction)
+              }}
+            `);
 
             return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
               .then(() => {

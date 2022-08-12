@@ -39,6 +39,8 @@ import fileRecall from './components/file-recall';
 import archiveContentCount from './components/archive-content-count';
 import archiveState from './components/archive-state';
 import archivePropertiesModal from './components/archive-properties-modal';
+import fileInfoModal from './components/file-info-modal';
+import fileMetadata from './components/file-metadata';
 
 import uploadManager from './services/upload-manager';
 
@@ -55,6 +57,8 @@ import workflowVisualiser from './utils/workflow-visualiser';
 import archiveFormBaseModel from './utils/archive-form/-base-model';
 import archiveFormViewModel from './utils/archive-form/view-model';
 import datasetActions from './utils/dataset/actions';
+import fileMetadataViewModel from './utils/file-metadata-view-model';
+import fileInfo from './utils/file-info';
 
 const translations = {
   components: {
@@ -96,6 +100,8 @@ const translations = {
     archiveContentCount,
     archiveState,
     archivePropertiesModal,
+    fileInfoModal,
+    fileMetadata,
   },
   services: {
     uploadManager,
@@ -111,6 +117,8 @@ const translations = {
     itemsSelectBrowser: itemsSelectBrowserUtils,
     workflowActions,
     workflowVisualiser,
+    fileMetadataViewModel,
+    fileInfo,
     archiveForm: {
       baseModel: archiveFormBaseModel,
       viewModel: archiveFormViewModel,

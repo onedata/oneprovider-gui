@@ -24,8 +24,7 @@
     padding-left: 1em;
   }
 
-  .pods-table-data-cell + .pods-table-data-cell,
-  .events-table-data-cell + .events-table-data-cell {
+  .pods-table-data-cell + .pods-table-data-cell {
     text-align: center;
   }
 
@@ -72,34 +71,27 @@
   }
 
   .events-table {
-    .column-time-label {
-      min-width: 8em;
+    .type-column-header {
+      width: 6em;
     }
 
-    .column-type-label {
-      min-width: 7em;
+    .reason-column-header {
+      width: 8em;
     }
 
-    .column-reason-label {
-      min-width: 8em;
-    }
+    @media (max-width: $screen-xs-max) {
+      .type-column-header,
+      .event-type {
+        // We can't use `display: none` because of `colspan` value for loading rows
+        // - a number of rendered (visible) cells can't change.
+        width: 0;
+        padding: 0;
+        overflow: hidden;
+      }
 
-    .column-message-label {
-      max-width: 0;
-      width: 100%;
-      min-width: 12em;
-    }
-
-    .event-message {
-      max-width: 0;
-      width: 100%;
-      padding-right: 2.5em;
-    }
-
-    .column-message-label,
-    .event-message {
-      padding-left: 1em;
-      text-align: left;
+      .reason-column-header {
+        width: 6em;
+      }
     }
   }
 
@@ -126,60 +118,6 @@
   .events-table-placeholder {
     margin: auto;
     font-size: 130%;
-  }
-
-  .events-table-event-row {
-    position: relative;
-
-    &:hover {
-      background-color: $main-content-hover-background;
-    }
-
-    &.type-warning {
-      background-color: $entry-warning-bg;
-    }
-
-    &.is-expanded {
-      &,
-      & + .events-table-expanded-event-row {
-        background-color: $color-file-selected;
-      }
-
-      &:hover {
-        background-color: $entry-selected-hovered-bg;
-      }
-    }
-
-    .expand-icon {
-      position: absolute;
-      right: 0.5em;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 130%;
-    }
-  }
-
-  .events-table-expanded-event-row {
-    td {
-      padding: 1em;
-      padding-top: 0.5em;
-      padding-bottom: 0.5em;
-    }
-
-    textarea {
-      font-size: 85%;
-    }
-  }
-
-  .events-table-data-cell {
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-  }
-
-  .loading-row-cell {
-    position: relative;
-    height: 44px;
-    border-top: 1px solid $table-border-color;
   }
 
   @media (max-width: 600px) {

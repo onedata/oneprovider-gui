@@ -12,9 +12,10 @@ import EmberObject, { get, set, setProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve, Promise, reject } from 'rsvp';
-import { conditional, equal, raw, gt, and, not, notEmpty } from 'ember-awesome-macros';
+import { conditional, raw, gt, and, not, notEmpty } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
+import { computed } from '@ember/object';
 
 export default EmberObject.extend(
   createDataProxyMixin('fileDistributionModel'),
@@ -77,24 +78,25 @@ export default EmberObject.extend(
     fileType: reads('file.type'),
 
     /**
-     * File size. If file is a directory, then size is 0.
+     * File size. If file is a directory and statistics are turned off, then size is null.
      * @type {Ember.ComputedProperty<number>}
      */
-    fileSize: conditional(
-      equal('fileType', raw('file')),
-      'file.size',
-      raw(0)
-    ),
+    fileSize: computed('fileDistribution', function fileSize() {
+      const fileDistribution = this.get('fileDistribution');
+      let fileSizeMax = 0;
+      for (const elem in fileDistribution) {
+        const logicalSize = get(fileDistribution[elem], 'logicalSize');
+        if (logicalSize) {
+          fileSizeMax = Math.max(fileSizeMax, logicalSize);
+        }
+      }
+      return fileSizeMax;
+    }),
 
     /**
      * @type {Ember.ComputedProperty<boolean>}
      */
-    isFileDistributionLoaded: conditional(
-      equal('fileType', raw('file')),
-      notEmpty('fileDistributionModelProxy.content'),
-      // directories does not have file distribution
-      raw(false),
-    ),
+    isFileDistributionLoaded: notEmpty('fileDistributionModelProxy.content'),
 
     /**
      * @type {Ember.ComputedProperty<boolean>}
@@ -180,21 +182,17 @@ export default EmberObject.extend(
       const file = this.get('file');
       const distributionLoadError = get(file, 'distributionLoadError');
 
-      if (this.get('file.type') === 'file') {
-        if (distributionLoadError) {
-          // If earlier fetching of distribution ended with error, then just
-          // rethrow it. We can't try to reload distribution model because
-          // rejected belongsTo relation cannot be reloaded (a bug in Ember).
-          return reject(distributionLoadError);
-        } else {
-          return file.belongsTo('distribution').reload()
-            .catch(reloadError => {
-              set(file, 'distributionLoadError', reloadError);
-              throw reloadError;
-            });
-        }
+      if (distributionLoadError) {
+        // If earlier fetching of distribution ended with error, then just
+        // rethrow it. We can't try to reload distribution model because
+        // rejected belongsTo relation cannot be reloaded (a bug in Ember).
+        return reject(distributionLoadError);
       } else {
-        return resolve();
+        return file.belongsTo('distribution').reload()
+          .catch(reloadError => {
+            set(file, 'distributionLoadError', reloadError);
+            throw reloadError;
+          });
       }
     },
 
@@ -239,12 +237,11 @@ export default EmberObject.extend(
      */
     updateData() {
       const {
-        fileType,
         isFileDistributionError,
         transfersProxy,
-      } = this.getProperties('fileType', 'isFileDistributionError', 'transfersProxy');
+      } = this.getProperties('isFileDistributionError', 'transfersProxy');
       return Promise.all([
-        !isFileDistributionError && fileType === 'file' ?
+        !isFileDistributionError ?
         this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
         !get(transfersProxy, 'isRejected') ?
         this.updateTransfersProxy({ replace: true }) : resolve(),
@@ -264,6 +261,41 @@ export default EmberObject.extend(
       if (isFileDistributionLoaded) {
         const oneproviderEntityId = get(oneprovider, 'entityId');
         return get(fileDistribution, oneproviderEntityId);
+      } else {
+        return {};
+      }
+    },
+
+    /**
+     * Returns list of storage ids for given Oneprovider
+     * @param {Models.Provider} oneprovider
+     * @returns {Array<String>}
+     */
+    getStorageIdsForOneprovider(oneprovider) {
+      const {
+        isFileDistributionLoaded,
+      } = this.getProperties('isFileDistributionLoaded');
+      if (isFileDistributionLoaded) {
+        const oneproviderData = this.getDistributionForOneprovider(oneprovider);
+        return Object.keys(get(oneproviderData, 'distributionPerStorage'));
+      } else {
+        return {};
+      }
+    },
+
+    /**
+     * Returns distribution information for given Storage id on given Oneprovider
+     * @param {Models.Provider} oneprovider
+     * @param {String} storageId
+     * @returns {StorageDistribution}
+     */
+    getDistributionForStorageId(oneprovider, storageId) {
+      const distributionForProvider = this.getDistributionForOneprovider(oneprovider);
+      if (get(distributionForProvider, 'success')) {
+        const storageIdsForProvider = get(
+          distributionForProvider, 'distributionPerStorage'
+        );
+        return get(storageIdsForProvider, storageId);
       } else {
         return {};
       }

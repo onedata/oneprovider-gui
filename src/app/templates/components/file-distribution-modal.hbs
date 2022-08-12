@@ -22,18 +22,15 @@
       {{/if}}
       {{#if (eq activeTab "distribution-summary")}}
         <p class="batch-mode-intro">
-          {{#if filesNumber}}
-            {{tt this "filesBatchDescription"
-              filesNumber=filesNumber
-              fileNoun=(tt this (if (gt filesNumber 1) "files" "file"))
-              filesSize=(bytes-to-string filesSize)
-            }}{{if (not directoriesNumber) "."}}
-            {{#if directoriesNumber}}
-              {{tt this "filesAndDirectioriesBatchDescriptionSuffix"}}
-              {{one-label-tip title=(tt this "onlyDirectoriesDescription")}}
+          {{#if itemsNumber}}
+            {{summaryText}}
+            {{#if filesSizeDetails}}
+              {{one-label-tip 
+                title=filesSizeDetails 
+                icon="browser-info" 
+                class="details-size-info"
+              }}
             {{/if}}
-          {{else}}
-            {{tt this "onlyDirectoriesDescription"}}
           {{/if}}
         </p>
         {{file-distribution-modal/oneproviders-distribution

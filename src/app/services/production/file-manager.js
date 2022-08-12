@@ -28,19 +28,15 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
  */
 
 /**
- * @typedef {Object} RecallLogData
- * @property {string} fileId CDMI Object ID of file that message is about
- * @property {string} relativePath relative path to error-affected file from archive
+ * @typedef {Object} RecallAuditLogEntryContent
+ * @property {string|null} fileId CDMI Object ID of file that message is about
+ * @property {string|null} relativePath relative path to error-affected file from archive
  * @property {RecallError} reason object with error reason
  */
 
 /**
  * An error object from backend in standard format, parsable using ErrorExtractor
  * @typedef {RecallError} Object
- */
-
-/**
- * @typedef {JsonInfiniteLogEntry<RecallLogData>} RecallLogEntry
  */
 
 const cancelRecallAspect = 'cancel_archive_recall';
@@ -54,7 +50,7 @@ export default Service.extend({
   onedataRpc: service(),
   onedataGraph: service(),
   timeSeriesManager: service(),
-  infiniteLogManager: service(),
+  auditLogManager: service(),
   apiSamplesManager: service(),
 
   /**
@@ -539,20 +535,22 @@ export default Service.extend({
   },
 
   /**
-   * Begins a procedure of cancelling archive recall process that has root in
-   * file with `recallRootId` entity ID.
+   * Loads recall process logs for specific recall root.
    * @param {string} recallRootId
-   * @param {JsonInfiniteLogPagingParams} pagingParams
-   * @returns {Promise<JsonInfiniteLogPage<RecallLogData>>}
+   * @param {AuditLogListingParams} listingParams
+   * @returns {Promise<AuditLogEntriesPage<RecallAuditLogEntryContent>>}
    */
-  async getRecallLogs(recallRootId, pagingParams) {
-    const infiniteLogManager = this.get('infiniteLogManager');
+  async getRecallLogs(recallRootId, listingParams) {
     const requestGri = gri({
       entityType: fileEntityType,
       entityId: recallRootId,
       aspect: recallLogAspect,
     });
-    return await infiniteLogManager.getJsonInfiniteLogContent(requestGri, pagingParams);
+    return await this.get('auditLogManager').getAuditLogEntries(
+      requestGri,
+      listingParams,
+      normalizeRecallAuditLogEntryContent
+    );
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service
@@ -655,4 +653,21 @@ export function dirSizeStatsGri(fileId) {
     aspect: 'dir_size_stats',
     scope: 'private',
   });
+}
+
+/**
+ * @param {unknown} content should be a `RecallAuditLogEntryContent`-like object
+ * @returns {RecallAuditLogEntryContent}
+ */
+function normalizeRecallAuditLogEntryContent(content) {
+  const normalizedContent = content || {};
+
+  if (typeof normalizedContent.fileId !== 'string') {
+    normalizedContent.fileId = null;
+  }
+  if (typeof normalizedContent.relativePath !== 'string') {
+    normalizedContent.relativePath = null;
+  }
+
+  return normalizedContent;
 }
