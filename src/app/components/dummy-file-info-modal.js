@@ -25,9 +25,9 @@ export const storageLocations = {
     provider: {
       locationsPerStorage: {
         storage: 'path',
-      }
-    }
-  }
+      },
+    },
+  },
 };
 
 export const fileParent3 = {

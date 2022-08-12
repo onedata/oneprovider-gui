@@ -426,7 +426,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             entityId: fileId,
             belongsTo(relation) {
               if (relation === 'storageLocations') {
-                return { reload() {return ''} };
+                return { reload() { return ''; } };
               }
             },
           });
@@ -456,14 +456,14 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
               providerkrk: {
                 locationsPerStorage: {
                   storage: null,
-                }
+                },
               },
               providerpar: {
                 locationsPerStorage: {
                   storage: null,
-                }
-              }
-            }
+                },
+              },
+            },
           };
           const fetchTransfers = sinon.stub().resolves(transfers);
           const fetchStorageLocations = sinon.stub().resolves(storageLocations);
