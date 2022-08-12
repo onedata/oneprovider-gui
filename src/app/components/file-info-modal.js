@@ -537,14 +537,14 @@ export default Component.extend(...mixins, {
       if (tabName === this.activeTab) {
         return;
       }
-      if ((await this.activeTabModel ? .checkClose ? .()) ? ? true) {
+      if ((await this.activeTabModel?.checkClose?.()) ?? true) {
         this.set('activeTab', tabName);
       }
     },
     close() {
       (async () => {
-        if ((await this.activeTabModel ? .checkClose ? .()) ? ? true) {
-          this.onHide ? .();
+        if ((await this.activeTabModel?.checkClose?.()) ?? true) {
+          this.onHide?.();
         }
       })();
       return false;
