@@ -143,10 +143,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   /**
    * @type {PromiseObject<Models.StorageLocations>}
    */
-  storageLocationsProxy: computedRelationProxy(
-    'file',
-    'storageLocations'
-  ),
+  storageLocationsProxy: reads('file.storageLocations'),
 
   /**
    * @type {PromiseObject<Models.Provider>}
