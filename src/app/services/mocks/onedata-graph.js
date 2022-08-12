@@ -27,6 +27,7 @@ import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/qos-requirement';
+import { EntrySeverity } from 'onedata-gui-common/utils/audit-log';
 
 const messagePosixError = (errno) => ({
   success: false,
@@ -648,7 +649,7 @@ const atmStoreHandlers = {
       };
     } else if (storeType === 'auditLog') {
       return {
-        logs: storeEntries,
+        logEntries: storeEntries,
         isLast,
       };
     } else if (storeType === 'singleValue') {
@@ -662,7 +663,7 @@ const atmTaskExecutionHandlers = {
     if (operation !== 'get' || !aspectId) {
       return messageNotSupported;
     }
-    return generateJsonInfiniteLogEntries('openfaasActivity', data, { podId: aspectId });
+    return generateAuditLogEntries('openfaasActivity', data, { podId: aspectId });
   },
 };
 
@@ -734,10 +735,11 @@ const qosRequirementHandlers = {
 
     const errorMessage = {
       timestamp: 1655137705932,
-      index: '2',
+      index: '3',
+      severity: 'error',
+      source: 'system',
       content: {
         status: 'failed',
-        severity: 'error',
         fileId,
         description: 'Failed to reconcile local replica: no space left on device.',
         reason: {
@@ -753,36 +755,40 @@ const qosRequirementHandlers = {
       logEntries: [{
         timestamp: 1655137705791,
         index: '0',
+        severity: 'info',
+        source: 'system',
         content: {
           status: 'scheduled',
-          severity: 'info',
           description: 'Remote replica differs, reconciliation started.',
           fileId,
         },
       }, {
         timestamp: 1655137705818,
         index: '1',
+        severity: 'info',
+        source: 'system',
         content: {
           status: 'skipped',
-          severity: 'info',
           description: 'Remote replica differs, reconciliation already in progress.',
           fileId,
         },
       }, {
         timestamp: 1655137705818,
         index: '1b',
+        severity: 'info',
+        source: 'system',
         content: {
           status: 'skipped',
-          severity: 'info',
           description: 'Remote replica differs, ignoring since the file has been deleted locally.',
           fileId,
         },
       }, {
         timestamp: 1655137705932,
         index: '2',
+        severity: 'info',
+        source: 'system',
         content: {
           status: 'completed',
-          severity: 'info',
           description: 'Local replica reconciled.',
           fileId,
         },
@@ -790,7 +796,9 @@ const qosRequirementHandlers = {
       isLast: true,
     };
     for (let i = 0; i < 25; ++i) {
-      result.logEntries.push(errorMessage);
+      result.logEntries.push(Object.assign({}, errorMessage, {
+        index: String(Number(errorMessage.index) + i),
+      }));
     }
     return result;
   },
@@ -1219,18 +1227,28 @@ function atmWorkflowExecutionSummaryToAttrsData(record) {
 }
 
 function generateStoreAuditLogContentEntry({ index }) {
+  const startTimestamp = 1658912037;
+  const allSeverities = Object.values(EntrySeverity);
+  const isUserLog = index % 10 === 0;
+  const isUserNoDescriptionLog = index % 20 === 0;
+
+  const content = {};
+  if (isUserLog) {
+    if (!isUserNoDescriptionLog) {
+      content.description = `My custom log description ${index}`;
+    }
+    content.field1 = 'aaaaaaaa';
+    content.field2 = ['bbbbb', { c: 'ddddddd' }];
+  } else {
+    content.description = `System log ${index}`;
+  }
+
   return {
     index: String(index),
-    success: index % 20 !== 19,
-    value: {
-      timestamp: Date.now(),
-      severity: ['debug', 'info', 'warning', 'error'][index % 4],
-      entry: {
-        description: 'my description',
-        someOtherValue: '123',
-      },
-    },
-    error: { id: 'forbidden' },
+    timestamp: (startTimestamp - index) * 1000 + 123,
+    severity: allSeverities[index % allSeverities.length],
+    source: isUserLog ? 'user' : 'system',
+    content,
   };
 }
 
@@ -1251,7 +1269,7 @@ function generateStoreContentEntry({ startPosition, index }) {
   };
 }
 
-function generateJsonInfiniteLogEntries(type, pagingParams, extraData = {}) {
+function generateAuditLogEntries(type, pagingParams, extraData = {}) {
   const firstEntryDate = new Date();
   firstEntryDate.setMinutes(0, 0, 0);
   const firstEntryTimestamp = Math.floor(firstEntryDate.valueOf() / 1000) - 3600;
@@ -1269,7 +1287,7 @@ function generateJsonInfiniteLogEntries(type, pagingParams, extraData = {}) {
   for (
     let i = startEntryTimestamp; i <= nowTimestamp && entries.length < limit; i += 10
   ) {
-    entries.push(generateJsonInfiniteLogEntry({
+    entries.push(generateAuditLogEntry({
       index: String(entryIdx),
       timestamp: i,
       type,
@@ -1284,11 +1302,13 @@ function generateJsonInfiniteLogEntries(type, pagingParams, extraData = {}) {
   };
 }
 
-function generateJsonInfiniteLogEntry({ index, timestamp, type, extraData }) {
+function generateAuditLogEntry({ index, timestamp, type, extraData }) {
   const entry = {
     index,
     // infinite log timestamps are in milliseconds
     timestamp: timestamp * 1000,
+    severity: 'info',
+    source: 'system',
   };
   if (type === 'openfaasActivity') {
     const podId = extraData && extraData.podId;

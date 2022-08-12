@@ -134,6 +134,10 @@ export default Component.extend(I18n, {
   }),
 
   getMatchingRevisionNumbers(atmWorkflowSchema, requiredInputStoreSpec) {
+    if (!get(atmWorkflowSchema, 'isCompatible')) {
+      return [];
+    }
+
     const revisionRegistry = get(atmWorkflowSchema, 'revisionRegistry') || {};
     const allRevisionNumbers = Object.keys(revisionRegistry).map(key => parseInt(key));
     if (!requiredInputStoreSpec?.dataSpec) {

@@ -54,7 +54,7 @@
           </a>
         {{/nav.item}}
       {{/bs-nav}}
-      <div class="tab-content">
+      <div class="tab-content fill-flex-using-column">
         {{#tab.pane id="status"}}
           {{#if (eq activeTab "status")}}
             {{file-recall/info-table
@@ -79,6 +79,7 @@
         {{#tab.pane
           id="logs"
           title=(tt this "tabs.logs")
+          class="file-flex-using-column"
         }}
           {{#if (eq activeTab "logs")}}
             {{file-recall/event-log

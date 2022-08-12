@@ -587,6 +587,14 @@ describe('Integration | Component | file browser (main component)', function () 
           await chooseFileContextMenuAction({ entityId: 'i1' }, 'datasets');
         });
 
+        testOpenFileInfo({
+          openDescription: 'metadata context menu item is clicked',
+          tabName: 'metadata',
+          async openFunction() {
+            await chooseFileContextMenuAction({ entityId: 'i1' }, 'metadata');
+          },
+        });
+
         testDownloadFromContextMenu();
         testDownloadUsingDoubleClick();
       });
@@ -705,6 +713,25 @@ function testOpenDatasetsModal(openDescription, openFunction) {
   });
 }
 
+function testOpenFileInfo({ openDescription, tabName, openFunction }) {
+  it(`invokes info modal opening with tab "${tabName}" when ${openDescription}`, async function (done) {
+    const openInfo = sinon.spy();
+    this.set('openInfo', openInfo);
+
+    await renderComponent(this);
+
+    expect(openInfo).to.have.not.been.called;
+    await openFunction.call(this);
+    expect(openInfo).to.have.been.calledOnce;
+    expect(openInfo).to.have.been.calledWith(
+      this.item1,
+      'metadata',
+    );
+
+    done();
+  });
+}
+
 function testDownloadFromContextMenu() {
   const description =
     'shows spinner and starts download after using download context menu item';
@@ -812,9 +839,15 @@ function stubSimpleFetch(testCase, dir, childrenRecords) {
 async function renderComponent(testCase) {
   const {
     openCreateNewDirectory,
+    openInfo,
     openDatasets,
     openQos,
-  } = testCase.getProperties('openCreateNewDirectory', 'openDatasets', 'openQos');
+  } = testCase.getProperties(
+    'openCreateNewDirectory',
+    'openInfo',
+    'openDatasets',
+    'openQos'
+  );
   setDefaultTestProperty(testCase, 'spacePrivileges', {});
   setDefaultTestProperty(testCase, 'spaceId', 'some_space_id');
   setDefaultTestProperty(testCase, 'browserModel', FilesystemBrowserModel.create({
@@ -822,6 +855,7 @@ async function renderComponent(testCase) {
     openCreateNewDirectory: openCreateNewDirectory ||
       notStubbed('openCreateNewDirectory'),
     openDatasets: openDatasets || notStubbed('openDatasets'),
+    openInfo: openInfo || notStubbed('openInfo'),
     openQos: openQos || notStubbed('openQos'),
   }));
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));

@@ -27,21 +27,13 @@
   {{/promise-proxy-container}}
 
   {{#if fileToShowInfo}}
-    {{file-browser/fb-info-modal
+    {{file-info-modal
       open=true
       previewMode=true
       share=share
       file=fileToShowInfo
+      initialTab=showInfoInitialTab
       onHide=(action closeInfoModal)
-    }}
-  {{/if}}
-
-  {{#if fileToShowMetadata}}
-    {{file-browser/fb-metadata-modal
-      open=true
-      file=fileToShowMetadata
-      previewMode=true
-      onHide=(action closeMetadataModal)
     }}
   {{/if}}
 

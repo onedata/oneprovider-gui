@@ -28,9 +28,9 @@ import config from 'ember-get-config';
 /**
  * @typedef {Object} OpenfaasFunctionEvent
  * For more information about fields used in this object see Kubernetes documentation.
- * @property {'Normal'|'Warning'} type
- * @property {string} reason
- * @property {string} message
+ * @property {string|null} type
+ * @property {string|null} reason
+ * @property {string|null} message
  */
 
 export default Service.extend({
@@ -38,7 +38,7 @@ export default Service.extend({
   onedataGraph: service(),
   onedataConnection: service(),
   currentUser: service(),
-  infiniteLogManager: service(),
+  auditLogManager: service(),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -359,23 +359,24 @@ export default Service.extend({
   /**
    * @param {string} atmTaskExecutionId
    * @param {string} podId
-   * @param {JsonInfiniteLogPagingParams} pagingParams
-   * @returns {Promise<JsonInfiniteLogPage<OpenfaasFunctionEvent>>}
+   * @param {AuditLogListingParams} listingParams
+   * @returns {Promise<AuditLogEntriesPage<OpenfaasFunctionEvent>>}
    */
   async getAtmTaskExecutionOpenfaasPodEventLogs(
     atmTaskExecutionId,
     podId,
-    pagingParams
+    listingParams
   ) {
-    const eventLogGri = gri({
+    const requestGri = gri({
       entityType: atmTaskExecutionEntityType,
       entityId: atmTaskExecutionId,
       aspect: atmTaskExecutionAspects.openfaasFunctionPodEventLog,
       aspectId: podId,
     });
-    return this.get('infiniteLogManager').getJsonInfiniteLogContent(
-      eventLogGri,
-      pagingParams
+    return await this.get('auditLogManager').getAuditLogEntries(
+      requestGri,
+      listingParams,
+      normalizeOpenfaasFunctionEvent
     );
   },
 
@@ -402,3 +403,23 @@ export default Service.extend({
     });
   },
 });
+
+/**
+ * @param {unknown} content should be an `OpenfaasFunctionEvent`-like object
+ * @returns {QosAuditLogEntryContent}
+ */
+function normalizeOpenfaasFunctionEvent(event) {
+  const normalizedEvent = event || {};
+
+  if (typeof normalizedEvent.type !== 'string') {
+    normalizedEvent.type = null;
+  }
+  if (typeof normalizedEvent.reason !== 'string') {
+    normalizedEvent.reason = null;
+  }
+  if (typeof normalizedEvent.message !== 'string') {
+    normalizedEvent.message = null;
+  }
+
+  return event;
+}

@@ -1,6 +1,6 @@
-import headerRow from './event-log/header-row';
-
 export default {
-  noEntries: 'No log entries.',
-  headerRow,
+  customColumns: {
+    sourceFile: 'Source file',
+    errorMessage: 'Error message',
+  },
 };

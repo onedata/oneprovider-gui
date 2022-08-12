@@ -30,4 +30,12 @@ export default Model.extend(GraphSingleModelMixin, {
    * @type {ComputedProperty<Object>}
    */
   revisionRegistry: attr('object'),
+
+  /**
+   * If false, then this particular workflow schema is not compatible with
+   * current Oneprovider. The most probable reason is that the schema is too
+   * new for API of current legacy Oneprovider.
+   * @type {ComputedProperty<boolean>}
+   */
+  isCompatible: attr('boolean'),
 }).reopenClass(StaticGraphModelMixin);
