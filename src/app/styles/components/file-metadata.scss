@@ -1,0 +1,42 @@
+.file-metadata-header {
+  .metadata-type-tabs {
+    .editor-disabled-lock-container {
+      position: absolute;
+      display: flex;
+      right: $btn-group-tabs-horizontal-spacing-large;
+      align-items: center;
+      padding: 2px 10px;
+      background-color: white;
+      border-radius: $btn-border-radius-small;
+      border: 1px solid $btn-group-tabs-line-border-color;
+    }
+    .editor-disabled-lock-icon {
+      margin-left: 0.1em;
+      margin-right: -0.2em;
+      flex-grow: 0;
+    }
+  }
+}
+.file-metadata-body {
+  &.full-height {
+    @include fill-flex-using-column;
+  }
+  .bs-tab {
+    .tab-content-metadata {
+      height: 100%;
+    }
+  }
+  .form-group.form-group-ace-editor {
+    margin-bottom: 0;
+    .ember-ace.full-height {
+      // make some space for one-line error message
+      height: calc(100% - 1em);
+    }
+  }
+  .file-metadata-xattrs {
+    .xattrs-params-editor {
+      // 1.2em - qos params editor remove icon width
+      width: calc(100% - #{$padding-small-horizontal} - 1.2em);
+    }
+  }
+}

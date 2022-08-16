@@ -40,7 +40,7 @@
   {{/if}}
 
   {{#if fileToShowInfo}}
-    {{file-browser/fb-info-modal
+    {{file-info-modal
       open=true
       file=fileToShowInfo
       initialTab=showInfoInitialTab
@@ -93,14 +93,6 @@
       space=spaceProxy.content
       onClose=(action closeFileDistributionModal)
       getTransfersUrl=(action "getTransfersUrl")
-    }}
-  {{/if}}
-
-  {{#if fileToShowMetadata}}
-    {{file-browser/fb-metadata-modal
-      open=true
-      file=fileToShowMetadata
-      onHide=(action closeMetadataModal)
     }}
   {{/if}}
 

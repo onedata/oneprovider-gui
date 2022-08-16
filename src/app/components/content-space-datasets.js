@@ -277,6 +277,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   fileToShowInfo: null,
 
+  /**
+   * @type {FileInfoTabId} activeTab
+   */
   showInfoInitialTab: undefined,
 
   fileToShowMetadata: null,

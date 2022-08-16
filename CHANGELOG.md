@@ -7,6 +7,10 @@ CHANGELOG
 ### Latest changes
 
 * VFS-9665 Moved directory size statistics configuration to Onezone
+* VFS-9472 Added storage locations for file in data distribution and file info modal
+* VFS-9604 Moved file metadata settings from separate modal to file info panel
+* VFS-9654 Added blocking incompatible workflows from running
+* VFS-9625 Fixed hiding tooltip when it is controlled manually
 * VFS-9655 Fixed showing size in scale for file in data distribution
 * VFS-9422 Added data distribution for directories
 * VFS-9335 Added charts dashboards to workflow GUI

@@ -9,15 +9,16 @@
 
 import Component from '@ember/component';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { or, raw } from 'ember-awesome-macros';
+import { or, raw, not } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: [
     'list-entry',
     'iconified-block',
   ],
-  classNameBindings: ['hasMatchingRevisions::no-input-match'],
+  classNameBindings: ['isDisabled:disabled-workflow-schema'],
 
   /**
    * @override
@@ -41,6 +42,16 @@ export default Component.extend(I18n, {
    * @type {(atmWorkflowSchema: Models.AtmWorkflowSchema, revisionNumber: RevisionNumber) => void}
    */
   onRevisionClick: undefined,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isCompatible: reads('atmWorkflowSchema.isCompatible'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isDisabled: or(not('isCompatible'), not('hasMatchingRevisions')),
 
   /**
    * @type {ComputedProperty<Object>}

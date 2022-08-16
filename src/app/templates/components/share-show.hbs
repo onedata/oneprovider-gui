@@ -31,7 +31,7 @@
             disabled=(contains tabId disabledTabs)
           }}
             <a href={{concat "#" tabId}}
-              class={{concat "nav-link nav-link-metadata-type nav-link-" tabId}}
+              class={{concat "nav-link nav-link-" tabId}}
               role="tab"
               {{action (mut activeTab) tabId}}
             >

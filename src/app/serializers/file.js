@@ -22,6 +22,7 @@ import { aspect as archiveRecallStateAspect } from 'oneprovider-gui/models/archi
 
 export const qosSummaryAspect = 'qos_summary';
 export const datasetSummaryAspect = 'dataset_summary';
+export const storageLocationsAspect = 'storage_locations';
 
 export default Serializer.extend({
   fileRelations: computed(() => [
@@ -29,6 +30,7 @@ export default Serializer.extend({
     { name: 'distribution', aspect: 'distribution' },
     { name: 'fileQosSummary', aspect: qosSummaryAspect },
     { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
+    { name: 'storageLocations', aspect: storageLocationsAspect},
     // NOTE: currently recallRootId should be already set when doing ls++
     // to create valid relations; if this cointraint will to be changed,
     // a re-implementation will be needed

@@ -4,9 +4,8 @@
  * - `atmTaskName`,
  * - `atmTaskExecutionId`.
  *
- * @module components/modals/atm-task-execution-pods-activity-modal
  * @author Michał Borzęcki
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -17,7 +16,6 @@ import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import Looper from 'onedata-gui-common/utils/looper';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { next } from '@ember/runloop';
 
 const mixins = [
   I18n,
@@ -62,11 +60,6 @@ export default Component.extend(...mixins, {
    * @type {Utils.Looper}
    */
   updater: undefined,
-
-  /**
-   * @type {EventsTableApi}
-   */
-  eventsTableApi: undefined,
 
   /**
    * @type {ComputedProperty<string>}
@@ -138,17 +131,6 @@ export default Component.extend(...mixins, {
   actions: {
     podSelected(podId) {
       this.set('selectedPodId', podId);
-    },
-    splitChanged() {
-      next(() => safeExec(this, () => {
-        const eventsTableApi = this.get('eventsTableApi');
-        if (eventsTableApi && typeof eventsTableApi.recomputeTableItems === 'function') {
-          eventsTableApi.recomputeTableItems();
-        }
-      }));
-    },
-    registerEventsTableApi(api) {
-      this.set('eventsTableApi', api);
     },
   },
 });
