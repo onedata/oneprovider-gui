@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9472 Added storage locations for file in data distribution and file info modal
 * VFS-9604 Moved file metadata settings from separate modal to file info panel
 * VFS-9654 Added blocking incompatible workflows from running
 * VFS-9625 Fixed hiding tooltip when it is controlled manually

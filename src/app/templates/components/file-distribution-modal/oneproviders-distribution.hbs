@@ -19,7 +19,7 @@
   {{/if}}
   <div class="{{if (or isMigrationDestinationSelectorVisible isStartSubsequentTransferConfirmationVisible) "hidden"}}">
     <ul>
-      {{#promise-proxy-container proxy=distributionItemsProxy}}
+      {{#promise-proxy-container proxy=initialRequiredDataProxy}}
         {{#each distributionItemsProxy.content as |distributionItem|}}
           {{file-distribution-modal/oneproviders-distribution-item
             class=(concat "oneprovider-" distributionItem.oneprovider.entityId)
@@ -37,6 +37,7 @@
             onEvict=(action "tryStartEviction" distributionItem.oneprovider)
             storage=distributionItem.storage
             space=space
+            locationsPerProvider=locationsPerProvider
           }}
         {{/each}}
       {{/promise-proxy-container}}

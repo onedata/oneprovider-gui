@@ -37,6 +37,16 @@ describe('Integration | Component | file info modal', function () {
     command: ['xrdcp', '-r', 'root://root.example.com//data/test', '.'],
   }];
 
+  const storageLocations = {
+    locationsPerProvider: {
+      provider: {
+        locationsPerStorage: {
+          storage: 'path',
+        },
+      },
+    },
+  };
+
   beforeEach(function () {
     const fileHardlinksResult = this.set('fileHardlinksResult', {
       hardlinksCount: 1,
@@ -45,6 +55,10 @@ describe('Integration | Component | file info modal', function () {
     });
     sinon.stub(lookupService(this, 'file-manager'), 'getFileHardlinks')
       .resolves(fileHardlinksResult);
+    sinon.stub(lookupService(this, 'providerManager'), 'getCurrentProvider')
+      .resolves({ name: 'provider', entityId: 'providerId' });
+    sinon.stub(lookupService(this, 'storageManager'), 'getStorageById')
+      .resolves({ name: 'storage', entityId: 'storage', provider: { name: 'provider' } });
     const getDataUrl = ({ selected: [firstSelected] }) => `link-${firstSelected}`;
     lookupService(this, 'app-proxy').callParent =
       function callParent(methodName, ...args) {
@@ -53,6 +67,8 @@ describe('Integration | Component | file info modal', function () {
         }
       };
     this.set('getDataUrl', getDataUrl);
+    const storageLocationsProxy = sinon.stub().resolves(storageLocations);
+    this.set('storageLocationsProxy', storageLocationsProxy);
   });
 
   // NOTE: context is not used for async render tests, because mocha's context is buggy
@@ -450,6 +466,7 @@ async function renderComponent() {
     space=space
     selectedRestUrlType=selectedRestUrlType
     getDataUrl=getDataUrl
+    storageLocationsProxy = storageLocationsProxy
   }}`);
 }
 

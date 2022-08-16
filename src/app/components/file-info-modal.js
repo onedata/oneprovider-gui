@@ -11,7 +11,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { promise, raw, or, gt, and, notEqual, collect, bool } from 'ember-awesome-macros';
+import { promise, raw, or, gt, and, notEqual, collect, bool, equal } from 'ember-awesome-macros';
 import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -20,6 +20,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { next } from '@ember/runloop';
 import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlink-utils';
 import _ from 'lodash';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 
 const mixins = [
@@ -36,6 +37,8 @@ export default Component.extend(...mixins, {
   fileManager: service(),
   errorExtractor: service(),
   spaceManager: service(),
+  storageManager: service(),
+  providerManager: service(),
 
   open: false,
 
@@ -144,6 +147,122 @@ export default Component.extend(...mixins, {
   })),
 
   apiSamples: reads('apiSamplesProxy.content'),
+
+  /**
+   * @type {PromiseObject<Models.StorageLocations>}
+   */
+  storageLocationsProxy: computedRelationProxy(
+    'file',
+    'storageLocations'
+  ),
+
+  /**
+   * @type {PromiseObject<Models.Provider>}
+   */
+  currentProviderProxy: promise.object(computed(function currentProviderProxy() {
+    return this.get('providerManager').getCurrentProvider();
+  })),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  currentProviderName: reads('currentProviderProxy.content.name'),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  currentProviderId: reads('currentProviderProxy.content.entityId'),
+
+  /**
+   * @type {PromiseObject<Ember.Array<Object>|null> }
+   */
+  currentProviderLocationsProxy: promise.object(computed(
+    'storageLocationsPerProvider',
+    'currentProviderProxy',
+    async function currentProviderLocationsProxy() {
+      const currentProvider = await this.get('currentProviderProxy');
+      const currentProviderId = get(currentProvider, 'entityId');
+      const storageLocationsPerProvider = await this.get('storageLocationsPerProvider');
+      if (
+        storageLocationsPerProvider &&
+        currentProviderId in storageLocationsPerProvider
+      ) {
+        return storageLocationsPerProvider[currentProviderId];
+      } else {
+        return null;
+      }
+    }
+  )),
+
+  /**
+   * @type {PromiseObject}
+   */
+  storageLocationRequiredDataProxy: promise.object(promise.all(
+    'storageLocationsPerProvider',
+    'currentProviderProxy',
+    'currentProviderLocationsProxy',
+  )),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  areStorageLocationsExpanded: equal('currentProviderLocationsProxy.length', 0),
+
+  /**
+   * @type {PromiseObject<Ember.Array<Object>|null>}
+   */
+  storageLocationsPerProvider: promise.object(computed(
+    'storageLocationsProxy',
+    'storageManager',
+    'spaceId',
+    async function storageLocationsPerProvider() {
+      const {
+        spaceId,
+        storageManager,
+      } = this.getProperties(
+        'spaceId',
+        'storageManager',
+      );
+
+      const locationsPerProviderWithStorageName = {};
+      const storageLocationsProxy = await this.get('storageLocationsProxy');
+
+      const locationsPerProvider = get(storageLocationsProxy, 'locationsPerProvider');
+
+      for (const providerId in locationsPerProvider) {
+        const locationsPerStorage = locationsPerProvider[providerId].locationsPerStorage;
+
+        for (const storageId in locationsPerStorage) {
+          const storage = await storageManager.getStorageById(storageId, {
+            throughSpaceId: spaceId,
+            backgroundReload: false,
+          });
+
+          const provider = await get(storage, 'provider');
+          const providerName = get(provider, 'name');
+          const storageName = get(storage, 'name');
+
+          const storageNameWithPath = {
+            storageName,
+            providerName,
+            path: locationsPerStorage[storageId],
+          };
+
+          if (providerId in locationsPerProviderWithStorageName) {
+            locationsPerProviderWithStorageName[providerId].push(storageNameWithPath);
+          } else {
+            locationsPerProviderWithStorageName[providerId] = [storageNameWithPath];
+          }
+        }
+      }
+
+      if (_.isEmpty(locationsPerProvider)) {
+        return null;
+      } else {
+        return locationsPerProviderWithStorageName;
+      }
+    }
+  )),
 
   fileGuiUrlProxy: promise.object(computed('file.entityId', async function fileGuiUrl() {
     const {
@@ -429,6 +548,9 @@ export default Component.extend(...mixins, {
         }
       })();
       return false;
+    },
+    toggleStorageLocations() {
+      this.toggleProperty('areStorageLocationsExpanded');
     },
   },
 });

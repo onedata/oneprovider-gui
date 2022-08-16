@@ -2,6 +2,8 @@ export default {
   header: '{{type}} details',
   name: '{{type}} name',
   path: '{{type}} location',
+  storageLocations: 'Storage locations',
+  showMore: 'Show more storage locations',
   symlinkTargetPath: 'Symbolic link target path',
   unknownSpaceInSymlink: 'unknown space',
   spaceId: 'Space ID',
