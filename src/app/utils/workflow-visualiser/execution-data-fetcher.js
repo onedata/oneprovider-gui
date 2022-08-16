@@ -7,6 +7,14 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
+/**
+ * @typedef {Object} AtmStoreContentPresentersCache
+ * @property {Object<string, AtmFile|null>} symbolicLinkTargetById
+ * @property {Object<string, string|null>} filePathById
+ * @property {Object<string, string|null>} fileUrlById
+ * @property {Object<string, string|null>} datasetUrlById
+ */
+
 import ExecutionDataFetcher from 'onedata-gui-common/utils/workflow-visualiser/execution-data-fetcher';
 import { get, getProperties } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
@@ -16,6 +24,9 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { hash as hashFulfilled } from 'rsvp';
 import _ from 'lodash';
 import { inAdvanceRunNumber } from 'onedata-gui-common/utils/workflow-visualiser/run-utils';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
+import { serializedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
 
 const notFoundError = { id: 'notFound' };
 const unavailableTaskInstanceIdPrefix = '__unavailableTaskInstanceId';
@@ -23,6 +34,10 @@ const unavailableTaskInstanceIdPrefix = '__unavailableTaskInstanceId';
 export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   workflowManager: service(),
   i18n: service(),
+  parentAppNavigation: service(),
+  fileManager: service(),
+  filesViewResolver: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -47,12 +62,23 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
    */
   atmStoreRecordsCache: undefined,
 
+  /**
+   * @type {AtmStoreContentPresentersCache}
+   */
+  atmStoreContentPresentersCache: undefined,
+
   init() {
     this._super(...arguments);
 
     this.setProperties({
       atmTaskExecutionRecordsCache: {},
       atmStoreRecordsCache: {},
+      atmStoreContentPresentersCache: {
+        symbolicLinkTargetById: {},
+        filePathById: {},
+        fileUrlById: {},
+        datasetUrlById: {},
+      },
     });
   },
 
@@ -114,6 +140,80 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
 
     return await this.get('workflowManager')
       .getAtmStoreContent(storeInstanceId, browseOptions);
+  },
+
+  /**
+   * @override
+   */
+  getStoreContentPresenterContext() {
+    const cache = this.atmStoreContentPresentersCache;
+    return {
+      getSymbolicLinkTargetById: async (cdmiObjectId) => {
+        const fileId = cdmiObjectId && cdmiObjectIdToGuid(cdmiObjectId);
+        if (!fileId) {
+          return null;
+        }
+        if (fileId in cache.symbolicLinkTargetById) {
+          return cache.symbolicLinkTargetById[fileId];
+        }
+        const file = await this.fileManager.getFileById(fileId);
+        const target = get(file, 'symlinkTargetFile');
+        const {
+          cdmiObjectId: targetCdmiObjectId,
+          type: targetType,
+          name: targetName,
+          size: targetSize,
+        } = getProperties(target, 'cdmiObjectId', 'type', 'name', 'size');
+        const result = {
+          file_id: targetCdmiObjectId,
+          type: serializedFileTypes[targetType],
+          name: targetName,
+          size: targetSize,
+        };
+        cache.symbolicLinkTargetById[fileId] = result;
+        return result;
+      },
+      getFilePathById: async (cdmiObjectId) => {
+        const fileId = cdmiObjectId && cdmiObjectIdToGuid(cdmiObjectId);
+        if (!fileId) {
+          return null;
+        }
+        if (fileId in cache.filePathById) {
+          return cache.filePathById[fileId];
+        }
+        const file = await this.fileManager.getFileById(fileId);
+        const filePathRecords = await resolveFilePath(file);
+        const result = stringifyFilePath(filePathRecords);
+        cache.filePathById[fileId] = result;
+        return result;
+      },
+      getFileUrlById: async (cdmiObjectId) => {
+        const fileId = cdmiObjectId && cdmiObjectIdToGuid(cdmiObjectId);
+        if (!fileId) {
+          return null;
+        }
+        if (fileId in cache.fileUrlById) {
+          return cache.fileUrlById[fileId];
+        }
+        const result = await this.filesViewResolver.generateUrlById(fileId);
+        cache.fileUrlById[fileId] = result;
+        return result;
+      },
+      getDatasetUrlById: async (datasetId) => {
+        if (!datasetId) {
+          return null;
+        }
+        if (datasetId in cache.datasetUrlById) {
+          return cache.datasetUrlById[datasetId];
+        }
+        const result = this.appProxy?.callParent('getDatasetsUrl', {
+          selectedDatasets: [datasetId],
+        }) || null;
+        cache.datasetUrlById[datasetId] = result;
+        return result;
+      },
+      linkTarget: this.parentAppNavigation.navigateTarget,
+    };
   },
 
   /**
