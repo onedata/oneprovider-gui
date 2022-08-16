@@ -171,24 +171,55 @@
               {{/promise-proxy-container}}
             </td>
           </tr>
+          {{#if (eq itemType "file")}}
+            <tr class="file-info-row-storage-location">
+              <td class="property-name with-input{{if smallContent "-sm"}}">
+                {{tt this "storageLocations"}}
+              </td>
+              <td class="property-value">
+                {{#promise-proxy-container
+                  proxy=storageLocationRequiredDataProxy
+                  sizeClass="xs"
+                  centered=false
+                  spinnerBlockClass="loading-file-path"
+                }}
+                  {{#if currentProviderLocationsProxy}}
+                    {{file-browser/storage-location-per-provider-table
+                      spaceId=spaceId
+                      locations=currentProviderLocationsProxy.content
+                    }}
+                  {{/if}}
+                  {{#if storageLocationsPerProvider}}
+                    {{#if areStorageLocationsExpanded}}
+                      {{#each-in storageLocationsPerProvider as |providerId locations|}}
+                        {{#if (not-eq providerId currentProviderId)}}
+                          {{file-browser/storage-location-per-provider-table
+                            spaceId=spaceId
+                            locations=locations
+                          }}
+                        {{/if}}
+                      {{/each-in}}
+                    {{else}}
+                      <div class="storage-locations-expand">
+                        <a
+                          class="toggle-expand"
+                          onClick={{action "toggleStorageLocations"}}
+                        >
+                          {{tt this "showMore"}}
+                        </a>
+                      </div>
+                    {{/if}}
+                  {{/if}}
+                {{/promise-proxy-container}}
+              </td>
+            </tr>
+          {{/if}}
           {{#if (eq itemType "symlink")}}
             <tr class="file-info-row-target-path">
               <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "symlinkTargetPath"}}</td>
               <td class="property-value">
                 {{clipboard-line
                   value=symlinkTargetPath
-                  size=(if smallContent "sm")
-                }}
-              </td>
-            </tr>
-          {{/if}}
-          {{#if space.entityId}}
-            <tr class="file-info-row-space-id">
-              <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "spaceId"}}</td>
-              <td class="property-value">
-                {{clipboard-line
-                  value=space.entityId
-                  class="monospace-font"
                   size=(if smallContent "sm")
                 }}
               </td>
@@ -223,6 +254,18 @@
               </div>
             </td>
           </tr>
+          {{#if space.entityId}}
+            <tr class="file-info-row-space-id">
+              <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "spaceId"}}</td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=space.entityId
+                  class="monospace-font"
+                  size=(if smallContent "sm")
+                }}
+              </td>
+            </tr>
+          {{/if}}
           {{#if (eq itemType "file")}}
             <tr class="file-info-row-size">
               <td class="property-name">{{tt this "size"}}</td>

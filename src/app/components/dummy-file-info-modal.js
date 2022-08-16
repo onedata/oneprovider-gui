@@ -20,6 +20,16 @@ export const fileParentRoot = {
   hasParent: false,
 };
 
+export const storageLocations = {
+  locationsPerProvider: {
+    provider: {
+      locationsPerStorage: {
+        storage: 'path',
+      },
+    },
+  },
+};
+
 export const fileParent3 = {
   name: 'First',
   parent: resolve(fileParentRoot),
@@ -53,6 +63,7 @@ export const file1 = {
   cdmiObjectId: exampleCdmiObjectId,
   modificationTime: Math.floor(Date.now() / 1000),
   owner: resolve(owner1),
+  storageLocations,
 };
 
 export const parentShare = {

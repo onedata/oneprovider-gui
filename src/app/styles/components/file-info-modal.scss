@@ -85,9 +85,21 @@
     }
   }
   .table.table-info td.property-name {
-    width: 10em;
+    width: 11em;
     @media (max-width: $screen-xs-max) {
       width: auto;
+    }
+  }
+
+
+  .file-info-row-storage-location {
+    td.property-value {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    td.property-name.with-input-sm {
+      padding-top: 20px;
     }
   }
 
@@ -223,5 +235,13 @@
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 3px;
     border: 1px solid rgba(0, 0, 0, 0.03);
     border-radius: $border-radius-base;
+  }
+
+  .bs-tab-onedata {
+    padding-bottom: 2 * $padding-large-vertical;
+  }
+
+  .storage-locations-expand {
+    padding-bottom: 10px;
   }
 }

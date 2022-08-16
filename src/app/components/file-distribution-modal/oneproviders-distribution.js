@@ -66,6 +66,35 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * @type {PromiseObject}
+   */
+  initialRequiredDataProxy: promise.object(promise.all(
+    'distributionItemsProxy',
+    'storageLocationsProxy',
+  )),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isSingleFile: equal('fileDistributionData.length', 1),
+
+  /**
+   * @type {ComputedProperty<Models.StorageLocations>}
+   */
+  locationsPerProvider: computed(
+    'fileDistributionData.firstObject.storageLocationsPerProvider',
+    function locationsPerProvider() {
+      const filesDistributionData = this.get('fileDistributionData');
+      if (filesDistributionData.length > 1) {
+        return undefined;
+      } else {
+        const fileDistributionData = get(filesDistributionData, 'firstObject');
+        return get(fileDistributionData, 'storageLocationsPerProvider');
+      }
+    }
+  ),
+
+  /**
    * @virtual
    * @type {Function}
    */
@@ -339,6 +368,7 @@ export default Component.extend(I18n, {
     this._super(...arguments);
 
     this.visibleObserver();
+    this.set('shouldUpdate', true);
   },
 
   willDestroyElement() {
