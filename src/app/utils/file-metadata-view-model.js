@@ -154,7 +154,7 @@ export default EmberObject.extend(...mixins, {
     'readonlyTip',
     'metadataIsProtected',
     'file.type',
-    'space.privileges.update',
+    'space.privileges.writeData',
     'previewMode',
     function effectiveReadonlyTip() {
       const {
@@ -170,7 +170,7 @@ export default EmberObject.extend(...mixins, {
         'file',
         'previewMode',
       );
-      const canUpdateSpace = this.space?.privileges?.update;
+      const canWriteData = this.space?.privileges?.writeData;
       if (readonlyTip) {
         return readonlyTip;
       } else if (previewMode) {
@@ -181,11 +181,11 @@ export default EmberObject.extend(...mixins, {
             this.t(file && get(file, 'type') || 'file').toString()
           ),
         });
-      } else if (!canUpdateSpace) {
+      } else if (!canWriteData) {
         return insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
-          privilegeFlag: 'space_update',
+          privilegeFlag: 'space_write_data',
         });
       } else {
         return '';
