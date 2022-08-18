@@ -39,10 +39,10 @@
     }}
   {{/if}}
 
-  {{#if fileToShowInfo}}
+  {{#if filesToShowInfo}}
     {{file-info-modal
       open=true
-      file=fileToShowInfo
+      files=filesToShowInfo
       initialTab=showInfoInitialTab
       space=spaceProxy.content
       getDataUrl=(action "getFileUrl")
@@ -76,14 +76,6 @@
       parentDir=removeParentDir
       spacePrivileges=spacePrivileges
       onHide=(action closeRemoveModal)
-    }}
-  {{/if}}
-
-  {{#if filesToEditPermissions}}
-    {{edit-permissions-modal
-      files=filesToEditPermissions
-      space=spaceProxy.content
-      onClose=(action closeEditPermissionsModal)
     }}
   {{/if}}
 

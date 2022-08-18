@@ -11,7 +11,20 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { promise, raw, or, gt, and, notEqual, collect, bool, equal } from 'ember-awesome-macros';
+import {
+  promise,
+  raw,
+  or,
+  gt,
+  and,
+  notEqual,
+  collect,
+  bool,
+  equal,
+  not,
+  array,
+  conditional
+} from 'ember-awesome-macros';
 import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -29,7 +42,7 @@ const mixins = [
 ];
 
 /**
- * @typedef {'general'|'hardlinks'|'size'|'apiSamples'|'metadata'} FileInfoTabId
+ * @typedef {'general'|'hardlinks'|'size'|'apiSamples'|'metadata'|'permissions'} FileInfoTabId
  */
 
 export default Component.extend(...mixins, {
@@ -49,9 +62,9 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {models/file}
+   * @type {Array<Models.File>}
    */
-  file: undefined,
+  files: undefined,
 
   /**
    * @virtual optional
@@ -128,6 +141,16 @@ export default Component.extend(...mixins, {
    * @type {Number}
    */
   hardlinksLimit: 100,
+
+  /**
+   * @type {ComputedProperty<Models.File>}
+   */
+  file: reads('files.firstObject'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isMultiFile: gt('files.length', 1),
 
   showApiSection: reads('previewMode'),
 
@@ -402,35 +425,56 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isHardlinksTabVisible: gt('hardlinksCount', raw(1)),
+  isGeneralTabVisible: not('isMultiFile'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isHardlinksTabVisible: and(
+    gt('hardlinksCount', raw(1)),
+    not('isMultiFile'),
+  ),
 
   /**
    * @type {ComputedProperty<boolean>}
    */
   isSizeTabVisible: computed(
     'previewMode',
+    'isMultiFile',
     'file.effFile.type',
     function isSizeTabVisible() {
-      const previewMode = this.get('previewMode');
-      const effItemType = this.get('file.effFile.type');
-      return !previewMode && effItemType !== 'file';
+      const effItemType = this.file.effFile?.type || 'file';
+      return !this.previewMode && !this.isMultiFile && effItemType !== 'file';
     }
   ),
 
-  isApiSamplesTabVisible: and('showApiSection', notEqual('itemType', raw('symlink'))),
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isApiSamplesTabVisible: and(
+    'showApiSection',
+    not('isMultiFile'),
+    notEqual('itemType', raw('symlink'))
+  ),
 
   // TODO: VFS-9628 this is a temporary list of tabs moved from separate modals
-  specialFileTabs: Object.freeze(['metadata']),
+  specialFileTabs: Object.freeze(['metadata', 'permissions']),
 
   /**
    * @type {Array<FileInfoTabId>}
    */
   visibleTabs: computed(
+    'isMultiFile',
+    'isGeneralTabVisible',
     'isHardlinksTabVisible',
     'isSizeTabVisible',
     'isApiSamplesTabVisible',
+    'visibleTabModels.[]',
     function visibleTabs() {
-      const tabs = ['general'];
+      const tabs = [];
+      if (this.isGeneralTabVisible) {
+        tabs.push('general');
+      }
       if (this.isHardlinksTabVisible) {
         tabs.push('hardlinks');
       }
@@ -440,13 +484,20 @@ export default Component.extend(...mixins, {
       if (this.isApiSamplesTabVisible) {
         tabs.push('apiSamples');
       }
-      tabs.push(...this.specialFileTabs);
+      tabs.push(...this.visibleTabsModels.mapBy('tabId'));
       return tabs;
     },
   ),
 
   // TODO: VFS-9628 will contain all tab models after refactor
-  visibleTabsModels: collect('tabModels.metadata'),
+  allTabModels: collect('tabModels.metadata', 'tabModels.permissions'),
+
+  // TODO: VFS-9628 will contain all tab models after refactor
+  visibleTabsModels: conditional(
+    'isMultiFile',
+    array.filterBy('allTabModels', 'isSupportingMultiFiles'),
+    'allTabModels'
+  ),
 
   tabModels: computed(function tabModels() {
     return EmberObject.extend({
@@ -455,6 +506,12 @@ export default Component.extend(...mixins, {
 
       metadata: computed(function metadata() {
         return this.tabModelFactory.createTabModel('metadata', {
+          previewMode: this.previewMode,
+        });
+      }),
+
+      permissions: computed(function permissions() {
+        return this.tabModelFactory.createTabModel('permissions', {
           previewMode: this.previewMode,
         });
       }),
@@ -480,9 +537,8 @@ export default Component.extend(...mixins, {
   init() {
     this._super(...arguments);
     const initialTab = this.initialTab;
-    if (this.visibleTabs.includes(initialTab)) {
-      this.set('activeTab', initialTab);
-    }
+    const visibleTabs = this.visibleTabs;
+    this.set('activeTab', visibleTabs.includes(initialTab) ? initialTab : visibleTabs[0]);
   },
 
   /**

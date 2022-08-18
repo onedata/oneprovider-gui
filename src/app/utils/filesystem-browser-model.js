@@ -76,7 +76,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @virtual
    * @type {Function}
-   * @param {Models.File} file file to show its info
+   * @param {Models.File|Array<Models.File>} files file(s) to show info for it/them
    */
   openInfo: notImplementedThrow,
 
@@ -115,13 +115,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @param {Models.File} parentDir parentDir of file to rename
    */
   openRename: notImplementedThrow,
-
-  /**
-   * @virtual optional: only in non-preview mode
-   * @type {Function}
-   * @param {Array<Models.File>} files files to edit permissions
-   */
-  openEditPermissions: notImplementedThrow,
 
   /**
    * @virtual optional: only in non-preview mode
@@ -464,7 +457,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: (files) => {
-        return this.get('openInfo')(files[0], 'metadata');
+        return this.get('openInfo')(files, 'metadata');
       },
       showIn: [
         actionContext.singleDir,
@@ -479,7 +472,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     return this.createFileAction({
       id: 'info',
       action: (files, activeTab) => {
-        return this.get('openInfo')(files[0], activeTab);
+        return this.get('openInfo')(files, activeTab);
       },
       showIn: [
         actionContext.spaceRootDir,
@@ -602,7 +595,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         disabled: Boolean(disabledTip),
         tip: disabledTip,
         action: (files) => {
-          return this.get('openEditPermissions')(files.rejectBy('type', 'symlink'));
+          return this.get('openInfo')(files.rejectBy('type', 'symlink'), 'permissions');
         },
         showIn: [
           ...anySelectedContexts,

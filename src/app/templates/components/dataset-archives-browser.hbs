@@ -21,25 +21,16 @@
   }}
 {{/promise-proxy-container}}
 
-{{#if fileToShowInfo}}
+{{#if filesToShowInfo}}
   {{file-info-modal
     open=true
-    file=fileToShowInfo
+    files=filesToShowInfo
     initialTab=showInfoInitialTab
     space=space
     showApiSection=false
     dirStatsServiceState=dirStatsServiceStateProxy.content
     getDataUrl=(action "getFileUrl")
     onHide=(action closeInfoModal)
-  }}
-{{/if}}
-
-{{#if filesToEditPermissions}}
-  {{edit-permissions-modal
-    readonly=true
-    files=filesToEditPermissions
-    space=space
-    onClose=(action closeEditPermissionsModal)
   }}
 {{/if}}
 

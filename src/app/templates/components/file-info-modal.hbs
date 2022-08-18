@@ -12,7 +12,7 @@
 }}
   {{#modal.header class="file-info-modal-header"}}
     <h1>{{tt this "header" type=typeTranslation}}</h1>
-    {{modal-file-subheader files=(array file)}}
+    {{modal-file-subheader files=files}}
     {{#bs-tab
       class="bs-tab-onedata bs-tab-modern file-info-tabbar"
       activeId=activeTab
@@ -25,19 +25,21 @@
         as |nav|
       }}
         {{!-- TODO: VFS-9628 Refactor original file info modal tabs to separate comp. --}}
-        {{#nav.item
-          active=(eq tab.activeId "general")
-        }}
-          <a class={{concat-classes
-              "nav-link nav-link-general"
-              (if (eq tab.activeId "general") "active")
-            }}
-            role="tab"
-            {{action "changeTab" "general"}}
-          >
-            {{tt this "tabs.general.tabTitle"}}
-          </a>
-        {{/nav.item}}
+        {{#if isGeneralTabVisible}}
+          {{#nav.item
+            active=(eq tab.activeId "general")
+          }}
+            <a class={{concat-classes
+                "nav-link nav-link-general"
+                (if (eq tab.activeId "general") "active")
+              }}
+              role="tab"
+              {{action "changeTab" "general"}}
+            >
+              {{tt this "tabs.general.tabTitle"}}
+            </a>
+          {{/nav.item}}
+        {{/if}}
         {{#if isHardlinksTabVisible}}
           {{#nav.item
             active=(eq tab.activeId "hardlinks")
@@ -104,6 +106,7 @@
         {{/if}}
 
         {{#each visibleTabsModels as |tabModel|}}
+          {{log tabModel.tabId}}
           {{#nav.item
             active=(eq tab.activeId tabModel.tabId)
             as |navItem|

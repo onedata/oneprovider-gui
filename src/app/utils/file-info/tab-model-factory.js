@@ -7,13 +7,10 @@
  */
 
 import MetadataTabModel from './metadata-tab-model';
+import PermissionsTabModel from './permissions-tab-model';
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-
-/**
- * @typedef {'metadata'} FileInfoTabType
- */
 
 export default EmberObject.extend(OwnerInjector, {
   /**
@@ -23,7 +20,7 @@ export default EmberObject.extend(OwnerInjector, {
   fileInfoModal: undefined,
 
   /**
-   * @param {FileInfoTabType} type
+   * @param {FileInfoTabId} type
    * @param {Object} options options passed to specific tab model constructor/object
    * @returns {EmberObject}
    */
@@ -31,13 +28,27 @@ export default EmberObject.extend(OwnerInjector, {
     switch (type) {
       case 'metadata':
         return this.createMetadataTabModel(options);
+      case 'permissions':
+        return this.createPermissionsTabModel(options);
       default:
-        throw new Error(`no such file info tab type: "${type}"`);
+        throw new Error(`no such file info tab type or has no model: "${type}"`);
     }
   },
 
   createMetadataTabModel(options) {
     return MetadataTabModel.extend({
+      file: reads('fileInfoModal.file'),
+      space: reads('fileInfoModal.space'),
+    }).create({
+      viewModelCreateData: { ...options },
+      fileInfoModal: this.fileInfoModal,
+      ownerSource: this,
+    });
+  },
+
+  createPermissionsTabModel(options) {
+    console.log('create');
+    return PermissionsTabModel.extend({
       file: reads('fileInfoModal.file'),
       space: reads('fileInfoModal.space'),
     }).create({

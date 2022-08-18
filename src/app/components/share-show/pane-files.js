@@ -24,6 +24,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
+import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 
 const shareRootId = 'shareRoot';
 
@@ -39,7 +40,13 @@ const ShareRootDir = EmberObject.extend({
   },
 });
 
-export default Component.extend(I18n, ItemBrowserContainerBase, {
+const mixins = [
+  I18n,
+  ItemBrowserContainerBase,
+  InfoModalBrowserSupport,
+];
+
+export default Component.extend(...mixins, {
   classNames: ['share-show-pane-files', 'pane-files'],
 
   fileManager: service(),
@@ -81,8 +88,6 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
   _window: window,
 
   //#region browser items for various modals
-
-  fileToShowInfo: null,
 
   /**
    * @type {FileInfoTabId} activeTab
@@ -217,25 +222,6 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
       readonlyFilesystem: true,
       openInfo: this.openInfoModal.bind(this),
     });
-  },
-
-  /**
-   * @param {Models.File} file
-   * @param {FileInfoTabId} activeTab
-   */
-  openInfoModal(file, activeTab) {
-    this.setProperties({
-      fileToShowInfo: file,
-      showInfoInitialTab: activeTab || 'general',
-    });
-  },
-
-  closeInfoModal() {
-    this.set('fileToShowInfo', null);
-  },
-
-  closeMetadataModal() {
-    this.set('fileToShowMetadata', null);
   },
 
   closeConfirmFileDownload() {
