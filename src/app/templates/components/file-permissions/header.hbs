@@ -1,0 +1,24 @@
+<div class="btn-group-tabs permissions-type-tabs">
+  {{#bs-button-group
+    class="permissions-type-selector with-scroll-shadow"
+    value=activeTab
+    type="radio"
+    onChange=(action "changeTab") as |bg|
+  }}
+    {{#each permissionsTypes as |type|}}
+      {{#bg.button
+        type="default"
+        class=(concat-classes
+          "btn-sm"
+          "permissions-type-btn"
+          (concat "permissions-type-btn-" type)
+        )
+        value=type
+      }}
+        <span class="tab-name">
+          {{tt this (concat "types." type)}}
+        </span>
+      {{/bg.button}}
+    {{/each}}
+  {{/bs-button-group}}
+</div>

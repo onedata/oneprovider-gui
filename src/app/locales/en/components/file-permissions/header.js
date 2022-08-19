@@ -1,3 +1,6 @@
 export default {
-  // FIXME: implement or delete
+  types: {
+    posix: 'POSIX',
+    acl: 'ACL',
+  },
 };

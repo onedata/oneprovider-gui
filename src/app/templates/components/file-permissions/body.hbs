@@ -1,1 +1,20 @@
-{{yield}}
+{{posix-permissions-editor
+  initialPermissions=initialPosixPermissions
+  class=(if (not posixViewActive) "hidden")
+}}
+{{#render-later
+  tagName="div"
+  triggerRender=aclViewActive
+  class=(unless aclViewActive "hidden")
+}}
+  {{!-- FIXME: make sure loading is rendered fine --}}
+  {{#promise-proxy-container proxy=aclsProxy}}
+    {{acl-editor
+      users=spaceUsers
+      groups=spaceGroups
+      systemSubjects=systemSubjects
+      acl=initialAcl
+      context=filesType
+    }}
+  {{/promise-proxy-container}}
+{{/render-later}}

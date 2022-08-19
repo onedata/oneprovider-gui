@@ -40,6 +40,7 @@ import archiveState from './components/archive-state';
 import archivePropertiesModal from './components/archive-properties-modal';
 import fileInfoModal from './components/file-info-modal';
 import fileMetadata from './components/file-metadata';
+import filePermissions from './components/file-permissions';
 
 import uploadManager from './services/upload-manager';
 
@@ -56,8 +57,9 @@ import workflowVisualiser from './utils/workflow-visualiser';
 import archiveFormBaseModel from './utils/archive-form/-base-model';
 import archiveFormViewModel from './utils/archive-form/view-model';
 import datasetActions from './utils/dataset/actions';
-import fileMetadataViewModel from './utils/file-metadata-view-model';
 import fileInfo from './utils/file-info';
+import fileMetadataViewModel from './utils/file-metadata-view-model';
+import filePermissionsViewModel from './utils/file-permissions-view-model';
 
 const translations = {
   components: {
@@ -100,6 +102,7 @@ const translations = {
     archivePropertiesModal,
     fileInfoModal,
     fileMetadata,
+    filePermissions,
   },
   services: {
     uploadManager,
@@ -116,6 +119,7 @@ const translations = {
     workflowActions,
     workflowVisualiser,
     fileMetadataViewModel,
+    filePermissionsViewModel,
     fileInfo,
     archiveForm: {
       baseModel: archiveFormBaseModel,

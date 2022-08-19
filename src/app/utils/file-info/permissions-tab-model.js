@@ -36,7 +36,7 @@ export default BaseTabModel.extend(...mixins, {
    * @virtual
    * @type {Models.File}
    */
-  file: undefined,
+  files: undefined,
 
   /**
    * @virtual
@@ -83,10 +83,10 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
    */
-  viewModel: computed('file', 'space', function viewModel() {
+  viewModel: computed('files.[]', 'space', function viewModel() {
     return FilePermissionsViewModel.create({
       ownerSource: this,
-      file: this.file,
+      files: this.files,
       space: this.space,
       ...this.viewModelCreateData,
     });

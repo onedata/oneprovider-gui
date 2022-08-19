@@ -47,9 +47,8 @@ export default EmberObject.extend(OwnerInjector, {
   },
 
   createPermissionsTabModel(options) {
-    console.log('create');
     return PermissionsTabModel.extend({
-      file: reads('fileInfoModal.file'),
+      files: reads('fileInfoModal.files'),
       space: reads('fileInfoModal.space'),
     }).create({
       viewModelCreateData: { ...options },

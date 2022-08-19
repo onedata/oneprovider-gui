@@ -106,7 +106,6 @@
         {{/if}}
 
         {{#each visibleTabsModels as |tabModel|}}
-          {{log tabModel.tabId}}
           {{#nav.item
             active=(eq tab.activeId tabModel.tabId)
             as |navItem|

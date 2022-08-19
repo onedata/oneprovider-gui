@@ -9,6 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import { reads } from '@ember/object/computed';
 
 const mixins = [
   I18n,
@@ -23,4 +24,29 @@ export default Component.extend(...mixins, {
    * @override
    */
   i18nPrefix: 'components.filePermissions.header',
+
+  /**
+   * @virtual
+   * @type {Utils.FilePermissionsViewModel}
+   */
+  viewModel: undefined,
+
+  /**
+   * @type {Array<FilePermissionsType>}
+   */
+  permissionsTypes: Object.freeze(['posix', 'acl']),
+
+  /**
+   * @type {ComputedProperty<FilePermissionsType>}
+   */
+  activeTab: reads('viewModel.activePermissionsType'),
+
+  actions: {
+    /**
+     * @param {FilePermissionsType} tabId
+     */
+    changeTab(tabId) {
+      this.viewModel.changeTab(tabId);
+    },
+  },
 });
