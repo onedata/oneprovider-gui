@@ -238,6 +238,11 @@ export default Component.extend(...mixins, {
   /**
    * @type {Utils.BrowsableArchive}
    */
+  archivesToCancel: null,
+
+  /**
+   * @type {Utils.BrowsableArchive}
+   */
   archivesToShowSettings: null,
 
   //#endregion action modals state

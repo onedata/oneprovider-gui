@@ -18,8 +18,8 @@ import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
-import { all as allFulfilled } from 'rsvp';
-import { conditional, equal, raw, array, and } from 'ember-awesome-macros';
+import { all as allFulfilled, allSettled } from 'rsvp';
+import { conditional, equal, raw, array, and, or } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -37,11 +37,13 @@ const allButtonNames = Object.freeze([
   'btnDownloadTar',
   'btnBrowseDip',
   'btnDelete',
+  'btnCancel',
 ]);
 
 export default BaseBrowserModel.extend(DownloadInBrowser, {
   modalManager: service(),
   datasetManager: service(),
+  archiveManager: service(),
 
   // required by DownloadInBrowser mixin
   fileManager: service(),
@@ -184,13 +186,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  buttonNames: computed('attachmentState', function buttonNames() {
-    if (this.get('attachmentState') === 'detached') {
-      return _.without(allButtonNames, 'btnCreateArchive');
-    } else {
-      return [...allButtonNames];
+  buttonNames: computed(
+    'attachmentState',
+    'isAnySelectedCreating',
+    function buttonNames() {
+      const {
+        attachmentState,
+        isAnySelectedCreating,
+      } = this.getProperties(
+        'attachmentState',
+        'isAnySelectedCreating',
+      );
+      let visibleButtons = [...allButtonNames];
+      if (attachmentState === 'detached') {
+        visibleButtons = _.without(visibleButtons, 'btnCreateArchive');
+      }
+      if (!isAnySelectedCreating) {
+        visibleButtons = _.without(visibleButtons, 'btnCancel');
+      }
+      return visibleButtons;
     }
-  }),
+  ),
 
   /**
    * @type {Looper}
@@ -209,6 +225,31 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'selectedItems',
     raw('metaState'),
     raw('creating')
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isAnySelectedEndedIncomplete: or(
+    array.isAny(
+      'selectedItems',
+      raw('metaState'),
+      raw('failed')
+    ),
+    array.isAny(
+      'selectedItems',
+      raw('metaState'),
+      raw('cancelled')
+    ),
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isAnySelectedCancelling: array.isAny(
+    'selectedItems',
+    raw('state'),
+    raw('cancelling')
   ),
 
   selectedArchiveHasDip: and(
@@ -359,21 +400,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'attachmentState',
     'spacePrivileges.{manageDatasets,createArchives}',
     'isAnySelectedCreating',
+    'isAnySelected',
+    'isAnySelectedEndedIncomplete',
     function btnCreateArchive() {
       const {
         spacePrivileges,
         attachmentState,
         isAnySelectedCreating,
+        isAnySelectedEndedIncomplete,
         i18n,
       } = this.getProperties(
         'spacePrivileges',
         'attachmentState',
         'isAnySelectedCreating',
+        'isAnySelectedEndedIncomplete',
         'i18n',
       );
       let disabledTip;
       if (isAnySelectedCreating) {
         disabledTip = this.t('notAvailableForCreating');
+      } else if (isAnySelectedEndedIncomplete) {
+        disabledTip = this.t('notAvailableForIncomplete');
       } else if (attachmentState === 'detached') {
         disabledTip = this.t('notAvailableForDetached');
       } else {
@@ -409,14 +456,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnRecall: computed(
     'spacePrivileges.recallArchives',
     'isAnySelectedCreating',
+    'isAnySelectedEndedIncomplete',
     function btnDelete() {
       const {
         isAnySelectedCreating,
+        isAnySelectedEndedIncomplete,
         spacePrivileges,
         i18n,
       } =
       this.getProperties(
         'isAnySelectedCreating',
+        'isAnySelectedEndedIncomplete',
         'spacePrivileges',
         'i18n',
       );
@@ -424,6 +474,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       let disabledTip;
       if (isAnySelectedCreating) {
         disabledTip = this.t('notAvailableForCreating');
+      } else if (isAnySelectedEndedIncomplete) {
+        disabledTip = this.t('notAvailableForIncomplete');
       } else if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,
@@ -488,6 +540,45 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         disabled: Boolean(disabledTip),
         action: (archives) => {
           return this.openDeleteModal(archives);
+        },
+        showIn: [
+          ...anySelectedContexts,
+        ],
+      });
+    }
+  ),
+
+  btnCancel: computed(
+    'isAnySelectedCancelling',
+    function btnCancel() {
+      const {
+        i18n,
+        spacePrivileges,
+        isAnySelectedCancelling,
+      } = this.getProperties(
+        'i18n',
+        'spacePrivileges',
+        'isAnySelectedCancelling',
+      );
+      let disabledTip;
+      const hasPrivileges = spacePrivileges.createArchives;
+      if (isAnySelectedCancelling) {
+        disabledTip = this.t('alreadyCancelling');
+      } else if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_create_archives'],
+        });
+      }
+      return this.createFileAction({
+        id: 'cancel',
+        icon: 'cancelled',
+        title: this.t('fileActions.cancel'),
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
+        action: (archives) => {
+          return this.openCancelModal(archives);
         },
         showIn: [
           ...anySelectedContexts,
@@ -564,5 +655,46 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       archive: dipArchiveId,
     });
     return parentAppNavigation.openUrl(url);
+  },
+
+  /**
+   * @type {(archives: Array<Utils.BrowsableArchive>) => any}
+   */
+  openCancelModal(archives) {
+    const isMultiple = archives.length > 1;
+    return this.modalManager.show('question-modal', {
+      headerIcon: 'sign-warning-rounded',
+      headerText: this.t('cancelModal.header'),
+      descriptionParagraphs: [{
+        text: this.t(
+          `cancelModal.message.${isMultiple ? 'multi' : 'single'}`, {
+            archivesCount: archives.length,
+          }
+        ),
+      }],
+      yesButtonText: this.t('cancelModal.yes'),
+      yesButtonType: 'warning',
+      noButtonText: this.t('cancelModal.no'),
+      onSubmit: async () => {
+        const submitResult = await this.cancelMultipleArchivization(archives);
+        const firstRejected = submitResult.findBy('state', 'rejected');
+        if (firstRejected) {
+          const error = get(firstRejected, 'reason');
+          this.globalNotify.backendError(
+            this.t('cancelModal.cancelling'),
+            error
+          );
+          throw error;
+        }
+        return submitResult;
+      },
+    }).hiddenPromise;
+  },
+
+  async cancelMultipleArchivization(archives) {
+    const archiveManager = this.archiveManager;
+    return await allSettled(archives.map(archive =>
+      archiveManager.cancelArchivization(archive)
+    ));
   },
 });

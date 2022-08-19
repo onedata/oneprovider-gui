@@ -21,25 +21,27 @@ export const validArchiveStates = Object.freeze([
   'pending',
   'building',
   'verifying',
+  'cancelling',
   'preserved',
+  'cancelled',
   'verification_failed',
   'failed',
   'deleting',
 ]);
 
 /**
- * @typedef {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'deleting'} ArchiveState
+ * @typedef {'pending'|'building'|'verifying'|'cancelling'|'preserved'|'cancelled'|'verification_failed'|'failed'|'deleting'} ArchiveState
  */
 
 /**
- * @typedef {'creating'|'succeeded'|'failed'|'destroying'} ArchiveMetaState
+ * @typedef {'creating'|'succeeded'|'cancelled'|'failed'|'destroying'} ArchiveMetaState
  */
 
 export default Model.extend(GraphSingleModelMixin, {
   index: attr('string'),
 
   /**
-   * @type {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'deleting'}
+   * @type {ArchiveState}
    */
   state: attr('string'),
 
@@ -125,7 +127,7 @@ export default Model.extend(GraphSingleModelMixin, {
 
   /**
    * A less-detailed state of archive to simplify state presentation.
-   * Flow: creating -> succeeded or failed -> destroying
+   * Flow: creating -> succeeded, cancelled or failed -> destroying
    * @type {ArchiveMetaState}
    */
   metaState: computed('state', function metaState() {
@@ -133,9 +135,12 @@ export default Model.extend(GraphSingleModelMixin, {
       case 'pending':
       case 'building':
       case 'verifying':
+      case 'cancelling':
         return 'creating';
       case 'preserved':
         return 'succeeded';
+      case 'cancelled':
+        return 'cancelled';
       case 'verification_failed':
       case 'failed':
         return 'failed';

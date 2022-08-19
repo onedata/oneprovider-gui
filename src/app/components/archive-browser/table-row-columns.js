@@ -55,6 +55,7 @@ export default FbTableRowColumns.extend({
   stateClassMapping: Object.freeze({
     creating: 'infinite animated pulse-mint',
     succeeded: '',
+    cancelled: 'text-warning-orange',
     failed: 'text-danger',
     destroying: 'infinite animated pulse-orange',
   }),

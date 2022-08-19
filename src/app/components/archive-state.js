@@ -36,6 +36,7 @@ export default Component.extend(I18n, {
   stateClassMapping: Object.freeze({
     creating: '',
     succeeded: '',
+    cancelled: '',
     failed: '',
     destroying: '',
   }),

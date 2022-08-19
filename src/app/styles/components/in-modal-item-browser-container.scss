@@ -5,6 +5,9 @@
     padding-left: $content-col-padding + $file-browser-padding-left;
     padding-right: $content-col-padding;
     padding-top: 0;
+    @media (max-width: $screen-xs-max) {
+      padding-left: $file-browser-padding-left;
+    }
   }
   .fb-table {
     // there is no need for large bottom spacing in modal, because it should be compact

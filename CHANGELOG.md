@@ -6,7 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
-* VFS-9737 Fixed wrong metadata editor permissions check
+* VFS-9164 Added cancel archivisation action for building archive
 * VFS-9665 Moved directory size statistics configuration to Onezone
 * VFS-9472 Added storage locations for file in data distribution and file info modal
 * VFS-9604 Moved file metadata settings from separate modal to file info panel
