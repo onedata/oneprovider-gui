@@ -264,4 +264,15 @@ export default EmberObject.extend(...mixins, {
       });
     }
   },
+
+  /**
+   * @param {FilePermissionsType} mode
+   */
+  onActivePermissionsTypeChange(mode) {
+    this.set('activePermissionsType', mode);
+
+    if (mode === 'acl') {
+      this.initAclValuesOnProxyLoad();
+    }
+  },
 });
