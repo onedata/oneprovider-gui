@@ -12,8 +12,12 @@
   triggerRender=aclViewActive
   class=(unless aclViewActive "hidden")
 }}
-  {{!-- FIXME: make sure loading is rendered fine --}}
   {{#promise-proxy-container proxy=aclsProxy}}
+    {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}
+      <div class="alert alert-warning alert-simple-info">
+        {{tt this "differentAcl"}}
+      </div>
+    {{/if}}
     {{acl-editor
       users=spaceUsers
       groups=spaceGroups

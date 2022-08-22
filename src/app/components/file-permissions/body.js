@@ -38,6 +38,8 @@ export default Component.extend(...mixins, {
 
   posixPermissionsCompatible: reads('viewModel.posixPermissionsCompatible'),
 
+  filesHaveCompatibleAcl: reads('viewModel.filesHaveCompatibleAcl'),
+
   initialPosixPermissions: reads('viewModel.initialPosixPermissions'),
 
   initialAcl: reads('viewModel.initialAcl'),

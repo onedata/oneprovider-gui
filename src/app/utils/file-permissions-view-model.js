@@ -185,10 +185,29 @@ export default EmberObject.extend(...mixins, {
     'isPosixPermissionsIncompatibilityAccepted'
   ),
 
+  /**
+   * True only if all files have consistent ACLs.
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  filesHaveCompatibleAcl: computed(
+    'acls',
+    function filesHaveCompatibleAcl() {
+      const acls = this.get('acls');
+      if (acls) {
+        if (get(acls, 'length') === 1) {
+          return true;
+        } else {
+          const firstFileAcl = acls[0];
+          return acls.every(acl => _.isEqual(acl, firstFileAcl));
+        }
+      } else {
+        return false;
+      }
+    }
+  ),
+
   // FIXME: implement
   isPosixPermissionsIncompatibilityAccepted: false,
-
-  filesHaveCompatibleAcl: true,
 
   init() {
     this._super(...arguments);
