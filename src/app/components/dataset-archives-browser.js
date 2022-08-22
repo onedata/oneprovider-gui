@@ -194,8 +194,7 @@ export default Component.extend(...mixins, {
   fileToShowInfo: null,
 
   /**
-   * One of: general, hardlinks.
-   * @type {String}
+   * @type {FileInfoTabId} activeTab
    */
   showInfoInitialTab: undefined,
 
@@ -235,6 +234,11 @@ export default Component.extend(...mixins, {
    * @type {Utils.BrowsableArchive}
    */
   archivesToDelete: null,
+
+  /**
+   * @type {Utils.BrowsableArchive}
+   */
+  archivesToCancel: null,
 
   /**
    * @type {Utils.BrowsableArchive}
@@ -647,7 +651,6 @@ export default Component.extend(...mixins, {
       archiveDipMode: reads('ownerSource.archiveDipMode'),
       onArchiveDipModeChange: this.changeArchiveDipMode.bind(this),
       openInfo: this.openInfoModal.bind(this),
-      openMetadata: this.openMetadataModal.bind(this),
       openShare: this.openShareModal.bind(this),
       openEditPermissions: this.openEditPermissionsModal.bind(this),
       openFileDistribution: this.openFileDistributionModal.bind(this),
@@ -699,6 +702,10 @@ export default Component.extend(...mixins, {
     this.set('archivesToDelete', null);
   },
 
+  /**
+   * @param {Models.File} file
+   * @param {FileInfoTabId} activeTab
+   */
   openInfoModal(file, activeTab) {
     this.setProperties({
       fileToShowInfo: file,
@@ -707,10 +714,6 @@ export default Component.extend(...mixins, {
   },
   closeInfoModal() {
     this.set('fileToShowInfo', null);
-  },
-
-  openMetadataModal(file) {
-    this.set('fileToShowMetadata', file);
   },
 
   closeMetadataModal() {

@@ -110,11 +110,12 @@ export default OneEmbeddedComponent.extend(
 
     fileToShowInfo: undefined,
 
+    /**
+     * @type {FileInfoTabId} activeTab
+     */
     showInfoInitialTab: undefined,
 
     fileToShowRecallInfo: undefined,
-
-    fileToShowMetadata: undefined,
 
     /**
      * Initialized on init.
@@ -305,7 +306,6 @@ export default OneEmbeddedComponent.extend(
         openRename: this.openRenameModal.bind(this),
         openInfo: this.openInfoModal.bind(this),
         openRecallInfo: this.openRecallInfoModal.bind(this),
-        openMetadata: this.openMetadataModal.bind(this),
         openShare: this.openShareModal.bind(this),
         openDatasets: this.openDatasetsModal.bind(this),
         openEditPermissions: this.openEditPermissionsModal.bind(this),
@@ -443,6 +443,11 @@ export default OneEmbeddedComponent.extend(
     openRenameModal(file) {
       this.set('fileToRename', file);
     },
+
+    /**
+     * @param {Models.File} file
+     * @param {FileInfoTabId} activeTab
+     */
     openInfoModal(file, activeTab) {
       this.setProperties({
         fileToShowInfo: file,
@@ -451,9 +456,6 @@ export default OneEmbeddedComponent.extend(
     },
     openRecallInfoModal(file) {
       this.set('fileToShowRecallInfo', file);
-    },
-    openMetadataModal(file) {
-      this.set('fileToShowMetadata', file);
     },
     openDatasetsModal(files) {
       this.set('filesToShowDatasets', files);
@@ -481,9 +483,6 @@ export default OneEmbeddedComponent.extend(
     },
     closeRecallInfoModal() {
       this.set('fileToShowRecallInfo', null);
-    },
-    closeMetadataModal() {
-      this.set('fileToShowMetadata', null);
     },
     closeShareModal() {
       this.set('fileToShare', null);
@@ -513,7 +512,6 @@ export default OneEmbeddedComponent.extend(
       this.closeRemoveModal();
       this.closeRenameModal();
       this.closeInfoModal();
-      this.closeMetadataModal();
       this.closeShareModal();
       this.closeEditPermissionsModal();
       this.closeFileDistributionModal();

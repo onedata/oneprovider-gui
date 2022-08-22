@@ -170,10 +170,39 @@ export default Service.extend({
     try {
       await archive.reload();
     } catch (error) {
-      console.dir(error);
       if (!error || error && error.id !== 'notFound') {
         console.error(
           'services:archive-manager#deleteArchive: error updating archive',
+          error
+        );
+      }
+    }
+    return deleteResponse;
+  },
+
+  /**
+   * @param {Models.Archive} archive
+   * @returns {Promise}
+   */
+  async cancelArchivization(archive) {
+    const onedataGraph = this.get('onedataGraph');
+    const deleteResponse = await onedataGraph.request({
+      operation: 'create',
+      gri: gri({
+        entityType: archiveEntityType,
+        entityId: get(archive, 'entityId'),
+        aspect: 'cancel',
+        scope: 'private',
+      }),
+      subscribe: false,
+    });
+
+    try {
+      await archive.reload();
+    } catch (error) {
+      if (!error || error && error.id !== 'notFound') {
+        console.error(
+          'services:archive-manager#cancelArchivization: error updating archive',
           error
         );
       }

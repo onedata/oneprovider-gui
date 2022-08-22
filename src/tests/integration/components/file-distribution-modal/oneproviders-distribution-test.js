@@ -26,6 +26,9 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
     fileType: type || 'file',
     fileSize: 1024,
     isFileDistributionLoaded: true,
+    file: {
+      type,
+    },
     fileDistribution: {
       providerkrk: {
         success: successOnKrakow,
@@ -421,6 +424,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           const fileId = 'someFileId';
           const file = EmberObject.create({
             entityId: fileId,
+            belongsTo(relation) {
+              if (relation === 'storageLocations') {
+                return { reload() { return ''; } };
+              }
+            },
           });
           const transfer = {
             belongsTo(relation) {
@@ -443,12 +451,28 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
               endedCount: 1,
             };
           }
+          const storageLocations = {
+            locationsPerProvider: {
+              providerkrk: {
+                locationsPerStorage: {
+                  storage: null,
+                },
+              },
+              providerpar: {
+                locationsPerStorage: {
+                  storage: null,
+                },
+              },
+            },
+          };
           const fetchTransfers = sinon.stub().resolves(transfers);
+          const fetchStorageLocations = sinon.stub().resolves(storageLocations);
           const fetchFileDistributionModel = sinon.stub().resolves();
           const fileDistributionData = [FileDistributionDataContainer.create({
             transferManager: null,
             onedataConnection: null,
             fetchTransfers,
+            fetchStorageLocations,
             file,
             fetchFileDistributionModel,
             fileDistribution: createFileDistributionContainerStub().fileDistribution,

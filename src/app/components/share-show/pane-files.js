@@ -3,7 +3,7 @@
  *
  * @module components/share-show/pane-files
  * @author Jakub Liput
- * @copyright (C) 2020-2021 ACK CYFRONET AGH
+ * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -84,7 +84,10 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
 
   fileToShowInfo: null,
 
-  fileToShowMetadata: null,
+  /**
+   * @type {FileInfoTabId} activeTab
+   */
+  showInfoInitialTab: undefined,
 
   fileForConfirmDownload: null,
 
@@ -213,20 +216,22 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
       rootIcon: 'share',
       readonlyFilesystem: true,
       openInfo: this.openInfoModal.bind(this),
-      openMetadata: this.openMetadataModal.bind(this),
     });
   },
 
-  openInfoModal(file) {
-    this.set('fileToShowInfo', file);
+  /**
+   * @param {Models.File} file
+   * @param {FileInfoTabId} activeTab
+   */
+  openInfoModal(file, activeTab) {
+    this.setProperties({
+      fileToShowInfo: file,
+      showInfoInitialTab: activeTab || 'general',
+    });
   },
 
   closeInfoModal() {
     this.set('fileToShowInfo', null);
-  },
-
-  openMetadataModal(file) {
-    this.set('fileToShowMetadata', file);
   },
 
   closeMetadataModal() {

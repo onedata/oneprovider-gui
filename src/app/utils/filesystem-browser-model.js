@@ -4,7 +4,7 @@
  *
  * @module utils/filesystem-browser-model
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -86,13 +86,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @param {Models.File} file file to show recall state modal
    */
   openRecallInfo: notImplementedThrow,
-
-  /**
-   * @virtual
-   * @type {Function}
-   * @param {Models.File} file file to edit its metadata
-   */
-  openMetadata: notImplementedThrow,
 
   /**
    * @virtual
@@ -471,7 +464,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: (files) => {
-        return this.get('openMetadata')(files[0]);
+        return this.get('openInfo')(files[0], 'metadata');
       },
       showIn: [
         actionContext.singleDir,

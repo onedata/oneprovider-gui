@@ -19,7 +19,8 @@ import { computed } from '@ember/object';
 
 export default EmberObject.extend(
   createDataProxyMixin('fileDistributionModel'),
-  createDataProxyMixin('transfers'), {
+  createDataProxyMixin('transfers'),
+  createDataProxyMixin('storageLocations'), {
     transferManager: service(),
     onedataConnection: service(),
 
@@ -124,6 +125,11 @@ export default EmberObject.extend(
     fileDistribution: reads('fileDistributionModel.distributionPerProvider'),
 
     /**
+     * @type {ComputedProperty<LocationsPerProvider>}
+     */
+    storageLocationsPerProvider: reads('storageLocations.locationsPerProvider'),
+
+    /**
      * @type {Ember.ComputedProperty<Array<Models.Transfer>>}
      */
     activeTransfers: reads('transfers.ongoingTransfers'),
@@ -139,6 +145,12 @@ export default EmberObject.extend(
      * @type {Ember.ComputedProperty<boolean>}
      */
     endedTransfersOverflow: reads('transfers.endedOverflow'),
+
+    /**
+     * If true, storage locations will be reloaded 
+     * @type {Boolean}
+     */
+    isStorageLocationsUpdated: true,
 
     pollingTimeObserver: observer('pollingTime', function pollingTimeObserver() {
       const {
@@ -232,6 +244,11 @@ export default EmberObject.extend(
       }));
     },
 
+    fetchStorageLocations() {
+      const file = this.get('file');
+      return file.belongsTo('storageLocations').reload();
+    },
+
     /**
      * @returns {Promise}
      */
@@ -245,6 +262,8 @@ export default EmberObject.extend(
         this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
         !get(transfersProxy, 'isRejected') ?
         this.updateTransfersProxy({ replace: true }) : resolve(),
+        this.get('isStorageLocationsUpdated') ?
+        this.updateStorageLocationsProxy({ replace: true }) : resolve(),
       ]);
     },
 

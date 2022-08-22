@@ -1,0 +1,37 @@
+<form role="form" class="form form-horizontal" onkeypress={{ignore-enter}}>
+  {{#if readonly}}
+    {{#each metadataForPreview key="key" as |item|}}
+      <div class="col-xs-12 form-group">
+        <div class="row">
+          <div class="label-column col-xs-12 col-sm-5 control-label">
+            <div class="one-inline-editor static">
+              {{#truncated-string}}{{item.key}}{{/truncated-string}}
+              <span class="action-icons">
+                {{one-icon icon="lock"}}
+              </span>
+            </div>
+          </div>
+          <div class="form-control-column col-xs-12 col-sm-7">
+            {{one-clipboard-line
+              value=item.value
+              inputValue="qos-field"
+            }}
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  {{else}}
+    {{!-- TODO: VFS-9695 remove used of lastResetTime --}}
+    {{qos-params-editor
+      mode="edit"
+      qosParams=metadataForEditor
+      isFormOpened=true
+      class="xattrs-params-editor"
+      showHeader=false
+      layoutConfig=layoutConfig
+      lastResetTime=lastResetTime
+      onChange=(action "xattrsChanged")
+      validateKey=(action "validateKey")
+    }}
+  {{/if}}
+</form>
