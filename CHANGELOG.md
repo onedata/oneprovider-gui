@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9531 Improved automation store content browser
 * VFS-9164 Added cancel archivisation action for building archive
 * VFS-9665 Moved directory size statistics configuration to Onezone
 * VFS-9472 Added storage locations for file in data distribution and file info modal
