@@ -206,8 +206,20 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
+  /**
+   * True if ACLs are not conflicted or conflict was accepted.
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  aclCompatible: or(
+    'filesHaveCompatibleAcl',
+    'isAclIncompatibilityAccepted'
+  ),
+
   // FIXME: implement
   isPosixPermissionsIncompatibilityAccepted: false,
+
+  // FIXME: implement
+  isAclIncompatibilityAccepted: false,
 
   init() {
     this._super(...arguments);

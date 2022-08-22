@@ -13,8 +13,14 @@ describe('Integration | Component | file-permissions/body', function () {
   it('renders visible POSIX permissions editor when all files permissions are the same POSIX', async function () {
     const helper = new Helper(this);
     helper.files = await allSettled([
-      helper.createFile(),
-      helper.createFile(),
+      helper.createFile({
+        activePermissionsType: 'posix',
+        posixPermissions: '644',
+      }),
+      helper.createFile({
+        activePermissionsType: 'posix',
+        posixPermissions: '644',
+      }),
     ]);
 
     await helper.render();
@@ -23,6 +29,7 @@ describe('Integration | Component | file-permissions/body', function () {
     const posixEditor = helper.getPosixPermissionsEditor();
     expect(element).to.exist;
     expect(posixEditor).to.not.have.class('hidden');
+    expect(find('.alert')).to.not.exist;
   });
 
   it('renders incompatible POSIX permissions alert when files permissions different POSIX', async function () {
@@ -73,7 +80,7 @@ describe('Integration | Component | file-permissions/body', function () {
     expect(aclEditor).to.not.have.class('hidden');
   });
 
-  it('renders different ACL alert when both files have ACL but with different rules', async function () {
+  it('renders "different ACL" alert when both files have ACL but with different rules', async function () {
     const helper = new Helper(this);
     const acls = await allSettled([
       helper.createAcl([helper.createExampleAce(0)]),
@@ -99,7 +106,7 @@ describe('Integration | Component | file-permissions/body', function () {
     expect(alertElement).to.contain.text('Selected files have different ACL rules.');
   });
 
-  it('renders different ACL alert when one file have POSIX and other ACL', async function () {
+  it('renders "different ACL" alert when one file have POSIX and other ACL', async function () {
     const helper = new Helper(this);
     const acls = await allSettled([
       helper.createAcl([]),
@@ -120,10 +127,13 @@ describe('Integration | Component | file-permissions/body', function () {
     await helper.render();
 
     const element = helper.getElement();
+    const aclEditor = helper.getAclPermissionsEditor();
     const alertElement = element.querySelector('.alert');
     expect(alertElement).to.exist;
     expect(alertElement).to.have.class('alert-warning');
     expect(alertElement).to.contain.text('Selected files have different ACL rules.');
+    expect(element).to.exist;
+    expect(aclEditor).to.have.class('hidden');
   });
 });
 
