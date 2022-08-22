@@ -84,6 +84,10 @@ export default EmberObject.extend(...mixins, {
    */
   acl: undefined,
 
+  isPosixPermissionsIncompatibilityAccepted: false,
+
+  isAclIncompatibilityAccepted: false,
+
   //#endregion
 
   /**
@@ -215,11 +219,22 @@ export default EmberObject.extend(...mixins, {
     'isAclIncompatibilityAccepted'
   ),
 
-  // FIXME: implement
-  isPosixPermissionsIncompatibilityAccepted: false,
+  acceptPosixIncompatibility() {
+    this.set('isPosixPermissionsIncompatibilityAccepted', true);
+    this.markPermissionsTypeAsEdited('posix');
+  },
 
-  // FIXME: implement
-  isAclIncompatibilityAccepted: false,
+  acceptAclIncompatibility() {
+    this.set('isAclIncompatibilityAccepted', true);
+    this.markPermissionsTypeAsEdited('acl');
+  },
+
+  markPermissionsTypeAsEdited(permissionsType) {
+    this.set(
+      'editedPermissionsTypes',
+      [...this.get('editedPermissionsTypes'), permissionsType].uniq()
+    );
+  },
 
   init() {
     this._super(...arguments);

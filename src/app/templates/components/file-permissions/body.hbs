@@ -1,6 +1,16 @@
 {{#if (and posixViewActive (not filesHaveCompatiblePosixPermissions))}}
   <div class="alert alert-warning alert-simple-info">
     {{tt this "differentPosix"}}
+    {{#unless posixPermissionsCompatible}}
+      <div class="row alert-simple-info-btn">
+        {{#bs-button
+          class="btn btn-warning btn-sm open-posix-editor"
+          onClick=(action "acceptPosixIncompatibility")
+        }}
+          {{tt this "editAnyway"}}
+        {{/bs-button}}
+      </div>
+    {{/unless}}
   </div>
 {{/if}}
 {{posix-permissions-editor
@@ -16,6 +26,15 @@
     {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}
       <div class="alert alert-warning alert-simple-info">
         {{tt this "differentAcl"}}
+        {{#unless aclCompatible}}
+          <div class="row alert-simple-info-btn">
+            {{#bs-button
+              class="btn btn-warning btn-sm open-acl-editor"
+              onClick=(action "acceptAclIncompatibility")}}
+              {{tt this "editAnyway"}}
+            {{/bs-button}}
+          </div>
+        {{/unless}}
       </div>
     {{/if}}
     {{acl-editor

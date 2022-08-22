@@ -6,6 +6,8 @@ import { find } from '@ember/test-helpers';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
 import { lookupService } from '../../../helpers/stub-service';
 import { all as allSettled } from 'rsvp';
+import { findByText } from '../../../helpers/find';
+import { click } from '@ember/test-helpers';
 
 describe('Integration | Component | file-permissions/body', function () {
   setupRenderingTest();
@@ -34,17 +36,11 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders incompatible POSIX permissions alert when files permissions different POSIX', async function () {
     const helper = new Helper(this);
-    helper.files = await allSettled([
-      helper.createFile({ posixPermissions: '644' }),
-      helper.createFile({ posixPermissions: '777' }),
-    ]);
+    await helper.givenDifferentPosix();
 
     await helper.render();
 
-    const element = helper.getElement();
-    const posixEditor = helper.getPosixPermissionsEditor();
-    expect(element).to.exist;
-    expect(posixEditor).to.have.class('hidden');
+    helper.thenExpectHiddenPosixEditor();
     const alertElement = find('.alert');
     expect(alertElement).to.exist;
     expect(alertElement).to.have.class('alert-warning');
@@ -82,20 +78,7 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders "different ACL" alert when both files have ACL but with different rules', async function () {
     const helper = new Helper(this);
-    const acls = await allSettled([
-      helper.createAcl([helper.createExampleAce(0)]),
-      helper.createAcl([helper.createExampleAce(1)]),
-    ]);
-    helper.files = await allSettled([
-      helper.createFile({
-        activePermissionsType: 'acl',
-        acl: acls[0],
-      }),
-      helper.createFile({
-        activePermissionsType: 'acl',
-        acl: acls[1],
-      }),
-    ]);
+    await helper.givenDifferentAcl();
 
     await helper.render();
 
@@ -134,6 +117,26 @@ describe('Integration | Component | file-permissions/body', function () {
     expect(alertElement).to.contain.text('Selected files have different ACL rules.');
     expect(element).to.exist;
     expect(aclEditor).to.have.class('hidden');
+  });
+
+  it('unhides POSIX editor when clicking on "Edit anyway" from "different alert"', async function () {
+    const helper = new Helper(this);
+    await helper.givenDifferentPosix();
+    await helper.render();
+
+    await helper.whenEditAnywayIsClicked();
+
+    helper.thenExpectVisiblePosixEditor();
+  });
+
+  it('unhides ACL editor when clicking on "Edit anyway" from "different alert"', async function () {
+    const helper = new Helper(this);
+    await helper.givenDifferentAcl();
+    await helper.render();
+
+    await helper.whenEditAnywayIsClicked();
+
+    helper.thenExpectVisibleAclEditor();
   });
 });
 
@@ -213,5 +216,50 @@ class Helper {
   }
   getAclPermissionsEditor() {
     return this.getElement().querySelector('.acl-editor');
+  }
+
+  async givenDifferentPosix() {
+    this.files = await allSettled([
+      this.createFile({ posixPermissions: '644' }),
+      this.createFile({ posixPermissions: '777' }),
+    ]);
+  }
+  async givenDifferentAcl() {
+    const acls = await allSettled([
+      this.createAcl([this.createExampleAce(0)]),
+      this.createAcl([this.createExampleAce(1)]),
+    ]);
+    this.files = await allSettled([
+      this.createFile({
+        activePermissionsType: 'acl',
+        acl: acls[0],
+      }),
+      this.createFile({
+        activePermissionsType: 'acl',
+        acl: acls[1],
+      }),
+    ]);
+  }
+
+  async whenEditAnywayIsClicked() {
+    const editAnyway = findByText('Edit anyway', 'button');
+    expect(editAnyway, 'edit anyway button').exists;
+    await click(editAnyway);
+  }
+
+  async thenExpectVisiblePosixEditor() {
+    const posixEditor = this.getPosixPermissionsEditor();
+    expect(posixEditor).to.exist;
+    expect(posixEditor).to.not.have.class('hidden');
+  }
+  async thenExpectHiddenPosixEditor() {
+    const posixEditor = this.getPosixPermissionsEditor();
+    expect(posixEditor).to.exist;
+    expect(posixEditor).to.have.class('hidden');
+  }
+  async thenExpectVisibleAclEditor() {
+    const aclEditor = this.getPosixPermissionsEditor();
+    expect(aclEditor).to.exist;
+    expect(aclEditor).to.not.have.class('hidden');
   }
 }

@@ -59,4 +59,13 @@ export default Component.extend(...mixins, {
   systemSubjects: reads('viewModel.systemSubjects'),
 
   filesType: reads('viewModel.filesType'),
+
+  actions: {
+    acceptPosixIncompatibility() {
+      this.viewModel.acceptPosixIncompatibility();
+    },
+    acceptAclIncompatibility() {
+      this.viewModel.acceptAclIncompatibility();
+    },
+  },
 });
