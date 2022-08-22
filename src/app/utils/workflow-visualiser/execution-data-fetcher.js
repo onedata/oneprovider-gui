@@ -146,72 +146,11 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
    * @override
    */
   getStoreContentPresenterContext() {
-    const cache = this.atmStoreContentPresentersCache;
     return {
-      getSymbolicLinkTargetById: async (cdmiObjectId) => {
-        const fileId = cdmiObjectId && cdmiObjectIdToGuid(cdmiObjectId);
-        if (!fileId) {
-          return null;
-        }
-        if (fileId in cache.symbolicLinkTargetById) {
-          return cache.symbolicLinkTargetById[fileId];
-        }
-        const file = await this.fileManager.getFileById(fileId);
-        const target = get(file, 'symlinkTargetFile');
-        const {
-          cdmiObjectId: targetCdmiObjectId,
-          type: targetType,
-          name: targetName,
-          size: targetSize,
-        } = getProperties(target, 'cdmiObjectId', 'type', 'name', 'size');
-        const result = {
-          file_id: targetCdmiObjectId,
-          type: serializedFileTypes[targetType],
-          name: targetName,
-          size: targetSize,
-        };
-        cache.symbolicLinkTargetById[fileId] = result;
-        return result;
-      },
-      getFilePathById: async (cdmiObjectId) => {
-        const fileId = cdmiObjectId && cdmiObjectIdToGuid(cdmiObjectId);
-        if (!fileId) {
-          return null;
-        }
-        if (fileId in cache.filePathById) {
-          return cache.filePathById[fileId];
-        }
-        const file = await this.fileManager.getFileById(fileId);
-        const filePathRecords = await resolveFilePath(file);
-        const result = stringifyFilePath(filePathRecords);
-        cache.filePathById[fileId] = result;
-        return result;
-      },
-      getFileUrlById: async (cdmiObjectId) => {
-        const fileId = cdmiObjectId && cdmiObjectIdToGuid(cdmiObjectId);
-        if (!fileId) {
-          return null;
-        }
-        if (fileId in cache.fileUrlById) {
-          return cache.fileUrlById[fileId];
-        }
-        const result = await this.filesViewResolver.generateUrlById(fileId);
-        cache.fileUrlById[fileId] = result;
-        return result;
-      },
-      getDatasetUrlById: async (datasetId) => {
-        if (!datasetId) {
-          return null;
-        }
-        if (datasetId in cache.datasetUrlById) {
-          return cache.datasetUrlById[datasetId];
-        }
-        const result = this.appProxy?.callParent('getDatasetsUrl', {
-          selectedDatasets: [datasetId],
-        }) || null;
-        cache.datasetUrlById[datasetId] = result;
-        return result;
-      },
+      getSymbolicLinkTargetById: this.getSymbolicLinkTargetById.bind(this),
+      getFilePathById: this.getFilePathById.bind(this),
+      getFileUrlById: this.getFileUrlById.bind(this),
+      getDatasetUrlById: this.getDatasetUrlById.bind(this),
       linkTarget: this.parentAppNavigation.navigateTarget,
     };
   },
@@ -678,5 +617,93 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     } else {
       return Number.parseInt(rawRunNumber);
     }
+  },
+
+  /**
+   * @param {string} cdmiObjectId
+   * @returns {Promise<AtmFile|null>}
+   */
+  async getSymbolicLinkTargetById(cdmiObjectId) {
+    const fileId = cdmiObjectId && cdmiObjectIdToGuid(cdmiObjectId);
+    if (!fileId) {
+      return null;
+    }
+    const cache = this.atmStoreContentPresentersCache;
+    if (fileId in cache.symbolicLinkTargetById) {
+      return cache.symbolicLinkTargetById[fileId];
+    }
+    const file = await this.fileManager.getFileById(fileId);
+    const target = get(file, 'symlinkTargetFile');
+    const {
+      cdmiObjectId: targetCdmiObjectId,
+      type: targetType,
+      name: targetName,
+      size: targetSize,
+    } = getProperties(target, 'cdmiObjectId', 'type', 'name', 'size');
+    const result = {
+      file_id: targetCdmiObjectId,
+      type: serializedFileTypes[targetType],
+      name: targetName,
+      size: targetSize,
+    };
+    cache.symbolicLinkTargetById[fileId] = result;
+    return result;
+  },
+
+  /**
+   * @param {string} cdmiObjectId
+   * @returns {Promise<string|null>}
+   */
+  async getFilePathById(cdmiObjectId) {
+    const fileId = cdmiObjectId && cdmiObjectIdToGuid(cdmiObjectId);
+    if (!fileId) {
+      return null;
+    }
+    const cache = this.atmStoreContentPresentersCache;
+    if (fileId in cache.filePathById) {
+      return cache.filePathById[fileId];
+    }
+    const file = await this.fileManager.getFileById(fileId);
+    const filePathRecords = await resolveFilePath(file);
+    const result = stringifyFilePath(filePathRecords);
+    cache.filePathById[fileId] = result;
+    return result;
+  },
+
+  /**
+   * @param {string} cdmiObjectId
+   * @returns {Promise<string|null>}
+   */
+  async getFileUrlById(cdmiObjectId) {
+    const fileId = cdmiObjectId && cdmiObjectIdToGuid(cdmiObjectId);
+    if (!fileId) {
+      return null;
+    }
+    const cache = this.atmStoreContentPresentersCache;
+    if (fileId in cache.fileUrlById) {
+      return cache.fileUrlById[fileId];
+    }
+    const result = await this.filesViewResolver.generateUrlById(fileId);
+    cache.fileUrlById[fileId] = result;
+    return result;
+  },
+
+  /**
+   * @param {string} datasetId
+   * @returns {Promise<string|null>}
+   */
+  async getDatasetUrlById(datasetId) {
+    if (!datasetId) {
+      return null;
+    }
+    const cache = this.atmStoreContentPresentersCache;
+    if (datasetId in cache.datasetUrlById) {
+      return cache.datasetUrlById[datasetId];
+    }
+    const result = this.appProxy?.callParent('getDatasetsUrl', {
+      selectedDatasets: [datasetId],
+    }) || null;
+    cache.datasetUrlById[datasetId] = result;
+    return result;
   },
 });
