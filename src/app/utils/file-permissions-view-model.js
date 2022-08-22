@@ -214,17 +214,17 @@ export default EmberObject.extend(...mixins, {
   /**
    * @override
    */
-  fetchSpaceUsers() {
-    return get(this.get('space'), 'effUserList')
-      .then(userList => get(userList, 'list'));
+  async fetchSpaceUsers() {
+    const effUserList = await get(this.space, 'effUserList');
+    return get(effUserList, 'list');
   },
 
   /**
    * @override
    */
-  fetchSpaceGroups() {
-    return get(this.get('space'), 'effGroupList')
-      .then(userList => get(userList, 'list'));
+  async fetchSpaceGroups() {
+    const effGroupList = await get(this.space, 'effGroupList');
+    return get(effGroupList, 'list');
   },
 
   /**

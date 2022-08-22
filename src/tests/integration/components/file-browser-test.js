@@ -736,7 +736,7 @@ function testOpenFileInfo({ openDescription, tabName, openFunction }) {
     expect(openInfo).to.have.been.calledOnce;
     expect(openInfo).to.have.been.calledWith(
       [this.item1],
-      'metadata',
+      tabName,
     );
   });
 }

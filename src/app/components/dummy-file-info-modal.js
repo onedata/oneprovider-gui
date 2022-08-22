@@ -63,6 +63,8 @@ export const file1 = {
   cdmiObjectId: exampleCdmiObjectId,
   modificationTime: Math.floor(Date.now() / 1000),
   owner: resolve(owner1),
+  posixPermissions: '644',
+  activePermissionsType: 'posix',
   storageLocations,
 };
 
