@@ -18,9 +18,31 @@ describe('Integration | Component | file-permissions/body', function () {
 
     await helper.render();
 
+    const element = helper.getElement();
     const posixEditor = helper.getPosixPermissionsEditor();
-    expect(helper.getElement()).to.exist;
+    expect(element).to.exist;
     expect(posixEditor).to.not.have.class('hidden');
+  });
+
+  it('renders incompatible POSIX permissions alert when files permissions different POSIX', async function () {
+    const helper = new Helper(this);
+    helper.files = [
+      helper.createFile({ posixPermissions: '644' }),
+      helper.createFile({ posixPermissions: '777' }),
+    ];
+
+    await helper.render();
+
+    const element = helper.getElement();
+    const posixEditor = helper.getPosixPermissionsEditor();
+    expect(element).to.exist;
+    expect(posixEditor).to.have.class('hidden');
+    const alertElement = find('.alert');
+    expect(alertElement).to.exist;
+    expect(alertElement).to.have.class('alert-warning');
+    expect(alertElement).to.contain.text(
+      'Selected files have different POSIX permissions.'
+    );
   });
 });
 

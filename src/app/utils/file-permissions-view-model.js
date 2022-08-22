@@ -8,7 +8,7 @@
 
 import EmberObject, { computed } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import { array, conditional, raw, equal } from 'ember-awesome-macros';
+import { array, conditional, raw, equal, or } from 'ember-awesome-macros';
 import { get, getProperties } from '@ember/object';
 import { Promise } from 'rsvp';
 import _ from 'lodash';
@@ -17,6 +17,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
 
 const mixins = [
   OwnerInjector,
@@ -166,9 +167,26 @@ export default EmberObject.extend(...mixins, {
     raw([]),
   ),
 
-  // FIXME: to implement
+  /**
+   * True only if all files have consistent `posixPermissions` value.
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  filesHaveCompatiblePosixPermissions: isEveryTheSame(
+    'files',
+    raw('posixPermissions')
+  ),
 
-  filesHaveCompatiblePosixPermissions: true,
+  /**
+   * True if Posix permissions are not conflicted or conflict was accepted.
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  posixPermissionsCompatible: or(
+    'filesHaveCompatiblePosixPermissions',
+    'isPosixPermissionsIncompatibilityAccepted'
+  ),
+
+  // FIXME: implement
+  isPosixPermissionsIncompatibilityAccepted: false,
 
   filesHaveCompatibleAcl: true,
 

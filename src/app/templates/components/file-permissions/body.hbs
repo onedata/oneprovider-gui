@@ -1,6 +1,11 @@
+{{#if (and posixViewActive (not filesHaveCompatiblePosixPermissions))}}
+  <div class="alert alert-warning alert-simple-info">
+    {{tt this "differentPosix"}}
+  </div>
+{{/if}}
 {{posix-permissions-editor
   initialPermissions=initialPosixPermissions
-  class=(if (not posixViewActive) "hidden")
+  class=(unless (and posixViewActive posixPermissionsCompatible) "hidden")
 }}
 {{#render-later
   tagName="div"

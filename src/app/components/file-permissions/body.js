@@ -36,6 +36,8 @@ export default Component.extend(...mixins, {
 
   aclViewActive: equal('viewModel.activePermissionsType', raw('acl')),
 
+  posixPermissionsCompatible: reads('viewModel.posixPermissionsCompatible'),
+
   initialPosixPermissions: reads('viewModel.initialPosixPermissions'),
 
   initialAcl: reads('viewModel.initialAcl'),

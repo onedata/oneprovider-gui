@@ -1,3 +1,3 @@
 export default {
-  // FIXME: implement or delete
+  differentPosix: 'Selected files have different POSIX permissions. You can edit them, but saving your changes will cause the permissions of all files to be <strong>irreversibly overwritten</strong> with the new ones.',
 };
