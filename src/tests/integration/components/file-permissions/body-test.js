@@ -247,18 +247,18 @@ class Helper {
     await click(editAnyway);
   }
 
-  async thenExpectVisiblePosixEditor() {
+  thenExpectVisiblePosixEditor() {
     const posixEditor = this.getPosixPermissionsEditor();
     expect(posixEditor).to.exist;
     expect(posixEditor).to.not.have.class('hidden');
   }
-  async thenExpectHiddenPosixEditor() {
+  thenExpectHiddenPosixEditor() {
     const posixEditor = this.getPosixPermissionsEditor();
     expect(posixEditor).to.exist;
     expect(posixEditor).to.have.class('hidden');
   }
-  async thenExpectVisibleAclEditor() {
-    const aclEditor = this.getPosixPermissionsEditor();
+  thenExpectVisibleAclEditor() {
+    const aclEditor = this.getAclPermissionsEditor();
     expect(aclEditor).to.exist;
     expect(aclEditor).to.not.have.class('hidden');
   }
