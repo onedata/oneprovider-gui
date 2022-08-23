@@ -60,6 +60,13 @@ export default Component.extend(I18n, {
   readonlyTip: '',
 
   /**
+   * @virtual
+   * @type {number}
+   */
+  // FIXME: comments
+  lastResetTime: undefined,
+
+  /**
    * Posix permissions visible to user (with modifications)
    * @type {Utils.PosixPermissions}
    */
@@ -70,18 +77,19 @@ export default Component.extend(I18n, {
    */
   isOctalInputValid: true,
 
+  lastResetTimeObserver: observer(
+    'lastResetTime',
+    function lastResetTimeObserver() {
+      this.setPermissionsFromInitial();
+    },
+  ),
+
   initialPermissionsObserver: observer(
     'initialPermissions',
     function initialPermissionsObserver() {
       // Init permissions object only one time
-      const {
-        initialPermissions,
-        permissions,
-      } = this.getProperties('initialPermissions', 'permissions');
-      if (initialPermissions && !permissions) {
-        const initialPermissionsObject = PosixPermissions.create();
-        initialPermissionsObject.fromOctalRepresentation(initialPermissions);
-        this.set('permissions', initialPermissionsObject);
+      if (this.initialPermissions && !this.permissions) {
+        this.setPermissionsFromInitial();
       }
     }
   ),
@@ -122,6 +130,12 @@ export default Component.extend(I18n, {
       permissions: isOctalInputValid ? octalPermissions : undefined,
       isValid: isOctalInputValid,
     });
+  },
+
+  setPermissionsFromInitial() {
+    const initialPermissionsObject = PosixPermissions.create();
+    initialPermissionsObject.fromOctalRepresentation(this.initialPermissions);
+    this.set('permissions', initialPermissionsObject);
   },
 
   actions: {

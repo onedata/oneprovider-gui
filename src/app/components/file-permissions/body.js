@@ -50,6 +50,8 @@ export default Component.extend(...mixins, {
 
   initialAcl: reads('viewModel.initialAcl'),
 
+  acl: reads('viewModel.acl'),
+
   aclsProxy: reads('viewModel.aclsProxy'),
 
   spaceUsers: reads('viewModel.spaceUsers'),
@@ -69,6 +71,9 @@ export default Component.extend(...mixins, {
     },
     posixPermissionsChanged(...args) {
       this.viewModel.onPosixPermissionsChanged(...args);
+    },
+    aclChanged(...args) {
+      this.viewModel.onAclChanged(...args);
     },
   },
 });

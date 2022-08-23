@@ -56,7 +56,7 @@ export default Component.extend(...mixins, {
 
     },
     discardChanges() {
-
+      this.viewModel.restoreOriginalPermissions();
     },
   },
 });

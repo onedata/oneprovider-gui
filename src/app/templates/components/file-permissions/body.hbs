@@ -14,6 +14,7 @@
   </div>
 {{/if}}
 {{posix-permissions-editor
+  lastResetTime=viewModel.lastResetTime
   initialPermissions=initialPosixPermissions
   onChange=(action "posixPermissionsChanged")
   class=(unless (and posixViewActive posixPermissionsCompatible) "hidden")
@@ -39,12 +40,14 @@
       </div>
     {{/if}}
     {{acl-editor
+      lastResetTime=lastResetTime
       users=spaceUsers
       groups=spaceGroups
       systemSubjects=systemSubjects
-      acl=initialAcl
+      acl=acl
       context=filesType
       class=(unless aclCompatible "hidden")
+      onChange=(action "aclChanged")
     }}
   {{/promise-proxy-container}}
 {{/render-later}}

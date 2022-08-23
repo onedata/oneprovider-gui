@@ -8,9 +8,16 @@
 
 import EmberObject, { computed } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import { array, conditional, raw, equal, or, bool } from 'ember-awesome-macros';
+import {
+  array,
+  conditional,
+  raw,
+  equal,
+  or,
+  bool,
+} from 'ember-awesome-macros';
 import { get, getProperties } from '@ember/object';
-import { Promise } from 'rsvp';
+import { all as allSettled } from 'rsvp';
 import _ from 'lodash';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -18,7 +25,6 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
-import { reads } from '@ember/object/computed';
 
 const mixins = [
   OwnerInjector,
@@ -60,10 +66,11 @@ export default EmberObject.extend(...mixins, {
   activePermissionsType: undefined,
 
   /**
-   * Array of changed permission types. May contain single type or both of them
+   * Array of changed permission types. May contain single type or both of them.
+   * Initialize on init.
    * @type {ComputedProperty<Array<FilePermissionsType>>}
    */
-  editedPermissionsTypes: computed(() => []),
+  editedPermissionsTypes: undefined,
 
   /**
    * String with octal value from posix editor, ready to be saved.
@@ -220,24 +227,6 @@ export default EmberObject.extend(...mixins, {
     'isAclIncompatibilityAccepted'
   ),
 
-  acceptPosixIncompatibility() {
-    this.set('isPosixPermissionsIncompatibilityAccepted', true);
-    this.markPermissionsTypeAsEdited('posix');
-  },
-
-  acceptAclIncompatibility() {
-    this.set('isAclIncompatibilityAccepted', true);
-    this.markPermissionsTypeAsEdited('acl');
-  },
-
-  markPermissionsTypeAsEdited(permissionsType) {
-    this.set(
-      'editedPermissionsTypes',
-      [...this.get('editedPermissionsTypes'), permissionsType].uniq()
-    );
-    console.log('marked as edited', permissionsType);
-  },
-
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
@@ -245,6 +234,7 @@ export default EmberObject.extend(...mixins, {
 
   init() {
     this._super(...arguments);
+    this.clearEditedPermissionsTypes();
 
     const {
       initialActivePermissionsType,
@@ -283,7 +273,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @override
    */
-  fetchAcls() {
+  async fetchAcls() {
     const {
       spaceUsersProxy,
       spaceGroupsProxy,
@@ -295,44 +285,72 @@ export default EmberObject.extend(...mixins, {
       'systemSubjects',
       'files'
     );
-    return Promise.all([spaceUsersProxy, spaceGroupsProxy])
-      // Fetch space users and groups
-      .then(([users, groups]) => Promise.all(files.map(file =>
-        // Fetch each file ACL
-        file.getRelation('acl', { reload: true }).then(acl =>
-          // Add subject (user/group model) to each ACE
-          get(acl, 'list').map(ace => {
-            const {
-              identifier,
-              aceFlags,
-            } = getProperties(ace, 'identifier', 'aceFlags');
-            let subject;
-            let subjectType;
-            if (identifier.indexOf('@') !== -1) {
-              subject = systemSubjects.findBy('entityId', identifier);
-              subjectType = get(subject, 'equivalentType') || 'group';
-            } else if (aceFlags & AceFlagsMasks.IDENTIFIER_GROUP) {
-              subject = groups.findBy('entityId', identifier);
-              subjectType = 'group';
-            } else {
-              subject = users.findBy('entityId', identifier);
-              subjectType = 'user';
-            }
-            return _.assign({ subject, subjectType }, ace);
-          })
-        )
-      )));
+    // Fetch space users and groups
+    const [
+      users,
+      groups,
+    ] = await allSettled([spaceUsersProxy, spaceGroupsProxy]);
+    // Fetch each file ACL
+    const aclPromises = files.map(async file => {
+      const acl = await file.getRelation('acl', { reload: true });
+      // Add subject (user/group model) to each ACE
+      return get(acl, 'list').map(ace => {
+        const {
+          identifier,
+          aceFlags,
+        } = getProperties(ace, 'identifier', 'aceFlags');
+        let subject;
+        let subjectType;
+        if (identifier.indexOf('@') !== -1) {
+          subject = systemSubjects.findBy('entityId', identifier);
+          subjectType = get(subject, 'equivalentType') || 'group';
+        } else if (aceFlags & AceFlagsMasks.IDENTIFIER_GROUP) {
+          subject = groups.findBy('entityId', identifier);
+          subjectType = 'group';
+        } else {
+          subject = users.findBy('entityId', identifier);
+          subjectType = 'user';
+        }
+        return _.assign({ subject, subjectType }, ace);
+      });
+    });
+    return allSettled(aclPromises);
   },
 
-  initAclValuesOnProxyLoad() {
+  acceptPosixIncompatibility() {
+    this.set('isPosixPermissionsIncompatibilityAccepted', true);
+    this.markPermissionsTypeAsEdited('posix');
+  },
+
+  acceptAclIncompatibility() {
+    this.set('isAclIncompatibilityAccepted', true);
+    this.markPermissionsTypeAsEdited('acl');
+  },
+
+  markPermissionsTypeAsEdited(permissionsType) {
+    this.set(
+      'editedPermissionsTypes',
+      [...this.get('editedPermissionsTypes'), permissionsType].uniq()
+    );
+    console.log('marked as edited', permissionsType);
+  },
+
+  clearEditedPermissionsTypes() {
+    this.set('editedPermissionsTypes', []);
+  },
+
+  setAclFromInitial() {
+    this.set('acl', _.cloneDeep(this.initialAcl));
+  },
+
+  async initAclValuesOnProxyLoad() {
     const {
       aclsProxy,
       acl,
     } = this.getProperties('aclsProxy', 'acl');
     if (!acl) {
-      aclsProxy.then(() => {
-        safeExec(this, () => this.set('acl', this.get('initialAcl')));
-      });
+      await aclsProxy;
+      safeExec(this, 'setAclFromInitial');
     }
   },
 
@@ -353,5 +371,20 @@ export default EmberObject.extend(...mixins, {
       arePosixPermissionsValid: isValid,
     });
     this.markPermissionsTypeAsEdited('posix');
+  },
+
+  onAclChanged(acl) {
+    this.set('acl', acl);
+    this.markPermissionsTypeAsEdited('acl');
+  },
+
+  restoreOriginalPermissions() {
+    this.setProperties({
+      lastResetTime: Date.now(),
+      activePermissionsType: this.initialActivePermissionsType,
+      posixPermissions: this.initialPosixPermissions,
+    });
+    this.setAclFromInitial();
+    this.clearEditedPermissionsTypes();
   },
 });
