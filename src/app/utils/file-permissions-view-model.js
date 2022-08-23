@@ -8,7 +8,7 @@
 
 import EmberObject, { computed } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import { array, conditional, raw, equal, or } from 'ember-awesome-macros';
+import { array, conditional, raw, equal, or, bool } from 'ember-awesome-macros';
 import { get, getProperties } from '@ember/object';
 import { Promise } from 'rsvp';
 import _ from 'lodash';
@@ -18,6 +18,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
+import { reads } from '@ember/object/computed';
 
 const mixins = [
   OwnerInjector,
@@ -234,7 +235,13 @@ export default EmberObject.extend(...mixins, {
       'editedPermissionsTypes',
       [...this.get('editedPermissionsTypes'), permissionsType].uniq()
     );
+    console.log('marked as edited', permissionsType);
   },
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  isAnyModified: bool('editedPermissionsTypes.length'),
 
   init() {
     this._super(...arguments);
@@ -338,5 +345,13 @@ export default EmberObject.extend(...mixins, {
     if (mode === 'acl') {
       this.initAclValuesOnProxyLoad();
     }
+  },
+
+  onPosixPermissionsChanged({ permissions, isValid }) {
+    this.setProperties({
+      posixPermissions: permissions,
+      arePosixPermissionsValid: isValid,
+    });
+    this.markPermissionsTypeAsEdited('posix');
   },
 });

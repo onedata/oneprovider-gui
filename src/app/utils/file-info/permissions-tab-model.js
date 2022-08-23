@@ -7,7 +7,6 @@
  */
 
 import BaseTabModel from './base-tab-model';
-import { conditional, raw } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
@@ -74,11 +73,7 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @override
    */
-  footerComponent: conditional(
-    'viewModel.effectiveReadonly',
-    raw(''),
-    raw('file-permissions/footer'),
-  ),
+  footerComponent: 'file-permissions/footer',
 
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}

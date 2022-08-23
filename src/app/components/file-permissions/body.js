@@ -67,5 +67,8 @@ export default Component.extend(...mixins, {
     acceptAclIncompatibility() {
       this.viewModel.acceptAclIncompatibility();
     },
+    posixPermissionsChanged(...args) {
+      this.viewModel.onPosixPermissionsChanged(...args);
+    },
   },
 });

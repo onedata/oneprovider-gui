@@ -1,3 +1,8 @@
 export default {
-  // FIXME: implement or delete
+  save: 'Save',
+  discard: 'Discard changes',
+  disabledReason: {
+    noChanges: 'No unsaved changes',
+    posixInvalid: 'Entered POSIX permissions are invalid – please correct',
+  },
 };

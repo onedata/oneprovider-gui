@@ -15,6 +15,7 @@
 {{/if}}
 {{posix-permissions-editor
   initialPermissions=initialPosixPermissions
+  onChange=(action "posixPermissionsChanged")
   class=(unless (and posixViewActive posixPermissionsCompatible) "hidden")
 }}
 {{#render-later

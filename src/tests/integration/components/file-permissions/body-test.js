@@ -8,6 +8,7 @@ import { lookupService } from '../../../helpers/stub-service';
 import { all as allSettled } from 'rsvp';
 import { findByText } from '../../../helpers/find';
 import { click } from '@ember/test-helpers';
+import Helper from '../../../helpers/file-permissions';
 
 describe('Integration | Component | file-permissions/body', function () {
   setupRenderingTest();
@@ -25,9 +26,9 @@ describe('Integration | Component | file-permissions/body', function () {
       }),
     ]);
 
-    await helper.render();
+    await helper.renderBody();
 
-    const element = helper.getElement();
+    const element = helper.getBody();
     const posixEditor = helper.getPosixPermissionsEditor();
     expect(element).to.exist;
     expect(posixEditor).to.not.have.class('hidden');
@@ -38,7 +39,7 @@ describe('Integration | Component | file-permissions/body', function () {
     const helper = new Helper(this);
     await helper.givenDifferentPosix();
 
-    await helper.render();
+    await helper.renderBody();
 
     helper.thenExpectHiddenPosixEditor();
     const alertElement = find('.alert');
@@ -66,9 +67,9 @@ describe('Integration | Component | file-permissions/body', function () {
       }),
     ]);
 
-    await helper.render();
+    await helper.renderBody();
 
-    const element = helper.getElement();
+    const element = helper.getBody();
     const aclEditor = helper.getAclPermissionsEditor();
     const alertElement = element.querySelector('.alert');
     expect(alertElement).to.not.exist;
@@ -80,9 +81,9 @@ describe('Integration | Component | file-permissions/body', function () {
     const helper = new Helper(this);
     await helper.givenDifferentAcl();
 
-    await helper.render();
+    await helper.renderBody();
 
-    const element = helper.getElement();
+    const element = helper.getBody();
     const alertElement = element.querySelector('.alert');
     expect(alertElement).to.exist;
     expect(alertElement).to.have.class('alert-warning');
@@ -107,9 +108,9 @@ describe('Integration | Component | file-permissions/body', function () {
       }),
     ]);
 
-    await helper.render();
+    await helper.renderBody();
 
-    const element = helper.getElement();
+    const element = helper.getBody();
     const aclEditor = helper.getAclPermissionsEditor();
     const alertElement = element.querySelector('.alert');
     expect(alertElement).to.exist;
@@ -122,7 +123,7 @@ describe('Integration | Component | file-permissions/body', function () {
   it('unhides POSIX editor when clicking on "Edit anyway" from "different alert"', async function () {
     const helper = new Helper(this);
     await helper.givenDifferentPosix();
-    await helper.render();
+    await helper.renderBody();
 
     await helper.whenEditAnywayIsClicked();
 
@@ -132,134 +133,10 @@ describe('Integration | Component | file-permissions/body', function () {
   it('unhides ACL editor when clicking on "Edit anyway" from "different alert"', async function () {
     const helper = new Helper(this);
     await helper.givenDifferentAcl();
-    await helper.render();
+    await helper.renderBody();
 
     await helper.whenEditAnywayIsClicked();
 
     helper.thenExpectVisibleAclEditor();
   });
 });
-
-class Helper {
-  /**
-   * @param {Mocha.Context} context
-   */
-  constructor(context) {
-    this.context = context;
-    this.store = lookupService(this.context, 'store');
-  }
-  async createFile(properties = {}) {
-    return await this.store.createRecord('file', {
-      name: 'dummy file',
-      type: 'file',
-      posixPermissions: '644',
-      activePermissionsType: 'posix',
-      ...properties,
-    }).save();
-  }
-  async createSpace() {
-    const listRecords = {
-      effUserList: this.store.createRecord('user-list', { list: [] }),
-      effGroupList: this.store.createRecord('group-list', { list: [] }),
-    };
-    await allSettled(Object.values(listRecords).map(r => r.save()));
-    return await this.store.createRecord('space', {
-      name: 'test space',
-      ...listRecords,
-    }).save();
-  }
-  createExampleAce(exampleNumber = 0) {
-    const examples = [{
-      identifier: 'OWNER@',
-      aceType: 'ALLOW',
-      aceMask: 459263,
-      aceFlags: 0,
-    }, {
-      identifier: 'EVERYONE@',
-      aceType: 'ALLOW',
-      aceMask: 127,
-      aceFlags: 0,
-    }];
-    return examples[exampleNumber % examples.length];
-  }
-  async createAcl(aces = []) {
-    return await this.store.createRecord('acl', { list: aces }).save();
-  }
-  async createViewModel() {
-    if (!this.files) {
-      throw new Error('files in helper not implemented');
-    }
-    return FilePermissionsViewModel.create({
-      ownerSource: this.context.owner,
-      space: await this.createSpace(),
-      files: this.files,
-    });
-  }
-  async render() {
-    this.context.setProperties({
-      viewModel: await this.createViewModel(),
-    });
-    await this.context.render(hbs`
-      {{file-permissions/body
-        viewModel=viewModel
-      }}
-    `);
-  }
-  get elementSelector() {
-    return '.file-permissions-body';
-  }
-  getElement() {
-    return find(this.elementSelector);
-  }
-  getPosixPermissionsEditor() {
-    return this.getElement().querySelector('.posix-permissions-editor');
-  }
-  getAclPermissionsEditor() {
-    return this.getElement().querySelector('.acl-editor');
-  }
-
-  async givenDifferentPosix() {
-    this.files = await allSettled([
-      this.createFile({ posixPermissions: '644' }),
-      this.createFile({ posixPermissions: '777' }),
-    ]);
-  }
-  async givenDifferentAcl() {
-    const acls = await allSettled([
-      this.createAcl([this.createExampleAce(0)]),
-      this.createAcl([this.createExampleAce(1)]),
-    ]);
-    this.files = await allSettled([
-      this.createFile({
-        activePermissionsType: 'acl',
-        acl: acls[0],
-      }),
-      this.createFile({
-        activePermissionsType: 'acl',
-        acl: acls[1],
-      }),
-    ]);
-  }
-
-  async whenEditAnywayIsClicked() {
-    const editAnyway = findByText('Edit anyway', 'button');
-    expect(editAnyway, 'edit anyway button').exists;
-    await click(editAnyway);
-  }
-
-  thenExpectVisiblePosixEditor() {
-    const posixEditor = this.getPosixPermissionsEditor();
-    expect(posixEditor).to.exist;
-    expect(posixEditor).to.not.have.class('hidden');
-  }
-  thenExpectHiddenPosixEditor() {
-    const posixEditor = this.getPosixPermissionsEditor();
-    expect(posixEditor).to.exist;
-    expect(posixEditor).to.have.class('hidden');
-  }
-  thenExpectVisibleAclEditor() {
-    const aclEditor = this.getAclPermissionsEditor();
-    expect(aclEditor).to.exist;
-    expect(aclEditor).to.not.have.class('hidden');
-  }
-}
