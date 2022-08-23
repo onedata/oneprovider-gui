@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9774 Fixed infinite loading of empty audit logs
 * VFS-9164 Added cancel archivisation action for building archive
 * VFS-9665 Moved directory size statistics configuration to Onezone
 * VFS-9472 Added storage locations for file in data distribution and file info modal
