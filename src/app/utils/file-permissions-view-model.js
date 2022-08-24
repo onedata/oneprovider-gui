@@ -58,6 +58,18 @@ export default EmberObject.extend(...mixins, {
    */
   files: undefined,
 
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  readonly: false,
+
+  /**
+   * @virtual optional
+   * @type {String}
+   */
+  readonlyTip: '',
+
   //#region state
 
   /**
@@ -97,6 +109,38 @@ export default EmberObject.extend(...mixins, {
   isAclIncompatibilityAccepted: false,
 
   //#endregion
+
+  /**
+   * True if any file metadata is protected.
+   * @type {ComputedProperty<Boolean>}
+   */
+  metadataIsProtected: array.isAny('files', raw('metadataIsProtected')),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  effectiveReadonly: or('readonly', 'metadataIsProtected'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  effectiveReadonlyTip: computed(
+    'readonlyTip',
+    'metadataIsProtected',
+    function effectiveReadonlyTip() {
+      const {
+        readonlyTip,
+        metadataIsProtected,
+      } = this.getProperties('readonlyTip', 'metadataIsProtected');
+      if (readonlyTip) {
+        return readonlyTip;
+      } else if (metadataIsProtected) {
+        return this.t('readonlyDueToMetadataIsProtected');
+      } else {
+        return '';
+      }
+    }
+  ),
 
   /**
    * List of system subjects, that represents owner of a file/directory, owning

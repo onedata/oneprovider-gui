@@ -41,6 +41,10 @@ export default Component.extend(...mixins, {
    */
   activeTab: reads('viewModel.activePermissionsType'),
 
+  effectiveReadonly: reads('viewModel.effectiveReadonly'),
+
+  effectiveReadonlyTip: reads('viewModel.effectiveReadonlyTip'),
+
   actions: {
     /**
      * @param {FilePermissionsType} tabId

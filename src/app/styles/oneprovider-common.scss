@@ -132,6 +132,21 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
     flex-grow: 0;
     display: flex;
   }
+
+  .editor-disabled-lock-container {
+    position: absolute;
+    display: flex;
+    right: $btn-group-tabs-horizontal-spacing-large;
+    align-items: center;
+    padding: 2px 10px;
+    background-color: white;
+    border-radius: $btn-border-radius-small;
+    border: 1px solid $btn-group-tabs-line-border-color;
+  }
+  .editor-disabled-lock-icon {
+    margin-left: 0.1em;
+    flex-grow: 0;
+  }
 }
 
 .modal-dialog {
@@ -145,6 +160,9 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
       // empirically modal-scroll-shadow-like shadow to the bottom
       filter: drop-shadow(0px 4px 3px #eee);
       @include shadow-transition(all);
+    }
+    .editor-disabled-lock-icon {
+      margin-right: -0.2em;
     }
   }
   // turn on special decoration, because shadow of header is off when on top

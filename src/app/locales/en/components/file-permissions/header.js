@@ -3,4 +3,5 @@ export default {
     posix: 'POSIX',
     acl: 'ACL',
   },
+  editorDisabled: 'Editor disabled',
 };

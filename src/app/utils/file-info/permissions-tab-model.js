@@ -12,10 +12,11 @@ import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-vie
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import { conditional, raw } from 'ember-awesome-macros';
 
 /**
  * @typedef {Object} PermissionsViewModelCreateData
- * @property {boolean} previewMode
+ * @property {boolean} readonly
  */
 
 const mixins = [
@@ -73,7 +74,11 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @override
    */
-  footerComponent: 'file-permissions/footer',
+  footerComponent: conditional(
+    'viewModel.effectiveReadonly',
+    raw(''),
+    raw('file-metadata/footer'),
+  ),
 
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}

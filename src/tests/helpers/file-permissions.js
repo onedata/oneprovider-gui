@@ -14,6 +14,7 @@ export default class FilePermissionsHelper {
   constructor(context) {
     this.context = context;
     this.store = lookupService(this.context, 'store');
+    this.viewModelOptions = {};
   }
   async createFile(properties = {}) {
     return await this.store.createRecord('file', {
@@ -60,6 +61,7 @@ export default class FilePermissionsHelper {
       ownerSource: this.context.owner,
       space: await this.createSpace(),
       files: this.files,
+      ...this.viewModelOptions,
     });
   }
   async beforeRender() {

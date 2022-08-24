@@ -15,7 +15,9 @@ package.json.ember-try
 /tmp/
 /src/tmp/
 /rel/
+/rel-test/
 /src/rel/
+/src/rel-test/
 gui_static.tar.gz
 gui_static/
 

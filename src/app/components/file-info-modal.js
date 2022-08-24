@@ -106,6 +106,13 @@ export default Component.extend(...mixins, {
   modalClass: '',
 
   /**
+   * FIXME: documentation
+   * @virtual optional
+   * @type {boolean}
+   */
+  tabOptions: false,
+
+  /**
    * Space entity ID can be provided instead of space model if it's not available
    * in current context (eg. in public share view).
    * @virtual optional
@@ -507,12 +514,14 @@ export default Component.extend(...mixins, {
       metadata: computed(function metadata() {
         return this.tabModelFactory.createTabModel('metadata', {
           previewMode: this.previewMode,
+          ...this.tabOptions?.['metadata'],
         });
       }),
 
       permissions: computed(function permissions() {
         return this.tabModelFactory.createTabModel('permissions', {
-          previewMode: this.previewMode,
+          readonly: this.previewMode,
+          ...this.tabOptions?.['permissions'],
         });
       }),
     }).create({
