@@ -56,26 +56,8 @@ export default Component.extend(...mixins, {
 
   actions: {
     async save() {
-      if (this.isSaveDisabled) {
-        return;
-      }
-      const files = this.files;
-      try {
-        await this.viewModel.save();
-        this.globalNotify.success(this.t('permissionsModifySuccess'));
-      } catch (errors) {
-        if (errors.length > 1) {
-          errors.slice(1).forEach(error =>
-            console.error('edit-permissions-modal:save()', error)
-          );
-        }
-        this.globalNotify.backendError(this.t('modifyingPermissions'), errors[0]);
-        throw errors;
-      } finally {
-        const hardlinkedFile = files.find(file => get(file, 'hardlinksCount') > 1);
-        if (hardlinkedFile) {
-          this.fileManager.fileParentRefresh(hardlinkedFile);
-        }
+      if (!this.isSaveDisabled) {
+        this.viewModel.save();
       }
     },
     discardChanges() {

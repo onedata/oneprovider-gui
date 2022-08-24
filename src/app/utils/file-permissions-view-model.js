@@ -17,7 +17,7 @@ import {
   bool,
 } from 'ember-awesome-macros';
 import { get, getProperties } from '@ember/object';
-import { all as allSettled, resolve, reject } from 'rsvp';
+import { Promise, all as allSettled, resolve, reject } from 'rsvp';
 import _ from 'lodash';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -40,6 +40,8 @@ const mixins = [
 
 export default EmberObject.extend(...mixins, {
   i18n: service(),
+  modalManager: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -427,9 +429,10 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
+   * @private
    * @returns {Promise}
    */
-  save() {
+  async saveAllPermissions() {
     const {
       acl,
       posixPermissions,
@@ -494,9 +497,32 @@ export default EmberObject.extend(...mixins, {
       if (errors.length) {
         return reject(errors);
       }
-    }).finally(() => {
-      this.clearEditedPermissionsTypes();
     });
+  },
+
+  async save() {
+    if (this.isSaveDisabled) {
+      return;
+    }
+    const files = this.files;
+    try {
+      await this.viewModel.save();
+      this.globalNotify.success(this.t('permissionsModifySuccess'));
+      this.clearEditedPermissionsTypes();
+    } catch (errors) {
+      if (errors.length > 1) {
+        errors.slice(1).forEach(error =>
+          console.error('save file permissions', error)
+        );
+      }
+      this.globalNotify.backendError(this.t('modifyingPermissions'), errors[0]);
+      throw errors;
+    } finally {
+      const hardlinkedFile = files.find(file => get(file, 'hardlinksCount') > 1);
+      if (hardlinkedFile) {
+        this.fileManager.fileParentRefresh(hardlinkedFile);
+      }
+    }
   },
 
   restoreOriginalPermissions() {
@@ -507,5 +533,45 @@ export default EmberObject.extend(...mixins, {
     });
     this.setAclFromInitial();
     this.clearEditedPermissionsTypes();
+  },
+
+  /**
+   * If needed, show unsaved changes prompt with save/restore actions.
+   * @returns {Promise<boolean>} If `true` is returned, the tab can be safely closed.
+   *   If `false` is returned, you should not close the tab due to unsaved changes.
+   */
+  async checkClose() {
+    if (this.isAnyModified) {
+      return await this.handleUnsavedChanges();
+    } else {
+      return true;
+    }
+  },
+
+  /**
+   * @returns {Promise<boolean>} true if current tab can be closed
+   */
+  async handleUnsavedChanges() {
+    return await new Promise(resolve => {
+      this.modalManager.show('unsaved-changes-question-modal', {
+        onSubmit: async (data) => {
+          if (data.shouldSaveChanges) {
+            try {
+              // FIXME: move save from actions of footer to view model
+              await this.save();
+              resolve(true);
+            } catch (error) {
+              resolve(false);
+            }
+          } else {
+            this.restoreOriginalPermissions();
+            resolve(true);
+          }
+        },
+        onHide() {
+          resolve(false);
+        },
+      });
+    });
   },
 });

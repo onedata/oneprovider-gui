@@ -90,4 +90,11 @@ export default BaseTabModel.extend(...mixins, {
       readonly: this.readonly,
     });
   }),
+
+  /**
+   * @override
+   */
+  checkClose() {
+    return this.viewModel.checkClose();
+  },
 });
