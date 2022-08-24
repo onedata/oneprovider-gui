@@ -6,7 +6,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { set, computed } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import {
   array,
@@ -17,7 +17,7 @@ import {
   bool,
 } from 'ember-awesome-macros';
 import { get, getProperties } from '@ember/object';
-import { all as allSettled } from 'rsvp';
+import { all as allSettled, resolve, reject } from 'rsvp';
 import _ from 'lodash';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -311,10 +311,15 @@ export default EmberObject.extend(...mixins, {
           subject = users.findBy('entityId', identifier);
           subjectType = 'user';
         }
+        subject = this.stripSubject(subject);
         return _.assign({ subject, subjectType }, ace);
       });
     });
     return allSettled(aclPromises);
+  },
+
+  stripSubject(record) {
+    return getProperties(record, 'name', 'isSystemSubject');
   },
 
   acceptPosixIncompatibility() {
@@ -332,7 +337,6 @@ export default EmberObject.extend(...mixins, {
       'editedPermissionsTypes',
       [...this.get('editedPermissionsTypes'), permissionsType].uniq()
     );
-    console.log('marked as edited', permissionsType);
   },
 
   clearEditedPermissionsTypes() {
@@ -376,6 +380,79 @@ export default EmberObject.extend(...mixins, {
   onAclChanged(acl) {
     this.set('acl', acl);
     this.markPermissionsTypeAsEdited('acl');
+  },
+
+  /**
+   * @returns {Promise}
+   */
+  save() {
+    const {
+      acl,
+      posixPermissions,
+      editedPermissionsTypes,
+      files,
+    } = this.getProperties(
+      'acl',
+      'posixPermissions',
+      'editedPermissionsTypes',
+      'files',
+    );
+
+    const savePromises = files.map(file => ({
+      file,
+      promise: resolve(),
+    }));
+
+    if (editedPermissionsTypes.includes('acl')) {
+      // All files share the same ACE array, so it can be prepared
+      // earlier.
+      const aclToSave = acl.map(ace =>
+        getProperties(ace, 'aceType', 'identifier', 'aceFlags', 'aceMask')
+      );
+
+      savePromises.forEach(savePromise => {
+        savePromise.promise = savePromise.promise.then(() =>
+          get(savePromise.file, 'acl').then(fileAcl => {
+            if (!_.isEqual(get(fileAcl, 'list'), aclToSave)) {
+              set(fileAcl, 'list', aclToSave);
+
+              const promise = fileAcl.save().then(() => savePromise.file.reload());
+              promise.catch(() => fileAcl.rollbackAttributes());
+              return promise;
+            } else {
+              return resolve();
+            }
+          })
+        );
+      });
+    }
+
+    if (editedPermissionsTypes.includes('posix')) {
+      savePromises.forEach(savePromise => {
+        savePromise.promise = savePromise.promise.then(() => {
+          const file = savePromise.file;
+          const filePosixPermissions = get(file, 'posixPermissions');
+          let promise;
+          if (filePosixPermissions !== posixPermissions) {
+            set(file, 'posixPermissions', posixPermissions);
+            promise = file.save();
+            promise.catch(() => file.rollbackAttributes());
+          } else {
+            promise = resolve(file);
+          }
+          return promise;
+        });
+      });
+    }
+
+    return allSettled(savePromises.mapBy('promise')).then(results => {
+      const errors = results.filterBy('state', 'rejected').mapBy('reason');
+      if (errors.length) {
+        return reject(errors);
+      }
+    }).finally(() => {
+      this.clearEditedPermissionsTypes();
+    });
   },
 
   restoreOriginalPermissions() {
