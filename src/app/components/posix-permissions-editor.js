@@ -60,10 +60,10 @@ export default Component.extend(I18n, {
   readonlyTip: '',
 
   /**
+   * Change of this property triggers resetting permissions to initialPermissions.
    * @virtual
    * @type {number}
    */
-  // FIXME: comments
   lastResetTime: undefined,
 
   /**

@@ -110,6 +110,13 @@ export default EmberObject.extend(...mixins, {
 
   isAclIncompatibilityAccepted: false,
 
+  /**
+   * Hacky way to trigger resetting state of POSIX editor, because it has incomplete
+   * DDAU implementation.
+   * @type {number}
+   */
+  lastResetTime: undefined,
+
   //#endregion
 
   /**
@@ -557,7 +564,6 @@ export default EmberObject.extend(...mixins, {
         onSubmit: async (data) => {
           if (data.shouldSaveChanges) {
             try {
-              // FIXME: move save from actions of footer to view model
               await this.save();
               resolve(true);
             } catch (error) {

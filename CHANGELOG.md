@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9602 Moved file permissions settings from separate modal to file info panel
 * VFS-9780 Fixed too large margin of file info modal tabbar
 * VFS-9774 Fixed infinite loading of empty audit logs
 * VFS-9164 Added cancel archivisation action for building archive

@@ -11,7 +11,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { or, not, and, raw } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import { get } from '@ember/object';
 
 const mixins = [
   I18n,

@@ -60,7 +60,7 @@
       (if disabled "file-status-tag-disabled")
     }}
     {{action
-      (if disabled
+      (if (or disabled previewMode)
         (no-action)
         (action invokeFileAction file "permissions")
       )

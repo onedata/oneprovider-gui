@@ -22,8 +22,6 @@ import {
   bool,
   equal,
   not,
-  array,
-  conditional
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -106,11 +104,13 @@ export default Component.extend(...mixins, {
   modalClass: '',
 
   /**
-   * FIXME: documentation
+   * Keys are ids of tab models (see available tabs in `tabModels` property).
+   * Values are objects with properties that are used to create tab models.
+   * See `tabModels` for implementation.
    * @virtual optional
-   * @type {boolean}
+   * @type {Object<string, Object>}
    */
-  tabOptions: false,
+  tabOptions: null,
 
   /**
    * Space entity ID can be provided instead of space model if it's not available
@@ -511,20 +511,21 @@ export default Component.extend(...mixins, {
 
   tabModels: computed(function tabModels() {
     return EmberObject.extend({
+      tabOptions: reads('fileInfoModal.tabOptions'),
       previewMode: reads('fileInfoModal.previewMode'),
       tabModelFactory: reads('fileInfoModal.tabModelFactory'),
 
       metadata: computed(function metadata() {
         return this.tabModelFactory.createTabModel('metadata', {
           previewMode: this.previewMode,
-          ...this.fileInfoModal.tabOptions?.['metadata'],
+          ...this.tabOptions?.['metadata'],
         });
       }),
 
       permissions: computed(function permissions() {
         return this.tabModelFactory.createTabModel('permissions', {
           readonly: this.previewMode,
-          ...this.fileInfoModal.tabOptions?.['permissions'],
+          ...this.tabOptions?.['permissions'],
         });
       }),
     }).create({
