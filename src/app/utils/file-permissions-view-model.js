@@ -17,7 +17,7 @@ import {
   bool,
 } from 'ember-awesome-macros';
 import { get, getProperties } from '@ember/object';
-import { Promise, all as allSettled, resolve, reject } from 'rsvp';
+import { Promise, all as allFulfilled, allSettled, resolve, reject } from 'rsvp';
 import _ from 'lodash';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -335,7 +335,7 @@ export default EmberObject.extend(...mixins, {
     const [
       users,
       groups,
-    ] = await allSettled([spaceUsersProxy, spaceGroupsProxy]);
+    ] = await allFulfilled([spaceUsersProxy, spaceGroupsProxy]);
     // Fetch each file ACL
     const aclPromises = files.map(async file => {
       const acl = await file.getRelation('acl', { reload: true });
@@ -361,7 +361,7 @@ export default EmberObject.extend(...mixins, {
         return _.assign({ subject, subjectType }, ace);
       });
     });
-    return allSettled(aclPromises);
+    return allFulfilled(aclPromises);
   },
 
   stripSubject(record) {
@@ -432,7 +432,7 @@ export default EmberObject.extend(...mixins, {
    * @private
    * @returns {Promise}
    */
-  async saveAllPermissions() {
+  saveAllPermissions() {
     const {
       acl,
       posixPermissions,
@@ -506,7 +506,7 @@ export default EmberObject.extend(...mixins, {
     }
     const files = this.files;
     try {
-      await this.viewModel.save();
+      await this.saveAllPermissions();
       this.globalNotify.success(this.t('permissionsModifySuccess'));
       this.clearEditedPermissionsTypes();
     } catch (errors) {
