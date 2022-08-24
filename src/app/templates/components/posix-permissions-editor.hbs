@@ -21,7 +21,7 @@
 </div>
 <div class="row entity-permissions-row">
   {{#each (array "user" "group" "other") as |entity|}}
-    <div class="col-xs-12 col-sm-4 entity-permissions">
+    <div class="entity-permissions">
       <div class="entity-name">{{tt this (concat "entities." entity)}}</div>
       <ul class="permissions-list">
         {{#each (array "read" "write" "execute") as |permission|}}
