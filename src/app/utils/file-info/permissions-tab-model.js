@@ -77,7 +77,7 @@ export default BaseTabModel.extend(...mixins, {
   footerComponent: conditional(
     'viewModel.effectiveReadonly',
     raw(''),
-    raw('file-metadata/footer'),
+    raw('file-permissions/footer'),
   ),
 
   /**
