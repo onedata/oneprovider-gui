@@ -40,9 +40,9 @@ export default EmberObject.extend(OwnerInjector, {
       file: reads('fileInfoModal.file'),
       space: reads('fileInfoModal.space'),
     }).create({
-      viewModelCreateData: { ...options },
       fileInfoModal: this.fileInfoModal,
       ownerSource: this,
+      ...options,
     });
   },
 
@@ -51,9 +51,9 @@ export default EmberObject.extend(OwnerInjector, {
       files: reads('fileInfoModal.files'),
       space: reads('fileInfoModal.space'),
     }).create({
-      viewModelCreateData: { ...options },
       fileInfoModal: this.fileInfoModal,
       ownerSource: this,
+      ...options,
     });
   },
 });

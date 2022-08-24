@@ -476,7 +476,7 @@ export default Component.extend(...mixins, {
     'isHardlinksTabVisible',
     'isSizeTabVisible',
     'isApiSamplesTabVisible',
-    'visibleTabModels.[]',
+    'visibleTabsModels.@each.isVisible',
     function visibleTabs() {
       const tabs = [];
       if (this.isGeneralTabVisible) {
@@ -500,10 +500,13 @@ export default Component.extend(...mixins, {
   allTabModels: collect('tabModels.metadata', 'tabModels.permissions'),
 
   // TODO: VFS-9628 will contain all tab models after refactor
-  visibleTabsModels: conditional(
-    'isMultiFile',
-    array.filterBy('allTabModels', 'isSupportingMultiFiles'),
-    'allTabModels'
+  // Using computed instead of computed macro because there are issues
+  // with auto update when using array.filterBy.
+  visibleTabsModels: computed(
+    'allTabModels.@each.isVisible',
+    function visibleTabsModels() {
+      return this.allTabModels.filterBy('isVisible');
+    }
   ),
 
   tabModels: computed(function tabModels() {
@@ -514,14 +517,14 @@ export default Component.extend(...mixins, {
       metadata: computed(function metadata() {
         return this.tabModelFactory.createTabModel('metadata', {
           previewMode: this.previewMode,
-          ...this.tabOptions?.['metadata'],
+          ...this.fileInfoModal.tabOptions?.['metadata'],
         });
       }),
 
       permissions: computed(function permissions() {
         return this.tabModelFactory.createTabModel('permissions', {
           readonly: this.previewMode,
-          ...this.tabOptions?.['permissions'],
+          ...this.fileInfoModal.tabOptions?.['permissions'],
         });
       }),
     }).create({

@@ -45,11 +45,10 @@ export default BaseTabModel.extend(...mixins, {
   space: undefined,
 
   /**
-   * Data needed to lazily instantiate ViewModel.
    * @virtual
-   * @type {PermissionsViewModelCreateData}
+   * @type {boolean}
    */
-  viewModelCreateData: undefined,
+  readonly: undefined,
 
   /**
    * @override
@@ -83,12 +82,12 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
    */
-  viewModel: computed('files.[]', 'space', function viewModel() {
+  viewModel: computed('files.[]', 'space', 'readonly', function viewModel() {
     return FilePermissionsViewModel.create({
       ownerSource: this,
       files: this.files,
       space: this.space,
-      ...this.viewModelCreateData,
+      readonly: this.readonly,
     });
   }),
 });
