@@ -700,7 +700,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     if (datasetId in cache.datasetUrlById) {
       return cache.datasetUrlById[datasetId];
     }
-    const result = this.appProxy?.callParent('getDatasetsUrl', {
+    const result = this.appProxy.callParent('getDatasetsUrl', {
       selectedDatasets: [datasetId],
     }) || null;
     cache.datasetUrlById[datasetId] = result;
