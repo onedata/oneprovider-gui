@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-9760 Added charts functionalities allowing usage of many TS. collections in dashboards
+* VFS-9780 Fixed too large margin of file info modal tabbar
 * VFS-9774 Fixed infinite loading of empty audit logs
 * VFS-9164 Added cancel archivisation action for building archive
 * VFS-9665 Moved directory size statistics configuration to Onezone
