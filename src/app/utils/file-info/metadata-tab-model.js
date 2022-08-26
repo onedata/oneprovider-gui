@@ -95,6 +95,16 @@ export default BaseTabModel.extend(...mixins, {
   ),
 
   /**
+   * @override
+   */
+  isVisible: computed(function isVisible() {
+    if (!this._super(...arguments)) {
+      return false;
+    }
+    return this.file.type === 'file' || this.file.type === 'dir';
+  }),
+
+  /**
    * @type {ComputedProperty<Utils.FileMetadataViewModel>}
    */
   viewModel: computed('file', 'space', 'previewMode', function viewModel() {

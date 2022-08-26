@@ -20,8 +20,6 @@ export default Component.extend(...mixins, {
   classNames: ['file-permissions-footer', 'text-left'],
 
   i18n: service(),
-  globalNotify: service(),
-  fileManager: service(),
 
   /**
    * @virtual

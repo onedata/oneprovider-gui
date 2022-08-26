@@ -32,7 +32,6 @@
   triggerRender=aclViewActive
   class=(unless aclViewActive "hidden")
 }}
-  {{log "ft" filesType}}
   {{#unless (eq filesType "mixed")}}
     {{#promise-proxy-container proxy=aclsProxy}}
       {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}

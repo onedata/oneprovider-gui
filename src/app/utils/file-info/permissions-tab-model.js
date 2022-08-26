@@ -34,7 +34,7 @@ export default BaseTabModel.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Models.File}
+   * @type {Array<Models.File>}
    */
   files: undefined,
 
@@ -78,6 +78,19 @@ export default BaseTabModel.extend(...mixins, {
     raw(''),
     raw('file-permissions/footer'),
   ),
+
+  /**
+   * @override
+   */
+  isVisible: computed(function isVisible() {
+    if (!this._super(...arguments)) {
+      return false;
+    }
+    const isSupportedFileType = this.files.every(file =>
+      file.type === 'file' || file.type === 'dir'
+    );
+    return isSupportedFileType;
+  }),
 
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}

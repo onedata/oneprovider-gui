@@ -12,9 +12,7 @@ describe('Integration | Component | file-permissions', function () {
     await helper.givenSingleFilePosix();
 
     await helper.renderAll();
-    // await sleep(2000);
     await click('.user-read-checkbox');
-    // await sleep(2000);
 
     expect(helper.getDiscardButton()).to.exist;
     expect(helper.getDiscardButton()).to.not.have.attr('disabled');
