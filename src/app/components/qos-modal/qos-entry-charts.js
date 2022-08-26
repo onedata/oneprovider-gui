@@ -28,6 +28,8 @@ import ColorGenerator from 'onedata-gui-common/utils/color-generator';
  * @property {number} updateInterval
  */
 
+const storageTsNamePrefix = 'st_';
+
 export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   classNames: ['qos-entry-charts', 'qos-entry-info-block'],
 
@@ -588,7 +590,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   async fetchDynamicSeriesConfigs(sourceParameters) {
     const colorGenerator = this.get('colorGenerator');
     return (await this.fetchStorageSeriesConfigs(sourceParameters.collectionId))
-      .map(({ storageId, name }) => ({
+      .map(({ seriesId, storageId, name }) => ({
         id: storageId,
         name,
         color: colorGenerator.generateColorForKey(storageId),
@@ -596,7 +598,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
           externalSourceName: 'qosEntryData',
           externalSourceParameters: {
             collectionId: sourceParameters.collectionId,
-            seriesId: storageId,
+            seriesId,
           },
         },
       }));
@@ -604,30 +606,38 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
 
   /**
    * @param {'bytes'|'files'} collectionId
-   * @returns {Promise<Array<{ storageId, name }>>}
+   * @returns {Promise<Array<{ seriesId, storageId, name }>>}
    */
   async fetchStorageSeriesConfigs(collectionId) {
     const {
       spaceId,
       storageManager,
       providerManager,
-      qosTransferStatsConfig = {},
     } = this.getProperties(
       'spaceId',
       'storageManager',
       'providerManager',
-      'qosTransferStatsConfig'
     );
 
     const collectionSeries = (await this.getTsCollections())[collectionId];
-    const storagesIds = collectionSeries ?
-      collectionSeries.without(qosTransferStatsConfig.totalTimeSeriesId) : [];
+    const storagesIds = collectionSeries
+      ?.map((seriesName) => {
+        if (seriesName.startsWith(storageTsNamePrefix)) {
+          return seriesName.slice(storageTsNamePrefix.length);
+        } else {
+          return null;
+        }
+      })
+      ?.filter(Boolean) ?? [];
 
     const seriesPromises = [];
     for (let i = 0; i < storagesIds.length; i++) {
       const storageId = storagesIds[i];
       seriesPromises.push((async () => {
-        const seriesEntry = { storageId };
+        const seriesEntry = {
+          seriesId: `${storageTsNamePrefix}${storageId}`,
+          storageId,
+        };
         try {
           const storage = await storageManager.getStorageById(storageId, {
             throughSpaceId: spaceId,
@@ -677,7 +687,9 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
     }
 
     const seriesEntries = await allFulfilled(seriesPromises);
-    return seriesEntries.sortBy('sortKey').map(({ storageId, name }) => ({ storageId, name }));
+    return seriesEntries.sortBy('sortKey').map(({ seriesId, storageId, name }) =>
+      ({ seriesId, storageId, name })
+    );
   },
 
   /**
