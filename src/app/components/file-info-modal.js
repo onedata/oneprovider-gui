@@ -471,7 +471,6 @@ export default Component.extend(...mixins, {
    * @type {Array<FileInfoTabId>}
    */
   visibleTabs: computed(
-    'isMultiFile',
     'isGeneralTabVisible',
     'isHardlinksTabVisible',
     'isSizeTabVisible',
@@ -515,19 +514,29 @@ export default Component.extend(...mixins, {
       previewMode: reads('fileInfoModal.previewMode'),
       tabModelFactory: reads('fileInfoModal.tabModelFactory'),
 
-      metadata: computed(function metadata() {
-        return this.tabModelFactory.createTabModel('metadata', {
-          previewMode: this.previewMode,
-          ...this.tabOptions?.['metadata'],
-        });
-      }),
+      metadata: computed(
+        'tabModelFactory',
+        'previewMode',
+        'tabOptions.metadata',
+        function metadata() {
+          return this.tabModelFactory.createTabModel('metadata', {
+            previewMode: this.previewMode,
+            ...this.tabOptions?.metadata,
+          });
+        }
+      ),
 
-      permissions: computed(function permissions() {
-        return this.tabModelFactory.createTabModel('permissions', {
-          readonly: this.previewMode,
-          ...this.tabOptions?.['permissions'],
-        });
-      }),
+      permissions: computed(
+        'tabModelFactory',
+        'previewMode',
+        'tabOptions.permissions',
+        function permissions() {
+          return this.tabModelFactory.createTabModel('permissions', {
+            readonly: this.previewMode,
+            ...this.tabOptions?.permissions,
+          });
+        }
+      ),
     }).create({
       fileInfoModal: this,
     });
