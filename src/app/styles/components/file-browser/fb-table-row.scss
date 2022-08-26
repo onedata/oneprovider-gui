@@ -2,7 +2,13 @@
   @include vendor-prefix(user-select, none);
   overflow: hidden;
   &.file-selected {
-    background-color: $color-file-selected;
+    td {
+      background-color: $color-file-selected;
+
+      // Using background-clip to fix border hiding under background in Firefox.
+      // See more: https://bugzilla.mozilla.org/show_bug.cgi?id=688556
+      background-clip: padding-box;
+    }
     .one-icon-tag-circle {
       background-color: $color-file-selected;
     }
