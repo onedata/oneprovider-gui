@@ -40,6 +40,7 @@ import archivePropertiesModal from './components/archive-properties-modal';
 import fileInfoModal from './components/file-info-modal';
 import fileMetadata from './components/file-metadata';
 import filePermissions from './components/file-permissions';
+import fileShares from './components/file-shares';
 
 import uploadManager from './services/upload-manager';
 
@@ -102,6 +103,7 @@ const translations = {
     fileInfoModal,
     fileMetadata,
     filePermissions,
+    fileShares,
   },
   services: {
     uploadManager,
