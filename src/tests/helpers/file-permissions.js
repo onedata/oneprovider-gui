@@ -6,6 +6,7 @@ import { lookupService } from './stub-service';
 import { all as allSettled } from 'rsvp';
 import { findByText } from './find';
 import { click } from '@ember/test-helpers';
+import createSpace from './create-space';
 
 export default class FilePermissionsHelper {
   /**
@@ -26,15 +27,7 @@ export default class FilePermissionsHelper {
     }).save();
   }
   async createSpace() {
-    const listRecords = {
-      effUserList: this.store.createRecord('user-list', { list: [] }),
-      effGroupList: this.store.createRecord('group-list', { list: [] }),
-    };
-    await allSettled(Object.values(listRecords).map(r => r.save()));
-    return await this.store.createRecord('space', {
-      name: 'test space',
-      ...listRecords,
-    }).save();
+    return await createSpace(this.store);
   }
   createExampleAce(exampleNumber = 0) {
     const examples = [{

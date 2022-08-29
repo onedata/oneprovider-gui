@@ -14,10 +14,8 @@ import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import {
-  promise,
   and,
   or,
-  conditional,
   raw,
   string,
   lt,
@@ -72,8 +70,6 @@ export default Component.extend(
 
     newShareName: '',
 
-    addAnotherOneMode: false,
-
     /**
      * If true, the create new share button can be enabled.
      * Should be injected with space prvilege (space_manage_shares).
@@ -85,18 +81,6 @@ export default Component.extend(
       notEmpty('validationError'),
       'isSaving',
       lt(string.length(string.trim('newShareName')), raw(2))
-    ),
-
-    contentProxy: promise.object(promise.all('sharesProxy', 'modeProxy')),
-
-    modeProxy: promise.object(computed('sharesProxy.content', function modeProxy() {
-      return this.get('sharesProxy').then(share => share ? 'show' : 'new');
-    })),
-
-    mode: conditional(
-      'addAnotherOneMode',
-      raw('new'),
-      'modeProxy.content',
     ),
 
     inputId: computed('elementId', function inputId() {
@@ -157,11 +141,11 @@ export default Component.extend(
 
     inputFocusObserver: observer(
       'mode',
-      'contentProxy.isFulfilled',
+      'sharesProxy.isFulfilled',
       function inputFocusObserver() {
-        const contentProxy = this.get('contentProxy');
-        const contentWait = get(contentProxy, 'isFulfilled') ?
-          resolve() : contentProxy;
+        const sharesProxy = this.get('sharesProxy');
+        const contentWait = get(sharesProxy, 'isFulfilled') ?
+          resolve() : sharesProxy;
         contentWait.then(() => {
           if (this.get('mode') === 'new') {
             next(() => {
@@ -209,9 +193,6 @@ export default Component.extend(
     },
 
     actions: {
-      getShareUrl() {
-        return this.get('getShareUrl')(...arguments);
-      },
       submitNew() {
         if (this.get('validationError')) {
           return reject();
@@ -231,7 +212,6 @@ export default Component.extend(
           })
           .finally(() => safeExec(this, 'setProperties', {
             isSaving: false,
-            addAnotherOneMode: false,
           }));
       },
       onShow() {

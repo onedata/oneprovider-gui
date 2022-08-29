@@ -510,9 +510,6 @@ export default OneEmbeddedComponent.extend(
       getTransfersUrl({ fileId, tabId }) {
         return this.callParent('getTransfersUrl', { fileId, tabId });
       },
-      getShareUrl({ shareId }) {
-        return this.callParent('getShareUrl', { shareId });
-      },
 
       getDatasetsUrl(data) {
         return this.callParent('getDatasetsUrl', data);

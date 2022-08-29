@@ -1,24 +1,86 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
-import hbs from 'htmlbars-inline-precompile';
+import { setupRenderingTest } from 'ember-mocha';
+import Helper from '../../../helpers/file-shares';
+import { all as allSettled } from 'rsvp';
+import sinon from 'sinon';
 
-describe('Integration | Component | file-shares/body', function() {
-  setupComponentTest('file-shares/body', {
-    integration: true
+describe('Integration | Component | file-shares/body', function () {
+  setupRenderingTest();
+
+  it('renders names of existing shares', async function () {
+    const helper = new Helper(this);
+    const shares = await allSettled([
+      helper.createShare({
+        name: 'one',
+      }),
+      helper.createShare({
+        name: 'two',
+      }),
+    ]);
+    await helper.givenFile();
+    await helper.givenShares(shares);
+    await helper.givenSimpleAppProxyStub();
+
+    await helper.renderBody();
+    await helper.waitForSharesLoad();
+
+    const items = helper.getShareItems();
+    expect(items).to.have.lengthOf(2);
+    expect(items[0]).to.contain.text('one');
+    expect(items[1]).to.contain.text('two');
   });
 
-  it('renders', function() {
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    // Template block usage:
-    // this.render(hbs`
-    //   {{#file-shares/body}}
-    //     template content
-    //   {{/file-shares/body}}
-    // `);
+  it('renders links to private share view of existing shares', async function () {
+    const helper = new Helper(this);
+    const shares = await allSettled([
+      helper.createShare({
+        id: helper.createShareGri('id1'),
+      }),
+      helper.createShare({
+        id: helper.createShareGri('id2'),
+      }),
+    ]);
+    await helper.givenFile();
+    await helper.givenShares(shares);
+    const callParent = sinon.stub(helper.appProxyMock, 'callParent');
+    callParent
+      .withArgs('getShareUrl', sinon.match({ shareId: 'id1' }))
+      .returns('https://example.com/private_share1');
+    callParent
+      .withArgs('getShareUrl', sinon.match({ shareId: 'id2' }))
+      .returns('https://example.com/private_share2');
 
-    this.render(hbs`{{file-shares/body}}`);
-    expect(this.$()).to.have.length(1);
+    await helper.renderBody();
+    await helper.waitForSharesLoad();
+
+    const items = helper.getShareItems();
+    const anchors = [...items].map(item => item.querySelector('a.share-local-url'));
+    expect(anchors[0]).to.have.attr('href', 'https://example.com/private_share1');
+    expect(anchors[1]).to.have.attr('href', 'https://example.com/private_share2');
+  });
+
+  it('renders public URL of existing shares', async function () {
+    const helper = new Helper(this);
+    const shares = await allSettled([
+      helper.createShare({
+        publicUrl: 'https://example.com/1',
+      }),
+      helper.createShare({
+        publicUrl: 'https://example.com/2',
+      }),
+    ]);
+    await helper.givenFile();
+    await helper.givenShares(shares);
+
+    await helper.renderBody();
+    await helper.waitForSharesLoad();
+
+    const items = helper.getShareItems();
+    const inputs = [...items].map(item =>
+      item.querySelector('.row-share-public-url input')
+    );
+    expect(inputs[0]).to.have.value('https://example.com/1');
+    expect(inputs[1]).to.have.value('https://example.com/2');
   });
 });

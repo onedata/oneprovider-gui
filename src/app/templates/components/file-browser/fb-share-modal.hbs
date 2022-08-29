@@ -16,55 +16,37 @@
   {{#modal.body}}
     <div class="share-modal-loadable-row loadable-row">
       {{#promise-proxy-container proxy=contentProxy}}
-        {{#if (eq mode "new")}}
-          <p>{{tt this "setName"}}:</p>
-          <div class="row">
-            {{#bs-form class="form-horizontal without-labels" as |form|}}
-              {{#form.group
-                validation=(if validationError "error")
-                class=(concat-classes
-                  "new-share-name-form-group"
-                  (if validationError "has-message")
-                )
-              }}
-                <input
-                  id={{inputId}}
-                  type="text"
-                  class="form-control new-share-name"
-                  value={{newShareName}}
-                  oninput={{action (mut newShareName) value="target.value"}}
-                  onkeydown={{invoke-on-enter (action "submitNew")}}
-                  disabled={{isSaving}}
-                  autofocus=true
-                >
-                <div class="form-message form-message-name {{unless validationError "transparent"}}">
-                  {{validationErrorMessage}}
-                  {{#if (eq validationError "regexp")}}
-                    <div class="inline-icon-container hint-trigger clickable">
-                      {{one-label-tip title=(tt this "regexpHint") class="share-name-regexp-hint"}}
-                    </div>
-                  {{/if}}
-                </div>
-              {{/form.group}}
-            {{/bs-form}}
-          </div>
-        {{else if (eq mode "show")}}
-          <p class="row-share-intro">
-            {{tt
-              this
-              "showIntroCount"
-              fileType=(tt this (concat "fileType." file.type))
-              shareCount=shareCount
-              times=(tt this (concat "times." (if (gt shareCount 1) "plural" "singular")))
-            }}:
-          </p>
-          {{#each shares as |share|}}
-            {{file-browser/fb-share-modal-item
-              share=share
-              getShareUrl=(action "getShareUrl")
+        <p>{{tt this "setName"}}:</p>
+        <div class="row">
+          {{#bs-form class="form-horizontal without-labels" as |form|}}
+            {{#form.group
+              validation=(if validationError "error")
+              class=(concat-classes
+                "new-share-name-form-group"
+                (if validationError "has-message")
+              )
             }}
-          {{/each}}
-        {{/if}}
+              <input
+                id={{inputId}}
+                type="text"
+                class="form-control new-share-name"
+                value={{newShareName}}
+                oninput={{action (mut newShareName) value="target.value"}}
+                onkeydown={{invoke-on-enter (action "submitNew")}}
+                disabled={{isSaving}}
+                autofocus=true
+              >
+              <div class="form-message form-message-name {{unless validationError "transparent"}}">
+                {{validationErrorMessage}}
+                {{#if (eq validationError "regexp")}}
+                  <div class="inline-icon-container hint-trigger clickable">
+                    {{one-label-tip title=(tt this "regexpHint") class="share-name-regexp-hint"}}
+                  </div>
+                {{/if}}
+              </div>
+            {{/form.group}}
+          {{/bs-form}}
+        </div>
       {{/promise-proxy-container}}
     </div>
   {{/modal.body}}
