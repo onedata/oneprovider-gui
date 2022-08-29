@@ -14,11 +14,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { conditional, raw } from 'ember-awesome-macros';
 
-/**
- * @typedef {Object} PermissionsViewModelCreateData
- * @property {boolean} readonly
- */
-
 const mixins = [
   OwnerInjector,
   I18n,

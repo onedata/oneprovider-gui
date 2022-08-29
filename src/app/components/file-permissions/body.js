@@ -1,5 +1,5 @@
 /**
- * Shows and allows edit file/directory/symlink permissions
+ * Shows and allows edit file/directory permissions
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH

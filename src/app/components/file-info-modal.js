@@ -22,6 +22,7 @@ import {
   bool,
   equal,
   not,
+  array,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -464,9 +465,6 @@ export default Component.extend(...mixins, {
     notEqual('itemType', raw('symlink'))
   ),
 
-  // TODO: VFS-9628 this is a temporary list of tabs moved from separate modals
-  specialFileTabs: Object.freeze(['metadata', 'permissions']),
-
   /**
    * @type {Array<FileInfoTabId>}
    */
@@ -495,8 +493,15 @@ export default Component.extend(...mixins, {
     },
   ),
 
+  // TODO: VFS-9628 this is a temporary list of tabs moved from separate modals
+  specialFileTabs: Object.freeze(['metadata', 'permissions', 'shares']),
+
   // TODO: VFS-9628 will contain all tab models after refactor
-  allTabModels: collect('tabModels.metadata', 'tabModels.permissions'),
+  allTabModels: collect(
+    'tabModels.metadata',
+    'tabModels.permissions',
+    'tabModels.shares',
+  ),
 
   // TODO: VFS-9628 will contain all tab models after refactor
   // Using computed instead of computed macro because there are issues
@@ -534,6 +539,17 @@ export default Component.extend(...mixins, {
           return this.tabModelFactory.createTabModel('permissions', {
             readonly: this.previewMode,
             ...this.tabOptions?.permissions,
+          });
+        }
+      ),
+
+      shares: computed(
+        'tabModelFactory',
+        'tabOptions.shares',
+        function permissions() {
+          return this.tabModelFactory.createTabModel('shares', {
+            readonly: this.previewMode,
+            ...this.tabOptions?.shares,
           });
         }
       ),

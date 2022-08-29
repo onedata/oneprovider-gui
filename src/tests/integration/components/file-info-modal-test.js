@@ -418,6 +418,22 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
+  it('has active "Shares" tab and renders permissions view body when initialTab = permissions is given',
+    async function () {
+      givenDummyFile(this);
+      this.set('initialTab', 'shares');
+
+      await renderComponent();
+
+      const sharesNav = find('.nav-link-shares');
+      expect(sharesNav).to.exist;
+      expect(sharesNav).to.have.class('active');
+      expect(sharesNav).to.have.trimmed.text('Shares');
+      console.log(find('.modal-body').outerHTML);
+      expect(find('.modal-body .file-shares-body')).to.exist;
+    }
+  );
+
   context('for file type and API samples tab', function () {
     beforeEach(async function () {
       const fileApiSamples =
