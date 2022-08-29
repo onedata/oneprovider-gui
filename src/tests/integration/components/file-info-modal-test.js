@@ -420,7 +420,9 @@ describe('Integration | Component | file info modal', function () {
 
   it('has active "Shares" tab and renders permissions view body when initialTab = permissions is given',
     async function () {
-      givenDummyFile(this);
+      await givenFileModel(this, {
+        sharesCount: 0,
+      });
       this.set('initialTab', 'shares');
 
       await renderComponent();
@@ -429,10 +431,21 @@ describe('Integration | Component | file info modal', function () {
       expect(sharesNav).to.exist;
       expect(sharesNav).to.have.class('active');
       expect(sharesNav).to.have.trimmed.text('Shares');
-      console.log(find('.modal-body').outerHTML);
       expect(find('.modal-body .file-shares-body')).to.exist;
     }
   );
+
+  it('renders "Shares" tab with number of shares in tab name', async function () {
+    await givenFileModel(this, {
+      sharesCount: 2,
+    });
+
+    await renderComponent();
+
+    const sharesNav = find('.nav-link-shares');
+    expect(sharesNav).to.exist;
+    expect(sharesNav).to.have.trimmed.text('Shares (2)');
+  });
 
   context('for file type and API samples tab', function () {
     beforeEach(async function () {
@@ -503,4 +516,19 @@ async function renderComponent() {
 
 function givenDummyFile(testCase) {
   testCase.set('files', [file1]);
+}
+
+async function createFile(testCase, data) {
+  const store = lookupService(testCase, 'store');
+  const record = store.createRecord('file', {
+    name: 'Dummy file',
+    type: 'file',
+    ...data,
+  });
+  return await record.save();
+}
+
+async function givenFileModel(testCase, data) {
+  const file = await createFile(testCase, data);
+  testCase.set('files', [file]);
 }

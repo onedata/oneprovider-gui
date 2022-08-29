@@ -8,6 +8,7 @@
 
 import BaseTabModel from './base-tab-model';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import FileSharesViewModel from 'oneprovider-gui/utils/file-shares-view-model';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -58,6 +59,19 @@ export default BaseTabModel.extend(...mixins, {
    * @override
    */
   bodyComponent: 'file-shares/body',
+
+  title: computed('file.name', 'sharesCount', function title() {
+    let text = this.t('title');
+    if (this.sharesCount) {
+      text += ` (${this.sharesCount})`;
+    }
+    return text;
+  }),
+
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  sharesCount: reads('file.sharesCount'),
 
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}

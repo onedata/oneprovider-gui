@@ -22,7 +22,6 @@ import {
   bool,
   equal,
   not,
-  array,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -546,7 +545,7 @@ export default Component.extend(...mixins, {
       shares: computed(
         'tabModelFactory',
         'tabOptions.shares',
-        function permissions() {
+        function shares() {
           return this.tabModelFactory.createTabModel('shares', {
             readonly: this.previewMode,
             ...this.tabOptions?.shares,
