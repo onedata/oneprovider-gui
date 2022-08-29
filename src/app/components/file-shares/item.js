@@ -1,9 +1,8 @@
 /**
  * Single already created share presented in share modal
- * 
- * @module components/file-browser/fb-share-modal-item
+ *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -15,13 +14,8 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
   classNames: [
-    'fb-share-modal-item',
+    'file-share-item',
   ],
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.fileBrowser.fbShareModalItem',
 
   /**
    * @virtual

@@ -1,6 +1,6 @@
 {{#promise-proxy-container proxy=sharesProxy}}
   {{#each shares as |share|}}
-    {{file-browser/fb-share-modal-item
+    {{file-shares/item
       share=share
       getShareUrl=(action "getShareUrl")
     }}

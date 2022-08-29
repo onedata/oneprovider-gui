@@ -89,7 +89,7 @@ export default class FileSharesHelper {
     });
   }
   getShareItems() {
-    return this.getBody().querySelectorAll('.fb-share-modal-item');
+    return this.getBody().querySelectorAll('.file-share-item');
   }
 
   async givenFile(data = {}) {
