@@ -83,4 +83,21 @@ describe('Integration | Component | file-shares/body', function () {
     expect(inputs[0]).to.have.value('https://example.com/1');
     expect(inputs[1]).to.have.value('https://example.com/2');
   });
+
+  it('renders "no shares" message when file has no share', async function () {
+    const helper = new Helper(this);
+    await helper.givenFile({
+      type: 'file',
+    });
+    await helper.givenShares([]);
+    await helper.givenSimpleAppProxyStub();
+
+    await helper.renderBody();
+    await helper.waitForSharesLoad();
+
+    const element = helper.getBody();
+    const noSharesInfo = element.querySelector('.content-info-no-shares');
+    expect(noSharesInfo).to.exist;
+    expect(noSharesInfo).to.contain.text('This file is not shared');
+  });
 });

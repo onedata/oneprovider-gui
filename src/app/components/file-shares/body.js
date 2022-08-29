@@ -10,6 +10,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
+import { computed } from '@ember/object';
 
 const mixins = [
   I18n,
@@ -37,9 +38,23 @@ export default Component.extend(...mixins, {
 
   shares: reads('sharesProxy.content'),
 
+  fileTypeText: computed('file.type', function fileTypeText() {
+    const fileType = this.file.type;
+    return this.t(`fileType.${fileType || 'file'}`);
+  }),
+
+  // FIXME: implement
+  isCreateShareDisabled: false,
+
+  // FIXME: implement
+  createShareDisabledTip: '',
+
   actions: {
     getShareUrl() {
       return this.viewModel.getShareUrl?.(...arguments);
+    },
+    createShare() {
+      // FIXME: implement
     },
   },
 });
