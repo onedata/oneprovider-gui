@@ -65,6 +65,15 @@ export default BaseTabModel.extend(...mixins, {
    */
   bodyComponent: 'file-shares/body',
 
+  /**
+   * @override
+   */
+  footerComponent: conditional(
+    'sharesCount',
+    raw('file-shares/footer'),
+    raw(''),
+  ),
+
   title: computed('file.name', 'sharesCount', function title() {
     let text = this.t('title');
     if (this.sharesCount) {
