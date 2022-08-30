@@ -43,11 +43,15 @@ export default Component.extend(...mixins, {
     return this.t(`fileType.${fileType || 'file'}`);
   }),
 
-  // FIXME: implement
-  isCreateShareDisabled: false,
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isCreateShareDisabled: reads('viewModel.isCreateShareDisabled'),
 
-  // FIXME: implement
-  createShareDisabledTip: '',
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  createShareDisabledTip: reads('viewModel.createShareDisabledTip'),
 
   actions: {
     getShareUrl() {

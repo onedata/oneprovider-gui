@@ -361,7 +361,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnShare: computed(
-    'spacePrivileges.view',
+    'selectedItems.0.sharesCount',
+    'spacePrivileges.{view,manageShares}',
     'selectedItemsContainsOnlySymlinks',
     function btnShare() {
       const {
@@ -374,12 +375,24 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       let disabledTip = this.generateDisabledTip({
         blockWhenSymlinksOnly: true,
       });
+      const file = this.selectedItems[0];
       const canView = get(spacePrivileges, 'view');
-      if (!canView && !disabledTip) {
+      if (!disabledTip && !canView) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
           privilegeFlag: 'space_view',
+        });
+      }
+      // if there are no created shares and user has no privileges, lock context item
+      // if there are already created shares - allow to open to browse shares
+      const cannotOpenForCreate = !get(spacePrivileges, 'manageShares') &&
+        !(file && get(file, 'sharesCount'));
+      if (!disabledTip && cannotOpenForCreate) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_manage_shares',
         });
       }
       return this.createFileAction({

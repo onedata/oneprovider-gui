@@ -31,5 +31,8 @@ export default Component.extend(...mixins, {
    */
   viewModel: undefined,
 
+  /**
+   * @type {ComputedProperty<Models.File>}
+   */
   file: reads('viewModel.file'),
 });

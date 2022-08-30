@@ -6,11 +6,13 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject from '@ember/object';
+import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { bool } from 'ember-awesome-macros';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const mixins = [
   OwnerInjector,
@@ -41,19 +43,27 @@ export default EmberObject.extend(...mixins, {
    */
   file: undefined,
 
-  //#region state
-
-  // FIXME:
-  // /**
-  //  * @type {Utils.ModalManager.ModalInstance}
-  //  */
-  // shareCreatorModal: null,
-
-  //#endregion
-
   sharesProxy: reads('file.shareRecords'),
 
   shares: reads('sharesProxy.content'),
+
+  hasManageSharesPrivileges: reads('space.privileges.manageShares'),
+
+  isCreateShareDisabled: bool('createShareDisabledTip'),
+
+  createShareDisabledTip: computed(
+    'hasManageSharesPrivileges',
+    function createShareDisabledTip() {
+      if (!this.hasManageSharesPrivileges) {
+        return insufficientPrivilegesMessage({
+          i18n: this.i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_manage_shares',
+        });
+      }
+      return null;
+    }
+  ),
 
   getShareUrl({ shareId }) {
     return this.appProxy.callParent('getShareUrl', { shareId });
@@ -63,14 +73,5 @@ export default EmberObject.extend(...mixins, {
     this.modalManager.show('share-modal', {
       file: this.file,
     });
-    // FIXME:
-    // return this.set('shareCreatorModal', shareCreatorModal);
   },
-
-  // FIXME:
-  // closeShareCreator() {
-  //   this.modalManager.hide(this.shareCreatorModal.id);
-  //   this.set('shareCreatorModal', null);
-  //   // FIXME: refresh data? or refresh in modal directly
-  // },
 });
