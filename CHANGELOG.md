@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9781 Do not show storage locations in shared file info
 * VFS-9760 Added charts functionalities allowing usage of many TS. collections in dashboards
 * VFS-9780 Fixed too large margin of file info modal tabbar
 * VFS-9774 Fixed infinite loading of empty audit logs
