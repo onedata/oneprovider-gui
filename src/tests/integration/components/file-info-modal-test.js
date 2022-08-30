@@ -420,7 +420,7 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
-  it('has active "Shares" tab and renders permissions view body when initialTab = permissions is given',
+  it('has active "Shares" tab and renders shares view body when initialTab = shares is given',
     async function () {
       await givenFileModel(this, {
         sharesCount: 0,

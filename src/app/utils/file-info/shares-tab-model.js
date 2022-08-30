@@ -41,12 +41,6 @@ export default BaseTabModel.extend(...mixins, {
   space: undefined,
 
   /**
-   * @virtual
-   * @type {boolean}
-   */
-  readonly: undefined,
-
-  /**
    * @override
    */
   tabId: 'shares',

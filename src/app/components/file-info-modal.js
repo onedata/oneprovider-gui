@@ -547,7 +547,6 @@ export default Component.extend(...mixins, {
         'tabOptions.shares',
         function shares() {
           return this.tabModelFactory.createTabModel('shares', {
-            readonly: this.previewMode,
             ...this.tabOptions?.shares,
           });
         }
