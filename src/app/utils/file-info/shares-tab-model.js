@@ -14,7 +14,6 @@ import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { conditional, raw } from 'ember-awesome-macros';
-import { getShareIdFromFileId } from 'onedata-gui-common/utils/file-id-parsers';
 
 const mixins = [
   OwnerInjector,
@@ -84,7 +83,7 @@ export default BaseTabModel.extend(...mixins, {
     }
     const file = this.file;
     const isSupportedFileType = file.type === 'file' || file.type === 'dir';
-    const isInShare = Boolean(getShareIdFromFileId(get(file, 'entityId')));
+    const isInShare = get(file, 'scope') === 'public';
     return isSupportedFileType && !isInShare;
   }),
 

@@ -14,6 +14,8 @@ import OneTooltipHelper from '../../helpers/one-tooltip';
 import { selectChoose, clickTrigger } from 'ember-power-select/test-support/helpers';
 import { Promise } from 'rsvp';
 import { findByText } from '../../helpers/find';
+import gri from 'onedata-gui-websocket-client/utils/gri';
+import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 
 describe('Integration | Component | file info modal', function () {
   setupRenderingTest();
@@ -356,7 +358,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('renders name for file', async function () {
-    givenDummyFile(this);
+    await givenDummyFile(this);
 
     await renderComponent();
 
@@ -366,7 +368,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('renders space id', async function () {
-    givenDummyFile(this);
+    await givenDummyFile(this);
     const spaceEntityId = 's893y37439';
     this.set('space', { entityId: spaceEntityId });
 
@@ -378,7 +380,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('renders cdmi object id for file', async function () {
-    givenDummyFile(this);
+    await givenDummyFile(this);
 
     await renderComponent();
 
@@ -390,7 +392,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('has active "Metadata" tab and renders metadata view body when initialTab = metadata is given',
     async function () {
-      givenDummyFile(this);
+      await givenDummyFile(this);
       this.set('initialTab', 'metadata');
 
       await renderComponent();
@@ -405,7 +407,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('has active "Permissions" tab and renders permissions view body when initialTab = permissions is given',
     async function () {
-      givenDummyFile(this);
+      await givenDummyFile(this);
       this.set('initialTab', 'permissions');
 
       await renderComponent();
@@ -514,8 +516,17 @@ async function renderComponent() {
   }}`);
 }
 
-function givenDummyFile(testCase) {
-  testCase.set('files', [file1]);
+async function givenDummyFile(testCase) {
+  await givenFileModel(testCase, {
+    name: 'Onedata.txt',
+    size: 1.5 * Math.pow(1024, 2),
+    type: 'file',
+    hasParent: true,
+    cdmiObjectId: exampleCdmiObjectId,
+    modificationTime: Math.floor(Date.now() / 1000),
+    posixPermissions: '644',
+    activePermissionsType: 'posix',
+  });
 }
 
 async function createFile(testCase, data) {
@@ -529,6 +540,14 @@ async function createFile(testCase, data) {
 }
 
 async function givenFileModel(testCase, data) {
-  const file = await createFile(testCase, data);
+  const entityId = window.btoa('guid#space_id#file_id');
+  const file = await createFile(testCase, {
+    id: gri({
+      entityId,
+      entityType: fileEntityType,
+      aspect: 'instance',
+    }),
+    ...data,
+  });
   testCase.set('files', [file]);
 }
