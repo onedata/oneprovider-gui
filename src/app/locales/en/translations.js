@@ -60,6 +60,7 @@ import datasetActions from './utils/dataset/actions';
 import fileInfo from './utils/file-info';
 import fileMetadataViewModel from './utils/file-metadata-view-model';
 import filePermissionsViewModel from './utils/file-permissions-view-model';
+import fileQosViewModel from './utils/file-qos-view-model';
 
 const translations = {
   components: {
@@ -120,6 +121,7 @@ const translations = {
     workflowVisualiser,
     fileMetadataViewModel,
     filePermissionsViewModel,
+    fileQosViewModel,
     fileInfo,
     archiveForm: {
       baseModel: archiveFormBaseModel,

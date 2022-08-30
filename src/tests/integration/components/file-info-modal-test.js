@@ -449,6 +449,21 @@ describe('Integration | Component | file info modal', function () {
     expect(sharesNav).to.have.trimmed.text('Shares (2)');
   });
 
+  it('has active "QoS" tab and renders QoS view body when initialTab = qos is given',
+    async function () {
+      await givenFileModel(this);
+      this.set('initialTab', 'qos');
+
+      await renderComponent();
+
+      const qosNav = find('.nav-link-qos');
+      expect(qosNav).to.exist;
+      expect(qosNav).to.have.class('active');
+      expect(qosNav).to.have.trimmed.text('QoS');
+      expect(find('.modal-body .file-qos-body')).to.exist;
+    }
+  );
+
   context('for file type and API samples tab', function () {
     beforeEach(async function () {
       const fileApiSamples =
