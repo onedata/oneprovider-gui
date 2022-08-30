@@ -133,13 +133,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @virtual optional: only in non-preview mode
    * @type {Function}
-   * @param {Models.File} file file to share
-   */
-  openShare: notImplementedThrow,
-
-  /**
-   * @virtual optional: only in non-preview mode
-   * @type {Function}
    * @param {Array<Models.File>} files files to browse and edit their dataset settings
    */
   openDatasets: notImplementedThrow,
@@ -369,16 +362,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnShare: computed(
     'spacePrivileges.view',
-    'openShare',
     'selectedItemsContainsOnlySymlinks',
     function btnShare() {
       const {
         spacePrivileges,
-        openShare,
         i18n,
       } = this.getProperties(
         'spacePrivileges',
-        'openShare',
         'i18n',
       );
       let disabledTip = this.generateDisabledTip({
@@ -395,7 +385,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       return this.createFileAction({
         id: 'share',
         action: (files) => {
-          return openShare(files[0]);
+          return this.openFileShare(files[0]);
         },
         disabled: Boolean(disabledTip),
         tip: disabledTip,
@@ -1325,5 +1315,21 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   changeJumpControlValue(value) {
     this.set('jumpControlValue', value);
+  },
+
+  /**
+   * @param {Models.File} file
+   */
+  async openFileShare(file) {
+    if (get(file, 'sharesCount')) {
+      this.openInfo([file], 'shares');
+    } else {
+      await this.modalManager.show('share-modal', {
+        file,
+        onSubmitted: () => {
+          this.openInfo([file], 'shares');
+        },
+      }).hiddenPromise;
+    }
   },
 });

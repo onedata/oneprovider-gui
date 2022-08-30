@@ -22,7 +22,6 @@ import {
 import { inject as service } from '@ember/service';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { reject } from 'rsvp';
 import backendNameRegexp from 'onedata-gui-common/utils/backend-name-regexp';
 import backendifyName, {
   minLength as shareNameMin,
@@ -44,6 +43,7 @@ export default Component.extend(I18n, {
   i18n: service(),
   shareManager: service(),
   globalNotify: service(),
+  modalManager: service(),
 
   /**
    * @override
@@ -78,14 +78,14 @@ export default Component.extend(I18n, {
   managePrivilege: true,
 
   /**
-   * @type {Models.File}
+   * @type {ComputedProperty<Models.File>}
    */
   file: reads('modalOptions.file'),
 
   /**
-   * @type {() => void}
+   * @type {ComputedProperty<() => void>}
    */
-  onClose: reads('modalOptions.onClose'),
+  onSubmitted: reads('modalOptions.onSubmitted'),
 
   submitNewDisabled: or(
     notEmpty('validationError'),
@@ -185,7 +185,7 @@ export default Component.extend(I18n, {
 
   close() {
     this.set('newShareName', '');
-    this.onClose();
+    this.modalManager.hide(this.modalId);
   },
 
   actions: {
@@ -211,6 +211,7 @@ export default Component.extend(I18n, {
           await file.reload();
           await file.hasMany('shareRecords');
         } finally {
+          this.onSubmitted?.();
           this.close();
         }
       } finally {

@@ -43,10 +43,11 @@ export default EmberObject.extend(...mixins, {
 
   //#region state
 
-  /**
-   * @type {Utils.ModalManager.ModalInstance}
-   */
-  shareCreatorModal: null,
+  // FIXME:
+  // /**
+  //  * @type {Utils.ModalManager.ModalInstance}
+  //  */
+  // shareCreatorModal: null,
 
   //#endregion
 
@@ -59,16 +60,17 @@ export default EmberObject.extend(...mixins, {
   },
 
   openShareCreator() {
-    const shareCreatorModal = this.modalManager.show('share-modal', {
+    this.modalManager.show('share-modal', {
       file: this.file,
-      onClose: this.closeShareCreator.bind(this),
     });
-    return this.set('shareCreatorModal', shareCreatorModal);
+    // FIXME:
+    // return this.set('shareCreatorModal', shareCreatorModal);
   },
 
-  closeShareCreator() {
-    this.modalManager.hide(this.shareCreatorModal.id);
-    this.set('shareCreatorModal', null);
-    // FIXME: refresh data? or refresh in modal directly
-  },
+  // FIXME:
+  // closeShareCreator() {
+  //   this.modalManager.hide(this.shareCreatorModal.id);
+  //   this.set('shareCreatorModal', null);
+  //   // FIXME: refresh data? or refresh in modal directly
+  // },
 });
