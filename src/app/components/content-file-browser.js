@@ -480,7 +480,6 @@ export default OneEmbeddedComponent.extend(
       this.closeRemoveModal();
       this.closeRenameModal();
       this.closeInfoModal();
-      this.closeShareModal();
       this.closeFileDistributionModal();
       this.closeQosModal();
       this.closeDatasetsModal();
