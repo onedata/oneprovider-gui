@@ -7,13 +7,14 @@
  */
 
 import BaseTabModel from './base-tab-model';
-import { computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import FileSharesViewModel from 'oneprovider-gui/utils/file-shares-view-model';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { conditional, raw } from 'ember-awesome-macros';
+import { getShareIdFromFileId } from 'onedata-gui-common/utils/file-id-parsers';
 
 const mixins = [
   OwnerInjector,
@@ -74,6 +75,22 @@ export default BaseTabModel.extend(...mixins, {
     raw(''),
   ),
 
+  /**
+   * @override
+   */
+  isVisible: computed(function isVisible() {
+    if (!this._super(...arguments)) {
+      return false;
+    }
+    const file = this.file;
+    const isSupportedFileType = file.type === 'file' || file.type === 'dir';
+    const isInShare = Boolean(getShareIdFromFileId(get(file, 'entityId')));
+    return isSupportedFileType && !isInShare;
+  }),
+
+  /**
+   * @override
+   */
   title: computed('file.name', 'sharesCount', function title() {
     let text = this.t('title');
     if (this.sharesCount) {
