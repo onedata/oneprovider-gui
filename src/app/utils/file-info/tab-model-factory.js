@@ -76,7 +76,7 @@ export default EmberObject.extend(OwnerInjector, {
 
   createQosTabModel(options) {
     return QosTabModel.extend({
-      file: reads('fileInfoModal.file'),
+      files: reads('fileInfoModal.files'),
       space: reads('fileInfoModal.space'),
     }).create({
       fileInfoModal: this.fileInfoModal,

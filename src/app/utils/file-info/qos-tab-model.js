@@ -60,7 +60,7 @@ export default BaseTabModel.extend(...mixins, {
   viewModel: computed('file', 'space', function viewModel() {
     return FileQosViewModel.create({
       ownerSource: this,
-      file: this.file,
+      files: this.files,
       space: this.space,
     });
   }),

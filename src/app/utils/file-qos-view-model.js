@@ -36,7 +36,7 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Models.File}
+   * @type {Array<Models.File>}
    */
-  file: undefined,
+  files: undefined,
 });

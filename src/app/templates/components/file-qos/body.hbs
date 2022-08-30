@@ -1,1 +1,12 @@
-{{yield}}
+{{#if noQosRequirements}}
+  {{content-info
+    class="scroll-breakpoint-600 fill-flex-using-column content-info-no-qos"
+    header=(tt this "noQos.header" filesTypeText=filesTypeText)
+    imagePath="assets/images/no-qos.svg"
+    buttonAction=(action "createQosRequirement")
+    buttonLabel=(tt this "noQos.buttonCreateQosRequirement")
+    buttonClass="create-qos-requirement-btn"
+  }}
+{{else}}
+
+{{/if}}
