@@ -22,6 +22,7 @@ export default EmberObject.extend(...mixins, {
   shareManager: service(),
   globalNotify: service(),
   appProxy: service(),
+  modalManager: service(),
 
   /**
    * @override
@@ -40,11 +41,34 @@ export default EmberObject.extend(...mixins, {
    */
   file: undefined,
 
+  //#region state
+
+  /**
+   * @type {Utils.ModalManager.ModalInstance}
+   */
+  shareCreatorModal: null,
+
+  //#endregion
+
   sharesProxy: reads('file.shareRecords'),
 
   shares: reads('sharesProxy.content'),
 
   getShareUrl({ shareId }) {
     return this.appProxy.callParent('getShareUrl', { shareId });
+  },
+
+  openShareCreator() {
+    const shareCreatorModal = this.modalManager.show('share-modal', {
+      file: this.file,
+      onClose: this.closeShareCreator.bind(this),
+    });
+    return this.set('shareCreatorModal', shareCreatorModal);
+  },
+
+  closeShareCreator() {
+    this.modalManager.hide(this.shareCreatorModal.id);
+    this.set('shareCreatorModal', null);
+    // FIXME: refresh data? or refresh in modal directly
   },
 });

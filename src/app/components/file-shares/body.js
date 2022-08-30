@@ -54,7 +54,7 @@ export default Component.extend(...mixins, {
       return this.viewModel.getShareUrl?.(...arguments);
     },
     createShare() {
-      // FIXME: implement
+      this.viewModel.openShareCreator();
     },
   },
 });

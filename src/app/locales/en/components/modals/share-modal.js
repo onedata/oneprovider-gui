@@ -1,13 +1,10 @@
 // FIXME: remove unused translations
 export default {
   header: 'Share {{fileType}}',
-  close: 'Close',
   cancel: 'Cancel',
   setName: 'Enter name for created share that will be visible to other users',
   creatingShare: 'creating share',
   createNew: 'Create',
-  openShare: 'Open share',
-  showIntroCount: 'This {{fileType}} has already been shared {{shareCount}} {{times}}',
   validations: {
     nameTooShort: 'Name must have at least {{length}} characters',
     nameTooLong: 'Name cannot be longer than {{length}} characters',

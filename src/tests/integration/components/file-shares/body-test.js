@@ -4,6 +4,8 @@ import { setupRenderingTest } from 'ember-mocha';
 import Helper from '../../../helpers/file-shares';
 import { all as allSettled } from 'rsvp';
 import sinon from 'sinon';
+import { find, click } from 'ember-test-helpers';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 describe('Integration | Component | file-shares/body', function () {
   setupRenderingTest();
