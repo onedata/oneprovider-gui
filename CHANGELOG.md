@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9603 Moved file shares settings from separate modal to file info panel
 * VFS-9602 Moved file permissions settings from separate modal to file info panel
 * VFS-9760 Added charts functionalities allowing usage of many TS. collections in dashboards
 * VFS-9780 Fixed too large margin of file info modal tabbar
