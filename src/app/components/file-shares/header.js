@@ -30,4 +30,6 @@ export default Component.extend(...mixins, {
    * @type {Utils.FileSharesViewModel}
    */
   viewModel: undefined,
+
+  file: reads('viewModel.file'),
 });

@@ -28,7 +28,6 @@ import backendifyName, {
   maxLength as shareNameMax,
 } from 'onedata-gui-common/utils/backendify-name';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 /**
@@ -148,15 +147,6 @@ export default Component.extend(I18n, {
   shareCount: reads('sharesProxy.content.length'),
 
   publicShareUrl: reads('share.publicUrl'),
-
-  isViewForOtherForbidden: computed(
-    'file.{type,posixPermissions}',
-    function isViewForOtherForbidden() {
-      const file = this.get('file');
-      const octalNumber = 2;
-      return isPosixViewForbidden(file, octalNumber);
-    }
-  ),
 
   init() {
     this._super(...arguments);

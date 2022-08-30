@@ -7,7 +7,7 @@
       }}
     {{/each}}
   {{else}}
-    {{content-info
+    {{#content-info
       class="scroll-breakpoint-600 fill-flex-using-column content-info-no-shares"
       header=(tt this "noShares.header" fileType=fileTypeText)
       buttonAction=(action "createShare")
@@ -16,5 +16,7 @@
       buttonDisabled=isCreateShareDisabled
       buttonTip=createShareDisabledTip
     }}
+      {{file-shares/other-view-forbidden-warning file=file aboutTimeType="future"}}
+    {{/content-info}}
   {{/if}}
 {{/promise-proxy-container}}
