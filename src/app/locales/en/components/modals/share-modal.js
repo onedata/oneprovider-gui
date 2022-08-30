@@ -1,4 +1,3 @@
-// FIXME: remove unused translations
 export default {
   header: 'Share {{fileType}}',
   cancel: 'Cancel',

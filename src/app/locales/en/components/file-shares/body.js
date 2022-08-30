@@ -1,5 +1,4 @@
 export default {
-  // FIXME: remove if unused
   fileType: {
     file: 'file',
     dir: 'directory',
