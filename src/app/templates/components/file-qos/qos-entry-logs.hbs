@@ -10,12 +10,12 @@
     as |logEntry|
   }}
     {{#if isFileColumnVisible}}
-      {{qos-modal/qos-entry-logs/cell-file
+      {{file-qos/qos-entry-logs/cell-file
         fileCdmiObjectId=logEntry.content.fileId
         onGenerateFileUrl=(action "generateFileUrl")
       }}
     {{/if}}
-    {{qos-modal/qos-entry-logs/cell-content-message
+    {{file-qos/qos-entry-logs/cell-content-message
       reason=logEntry.content.reason
       status=logEntry.content.status
       description=logEntry.content.description

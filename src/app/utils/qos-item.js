@@ -1,8 +1,7 @@
 /**
- * Model to use in `qos-modal/qos-entry` that represents a QoS requirement in context
+ * Model to use in `file-qos/qos-entry` that represents a QoS requirement in context
  * of some file.
- * 
- * @module utils/qos-item
+ *
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

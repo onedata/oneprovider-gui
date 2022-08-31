@@ -1,40 +1,12 @@
-.qos-modal {
+.file-qos-body {
   $qos-icon-size: 2.5em;
   $color-qos-status-fulfilled: $color-one-success;
   $color-qos-status-pending: $color-one-warning;
-
-  @mixin header-fog-style($color) {
-    @include bar-fog-style(
-      $gradient-direction: to right,
-      $fog-width: 10px,
-      $fog-height: 34px,
-      $color: $color,
-    );
-    right: 0;
-  }
 
   @import './file-qos/file-entry';
   @import './file-qos/file-qos-summary';
   @import './file-qos/qos-entry';
 
-  .bs-modal-body-scroll > .file-qos-summary {
-    min-height: 100%;
-
-    > .no-qos-requirements {
-      background-size: auto 200px;
-      background-position: center 30px;
-      padding-top: 270px;
-      padding-bottom: 30px;
-      width: 100%;
-      @include absolute-align-middle-center();
-
-      .no-qos-requirements-message {
-        @include font-semibold();
-        text-transform: uppercase;
-        font-size: 130%;
-      }
-    }
-  }
   // TODO: experimental style proposed by Ewa on UX meeting - maybe should be used
   // in every modal
   .table-info {
@@ -88,21 +60,22 @@
     line-height: initial;
   }
 
-  .modal-header {
-    .qos-hint {
-      position: absolute;
-    }
-    .qos-header-hint-trigger {
-      font-size: 1em;
-    }
-    .header-icon {
-      font-size: $qos-icon-size * 1.25;
-      float: right;
-      &.one-icon {
-        margin-right: -12px;
-      }
-    }
-  }
+  // FIXME: former non-body style
+  // .modal-header {
+  //   .qos-hint {
+  //     position: absolute;
+  //   }
+  //   .qos-header-hint-trigger {
+  //     font-size: 1em;
+  //   }
+  //   .header-icon {
+  //     font-size: $qos-icon-size * 1.25;
+  //     float: right;
+  //     &.one-icon {
+  //       margin-right: -12px;
+  //     }
+  //   }
+  // }
 
   .qos-subheader-container {
     display: flex;
@@ -194,5 +167,25 @@
 
   .qos-info-selector-label {
     margin-right: 1em;
+  }
+}
+
+// FIXME: should not work, to refactor
+.bs-modal-body-scroll > .file-qos-summary {
+  min-height: 100%;
+
+  > .no-qos-requirements {
+    background-size: auto 200px;
+    background-position: center 30px;
+    padding-top: 270px;
+    padding-bottom: 30px;
+    width: 100%;
+    @include absolute-align-middle-center();
+
+    .no-qos-requirements-message {
+      @include font-semibold();
+      text-transform: uppercase;
+      font-size: 130%;
+    }
   }
 }

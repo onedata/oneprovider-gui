@@ -132,7 +132,7 @@
           {{#one-collapsible-list class="hide-final-border" as |list|}}
             {{#each fileItems key="entityId" as |fileItem|}}
               {{#list.item as |listItem|}}
-                {{qos-modal/file-entry
+                {{file-qos/file-entry
                   listItem=listItem
                   fileItem=fileItem
                   valuesBuilder=valuesBuilder
@@ -148,7 +148,7 @@
             {{/each}}
           {{/one-collapsible-list}}
         {{else}}
-          {{qos-modal/file-qos-summary
+          {{file-qos/file-qos-summary
             file=fileItems.firstObject.file
             qosItemsProxy=fileItems.firstObject.qosItemsProxy
             valuesBuilder=valuesBuilder

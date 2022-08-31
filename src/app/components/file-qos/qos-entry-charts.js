@@ -1,7 +1,6 @@
 /**
  * Shows charts with QoS transfer statistics.
  *
- * @module components/qos-modal/qos-entry-charts
  * @author Michał Borzęcki
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -43,7 +42,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   /**
    * @override
    */
-  i18nPrefix: 'components.qosModal.qosEntryCharts',
+  i18nPrefix: 'components.fileQos.qosEntryCharts',
 
   /**
    * @virtual
@@ -647,7 +646,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
           seriesEntry.providerId = storage.relationEntityId('provider');
         } catch (error) {
           console.error(
-            `component:qos-modal/qos-entry-charts#fetchStorageSeriesConfigs: cannot load storage with ID "${storageId}"`,
+            `fetchStorageSeriesConfigs: cannot load storage with ID "${storageId}"`,
             error
           );
           seriesEntry.providerId = null;
@@ -662,7 +661,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             seriesEntry.providerName = get(provider, 'name');
           } catch (error) {
             console.error(
-              `component:qos-modal/qos-entry-charts#fetchStorageSeriesConfigs: cannot load provider with ID "${providerId}"`,
+              `fetchStorageSeriesConfigs: cannot load provider with ID "${providerId}"`,
               error
             );
           }

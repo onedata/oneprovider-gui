@@ -117,7 +117,7 @@
 {{/unless}}
 <div class="qos-subheader qos-info-subheader with-icon-left">
   {{qos-evaluation-info qosEvaluationProxy=qosEvaluationProxy}}
-  {{qos-modal/qos-entry-details-switch
+  {{file-qos/qos-entry-details-switch
     value=detailsType
     onChange=(action "changeDetailsType")
   }}
@@ -127,7 +127,7 @@
   onHidden=(action "hideCharts")
 }}
   {{#if areChartsRendered}}
-    {{qos-modal/qos-entry-charts
+    {{file-qos/qos-entry-charts
       spaceId=qosItem.qosSourceFile.spaceEntityId
       qosRequirementId=qosId
     }}
@@ -137,7 +137,7 @@
   collapsed=(not-eq detailsType "logs")
   onHidden=(action "hideLogs")
 }}
-  {{qos-modal/qos-entry-logs
+  {{file-qos/qos-entry-logs
     qosRequirementId=qosId
     fileType=qosItem.qosSourceFile.type
     spaceId=qosItem.qosSourceFile.spaceEntityId

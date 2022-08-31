@@ -1,7 +1,6 @@
 /**
  * Accordion file item in multi-files mode of QoS modal
- * 
- * @module components/qos-modal/file-entry
+ *
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -17,9 +16,9 @@ import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
 import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
 
 export default Component.extend(I18n, {
-  classNames: ['qos-modal-file-entry'],
+  classNames: ['file-qos-file-entry'],
 
-  i18nPrefix: 'components.qosModal.fileEntry',
+  i18nPrefix: 'components.fileQos.fileEntry',
 
   /**
    * @type {Component}

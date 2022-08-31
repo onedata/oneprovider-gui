@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import common from './-common';
+import common from '../qos-modal/-common';
 
 const translations = {
   qosId: 'Requirement ID',
@@ -10,7 +10,7 @@ const translations = {
   replicas: 'replicas',
   disabledRemoveHint: '<strong>Inherited requirement</strong> – cannot be removed directly.<br>You can remove it from the directory indicated as the inheritance source.',
   statusHint: {
-    pending: 'Pending ‐ data replication is still ongoing',
+    pending: 'Pending – data replication is still ongoing',
     fulfilled: 'Fulfilled – desired number of replicas have been created on matching storages and their contents are up-to-date',
     impossible: 'Impossible – there are not enough storages matching the expression to meet the required number of replicas',
     error: 'Cannot evaluate requirement status',

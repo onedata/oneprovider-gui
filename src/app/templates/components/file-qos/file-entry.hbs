@@ -40,7 +40,7 @@
           )
         }}
       {{/if}}
-      
+
       {{one-tooltip title=(tt
         this
         (concat "statusHint." fileQosStatus)
@@ -51,7 +51,7 @@
 {{/listItem.header}}
 {{#listItem.content}}
   <div class="list-content">
-    {{qos-modal/file-qos-summary
+    {{file-qos/file-qos-summary
       file=file
       qosItemsProxy=qosItemsProxy
       valuesBuilder=valuesBuilder

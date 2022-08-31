@@ -26,7 +26,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.qosModal.qosEntryLogs.cellFile',
+  i18nPrefix: 'components.fileQos.qosEntryLogs.cellFile',
 
   /**
    * @virtual

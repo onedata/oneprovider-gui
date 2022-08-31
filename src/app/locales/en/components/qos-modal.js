@@ -1,9 +1,9 @@
-import fileQosSummary from './qos-modal/file-qos-summary';
-import fileEntry from './qos-modal/file-entry';
-import qosEntry from './qos-modal/qos-entry';
-import qosEntryDetailsSwitch from './qos-modal/qos-entry-details-switch';
-import qosEntryCharts from './qos-modal/qos-entry-charts';
-import qosEntryLogs from './qos-modal/qos-entry-logs';
+import fileQosSummary from './file-qos/file-qos-summary';
+import fileEntry from './file-qos/file-entry';
+import qosEntry from './file-qos/qos-entry';
+import qosEntryDetailsSwitch from './file-qos/qos-entry-details-switch';
+import qosEntryCharts from './file-qos/qos-entry-charts';
+import qosEntryLogs from './file-qos/qos-entry-logs';
 import qosAdd from './qos-modal/qos-add';
 
 export default {

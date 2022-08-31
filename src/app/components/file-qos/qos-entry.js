@@ -1,7 +1,6 @@
 /**
  * Show information about single QoS requirement
  *
- * @module components/qos-modal/qos-entry
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -33,7 +32,7 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   /**
    * @override
    */
-  i18nPrefix: 'components.qosModal.qosEntry',
+  i18nPrefix: 'components.fileQos.qosEntry',
 
   /**
    * @virtual

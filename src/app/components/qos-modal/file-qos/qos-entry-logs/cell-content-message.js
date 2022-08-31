@@ -23,7 +23,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.qosModal.qosEntryLogs.cellContentMessage',
+  i18nPrefix: 'components.fileQos.qosEntryLogs.cellContentMessage',
 
   /**
    * @virtual

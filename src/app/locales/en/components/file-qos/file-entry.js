@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import common from './-common';
+import common from '../qos-modal/-common';
 
 const translations = {
   requirement: 'requirement',
@@ -7,10 +7,10 @@ const translations = {
   noRequirements: 'no requirements',
   statusHint: {
     fulfilled: 'All requirements for this {{fileType}} are fulfilled',
-    pending: 'Pending ‐ there are some unfulfilled requirements for this {{fileType}}',
+    pending: 'Pending – there are some unfulfilled requirements for this {{fileType}}',
     impossible: 'At least one requirement is impossible to be fulfilled',
     empty: 'No QoS requirements defined for this {{fileType}}',
-    error: 'An error occurred when computing this {{fileType}}\'s QoS status ‐ expand QoS requirements panel for details',
+    error: 'An error occurred when computing this {{fileType}}\'s QoS status – expand QoS requirements panel for details',
   },
   fileType: {
     file: 'file',

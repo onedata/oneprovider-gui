@@ -23,7 +23,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.qosModal.qosEntryDetailsSwitch',
+  i18nPrefix: 'components.fileQos.qosEntryDetailsSwitch',
 
   /**
    * @virtual

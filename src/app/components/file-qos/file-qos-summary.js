@@ -1,7 +1,6 @@
 /**
  * A list of QoS requirements for file
  *
- * @module components/qos-modal/file-qos-summary
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -21,7 +20,7 @@ const objectMixins = [
 export default Component.extend(...objectMixins, {
   classNames: ['file-qos-summary', 'loadable-row'],
 
-  i18nPrefix: 'components.qosModal.fileQosSummary',
+  i18nPrefix: 'components.fileQos.fileQosSummary',
 
   /**
    * @virtual
