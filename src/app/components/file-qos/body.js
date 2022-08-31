@@ -30,7 +30,7 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Utils.FileSharesViewModel}
+   * @type {Utils.FileQosViewModel}
    */
   viewModel: undefined,
 
@@ -63,9 +63,36 @@ export default Component.extend(...mixins, {
 
   noQosRequirements: reads('noQosRequirementsProxy.content'),
 
+  dataProxy: reads('viewModel.dataProxy'),
+
+  multipleFiles: reads('viewModel.multipleFiles'),
+
+  fileItems: reads('viewModel.fileItems'),
+
+  valuesBuilder: reads('viewModel.valuesBuilder'),
+
+  storages: reads('viewModel.storagesProxy.content'),
+
+  providers: reads('viewModel.providersProxy.content'),
+
+  queryProperties: reads('viewModel.queryPropertiesProxy.content'),
+
+  getDataUrl() {
+    this.appProxy.callParent('getDataUrl', ...arguments);
+  },
+
   actions: {
     createQosRequirement() {
 
+    },
+    evaluateQosExpression(expression) {
+      return this.viewModel.evaluateQosExpression(expression);
+    },
+    removeQosRequirement(qosItem) {
+      return this.viewModel.removeQosRequirement(qosItem);
+    },
+    close() {
+      // FIXME: implement
     },
   },
 });

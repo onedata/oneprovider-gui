@@ -1,3 +1,5 @@
 export default {
-  // FIXME: remove if unused
+  anyStorage: 'any storage',
+  storage: 'storage',
+  provider: 'provider',
 };

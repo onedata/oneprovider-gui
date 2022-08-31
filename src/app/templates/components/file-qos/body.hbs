@@ -8,5 +8,40 @@
     buttonClass="create-qos-requirement-btn"
   }}
 {{else}}
-
+  {{#promise-proxy-container proxy=dataProxy}}
+    {{#if multipleFiles}}
+      {{#one-collapsible-list class="hide-final-border" as |list|}}
+        {{#each fileItems key="entityId" as |fileItem|}}
+          {{#list.item as |listItem|}}
+            {{qos-modal/file-entry
+              listItem=listItem
+              fileItem=fileItem
+              valuesBuilder=valuesBuilder
+              queryProperties=queryProperties
+              storages=storages
+              providers=providers
+              getDataUrl=getDataUrl
+              evaluateQosExpression=(action "evaluateQosExpression")
+              removeQosRequirement=(action "removeQosRequirement")
+              closeModal=(action "close")
+            }}
+          {{/list.item}}
+        {{/each}}
+      {{/one-collapsible-list}}
+    {{else}}
+      {{qos-modal/file-qos-summary
+        file=fileItems.firstObject.file
+        qosItemsProxy=fileItems.firstObject.qosItemsProxy
+        valuesBuilder=valuesBuilder
+        queryProperties=queryProperties
+        storages=storages
+        providers=providers
+        showChartsOfSingleQos=true
+        getDataUrl=getDataUrl
+        evaluateQosExpression=(action "evaluateQosExpression")
+        removeQosRequirement=(action "removeQosRequirement")
+        closeModal=(action "close")
+      }}
+    {{/if}}
+  {{/promise-proxy-container}}
 {{/if}}
