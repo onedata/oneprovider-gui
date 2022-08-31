@@ -19,7 +19,7 @@ const mixins = [
 ];
 
 export default Component.extend(...mixins, {
-  classNames: ['file-qos-body'],
+  classNames: ['file-qos-body', 'fill-flex-using-column'],
 
   i18n: service(),
 
@@ -45,23 +45,7 @@ export default Component.extend(...mixins, {
     }
   }),
 
-  /**
-   * Resolves to true if there is no QoS requirement in any file.
-   * @type {ComputedProperty<PromiseObject<boolean>>}
-   */
-  noQosRequirementsProxy: promise.object(computed(
-    'files.@each.fileQosSummary',
-    async function noQosRequirementsProxy() {
-      /** @type {Array<Promise<number>>} */
-      const requirementsNumberPromises = this.files.map(async file => {
-        const fileQosSummary = await get(file, 'fileQosSummary');
-        return Object.keys(get(fileQosSummary, 'requirements')).length;
-      });
-      return !(await allFulfilled(requirementsNumberPromises)).some(Boolean);
-    }
-  )),
-
-  noQosRequirements: reads('noQosRequirementsProxy.content'),
+  noQosRequirementsProxy: reads('viewModel.noQosRequirementsProxy'),
 
   dataProxy: reads('viewModel.dataProxy'),
 
@@ -75,21 +59,31 @@ export default Component.extend(...mixins, {
 
   providers: reads('viewModel.providersProxy.content'),
 
-  queryProperties: reads('viewModel.queryPropertiesProxy.content'),
+  queryPropertiesProxy: reads('viewModel.queryPropertiesProxy'),
+
+  queryProperties: reads('queryPropertiesProxy.content'),
+
+  noQosRequirements: reads('noQosRequirementsProxy.content'),
 
   getDataUrl() {
     this.appProxy.callParent('getDataUrl', ...arguments);
   },
 
   actions: {
-    createQosRequirement() {
-
+    addQosRequirement() {
+      return this.viewModel.openQosRequirementCreator();
     },
     evaluateQosExpression(expression) {
       return this.viewModel.evaluateQosExpression(expression);
     },
     removeQosRequirement(qosItem) {
       return this.viewModel.removeQosRequirement(qosItem);
+    },
+    changeNewEntry(data, isValid) {
+      this.viewModel.changeNewEntry(data, isValid);
+    },
+    refreshQueryProperties() {
+      this.viewModel.refreshQueryProperties();
     },
     close() {
       // FIXME: implement

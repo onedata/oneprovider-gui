@@ -13,7 +13,7 @@ import FileQosViewModel from 'oneprovider-gui/utils/file-qos-view-model';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { conditional, raw } from 'ember-awesome-macros';
+import { conditional, raw, eq } from 'ember-awesome-macros';
 
 const mixins = [
   OwnerInjector,
@@ -49,6 +49,15 @@ export default BaseTabModel.extend(...mixins, {
    * @override
    */
   bodyComponent: 'file-qos/body',
+
+  /**
+   * @override
+   */
+  footerComponent: conditional(
+    'viewModel.hideFooter',
+    raw(''),
+    raw('file-qos/footer'),
+  ),
 
   /**
    * @override

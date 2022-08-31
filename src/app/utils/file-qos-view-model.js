@@ -17,7 +17,7 @@ import { all as allFulfilled, allSettled } from 'rsvp';
 import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
 import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { conditional, raw, equal, and, getBy, array, promise, gt, or, not } from 'ember-awesome-macros';
+import { conditional, raw, equal, and, getBy, array, promise, gt, or, not, eq } from 'ember-awesome-macros';
 import Looper from 'onedata-gui-common/utils/looper';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
@@ -53,13 +53,53 @@ export default EmberObject.extend(...mixins, {
    */
   files: undefined,
 
+  //#region state
+
   /**
    * Initialized on init
    * @type {Looper}
    */
   updater: null,
 
+  /**
+   * @type {'list'|'creator'}
+   */
+  activeSlideId: 'list',
+
+  /**
+   * Object containing data required to create neq Models.QosRequirement
+   * @type { { replicasNumber: Number, expressionInfix: Array<String> } }
+   */
+  newEntryData: undefined,
+
+  /**
+   * @type {boolean}
+   */
+  newEntryIsValid: undefined,
+
+  //#endregion
+
+  hideFooter: or('noQosRequirements', eq('activeSlideId', raw('add'))),
+
   spaceId: reads('space.entityId'),
+
+  /**
+   * Resolves to true if there is no QoS requirement in any file.
+   * @type {ComputedProperty<PromiseObject<boolean>>}
+   */
+  noQosRequirementsProxy: promise.object(computed(
+    'files.@each.fileQosSummary',
+    async function noQosRequirementsProxy() {
+      /** @type {Array<Promise<number>>} */
+      const requirementsNumberPromises = this.files.map(async file => {
+        const fileQosSummary = await get(file, 'fileQosSummary');
+        return Object.keys(get(fileQosSummary, 'requirements')).length;
+      });
+      return !(await allFulfilled(requirementsNumberPromises)).some(Boolean);
+    }
+  )),
+
+  noQosRequirements: reads('noQosRequirementsProxy.content'),
 
   /**
    * Data needed to show requirements list
@@ -268,5 +308,26 @@ export default EmberObject.extend(...mixins, {
       spaceId,
     } = this.getProperties('spaceManager', 'spaceId');
     return spaceManager.evaluateQosExpression(spaceId, expression);
+  },
+
+  openQosRequirementCreator() {
+    this.changeSlide('add');
+  },
+
+  changeSlide(slideId) {
+    this.set('activeSlideId', slideId);
+  },
+
+  changeNewEntry(data, isValid) {
+    if (data !== undefined) {
+      this.set('newEntryData', data);
+    }
+    if (isValid !== undefined) {
+      this.set('newEntryIsValid', isValid);
+    }
+  },
+
+  refreshQueryProperties() {
+    return this.updateQueryPropertiesProxy({ replace: true });
   },
 });

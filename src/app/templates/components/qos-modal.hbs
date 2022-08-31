@@ -11,199 +11,71 @@
     <h1 class="qos-modal-header">
       <div class="qos-modal-header-text">
         {{#truncated-string tagName="span" class="header-text"}}
-          {{tt this
-            (concat (if isAddMode
-              (if (media "isMobile") "headerAddMobile" "headerAdd")
-              "headerShow"
-            ))
-          }}
+          {{tt this (if (media "isMobile") "headerAddMobile" "headerAdd")}}
         {{/truncated-string}}
-        {{#if isAddMode}}
-          {{one-icon
-            icon="sign-question-rounded"
-            class="qos-header-hint-trigger qos-add-hint-trigger hint-trigger clickable"
-          }}
-          {{#one-switchable-popover-modal
-            class="qos-add-hint qos-hint"
-            triggersConfiguration=".qos-add-hint-trigger"
-            popoverStyle="qos-add-hint-info over-modals"
-            modalClass="modal-compact-help"
-            layoutType="modal"
-            as |ospm|
-          }}
-            {{#ospm.modal.header}}
-              <h1>{{tt this "addHintTitle"}}</h1>
-            {{/ospm.modal.header}}
-            {{#ospm.modal.body}}
-              <p>{{tt this "addHint"}}</p>
-            {{/ospm.modal.body}}
-            {{#ospm.modal.footer}}
-              <div class="btn-toolbar text-right visible-xs-block">
-                {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
-                  {{tt this "hintClose"}}
-                {{/bs-button}}
-              </div>
-            {{/ospm.modal.footer}}
-          {{/one-switchable-popover-modal}}
-        {{else}}
-          {{one-icon
-            icon="sign-question-rounded"
-            class="qos-header-hint-trigger qos-show-hint-trigger hint-trigger clickable"
-          }}
-          {{#one-switchable-popover-modal
-            class="qos-show-hint qos-hint"
-            triggersConfiguration=".qos-show-hint-trigger"
-            popoverStyle="qos-show-hint-info over-modals"
-            modalClass="modal-compact-help"
-            layoutType="modal"
-            as |ospm|
-          }}
-            {{#ospm.modal.header}}
-              <h1>{{tt this "showHintTitle"}}</h1>
-            {{/ospm.modal.header}}
-            {{#ospm.modal.body}}
-              <p>{{tt this "showHintIntro"}}</p>
-              <p>{{tt this "showHintTransfers"}}</p>
-              <p>{{tt this "showHintRemoving"}}</p>
-              <p>
-                {{one-doc-see-more
-                  linkName=(tt this "showHintDocLinkName")
-                  docPath="using_onedata/qos.html"
-                }}
-              </p>
-            {{/ospm.modal.body}}
-            {{#ospm.modal.footer}}
-              <div class="btn-toolbar text-right visible-xs-block">
-                {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
-                  {{tt this "hintClose"}}
-                {{/bs-button}}
-              </div>
-            {{/ospm.modal.footer}}
-          {{/one-switchable-popover-modal}}
-        {{/if}}
+        {{one-icon
+          icon="sign-question-rounded"
+          class="qos-header-hint-trigger qos-add-hint-trigger hint-trigger clickable"
+        }}
+        {{#one-switchable-popover-modal
+          class="qos-add-hint qos-hint"
+          triggersConfiguration=".qos-add-hint-trigger"
+          popoverStyle="qos-add-hint-info over-modals"
+          modalClass="modal-compact-help"
+          layoutType="modal"
+          as |ospm|
+        }}
+          {{#ospm.modal.header}}
+            <h1>{{tt this "addHintTitle"}}</h1>
+          {{/ospm.modal.header}}
+          {{#ospm.modal.body}}
+            <p>{{tt this "addHint"}}</p>
+          {{/ospm.modal.body}}
+          {{#ospm.modal.footer}}
+            <div class="btn-toolbar text-right visible-xs-block">
+              {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+                {{tt this "hintClose"}}
+              {{/bs-button}}
+            </div>
+          {{/ospm.modal.footer}}
+        {{/one-switchable-popover-modal}}
       </div>
-      {{#if (and (not isAddModed) allQosStatusIcon)}}
-        {{#if (eq allQosStatus "impossible")}}
-          {{#one-icon-tagged
-            icon="checkbox-pending"
-            class=(concat "all-qos-status tag-right qos-status-" allQosStatus)
-            iconClass="header-icon"
-            tagIcon="warning"
-            shadowType="none"
-          }}
-            {{one-tooltip title=(tt
-              this
-              (concat "fileQosStatusHint.impossible")
-              fileType=fileTypeText
-            )}}
-          {{/one-icon-tagged}}
-        {{else}}
-          {{#one-icon
-            icon=allQosStatusIcon
-            class=(concat "header-icon all-qos-status qos-status-" allQosStatus)
-          }}
-            {{one-tooltip title=(tt
-              this
-              (concat "fileQosStatusHint." allQosStatus)
-              fileType=fileTypeText
-            )}}
-          {{/one-icon}}
-        {{/if}}
-      {{/if}}
     </h1>
-    {{modal-file-subheader files=files multiTextPrefix=(if isAddMode (tt this "for"))}}
+    {{modal-file-subheader files=files multiTextPrefix=(tt this "for")}}
   {{/modal.header}}
 
   {{#modal.body}}
-    {{#if isAddMode}}
-      {{qos-modal/qos-add
-        spaceId=spaceId
-        valuesBuilder=valuesBuilder
-        queryPropertiesProxy=queryPropertiesProxy
-        storages=storages
-        providers=providers
-        evaluateQosExpression=(action "evaluateQosExpression")
-        refreshQueryProperties=(action "refreshQueryProperties")
-        update=(action "changeNewEntry")
-      }}
-    {{else}}
-      {{#promise-proxy-container proxy=dataProxy}}
-        {{#if multipleFiles}}
-          {{#one-collapsible-list class="hide-final-border" as |list|}}
-            {{#each fileItems key="entityId" as |fileItem|}}
-              {{#list.item as |listItem|}}
-                {{file-qos/file-entry
-                  listItem=listItem
-                  fileItem=fileItem
-                  valuesBuilder=valuesBuilder
-                  queryProperties=queryPropertiesProxy.content
-                  storages=storagesProxy.content
-                  providers=providersProxy.content
-                  getDataUrl=getDataUrl
-                  evaluateQosExpression=(action "evaluateQosExpression")
-                  removeQosRequirement=(action "removeQosRequirement")
-                  closeModal=(action "onHide")
-                }}
-              {{/list.item}}
-            {{/each}}
-          {{/one-collapsible-list}}
-        {{else}}
-          {{file-qos/file-qos-summary
-            file=fileItems.firstObject.file
-            qosItemsProxy=fileItems.firstObject.qosItemsProxy
-            valuesBuilder=valuesBuilder
-            queryProperties=queryPropertiesProxy.content
-            storages=storages
-            providers=providers
-            showChartsOfSingleQos=true
-            getDataUrl=getDataUrl
-            evaluateQosExpression=(action "evaluateQosExpression")
-            removeQosRequirement=(action "removeQosRequirement")
-            closeModal=(action "onHide")
-          }}
-        {{/if}}
-      {{/promise-proxy-container}}
-    {{/if}}
+    {{qos-modal/qos-add
+      spaceId=spaceId
+      valuesBuilder=valuesBuilder
+      queryPropertiesProxy=queryPropertiesProxy
+      storages=storages
+      providers=providers
+      evaluateQosExpression=(action "evaluateQosExpression")
+      refreshQueryProperties=(action "refreshQueryProperties")
+      update=(action "changeNewEntry")
+    }}
   {{/modal.body}}
 
   {{#modal.footer}}
     {{#bs-button
-      onClick=(if isAddMode
-        (action (mut mode "show"))
-        (action "onHide")
-      )
+      onClick=(action "onHide")
       type="default"
     }}
-      {{tt this (if isAddMode "cancel" "close")}}
+      {{tt this "cancel"}}
     {{/bs-button}}
-
-    {{#if isAddMode}}
-      <div class="btn-tooltip-container">
-        {{#one-button
-          type="primary"
-          buttonType="submit"
-          disabled=saveDisabled
-          onClick=(action "save")
-        }}
-          {{tt this "save"}}
-        {{/one-button}}
-        {{#if (and (not saveDisabled) multipleFiles)}}
-          {{one-tooltip title=(tt this "addMultiHint" count=files.length)}}
-        {{/if}}
-      </div>
-    {{else}}
-      <div class="btn-tooltip-container">
-        {{#bs-button
-          onClick=(action (mut mode) "add")
-          type="primary"
-          disabled=(not editPrivilege)
-        }}
-          {{tt this "add"}}
-        {{/bs-button}}
-        {{#unless editPrivilege}}
-          {{one-tooltip title=noEditHint}}
-        {{/unless}}
-      </div>
-    {{/if}}
+    <div class="btn-tooltip-container">
+      {{#one-button
+        type="primary"
+        buttonType="submit"
+        disabled=saveDisabled
+        onClick=(action "save")
+      }}
+        {{tt this "save"}}
+      {{/one-button}}
+      {{#if (and (not saveDisabled) multipleFiles)}}
+        {{one-tooltip title=(tt this "addMultiHint" count=files.length)}}
+      {{/if}}
+    </div>
   {{/modal.footer}}
 {{/one-modal}}

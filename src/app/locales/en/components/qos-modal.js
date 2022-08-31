@@ -28,7 +28,7 @@ export default {
   addingQosEntry: 'adding QoS requirement',
   fileQosStatusHint: {
     fulfilled: 'All requirements for {{fileType}} are fulfilled',
-    pending: 'Pending ‐ there are some unfulfilled requirements for {{fileType}}',
+    pending: 'Pending – there are some unfulfilled requirements for {{fileType}}',
     impossible: 'At least one requirement is impossible to be fulfilled',
     error: 'Error evaluating QoS status summary',
   },

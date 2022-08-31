@@ -1,5 +1,5 @@
 /**
- * Modal for viewing and editing QoS entries for file
+ * Modal for adding QoS entries for file
  *
  * @module components/qos-modal
  * @author Jakub Liput
@@ -137,11 +137,6 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<Boolean>}
    */
   multipleFiles: gt('files.length', 1),
-
-  /**
-   * @type {ComputedProperty<booelan>}
-   */
-  isAddMode: and('editPrivilege', equal('mode', raw('add'))),
 
   /**
    * @type {ComputedProperty<string>} one of: file, dir

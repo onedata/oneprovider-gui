@@ -7,6 +7,10 @@
   @import './file-qos/file-qos-summary';
   @import './file-qos/qos-entry';
 
+  .one-carousel-slide.qos-requirement-list-slide {
+    height: 100%;
+  }
+
   // TODO: experimental style proposed by Ewa on UX meeting - maybe should be used
   // in every modal
   .table-info {
