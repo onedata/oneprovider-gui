@@ -555,9 +555,11 @@ export default Component.extend(...mixins, {
 
       qos: computed(
         'tabModelFactory',
+        'previewMode',
         'tabOptions.qos',
         function shares() {
           return this.tabModelFactory.createTabModel('qos', {
+            previewMode: this.previewMode,
             ...this.tabOptions?.qos,
           });
         }

@@ -41,6 +41,12 @@ export default BaseTabModel.extend(...mixins, {
   space: undefined,
 
   /**
+   * @virtual
+   * @type {boolean}
+   */
+  previewMode: false,
+
+  /**
    * @override
    */
   tabId: 'qos',
@@ -70,11 +76,28 @@ export default BaseTabModel.extend(...mixins, {
   isSupportingMultiFiles: true,
 
   /**
+   * @override
+   */
+  isVisible: computed(function isVisible() {
+    if (!this._super(...arguments)) {
+      return false;
+    }
+    if (this.previewMode) {
+      return false;
+    }
+    const isSupportedFileType = this.files.every(file =>
+      file.type === 'file' || file.type === 'dir'
+    );
+    return isSupportedFileType;
+  }),
+
+  /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
    */
-  viewModel: computed('file', 'space', function viewModel() {
+  viewModel: computed('file', 'space', 'previewMode', function viewModel() {
     return FileQosViewModel.create({
       ownerSource: this,
+      previewMode: this.previewMode,
       files: this.files,
       space: this.space,
     });
