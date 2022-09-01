@@ -91,18 +91,6 @@
     }}
   {{/if}}
 
-  {{#if filesToShowQos}}
-    {{qos-modal
-      open=true
-      files=filesToShowQos
-      space=spaceProxy.content
-      showPrivilege=spacePrivileges.viewQos
-      editPrivilege=spacePrivileges.manageQos
-      onHide=(action closeQosModal)
-      getDataUrl=(action "getFileUrl")
-    }}
-  {{/if}}
-
   {{file-browser/fb-download-modal
     file=fileForConfirmDownload
     confirmDownload=(action "confirmFileDownload")

@@ -46,18 +46,6 @@
   }}
 {{/if}}
 
-{{#if filesToShowQos}}
-  {{qos-modal
-    open=true
-    files=filesToShowQos
-    space=space
-    showPrivilege=spacePrivileges.viewQos
-    editPrivilege=spacePrivileges.manageQos
-    getDataUrl=(action "getFileUrl")
-    onHide=(action closeQosModal)
-  }}
-{{/if}}
-
 {{file-browser/fb-download-modal
   file=fileForConfirmDownload
   confirmDownload=(action confirmFileDownload)

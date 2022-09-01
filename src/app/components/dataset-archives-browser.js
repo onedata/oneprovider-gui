@@ -632,7 +632,6 @@ export default Component.extend(...mixins, {
       onArchiveDipModeChange: this.changeArchiveDipMode.bind(this),
       openInfo: this.openInfoModal.bind(this),
       openFileDistribution: this.openFileDistributionModal.bind(this),
-      openQos: this.openQosModal.bind(this),
       openConfirmDownload: this.openConfirmDownload.bind(this),
     });
   }),
@@ -685,14 +684,6 @@ export default Component.extend(...mixins, {
 
   closeFileDistributionModal() {
     this.set('filesToShowDistribution', null);
-  },
-
-  openQosModal(files) {
-    this.set('filesToShowQos', files);
-  },
-
-  closeQosModal() {
-    this.set('filesToShowQos', null);
   },
 
   openConfirmDownload(file) {
