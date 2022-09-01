@@ -284,7 +284,7 @@ export default EmberObject.extend(...mixins, {
       qos: qosRequirement,
     } = getProperties(qosItem, 'qosSourceFile', 'qos');
     try {
-      qosManager.removeQosRequirement(qosRequirement);
+      await qosManager.removeQosRequirement(qosRequirement);
     } finally {
       try {
         this.updateData();

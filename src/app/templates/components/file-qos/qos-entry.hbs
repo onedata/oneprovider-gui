@@ -53,7 +53,7 @@
       {{/one-webui-popover}}
       {{#one-icon
         id=removeTriggerId
-        icon="checkbox-filled-x"
+        icon="browser-delete"
         class=(concat-classes
           "icon-trigger remove-qos-trigger"
           (if direct "clickable enabled" "disabled")
@@ -83,7 +83,7 @@
               size="sm"
               onClick=ospm.submit
             }}
-              {{one-icon icon="remove"}} <span>{{tt this "removeQuestion.remove"}}</span>
+              {{one-icon icon="browser-delete"}} <span>{{tt this "removeQuestion.remove"}}</span>
             {{/one-button}}
           </div>
         {{/one-switchable-popover-modal}}

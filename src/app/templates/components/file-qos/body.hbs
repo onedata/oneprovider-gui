@@ -1,5 +1,6 @@
 {{!-- FIXME: use carousel after discussion --}}
 {{#if (eq activeSlideId "list")}}
+  {{!-- FIXME: loading spinner before no requirements is rendered (use dataProxy?) --}}
   {{#if noQosRequirements}}
     {{content-info
       class="scroll-breakpoint-600 fill-flex-using-column content-info-no-qos"
