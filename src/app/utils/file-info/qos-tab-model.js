@@ -78,18 +78,26 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @override
    */
-  isVisible: computed(function isVisible() {
-    if (!this._super(...arguments)) {
-      return false;
+  isVisible: computed(
+    'previewMode',
+    'files.@each.type',
+    'space.privileges.viewQos',
+    function isVisible() {
+      if (!this._super(...arguments)) {
+        return false;
+      }
+      if (this.previewMode) {
+        return false;
+      }
+      if (!this.space.privileges?.viewQos) {
+        return false;
+      }
+      const isSupportedFileType = this.files.every(file =>
+        file.type === 'file' || file.type === 'dir'
+      );
+      return isSupportedFileType;
     }
-    if (this.previewMode) {
-      return false;
-    }
-    const isSupportedFileType = this.files.every(file =>
-      file.type === 'file' || file.type === 'dir'
-    );
-    return isSupportedFileType;
-  }),
+  ),
 
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}

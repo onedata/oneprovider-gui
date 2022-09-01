@@ -31,6 +31,10 @@ export default Component.extend(...mixins, {
    */
   viewModel: undefined,
 
+  isAddDisabled: reads('viewModel.isAddDisabled'),
+
+  isAddDisabledTip: reads('viewModel.isAddDisabledTip'),
+
   actions: {
     addQosRequirement() {
       this.viewModel.openQosRequirementCreator();

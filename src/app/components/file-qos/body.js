@@ -65,6 +65,10 @@ export default Component.extend(...mixins, {
 
   isSaveDisabled: reads('viewModel.isSaveDisabled'),
 
+  isAddDisabled: reads('viewModel.isAddDisabled'),
+
+  isAddDisabledTip: reads('viewModel.isAddDisabledTip'),
+
   queryProperties: reads('queryPropertiesProxy.content'),
 
   noQosRequirements: reads('noQosRequirementsProxy.content'),

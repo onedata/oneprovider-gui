@@ -111,10 +111,12 @@ export default EmberObject.extend(...mixins, {
     promise.all('queryPropertiesProxy', 'storagesProxy', 'providersProxy')
   ),
 
+  isAddDisabled: not('editPrivilege'),
+
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isSaveDisabled: or(not('newEntryIsValid'), not('editPrivilege')),
+  isSaveDisabled: or(not('newEntryIsValid'), 'isAddDisabled'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -152,6 +154,16 @@ export default EmberObject.extend(...mixins, {
    * @type {ComputedProperty<QueryValueComponentsBuilder>}
    */
   valuesBuilder: computed(() => QueryValueComponentsBuilderQos.create()),
+
+  isAddDisabledTip: computed('editPrivilege', function isAddDisabledTip() {
+    if (!this.editPrivilege) {
+      return insufficientPrivilegesMessage({
+        i18n: this.get('i18n'),
+        modelName: 'space',
+        privilegeFlag: 'space_manage_qos',
+      });
+    }
+  }),
 
   init() {
     this._super(...arguments);

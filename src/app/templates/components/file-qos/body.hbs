@@ -9,6 +9,8 @@
       buttonAction=(action "addQosRequirement")
       buttonLabel=(tt this "noQos.buttonCreateQosRequirement")
       buttonClass="create-qos-requirement-btn"
+      buttonDisabled=isAddDisabled
+      buttonTip=isAddDisabledTip
     }}
   {{else}}
     {{#promise-proxy-container proxy=dataProxy}}
