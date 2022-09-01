@@ -48,6 +48,11 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @override
    */
+  headerComponent: 'file-qos/header',
+
+  /**
+   * @override
+   */
   bodyComponent: 'file-qos/body',
 
   /**
