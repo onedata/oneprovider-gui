@@ -13,7 +13,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-parameters-suggestions';
-import { all as allFulfilled, allSettled } from 'rsvp';
+import { Promise, all as allFulfilled, allSettled } from 'rsvp';
 import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
 import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -36,6 +36,7 @@ export default EmberObject.extend(...mixins, {
   qosManager: service(),
   fileManager: service(),
   globalNotify: service(),
+  modalManager: service(),
 
   /**
    * @override
@@ -109,6 +110,16 @@ export default EmberObject.extend(...mixins, {
   dataProxy: promise.object(
     promise.all('queryPropertiesProxy', 'storagesProxy', 'providersProxy')
   ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isSaveDisabled: or(not('newEntryIsValid'), not('editPrivilege')),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  editPrivilege: reads('space.privileges.manageQos'),
 
   /**
    * @type {ComputedProperty<QueryParameter>}
@@ -337,6 +348,9 @@ export default EmberObject.extend(...mixins, {
   },
 
   saveNewEntry() {
+    if (this.isSaveDisabled) {
+      return;
+    }
     return this.addEntry(this.newEntryData);
   },
 
@@ -378,5 +392,45 @@ export default EmberObject.extend(...mixins, {
         safeExec(this, 'set', 'mode', 'show');
         return updating;
       });
+  },
+
+  /**
+   * If needed, show unsaved changes prompt with save/restore actions.
+   * @returns {Promise<boolean>} If `true` is returned, the tab can be safely closed.
+   *   If `false` is returned, you should not close the tab due to unsaved changes.
+   */
+  async checkClose() {
+    if (this.activeSlideId === 'add' && this.newEntryData) {
+      return await this.handleUnsavedChanges();
+    } else {
+      return true;
+    }
+  },
+
+  /**
+   * @returns {Promise<boolean>} true if current tab can be closed
+   */
+  async handleUnsavedChanges() {
+    return await new Promise(resolve => {
+      this.modalManager.show('unsaved-changes-question-modal', {
+        onSubmit: async (data) => {
+          if (data.shouldSaveChanges) {
+            try {
+              await this.saveNewEntry();
+              this.closeQosRequirementCreator();
+              resolve(true);
+            } catch (error) {
+              resolve(false);
+            }
+          } else {
+            this.closeQosRequirementCreator();
+            resolve(true);
+          }
+        },
+        onHide() {
+          resolve(false);
+        },
+      });
+    });
   },
 });

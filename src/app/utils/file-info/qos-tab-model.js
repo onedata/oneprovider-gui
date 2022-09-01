@@ -68,6 +68,7 @@ export default BaseTabModel.extend(...mixins, {
    * @override
    */
   isSupportingMultiFiles: true,
+
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
    */
@@ -78,4 +79,11 @@ export default BaseTabModel.extend(...mixins, {
       space: this.space,
     });
   }),
+
+  /**
+   * @override
+   */
+  checkClose() {
+    return this.viewModel.checkClose();
+  },
 });

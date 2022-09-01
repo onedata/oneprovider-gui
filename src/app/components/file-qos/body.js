@@ -63,12 +63,11 @@ export default Component.extend(...mixins, {
 
   activeSlideId: reads('viewModel.activeSlideId'),
 
+  isSaveDisabled: reads('viewModel.isSaveDisabled'),
+
   queryProperties: reads('queryPropertiesProxy.content'),
 
   noQosRequirements: reads('noQosRequirementsProxy.content'),
-
-  // FIXME: implement
-  isSaveDisabled: false,
 
   getDataUrl() {
     this.appProxy.callParent('getDataUrl', ...arguments);
