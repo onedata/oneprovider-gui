@@ -61,9 +61,14 @@ export default Component.extend(...mixins, {
 
   queryPropertiesProxy: reads('viewModel.queryPropertiesProxy'),
 
+  activeSlideId: reads('viewModel.activeSlideId'),
+
   queryProperties: reads('queryPropertiesProxy.content'),
 
   noQosRequirements: reads('noQosRequirementsProxy.content'),
+
+  // FIXME: implement
+  isSaveDisabled: false,
 
   getDataUrl() {
     this.appProxy.callParent('getDataUrl', ...arguments);
@@ -84,6 +89,13 @@ export default Component.extend(...mixins, {
     },
     refreshQueryProperties() {
       this.viewModel.refreshQueryProperties();
+    },
+    cancelQosRequirementCreation() {
+      this.viewModel.closeQosRequirementCreator();
+    },
+    saveQosRequirement() {
+      this.viewModel.saveNewEntry();
+      this.viewModel.closeQosRequirementCreator();
     },
     close() {
       // FIXME: implement

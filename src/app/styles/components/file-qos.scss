@@ -7,8 +7,12 @@
   @import './file-qos/file-qos-summary';
   @import './file-qos/qos-entry';
 
-  .one-carousel-slide.qos-requirement-list-slide {
-    height: 100%;
+  .qos-add-form-buttons {
+    display: flex;
+    justify-content: center;
+    > :not(:first-child) {
+      margin-left: 0.5em;
+    }
   }
 
   // TODO: experimental style proposed by Ewa on UX meeting - maybe should be used
@@ -63,23 +67,6 @@
   .label {
     line-height: initial;
   }
-
-  // FIXME: former non-body style
-  // .modal-header {
-  //   .qos-hint {
-  //     position: absolute;
-  //   }
-  //   .qos-header-hint-trigger {
-  //     font-size: 1em;
-  //   }
-  //   .header-icon {
-  //     font-size: $qos-icon-size * 1.25;
-  //     float: right;
-  //     &.one-icon {
-  //       margin-right: -12px;
-  //     }
-  //   }
-  // }
 
   .qos-subheader-container {
     display: flex;

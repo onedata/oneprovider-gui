@@ -33,8 +33,9 @@ const mixins = [
 export default EmberObject.extend(...mixins, {
   i18n: service(),
   spaceManager: service(),
-  qosManager: service,
+  qosManager: service(),
   fileManager: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -83,19 +84,19 @@ export default EmberObject.extend(...mixins, {
 
   spaceId: reads('space.entityId'),
 
+  summaryProxies: array.mapBy('files', raw('fileQosSummary')),
+
   /**
    * Resolves to true if there is no QoS requirement in any file.
    * @type {ComputedProperty<PromiseObject<boolean>>}
    */
   noQosRequirementsProxy: promise.object(computed(
-    'files.@each.fileQosSummary',
+    'summaryProxies.@each.requirements',
     async function noQosRequirementsProxy() {
-      /** @type {Array<Promise<number>>} */
-      const requirementsNumberPromises = this.files.map(async file => {
-        const fileQosSummary = await get(file, 'fileQosSummary');
-        return Object.keys(get(fileQosSummary, 'requirements')).length;
-      });
-      return !(await allFulfilled(requirementsNumberPromises)).some(Boolean);
+      const summaries = await allFulfilled(this.summaryProxies);
+      return !summaries.some(summary =>
+        Object.keys(get(summary, 'requirements')).length
+      );
     }
   )),
 
@@ -314,6 +315,10 @@ export default EmberObject.extend(...mixins, {
     this.changeSlide('add');
   },
 
+  closeQosRequirementCreator() {
+    this.changeSlide('list');
+  },
+
   changeSlide(slideId) {
     this.set('activeSlideId', slideId);
   },
@@ -329,5 +334,49 @@ export default EmberObject.extend(...mixins, {
 
   refreshQueryProperties() {
     return this.updateQueryPropertiesProxy({ replace: true });
+  },
+
+  saveNewEntry() {
+    return this.addEntry(this.newEntryData);
+  },
+
+  addEntry({ replicasNumber, expressionInfix }) {
+    const {
+      fileItems,
+      qosManager,
+      fileManager,
+      globalNotify,
+    } = this.getProperties('fileItems', 'qosManager', 'fileManager', 'globalNotify');
+    return allSettled(fileItems.map(fileItem => {
+        const file = get(fileItem, 'file');
+        return qosManager.createQosRequirement(file, expressionInfix, replicasNumber)
+          .finally(() => {
+            if (get(file, 'hardlinksCount') > 1) {
+              fileManager.fileParentRefresh(file);
+            }
+            if (get(file, 'type') === 'dir') {
+              return fileManager.dirChildrenRefresh(get(file, 'entityId'));
+            }
+          });
+      }))
+      .then(results => {
+        const rejectedResult = results.findBy('state', 'rejected');
+        if (rejectedResult) {
+          globalNotify.backendError(this.t('addingQosEntry'), rejectedResult.reason);
+          this.updateData();
+          throw rejectedResult.reason;
+        }
+      })
+      // just in case if code fails
+      .catch(error => {
+        globalNotify.backendError(this.t('addingQosEntry'), error);
+        this.updateData();
+        throw error;
+      })
+      .then(() => {
+        const updating = this.updateData();
+        safeExec(this, 'set', 'mode', 'show');
+        return updating;
+      });
   },
 });

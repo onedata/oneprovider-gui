@@ -4,7 +4,7 @@ import qosEntry from './file-qos/qos-entry';
 import qosEntryDetailsSwitch from './file-qos/qos-entry-details-switch';
 import qosEntryCharts from './file-qos/qos-entry-charts';
 import qosEntryLogs from './file-qos/qos-entry-logs';
-import qosAdd from './qos-modal/qos-add';
+import qosAdd from './file-qos/qos-add';
 
 export default {
   headerShow: 'Quality of Service',

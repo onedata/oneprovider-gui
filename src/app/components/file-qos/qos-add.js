@@ -1,7 +1,6 @@
 /**
  * Form for creating new QoS record
  *
- * @module components/qos-modal/qos-add
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -32,7 +31,7 @@ export default Component.extend(...mixins, {
   /**
    * @override
    */
-  i18nPrefix: 'components.qosModal.qosAdd',
+  i18nPrefix: 'components.fileQos.qosAdd',
 
   /**
    * @virtual

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import common from './-common';
+import common from '../qos-modal/-common';
 
 const translations = {
   validation: {

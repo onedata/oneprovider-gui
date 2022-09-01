@@ -73,12 +73,18 @@
                     {{#one-copy-button
                       copyButtonTagName="a"
                       class="clipboard-btn expression-clipboard-btn clickable"
-                      clipboardTarget=(concat "#" elementId " .hidden-clipboard-source.raw-expression-infix")
+                      clipboardTarget=(local-selector
+                        ".hidden-clipboard-source.raw-expression-infix"
+                      )
                     }}
-                      <span class="copy-expression-text">{{tt this "copyExpression"}}</span>
-                      <div
-                        class="inline-icon-container copy-expression-icon-container info-icon"
-                      >
+                      <span class="copy-expression-text">
+                        {{tt this "copyExpression"}}
+                      </span>
+                      <div class={{concat-classes
+                        "inline-icon-container"
+                        "copy-expression-icon-container"
+                        "info-icon"
+                      }}>
                         {{one-icon icon="browser-copy"}}
                       </div>
                       {{#if expressionInfix}}
