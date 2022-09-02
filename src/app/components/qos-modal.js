@@ -145,11 +145,6 @@ export default Component.extend(...mixins, {
   fileType: reads('file.type'),
 
   /**
-   * @type {Array<String>}
-   */
-  filesStatus: array.mapBy('fileItems', raw('fileQosStatus')),
-
-  /**
    * @type {ComputedProperty<QueryValueComponentsBuilder>}
    */
   valuesBuilder: computed(() => QueryValueComponentsBuilderQos.create()),
@@ -233,10 +228,7 @@ export default Component.extend(...mixins, {
 
   willDestroyElement() {
     try {
-      const updater = this.get('updater');
-      if (updater) {
-        updater.destroy();
-      }
+      this.filesQosStatusModel?.destroy();
     } finally {
       this._super(...arguments);
     }

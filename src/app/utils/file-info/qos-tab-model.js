@@ -7,13 +7,15 @@
  */
 
 import BaseTabModel from './base-tab-model';
-import { get, computed } from '@ember/object';
+import { get, computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import FileQosViewModel from 'oneprovider-gui/utils/file-qos-view-model';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { conditional, raw, eq } from 'ember-awesome-macros';
+import { conditional, raw, getBy, array } from 'ember-awesome-macros';
+import FilesQosStatusModel from 'oneprovider-gui/utils/files-qos-status-model';
+import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 
 const mixins = [
   OwnerInjector,
@@ -76,6 +78,11 @@ export default BaseTabModel.extend(...mixins, {
   isSupportingMultiFiles: true,
 
   /**
+   * @type {Utils.FilesQosStatusModel}
+   */
+  filesQosStatusModel: null,
+
+  /**
    * @override
    */
   isVisible: computed(
@@ -100,21 +107,90 @@ export default BaseTabModel.extend(...mixins, {
   ),
 
   /**
+   * @override
+   */
+  statusIcon: reads('allQosStatusIcon'),
+
+  /**
+   * @override
+   */
+
+  qosStatusClassMapping: Object.freeze({
+    error: 'tab-status-danger',
+    empty: 'tab-status-default',
+    fulfilled: 'tab-status-success',
+    pending: 'tab-status-warning',
+    impossible: 'tab-status-danger',
+  }),
+
+  allQosStatus: reads('filesQosStatusModel.allQosStatus'),
+
+  tabClass: computed('qosStatusClassMapping', 'allQosStatus', function tabClass() {
+    return `qos-status-${this.allQosStatus} ` +
+      (this.qosStatusClassMapping[this.allQosStatus] ?? '');
+  }),
+
+  /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
    */
-  viewModel: computed('file', 'space', 'previewMode', function viewModel() {
-    return FileQosViewModel.create({
-      ownerSource: this,
-      previewMode: this.previewMode,
-      files: this.files,
-      space: this.space,
-    });
-  }),
+  viewModel: computed(
+    'file',
+    'space',
+    'previewMode',
+    'filesQosStatusModel',
+    function viewModel() {
+      return FileQosViewModel.create({
+        ownerSource: this,
+        previewMode: this.previewMode,
+        files: this.files,
+        space: this.space,
+        filesQosStatusModel: this.filesQosStatusModel,
+      });
+    }
+  ),
+
+  allQosStatusIcon: getBy(raw(qosStatusIcons), 'filesQosStatusModel.allQosStatus'),
+
+  autoStatusWatchConfigurator: observer(
+    'files.[]',
+    'isVisible',
+    function autoStatusWatchConfigurator() {
+      if (this.files && this.isVisible) {
+        this.reinitializeFilesQosStatuModel();
+      } else {
+        this.filesQosStatusModel?.destroy();
+      }
+    }
+  ),
+
+  init() {
+    this._super(...arguments);
+    this.reinitializeFilesQosStatusModel();
+  },
+
+  /**
+   * @override
+   */
+  destroy() {
+    try {
+      this.filesQosStatusModel?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
 
   /**
    * @override
    */
   checkClose() {
     return this.viewModel.checkClose();
+  },
+
+  reinitializeFilesQosStatusModel() {
+    this.filesQosStatusModel?.destroy();
+    this.set('filesQosStatusModel', FilesQosStatusModel.create({
+      ownerSource: this,
+      files: this.files,
+    }));
   },
 });

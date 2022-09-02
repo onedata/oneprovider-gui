@@ -14,11 +14,9 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-parameters-suggestions';
 import { Promise, all as allFulfilled, allSettled } from 'rsvp';
-import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
 import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { conditional, raw, equal, and, getBy, array, promise, gt, or, not, eq } from 'ember-awesome-macros';
-import Looper from 'onedata-gui-common/utils/looper';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
@@ -29,6 +27,14 @@ const mixins = [
   createDataProxyMixin('storages'),
   createDataProxyMixin('providers'),
 ];
+
+export const qosStatusIcons = {
+  error: 'warning',
+  empty: 'circle-not-available',
+  fulfilled: 'checkbox-filled',
+  pending: 'checkbox-pending',
+  impossible: 'checkbox-filled-warning',
+};
 
 export default EmberObject.extend(...mixins, {
   i18n: service(),
@@ -55,13 +61,13 @@ export default EmberObject.extend(...mixins, {
    */
   files: undefined,
 
-  //#region state
-
   /**
-   * Initialized on init
-   * @type {Looper}
+   * @virtual
+   * @type {Utils.FilesQosStatusModel}
    */
-  updater: null,
+  filesQosStatusModel: undefined,
+
+  //#region state
 
   /**
    * @type {'list'|'creator'}
@@ -140,15 +146,7 @@ export default EmberObject.extend(...mixins, {
    */
   multipleFiles: gt('files.length', 1),
 
-  fileItems: computed('files.[]', function fileItems() {
-    const filesSorted = [...this.get('files')].sortBy('name');
-    return filesSorted.map(file => {
-      return QosModalFileItem.create({
-        ownerSource: this,
-        file,
-      });
-    });
-  }),
+  fileItems: reads('filesQosStatusModel.fileItems'),
 
   /**
    * @type {ComputedProperty<QueryValueComponentsBuilder>}
@@ -164,12 +162,6 @@ export default EmberObject.extend(...mixins, {
       });
     }
   }),
-
-  init() {
-    this._super(...arguments);
-    // FIXME: updater
-    // this.initUpdater();
-  },
 
   /**
    * @override
@@ -213,26 +205,8 @@ export default EmberObject.extend(...mixins, {
       });
   },
 
-  // FIXME: updater support
-  // initUpdater() {
-  //   const updater = Looper.create({
-  //     immediate: true,
-  //   });
-  //   updater.on('tick', () => {
-  //     this.updateData(true);
-  //   });
-  //   this.set('updater', updater);
-  //   this.configureUpdater();
-  // },
-
-  async updateData(replace = false) {
-    const fileItems = this.get('fileItems');
-    try {
-      await allFulfilled(fileItems.invoke('updateData', replace));
-    } catch (error) {
-      // FIXME: updater support
-      // safeExec(this, 'set', 'updater.interval', null);
-    }
+  async updateData() {
+    return await this.filesQosStatusModel.updateData();
   },
 
   /**

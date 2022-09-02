@@ -1,7 +1,8 @@
+$qos-icon-size: 2.5em;
+$color-qos-status-fulfilled: $color-one-success;
+$color-qos-status-pending: $color-one-warning;
+
 .file-qos-body {
-  $qos-icon-size: 2.5em;
-  $color-qos-status-fulfilled: $color-one-success;
-  $color-qos-status-pending: $color-one-warning;
 
   @import './file-qos/file-entry';
   @import './file-qos/file-qos-summary';
@@ -22,18 +23,6 @@
     margin-top: ($line-height-computed * 0.75);
     .property-name.with-input {
       padding-left: 0;
-    }
-  }
-
-  .qos-modal-header {
-    .qos-modal-header-text {
-      display: inline-flex;
-      align-items: flex-end;
-      max-width: calc(100% - 3em);
-    }
-    .qos-modal-header-hint {
-      display: inline-block;
-      height: 1.4em;
     }
   }
 
@@ -178,5 +167,27 @@
       text-transform: uppercase;
       font-size: 130%;
     }
+  }
+}
+
+.tab-qos {
+  .qos-status-fulfilled {
+    color: $color-qos-status-fulfilled;
+  }
+  .qos-status-pending,
+  .qos-status-error {
+    color: $color-qos-status-pending;
+  }
+  .one-icon-tagged.qos-status-impossible {
+    color: $color-qos-status-pending;
+    .one-icon-tag {
+      color: $color-one-danger;
+    }
+  }
+  .qos-status-empty {
+    color: inherit;
+  }
+  .qos-status-impossible {
+    color: $color-one-danger;
   }
 }
