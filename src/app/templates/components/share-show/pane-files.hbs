@@ -26,13 +26,18 @@
     }}
   {{/promise-proxy-container}}
 
-  {{#if fileToShowInfo}}
+  {{#if filesToShowInfo}}
     {{file-info-modal
       open=true
       previewMode=true
       share=share
-      file=fileToShowInfo
+      files=filesToShowInfo
       initialTab=showInfoInitialTab
+      tabOptions=(hash
+        permissions=(hash
+          isVisible=false
+        )
+      )
       onHide=(action closeInfoModal)
     }}
   {{/if}}

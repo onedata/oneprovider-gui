@@ -15,19 +15,21 @@
  */
 
 import EmberObject from '@ember/object';
+import { conditional, not, raw } from 'ember-awesome-macros';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default EmberObject.extend({
+  /**
+   * @virtual
+   * @type {Components.FileInfoModal}
+   */
+  fileInfoModal: undefined,
+
   /**
    * @virtual
    * @type {string}
    */
   tabId: undefined,
-
-  /**
-   * @virtual
-   * @type {SafeString|string}
-   */
-  title: undefined,
 
   /**
    * @virtual
@@ -69,6 +71,29 @@ export default EmberObject.extend({
    * @type {string}
    */
   footerComponent: undefined,
+
+  /**
+   * If set to true, components for the tab content supports multiple files and
+   * is displayed when multiple files are selected.
+   * @virtual optional
+   * @type {boolean}
+   */
+  isSupportingMultiFiles: false,
+
+  /**
+   * @virtual optional
+   * @type {SafeString|string}
+   */
+  title: computedT('title'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isVisible: conditional(
+    'isSupportingMultiFiles',
+    raw(true),
+    not('fileInfoModal.isMultiFile')
+  ),
 
   /**
    * Invoked by file info modal when it wants to close the current tab.

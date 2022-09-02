@@ -319,6 +319,22 @@ describe('Integration | Component | file browser (main component)', function () 
     }
   );
 
+  testOpenFileInfo({
+    openDescription: 'metadata context menu item is clicked',
+    tabName: 'metadata',
+    async openFunction() {
+      await chooseFileContextMenuAction({ entityId: 'i1' }, 'metadata');
+    },
+  });
+
+  testOpenFileInfo({
+    openDescription: 'permissions context menu item is clicked',
+    tabName: 'permissions',
+    async openFunction() {
+      await chooseFileContextMenuAction({ entityId: 'i1' }, 'permissions');
+    },
+  });
+
   // NOTE: use "done" callback for async tests because of bug in ember test framework
   describe('selects using injected file ids', function () {
     it('visible file on list', async function (done) {
@@ -587,14 +603,6 @@ describe('Integration | Component | file browser (main component)', function () 
           await chooseFileContextMenuAction({ entityId: 'i1' }, 'datasets');
         });
 
-        testOpenFileInfo({
-          openDescription: 'metadata context menu item is clicked',
-          tabName: 'metadata',
-          async openFunction() {
-            await chooseFileContextMenuAction({ entityId: 'i1' }, 'metadata');
-          },
-        });
-
         testDownloadFromContextMenu();
         testDownloadUsingDoubleClick();
       });
@@ -714,7 +722,10 @@ function testOpenDatasetsModal(openDescription, openFunction) {
 }
 
 function testOpenFileInfo({ openDescription, tabName, openFunction }) {
-  it(`invokes info modal opening with tab "${tabName}" when ${openDescription}`, async function (done) {
+  it(`invokes info modal opening with tab "${tabName}" when ${openDescription}`, async function () {
+    whenRootDirectoryHasOneItem(this);
+    whenHaveSpaceViewPrivileges(this);
+
     const openInfo = sinon.spy();
     this.set('openInfo', openInfo);
 
@@ -724,11 +735,9 @@ function testOpenFileInfo({ openDescription, tabName, openFunction }) {
     await openFunction.call(this);
     expect(openInfo).to.have.been.calledOnce;
     expect(openInfo).to.have.been.calledWith(
-      this.item1,
-      'metadata',
+      [this.item1],
+      tabName,
     );
-
-    done();
   });
 }
 
@@ -914,4 +923,33 @@ function destroyFakeClock(testCase) {
   if (testCase.clock) {
     testCase.clock.restore();
   }
+}
+
+function whenRootDirectoryHasOneItem(testCase, { itemType = 'file' } = {}) {
+  const dir = {
+    entityId: 'root',
+    name: 'Test directory',
+    index: 'Test directory',
+    type: 'dir',
+    hasParent: false,
+    parent: resolve(null),
+  };
+  dir.effFile = dir;
+
+  const item1 = {
+    entityId: 'i1',
+    name: 'A1',
+    index: 'A1',
+    hasParent: true,
+    type: itemType,
+    parent: resolve(dir),
+  };
+  item1.effFile = item1;
+
+  testCase.setProperties({ dir, item1, selectedItems: [] });
+  stubSimpleFetch(testCase, dir, [item1]);
+}
+
+function whenHaveSpaceViewPrivileges(testCase) {
+  testCase.set('spacePrivileges', { view: true });
 }

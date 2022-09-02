@@ -1,0 +1,33 @@
+<div class="btn-group-tabs permissions-type-tabs">
+  {{#bs-button-group
+    class="permissions-type-selector with-scroll-shadow"
+    value=activeTab
+    type="radio"
+    onChange=(action "changeTab") as |bg|
+  }}
+    {{#each permissionsTypes as |type|}}
+      {{#bg.button
+        type="default"
+        class=(concat-classes
+          "btn-sm"
+          "permissions-type-btn"
+          (concat "permissions-type-btn-" type)
+        )
+        value=type
+      }}
+        <span class="tab-name">
+          {{tt this (concat "types." type)}}
+        </span>
+      {{/bg.button}}
+    {{/each}}
+  {{/bs-button-group}}
+  {{#if effectiveReadonly}}
+    <div class="editor-disabled-lock-container with-scroll-shadow hidden-xs">
+      <div class="editor-disabled-lock-text">{{tt this "editorDisabled"}}</div>
+      {{one-icon class="editor-disabled-lock-icon" icon="lock"}}
+      {{#if effectiveReadonlyTip}}
+        {{one-tooltip title=effectiveReadonlyTip}}
+      {{/if}}
+    </div>
+  {{/if}}
+</div>

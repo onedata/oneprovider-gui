@@ -4,16 +4,21 @@
   .permissions-representations {
     display: flex;
     align-items: center;
+    justify-content: center;
     border-bottom: 1px solid $main-border-color;
-    padding-bottom: $padding-base-vertical;
+    padding-bottom: 1.5em;
     margin-bottom: $padding-base-vertical;
   }
 
   .permissions-string-container {
-    flex-grow: 1;
     font-family: $font-family-monospace;
     font-size: 150%;
     text-align: right;
+    margin-left: 1.5em;
+    @media (max-width: $screen-xs-max) {
+      flex-grow: 1;
+      margin-left: 0;
+    }
   }
 
   .permissions-octal {
@@ -32,6 +37,10 @@
   .entity-permissions {
     margin: $padding-base-vertical 0;
     padding: $padding-small-vertical 0;
+    width: 200px;
+    @media (max-width: $screen-xs-max) {
+      width: 100%;
+    }
   }
 
   .entity-name {
@@ -70,6 +79,8 @@
     overflow: hidden;
 
     .entity-permissions-row {
+      display: flex;
+      justify-content: center;
       margin-left: -$checkbox-col-left-padding;
       margin-right: -$checkbox-col-left-padding;
     }

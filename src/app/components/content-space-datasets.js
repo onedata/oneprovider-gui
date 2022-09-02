@@ -275,30 +275,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   createArchiveOptions: undefined,
 
-  fileToShowInfo: null,
-
-  /**
-   * @type {FileInfoTabId} activeTab
-   */
-  showInfoInitialTab: undefined,
-
-  fileToShowMetadata: null,
-
-  fileToShare: null,
-
   datasetToShowProtection: null,
 
   fileToShowProtection: null,
-
-  filesToEditPermissions: null,
-
-  filesToShowDistribution: null,
-
-  filesToShowQos: null,
-
-  fileForConfirmDownload: null,
-
-  archivesToDelete: null,
 
   //#endregion
 

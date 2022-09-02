@@ -25,10 +25,12 @@ import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values'
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 
 const mixins = [
   I18n,
   ItemBrowserContainerBase,
+  InfoModalBrowserSupport,
 ];
 
 export default Component.extend(...mixins, {
@@ -189,11 +191,6 @@ export default Component.extend(...mixins, {
   archivePropertiesOptions: null,
 
   /**
-   * @type {Models.File}
-   */
-  fileToShowInfo: null,
-
-  /**
    * @type {FileInfoTabId} activeTab
    */
   showInfoInitialTab: undefined,
@@ -201,19 +198,7 @@ export default Component.extend(...mixins, {
   /**
    * @type {Models.File}
    */
-  fileToShowMetadata: null,
-
-  /**
-   * @type {Models.File}
-   */
   fileToShare: null,
-
-  /**
-   * In fact, file permissions cannot be edited inside archives, but the modal is named
-   * `edit-permissions-modal`, so the property name is compatible with its convention.
-   * @type {Array<Models.File>}
-   */
-  filesToEditPermissions: null,
 
   /**
    * @type {Array<Models.File>}
@@ -652,7 +637,6 @@ export default Component.extend(...mixins, {
       onArchiveDipModeChange: this.changeArchiveDipMode.bind(this),
       openInfo: this.openInfoModal.bind(this),
       openShare: this.openShareModal.bind(this),
-      openEditPermissions: this.openEditPermissionsModal.bind(this),
       openFileDistribution: this.openFileDistributionModal.bind(this),
       openQos: this.openQosModal.bind(this),
       openConfirmDownload: this.openConfirmDownload.bind(this),
@@ -702,24 +686,6 @@ export default Component.extend(...mixins, {
     this.set('archivesToDelete', null);
   },
 
-  /**
-   * @param {Models.File} file
-   * @param {FileInfoTabId} activeTab
-   */
-  openInfoModal(file, activeTab) {
-    this.setProperties({
-      fileToShowInfo: file,
-      showInfoInitialTab: activeTab || 'general',
-    });
-  },
-  closeInfoModal() {
-    this.set('fileToShowInfo', null);
-  },
-
-  closeMetadataModal() {
-    this.set('fileToShowMetadata', null);
-  },
-
   openShareModal(file) {
     this.set('fileToShare', file);
   },
@@ -727,15 +693,6 @@ export default Component.extend(...mixins, {
   closeShareModal() {
     this.set('fileToShare', null);
   },
-
-  openEditPermissionsModal(files) {
-    this.set('filesToEditPermissions', [...files]);
-  },
-
-  closeEditPermissionsModal() {
-    this.set('filesToEditPermissions', null);
-  },
-
   openFileDistributionModal(files) {
     this.set('filesToShowDistribution', [...files]);
   },
