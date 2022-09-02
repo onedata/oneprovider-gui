@@ -43,8 +43,16 @@ export default EmberObject.extend(...mixins, {
    * @type {ComputedProperty<String>}
    */
   allQosStatus: computed('filesStatus.[]', function allQosStatus() {
-    const filesStatus = this.get('filesStatus');
-    for (const status of ['error', 'loading', 'pending', 'impossible', 'fulfilled']) {
+    const filesStatus = this.filesStatus;
+    const statusPriorityOrder = [
+      'error',
+      'loading',
+      'pending',
+      'impossible',
+      'fulfilled',
+      'empty',
+    ];
+    for (const status of statusPriorityOrder) {
       if (filesStatus.includes(status)) {
         return status;
       }
@@ -57,9 +65,9 @@ export default EmberObject.extend(...mixins, {
    * @type {Number}
    */
   updateInterval: conditional(
-    equal('allQosStatus', raw('fulfilled')),
+    equal('allQosStatus', raw('pending')),
+    raw(3000),
     raw(15000),
-    raw(5000)
   ),
 
   init() {

@@ -7,13 +7,13 @@
  */
 
 import BaseTabModel from './base-tab-model';
-import { get, computed, observer } from '@ember/object';
+import { computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import FileQosViewModel from 'oneprovider-gui/utils/file-qos-view-model';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { conditional, raw, getBy, array } from 'ember-awesome-macros';
+import { conditional, raw, getBy, eq } from 'ember-awesome-macros';
 import FilesQosStatusModel from 'oneprovider-gui/utils/files-qos-status-model';
 import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 
@@ -149,14 +149,18 @@ export default BaseTabModel.extend(...mixins, {
     }
   ),
 
-  allQosStatusIcon: getBy(raw(qosStatusIcons), 'filesQosStatusModel.allQosStatus'),
+  allQosStatusIcon: conditional(
+    eq('filesQosStatusModel.allQosStatus', raw('empty')),
+    raw(''),
+    getBy(raw(qosStatusIcons), 'filesQosStatusModel.allQosStatus'),
+  ),
 
   autoStatusWatchConfigurator: observer(
     'files.[]',
     'isVisible',
     function autoStatusWatchConfigurator() {
       if (this.files && this.isVisible) {
-        this.reinitializeFilesQosStatuModel();
+        this.reinitializeFilesQosStatusModel();
       } else {
         this.filesQosStatusModel?.destroy();
       }

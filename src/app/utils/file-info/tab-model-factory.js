@@ -74,14 +74,18 @@ export default EmberObject.extend(OwnerInjector, {
     });
   },
 
-  createQosTabModel(options) {
+  /**
+   * @returns
+   */
+  createQosTabModel() {
     return QosTabModel.extend({
       files: reads('fileInfoModal.files'),
       space: reads('fileInfoModal.space'),
+      previewMode: reads('fileInfoModal.previewMode'),
     }).create({
       fileInfoModal: this.fileInfoModal,
       ownerSource: this,
-      ...options,
+      ...this.fileInfoModal.tabOptions?.qos,
     });
   },
 });

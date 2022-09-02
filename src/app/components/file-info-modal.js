@@ -553,17 +553,9 @@ export default Component.extend(...mixins, {
         }
       ),
 
-      qos: computed(
-        'tabModelFactory',
-        'previewMode',
-        'tabOptions.qos',
-        function shares() {
-          return this.tabModelFactory.createTabModel('qos', {
-            previewMode: this.previewMode,
-            ...this.tabOptions?.qos,
-          });
-        }
-      ),
+      qos: computed(function qos() {
+        return this.tabModelFactory.createTabModel('qos');
+      }),
     }).create({
       fileInfoModal: this,
     });
@@ -588,6 +580,16 @@ export default Component.extend(...mixins, {
     const initialTab = this.initialTab;
     const visibleTabs = this.visibleTabs;
     this.set('activeTab', visibleTabs.includes(initialTab) ? initialTab : visibleTabs[0]);
+  },
+
+  willDestroyElement() {
+    try {
+      for (const tabModel of this.allTabModels) {
+        tabModel?.destroy?.();
+      }
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   /**
