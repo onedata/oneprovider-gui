@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import common from '../qos-modal/-common';
+import common from '../file-qos/-common';
 
 const translations = {
   qosId: 'Requirement ID',

@@ -28,7 +28,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Utils.QosModalFileItem}
+   * @type {Utils.QosFileItem}
    */
   fileItem: undefined,
 

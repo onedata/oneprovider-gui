@@ -13,7 +13,6 @@ import spaceTransfers from './components/space-transfers';
 import spaceShares from './components/space-shares';
 import spaceAutomation from './components/space-automation';
 import dbViewModal from './components/db-view-modal';
-import qosModal from './components/qos-modal';
 import fileDatasets from './components/file-datasets';
 import contentEndpointError from './components/content-endpoint-error';
 import modalFileSubheader from './components/modal-file-subheader';
@@ -77,7 +76,6 @@ const translations = {
     spaceShares,
     spaceAutomation,
     dbViewModal,
-    qosModal,
     fileDatasets,
     contentEndpointError,
     modalFileSubheader,

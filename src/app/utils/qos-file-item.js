@@ -2,7 +2,6 @@
  * Helper class with loading data capabilities for displaying single file data in QoS
  * modal.
  *
- * @module utils/qos-modal-file-item
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

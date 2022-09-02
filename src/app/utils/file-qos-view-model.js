@@ -6,7 +6,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { get, setProperties, getProperties, observer, computed } from '@ember/object';
+import EmberObject, { get, setProperties, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
@@ -15,8 +15,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-parameters-suggestions';
 import { Promise, all as allFulfilled, allSettled } from 'rsvp';
 import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { conditional, raw, equal, and, getBy, array, promise, gt, or, not, eq } from 'ember-awesome-macros';
+import { raw, array, promise, gt, or, not, eq } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
@@ -269,7 +268,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
-   * @param {Utils.QosModalItem} qosItem
+   * @param {Utils.QosItem} qosItem
    */
   async removeQosRequirement(qosItem) {
     const {

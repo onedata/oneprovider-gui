@@ -18,7 +18,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { guidFor } from '@ember/object/internals';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
-import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
+import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 import _ from 'lodash';
@@ -36,7 +36,7 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
 
   /**
    * @virtual
-   * @type {EmberObject} see `QosModal.QosItem`
+   * @type {Utils.QosItem}
    */
   qosItem: undefined,
 

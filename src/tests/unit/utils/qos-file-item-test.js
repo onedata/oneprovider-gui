@@ -1,19 +1,19 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
+import QosFileItem from 'oneprovider-gui/utils/qos-file-item';
 import sinon from 'sinon';
 import { get } from '@ember/object';
 import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
-describe('Unit | Utility | qos modal file item', function () {
+describe('Unit | Utility | qos file item', function () {
   it('has status empty when qos items load and are empty', async function () {
     const fetchFileQosSummary = sinon.stub().resolves({
       fulfilled: true,
     });
     const fetchQosItems = sinon.stub().resolves([]);
-    const item = QosModalFileItem.create({
+    const item = QosFileItem.create({
       ownerSource: this.owner,
       fetchFileQosSummary,
       fetchQosItems,
@@ -34,7 +34,7 @@ describe('Unit | Utility | qos modal file item', function () {
       });
     }
     const fetchQosItems = sinon.stub().resolves([{}]);
-    const item = QosModalFileItem.create({
+    const item = QosFileItem.create({
       ownerSource: this.owner,
       fetchFileQosSummary,
       fetchQosItems,
@@ -60,7 +60,7 @@ describe('Unit | Utility | qos modal file item', function () {
         });
       }
       const fetchQosItems = sinon.stub().resolves([{}]);
-      const item = QosModalFileItem.create({
+      const item = QosFileItem.create({
         ownerSource: this.owner,
         fetchFileQosSummary,
         fetchQosItems,
@@ -80,7 +80,7 @@ describe('Unit | Utility | qos modal file item', function () {
       fulfilled: true,
     });
     const fetchQosItems = sinon.stub().rejects();
-    const item = QosModalFileItem.create({
+    const item = QosFileItem.create({
       ownerSource: this.owner,
       fetchFileQosSummary,
       fetchQosItems,

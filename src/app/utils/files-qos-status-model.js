@@ -1,6 +1,6 @@
 import EmberObject, { computed, observer } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
+import QosFileItem from 'oneprovider-gui/utils/qos-file-item';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { all as allFulfilled } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -26,7 +26,7 @@ export default EmberObject.extend(...mixins, {
   fileItems: computed('files.[]', function fileItems() {
     const filesSorted = [...this.get('files')].sortBy('name');
     return filesSorted.map(file => {
-      return QosModalFileItem.create({
+      return QosFileItem.create({
         ownerSource: this,
         file,
       });
