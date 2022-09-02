@@ -71,7 +71,7 @@ export default Component.extend(I18n, {
 
   /**
    * If true, the create new share button can be enabled.
-   * Should be injected with space prvilege (space_manage_shares).
+   * Should be injected with space privilege (space_manage_shares).
    * @type {Boolean}
    */
   managePrivilege: true,
@@ -150,7 +150,6 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    console.log('share modal created');
     waitForRender().then(() => {
       this.setInitialShareName();
       this.focusInput();
