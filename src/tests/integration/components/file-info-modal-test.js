@@ -362,7 +362,7 @@ describe('Integration | Component | file info modal', function () {
 
     expect(
       find('.file-info-row-name .property-value .clipboard-input').value
-    ).to.contain(this.get('file.name'));
+    ).to.contain(this.get('files.0.name'));
   });
 
   it('renders space id', async function () {
@@ -400,6 +400,21 @@ describe('Integration | Component | file info modal', function () {
       expect(metadataNav).to.have.class('active');
       expect(metadataNav).to.have.trimmed.text('Metadata');
       expect(find('.modal-body .file-metadata-body')).to.exist;
+    }
+  );
+
+  it('has active "Permissions" tab and renders permissions view body when initialTab = permissions is given',
+    async function () {
+      givenDummyFile(this);
+      this.set('initialTab', 'permissions');
+
+      await renderComponent();
+
+      const permissionsNav = find('.nav-link-permissions');
+      expect(permissionsNav).to.exist;
+      expect(permissionsNav).to.have.class('active');
+      expect(permissionsNav).to.have.trimmed.text('Permissions');
+      expect(find('.modal-body .file-permissions-body')).to.exist;
     }
   );
 
@@ -459,7 +474,7 @@ describe('Integration | Component | file info modal', function () {
 async function renderComponent() {
   await render(hbs `{{file-info-modal
     open=true
-    file=file
+    files=(or files (array file))
     initialTab=initialTab
     previewMode=previewMode
     share=share
@@ -471,5 +486,5 @@ async function renderComponent() {
 }
 
 function givenDummyFile(testCase) {
-  testCase.set('file', file1);
+  testCase.set('files', [file1]);
 }

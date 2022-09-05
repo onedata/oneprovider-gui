@@ -11,7 +11,18 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { promise, raw, or, gt, and, notEqual, collect, bool, equal } from 'ember-awesome-macros';
+import {
+  promise,
+  raw,
+  or,
+  gt,
+  and,
+  notEqual,
+  collect,
+  bool,
+  equal,
+  not,
+} from 'ember-awesome-macros';
 import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -29,7 +40,7 @@ const mixins = [
 ];
 
 /**
- * @typedef {'general'|'hardlinks'|'size'|'apiSamples'|'metadata'} FileInfoTabId
+ * @typedef {'general'|'hardlinks'|'size'|'apiSamples'|'metadata'|'permissions'} FileInfoTabId
  */
 
 export default Component.extend(...mixins, {
@@ -49,9 +60,9 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {models/file}
+   * @type {Array<Models.File>}
    */
-  file: undefined,
+  files: undefined,
 
   /**
    * @virtual optional
@@ -93,6 +104,15 @@ export default Component.extend(...mixins, {
   modalClass: '',
 
   /**
+   * Keys are ids of tab models (see available tabs in `tabModels` property).
+   * Values are objects with properties that are used to create tab models.
+   * See `tabModels` for implementation.
+   * @virtual optional
+   * @type {Object<string, Object>}
+   */
+  tabOptions: null,
+
+  /**
    * Space entity ID can be provided instead of space model if it's not available
    * in current context (eg. in public share view).
    * @virtual optional
@@ -128,6 +148,16 @@ export default Component.extend(...mixins, {
    * @type {Number}
    */
   hardlinksLimit: 100,
+
+  /**
+   * @type {ComputedProperty<Models.File>}
+   */
+  file: reads('files.firstObject'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isMultiFile: gt('files.length', 1),
 
   showApiSection: reads('previewMode'),
 
@@ -402,35 +432,55 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isHardlinksTabVisible: gt('hardlinksCount', raw(1)),
+  isGeneralTabVisible: not('isMultiFile'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isHardlinksTabVisible: and(
+    gt('hardlinksCount', raw(1)),
+    not('isMultiFile'),
+  ),
 
   /**
    * @type {ComputedProperty<boolean>}
    */
   isSizeTabVisible: computed(
     'previewMode',
+    'isMultiFile',
     'file.effFile.type',
     function isSizeTabVisible() {
-      const previewMode = this.get('previewMode');
-      const effItemType = this.get('file.effFile.type');
-      return !previewMode && effItemType !== 'file';
+      const effItemType = this.file.effFile?.type || 'file';
+      return !this.previewMode && !this.isMultiFile && effItemType !== 'file';
     }
   ),
 
-  isApiSamplesTabVisible: and('showApiSection', notEqual('itemType', raw('symlink'))),
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isApiSamplesTabVisible: and(
+    'showApiSection',
+    not('isMultiFile'),
+    notEqual('itemType', raw('symlink'))
+  ),
 
   // TODO: VFS-9628 this is a temporary list of tabs moved from separate modals
-  specialFileTabs: Object.freeze(['metadata']),
+  specialFileTabs: Object.freeze(['metadata', 'permissions']),
 
   /**
    * @type {Array<FileInfoTabId>}
    */
   visibleTabs: computed(
+    'isGeneralTabVisible',
     'isHardlinksTabVisible',
     'isSizeTabVisible',
     'isApiSamplesTabVisible',
+    'visibleTabsModels.@each.isVisible',
     function visibleTabs() {
-      const tabs = ['general'];
+      const tabs = [];
+      if (this.isGeneralTabVisible) {
+        tabs.push('general');
+      }
       if (this.isHardlinksTabVisible) {
         tabs.push('hardlinks');
       }
@@ -440,24 +490,53 @@ export default Component.extend(...mixins, {
       if (this.isApiSamplesTabVisible) {
         tabs.push('apiSamples');
       }
-      tabs.push(...this.specialFileTabs);
+      tabs.push(...this.visibleTabsModels.mapBy('tabId'));
       return tabs;
     },
   ),
 
   // TODO: VFS-9628 will contain all tab models after refactor
-  visibleTabsModels: collect('tabModels.metadata'),
+  allTabModels: collect('tabModels.metadata', 'tabModels.permissions'),
+
+  // TODO: VFS-9628 will contain all tab models after refactor
+  // Using computed instead of computed macro because there are issues
+  // with auto update when using array.filterBy.
+  visibleTabsModels: computed(
+    'allTabModels.@each.isVisible',
+    function visibleTabsModels() {
+      return this.allTabModels.filterBy('isVisible');
+    }
+  ),
 
   tabModels: computed(function tabModels() {
     return EmberObject.extend({
+      tabOptions: reads('fileInfoModal.tabOptions'),
       previewMode: reads('fileInfoModal.previewMode'),
       tabModelFactory: reads('fileInfoModal.tabModelFactory'),
 
-      metadata: computed(function metadata() {
-        return this.tabModelFactory.createTabModel('metadata', {
-          previewMode: this.previewMode,
-        });
-      }),
+      metadata: computed(
+        'tabModelFactory',
+        'previewMode',
+        'tabOptions.metadata',
+        function metadata() {
+          return this.tabModelFactory.createTabModel('metadata', {
+            previewMode: this.previewMode,
+            ...this.tabOptions?.metadata,
+          });
+        }
+      ),
+
+      permissions: computed(
+        'tabModelFactory',
+        'previewMode',
+        'tabOptions.permissions',
+        function permissions() {
+          return this.tabModelFactory.createTabModel('permissions', {
+            readonly: this.previewMode,
+            ...this.tabOptions?.permissions,
+          });
+        }
+      ),
     }).create({
       fileInfoModal: this,
     });
@@ -480,9 +559,8 @@ export default Component.extend(...mixins, {
   init() {
     this._super(...arguments);
     const initialTab = this.initialTab;
-    if (this.visibleTabs.includes(initialTab)) {
-      this.set('activeTab', initialTab);
-    }
+    const visibleTabs = this.visibleTabs;
+    this.set('activeTab', visibleTabs.includes(initialTab) ? initialTab : visibleTabs[0]);
   },
 
   /**

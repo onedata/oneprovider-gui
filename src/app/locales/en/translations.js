@@ -3,7 +3,6 @@ import onedataCommonTranslations from './onedata-gui-common';
 
 import modals from './components/modals';
 import aclEditor from './components/acl-editor';
-import editPermissionsModal from './components/edit-permissions-modal';
 import contentFileBrowser from './components/content-file-browser';
 import contentSpaceDatasets from './components/content-space-datasets';
 import fileBrowser from './components/file-browser';
@@ -40,6 +39,7 @@ import archiveState from './components/archive-state';
 import archivePropertiesModal from './components/archive-properties-modal';
 import fileInfoModal from './components/file-info-modal';
 import fileMetadata from './components/file-metadata';
+import filePermissions from './components/file-permissions';
 
 import uploadManager from './services/upload-manager';
 
@@ -56,14 +56,14 @@ import workflowVisualiser from './utils/workflow-visualiser';
 import archiveFormBaseModel from './utils/archive-form/-base-model';
 import archiveFormViewModel from './utils/archive-form/view-model';
 import datasetActions from './utils/dataset/actions';
-import fileMetadataViewModel from './utils/file-metadata-view-model';
 import fileInfo from './utils/file-info';
+import fileMetadataViewModel from './utils/file-metadata-view-model';
+import filePermissionsViewModel from './utils/file-permissions-view-model';
 
 const translations = {
   components: {
     modals,
     aclEditor,
-    editPermissionsModal,
     contentFileBrowser,
     contentSpaceDatasets,
     fileBrowser,
@@ -100,6 +100,7 @@ const translations = {
     archivePropertiesModal,
     fileInfoModal,
     fileMetadata,
+    filePermissions,
   },
   services: {
     uploadManager,
@@ -116,6 +117,7 @@ const translations = {
     workflowActions,
     workflowVisualiser,
     fileMetadataViewModel,
+    filePermissionsViewModel,
     fileInfo,
     archiveForm: {
       baseModel: archiveFormBaseModel,

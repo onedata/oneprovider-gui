@@ -63,6 +63,8 @@ export const file1 = {
   cdmiObjectId: exampleCdmiObjectId,
   modificationTime: Math.floor(Date.now() / 1000),
   owner: resolve(owner1),
+  posixPermissions: '644',
+  activePermissionsType: 'posix',
   storageLocations,
 };
 
@@ -81,16 +83,16 @@ export default Component.extend({
   // uncomment for locally-mocked file
   space: space1,
   share: parentShare,
-  fileToShowInfo: fileParent1,
+  filesToShowInfo: Object.freeze([fileParent1]),
 
   // uncomment for globally-mocked file
   // space: reads('mockBackend.entityRecords.space.0'),
   // share: null,
-  // fileToShowInfo: reads('mockBackend.entityRecords.file.5'),
+  // filesToShowInfo: collect('mockBackend.entityRecords.file.5'),
 
   actions: {
     closeInfoModal() {
-      this.set('fileToShowInfo', null);
+      this.set('filesToShowInfo', null);
     },
     getDataUrl() {
       return window.location.toString();

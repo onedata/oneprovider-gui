@@ -24,11 +24,13 @@ import { executeWorkflowDataLocalStorageKey } from 'oneprovider-gui/components/s
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import { isEmpty } from '@ember/utils';
 import sortRevisionNumbers from 'onedata-gui-common/utils/revisions/sort-revision-numbers';
+import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 
 export default OneEmbeddedComponent.extend(
   I18n,
   ContentSpaceBaseMixin,
-  ItemBrowserContainerBase, {
+  ItemBrowserContainerBase,
+  InfoModalBrowserSupport, {
     classNames: [
       'content-file-browser',
       'content-items-browser',
@@ -107,13 +109,6 @@ export default OneEmbeddedComponent.extend(
      * @type {Models.File}
      */
     fileForConfirmDownload: undefined,
-
-    fileToShowInfo: undefined,
-
-    /**
-     * @type {FileInfoTabId} activeTab
-     */
-    showInfoInitialTab: undefined,
 
     fileToShowRecallInfo: undefined,
 
@@ -308,7 +303,6 @@ export default OneEmbeddedComponent.extend(
         openRecallInfo: this.openRecallInfoModal.bind(this),
         openShare: this.openShareModal.bind(this),
         openDatasets: this.openDatasetsModal.bind(this),
-        openEditPermissions: this.openEditPermissionsModal.bind(this),
         openFileDistribution: this.openFileDistributionModal.bind(this),
         openQos: this.openQosModal.bind(this),
         openConfirmDownload: this.openConfirmDownload.bind(this),
@@ -444,16 +438,6 @@ export default OneEmbeddedComponent.extend(
       this.set('fileToRename', file);
     },
 
-    /**
-     * @param {Models.File} file
-     * @param {FileInfoTabId} activeTab
-     */
-    openInfoModal(file, activeTab) {
-      this.setProperties({
-        fileToShowInfo: file,
-        showInfoInitialTab: activeTab || 'general',
-      });
-    },
     openRecallInfoModal(file) {
       this.set('fileToShowRecallInfo', file);
     },
@@ -462,9 +446,6 @@ export default OneEmbeddedComponent.extend(
     },
     openShareModal(file) {
       this.set('fileToShare', file);
-    },
-    openEditPermissionsModal(files) {
-      this.set('filesToEditPermissions', [...files]);
     },
     openFileDistributionModal(files) {
       this.set('filesToShowDistribution', [...files]);
@@ -477,9 +458,6 @@ export default OneEmbeddedComponent.extend(
     },
     closeRenameModal() {
       this.set('fileToRename', null);
-    },
-    closeInfoModal() {
-      this.set('fileToShowInfo', null);
     },
     closeRecallInfoModal() {
       this.set('fileToShowRecallInfo', null);
@@ -497,9 +475,6 @@ export default OneEmbeddedComponent.extend(
       // directory, so make sure that it is restored
       uploadManager.changeTargetDirectory(dir);
     },
-    closeEditPermissionsModal() {
-      this.set('filesToEditPermissions', null);
-    },
     closeFileDistributionModal() {
       this.set('filesToShowDistribution', null);
     },
@@ -513,7 +488,6 @@ export default OneEmbeddedComponent.extend(
       this.closeRenameModal();
       this.closeInfoModal();
       this.closeShareModal();
-      this.closeEditPermissionsModal();
       this.closeFileDistributionModal();
       this.closeQosModal();
       this.closeDatasetsModal();

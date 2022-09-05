@@ -16,11 +16,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { inject as service } from '@ember/service';
 
-/**
- * @typedef {Object} MetadataViewModelCreateData
- * @property {boolean} previewMode
- */
-
 const mixins = [
   OwnerInjector,
   I18n,
@@ -47,11 +42,10 @@ export default BaseTabModel.extend(...mixins, {
   space: undefined,
 
   /**
-   * Data needed to lazily instantiate ViewModel.
    * @virtual
-   * @type {MetadataViewModelCreateData}
+   * @type {boolean}
    */
-  viewModelCreateData: undefined,
+  previewMode: undefined,
 
   /**
    * @override
@@ -101,14 +95,24 @@ export default BaseTabModel.extend(...mixins, {
   ),
 
   /**
+   * @override
+   */
+  isVisible: computed(function isVisible() {
+    if (!this._super(...arguments)) {
+      return false;
+    }
+    return this.file.type === 'file' || this.file.type === 'dir';
+  }),
+
+  /**
    * @type {ComputedProperty<Utils.FileMetadataViewModel>}
    */
-  viewModel: computed('file', 'space', function viewModel() {
+  viewModel: computed('file', 'space', 'previewMode', function viewModel() {
     return FileMetadataViewModel.create({
       ownerSource: this,
       file: this.file,
       space: this.space,
-      ...this.viewModelCreateData,
+      previewMode: this.previewMode,
     });
   }),
 
