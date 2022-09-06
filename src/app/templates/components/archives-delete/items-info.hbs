@@ -1,19 +1,19 @@
 {{#if isSingleItem}}
-  <div class="row single-file-info">
-    {{one-icon icon="browser-archive" class="single-file-info-icon single-browsable-item-icon"}}
-    <div class="single-file-info-text">
+  <div class="single-file-info details-with-icon">
+    {{one-icon icon="browser-archive" class="details-icon"}}
+    <div class="details-content">
       {{#truncated-string
         tagName="div"
-        class="row row-single-file-info-file-name single-file-info-file-name"
+        class="single-file-info-file-name details-title"
       }}
         {{firstItem.name}}
       {{/truncated-string}}
-      {{#truncated-string tagName="div" class="row row-additional-file-info small"}}
-        <span class="single-file-info-label">
-          {{tt this "archived"}}:
-        </span>
-        {{archive-content-count archive=firstItem}}
-      {{/truncated-string}}
+      <ul class="details-property-list">
+        <li class="property-row">
+          <span class="property-label">{{tt this "archived"}}:</span>
+          {{archive-content-count archive=firstItem class="property-value"}}
+        </li>
+      </ul>
     </div>
   </div>
 {{else}}

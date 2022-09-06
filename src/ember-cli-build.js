@@ -76,7 +76,7 @@ module.exports = function (defaults) {
       useCustomCSS: true,
     },
     'ember-cli-string-helpers': {
-      only: ['capitalize', 'lowercase', 'truncate'],
+      only: ['capitalize', 'dasherize', 'lowercase', 'truncate'],
     },
     'ace': {
       themes: ['textmate'],

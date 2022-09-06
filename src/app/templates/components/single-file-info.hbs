@@ -1,13 +1,13 @@
-{{one-icon icon=fileIcon class="single-file-info-icon single-browsable-item-icon"}}
-<div class="single-file-info-text">
+{{one-icon icon=fileIcon class="details-icon"}}
+<div class="details-content">
   {{#if (eq nameDisplayMode "name")}}
-    <div class="row row-single-file-info-file-name">
+    <div class="details-title">
       {{#truncated-string class="single-file-info-file-name"}}
         {{file-name-conflict file=file}}
       {{/truncated-string}}
     </div>
   {{else if (eq nameDisplayMode "link")}}
-    <div class="row row-single-file-info-file-link">
+    <div class="details-title">
       {{file-path
         class="single-file-info-file-link"
         file=file
@@ -16,48 +16,44 @@
       }}
     </div>
   {{/if}}
-  {{#if (and showArchiveInfo archiveInfo)}}
-    <div class="row row-additional-file-info small">
-      <span class="single-file-info-label">
-        {{tt this "dataset"}}:
+  <ul class="details-property-list">
+    {{#if (and showArchiveInfo archiveInfo)}}
+      <li class="property-row">
+        <span class="property-label">{{tt this "dataset"}}:</span>
+        <a
+          class="dataset-link navy underlined property-value"
+          href={{archiveInfo.datasetUrl}}
+          target={{navigateTarget}}
+          onclick={{action "linkClicked"}}
+        >
+          {{archiveInfo.dataset.name}}
+        </a>
+      </li>
+      <li class="property-row">
+        <span class="property-label">{{tt this "archive"}}:</span>
+        <a
+          class="archive-link navy underlined property-value"
+          href={{archiveInfo.archiveUrl}}
+          target={{navigateTarget}}
+          onclick={{action "linkClicked"}}
+        >
+          {{archiveInfo.archive.name}}
+        </a>
+      </li>
+    {{/if}}
+    {{#if (eq file.type "file")}}
+      <li class="property-row">
+        <span class="property-label">{{tt this "size"}}:</span>
+        <span class="download-file-size property-value">
+          {{bytes-to-string fileSize}}
+        </span>
+      </li>
+    {{/if}}
+    <li class="property-row">
+      <span class="property-label">{{tt this "modificationTime"}}:</span>
+      <span class="download-file-modification property-value">
+        {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
       </span>
-      <a
-        class="dataset-link navy underlined"
-        href={{archiveInfo.datasetUrl}}
-        target={{navigateTarget}}
-        onclick={{action "linkClicked"}}
-      >
-        {{archiveInfo.dataset.name}}
-      </a>
-    </div>
-    <div class="row row-additional-file-info small">
-      <span class="single-file-info-label">
-        {{tt this "archive"}}:
-      </span>
-      <a
-        class="archive-link navy underlined"
-        href={{archiveInfo.archiveUrl}}
-        target={{navigateTarget}}
-        onclick={{action "linkClicked"}}
-      >
-        {{archiveInfo.archive.name}}
-      </a>
-    </div>
-  {{/if}}
-  {{#if (eq file.type "file")}}
-    <div class="row row-additional-file-info small">
-      <span class="single-file-info-label">
-        {{tt this "size"}}:
-      </span>
-      <span class="download-file-size">{{bytes-to-string fileSize}}</span>
-    </div>
-  {{/if}}
-  <div class="row row-additional-file-info small">
-    <span class="single-file-info-label">
-      {{tt this "modificationTime"}}:
-    </span>
-    <span class="download-file-modification">
-      {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
-    </span>
-  </div>
+    </li>
+  </ul>
 </div>

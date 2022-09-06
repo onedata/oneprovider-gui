@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9531 Improved automation store content browser
 * VFS-9602 Moved file permissions settings from separate modal to file info panel
 * VFS-9781 Do not show storage locations in shared file info
 * VFS-9760 Added charts functionalities allowing usage of many TS. collections in dashboards

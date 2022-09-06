@@ -14,6 +14,7 @@ import { equal, raw } from 'ember-awesome-macros';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import Mixin from '@ember/object/mixin';
 import { computed } from '@ember/object';
+import { getDatasetNameFromRootFilePath } from 'onedata-gui-common/utils/dataset';
 
 export const entityType = 'op_dataset';
 
@@ -30,16 +31,7 @@ export const RuntimeProperties = Mixin.create({
   metadataIsEffProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
 
   name: computed('rootFilePath', function name() {
-    const rootFilePath = this.get('rootFilePath');
-    if (rootFilePath) {
-      try {
-        const pathArray = rootFilePath.split('/');
-        return pathArray[pathArray.length - 1] || '';
-      } catch (error) {
-        console.error(`model:dataset#name: cannot get name from path: ${error}`);
-      }
-    }
-    return '';
+    return getDatasetNameFromRootFilePath(this.get('rootFilePath')) ?? '';
   }),
 
   hasParent: computed('parent', function hasParent() {
