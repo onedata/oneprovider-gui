@@ -1,4 +1,3 @@
-// FIXME: launch dummy qos in file-info modal
 /**
  * Container for development tests of qos-modal
  *

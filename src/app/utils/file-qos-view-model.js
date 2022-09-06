@@ -157,7 +157,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<QueryValueComponentsBuilder>}
    */
-  valuesBuilder: computed(() => QueryValueComponentsBuilderQos.create()),
+  valuesBuilder: computed('', () => QueryValueComponentsBuilderQos.create()),
 
   isAddDisabledTip: computed('editPrivilege', function isAddDisabledTip() {
     if (!this.editPrivilege) {
@@ -320,6 +320,10 @@ export default EmberObject.extend(...mixins, {
 
   closeQosRequirementCreator() {
     this.changeSlide('list');
+    this.setProperties({
+      newEntryData: null,
+      newEntryIsValid: false,
+    });
   },
 
   changeSlide(slideId) {
@@ -381,7 +385,7 @@ export default EmberObject.extend(...mixins, {
       })
       .then(() => {
         const updating = this.updateData();
-        safeExec(this, 'set', 'mode', 'show');
+        this.closeQosRequirementCreator();
         return updating;
       });
   },
