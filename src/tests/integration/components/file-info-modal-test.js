@@ -551,6 +551,21 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
+  it('has active "Data distribution" tab and renders distribution view body when initialTab = distribution is given',
+    async function () {
+      await givenFileModel(this);
+      this.set('initialTab', 'distribution');
+
+      await renderComponent();
+
+      const sharesNav = find('.nav-link-distribution');
+      expect(sharesNav).to.exist;
+      expect(sharesNav).to.have.class('active');
+      expect(sharesNav).to.have.trimmed.text('Data distribution');
+      expect(find('.modal-body .file-distribution-body')).to.exist;
+    }
+  );
+
   context('for file type and API samples tab', function () {
     beforeEach(async function () {
       const fileApiSamples =
