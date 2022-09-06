@@ -67,7 +67,7 @@ export default BaseTabModel.extend(...mixins, {
    * @override
    */
   footerComponent: conditional(
-    'viewModel.hideFooter',
+    'viewModel.isFooterHidden',
     raw(''),
     raw('file-qos/footer'),
   ),

@@ -11,6 +11,8 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
+import { promise } from 'ember-awesome-macros';
+import { all as allFulfilled } from 'rsvp';
 
 const mixins = [
   I18n,
@@ -45,8 +47,6 @@ export default Component.extend(...mixins, {
 
   noQosRequirementsProxy: reads('viewModel.noQosRequirementsProxy'),
 
-  dataProxy: reads('viewModel.dataProxy'),
-
   multipleFiles: reads('viewModel.multipleFiles'),
 
   fileItems: reads('viewModel.fileItems'),
@@ -66,6 +66,8 @@ export default Component.extend(...mixins, {
   isAddDisabled: reads('viewModel.isAddDisabled'),
 
   isAddDisabledTip: reads('viewModel.isAddDisabledTip'),
+
+  initialDataProxy: reads('viewModel.initialDataProxy'),
 
   queryProperties: reads('queryPropertiesProxy.content'),
 

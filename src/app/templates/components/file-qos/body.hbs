@@ -1,19 +1,17 @@
-{{!-- FIXME: use carousel after discussion --}}
 {{#if (eq activeSlideId "list")}}
-  {{!-- FIXME: loading spinner before no requirements is rendered (use dataProxy?) --}}
-  {{#if noQosRequirements}}
-    {{content-info
-      class="scroll-breakpoint-600 fill-flex-using-column content-info-no-qos"
-      header=(tt this "noQos.header" filesTypeText=filesTypeText)
-      imagePath="assets/images/no-qos.svg"
-      buttonAction=(action "addQosRequirement")
-      buttonLabel=(tt this "noQos.buttonCreateQosRequirement")
-      buttonClass="create-qos-requirement-btn"
-      buttonDisabled=isAddDisabled
-      buttonTip=isAddDisabledTip
-    }}
-  {{else}}
-    {{#promise-proxy-container proxy=dataProxy}}
+  {{#promise-proxy-container proxy=initialDataProxy}}
+    {{#if noQosRequirements}}
+      {{content-info
+        class="scroll-breakpoint-600 fill-flex-using-column content-info-no-qos"
+        header=(tt this "noQos.header" filesTypeText=filesTypeText)
+        imagePath="assets/images/no-qos.svg"
+        buttonAction=(action "addQosRequirement")
+        buttonLabel=(tt this "noQos.buttonCreateQosRequirement")
+        buttonClass="create-qos-requirement-btn"
+        buttonDisabled=isAddDisabled
+        buttonTip=isAddDisabledTip
+      }}
+    {{else}}
       {{#if multipleFiles}}
         {{#one-collapsible-list class="hide-final-border" as |list|}}
           {{#each fileItems key="entityId" as |fileItem|}}
@@ -48,8 +46,8 @@
           closeModal=(action "close")
         }}
       {{/if}}
-    {{/promise-proxy-container}}
-  {{/if}}
+    {{/if}}
+  {{/promise-proxy-container}}
 {{else if (eq activeSlideId "add")}}
   {{file-qos/qos-add
     spaceId=spaceId

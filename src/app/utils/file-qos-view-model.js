@@ -93,7 +93,25 @@ export default EmberObject.extend(...mixins, {
 
   //#endregion
 
-  hideFooter: or('noQosRequirements', eq('activeSlideId', raw('add'))),
+  /**
+   * Data required for showing list/empty screen of QoS requirements.
+   * Note: no computed property dependencies, because it is only first-time load proxy.
+   * @type {ComputedProperty<Promise<Array>>}
+   */
+  initialDataProxy: promise.object(computed(async function initialDataProxy() {
+    return await allFulfilled([
+      this.noQosRequirementsProxy,
+      this.queryPropertiesProxy,
+      this.storagesProxy,
+      this.providersProxy,
+    ]);
+  })),
+
+  isFooterHidden: or(
+    not('initialDataProxy.isFulfilled'),
+    'noQosRequirements',
+    eq('activeSlideId', raw('add'))
+  ),
 
   spaceId: reads('space.entityId'),
 
@@ -114,14 +132,6 @@ export default EmberObject.extend(...mixins, {
   )),
 
   noQosRequirements: reads('noQosRequirementsProxy.content'),
-
-  /**
-   * Data needed to show requirements list
-   * @type {ComputedProperty<PromiseArray>}
-   */
-  dataProxy: promise.object(
-    promise.all('queryPropertiesProxy', 'storagesProxy', 'providersProxy')
-  ),
 
   isAddDisabled: not('editPrivilege'),
 
