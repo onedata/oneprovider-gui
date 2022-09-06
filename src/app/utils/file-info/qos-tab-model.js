@@ -171,7 +171,9 @@ export default BaseTabModel.extend(...mixins, {
 
   init() {
     this._super(...arguments);
-    this.reinitializeFilesQosStatusModel();
+    if (this.files && this.isVisible) {
+      this.reinitializeFilesQosStatusModel();
+    }
   },
 
   /**
