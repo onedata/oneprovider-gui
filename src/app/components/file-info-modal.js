@@ -183,7 +183,7 @@ export default Component.extend(...mixins, {
    */
   storageLocationsProxy: computedRelationProxy(
     'file',
-    'storageLocations'
+    'storageLocationInfo'
   ),
 
   /**

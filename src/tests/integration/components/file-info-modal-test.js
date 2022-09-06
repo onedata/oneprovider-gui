@@ -3,19 +3,76 @@ import { describe, it, context, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, click, find, findAll, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import {
-  file1,
-  owner1,
-  exampleCdmiObjectId,
-} from 'oneprovider-gui/components/dummy-file-info-modal';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import OneTooltipHelper from '../../helpers/one-tooltip';
 import { selectChoose, clickTrigger } from 'ember-power-select/test-support/helpers';
-import { Promise } from 'rsvp';
+import { Promise, resolve } from 'rsvp';
 import { findByText } from '../../helpers/find';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
+
+const storageLocations = {
+  locationsPerProvider: {
+    provider: {
+      locationsPerStorage: {
+        storage: 'path',
+      },
+    },
+  },
+};
+
+const owner1 = {
+  fullName: 'John Smith',
+};
+
+const exampleCdmiObjectId =
+  '0000000000466F8867756964233666396333666230366265366163353530343634616537383831306430656662233732333065663438326234333936376463373332313734373435306535363134';
+
+const fileParentRoot = {
+  name: 'My space',
+  parent: resolve(null),
+  type: 'dir',
+  hasParent: false,
+};
+
+const fileParent3 = {
+  name: 'First',
+  parent: resolve(fileParentRoot),
+  type: 'dir',
+  hasParent: true,
+};
+
+const fileParent2 = {
+  name: 'Second directory',
+  parent: resolve(fileParent3),
+  type: 'dir',
+  hasParent: true,
+};
+
+const fileParent1 = {
+  name: 'Third one',
+  parent: resolve(fileParent2),
+  type: 'dir',
+  hasParent: true,
+  cdmiObjectId: exampleCdmiObjectId,
+  modificationTime: Math.floor(Date.now() / 1000),
+  owner: resolve(owner1),
+};
+
+const file1 = {
+  name: 'Onedata.txt',
+  size: 1.5 * Math.pow(1024, 2),
+  parent: resolve(fileParent1),
+  type: 'file',
+  hasParent: true,
+  cdmiObjectId: exampleCdmiObjectId,
+  modificationTime: Math.floor(Date.now() / 1000),
+  owner: resolve(owner1),
+  posixPermissions: '644',
+  activePermissionsType: 'posix',
+  storageLocations,
+};
 
 describe('Integration | Component | file info modal', function () {
   setupRenderingTest();
