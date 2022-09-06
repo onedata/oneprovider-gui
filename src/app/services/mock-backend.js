@@ -142,7 +142,7 @@ export default Service.extend({
    */
   symlinkMap: computed(() => ({})),
 
-  generateDevelopmentModel() {
+  async generateDevelopmentModel() {
     const store = this.get('store');
     const promiseHash = {};
     let promiseChain = resolve();
@@ -161,85 +161,59 @@ export default Service.extend({
         return createRecordsPromise;
       });
     });
-    return this.createEmptyQos(store)
-      .then(async () => {
-        await this.createEmptyDatasetSummary(store);
-        const resultHash = await promiseChain.then(() => hashFulfilled(promiseHash));
-        await this.createStorageLocationInfoRecords(store);
-        return resultHash;
-      })
-      .then((listRecords) => {
-        const { space: spaceList } = listRecords;
-        return store.createRecord('user', {
-          fullName: 'John Smith',
-          username: 'smith',
-        }).save().then(owner => {
-          const entityRecords = this.get('entityRecords');
-          if (!get(entityRecords, 'owner')) {
-            set(entityRecords, 'owner', []);
-          }
-          get(entityRecords, 'owner').push(owner);
-          return get(spaceList, 'list').then(list => {
-              return list.forEach(space => {
-                return get(space, 'rootDir').then(rootDir => {
-                  this.set('entityRecords.rootDir', [rootDir]);
-                  return this.createFileRecords(store, rootDir, owner)
-                    .then(() => this.createTransferRecords(store))
-                    .then((transferList) => {
-                      const dataSourceId = get(rootDir, 'entityId');
-                      const firstProvider =
-                        this.get('entityRecords.provider')[0];
-                      // currently to make it simpler, all files are rootDir
-                      return allFulfilled(
-                        transferList.map((transfer) => {
-                          setProperties(transfer, {
-                            type: 'replication',
-                            dataSourceId,
-                            user: owner,
-                            replicatingProvider: firstProvider,
-                          });
-                          return transfer.save();
-                        })
-                      );
-                    });
+    await this.createEmptyQos(store);
+    await this.createEmptyDatasetSummary(store);
+    const listRecords = await promiseChain.then(() => hashFulfilled(promiseHash));
+    await this.createStorageLocationInfoRecords(store);
+    const { space: spaceList } = listRecords;
+    const owner = await store.createRecord('user', {
+      fullName: 'John Smith',
+      username: 'smith',
+    }).save();
+    const entityRecords = this.get('entityRecords');
+    if (!get(entityRecords, 'owner')) {
+      set(entityRecords, 'owner', []);
+    }
+    get(entityRecords, 'owner').push(owner);
+    const spaceListList = await get(spaceList, 'list');
+    const fillSpacePromises = spaceListList.map(space =>
+      get(space, 'rootDir').then(rootDir => {
+        this.set('entityRecords.rootDir', [rootDir]);
+        return this.createFileRecords(store, rootDir, owner)
+          .then(() => this.createTransferRecords(store))
+          .then((transferList) => {
+            const dataSourceId = get(rootDir, 'entityId');
+            const firstProvider =
+              this.get('entityRecords.provider')[0];
+            // currently to make it simpler, all files are rootDir
+            return allFulfilled(
+              transferList.map((transfer) => {
+                setProperties(transfer, {
+                  type: 'replication',
+                  dataSourceId,
+                  user: owner,
+                  replicatingProvider: firstProvider,
                 });
-              });
-            })
-            .then(() => listRecords);
-        });
+                return transfer.save();
+              })
+            );
+          });
       })
-      .then(listRecords =>
-        this.pushProviderListIntoSpaces(listRecords).then(() => listRecords)
-      )
-      .then(listRecords =>
-        this.pushSpaceListIntoProviders(listRecords).then(() => listRecords)
-      )
-      .then(listRecords => {
-        return this.createAndAddShare(store).then(() => listRecords);
-      })
-      .then(listRecords => {
-        return this.createAndAddQos(store).then(() => listRecords);
-      })
-      .then(listRecords => {
-        return this.createDatasetMock(store).then(() => listRecords);
-      })
-      .then(listRecords => {
-        return this.createArchivesMock(store).then(() => listRecords);
-      })
-      .then(listRecords => {
-        return this.createAtmWorkflowExecutionRecords(store).then(() => listRecords);
-      })
-      .then(async listRecords => {
-        await this.createRecallState(store);
-        return listRecords;
-      })
-      .then(listRecords => this.createUserRecord(store, listRecords))
-      .then(user => {
-        return user.get('effSpaceList')
-          .then(effSpaceList => get(effSpaceList, 'list'))
-          .then(list => allFulfilled(list.toArray()))
-          .then(() => user);
-      });
+    );
+    await allFulfilled(fillSpacePromises);
+    await this.pushProviderListIntoSpaces(listRecords);
+    await this.pushSpaceListIntoProviders(listRecords);
+    await this.createAndAddShare(store);
+    await this.createAndAddQos(store);
+    await this.createDatasetMock(store);
+    await this.createArchivesMock(store);
+    await this.createAtmWorkflowExecutionRecords(store);
+    await this.createRecallState(store);
+    const user = await this.createUserRecord(store, listRecords);
+    const effSpaceList = await user.get('effSpaceList');
+    const effSpaceListList = await get(effSpaceList, 'list');
+    await allFulfilled(effSpaceListList.toArray());
+    return user;
   },
 
   createListRecord(store, type, records) {
