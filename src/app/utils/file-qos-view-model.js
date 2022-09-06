@@ -18,6 +18,7 @@ import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-co
 import { raw, array, promise, gt, or, not, eq } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 const mixins = [
   OwnerInjector,
@@ -65,6 +66,12 @@ export default EmberObject.extend(...mixins, {
    * @type {Utils.FilesQosStatusModel}
    */
   filesQosStatusModel: undefined,
+
+  /**
+   * @virtul optional
+   * @type {() => void}
+   */
+  onClose: notImplementedIgnore,
 
   //#region state
 

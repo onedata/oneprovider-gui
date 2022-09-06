@@ -639,6 +639,15 @@ export default Component.extend(...mixins, {
     });
   },
 
+  close() {
+    (async () => {
+      if ((await this.activeTabModel?.checkClose?.()) ?? true) {
+        this.onHide?.();
+      }
+    })();
+    return false;
+  },
+
   actions: {
     async changeTab(tabName) {
       if (tabName === this.activeTab) {
@@ -649,12 +658,7 @@ export default Component.extend(...mixins, {
       }
     },
     close() {
-      (async () => {
-        if ((await this.activeTabModel?.checkClose?.()) ?? true) {
-          this.onHide?.();
-        }
-      })();
-      return false;
+      return this.close();
     },
     toggleStorageLocations() {
       this.toggleProperty('areStorageLocationsExpanded');

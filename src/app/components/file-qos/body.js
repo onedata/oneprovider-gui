@@ -99,7 +99,7 @@ export default Component.extend(...mixins, {
       this.viewModel.closeQosRequirementCreator();
     },
     close() {
-      // FIXME: implement
+      this.viewModel.onClose?.();
     },
   },
 });

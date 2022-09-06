@@ -138,6 +138,7 @@ export default BaseTabModel.extend(...mixins, {
     'space',
     'previewMode',
     'filesQosStatusModel',
+    'fileInfoModal',
     function viewModel() {
       return FileQosViewModel.create({
         ownerSource: this,
@@ -145,6 +146,7 @@ export default BaseTabModel.extend(...mixins, {
         files: this.files,
         space: this.space,
         filesQosStatusModel: this.filesQosStatusModel,
+        onClose: this.fileInfoModal.close.bind(this.fileInfoModal),
       });
     }
   ),
