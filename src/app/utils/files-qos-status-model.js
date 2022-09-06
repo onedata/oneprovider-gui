@@ -1,3 +1,11 @@
+/**
+ * Provides auto-updated state of QoS requirements fulfillment for multiple files.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, { computed, observer } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import QosFileItem from 'oneprovider-gui/utils/qos-file-item';

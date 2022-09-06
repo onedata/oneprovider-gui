@@ -11,8 +11,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
-import { promise } from 'ember-awesome-macros';
-import { all as allFulfilled } from 'rsvp';
 
 const mixins = [
   I18n,

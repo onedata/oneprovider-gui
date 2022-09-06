@@ -16,7 +16,6 @@ import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-par
 import { Promise, all as allFulfilled, allSettled } from 'rsvp';
 import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
 import { raw, array, promise, gt, or, not, eq } from 'ember-awesome-macros';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
