@@ -78,6 +78,14 @@ export default EmberObject.extend(...mixins, {
     raw(15000),
   ),
 
+  configureUpdater: observer(
+    'updater',
+    'updateInterval',
+    function configureUpdater() {
+      this.set('updater.interval', this.updateInterval);
+    }
+  ),
+
   init() {
     this._super(...arguments);
     this.initUpdater();
@@ -104,14 +112,6 @@ export default EmberObject.extend(...mixins, {
     this.set('updater', updater);
     this.configureUpdater();
   },
-
-  configureUpdater: observer(
-    'updater',
-    'updateInterval',
-    function configureUpdater() {
-      this.set('updater.interval', this.updateInterval);
-    }
-  ),
 
   async updateData(replace = false) {
     const fileItems = this.get('fileItems');
