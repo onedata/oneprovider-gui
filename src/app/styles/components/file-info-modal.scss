@@ -114,7 +114,7 @@
       margin-left: 14px;
     }
 
-    &.with-status-icon {
+    &.with-status-icon, .with-status-icon {
       display: inline-flex;
       align-items: center;
       .tab-status-icon {
@@ -239,5 +239,9 @@
 
   .storage-locations-expand {
     padding-bottom: 10px;
+  }
+
+  .fb-no-dir-statistics .content-info-content-container .row {
+    text-align: center;
   }
 }

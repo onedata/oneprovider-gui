@@ -2,9 +2,16 @@
   <div class="progress-bar-scale-container"></div>
   {{#if isDataIncomplete}}
     <div class="progress-bar-text na-text hidden-xs">
-      {{tt this "na"}}
+      <a 
+        href={{providersUrl}} 
+        class="dir-statistics-settings-url" 
+        target={{navigateProvidersTarget}}
+      >
+        {{tt this "disableStatistics"}}
+        {{one-icon icon="overview" class="inline-icon-container"}}
+      </a>
     </div>
-    <div class="progress-bar-background"></div>
+    <div class="progress-bar-background na-background"></div>
     {{one-tooltip title=(tt this "naTip")}}
   {{else}}
     <div class="progress-bar bar" style={{occupiedSpaceBarStyle}}>

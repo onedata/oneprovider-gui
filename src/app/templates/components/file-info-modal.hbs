@@ -62,7 +62,7 @@
         {{#if isSizeTabVisible}}
           {{#nav.item
             active=(eq tab.activeId "size")
-            disabled=isSizeTabDisabled
+            disabled=(eq itemType "symlink")
           }}
             <a class={{concat-classes
                 "nav-link nav-link-size"
@@ -71,17 +71,21 @@
               role="tab"
               {{action "changeTab" "size"}}
             >
-              <div class="tab-label-size">
-               {{tt this "tabs.size.tabTitle"}}
+              <div 
+                class={{concat-classes 
+                  "tab-label-size"
+                  (if (not isSizeTabDisabled) "with-status-icon tab-status-success")
+                  }}
+              >
+                {{tt this "tabs.size.tabTitle"}}
+                {{#if (not isSizeTabDisabled)}}
+                  {{one-icon class="tab-status-icon" icon="checkbox-filled"}}
+                {{/if}}
               </div>
             </a>
-            {{#if isSizeTabDisabled}}
+            {{#if (eq itemType "symlink")}}
               {{one-tooltip
-                title=(tt this (if
-                  (eq itemType "symlink")
-                  "tabs.size.disabledTip"
-                  "tabs.size.turnOffTip"
-                ))
+                title=(tt this "tabs.size.disabledTip")
               }}
             {{/if}}
           {{/nav.item}}
@@ -346,11 +350,17 @@
         </ul>
       {{/promise-proxy-container}}
     {{else if (eq activeTab "size")}}
-      {{file-browser/file-entry-charts
-        space=space
-        file=file
-        dirStatsServiceState=dirStatsServiceState
-      }}
+      {{#if isSizeTabDisabled}}
+        {{file-browser/fb-no-dir-statistics
+          getProvidersUrl=(action "getProvidersUrl")
+        }}
+      {{else}}
+        {{file-browser/file-entry-charts
+          space=space
+          file=file
+          dirStatsServiceState=dirStatsServiceState
+        }}
+      {{/if}}
     {{else if (eq activeTab "apiSamples")}}
       {{#promise-proxy-container
         proxy=apiSamplesProxy

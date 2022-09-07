@@ -105,6 +105,12 @@ export default Component.extend(I18n, {
   onEvict: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {Function}
+   */
+  getProvidersUrl: notImplementedThrow,
+
+  /**
    * @type {Array<Utils.FileDistributionDataContainer>}
    */
   fileDistributionData: undefined,
@@ -760,5 +766,11 @@ export default Component.extend(I18n, {
     onEvict(oneproviderHasActiveTransfers).finally(() =>
       safeExec(this, () => this.set('evictionInvoked', false))
     );
+  },
+
+  actions: {
+    getProvidersUrl(...args) {
+        return this.get('getProvidersUrl')(...args);
+    },
   },
 });

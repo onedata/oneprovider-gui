@@ -43,6 +43,7 @@
           onMigrate=(action "migrate" files)
           onEvict=(action "evict" files)
           getTransfersUrl=(action "getTransfersUrl")
+          getProvidersUrl=(action "getProvidersUrl")
         }}
       {{else}}
         {{#one-collapsible-list class="per-file-distribution-list" as |list|}}
@@ -73,6 +74,7 @@
                     onMigrate=(action "migrate" (array fileDistDataContainer.file))
                     onEvict=(action "evict" (array fileDistDataContainer.file))
                     getTransfersUrl=(action "getTransfersUrl")
+                    getProvidersUrl=(action "getProvidersUrl")
                   }}
                 </div>
               {{/listItem.content}}

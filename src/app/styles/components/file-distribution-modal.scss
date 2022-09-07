@@ -276,6 +276,11 @@
     }
   }
 
+  .oneicon-overview {
+    vertical-align: sub;
+    font-size: 120%;
+  }
+
   .confirm-subsequent-transfer {
     .btn-toolbar {
       text-align: right;
@@ -318,6 +323,20 @@
       height: $one-pill-button-height;
       background-color: $color-one-light-blue;
       background-size: 50px 50px;
+
+      &.na-background {
+        background-image: linear-gradient(
+          -45deg,
+          $color-one-light-blue 25%,
+          transparent 25%,
+          transparent 50%,
+          $color-one-light-blue 25%,
+          $color-one-light-blue 75%,
+          transparent 75%,
+          transparent
+        );
+        background-color: #f7f7f7;
+      }
     }
 
     .chunks-container, .progress-bar-container {
@@ -326,6 +345,10 @@
       flex-grow: 1;
       min-width: 0;
       background-color: $color-one-light-blue;
+
+      .dir-statistics-settings-url {
+        color: $color-one-blue-gray;
+      }
     }
 
     .progress-bar {

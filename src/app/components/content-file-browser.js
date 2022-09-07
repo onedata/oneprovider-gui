@@ -502,6 +502,9 @@ export default OneEmbeddedComponent.extend(
       getTransfersUrl({ fileId, tabId }) {
         return this.callParent('getTransfersUrl', { fileId, tabId });
       },
+      getProvidersUrl({ oneproviderId }) {
+        return this.callParent('getProvidersUrl', { oneproviderId });
+      },
 
       getDatasetsUrl(data) {
         return this.callParent('getDatasetsUrl', data);

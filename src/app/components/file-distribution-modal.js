@@ -13,6 +13,7 @@ import Component from '@ember/component';
 import { get, computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { Promise, resolve, allSettled } from 'rsvp';
@@ -62,6 +63,12 @@ export default Component.extend(
      * @type {Function}
      */
     getTransfersUrl: notImplementedIgnore,
+
+    /**
+     * @virtual
+     * @type {Function}
+     */
+    getProvidersUrl: notImplementedThrow,
 
     /**
      * @type {Ember.ComputedProperty<Array<Models.File>>}
@@ -312,6 +319,9 @@ export default Component.extend(
       },
       getTransfersUrl(...args) {
         return this.get('getTransfersUrl')(...args);
+      },
+      getProvidersUrl(...args) {
+        return this.get('getProvidersUrl')(...args);
       },
     },
   }

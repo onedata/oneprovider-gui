@@ -66,6 +66,12 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * @virtual
+   * @type {Function}
+   */
+  getProvidersUrl: notImplementedThrow,
+
+  /**
    * @type {PromiseObject}
    */
   initialRequiredDataProxy: promise.object(promise.all(
@@ -550,6 +556,9 @@ export default Component.extend(I18n, {
         newMigrationSourceHasActiveTransfers: false,
       });
       this.resolveStartTransferPromise();
+    },
+    getProvidersUrl(...args) {
+        return this.get('getProvidersUrl')(...args);
     },
   },
 });

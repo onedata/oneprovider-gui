@@ -134,6 +134,12 @@ export default Component.extend(...mixins, {
   dirStatsServiceState: undefined,
 
   /**
+   * @virtual
+   * @type {Function}
+   */
+  getProvidersUrl: notImplementedThrow,
+
+  /**
    * @type {FileInfoTabId}
    */
   activeTab: 'general',
@@ -643,6 +649,9 @@ export default Component.extend(...mixins, {
     },
     toggleStorageLocations() {
       this.toggleProperty('areStorageLocationsExpanded');
+    },
+    getProvidersUrl(...args) {
+        return this.get('getProvidersUrl')(...args);
     },
   },
 });
