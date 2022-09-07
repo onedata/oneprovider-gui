@@ -46,16 +46,6 @@
   }}
 {{/if}}
 
-{{#if fileToShare}}
-  {{file-browser/fb-share-modal
-    open=true
-    file=fileToShare
-    managePrivilege=spacePrivileges.manageShares
-    onHide=(action closeShareModal)
-    getShareUrl=(action getShareUrl)
-  }}
-{{/if}}
-
 {{#if filesToShowQos}}
   {{qos-modal
     open=true

@@ -1,8 +1,12 @@
-.fb-share-modal-item {
+.file-share-item {
   padding-top: $padding-base-vertical;
   padding-bottom: $padding-base-vertical;
-  
+
   .row-share-local-url {
     padding-bottom: $padding-base-vertical;
+    .share-local-url {
+      display: inline-block;
+      max-width: 100%;
+    }
   }
 }

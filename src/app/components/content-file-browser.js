@@ -301,7 +301,6 @@ export default OneEmbeddedComponent.extend(
         openRename: this.openRenameModal.bind(this),
         openInfo: this.openInfoModal.bind(this),
         openRecallInfo: this.openRecallInfoModal.bind(this),
-        openShare: this.openShareModal.bind(this),
         openDatasets: this.openDatasetsModal.bind(this),
         openFileDistribution: this.openFileDistributionModal.bind(this),
         openQos: this.openQosModal.bind(this),
@@ -444,9 +443,6 @@ export default OneEmbeddedComponent.extend(
     openDatasetsModal(files) {
       this.set('filesToShowDatasets', files);
     },
-    openShareModal(file) {
-      this.set('fileToShare', file);
-    },
     openFileDistributionModal(files) {
       this.set('filesToShowDistribution', [...files]);
     },
@@ -461,9 +457,6 @@ export default OneEmbeddedComponent.extend(
     },
     closeRecallInfoModal() {
       this.set('fileToShowRecallInfo', null);
-    },
-    closeShareModal() {
-      this.set('fileToShare', null);
     },
     closeDatasetsModal() {
       const {
@@ -487,7 +480,6 @@ export default OneEmbeddedComponent.extend(
       this.closeRemoveModal();
       this.closeRenameModal();
       this.closeInfoModal();
-      this.closeShareModal();
       this.closeFileDistributionModal();
       this.closeQosModal();
       this.closeDatasetsModal();
@@ -509,9 +501,6 @@ export default OneEmbeddedComponent.extend(
       },
       getTransfersUrl({ fileId, tabId }) {
         return this.callParent('getTransfersUrl', { fileId, tabId });
-      },
-      getShareUrl({ shareId }) {
-        return this.callParent('getShareUrl', { shareId });
       },
 
       getDatasetsUrl(data) {

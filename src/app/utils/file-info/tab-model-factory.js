@@ -8,6 +8,7 @@
 
 import MetadataTabModel from './metadata-tab-model';
 import PermissionsTabModel from './permissions-tab-model';
+import SharesTabModel from './shares-tab-model';
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
@@ -30,6 +31,8 @@ export default EmberObject.extend(OwnerInjector, {
         return this.createMetadataTabModel(options);
       case 'permissions':
         return this.createPermissionsTabModel(options);
+      case 'shares':
+        return this.createSharesTabModel(options);
       default:
         throw new Error(`no such file info tab type or has no model: "${type}"`);
     }
@@ -49,6 +52,17 @@ export default EmberObject.extend(OwnerInjector, {
   createPermissionsTabModel(options) {
     return PermissionsTabModel.extend({
       files: reads('fileInfoModal.files'),
+      space: reads('fileInfoModal.space'),
+    }).create({
+      fileInfoModal: this.fileInfoModal,
+      ownerSource: this,
+      ...options,
+    });
+  },
+
+  createSharesTabModel(options) {
+    return SharesTabModel.extend({
+      file: reads('fileInfoModal.file'),
       space: reads('fileInfoModal.space'),
     }).create({
       fileInfoModal: this.fileInfoModal,
