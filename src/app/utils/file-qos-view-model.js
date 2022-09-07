@@ -6,7 +6,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { get, setProperties, getProperties, computed } from '@ember/object';
+import EmberObject, { get, setProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
@@ -39,7 +39,6 @@ export default EmberObject.extend(...mixins, {
   i18n: service(),
   spaceManager: service(),
   qosManager: service(),
-  fileManager: service(),
   globalNotify: service(),
   modalManager: service(),
 
@@ -287,31 +286,10 @@ export default EmberObject.extend(...mixins, {
    * @param {Utils.QosItem} qosItem
    */
   async removeQosRequirement(qosItem) {
-    const {
-      qosManager,
-      fileManager,
-    } = this.getProperties('qosManager', 'fileManager');
-    const {
-      qosSourceFile: file,
-      qos: qosRequirement,
-    } = getProperties(qosItem, 'qosSourceFile', 'qos');
     try {
-      await qosManager.removeQosRequirement(qosRequirement);
+      await this.qosManager.removeQosRequirement(qosItem.qos);
     } finally {
-      try {
-        this.updateData();
-        if (file && get(file, 'hardlinksCount') > 1) {
-          fileManager.fileParentRefresh(file);
-        }
-        if (file && get(file, 'type') === 'dir') {
-          fileManager.dirChildrenRefresh(get(file, 'entityId'));
-        }
-      } catch (updateError) {
-        console.error(
-          'removeQosRequirement: error updating data:',
-          updateError
-        );
-      }
+      await this.updateData();
     }
   },
 
@@ -363,20 +341,11 @@ export default EmberObject.extend(...mixins, {
     const {
       fileItems,
       qosManager,
-      fileManager,
       globalNotify,
-    } = this.getProperties('fileItems', 'qosManager', 'fileManager', 'globalNotify');
+    } = this.getProperties('fileItems', 'qosManager', 'globalNotify');
     return allSettled(fileItems.map(fileItem => {
         const file = get(fileItem, 'file');
-        return qosManager.createQosRequirement(file, expressionInfix, replicasNumber)
-          .finally(() => {
-            if (get(file, 'hardlinksCount') > 1) {
-              fileManager.fileParentRefresh(file);
-            }
-            if (get(file, 'type') === 'dir') {
-              return fileManager.dirChildrenRefresh(get(file, 'entityId'));
-            }
-          });
+        return qosManager.createQosRequirement(file, expressionInfix, replicasNumber);
       }))
       .then(results => {
         const rejectedResult = results.findBy('state', 'rejected');
