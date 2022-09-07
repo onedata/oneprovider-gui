@@ -2,8 +2,7 @@
  * Shows data distribution information and handles transfer-related operations
  * for passed files. Allows to show summarized distribution when there are
  * multiple files.
- * 
- * @module components/file-distribution-modal
+ *
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -36,7 +35,7 @@ export default Component.extend(
     /**
      * @override
      */
-    i18nPrefix: 'components.fileDistributionModal',
+    i18nPrefix: 'components.fileDistribution',
 
     /**
      * @virtual
@@ -56,12 +55,6 @@ export default Component.extend(
      * @returns {undefined}
      */
     onClose: notImplementedIgnore,
-
-    /**
-     * @virtual
-     * @type {Function}
-     */
-    getTransfersUrl: notImplementedIgnore,
 
     /**
      * @type {Ember.ComputedProperty<Array<Models.File>>}
@@ -114,16 +107,6 @@ export default Component.extend(
      * if one of element in array is null, the sum is also null
      */
     dirsSize: sum(array.mapBy('filesOfTypeDir', raw('size'))),
-
-    /**
-     * @type {Ember.ComputedProperty<Array<Utils.FileDistributionDataContainer>>}
-     */
-    fileDistributionData: computed('files.[]', function fileDistributionData() {
-      return this.get('files')
-        .map(file => FileDistributionDataContainer.create(
-          getOwner(this).ownerInjection(), { file }
-        ));
-    }),
 
     /**
      * @type {ComputedProperty<String>}
@@ -202,50 +185,7 @@ export default Component.extend(
       }),
 
     /**
-     * One of: 'distribution-summary', 'distribution-details'.
-     * 'distribution-summary' is possible only for multiple files.
-     * @type {string}
-     */
-    activeTab: undefined,
-
-    init() {
-      this._super(...arguments);
-
-      this.set(
-        'activeTab',
-        this.get('files.length') > 1 ? 'distribution-summary' : 'distribution-details'
-      );
-    },
-
-    didInsertElement() {
-      this._super(...arguments);
-
-      const {
-        files,
-        oneprovidersProxy,
-      } = this.getProperties('files', 'oneprovidersProxy');
-
-      // Open file list item if there is only one file
-      if (get(files, 'length') === 1) {
-        oneprovidersProxy.then(() =>
-          next(() => safeExec(this, () =>
-            $('.file-distribution-modal .one-collapsible-list-item-header').click()
-          ))
-        );
-      }
-    },
-
-    /**
-     * @override
-     */
-    fetchOneproviders() {
-      return this.get('space').getRelation('providerList')
-        .then(providerList => get(providerList, 'list'))
-        .then(list => allSettled(list.invoke('reload')).then(() => list));
-    },
-
-    /**
-     * @param {Models.File} file 
+     * @param {Models.File} file
      * @returns {Promise}
      */
     updateDataAfterTransferStart(file) {
@@ -309,9 +249,6 @@ export default Component.extend(
         )).catch(error => {
           globalNotify.backendError(this.t('startingEviction'), error);
         });
-      },
-      getTransfersUrl(...args) {
-        return this.get('getTransfersUrl')(...args);
       },
     },
   }

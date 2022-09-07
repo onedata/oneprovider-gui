@@ -13,12 +13,12 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 /**
  * @typedef {Object} StorageDistribution Contains info about distribution of
  *   some file on specified Storage
- * @property {number} physicalSize
+ * @property {number} physicalSize Physical size of the file on this storage.
  * @property {Object} chunksBarData Present when file type is reg file.
- * @property {number} blocksPercentage Possible values: 0 - 100. 
+ * @property {number} blocksPercentage Possible values: 0 - 100.
  * Present when file type is reg file.
- * @property { number } blockCount Present when file type is reg file.
- * 
+ * @property {number} blockCount Present when file type is reg file.
+ *
  * `chunksBarData` is used for drawing file distribution bar chart. The
  * format is an object, where keys are start pixel of bar (0-319)
  * and values are opacity of fill that should be used to fill the fragment
@@ -31,9 +31,10 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 /**
  * @typedef {Object} OneproviderDistribution Contains info about distribution of
  *   some file on specified Oneprovider
- * @property {number} logicalSize
- * @property {boolean} success
- * @property { Object } distributionPerStorage 
+ * @property {number} logicalSize Logical size of file/dir as seen by this provider.
+ * @property {boolean} success Indicates whether fetching file distribution for this
+ *   provider was successful.
+ * @property {Object} distributionPerStorage Maps storageId -> StorageDistribution
  * When success == true contains map storageId -> StorageDistribution.
  * When success == false contains map storageId -> error
  */

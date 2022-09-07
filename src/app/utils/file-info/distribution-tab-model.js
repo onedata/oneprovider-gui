@@ -63,7 +63,7 @@ export default BaseTabModel.extend(...mixins, {
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
    */
   viewModel: computed(
-    'file',
+    'files',
     'space',
     'previewMode',
     'filesQosStatusModel',

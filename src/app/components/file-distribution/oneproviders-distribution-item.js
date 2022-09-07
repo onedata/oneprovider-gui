@@ -1,8 +1,7 @@
 /**
  * Shows distribution and transfer-related operations for Oneprovider in
  * terms of selected files.
- * 
- * @module components/file-distribution-modal/oneproviders-distribution-item
+ *
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -33,7 +32,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDistributionModal.oneprovidersDistributionItem',
+  i18nPrefix: 'components.fileDistribution.oneprovidersDistributionItem',
 
   /**
    * @virtual

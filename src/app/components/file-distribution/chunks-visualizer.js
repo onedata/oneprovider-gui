@@ -1,7 +1,6 @@
 /**
  * Renders visualization of file chunks presence.
- * 
- * @module components/file-distribution-modal/chunks-visualizer
+ *
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -23,7 +22,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDistributionModal.chunksVisualizer',
+  i18nPrefix: 'components.fileDistribution.chunksVisualizer',
 
   /**
    * @virtual

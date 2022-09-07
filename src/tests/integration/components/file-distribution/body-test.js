@@ -1,24 +1,25 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
-import hbs from 'htmlbars-inline-precompile';
+import { setupRenderingTest } from 'ember-mocha';
+import { find } from '@ember/test-helpers';
+import { all as allSettled } from 'rsvp';
+import Helper from '../../../helpers/file-distribution';
 
-describe('Integration | Component | file-distribution/body', function() {
-  setupComponentTest('file-distribution/body', {
-    integration: true
-  });
+describe('Integration | Component | file-distribution/body', function () {
+  setupRenderingTest();
 
-  it('renders', function() {
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    // Template block usage:
-    // this.render(hbs`
-    //   {{#file-distribution/body}}
-    //     template content
-    //   {{/file-distribution/body}}
-    // `);
+  it('renders rows with provider names for single file', async function () {
+    const helper = new Helper(this);
+    await helper.givenSingleFileWithDistribution();
+    helper.givenNoTransfersForSingleFile();
 
-    this.render(hbs`{{file-distribution/body}}`);
-    expect(this.$()).to.have.length(1);
+    await helper.renderBody();
+
+    const oneprovidersDistribution = helper.getOneprovidersDistribution();
+    expect(oneprovidersDistribution).to.exist;
+    const providerItems = [...oneprovidersDistribution.querySelectorAll('.oneproviders-distribution-item')];
+    expect(providerItems).to.have.lengthOf(2);
+    expect(providerItems[0]).to.contain.text('Kraków');
+    expect(providerItems[1]).to.contain.text('Paris');
   });
 });

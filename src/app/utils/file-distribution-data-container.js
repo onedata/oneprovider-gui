@@ -291,14 +291,11 @@ export default EmberObject.extend(
      * @returns {Array<String>}
      */
     getStorageIdsForOneprovider(oneprovider) {
-      const {
-        isFileDistributionLoaded,
-      } = this.getProperties('isFileDistributionLoaded');
-      if (isFileDistributionLoaded) {
+      if (this.isFileDistributionLoaded) {
         const oneproviderData = this.getDistributionForOneprovider(oneprovider);
         return Object.keys(get(oneproviderData, 'distributionPerStorage'));
       } else {
-        return {};
+        return [];
       }
     },
 

@@ -1,8 +1,7 @@
 /**
  * Shows distribution and transfer-related operations for each passed Oneprovider
  * in terms of selected files.
- * 
- * @module components/file-distribution-modal/oneproviders-distribution
+ *
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -29,7 +28,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDistributionModal.oneprovidersDistribution',
+  i18nPrefix: 'components.fileDistribution.oneprovidersDistribution',
 
   /**
    * Change of this property will enable/disable continuous fetching transfers
@@ -155,7 +154,7 @@ export default Component.extend(I18n, {
   /**
    * Data needed by transfer user want to create and which can result in starting a
    * subsequent transfer on some Oneprovider.
-   * 
+   *
    * Format:
    * ```
    * {
