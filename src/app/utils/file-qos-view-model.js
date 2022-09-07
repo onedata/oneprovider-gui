@@ -166,7 +166,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<QueryValueComponentsBuilder>}
    */
-  valuesBuilder: computed('', () => QueryValueComponentsBuilderQos.create()),
+  valuesBuilder: computed(() => QueryValueComponentsBuilderQos.create()),
 
   isAddDisabledTip: computed('editPrivilege', function isAddDisabledTip() {
     if (!this.editPrivilege) {

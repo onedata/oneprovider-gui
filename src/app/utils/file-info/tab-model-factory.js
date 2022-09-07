@@ -35,7 +35,7 @@ export default EmberObject.extend(OwnerInjector, {
       case 'shares':
         return this.createSharesTabModel(options);
       case 'qos':
-        return this.createQosTabModel(options);
+        return this.createQosTabModel();
       default:
         throw new Error(`no such file info tab type or has no model: "${type}"`);
     }
@@ -75,7 +75,7 @@ export default EmberObject.extend(OwnerInjector, {
   },
 
   /**
-   * @returns
+   * @returns {Utils.QosTabModel}
    */
   createQosTabModel() {
     return QosTabModel.extend({

@@ -10,21 +10,11 @@ import BaseTabModel from './base-tab-model';
 import { computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import FileQosViewModel from 'oneprovider-gui/utils/file-qos-view-model';
-import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { inject as service } from '@ember/service';
 import { conditional, raw, getBy, eq } from 'ember-awesome-macros';
 import FilesQosStatusModel from 'oneprovider-gui/utils/files-qos-status-model';
 import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 
-const mixins = [
-  OwnerInjector,
-  I18n,
-];
-
-export default BaseTabModel.extend(...mixins, {
-  i18n: service(),
-
+export default BaseTabModel.extend({
   /**
    * @override
    */
@@ -90,13 +80,11 @@ export default BaseTabModel.extend(...mixins, {
     'files.@each.type',
     'space.privileges.viewQos',
     function isVisible() {
-      if (!this._super(...arguments)) {
-        return false;
-      }
-      if (this.previewMode) {
-        return false;
-      }
-      if (!this.space.privileges?.viewQos) {
+      if (
+        !this._super(...arguments) ||
+        this.previewMode ||
+        !this.space.privileges?.viewQos
+      ) {
         return false;
       }
       const isSupportedFileType = this.files.every(file =>
@@ -110,10 +98,6 @@ export default BaseTabModel.extend(...mixins, {
    * @override
    */
   statusIcon: reads('allQosStatusIcon'),
-
-  /**
-   * @override
-   */
 
   qosStatusClassMapping: Object.freeze({
     error: 'tab-status-danger',
@@ -131,7 +115,7 @@ export default BaseTabModel.extend(...mixins, {
   }),
 
   /**
-   * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
+   * @type {ComputedProperty<Utils.FileQosViewModel>}
    */
   viewModel: computed(
     'file',
@@ -171,9 +155,7 @@ export default BaseTabModel.extend(...mixins, {
 
   init() {
     this._super(...arguments);
-    if (this.files && this.isVisible) {
-      this.reinitializeFilesQosStatusModel();
-    }
+    this.autoStatusWatchConfigurator();
   },
 
   /**
