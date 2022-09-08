@@ -2,10 +2,8 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { find } from '@ember/test-helpers';
-import { all as allSettled } from 'rsvp';
 import Helper from '../../../helpers/file-distribution';
 import { click } from '@ember/test-helpers';
-import sleep from 'onedata-gui-common/utils/sleep';
 import sinon from 'sinon';
 
 describe('Integration | Component | file-distribution/body', function () {

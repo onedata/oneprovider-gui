@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import Helper from '../../../helpers/file-shares';
-import { all as allSettled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import sinon from 'sinon';
 
 describe('Integration | Component | file-shares/body', function () {
@@ -10,7 +10,7 @@ describe('Integration | Component | file-shares/body', function () {
 
   it('renders names of existing shares', async function () {
     const helper = new Helper(this);
-    const shares = await allSettled([
+    const shares = await allFulfilled([
       helper.createShare({
         name: 'one',
       }),
@@ -33,7 +33,7 @@ describe('Integration | Component | file-shares/body', function () {
 
   it('renders links to private share view of existing shares', async function () {
     const helper = new Helper(this);
-    const shares = await allSettled([
+    const shares = await allFulfilled([
       helper.createShare({
         id: helper.createShareGri('id1'),
       }),
@@ -62,7 +62,7 @@ describe('Integration | Component | file-shares/body', function () {
 
   it('renders public URL of existing shares', async function () {
     const helper = new Helper(this);
-    const shares = await allSettled([
+    const shares = await allFulfilled([
       helper.createShare({
         publicUrl: 'https://example.com/1',
       }),
