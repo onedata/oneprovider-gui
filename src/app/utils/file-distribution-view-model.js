@@ -27,6 +27,14 @@ const mixins = [
 ];
 
 export default EmberObject.extend(...mixins, {
+  transferManager: service(),
+  globalNotify: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.fileDistributionViewModel',
+
   /**
    * @virtual
    * @type {Models.Space}
@@ -77,5 +85,58 @@ export default EmberObject.extend(...mixins, {
     const list = await get(providerList, 'list');
     await allSettled(list.invoke('reload'));
     return list;
+  },
+
+  /**
+   * @param {Models.File} file
+   * @returns {Promise}
+   */
+  updateDataAfterTransferStart(file) {
+    const fileDistributionData = this.get('fileDistributionData').findBy('file', file);
+    if (fileDistributionData) {
+      return fileDistributionData.updateData();
+    } else {
+      return resolve();
+    }
+  },
+
+  replicate(files, destinationOneprovider) {
+    const {
+      globalNotify,
+      transferManager,
+    } = this.getProperties('globalNotify', 'transferManager');
+    return Promise.all(files.map(file =>
+      transferManager.startReplication(file, destinationOneprovider)
+      .then(result => this.updateDataAfterTransferStart(file).then(() => result))
+    )).catch(error => {
+      globalNotify.backendError(this.t('startingReplication'), error);
+    });
+  },
+  migrate(files, sourceProvider, destinationOneprovider) {
+    const {
+      globalNotify,
+      transferManager,
+    } = this.getProperties('globalNotify', 'transferManager');
+    return Promise.all(files.map(file =>
+      transferManager.startMigration(
+        file,
+        sourceProvider,
+        destinationOneprovider
+      ).then(result => this.updateDataAfterTransferStart(file).then(() => result))
+    )).catch(error => {
+      globalNotify.backendError(this.t('startingMigration'), error);
+    });
+  },
+  evict(files, sourceOneprovider) {
+    const {
+      globalNotify,
+      transferManager,
+    } = this.getProperties('globalNotify', 'transferManager');
+    return Promise.all(files.map(file =>
+      transferManager.startEviction(file, sourceOneprovider)
+      .then(result => this.updateDataAfterTransferStart(file).then(() => result))
+    )).catch(error => {
+      globalNotify.backendError(this.t('startingEviction'), error);
+    });
   },
 });

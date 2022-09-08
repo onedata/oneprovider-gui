@@ -204,6 +204,7 @@ export default Component.extend(
       close() {
         this.get('onClose')();
       },
+      // FIXME: move to new viewModel
       onShow() {
         this.updateOneprovidersProxy({ replace: true });
         const space = this.get('space');
@@ -212,43 +213,13 @@ export default Component.extend(
         }
       },
       replicate(files, destinationOneprovider) {
-        const {
-          globalNotify,
-          transferManager,
-        } = this.getProperties('globalNotify', 'transferManager');
-        return Promise.all(files.map(file =>
-          transferManager.startReplication(file, destinationOneprovider)
-          .then(result => this.updateDataAfterTransferStart(file).then(() => result))
-        )).catch(error => {
-          globalNotify.backendError(this.t('startingReplication'), error);
-        });
+        // ...
       },
       migrate(files, sourceProvider, destinationOneprovider) {
-        const {
-          globalNotify,
-          transferManager,
-        } = this.getProperties('globalNotify', 'transferManager');
-        return Promise.all(files.map(file =>
-          transferManager.startMigration(
-            file,
-            sourceProvider,
-            destinationOneprovider
-          ).then(result => this.updateDataAfterTransferStart(file).then(() => result))
-        )).catch(error => {
-          globalNotify.backendError(this.t('startingMigration'), error);
-        });
+        // ...
       },
       evict(files, sourceOneprovider) {
-        const {
-          globalNotify,
-          transferManager,
-        } = this.getProperties('globalNotify', 'transferManager');
-        return Promise.all(files.map(file =>
-          transferManager.startEviction(file, sourceOneprovider)
-          .then(result => this.updateDataAfterTransferStart(file).then(() => result))
-        )).catch(error => {
-          globalNotify.backendError(this.t('startingEviction'), error);
-        });
+        // ...
       },
     },
   }

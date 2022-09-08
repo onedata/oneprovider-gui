@@ -13,9 +13,7 @@ export default {
   dirs: 'directories',
   close: 'Close',
   onlySingleOneproviderSupport: 'Current space is supported by only one Oneprovider, thus advanced data replication or migration features are not available.',
-  startingMigration: 'starting migration',
-  startingReplication: 'starting replication',
-  startingEviction: 'starting eviction',
+
   filesBatchDescription: 'Summarized data distribution of {{itemsNumber}} {{itemNoun}} ({{itemsSize}}).',
   sizeDetails: '{{fileNoun}} – {{filesSize}}<br> {{directoryNoun}} – {{dirsSize}}',
   itemsBatchDescriptionNoStats: 'Data distribution of the selected {{itemsNumber}} items is not available.',

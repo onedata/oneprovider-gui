@@ -7,6 +7,7 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { entityType as storageEntityType } from 'oneprovider-gui/models/storage';
 import sinon from 'sinon';
+import { all as allFulfilled } from 'rsvp';
 
 export default class FilePermissionsHelper {
   /**
@@ -16,6 +17,16 @@ export default class FilePermissionsHelper {
     this.context = context;
     this.store = lookupService(this.context, 'store');
     this.viewModelOptions = {};
+    /** @type {Models.File} */
+    this.file = null;
+    /** @type {Models.Space} */
+    this.space = null;
+    /** @type {Array<Models.Storage>} */
+    this.storages = [];
+    /** @type {Array<Models.Provider>} */
+    this.providers = [];
+    /** @type {Models.FileDistribution} */
+    this.distribution = null;
   }
   async createFile(properties = {}) {
     return await this.store.createRecord('file', {
@@ -71,6 +82,13 @@ export default class FilePermissionsHelper {
   getOneprovidersDistribution() {
     return this.getBody().querySelector('.oneproviders-distribution');
   }
+  getOneproviderDistributionItem(oneproviderId) {
+    return this.getOneprovidersDistribution()
+      .querySelector(`.oneproviders-distribution-item.oneprovider-${oneproviderId}`);
+  }
+  getTransferManager() {
+    return lookupService(this.context, 'transferManager');
+  }
 
   async createProvider(entityId, data) {
     const id = gri({
@@ -90,7 +108,6 @@ export default class FilePermissionsHelper {
       aspect: 'instance',
       scope: 'shared',
     });
-    console.log('id', id, storageEntityType);
     return await this.store.createRecord('storage', {
       id,
       ...data,
@@ -102,26 +119,44 @@ export default class FilePermissionsHelper {
     ];
   }
   async givenSpace(data) {
-    this.space = await this.createSpace(data);
+    this.space = await this.createSpace({
+      currentUserEffPrivileges: [
+        'space_schedule_replication',
+      ],
+      ...data,
+    });
     return this.space;
   }
   async givenSingleFileWithDistribution(data) {
-    const krakow = await this.createProvider('krakow_id', {
-      name: 'Kraków',
-      online: true,
-    });
-    const paris = await this.createProvider('paris_id', {
-      name: 'Paris',
-      online: true,
-    });
-    await this.createStorage('krakow_storage_id', {
-      name: 'krakow storage',
-      provider: krakow,
-    });
-    await this.createStorage('paris_storage_id', {
-      name: 'paris storage',
-      provider: paris,
-    });
+    const providers = await allFulfilled([
+      this.createProvider('krakow_id', {
+        name: 'Kraków',
+        online: true,
+      }),
+      this.createProvider('paris_id', {
+        name: 'Paris',
+        online: true,
+      }),
+    ]);
+    this.providers = providers;
+    const [krakow, paris] = providers;
+    const storages = await allFulfilled([
+      this.createStorage('krakow_storage_id', {
+        name: 'krakow storage',
+        provider: krakow,
+      }),
+      this.createStorage('paris_storage_id', {
+        name: 'paris storage',
+        provider: paris,
+      }),
+    ]);
+    this.storages = storages;
+    const fullStorageDistribution = {
+      physicalSize: 100,
+      chunksBarData: { 0: 100 },
+      blocksPercentage: 100,
+      blockCount: 1,
+    };
     const emptyStorageDistribution = {
       physicalSize: 0,
       chunksBarData: {},
@@ -134,7 +169,7 @@ export default class FilePermissionsHelper {
           logicalSize: 100,
           success: true,
           distributionPerStorage: {
-            krakow_storage_id: { ...emptyStorageDistribution },
+            krakow_storage_id: { ...fullStorageDistribution },
           },
         },
         paris_id: {
@@ -146,14 +181,14 @@ export default class FilePermissionsHelper {
         },
       },
     }).save();
+    this.distribution = distribution;
     const providerList = await this.store.createRecord('provider-list', {
       list: [krakow, paris],
     }).save();
-    const space = await this.givenSpace({
+    await this.givenSpace({
       name: 'space for file distribution',
       providerList,
     });
-    console.log('space', await space.get('providerList'));
     return await this.givenSingleFile({
       distribution,
       ...data,

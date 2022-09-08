@@ -77,14 +77,13 @@ export default Component.extend(...mixins, {
       return this.appProxy.callParent('getTransfersUrl', ...arguments);
     },
     async replicate(file, destinationOneprovider) {
-      // FIXME: implement
-      // return await this.viewModel.replicate([file], destinationOneprovider);
+      return await this.viewModel.replicate([file], destinationOneprovider);
     },
     async migrate(file, sourceProvider, destinationOneprovider) {
-      // FIXME: implement
+      return await this.viewModel.migrate([file], sourceProvider, destinationOneprovider);
     },
     async evict(file, sourceOneprovider) {
-      // FIXME: implement
+      return await this.viewModel.evict([file], sourceOneprovider);
     },
   },
 });
