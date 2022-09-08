@@ -14,12 +14,6 @@ import { get } from '@ember/object';
 import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/qos-requirement';
 
 /**
- * @typedef {Object} QosEntryTimeSeriesCollections
- * @param {Array<string>} bytes
- * @param {Array<string>} files
- */
-
-/**
  * @typedef {'scheduled'|'skipped'|'completed'|'failed'} QosLogStatus
  */
 
@@ -88,36 +82,76 @@ export default Service.extend({
   },
 
   /**
-   * @param {string} qosRequirementId
-   * @param {'bytes'|'files'} timeSeriesCollectionId
-   * @param {TimeSeriesMetricsQueryParams} queryParams
-   * @returns {Promise<TimeSeriesMetricsQueryResult>}
+   * @param {string} collectionRef
+   * @returns {Promise<TimeSeriesCollectionSchema>}
    */
-  async queryTimeSeriesMetrics(
-    qosRequirementId,
-    timeSeriesCollectionId,
-    queryParams
-  ) {
-    const gri = getGri(qosRequirementId, {
-      aspect: `time_series_collection,${timeSeriesCollectionId}`,
-    });
-    return this.get('timeSeriesManager')
-      .queryTimeSeriesMetrics(gri, queryParams);
+  async getTransferTimeSeriesCollectionSchema(collectionRef) {
+    // FIXME: uncomment
+    // const gri = getGri('null', {
+    //   aspect: `transfer_stats_collection_schema,${collectionRef}`,
+    // });
+    // return this.timeSeriesManager.getTimeSeriesCollectionSchema(gri);
+    const metrics = {
+      minute: {
+        aggregator: 'sum',
+        resolution: 60,
+      },
+      hour: {
+        aggregator: 'sum',
+        resolution: 60 * 60,
+      },
+      day: {
+        aggregator: 'sum',
+        resolution: 60 * 60 * 24,
+      },
+      month: {
+        aggregator: 'sum',
+        resolution: 60 * 60 * 24 * 30,
+      },
+    };
+    return {
+      timeSeriesSchemas: [{
+        nameGeneratorType: 'exact',
+        nameGenerator: 'total',
+        metrics,
+      }, {
+        nameGeneratorType: 'addPrefix',
+        nameGenerator: 'st_',
+        metrics,
+      }],
+    };
   },
 
   /**
    * @param {string} qosRequirementId
-   * @returns {Promise<QosEntryTimeSeriesCollections>}
+   * @param {string} collectionRef
+   * @returns {Promise<TimeSeriesLayout>}
    */
-  async getTimeSeriesCollections(qosRequirementId) {
+  async getTransferTimeSeriesLayout(
+    qosRequirementId,
+    collectionRef
+  ) {
     const gri = getGri(qosRequirementId, {
-      aspect: 'time_series_collections',
+      aspect: `transfer_stats_collection,${collectionRef}`,
     });
-    return this.get('onedataGraph').request({
-      gri,
-      operation: 'get',
-      subscribe: false,
+    return this.timeSeriesManager.getTimeSeriesLayout(gri);
+  },
+
+  /**
+   * @param {string} qosRequirementId
+   * @param {string} collectionRef
+   * @param {TimeSeriesSliceQueryParams} queryParams
+   * @returns {Promise<TimeSeriesSlice>}
+   */
+  async queryTransferTimeSeriesSlice(
+    qosRequirementId,
+    collectionRef,
+    queryParams
+  ) {
+    const gri = getGri(qosRequirementId, {
+      aspect: `transfer_stats_collection,${collectionRef}`,
     });
+    return this.timeSeriesManager.queryTimeSeriesSlice(gri, queryParams);
   },
 
   /**

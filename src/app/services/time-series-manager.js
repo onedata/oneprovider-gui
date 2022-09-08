@@ -10,39 +10,82 @@
 import Service, { inject as service } from '@ember/service';
 
 /**
- * @typedef {Object} TimeSeriesMetricsQueryParams
- * @property {Object<string,Array<string>>} metrics object with series IDs as keys
- *   and arrays of metrics IDs as values
- * @property {number|null} startTimestamp
- * @property {number} limit
+ * @typedef {Object} TimeSeriesCollectionSchema
+ * @property {Array<AtmTimeSeriesSchema>} timeSeriesSchemas
  */
 
 /**
- * @typedef {Object<string,Object<string,Array<{ timestamp: number, value: number}>>} TimeSeriesMetricsQueryResult
- *   is a nested map (seriesId -> (metricId -> array of points))
+ * @typedef {Object} TimeSeriesSliceQueryParams
+ * @property {Object<string,Array<string>>} layout object with series names as keys
+ *   and arrays of metrics names as values
+ * @property {number|null} startTimestamp
+ * @property {number} windowLimit
+ */
+
+/**
+ * @typedef {Object<string,Object<string,Array<{ timestamp: number, value: number }>>} TimeSeriesSlice
+ *   is a nested map (seriesName -> (metricName -> array of points))
+ */
+
+/**
+ * @typedef {Object<string, Array<string>} TimeSeriesLayout
+ *   is a map (seriesName -> (array of metric names))
  */
 
 export default Service.extend({
   onedataGraph: service(),
 
   /**
-   * @param {string} timeSeriesCollectionGri
-   * @param {TimeSeriesMetricsQueryParams} queryParams
-   * @returns {Promise<TimeSeriesMetricsQueryResult>}
+   * @param {string} timeSeriesCollectionSchemaGri
+   * @returns {Promise<TimeSeriesCollectionSchema>}
    */
-  async queryTimeSeriesMetrics(timeSeriesCollectionGri, queryParams) {
+  async getTimeSeriesCollectionSchema(timeSeriesCollectionSchemaGri) {
+    const result = await this.onedataGraph.request({
+      gri: timeSeriesCollectionSchemaGri,
+      operation: 'get',
+      subscribe: false,
+    });
+
+    return result ?? { timeSeriesSchemas: [] };
+  },
+
+  /**
+   * @param {string} timeSeriesCollectionGri
+   * @returns {Promise<TimeSeriesLayout>}
+   */
+  async getTimeSeriesLayout(timeSeriesCollectionGri) {
+    const result = await this.onedataGraph.request({
+      gri: timeSeriesCollectionGri,
+      operation: 'get',
+      data: {
+        mode: 'layout',
+      },
+      subscribe: false,
+    });
+
+    return result?.layout || {};
+  },
+
+  /**
+   * @param {string} timeSeriesCollectionGri
+   * @param {TimeSeriesSliceQueryParams} queryParams
+   * @returns {Promise<TimeSeriesSlice>}
+   */
+  async queryTimeSeriesSlice(timeSeriesCollectionGri, queryParams) {
     if (!queryParams) {
       return {};
     }
 
-    const onedataGraph = this.get('onedataGraph');
-    const result = await onedataGraph.request({
+    const result = await this.onedataGraph.request({
       gri: timeSeriesCollectionGri,
       operation: 'get',
-      data: queryParams,
+      data: {
+        mode: 'slice',
+        ...queryParams,
+      },
       subscribe: false,
     });
 
-    return result && result.windows || {};
+    return result?.slice ?? {};
   },
 });

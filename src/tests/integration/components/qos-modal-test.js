@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import { resolve } from 'rsvp';
+import { resolve, Promise } from 'rsvp';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { lookupService } from '../../helpers/stub-service';
@@ -93,6 +93,7 @@ describe('Integration | Component | qos modal', function () {
         }
       };
       sinon.stub(lookupService(this, 'store'), 'findRecord')
+        .returns(new Promise(() => {}))
         .withArgs('fileQosSummary', 'file.f1.qos_summary:private')
         .resolves(file.fileQosSummary);
 

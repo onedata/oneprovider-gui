@@ -11,27 +11,17 @@ import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, hash as hashFulfilled } from 'rsvp';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import QueryBatcher from 'onedata-gui-common/utils/one-time-series-chart/query-batcher';
-import OTSCConfiguration from 'onedata-gui-common/utils/one-time-series-chart/configuration';
-import OTSCModel from 'onedata-gui-common/utils/one-time-series-chart/model';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 
-/**
- * @typedef {Object} QosEntryChartTimeResolution
- * @property {string} metricId
- * @property {number} timeResolution
- * @property {number} pointsCount
- * @property {number} updateInterval
- */
+const perStorageTimeSeriesNameGenerator = 'st_';
+const totalTimeSeriesNameGenerator = 'total';
 
-const storageTsNamePrefix = 'st_';
-
-export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
-  classNames: ['qos-entry-charts', 'qos-entry-info-block'],
+export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'), {
+  classNames: ['qos-entry-charts'],
 
   i18n: service(),
   onedataConnection: service(),
@@ -58,25 +48,15 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   qosRequirementId: undefined,
 
   /**
-   * Timestamp of the last timeSeriesCollections proxy reload
+   * Timestamp of the last `timeSeriesLayouts` proxy reload
    * @type {number}
    */
-  lastTsCollectionsReloadTimestamp: undefined,
+  lastTimeSeriesLayoutReloadTimestamp: undefined,
 
   /**
    * @type {ComputedProperty<Utils.ColorGenerator>}
    */
   colorGenerator: computed(() => new ColorGenerator()),
-
-  /**
-   * @type {ComputedProperty<QosTransferStatsConfig>}
-   */
-  qosTransferStatsConfig: reads('onedataConnection.qosTransferStatsConfig'),
-
-  /**
-   * @type {ComputedProperty<number>}
-   */
-  globalTimeSecondsOffset: reads('onedataConnection.globalTimeSecondsOffset'),
 
   /**
    * @type {ComputedProperty<PromiseObject<{ current: Model.Provider, all: Array<Model.Provider>}>>}
@@ -117,243 +97,331 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   spaceProvidersCount: reads('spaceProvidersProxy.content.all.length'),
 
   /**
-   * @type {ComputedProperty<SafeString>}
+   * @type {ComputedProperty<PromiseObject<{ ['bytes'|'files']: AtmTimeSeriesSchema }>>}
    */
-  headerTooltip: computed(
+  timeSeriesCollectionSchemasProxy: promise.object(computed(
+    function timeSeriesCollectionSchemasProxy() {
+      return hashFulfilled({
+        bytes: this.qosManager.getTransferTimeSeriesCollectionSchema('bytes'),
+        files: this.qosManager.getTransferTimeSeriesCollectionSchema('files'),
+      });
+    }
+  )),
+
+  /**
+   * @type {ComputedProperty<PromiseObject>}
+   */
+  loadingProxy: promise.object(promise.all(
+    'timeSeriesCollectionSchemasProxy',
+    'spaceProvidersProxy'
+  )),
+
+  /**
+   * Mapping 'bytes'|'files' -> time series name generator -> metric names.
+   * @type {ComputedProperty<{ ['bytes'|'files']: Object<string, Array<string>> }>}
+   */
+  metricNamesForTimeSeries: computed(
+    'timeSeriesCollectionSchemasProxy.content',
+    function metricNamesForStorageTimeSeries() {
+      const timeSeriesCollectionSchemas = this.timeSeriesCollectionSchemasProxy.content;
+      const metrics = {
+        bytes: {
+          [totalTimeSeriesNameGenerator]: this.extractMetricNamesForTimeSeries(
+            timeSeriesCollectionSchemas?.bytes,
+            totalTimeSeriesNameGenerator,
+          ),
+          [perStorageTimeSeriesNameGenerator]: this.extractMetricNamesForTimeSeries(
+            timeSeriesCollectionSchemas?.bytes,
+            perStorageTimeSeriesNameGenerator,
+          ),
+        },
+        files: {
+          [perStorageTimeSeriesNameGenerator]: this.extractMetricNamesForTimeSeries(
+            timeSeriesCollectionSchemas?.files,
+            perStorageTimeSeriesNameGenerator,
+          ),
+        },
+      };
+      return metrics;
+    }
+  ),
+
+  /**
+   * @type {{ rootSection: OneTimeSeriesChartsSectionSpec }}
+   */
+  dashboardSpec: computed(
     'currentProviderName',
     'spaceProvidersCount',
-    function headerTooltip() {
-      const {
-        currentProviderName,
-        spaceProvidersCount,
-      } = this.getProperties('currentProviderName', 'spaceProvidersCount');
-
-      const translationKey = 'headerTooltip.' +
-        (spaceProvidersCount > 1 ? 'manyProviders' : 'singleProvider');
-      return this.t(translationKey, { currentProviderName });
-    }
-  ),
-
-  /**
-   * @type {Array<QosEntryChartTimeResolution>}
-   */
-  timeResolutionSpecs: computed(
-    'qosTransferStatsConfig',
-    function timeResolutionSpecs() {
-      const qosTransferStatsConfig = this.get('qosTransferStatsConfig') || {};
-      return [{
-        metricId: qosTransferStatsConfig.minuteMetricId,
-        timeResolution: 60,
-        pointsCount: 30,
-        updateInterval: 10,
-      }, {
-        metricId: qosTransferStatsConfig.hourMetricId,
-        timeResolution: 60 * 60,
-        pointsCount: 24,
-        updateInterval: 30,
-      }, {
-        metricId: qosTransferStatsConfig.dayMetricId,
-        timeResolution: 24 * 60 * 60,
-        pointsCount: 30,
-        updateInterval: 30,
-      }, {
-        metricId: qosTransferStatsConfig.monthMetricId,
-        timeResolution: 30 * 24 * 60 * 60,
-        pointsCount: 12,
-        updateInterval: 30,
-      }].filterBy('metricId');
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Utils.OneTimeSeriesChart.QueryBatcher>}
-   */
-  timeSeriesQueryBatcher: computed(
-    'qosRequirementId',
-    function timeSeriesQueryBatcher() {
-      const {
-        qosManager,
-        qosRequirementId,
-      } = this.getProperties('qosManager', 'qosRequirementId');
-
-      return new QueryBatcher({
-        fetchData: (batchedQuery) =>
-          qosManager.queryTimeSeriesMetrics(
-            qosRequirementId,
-            batchedQuery.collectionId, {
-              metrics: batchedQuery.metrics,
-              startTimestamp: batchedQuery.startTimestamp,
-              limit: batchedQuery.limit,
-            }
-          ),
-      });
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Utils.OneTimeSeriesChart.Configuration>}
-   */
-  inboundChartConfig: computed(
-    'timeResolutionSpecs',
-    'globalTimeSecondsOffset',
-    'currentProviderName',
-    function inboundChartConfig() {
-      const {
-        timeResolutionSpecs,
-        globalTimeSecondsOffset,
-        currentProviderName,
-      } = this.getProperties(
-        'timeResolutionSpecs',
-        'globalTimeSecondsOffset',
-        'currentProviderName'
-      );
-      const config = new OTSCConfiguration({
-        nowTimestampOffset: globalTimeSecondsOffset || 0,
-        chartDefinition: {
+    'metricNamesForTimeSeries',
+    function dashboardSpec() {
+      const currentProviderName = this.currentProviderName;
+      const tooltipTranslationKey = 'headerTooltip.' +
+        (this.spaceProvidersCount > 1 ? 'manyProviders' : 'singleProvider');
+      return {
+        rootSection: {
           title: {
-            content: this.t('titles.inbound.content'),
-            tip: this.t('titles.inbound.tip', { currentProviderName }),
+            content: String(this.t('header')),
+            tip: String(this.t(tooltipTranslationKey, { currentProviderName })),
           },
-          yAxes: [{
-            id: 'bytesAxis',
-            name: String(this.t('axes.bytes')),
-            minInterval: 1,
-            unitName: 'bytes',
+          chartNavigation: 'sharedWithinSection',
+          charts: [{
+            title: {
+              content: 'Inbound',
+              tip: this.t('titles.inbound.tip', { currentProviderName }),
+            },
+            yAxes: [{
+              id: 'bytesAxis',
+              name: String(this.t('axes.bytes')),
+              minInterval: 1,
+              unitName: 'bytes',
+            }, {
+              id: 'filesAxis',
+              name: String(this.t('axes.files')),
+              minInterval: 1,
+            }],
+            seriesGroupBuilders: [{
+              builderType: 'static',
+              builderRecipe: {
+                seriesGroupTemplate: {
+                  id: 'transferredFiles',
+                  stacked: true,
+                },
+              },
+            }],
+            seriesBuilders: [{
+              builderType: 'static',
+              builderRecipe: {
+                seriesTemplate: {
+                  id: 'totalBytes',
+                  name: String(this.t('series.totalBytes')),
+                  color: '#4A6089',
+                  type: 'line',
+                  yAxisId: 'bytesAxis',
+                  dataProvider: {
+                    functionName: 'loadSeries',
+                    functionArguments: {
+                      sourceType: 'external',
+                      sourceSpecProvider: {
+                        functionName: 'literal',
+                        functionArguments: {
+                          data: {
+                            externalSourceName: 'chartData',
+                            externalSourceParameters: {
+                              collectionRef: 'bytes',
+                              timeSeriesNameGenerator: 'total',
+                              timeSeriesName: 'total',
+                              metricNames: this.metricNamesForTimeSeries
+                                .bytes[totalTimeSeriesNameGenerator],
+                            },
+                          },
+                        },
+                      },
+                      replaceEmptyParametersProvider: {
+                        functionName: 'literal',
+                        functionArguments: {
+                          data: {
+                            strategyProvider: {
+                              functionName: 'literal',
+                              functionArguments: {
+                                data: 'useFallback',
+                              },
+                            },
+                            fallbackValueProvider: {
+                              functionName: 'literal',
+                              functionArguments: {
+                                data: 0,
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }, {
+              builderType: 'dynamic',
+              builderRecipe: {
+                dynamicSeriesConfigsSource: {
+                  sourceType: 'external',
+                  sourceSpec: {
+                    externalSourceName: 'chartData',
+                    externalSourceParameters: {
+                      collectionRef: 'files',
+                      timeSeriesNameGenerator: perStorageTimeSeriesNameGenerator,
+                      metricNames: this.metricNamesForTimeSeries
+                        .files[perStorageTimeSeriesNameGenerator],
+                    },
+                  },
+                },
+                seriesTemplate: {
+                  idProvider: {
+                    functionName: 'getDynamicSeriesConfig',
+                    functionArguments: {
+                      propertyName: 'id',
+                    },
+                  },
+                  nameProvider: {
+                    functionName: 'getDynamicSeriesConfig',
+                    functionArguments: {
+                      propertyName: 'name',
+                    },
+                  },
+                  colorProvider: {
+                    functionName: 'getDynamicSeriesConfig',
+                    functionArguments: {
+                      propertyName: 'color',
+                    },
+                  },
+                  typeProvider: {
+                    functionName: 'literal',
+                    functionArguments: {
+                      data: 'bar',
+                    },
+                  },
+                  yAxisIdProvider: {
+                    functionName: 'literal',
+                    functionArguments: {
+                      data: 'filesAxis',
+                    },
+                  },
+                  groupIdProvider: {
+                    functionName: 'literal',
+                    functionArguments: {
+                      data: 'transferredFiles',
+                    },
+                  },
+                  dataProvider: {
+                    functionName: 'loadSeries',
+                    functionArguments: {
+                      sourceType: 'external',
+                      sourceSpecProvider: {
+                        functionName: 'getDynamicSeriesConfig',
+                        functionArguments: {
+                          propertyName: 'pointsSource',
+                        },
+                      },
+                      replaceEmptyParametersProvider: {
+                        functionName: 'literal',
+                        functionArguments: {
+                          data: {
+                            strategyProvider: {
+                              functionName: 'literal',
+                              functionArguments: {
+                                data: 'useFallback',
+                              },
+                            },
+                            fallbackValueProvider: {
+                              functionName: 'literal',
+                              functionArguments: {
+                                data: 0,
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }],
           }, {
-            id: 'filesAxis',
-            name: String(this.t('axes.files')),
-            minInterval: 1,
-          }],
-          seriesGroupBuilders: [{
-            builderType: 'static',
-            builderRecipe: {
-              seriesGroupTemplate: {
-                id: 'transferredFiles',
-                stacked: true,
-              },
+            title: {
+              content: String(this.t('titles.outbound.content')),
+              tip: this.t('titles.outbound.tip', { currentProviderName }),
             },
-          }],
-          seriesBuilders: [{
-            builderType: 'static',
-            builderRecipe: {
-              seriesTemplate: {
-                id: 'totalBytes',
-                name: String(this.t('series.totalBytes')),
-                color: '#4A6089',
-                type: 'line',
-                yAxisId: 'bytesAxis',
-                dataProvider: {
-                  functionName: 'loadSeries',
-                  functionArguments: {
-                    sourceType: 'external',
-                    sourceSpecProvider: {
-                      functionName: 'literal',
-                      functionArguments: {
-                        data: {
-                          externalSourceName: 'qosEntryData',
-                          externalSourceParameters: {
-                            collectionId: 'bytes',
-                            seriesId: 'total',
-                          },
+            yAxes: [{
+              id: 'bytesAxis',
+              name: String(this.t('axes.bytes')),
+              minInterval: 1,
+              unitName: 'bytes',
+            }],
+            seriesGroupBuilders: [{
+              builderType: 'static',
+              builderRecipe: {
+                seriesGroupTemplate: {
+                  id: 'sentBytes',
+                  stacked: true,
+                },
+              },
+            }],
+            seriesBuilders: [{
+              builderType: 'dynamic',
+              builderRecipe: {
+                dynamicSeriesConfigsSource: {
+                  sourceType: 'external',
+                  sourceSpec: {
+                    externalSourceName: 'chartData',
+                    externalSourceParameters: {
+                      collectionRef: 'bytes',
+                      timeSeriesNameGenerator: perStorageTimeSeriesNameGenerator,
+                      metricNames: this.metricNamesForTimeSeries
+                        .bytes[perStorageTimeSeriesNameGenerator],
+                    },
+                  },
+                },
+                seriesTemplate: {
+                  idProvider: {
+                    functionName: 'getDynamicSeriesConfig',
+                    functionArguments: {
+                      propertyName: 'id',
+                    },
+                  },
+                  nameProvider: {
+                    functionName: 'getDynamicSeriesConfig',
+                    functionArguments: {
+                      propertyName: 'name',
+                    },
+                  },
+                  colorProvider: {
+                    functionName: 'getDynamicSeriesConfig',
+                    functionArguments: {
+                      propertyName: 'color',
+                    },
+                  },
+                  typeProvider: {
+                    functionName: 'literal',
+                    functionArguments: {
+                      data: 'line',
+                    },
+                  },
+                  yAxisIdProvider: {
+                    functionName: 'literal',
+                    functionArguments: {
+                      data: 'bytesAxis',
+                    },
+                  },
+                  groupIdProvider: {
+                    functionName: 'literal',
+                    functionArguments: {
+                      data: 'sentBytes',
+                    },
+                  },
+                  dataProvider: {
+                    functionName: 'loadSeries',
+                    functionArguments: {
+                      sourceType: 'external',
+                      sourceSpecProvider: {
+                        functionName: 'getDynamicSeriesConfig',
+                        functionArguments: {
+                          propertyName: 'pointsSource',
                         },
                       },
-                    },
-                    replaceEmptyParametersProvider: {
-                      functionName: 'literal',
-                      functionArguments: {
-                        data: {
-                          strategyProvider: {
-                            functionName: 'literal',
-                            functionArguments: {
-                              data: 'useFallback',
+                      replaceEmptyParametersProvider: {
+                        functionName: 'literal',
+                        functionArguments: {
+                          data: {
+                            strategyProvider: {
+                              functionName: 'literal',
+                              functionArguments: {
+                                data: 'useFallback',
+                              },
                             },
-                          },
-                          fallbackValueProvider: {
-                            functionName: 'literal',
-                            functionArguments: {
-                              data: 0,
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          }, {
-            builderType: 'dynamic',
-            builderRecipe: {
-              dynamicSeriesConfigsSource: {
-                sourceType: 'external',
-                sourceSpec: {
-                  externalSourceName: 'qosEntryData',
-                  externalSourceParameters: {
-                    collectionId: 'files',
-                  },
-                },
-              },
-              seriesTemplate: {
-                idProvider: {
-                  functionName: 'getDynamicSeriesConfig',
-                  functionArguments: {
-                    propertyName: 'id',
-                  },
-                },
-                nameProvider: {
-                  functionName: 'getDynamicSeriesConfig',
-                  functionArguments: {
-                    propertyName: 'name',
-                  },
-                },
-                colorProvider: {
-                  functionName: 'getDynamicSeriesConfig',
-                  functionArguments: {
-                    propertyName: 'color',
-                  },
-                },
-                typeProvider: {
-                  functionName: 'literal',
-                  functionArguments: {
-                    data: 'bar',
-                  },
-                },
-                yAxisIdProvider: {
-                  functionName: 'literal',
-                  functionArguments: {
-                    data: 'filesAxis',
-                  },
-                },
-                groupIdProvider: {
-                  functionName: 'literal',
-                  functionArguments: {
-                    data: 'transferredFiles',
-                  },
-                },
-                dataProvider: {
-                  functionName: 'loadSeries',
-                  functionArguments: {
-                    sourceType: 'external',
-                    sourceSpecProvider: {
-                      functionName: 'getDynamicSeriesConfig',
-                      functionArguments: {
-                        propertyName: 'pointsSource',
-                      },
-                    },
-                    replaceEmptyParametersProvider: {
-                      functionName: 'literal',
-                      functionArguments: {
-                        data: {
-                          strategyProvider: {
-                            functionName: 'literal',
-                            functionArguments: {
-                              data: 'useFallback',
-                            },
-                          },
-                          fallbackValueProvider: {
-                            functionName: 'literal',
-                            functionArguments: {
-                              data: 0,
+                            fallbackValueProvider: {
+                              functionName: 'literal',
+                              functionArguments: {
+                                data: 0,
+                              },
                             },
                           },
                         },
@@ -362,253 +430,72 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                   },
                 },
               },
-            },
+            }],
           }],
         },
-        timeResolutionSpecs,
-        externalDataSources: {
-          qosEntryData: {
-            fetchSeries: (...args) => this.fetchSeries(...args),
-            fetchDynamicSeriesConfigs: (...args) =>
-              this.fetchDynamicSeriesConfigs(...args),
-          },
-        },
-      });
-      config.setViewParameters({ live: true });
-      return config;
+      };
     }
   ),
 
   /**
-   * @type {ComputedProperty<Utils.OneTimeSeriesChart.Configuration>}
+   * @type {ComputedProperty<OTSCExternalDataSources>}
    */
-  outboundChartConfig: computed(
-    'timeResolutionSpecs',
-    'globalTimeSecondsOffset',
-    'currentProviderName',
-    function outboundChartConfig() {
-      const {
-        timeResolutionSpecs,
-        globalTimeSecondsOffset,
-        currentProviderName,
-      } = this.getProperties(
-        'timeResolutionSpecs',
-        'globalTimeSecondsOffset',
-        'currentProviderName'
-      );
-      const config = new OTSCConfiguration({
-        nowTimestampOffset: globalTimeSecondsOffset || 0,
-        chartDefinition: {
-          title: {
-            content: String(this.t('titles.outbound.content')),
-            tip: this.t('titles.outbound.tip', { currentProviderName }),
-          },
-          yAxes: [{
-            id: 'bytesAxis',
-            name: String(this.t('axes.bytes')),
-            minInterval: 1,
-            unitName: 'bytes',
-          }],
-          seriesGroupBuilders: [{
-            builderType: 'static',
-            builderRecipe: {
-              seriesGroupTemplate: {
-                id: 'sentBytes',
-                stacked: true,
-              },
-            },
-          }],
-          seriesBuilders: [{
-            builderType: 'dynamic',
-            builderRecipe: {
-              dynamicSeriesConfigsSource: {
-                sourceType: 'external',
-                sourceSpec: {
-                  externalSourceName: 'qosEntryData',
-                  externalSourceParameters: {
-                    collectionId: 'bytes',
-                  },
-                },
-              },
-              seriesTemplate: {
-                idProvider: {
-                  functionName: 'getDynamicSeriesConfig',
-                  functionArguments: {
-                    propertyName: 'id',
-                  },
-                },
-                nameProvider: {
-                  functionName: 'getDynamicSeriesConfig',
-                  functionArguments: {
-                    propertyName: 'name',
-                  },
-                },
-                colorProvider: {
-                  functionName: 'getDynamicSeriesConfig',
-                  functionArguments: {
-                    propertyName: 'color',
-                  },
-                },
-                typeProvider: {
-                  functionName: 'literal',
-                  functionArguments: {
-                    data: 'line',
-                  },
-                },
-                yAxisIdProvider: {
-                  functionName: 'literal',
-                  functionArguments: {
-                    data: 'bytesAxis',
-                  },
-                },
-                groupIdProvider: {
-                  functionName: 'literal',
-                  functionArguments: {
-                    data: 'sentBytes',
-                  },
-                },
-                dataProvider: {
-                  functionName: 'loadSeries',
-                  functionArguments: {
-                    sourceType: 'external',
-                    sourceSpecProvider: {
-                      functionName: 'getDynamicSeriesConfig',
-                      functionArguments: {
-                        propertyName: 'pointsSource',
-                      },
-                    },
-                    replaceEmptyParametersProvider: {
-                      functionName: 'literal',
-                      functionArguments: {
-                        data: {
-                          strategyProvider: {
-                            functionName: 'literal',
-                            functionArguments: {
-                              data: 'useFallback',
-                            },
-                          },
-                          fallbackValueProvider: {
-                            functionName: 'literal',
-                            functionArguments: {
-                              data: 0,
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          }],
-        },
-        timeResolutionSpecs,
-        externalDataSources: {
-          qosEntryData: {
-            fetchSeries: (...args) => this.fetchSeries(...args),
-            fetchDynamicSeriesConfigs: (...args) =>
-              this.fetchDynamicSeriesConfigs(...args),
-          },
-        },
-      });
-      config.setViewParameters({ live: true });
-      return config;
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Utils.OneTimeSeriesChart.Model>}
-   */
-  inboundChartModel: computed(
-    'inboundChartConfig',
-    function inboundChartModel() {
-      return OTSCModel.create({
-        configuration: this.get('inboundChartConfig'),
-      });
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Utils.OneTimeSeriesChart.Model>}
-   */
-  outboundChartModel: computed(
-    'outboundChartModel',
-    function outboundChartModel() {
-      return OTSCModel.create({
-        configuration: this.get('outboundChartConfig'),
-      });
-    }
-  ),
-
-  /**
-   * @override
-   */
-  willDestroyElement() {
-    try {
-      const {
-        inboundChartModel,
-        outboundChartModel,
-      } = this.getProperties('inboundChartModel', 'outboundChartModel');
-      inboundChartModel.destroy();
-      outboundChartModel.destroy();
-    } finally {
-      this._super(...arguments);
-    }
-  },
-
-  /**
-   * @param {OTSCDataSourceFetchParams} seriesParameters
-   * @param {{ collectionId: string, seriesId: string }} sourceParameters
-   * @returns {Promise<Array<OTSCRawSeriesPoint>>}
-   */
-  async fetchSeries(seriesParameters, sourceParameters) {
-    const {
-      timeResolutionSpecs,
-      timeSeriesQueryBatcher,
-    } = this.getProperties('timeResolutionSpecs', 'timeSeriesQueryBatcher');
-    const matchingTimeResolutionSpec = timeResolutionSpecs
-      .findBy('timeResolution', seriesParameters.timeResolution);
-    const metricId = matchingTimeResolutionSpec ?
-      matchingTimeResolutionSpec.metricId : null;
-    if (!metricId) {
-      return [];
-    }
-    const queryParams = {
-      collectionId: sourceParameters.collectionId,
-      seriesId: sourceParameters.seriesId,
-      metricId,
-      startTimestamp: seriesParameters.lastPointTimestamp,
-      limit: seriesParameters.pointsCount,
+  chartsExternalDataSources: computed(function chartsExternalDataSources() {
+    return {
+      chartData: {
+        fetchDynamicSeriesConfigs: (...args) =>
+          this.fetchDynamicSeriesConfigs(...args),
+      },
     };
-    return timeSeriesQueryBatcher.query(queryParams);
+  }),
+
+  /**
+   * @param {TimeSeriesCollectionSchema|undefined} timeSeriesCollectionSchema
+   * @param {string} timeSeriesNameGenerator
+   * @returns {Array<string>}
+   */
+  extractMetricNamesForTimeSeries(timeSeriesCollectionSchema, timeSeriesNameGenerator) {
+    const timeSeriesSchemas = timeSeriesCollectionSchema?.timeSeriesSchemas;
+    const storageTimeSeriesSchema =
+      timeSeriesSchemas?.findBy('nameGenerator', timeSeriesNameGenerator);
+    const metrics = storageTimeSeriesSchema?.metrics ?? {};
+    return Object.keys(metrics).filter((metricName) =>
+      metrics[metricName]?.aggregator === 'sum'
+    );
   },
 
   /**
-   * @param {{ collectionId: string }} sourceParameters
+   * @param {{ collectionId: string, timeSeriesNameGenerator: string, metricNames: Array<string> }} sourceParameters
    * @returns {Promise<Array<{ id: string, name: string, color: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
    */
-  async fetchDynamicSeriesConfigs(sourceParameters) {
+  async fetchDynamicSeriesConfigs({
+    collectionRef,
+    timeSeriesNameGenerator,
+    metricNames,
+  }) {
     const colorGenerator = this.get('colorGenerator');
-    return (await this.fetchStorageSeriesConfigs(sourceParameters.collectionId))
-      .map(({ seriesId, storageId, name }) => ({
+    return (await this.fetchStorageSeriesConfigs(collectionRef, timeSeriesNameGenerator))
+      .map(({ timeSeriesName, storageId, storageLabel }) => ({
         id: storageId,
-        name,
+        name: storageLabel,
         color: colorGenerator.generateColorForKey(storageId),
         pointsSource: {
-          externalSourceName: 'qosEntryData',
+          externalSourceName: 'chartData',
           externalSourceParameters: {
-            collectionId: sourceParameters.collectionId,
-            seriesId,
+            collectionRef,
+            timeSeriesNameGenerator,
+            timeSeriesName,
+            metricNames,
           },
         },
       }));
   },
 
   /**
-   * @param {'bytes'|'files'} collectionId
-   * @returns {Promise<Array<{ seriesId, storageId, name }>>}
+   * @param {string} collectionRef
+   * @returns {Promise<Array<{ timeSeriesName, storageId, storageLabel }>>}
    */
-  async fetchStorageSeriesConfigs(collectionId) {
+  async fetchStorageSeriesConfigs(collectionRef, timeSeriesNameGenerator) {
     const {
       spaceId,
       storageManager,
@@ -619,11 +506,13 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       'providerManager',
     );
 
-    const collectionSeries = (await this.getTsCollections())[collectionId];
-    const storagesIds = collectionSeries
-      ?.map((seriesName) => {
-        if (seriesName.startsWith(storageTsNamePrefix)) {
-          return seriesName.slice(storageTsNamePrefix.length);
+    const timeSeriesNames = Object.keys(
+      (await this.getTimeSeriesLayout(collectionRef))
+    );
+    const storagesIds = timeSeriesNames
+      ?.map((timeSeriesName) => {
+        if (timeSeriesName.startsWith(timeSeriesNameGenerator)) {
+          return timeSeriesName.slice(timeSeriesNameGenerator.length);
         } else {
           return null;
         }
@@ -635,7 +524,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       const storageId = storagesIds[i];
       seriesPromises.push((async () => {
         const seriesEntry = {
-          seriesId: `${storageTsNamePrefix}${storageId}`,
+          timeSeriesName: `${timeSeriesNameGenerator}${storageId}`,
           storageId,
         };
         try {
@@ -667,16 +556,16 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             );
           }
         }
-        let name = seriesEntry.storageName || String(this.t('unknownStorage', {
+        let storageLabel = seriesEntry.storageName || String(this.t('unknownStorage', {
           id: storageId.slice(0, 6),
         }));
         if (seriesEntry.storageName) {
-          name += ' ‐ ';
-          name += seriesEntry.providerName || String(this.t('unknownProvider', {
+          storageLabel += ' ‐ ';
+          storageLabel += seriesEntry.providerName || String(this.t('unknownProvider', {
             id: providerId.slice(0, 6),
           }));
         }
-        seriesEntry.name = name;
+        seriesEntry.storageLabel = storageLabel;
         const providerSortKey =
           `${Number(!seriesEntry.providerName)}${seriesEntry.providerName || providerId}`;
         const storageSortKey =
@@ -687,40 +576,72 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
     }
 
     const seriesEntries = await allFulfilled(seriesPromises);
-    return seriesEntries.sortBy('sortKey').map(({ seriesId, storageId, name }) =>
-      ({ seriesId, storageId, name })
+    return seriesEntries.sortBy('sortKey').map(({ timeSeriesName, storageId, storageLabel }) =>
+      ({ timeSeriesName, storageId, storageLabel })
     );
+  },
+
+  /**
+   * @param {string} collectionRef
+   * @returns {Promise<TimeSeriesLayout>}
+   */
+  async getTimeSeriesLayout(collectionRef) {
+    const nowTimestamp = Math.floor(Date.now() / 1000);
+    let proxy;
+    if (
+      !this.lastTimeSeriesLayoutReloadTimestamp ||
+      nowTimestamp - this.lastTimeSeriesLayoutReloadTimestamp >= 15
+    ) {
+      this.set('lastTimeSeriesLayoutReloadTimestamp', nowTimestamp);
+      proxy = this.updateTimeSeriesLayoutsProxy();
+    } else {
+      proxy = this.getTimeSeriesLayoutsProxy();
+    }
+    return (await proxy)?.[collectionRef] ?? {};
   },
 
   /**
    * @override
    */
-  async fetchTsCollections() {
-    const {
-      qosManager,
-      qosRequirementId,
-    } = this.getProperties(
-      'qosManager',
-      'qosRequirementId',
-    );
-    return qosManager.getTimeSeriesCollections(qosRequirementId);
+  async fetchTimeSeriesLayouts() {
+    return hashFulfilled({
+      bytes: this.qosManager.getTransferTimeSeriesLayout(
+        this.qosRequirementId,
+        'bytes',
+      ),
+      files: this.qosManager.getTransferTimeSeriesLayout(
+        this.qosRequirementId,
+        'files',
+      ),
+    });
   },
 
-  /**
-   * @returns {Promise<QosEntryTimeSeriesCollections>}
-   */
-  async getTsCollections() {
-    const lastTsCollectionsReloadTimestamp =
-      this.get('lastTsCollectionsReloadTimestamp');
-    const nowTimestamp = Math.floor(Date.now() / 1000);
-    if (
-      !lastTsCollectionsReloadTimestamp ||
-      nowTimestamp - lastTsCollectionsReloadTimestamp > 10
-    ) {
-      this.set('lastTsCollectionsReloadTimestamp', nowTimestamp);
-      return this.updateTsCollectionsProxy();
-    } else {
-      return this.getTsCollectionsProxy();
-    }
+  actions: {
+    /**
+     * @param {string} collectionRef
+     * @returns {Promise<Array<AtmTimeSeriesSchema>>}
+     */
+    async getTimeSeriesSchemas(collectionRef) {
+      return (await this.timeSeriesCollectionSchemasProxy)
+        ?.[collectionRef]?.timeSeriesSchemas;
+    },
+
+    /**
+     * @param {{ batchedQuery: BatchedTimeSeriesQuery }} param
+     * @returns {Promise<BatchedTimeSeriesQueryResult>}
+     */
+    async queryBatcherFetchData({ batchedQuery }) {
+      const queryParams = {
+        layout: batchedQuery.layout,
+        startTimestamp: batchedQuery.startTimestamp,
+        windowLimit: batchedQuery.windowLimit,
+      };
+
+      return this.qosManager.queryTransferTimeSeriesSlice(
+        this.qosRequirementId,
+        batchedQuery.collectionRef,
+        queryParams
+      );
+    },
   },
 });
