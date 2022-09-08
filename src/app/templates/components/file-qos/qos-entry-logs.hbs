@@ -1,0 +1,24 @@
+{{#if isRendered}}
+  {{#audit-log-browser
+    title=(tt this "header")
+    titleTip=headerTooltip
+    titleTipClassName="tooltip-lg tooltip-text-left"
+    onFetchLogEntries=fetchLogEntriesCallback
+    onGetClassNamesForLogEntry=getClassNamesForLogEntryCallback
+    customColumnHeaders=customColumnHeaders
+    noLogEntriesText=(tt this "noEntries")
+    as |logEntry|
+  }}
+    {{#if isFileColumnVisible}}
+      {{file-qos/qos-entry-logs/cell-file
+        fileCdmiObjectId=logEntry.content.fileId
+        onGenerateFileUrl=(action "generateFileUrl")
+      }}
+    {{/if}}
+    {{file-qos/qos-entry-logs/cell-content-message
+      reason=logEntry.content.reason
+      status=logEntry.content.status
+      description=logEntry.content.description
+    }}
+  {{/audit-log-browser}}
+{{/if}}

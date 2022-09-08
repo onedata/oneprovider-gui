@@ -3,19 +3,80 @@ import { describe, it, context, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, click, find, findAll, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import {
-  file1,
-  owner1,
-  exampleCdmiObjectId,
-} from 'oneprovider-gui/components/dummy-file-info-modal';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import OneTooltipHelper from '../../helpers/one-tooltip';
 import { selectChoose, clickTrigger } from 'ember-power-select/test-support/helpers';
-import { Promise } from 'rsvp';
+import { Promise, resolve } from 'rsvp';
 import { findByText } from '../../helpers/find';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
+import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
+
+const storageLocations = {
+  locationsPerProvider: {
+    provider: {
+      locationsPerStorage: {
+        storage: 'path',
+      },
+    },
+  },
+};
+
+const owner1 = {
+  fullName: 'John Smith',
+};
+
+const exampleCdmiObjectId =
+  '0000000000466F8867756964233666396333666230366265366163353530343634616537383831306430656662233732333065663438326234333936376463373332313734373435306535363134';
+
+const fileParentRoot = {
+  name: 'My space',
+  parent: resolve(null),
+  type: 'dir',
+  hasParent: false,
+};
+
+const fileParent3 = {
+  name: 'First',
+  parent: resolve(fileParentRoot),
+  type: 'dir',
+  hasParent: true,
+};
+
+const fileParent2 = {
+  name: 'Second directory',
+  parent: resolve(fileParent3),
+  type: 'dir',
+  hasParent: true,
+};
+
+const fileParent1 = {
+  name: 'Third one',
+  parent: resolve(fileParent2),
+  type: 'dir',
+  hasParent: true,
+  cdmiObjectId: exampleCdmiObjectId,
+  modificationTime: Math.floor(Date.now() / 1000),
+  owner: resolve(owner1),
+};
+
+const file1 = {
+  name: 'Onedata.txt',
+  size: 1.5 * Math.pow(1024, 2),
+  parent: resolve(fileParent1),
+  type: 'file',
+  hasParent: true,
+  cdmiObjectId: exampleCdmiObjectId,
+  modificationTime: Math.floor(Date.now() / 1000),
+  owner: resolve(owner1),
+  posixPermissions: '644',
+  activePermissionsType: 'posix',
+  storageLocations,
+  async getRelation() {
+    return null;
+  },
+};
 
 describe('Integration | Component | file info modal', function () {
   setupRenderingTest();
@@ -49,7 +110,9 @@ describe('Integration | Component | file info modal', function () {
     },
   };
 
-  beforeEach(function () {
+  beforeEach(async function () {
+    await givenDummySpace(this);
+    givenQosTabDisabled(this);
     const fileHardlinksResult = this.set('fileHardlinksResult', {
       hardlinksCount: 1,
       hardlinks: [],
@@ -112,6 +175,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('does not render symlink target path when file is not symlink', async function () {
     this.set('file', {
+      ...file1,
       type: 'file',
       targetPath: 'some/path',
     });
@@ -123,6 +187,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('does render symlink target relative path when file is a symlink', async function () {
     this.set('file', {
+      ...file1,
       type: 'symlink',
       targetPath: 'some/path',
     });
@@ -137,13 +202,18 @@ describe('Integration | Component | file info modal', function () {
     async function () {
       this.setProperties({
         file: {
+          ...file1,
           type: 'symlink',
           targetPath: '<__onedata_space_id:space1>/some/path',
         },
-        space: {
-          entityId: 'space1',
+        space: await createSpaceModel(this, {
+          id: gri({
+            entityType: spaceEntityType,
+            entityId: 'space1',
+            aspect: 'instance',
+          }),
           name: 'space 1',
-        },
+        }),
       });
 
       await renderComponent();
@@ -153,10 +223,12 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
-  it('renders symlink target absolute path  with "unknown space" when file is a symlink and space id is unknown',
+  it(
+    'renders symlink target absolute path  with "unknown space" when file is a symlink and space id is unknown',
     async function () {
       this.setProperties({
         file: {
+          ...file1,
           type: 'symlink',
           targetPath: '<__onedata_space_id:space2>/some/path',
         },
@@ -173,14 +245,17 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
-  it('renders symlink target absolute path with "unknown space" when file is a symlink and space is not provided',
+  it(
+    'renders symlink target absolute path with "unknown space" when file is a symlink and space is not provided',
     async function () {
       this.setProperties({
         file: {
+          ...file1,
           type: 'symlink',
           targetPath: '<__onedata_space_id:space1>/some/path',
         },
         space: undefined,
+        previewMode: true,
       });
 
       await renderComponent();
@@ -192,6 +267,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('does not show hardlink\'s tab when hardlinks count is 1', async function () {
     this.set('file', {
+      ...file1,
       type: 'file',
       hardlinksCount: 1,
     });
@@ -203,6 +279,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('shows hardlinks tab when hardlinks count is 2', async function () {
     this.set('file', {
+      ...file1,
       type: 'file',
       hardlinksCount: 2,
     });
@@ -214,6 +291,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('shows api sample tab when previewMode is true', async function () {
     this.set('file', {
+      ...file1,
       type: 'file',
     });
     this.set('previewMode', true);
@@ -224,6 +302,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('does not show api sample tab when file type is symlink', async function () {
     this.set('file', {
+      ...file1,
       type: 'symlink',
     });
     this.set('previewMode', true);
@@ -235,6 +314,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('does not show api sample tab when previewMode is false', async function () {
     this.set('file', {
+      ...file1,
       type: 'file',
     });
     this.set('previewMode', false);
@@ -246,6 +326,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('shows hardlinks list', async function () {
     this.set('file', {
+      ...file1,
       type: 'file',
       hardlinksCount: 2,
     });
@@ -284,6 +365,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('shows hardlinks partial fetch error', async function () {
     this.set('file', {
+      ...file1,
       type: 'file',
       hardlinksCount: 2,
     });
@@ -319,6 +401,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('shows hardlinks full fetch error', async function () {
     this.set('file', {
+      ...file1,
       type: 'file',
       hardlinksCount: 2,
     });
@@ -449,6 +532,25 @@ describe('Integration | Component | file info modal', function () {
     expect(sharesNav).to.have.trimmed.text('Shares (2)');
   });
 
+  it('has active "QoS" tab and renders QoS view body when initialTab = qos is given',
+    async function () {
+      givenEmptyTabOptions(this);
+      await givenDummySpace(this, {
+        currentUserEffPrivileges: ['space_view_qos'],
+      });
+      await givenFileModelWithQos(this);
+      this.set('initialTab', 'qos');
+
+      await renderComponent();
+
+      const qosNav = find('.nav-link-qos');
+      expect(qosNav).to.exist;
+      expect(qosNav).to.have.class('active');
+      expect(qosNav).to.have.trimmed.text('QoS');
+      expect(find('.modal-body .file-qos-body')).to.exist;
+    }
+  );
+
   context('for file type and API samples tab', function () {
     beforeEach(async function () {
       const fileApiSamples =
@@ -512,8 +614,15 @@ async function renderComponent() {
     space=space
     selectedRestUrlType=selectedRestUrlType
     getDataUrl=getDataUrl
-    storageLocationsProxy = storageLocationsProxy
+    storageLocationsProxy=storageLocationsProxy
+    tabOptions=tabOptions
   }}`);
+}
+
+async function givenDummySpace(testCase, data) {
+  const space = await createSpaceModel(testCase, data);
+  testCase.set('space', space);
+  return space;
 }
 
 async function givenDummyFile(testCase) {
@@ -550,4 +659,37 @@ async function givenFileModel(testCase, data) {
     ...data,
   });
   testCase.set('files', [file]);
+  return file;
+}
+
+async function givenFileModelWithQos(testCase, data) {
+  const store = lookupService(testCase, 'store');
+  return givenFileModel(testCase, {
+    fileQosSummary: await store.createRecord('fileQosSummary', {
+      requirements: [],
+    }).save(),
+    ...data,
+  });
+}
+
+async function createSpaceModel(testCase, data) {
+  const store = lookupService(testCase, 'store');
+  const record = store.createRecord('space', {
+    name: 'Dummy space',
+    providerList: await store.createRecord('providerList', { list: [] }).save(),
+    ...data,
+  });
+  return await record.save();
+}
+
+function givenEmptyTabOptions(testCase) {
+  testCase.set('tabOptions', {});
+}
+
+function givenQosTabDisabled(testCase) {
+  testCase.set('tabOptions', {
+    qos: {
+      isVisible: false,
+    },
+  });
 }

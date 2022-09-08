@@ -1,0 +1,37 @@
+.file-qos-file-entry {
+  .item-icon-container {
+    position: relative;
+    height: 22px;
+    .item-icon.file-qos-status {
+      @include vertical-align-middle;
+      position: relative;
+    }
+    &.item-icon-container-right {
+      margin-right: -0.3em;
+    }
+  }
+  .item-icon.file-qos-status {
+    font-size: $qos-icon-size;
+  }
+  > .one-collapsible-list-item-header > .header-content-container {
+    display: flex;
+    align-items: stretch;
+    .file-name {
+      flex-grow: 1;
+      // in case it is truncated - to make some space before req. number info
+      padding-right: 10px;
+    }
+  }
+  .no-requirements {
+    font-style: italic;
+  }
+
+  .list-content {
+    padding-left: $padding-large-horizontal;
+    padding-right: $padding-large-horizontal;
+  }
+
+  .no-qos-requirements {
+    margin: $padding-large-horizontal 0;
+  }
+}

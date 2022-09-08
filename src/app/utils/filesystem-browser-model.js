@@ -126,13 +126,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @virtual optional: only in non-preview mode
    * @type {Function}
-   * @param {Array<Models.File>} files files to configure QoS
-   */
-  openQos: notImplementedThrow,
-
-  /**
-   * @virtual optional: only in non-preview mode
-   * @type {Function}
    * @param {Array<Models.File>} files files to browse and edit their dataset settings
    */
   openDatasets: notImplementedThrow,
@@ -807,16 +800,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnQos: computed(
     'spacePrivileges.{viewQos,manageQos}',
-    'openQos',
+    'openInfo',
     'selectedItemsContainsOnlySymlinks',
     function btnQos() {
       const {
         spacePrivileges,
-        openQos,
+        openInfo,
         i18n,
       } = this.getProperties(
         'spacePrivileges',
-        'openQos',
+        'openInfo',
         'i18n',
       );
       const canView = get(spacePrivileges, 'viewQos');
@@ -841,7 +834,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         disabled: Boolean(disabledTip),
         tip: disabledTip,
         action: (files) => {
-          return openQos(files.rejectBy('type', 'symlink'));
+          const supportedFiles = files.rejectBy('type', 'symlink');
+          return openInfo(supportedFiles, 'qos');
         },
       });
     }

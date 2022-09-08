@@ -553,6 +553,25 @@ export default Service.extend({
     );
   },
 
+  /**
+   * Should be invoked when file properties have changed and there are some associated
+   * files (including dirs) that will be affected by that change, eg. changing QoS
+   * requirements.
+   * @param {Models.File} file
+   * @return {Promise}
+   */
+  async refreshRelatedFiles(file) {
+    if (!file) {
+      return;
+    }
+    if (get(file, 'hardlinksCount') > 1) {
+      this.fileParentRefresh(file);
+    }
+    if (get(file, 'type') === 'dir') {
+      this.dirChildrenRefresh(get(file, 'entityId'));
+    }
+  },
+
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service
 
   //#region browser component utils

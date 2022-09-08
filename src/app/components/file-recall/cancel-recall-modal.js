@@ -80,7 +80,7 @@ export default Component.extend(I18n, {
           await watcher.update();
         }
       } catch (error) {
-        console.log(
+        console.error(
           'component:file-recall/cancel-recall-modal#cancelRecall: update watcher failed',
           error
         );

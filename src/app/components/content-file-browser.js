@@ -303,7 +303,6 @@ export default OneEmbeddedComponent.extend(
         openRecallInfo: this.openRecallInfoModal.bind(this),
         openDatasets: this.openDatasetsModal.bind(this),
         openFileDistribution: this.openFileDistributionModal.bind(this),
-        openQos: this.openQosModal.bind(this),
         openConfirmDownload: this.openConfirmDownload.bind(this),
         openWorkflowRunView: this.openWorkflowRunView.bind(this),
         closeAllModals: this.closeAllModals.bind(this),
@@ -446,9 +445,6 @@ export default OneEmbeddedComponent.extend(
     openFileDistributionModal(files) {
       this.set('filesToShowDistribution', [...files]);
     },
-    openQosModal(files) {
-      this.set('filesToShowQos', files);
-    },
     openConfirmDownload(file) {
       this.set('fileForConfirmDownload', file);
     },
@@ -471,9 +467,6 @@ export default OneEmbeddedComponent.extend(
     closeFileDistributionModal() {
       this.set('filesToShowDistribution', null);
     },
-    closeQosModal() {
-      this.set('filesToShowQos', null);
-    },
 
     closeAllModals() {
       this.closeCreateItemModal();
@@ -481,7 +474,6 @@ export default OneEmbeddedComponent.extend(
       this.closeRenameModal();
       this.closeInfoModal();
       this.closeFileDistributionModal();
-      this.closeQosModal();
       this.closeDatasetsModal();
     },
 

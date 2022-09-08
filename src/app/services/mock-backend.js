@@ -27,6 +27,7 @@ import { entityType as transferEntityType } from 'oneprovider-gui/models/transfe
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
+import { entityType as storageEntityType } from 'oneprovider-gui/models/storage';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmLambdaSnapshotEntityType } from 'oneprovider-gui/models/atm-lambda-snapshot';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
@@ -160,12 +161,13 @@ export default Service.extend({
         return createRecordsPromise;
       });
     });
-    return this.createEmptyQos(store).then(() =>
-        this.createEmptyDatasetSummary(store)
-      )
-      .then(() =>
-        promiseChain.then(() => hashFulfilled(promiseHash))
-      )
+    return this.createEmptyQos(store)
+      .then(async () => {
+        await this.createEmptyDatasetSummary(store);
+        const resultHash = await promiseChain.then(() => hashFulfilled(promiseHash));
+        await this.createStorageLocationInfoRecords(store);
+        return resultHash;
+      })
       .then((listRecords) => {
         const { space: spaceList } = listRecords;
         return store.createRecord('user', {
@@ -1114,6 +1116,7 @@ export default Service.extend({
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
     const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
     const distribution = this.get('entityRecords.fileDistribution.firstObject');
+    const storageLocationInfo = this.get('entityRecords.storageLocationInfo.firstObject');
     return allFulfilled(_.range(numberOfDirs).map((i) => {
         const entityId = generateDirEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
@@ -1200,6 +1203,7 @@ export default Service.extend({
           fileDatasetSummary: isSymlink ? undefined : emptyDatasetSummary,
           provider,
           targetPath: isSymlink ? '../some/file' : undefined,
+          storageLocationInfo: isSymlink ? undefined : storageLocationInfo,
         }).save();
       })))
       .then(async (records) => {
@@ -1256,6 +1260,7 @@ export default Service.extend({
     const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
     const distribution = this.get('entityRecords.fileDistribution.firstObject');
     const owner = this.get('entityRecords.owner.firstObject');
+    const storageLocationInfo = this.get('entityRecords.storageLocationInfo.firstObject');
     return Object.assign({
       type: 'file',
       posixPermissions: '777',
@@ -1272,7 +1277,35 @@ export default Service.extend({
       provider,
       targetPath: undefined,
       owner,
+      storageLocationInfo,
     }, customData);
+  },
+
+  async createStorageLocationInfoRecords(store) {
+    const storageId = 'storage_id';
+    const storageGri = gri({
+      entityType: storageEntityType,
+      entityId: storageId,
+      aspect: 'instance',
+      scope: 'shared',
+    });
+    const provider = this.get('entityRecords.provider.firstObject');
+    const providerId = get(provider, 'entityId');
+    await store.createRecord('storage', {
+      id: storageGri,
+      name: 'Dummy storage',
+      provider,
+    }).save();
+    const storageLocationInfo = await store.createRecord('storageLocationInfo', {
+      locationsPerProvider: {
+        [providerId]: {
+          locationsPerStorage: {
+            [storageId]: '/path',
+          },
+        },
+      },
+    }).save();
+    return this.set('entityRecords.storageLocationInfo', [storageLocationInfo]);
   },
 
   async createAtmInventoryRecords(store, names) {

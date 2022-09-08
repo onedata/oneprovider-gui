@@ -348,7 +348,7 @@ export default Model.extend(
     acl: belongsTo('acl'),
     parent: belongsTo('file'),
     distribution: belongsTo('file-distribution'),
-    storageLocations: belongsTo('storage-locations'),
+    storageLocationInfo: belongsTo('storage-location-info'),
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
     fileQosSummary: belongsTo('file-qos-summary'),
