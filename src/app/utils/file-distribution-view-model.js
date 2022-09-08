@@ -10,15 +10,11 @@ import EmberObject, { get, computed } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { Promise, resolve, allSettled } from 'rsvp';
-import { raw, array, sum, gt, not } from 'ember-awesome-macros';
+import { raw, array, sum, gt } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { getOwner } from '@ember/application';
-import { next } from '@ember/runloop';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import $ from 'jquery';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 
 const mixins = [
