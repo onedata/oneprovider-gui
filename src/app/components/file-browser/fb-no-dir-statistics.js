@@ -40,4 +40,4 @@ export default Component.extend(I18n, {
   providersUrl: computed(function providersUrl() {
     return this.getProvidersUrl({ oneproviderId: null });
   }),
-})
+});
