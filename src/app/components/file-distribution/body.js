@@ -44,6 +44,8 @@ export default Component.extend(...mixins, {
 
   space: reads('viewModel.space'),
 
+  activeTab: reads('viewModel.activeTab'),
+
   fileDistributionData: reads('viewModel.fileDistributionData'),
 
   oneprovidersProxy: reads('viewModel.oneprovidersProxy'),

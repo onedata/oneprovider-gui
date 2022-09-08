@@ -13,7 +13,7 @@ import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { Promise, resolve, allSettled } from 'rsvp';
-import { raw, array, sum } from 'ember-awesome-macros';
+import { raw, array, sum, gt, not } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { getOwner } from '@ember/application';
 import { next } from '@ember/runloop';
@@ -50,13 +50,130 @@ export default EmberObject.extend(...mixins, {
   //#region state
 
   /**
-   * One of: 'distribution-summary', 'distribution-details'.
-   * 'distribution-summary' is possible only for multiple files.
-   * @type {string}
+   * Initially set in init.
+   * @type {'summary'|'details'}
    */
   activeTab: undefined,
 
   //#endregion
+
+  isMultiFile: gt('itemsNumber', 1),
+
+  isHeaderHidden: not('isMultiFile'),
+
+  /**
+   * @type {Ember.ComputedProperty<Array<Models.File>>}
+   */
+  filesOfTypeFile: array.filterBy(
+    'files',
+    raw('type'),
+    raw('file')
+  ),
+
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   */
+  itemsNumber: array.length('files'),
+
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   */
+  filesNumber: array.length('filesOfTypeFile'),
+
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   */
+  dirsNumber: array.length('filesOfTypeDir'),
+
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   */
+  filesSize: sum(array.mapBy('filesOfTypeFile', raw('size'))),
+
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   * if array is empty, the sum is 0
+   * if one of element in array is null, the sum is also null
+   */
+  dirsSize: sum(array.mapBy('filesOfTypeDir', raw('size'))),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  summaryText: computed(
+    'itemsNumber',
+    'filesNumber',
+    'dirsNumber',
+    'itemsSize',
+    'dirsSize',
+    function summaryText() {
+      const {
+        itemsNumber,
+        filesNumber,
+        dirsNumber,
+        itemsSize,
+        dirsSize,
+      } = this.getProperties(
+        'itemsNumber',
+        'filesNumber',
+        'dirsNumber',
+        'itemsSize',
+        'dirsSize',
+      );
+      let itemNoun;
+      const itemsSizeText = bytesToString(itemsSize);
+
+      if (dirsSize == null) {
+        return this.t('itemsBatchDescriptionNoStats', { itemsNumber: itemsNumber });
+      }
+      if (filesNumber === itemsNumber) {
+        itemNoun = itemsNumber > 1 ? this.t('files') : this.t('file');
+      } else if (dirsNumber === itemsNumber) {
+        itemNoun = itemsNumber > 1 ? this.t('dirs') : this.t('dir');
+      } else {
+        itemNoun = itemsNumber > 1 ? this.t('items') : this.t('item');
+      }
+
+      return this.t('filesBatchDescription', {
+        itemsNumber: itemsNumber,
+        itemNoun: itemNoun,
+        itemsSize: itemsSizeText,
+      });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  filesSizeDetails: computed(
+    'filesNumber',
+    'dirsNumber',
+    'filesSize',
+    'dirsSize',
+    function filesSizeDetails() {
+      const {
+        filesNumber,
+        dirsNumber,
+        filesSize,
+        dirsSize,
+      } = this.getProperties(
+        'filesNumber',
+        'dirsNumber',
+        'filesSize',
+        'dirsSize'
+      );
+      if (filesNumber && dirsNumber && dirsSize != null) {
+        return this.t('sizeDetails', {
+          fileNoun: filesNumber > 1 ? this.t('files') : this.t('file'),
+          filesSize: bytesToString(filesSize),
+          directoryNoun: dirsNumber > 1 ? this.t('dirs') : this.t('dir'),
+          dirsSize: bytesToString(dirsSize),
+        });
+      } else {
+        return '';
+      }
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Array<Utils.FileDistributionDataContainer>>}
@@ -73,7 +190,7 @@ export default EmberObject.extend(...mixins, {
 
     this.set(
       'activeTab',
-      this.get('files.length') > 1 ? 'distribution-summary' : 'distribution-details'
+      this.get('files.length') > 1 ? 'summary' : 'details'
     );
   },
 
@@ -85,6 +202,10 @@ export default EmberObject.extend(...mixins, {
     const list = await get(providerList, 'list');
     await allSettled(list.invoke('reload'));
     return list;
+  },
+
+  changeTab(tabName) {
+    this.set('activeTab', tabName);
   },
 
   /**
@@ -112,6 +233,7 @@ export default EmberObject.extend(...mixins, {
       globalNotify.backendError(this.t('startingReplication'), error);
     });
   },
+
   migrate(files, sourceProvider, destinationOneprovider) {
     const {
       globalNotify,
@@ -127,6 +249,7 @@ export default EmberObject.extend(...mixins, {
       globalNotify.backendError(this.t('startingMigration'), error);
     });
   },
+
   evict(files, sourceOneprovider) {
     const {
       globalNotify,

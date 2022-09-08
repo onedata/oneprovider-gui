@@ -37,15 +37,6 @@
   }}
 {{/if}}
 
-{{#if filesToShowDistribution}}
-  {{file-distribution-modal
-    files=filesToShowDistribution
-    space=space
-    onClose=(action closeFileDistributionModal)
-    getTransfersUrl=(action getTransfersUrl)
-  }}
-{{/if}}
-
 {{file-browser/fb-download-modal
   file=fileForConfirmDownload
   confirmDownload=(action confirmFileDownload)

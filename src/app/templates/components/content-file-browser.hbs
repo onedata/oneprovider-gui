@@ -69,15 +69,6 @@
     }}
   {{/if}}
 
-  {{#if filesToShowDistribution}}
-    {{file-distribution-modal
-      files=filesToShowDistribution
-      space=spaceProxy.content
-      onClose=(action closeFileDistributionModal)
-      getTransfersUrl=(action "getTransfersUrl")
-    }}
-  {{/if}}
-
   {{#if filesToShowDatasets}}
     {{datasets-modal
       open=true

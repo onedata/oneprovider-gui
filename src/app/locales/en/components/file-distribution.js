@@ -2,27 +2,30 @@ const disabledActionSingleOneprovider =
   ' is available only with two or more supporting providers.';
 
 export default {
-  header: 'Data distribution',
-  summary: 'Summary',
-  details: 'Details',
-  files: 'files',
-  file: 'file',
-  item: 'item',
-  items: 'items',
-  dir: 'directory',
-  dirs: 'directories',
-  close: 'Close',
-  onlySingleOneproviderSupport: 'Current space is supported by only one Oneprovider, thus advanced data replication or migration features are not available.',
-
-  filesBatchDescription: 'Summarized data distribution of {{itemsNumber}} {{itemNoun}} ({{itemsSize}}).',
-  sizeDetails: '{{fileNoun}} – {{filesSize}}<br> {{directoryNoun}} – {{dirsSize}}',
-  itemsBatchDescriptionNoStats: 'Data distribution of the selected {{itemsNumber}} items is not available.',
+  body: {
+    files: 'files',
+    file: 'file',
+    item: 'item',
+    items: 'items',
+    dir: 'directory',
+    dirs: 'directories',
+    filesBatchDescription: 'Summarized data distribution of {{itemsNumber}} {{itemNoun}} ({{itemsSize}}).',
+    sizeDetails: '{{fileNoun}} – {{filesSize}}<br> {{directoryNoun}} – {{dirsSize}}',
+    itemsBatchDescriptionNoStats: 'Data distribution of the selected {{itemsNumber}} items is not available.',
+  },
   chunksVisualizer: {
     neverSynchronized: 'Never synchronized',
     neverSynchronizedTip: 'This file was never read or modified on selected Oneprovider. File blocks will be synchronized when needed. You can also manually replicate the file to selected Oneprovider.',
     block: 'block',
     blocks: 'blocks',
     blocksSize: '{{size}} in {{blockCount}} {{blockNoun}}',
+  },
+  header: {
+    tabName: {
+      summary: 'Summary',
+      details: 'Details',
+    },
+    onlySingleOneproviderSupport: 'Current space is supported by only one Oneprovider, thus advanced data replication or migration features are not available.',
   },
   progressBarVisualizer: {
     na: 'n/a',

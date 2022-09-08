@@ -1,6 +1,7 @@
 {{#loading-container
   isLoading=isDistributionLoading
-  errorReason=distributionErrorReason}}
+  errorReason=distributionErrorReason
+}}
   {{#if isMigrationDestinationSelectorVisible}}
     {{file-distribution/destination-oneprovider-selector
       files=(map-by "file" fileDistributionData)
