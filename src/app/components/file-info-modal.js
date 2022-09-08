@@ -137,7 +137,7 @@ export default Component.extend(...mixins, {
    * @virtual
    * @type {Function}
    */
-  getProvidersUrl: notImplementedThrow,
+  getProvidersUrl: notImplementedIgnore,
 
   /**
    * @type {FileInfoTabId}

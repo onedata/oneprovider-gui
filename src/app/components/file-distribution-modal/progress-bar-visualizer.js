@@ -13,7 +13,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe } from '@ember/string';
 import { or, eq } from 'ember-awesome-macros';
-import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
   classNames: ['progress-bar-visualizer'],
@@ -42,7 +42,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  getProvidersUrl: notImplementedThrow,
+  getProvidersUrl: notImplementedIgnore,
 
   /**
    * @virtual

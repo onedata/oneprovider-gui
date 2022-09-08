@@ -14,6 +14,7 @@ import { collect, notEmpty } from '@ember/object/computed';
 import { sum, array, equal, raw, or, and } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -108,7 +109,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  getProvidersUrl: notImplementedThrow,
+  getProvidersUrl: notImplementedIgnore,
 
   /**
    * @type {Array<Utils.FileDistributionDataContainer>}

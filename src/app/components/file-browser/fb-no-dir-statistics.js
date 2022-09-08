@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
   classNames: ['fb-no-dir-statistics'],
@@ -26,7 +26,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  getProvidersUrl: notImplementedThrow,
+  getProvidersUrl: notImplementedIgnore,
 
   /**
    * Frame name, where Onezone providers link should be opened
