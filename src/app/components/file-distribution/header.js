@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads } from '@ember/object/computed';
-import { eq } from 'ember-awesome-macros';
+import { eq, not } from 'ember-awesome-macros';
 
 const mixins = [
   I18n,
@@ -32,6 +32,8 @@ export default Component.extend(...mixins, {
   activeTab: reads('viewModel.activeTab'),
 
   isSingleOneprovider: eq('viewModel.oneproviders.length', 1),
+
+  isTabBarHidden: not('viewModel.isMultiFile'),
 
   actions: {
     changeTab(tabId) {

@@ -1,27 +1,29 @@
-<div class="btn-group-tabs distribution-view-tabs">
-  {{#bs-button-group
-    class="distribution-view-selector with-scroll-shadow"
-    value=activeTab
-    type="radio"
-    onChange=(action "changeTab") as |bg|
-  }}
-    {{#each (array "summary" "details") as |type|}}
-      {{#bg.button
-        type="default"
-        class=(concat-classes
-          "btn-sm"
-          "distribution-view-btn"
-          (concat "distribution-view-btn-" type)
-        )
-        value=type
-      }}
-        <span class="tab-name">
-          {{tt this (concat "tabName." type)}}
-        </span>
-      {{/bg.button}}
-    {{/each}}
-  {{/bs-button-group}}
-</div>
 {{#if isSingleOneprovider}}
   <div class="alert alert-info">{{tt this "onlySingleOneproviderSupport"}}</div>
 {{/if}}
+{{#unless isTabBarHidden}}
+  <div class="btn-group-tabs distribution-view-tabs">
+    {{#bs-button-group
+      class="distribution-view-selector with-scroll-shadow"
+      value=activeTab
+      type="radio"
+      onChange=(action "changeTab") as |bg|
+    }}
+      {{#each (array "summary" "details") as |type|}}
+        {{#bg.button
+          type="default"
+          class=(concat-classes
+            "btn-sm"
+            "distribution-view-btn"
+            (concat "distribution-view-btn-" type)
+          )
+          value=type
+        }}
+          <span class="tab-name">
+            {{tt this (concat "tabName." type)}}
+          </span>
+        {{/bg.button}}
+      {{/each}}
+    {{/bs-button-group}}
+  </div>
+{{/unless}}

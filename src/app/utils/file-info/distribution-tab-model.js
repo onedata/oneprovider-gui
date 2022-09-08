@@ -53,11 +53,7 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @override
    */
-  headerComponent: conditional(
-    'viewModel.isHeaderHidden',
-    raw(''),
-    raw('file-distribution/header'),
-  ),
+  headerComponent: 'file-distribution/header',
 
   /**
    * @override

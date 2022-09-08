@@ -59,8 +59,6 @@ export default EmberObject.extend(...mixins, {
 
   isMultiFile: gt('itemsNumber', 1),
 
-  isHeaderHidden: not('isMultiFile'),
-
   /**
    * @type {Ember.ComputedProperty<Array<Models.File>>}
    */
