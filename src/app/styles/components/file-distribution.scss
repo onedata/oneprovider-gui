@@ -260,10 +260,9 @@
     .one-arrow {
       flex-grow: 1;
       margin: 0 $padding-large-horizontal;
-    }
-
-    .arrow-text {
-      transform: translateX(-50%) translateY(-50%) translateY(1em);
+      .arrow-text {
+        transform: translateX(-50%) translateY(-50%) translateY(1em);
+      }
     }
 
     .visualization-container {
