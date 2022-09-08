@@ -66,6 +66,26 @@ export default BaseTabModel.extend(...mixins, {
   isSupportingMultiFiles: true,
 
   /**
+   * @override
+   */
+  isVisible: computed(
+    'previewMode',
+    'files.@each.type',
+    function isVisible() {
+      if (
+        !this._super(...arguments) ||
+        this.previewMode
+      ) {
+        return false;
+      }
+      const isSupportedFileType = this.files.every(file =>
+        file.type === 'file' || file.type === 'dir'
+      );
+      return isSupportedFileType;
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
    */
   viewModel: computed(
