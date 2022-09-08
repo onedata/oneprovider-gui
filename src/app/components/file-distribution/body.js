@@ -1,5 +1,5 @@
 /**
- * FIXME: head doc
+ * Main content for file distribution view (distribution components).
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
@@ -7,29 +7,14 @@
  */
 
 import Component from '@ember/component';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads } from '@ember/object/computed';
-import { conditional, equal, raw } from 'ember-awesome-macros';
-import computedT from 'onedata-gui-common/utils/computed-t';
 import { inject as service } from '@ember/service';
-import { next } from '@ember/runloop';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { get, computed } from '@ember/object';
 
-const mixins = [
-  I18n,
-];
-
-export default Component.extend(...mixins, {
+export default Component.extend({
   classNames: ['file-distribution-body'],
 
   i18n: service(),
   appProxy: service(),
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.fileDistribution.body',
 
   /**
    * @virtual

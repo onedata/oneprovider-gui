@@ -191,7 +191,6 @@ export default EmberObject.extend(...mixins, {
     );
   }),
 
-  // FIXME: refactor tab names to single word
   init() {
     this._super(...arguments);
 

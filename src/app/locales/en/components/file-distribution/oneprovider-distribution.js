@@ -1,0 +1,15 @@
+export default {
+  file: 'file',
+  dir: 'directory',
+  currentlyTransferredText: 'This {{elementType}} is currently transferred between Oneproviders',
+  currentlyTransferredLink: 'see ongoing transfers',
+  time: 'time',
+  times: 'times',
+  endedTransfersText: 'This {{elementType}} was transferred manually {{count}} {{countUnit}}',
+  orMore: 'or more',
+  endedTransfersLink: 'see history',
+  noTransfersText: 'This {{elementType}} has never been transferred manually.',
+  cannotLoadTransfers: 'Cannot load transfers',
+  blockDistributionLegend: 'Block distribution',
+  replicationRatioLegend: 'Replication ratio',
+};
