@@ -12,6 +12,7 @@ import { findByText } from '../../helpers/find';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
+import FileDistributionHelper from '../../helpers/file-distribution';
 
 const storageLocations = {
   locationsPerProvider: {
@@ -22,6 +23,25 @@ const storageLocations = {
     },
   },
 };
+
+const apiSamples = [{
+  apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
+  type: 'rest',
+  swaggerOperationId: 'get_test_data',
+  requiresAuthorization: false,
+  placeholders: {},
+  path: '/test/path/to/data',
+  name: 'Get test data',
+  description: 'Return test data.',
+  method: 'GET',
+  data: null,
+  followRedirects: true,
+}, {
+  type: 'xrootd',
+  name: 'Test xrootd command',
+  description: 'Test xrootd.',
+  command: ['xrdcp', '-r', 'root://root.example.com//data/test', '.'],
+}];
 
 const owner1 = {
   fullName: 'John Smith',
@@ -81,64 +101,10 @@ const file1 = {
 describe('Integration | Component | file info modal', function () {
   setupRenderingTest();
 
-  const apiSamples = [{
-    apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
-    type: 'rest',
-    swaggerOperationId: 'get_test_data',
-    requiresAuthorization: false,
-    placeholders: {},
-    path: '/test/path/to/data',
-    name: 'Get test data',
-    description: 'Return test data.',
-    method: 'GET',
-    data: null,
-    followRedirects: true,
-  }, {
-    type: 'xrootd',
-    name: 'Test xrootd command',
-    description: 'Test xrootd.',
-    command: ['xrdcp', '-r', 'root://root.example.com//data/test', '.'],
-  }];
-
-  const storageLocations = {
-    locationsPerProvider: {
-      provider: {
-        locationsPerStorage: {
-          storage: 'path',
-        },
-      },
-    },
-  };
-
-  beforeEach(async function () {
-    await givenDummySpace(this);
-    givenQosTabDisabled(this);
-    const fileHardlinksResult = this.set('fileHardlinksResult', {
-      hardlinksCount: 1,
-      hardlinks: [],
-      errors: [{ id: 'forbidden' }],
-    });
-    sinon.stub(lookupService(this, 'file-manager'), 'getFileHardlinks')
-      .resolves(fileHardlinksResult);
-    sinon.stub(lookupService(this, 'providerManager'), 'getCurrentProvider')
-      .resolves({ name: 'provider', entityId: 'providerId' });
-    sinon.stub(lookupService(this, 'storageManager'), 'getStorageById')
-      .resolves({ name: 'storage', entityId: 'storage', provider: { name: 'provider' } });
-    const getDataUrl = ({ selected: [firstSelected] }) => `link-${firstSelected}`;
-    lookupService(this, 'app-proxy').callParent =
-      function callParent(methodName, ...args) {
-        if (methodName === 'getDataUrl') {
-          return getDataUrl(...args);
-        }
-      };
-    this.set('getDataUrl', getDataUrl);
-    const storageLocationsProxy = sinon.stub().resolves(storageLocations);
-    this.set('storageLocationsProxy', storageLocationsProxy);
-  });
-
   // NOTE: context is not used for async render tests, because mocha's context is buggy
 
   it('renders file path asynchronously', async function () {
+    await givenDefaultStubs(this);
     const file = this.set('file', file1);
     const parent = file.parent;
     let resolveParent;
@@ -156,6 +122,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('renders owner full name asynchronously', async function () {
+    await givenDefaultStubs(this);
     const file = this.set('file', file1);
     const owner = file.owner;
     let resolveOwner;
@@ -174,6 +141,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('does not render symlink target path when file is not symlink', async function () {
+    await givenDefaultStubs(this);
     this.set('file', {
       ...file1,
       type: 'file',
@@ -186,6 +154,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('does render symlink target relative path when file is a symlink', async function () {
+    await givenDefaultStubs(this);
     this.set('file', {
       ...file1,
       type: 'symlink',
@@ -200,6 +169,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('renders symlink target absolute path with space name when file is a symlink and space id is known',
     async function () {
+      await givenDefaultStubs(this);
       this.setProperties({
         file: {
           ...file1,
@@ -223,9 +193,9 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
-  it(
-    'renders symlink target absolute path  with "unknown space" when file is a symlink and space id is unknown',
+  it('renders symlink target absolute path  with "unknown space" when file is a symlink and space id is unknown',
     async function () {
+      await givenDefaultStubs(this);
       this.setProperties({
         file: {
           ...file1,
@@ -245,9 +215,9 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
-  it(
-    'renders symlink target absolute path with "unknown space" when file is a symlink and space is not provided',
+  it('renders symlink target absolute path with "unknown space" when file is a symlink and space is not provided',
     async function () {
+      await givenDefaultStubs(this);
       this.setProperties({
         file: {
           ...file1,
@@ -266,6 +236,7 @@ describe('Integration | Component | file info modal', function () {
   );
 
   it('does not show hardlink\'s tab when hardlinks count is 1', async function () {
+    await givenDefaultStubs(this);
     this.set('file', {
       ...file1,
       type: 'file',
@@ -278,6 +249,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('shows hardlinks tab when hardlinks count is 2', async function () {
+    await givenDefaultStubs(this);
     this.set('file', {
       ...file1,
       type: 'file',
@@ -290,6 +262,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('shows api sample tab when previewMode is true', async function () {
+    await givenDefaultStubs(this);
     this.set('file', {
       ...file1,
       type: 'file',
@@ -301,6 +274,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('does not show api sample tab when file type is symlink', async function () {
+    await givenDefaultStubs(this);
     this.set('file', {
       ...file1,
       type: 'symlink',
@@ -313,6 +287,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('does not show api sample tab when previewMode is false', async function () {
+    await givenDefaultStubs(this);
     this.set('file', {
       ...file1,
       type: 'file',
@@ -325,6 +300,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('shows hardlinks list', async function () {
+    await givenDefaultStubs(this);
     this.set('file', {
       ...file1,
       type: 'file',
@@ -364,6 +340,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('shows hardlinks partial fetch error', async function () {
+    await givenDefaultStubs(this);
     this.set('file', {
       ...file1,
       type: 'file',
@@ -400,6 +377,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('shows hardlinks full fetch error', async function () {
+    await givenDefaultStubs(this);
     this.set('file', {
       ...file1,
       type: 'file',
@@ -431,6 +409,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('renders size of file', async function () {
+    await givenDefaultStubs(this);
     this.set('file', Object.assign({}, file1, { size: Math.pow(1024, 3) }));
 
     await renderComponent();
@@ -441,6 +420,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('renders name for file', async function () {
+    await givenDefaultStubs(this);
     await givenDummyFile(this);
 
     await renderComponent();
@@ -451,6 +431,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('renders space id', async function () {
+    await givenDefaultStubs(this);
     await givenDummyFile(this);
     const spaceEntityId = 's893y37439';
     this.set('space', { entityId: spaceEntityId });
@@ -463,6 +444,7 @@ describe('Integration | Component | file info modal', function () {
   });
 
   it('renders cdmi object id for file', async function () {
+    await givenDefaultStubs(this);
     await givenDummyFile(this);
 
     await renderComponent();
@@ -475,6 +457,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('has active "Metadata" tab and renders metadata view body when initialTab = metadata is given',
     async function () {
+      await givenDefaultStubs(this);
       await givenDummyFile(this);
       this.set('initialTab', 'metadata');
 
@@ -490,6 +473,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('has active "Permissions" tab and renders permissions view body when initialTab = permissions is given',
     async function () {
+      await givenDefaultStubs(this);
       await givenDummyFile(this);
       this.set('initialTab', 'permissions');
 
@@ -505,6 +489,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('has active "Shares" tab and renders shares view body when initialTab = shares is given',
     async function () {
+      await givenDefaultStubs(this);
       await givenFileModel(this, {
         sharesCount: 0,
       });
@@ -521,6 +506,7 @@ describe('Integration | Component | file info modal', function () {
   );
 
   it('renders "Shares" tab with number of shares in tab name', async function () {
+    await givenDefaultStubs(this);
     await givenFileModel(this, {
       sharesCount: 2,
     });
@@ -534,6 +520,7 @@ describe('Integration | Component | file info modal', function () {
 
   it('has active "QoS" tab and renders QoS view body when initialTab = qos is given',
     async function () {
+      await givenDefaultStubs(this);
       givenEmptyTabOptions(this);
       await givenDummySpace(this, {
         currentUserEffPrivileges: ['space_view_qos'],
@@ -553,8 +540,22 @@ describe('Integration | Component | file info modal', function () {
 
   it('has active "Data distribution" tab and renders distribution view body when initialTab = distribution is given',
     async function () {
-      await givenFileModel(this);
-      this.set('initialTab', 'distribution');
+      const fileDistributionHelper = new FileDistributionHelper(this);
+      await fileDistributionHelper.givenSingleFileWithDistribution();
+      fileDistributionHelper.givenNoTransfersForSingleFile();
+      this.setProperties({
+        tabOptions: {
+          qos: {
+            isVisible: false,
+          },
+          shares: {
+            isVisible: false,
+          },
+        },
+        initialTab: 'distribution',
+        space: fileDistributionHelper.space,
+        files: fileDistributionHelper.files,
+      });
 
       await renderComponent();
 
@@ -566,57 +567,55 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
-  context('for file type and API samples tab', function () {
-    beforeEach(async function () {
-      const fileApiSamples =
-        sinon.stub(lookupService(this, 'fileManager'), 'getFileApiSamples')
-        .resolves(apiSamples);
-      this.setProperties({
-        file: { type: 'file' },
-        previewMode: true,
-        fileApiSamples,
-      });
-      await renderComponent();
-      await click(findByText('API', '.nav-link'));
-    });
+  it('shows API operations provided by fileManager', async function () {
+    await givenDefaultStubs(this);
+    await givenApiSamplesForSharedFile(this);
 
-    it('shows API operations provided by fileManager', async function (done) {
-      await clickTrigger('.api-operation-row');
-      const options = findAll('li.ember-power-select-option');
-      expect(options).to.have.length(2);
-      const optionTitles = options
-        .map(opt => opt.querySelector('.api-command-title').textContent.trim());
-      const fullOptionsString = optionTitles.join(',');
-      expect(fullOptionsString).to.contain('Get test data');
-      expect(fullOptionsString).to.contain('Test xrootd command');
-      done();
-    });
+    await whenClickingOnApiAfterRender();
+    await clickTrigger('.api-operation-row');
 
-    it('shows type, description and clipboard for selected REST operation', async function (done) {
-      await selectChoose('.api-operation-row', 'Get test data');
-      expect(find('.item-info-row-type-api-command .api-tag-label'))
-        .to.contain.text('REST');
-      expect(find('.item-info-row-description .description-value'))
-        .to.contain.text('Return test data.');
-      expect(find('.item-info-row-api-command .clipboard-input'))
-        .to.contain.text(
-          'curl -L -X GET \'https://dev-onezone.default.svc.cluster.local/api/v3/onezone/test/path/to/data\''
-        );
-      done();
-    });
-
-    it('shows type, description and clipboard for selected xrootd operation',
-      async function (done) {
-        await selectChoose('.api-operation-row', 'Test xrootd command');
-        expect(find('.item-info-row-type-api-command .api-tag-label'))
-          .to.contain.text('XRootD');
-        expect(find('.item-info-row-description .description-value'))
-          .to.contain.text('Test xrootd.');
-        expect(find('.item-info-row-api-command .clipboard-input'))
-          .to.contain.text('xrdcp -r \'root://root.example.com//data/test\' \'.\'');
-        done();
-      });
+    const options = findAll('li.ember-power-select-option');
+    expect(options).to.have.length(2);
+    const optionTitles = options
+      .map(opt => opt.querySelector('.api-command-title').textContent.trim());
+    const fullOptionsString = optionTitles.join(',');
+    expect(fullOptionsString).to.contain('Get test data');
+    expect(fullOptionsString).to.contain('Test xrootd command');
   });
+
+  it('shows type, description and clipboard for selected REST operation', async function () {
+    await givenDefaultStubs(this);
+    await givenApiSamplesForSharedFile(this);
+
+    await whenClickingOnApiAfterRender();
+    await clickTrigger('.api-operation-row');
+    await selectChoose('.api-operation-row', 'Get test data');
+    expect(find('.item-info-row-type-api-command .api-tag-label'))
+      .to.contain.text('REST');
+    expect(find('.item-info-row-description .description-value'))
+      .to.contain.text('Return test data.');
+    expect(find('.item-info-row-api-command .clipboard-input'))
+      .to.contain.text(
+        'curl -L -X GET \'https://dev-onezone.default.svc.cluster.local/api/v3/onezone/test/path/to/data\''
+      );
+  });
+
+  it('shows type, description and clipboard for selected xrootd operation',
+    async function () {
+      await givenDefaultStubs(this);
+      await givenApiSamplesForSharedFile(this);
+
+      await whenClickingOnApiAfterRender();
+      await clickTrigger('.api-operation-row');
+      await selectChoose('.api-operation-row', 'Test xrootd command');
+      expect(find('.item-info-row-type-api-command .api-tag-label'))
+        .to.contain.text('XRootD');
+      expect(find('.item-info-row-description .description-value'))
+        .to.contain.text('Test xrootd.');
+      expect(find('.item-info-row-api-command .clipboard-input'))
+        .to.contain.text('xrdcp -r \'root://root.example.com//data/test\' \'.\'');
+    }
+  );
 });
 
 async function renderComponent() {
@@ -707,4 +706,46 @@ function givenQosTabDisabled(testCase) {
       isVisible: false,
     },
   });
+}
+
+async function givenDefaultStubs(testCase) {
+  await givenDummySpace(testCase);
+  givenQosTabDisabled(testCase);
+  const fileHardlinksResult = testCase.set('fileHardlinksResult', {
+    hardlinksCount: 1,
+    hardlinks: [],
+    errors: [{ id: 'forbidden' }],
+  });
+  sinon.stub(lookupService(testCase, 'fileManager'), 'getFileHardlinks')
+    .resolves(fileHardlinksResult);
+  sinon.stub(lookupService(testCase, 'providerManager'), 'getCurrentProvider')
+    .resolves({ name: 'provider', entityId: 'providerId' });
+  sinon.stub(lookupService(testCase, 'storageManager'), 'getStorageById')
+    .resolves({ name: 'storage', entityId: 'storage', provider: { name: 'provider' } });
+  const getDataUrl = ({ selected: [firstSelected] }) => `link-${firstSelected}`;
+  lookupService(testCase, 'appProxy').callParent =
+    function callParent(methodName, ...args) {
+      if (methodName === 'getDataUrl') {
+        return getDataUrl(...args);
+      }
+    };
+  testCase.set('getDataUrl', getDataUrl);
+  const storageLocationsProxy = sinon.stub().resolves(storageLocations);
+  testCase.set('storageLocationsProxy', storageLocationsProxy);
+}
+
+async function givenApiSamplesForSharedFile(testCase) {
+  const fileApiSamples =
+    sinon.stub(lookupService(testCase, 'fileManager'), 'getFileApiSamples')
+    .resolves(apiSamples);
+  testCase.setProperties({
+    file: { type: 'file' },
+    previewMode: true,
+    fileApiSamples,
+  });
+}
+
+async function whenClickingOnApiAfterRender() {
+  await renderComponent();
+  await click(findByText('API', '.nav-link'));
 }

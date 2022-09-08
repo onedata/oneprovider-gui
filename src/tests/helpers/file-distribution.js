@@ -150,6 +150,7 @@ export default class FilePermissionsHelper {
       list: [krakow, paris],
     }).save();
     const space = await this.givenSpace({
+      name: 'space for file distribution',
       providerList,
     });
     console.log('space', await space.get('providerList'));
@@ -171,12 +172,4 @@ export default class FilePermissionsHelper {
   async givenNoTransfersForSingleFile() {
     return this.givenNoTransfersForFile(this.files[0]);
   }
-  // async givenGraphSyncMock() {
-  //   const graphSync = lookupService(this.context, 'graphSync');
-  //   sinon.stub(graphSync, 'request')
-  //     .calledWith(
-  //       sinon.match({})
-  //     )
-  //     .resolves();
-  // }
 }
