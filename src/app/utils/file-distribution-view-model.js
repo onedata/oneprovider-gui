@@ -23,12 +23,14 @@ import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 
 const mixins = [
   OwnerInjector,
+  I18n,
   createDataProxyMixin('oneproviders', { type: 'array' }),
 ];
 
 export default EmberObject.extend(...mixins, {
   transferManager: service(),
   globalNotify: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -82,6 +84,13 @@ export default EmberObject.extend(...mixins, {
    * @type {Ember.ComputedProperty<number>}
    */
   dirsNumber: array.length('filesOfTypeDir'),
+
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   * if array is empty, the sum is 0
+   * if one of element in array is null, the sum is also null
+   */
+  itemsSize: sum(array.mapBy('files', raw('size'))),
 
   /**
    * @type {Ember.ComputedProperty<number>}

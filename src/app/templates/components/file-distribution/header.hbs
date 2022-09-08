@@ -1,7 +1,7 @@
 {{#if isSingleOneprovider}}
   <div class="alert alert-info">{{tt this "onlySingleOneproviderSupport"}}</div>
 {{/if}}
-{{#unless isTabBarHidden}}
+{{#if isMultiFile}}
   <div class="btn-group-tabs distribution-view-tabs">
     {{#bs-button-group
       class="distribution-view-selector with-scroll-shadow"
@@ -26,4 +26,10 @@
       {{/each}}
     {{/bs-button-group}}
   </div>
-{{/unless}}
+{{else}}
+<div class="btn-group-tabs">
+  <div class="box-item with-scroll-shadow shares-header-text">
+    <strong>{{tt this "dataDistributionPerStorage"}}</strong>
+  </div>
+</div>
+{{/if}}

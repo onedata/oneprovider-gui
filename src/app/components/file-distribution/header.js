@@ -33,7 +33,7 @@ export default Component.extend(...mixins, {
 
   isSingleOneprovider: eq('viewModel.oneproviders.length', 1),
 
-  isTabBarHidden: not('viewModel.isMultiFile'),
+  isMultiFile: reads('viewModel.isMultiFile'),
 
   actions: {
     changeTab(tabId) {

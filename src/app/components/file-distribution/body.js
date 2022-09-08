@@ -52,27 +52,13 @@ export default Component.extend(...mixins, {
 
   oneproviders: reads('oneprovidersProxy.content'),
 
-  /**
-   * @override
-   */
-  didInsertElement() {
-    this._super(...arguments);
+  isMultiFile: reads('viewModel.isMultiFile'),
 
-    const {
-      files,
-      oneprovidersProxy,
-    } = this.getProperties('files', 'oneprovidersProxy');
+  itemsNumber: reads('viewModel.itemsNumber'),
 
-    // Open file list item if there is only one file
-    if (get(files, 'length') === 1) {
-      oneprovidersProxy.then(() =>
-        // FIXME: refactor to use waitForRender and get lenght after resolve
-        next(() => safeExec(this, () =>
-          this.element.querySelector('.one-collapsible-list-item-header').click()
-        ))
-      );
-    }
-  },
+  summaryText: reads('viewModel.summaryText'),
+
+  filesSizeDetails: reads('viewModel.filesSizeDetails'),
 
   actions: {
     getTransfersUrl() {

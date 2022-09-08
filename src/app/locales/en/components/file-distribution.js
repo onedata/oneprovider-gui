@@ -1,17 +1,10 @@
 const disabledActionSingleOneprovider =
   ' is available only with two or more supporting providers.';
 
+// FIXME: into separate files
 export default {
   body: {
-    files: 'files',
-    file: 'file',
-    item: 'item',
-    items: 'items',
-    dir: 'directory',
-    dirs: 'directories',
-    filesBatchDescription: 'Summarized data distribution of {{itemsNumber}} {{itemNoun}} ({{itemsSize}}).',
-    sizeDetails: '{{fileNoun}} – {{filesSize}}<br> {{directoryNoun}} – {{dirsSize}}',
-    itemsBatchDescriptionNoStats: 'Data distribution of the selected {{itemsNumber}} items is not available.',
+    // FIXME: remove if unused
   },
   chunksVisualizer: {
     neverSynchronized: 'Never synchronized',
@@ -26,6 +19,7 @@ export default {
       details: 'Details',
     },
     onlySingleOneproviderSupport: 'Current space is supported by only one Oneprovider, thus advanced data replication or migration features are not available.',
+    dataDistributionPerStorage: 'Data distribution per storage',
   },
   progressBarVisualizer: {
     na: 'n/a',
