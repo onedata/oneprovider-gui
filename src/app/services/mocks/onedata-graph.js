@@ -757,31 +757,6 @@ const qosRequirementHandlers = {
       default:
         return messageNotSupported;
     }
-
-    // const {
-    //   windowLimit,
-    //   startTimestamp,
-    //   layout,
-    // } = data;
-    // const result = {};
-    // for (const seriesName in layout) {
-    //   const metricsNames = layout[seriesName];
-    //   const seriesResult = {};
-    //   result[seriesName] = seriesResult;
-    //   for (const metricName of metricsNames) {
-    //     const metricSeconds = qosTimeSeriesMetricSeconds[metricName];
-    //     const lastPointTimestamp = startTimestamp - (startTimestamp % metricSeconds);
-    //     seriesResult[metricName] = [];
-    //     for (let i = 0; i < windowLimit - 1; i++) {
-    //       const pointTimestamp = lastPointTimestamp - i * metricSeconds;
-    //       seriesResult[metricName].push({
-    //         timestamp: lastPointTimestamp - i * metricSeconds,
-    //         value: pointTimestamp % 1024,
-    //       });
-    //     }
-    //   }
-    // }
-    // return { windows: result };
   },
   audit_log(operation, entityId, data) {
     if (operation !== 'get') {
