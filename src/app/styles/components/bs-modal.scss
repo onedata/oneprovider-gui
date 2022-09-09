@@ -1,7 +1,6 @@
 .modal {
-  --shadow-color: rgba(0, 0, 0, 0.15);
+  --shadow-color: rgba(0, 0, 0, 0.3);
   --shadow-width: 8px;
-  --overlay-border-color: rgba(0, 0, 0, 0.1);
 }
 
 .modal.in .modal-dialog {
@@ -42,6 +41,8 @@
 
 // a full-height modal that looks like content overlay (currently starting from right)
 .modal.modal-content-overlay {
+  --shadow-color: rgba(0, 0, 0, 0.15);
+  --overlay-border-color: rgba(0, 0, 0, 0.1);
   box-shadow: none;
   .modal-dialog {
     width: calc(100% - #{$content-col-padding * 2});
