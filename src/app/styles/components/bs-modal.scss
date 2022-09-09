@@ -51,6 +51,12 @@
     }
   }
 
+  .modal-header {
+    .nav-tabs {
+      margin-left: -$nav-link-padding-vertical;
+    }
+  }
+
   .modal-sm {
     // overlay modal with global modal-sm size is impractical
     max-width: 640px;
