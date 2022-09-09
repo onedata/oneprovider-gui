@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9478 Migrated to charts dashboards in QoS and directory size statistics
 * VFS-9606 Moved file QoS settings from separate modal to file info panel
 * VFS-9603 Moved file shares settings from separate modal to file info panel
 * VFS-9531 Improved automation store content browser
