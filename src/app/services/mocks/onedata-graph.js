@@ -675,44 +675,113 @@ const qosTimeSeriesMetricSeconds = {
 };
 
 const qosRequirementHandlers = {
-  time_series_collections(operation) {
+  transfer_stats_collection_schema(operation, entityId, data, authHint, aspectId) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
 
-    return {
-      bytes: ['total'],
-      files: ['total'],
+    const metrics = {
+      minute: {
+        aggregator: 'sum',
+        resolution: 60,
+      },
+      hour: {
+        aggregator: 'sum',
+        resolution: 60 * 60,
+      },
+      day: {
+        aggregator: 'sum',
+        resolution: 60 * 60 * 24,
+      },
+      month: {
+        aggregator: 'sum',
+        resolution: 60 * 60 * 24 * 30,
+      },
     };
+    const timeSeriesSchemas = [{
+      nameGeneratorType: 'addPrefix',
+      nameGenerator: 'st_',
+      metrics,
+    }];
+    if (aspectId === 'bytes') {
+      timeSeriesSchemas.push({
+        nameGeneratorType: 'exact',
+        nameGenerator: 'total',
+        metrics,
+      });
+    }
+
+    return { timeSeriesSchemas };
   },
-  time_series_collection(operation, entityId, data) {
+  transfer_stats_collection(operation, entityId, data, authHint, aspectId) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
-    const {
-      limit,
-      startTimestamp,
-      metrics,
-    } = data;
-    const result = {};
-    for (const seriesId in metrics) {
-      const metricsIds = metrics[seriesId];
-      const seriesResult = {};
-      result[seriesId] = seriesResult;
-      for (const metricId of metricsIds) {
-        const metricSeconds = qosTimeSeriesMetricSeconds[metricId];
-        const lastPointTimestamp = startTimestamp - (startTimestamp % metricSeconds);
-        seriesResult[metricId] = [];
-        for (let i = 0; i < limit - 1; i++) {
-          const pointTimestamp = lastPointTimestamp - i * metricSeconds;
-          seriesResult[metricId].push({
-            timestamp: lastPointTimestamp - i * metricSeconds,
-            value: pointTimestamp % 1024,
-          });
+
+    switch (data?.mode) {
+      case 'layout': {
+        const layout = {
+          [`st_${storageIdAlpha}`]: ['minute', 'hour', 'day', 'month'],
+        };
+        if (aspectId === 'bytes') {
+          layout.total = ['minute', 'hour', 'day', 'month'];
         }
+        return { layout };
       }
+      case 'slice': {
+        const {
+          windowLimit,
+          startTimestamp,
+          layout,
+        } = data;
+        const slice = {};
+        for (const seriesName in layout) {
+          const metricsNames = layout[seriesName];
+          const seriesResult = {};
+          slice[seriesName] = seriesResult;
+          for (const metricName of metricsNames) {
+            const metricSeconds = qosTimeSeriesMetricSeconds[metricName];
+            const lastPointTimestamp = startTimestamp - (startTimestamp % metricSeconds);
+            seriesResult[metricName] = [];
+            for (let i = 0; i < windowLimit - 1; i++) {
+              const pointTimestamp = lastPointTimestamp - i * metricSeconds;
+              seriesResult[metricName].push({
+                timestamp: lastPointTimestamp - i * metricSeconds,
+                value: pointTimestamp % 1024,
+              });
+            }
+          }
+        }
+        return { slice };
+      }
+      default:
+        return messageNotSupported;
     }
-    return { windows: result };
+
+    // const {
+    //   windowLimit,
+    //   startTimestamp,
+    //   layout,
+    // } = data;
+    // const result = {};
+    // for (const seriesName in layout) {
+    //   const metricsNames = layout[seriesName];
+    //   const seriesResult = {};
+    //   result[seriesName] = seriesResult;
+    //   for (const metricName of metricsNames) {
+    //     const metricSeconds = qosTimeSeriesMetricSeconds[metricName];
+    //     const lastPointTimestamp = startTimestamp - (startTimestamp % metricSeconds);
+    //     seriesResult[metricName] = [];
+    //     for (let i = 0; i < windowLimit - 1; i++) {
+    //       const pointTimestamp = lastPointTimestamp - i * metricSeconds;
+    //       seriesResult[metricName].push({
+    //         timestamp: lastPointTimestamp - i * metricSeconds,
+    //         value: pointTimestamp % 1024,
+    //       });
+    //     }
+    //   }
+    // }
+    // return { windows: result };
   },
   audit_log(operation, entityId, data) {
     if (operation !== 'get') {

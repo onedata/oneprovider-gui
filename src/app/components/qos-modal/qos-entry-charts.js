@@ -97,7 +97,7 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'),
   spaceProvidersCount: reads('spaceProvidersProxy.content.all.length'),
 
   /**
-   * @type {ComputedProperty<PromiseObject<{ ['bytes'|'files']: AtmTimeSeriesSchema }>>}
+   * @type {ComputedProperty<PromiseObject<{ ['bytes'|'files']: TimeSeriesCollectionSchema }>>}
    */
   timeSeriesCollectionSchemasProxy: promise.object(computed(
     function timeSeriesCollectionSchemasProxy() {
@@ -208,8 +208,8 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'),
                             externalSourceName: 'chartData',
                             externalSourceParameters: {
                               collectionRef: 'bytes',
-                              timeSeriesNameGenerator: 'total',
-                              timeSeriesName: 'total',
+                              timeSeriesNameGenerator: totalTimeSeriesNameGenerator,
+                              timeSeriesName: totalTimeSeriesNameGenerator,
                               metricNames: this.metricNamesForTimeSeries
                                 .bytes[totalTimeSeriesNameGenerator],
                             },
@@ -456,16 +456,16 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'),
    */
   extractMetricNamesForTimeSeries(timeSeriesCollectionSchema, timeSeriesNameGenerator) {
     const timeSeriesSchemas = timeSeriesCollectionSchema?.timeSeriesSchemas;
-    const storageTimeSeriesSchema =
+    const timeSeriesSchema =
       timeSeriesSchemas?.findBy('nameGenerator', timeSeriesNameGenerator);
-    const metrics = storageTimeSeriesSchema?.metrics ?? {};
+    const metrics = timeSeriesSchema?.metrics ?? {};
     return Object.keys(metrics).filter((metricName) =>
       metrics[metricName]?.aggregator === 'sum'
     );
   },
 
   /**
-   * @param {{ collectionId: string, timeSeriesNameGenerator: string, metricNames: Array<string> }} sourceParameters
+   * @param {{ collectionRef: string, timeSeriesNameGenerator: string, metricNames: Array<string> }} sourceParameters
    * @returns {Promise<Array<{ id: string, name: string, color: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
    */
   async fetchDynamicSeriesConfigs({

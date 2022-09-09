@@ -482,36 +482,35 @@ export default Service.extend({
   },
 
   /**
-   * @param {string} fileId
-   * @param {TimeSeriesMetricsQueryParams} queryParams
-   * @returns {Promise<TimeSeriesMetricsQueryResult>}
+   * @returns {Promise<TimeSeriesCollectionSchema>}
    */
-  async queryTimeSeriesMetrics(
-    fileId,
-    queryParams
-  ) {
-    const requestGri = dirSizeStatsGri(fileId);
-    return this.get('timeSeriesManager')
-      .queryTimeSeriesMetrics(
-        requestGri,
-        Object.assign({}, queryParams, { mode: 'slice' })
-      );
+  async getDirSizeStatsTimeSeriesCollectionSchema() {
+    const requestGri = gri({
+      entityId: 'null',
+      entityType: fileEntityType,
+      aspect: 'dir_size_stats_collection_schema',
+      scope: 'public',
+    });
+    return this.timeSeriesManager.getTimeSeriesCollectionSchema(requestGri);
   },
 
   /**
    * @param {string} fileId
-   * @returns {Promise<FileEntryTimeSeriesCollections>}
+   * @returns {Promise<TimeSeriesLayout>}
    */
-  async getTimeSeriesCollections(fileId) {
+  async getDirSizeStatsTimeSeriesLayout(fileId) {
     const requestGri = dirSizeStatsGri(fileId);
-    return this.get('onedataGraph').request({
-      gri: requestGri,
-      operation: 'get',
-      subscribe: false,
-      data: {
-        mode: 'layout',
-      },
-    });
+    return this.timeSeriesManager.getTimeSeriesLayout(requestGri);
+  },
+
+  /**
+   * @param {string} fileId
+   * @param {TimeSeriesSliceQueryParams} queryParams
+   * @returns {Promise<TimeSeriesSlice>}
+   */
+  async queryDirSizeStatsTimeSeriesSlice(fileId, queryParams) {
+    const requestGri = dirSizeStatsGri(fileId);
+    return this.timeSeriesManager.queryTimeSeriesSlice(requestGri, queryParams);
   },
 
   /**
@@ -650,7 +649,7 @@ export function dirSizeStatsGri(fileId) {
   return gri({
     entityId: fileId,
     entityType: fileEntityType,
-    aspect: 'dir_size_stats',
+    aspect: 'dir_size_stats_collection',
     scope: 'private',
   });
 }

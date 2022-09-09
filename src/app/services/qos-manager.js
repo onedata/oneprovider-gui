@@ -86,40 +86,11 @@ export default Service.extend({
    * @returns {Promise<TimeSeriesCollectionSchema>}
    */
   async getTransferTimeSeriesCollectionSchema(collectionRef) {
-    // FIXME: uncomment
-    // const gri = getGri('null', {
-    //   aspect: `transfer_stats_collection_schema,${collectionRef}`,
-    // });
-    // return this.timeSeriesManager.getTimeSeriesCollectionSchema(gri);
-    const metrics = {
-      minute: {
-        aggregator: 'sum',
-        resolution: 60,
-      },
-      hour: {
-        aggregator: 'sum',
-        resolution: 60 * 60,
-      },
-      day: {
-        aggregator: 'sum',
-        resolution: 60 * 60 * 24,
-      },
-      month: {
-        aggregator: 'sum',
-        resolution: 60 * 60 * 24 * 30,
-      },
-    };
-    return {
-      timeSeriesSchemas: [{
-        nameGeneratorType: 'exact',
-        nameGenerator: 'total',
-        metrics,
-      }, {
-        nameGeneratorType: 'addPrefix',
-        nameGenerator: 'st_',
-        metrics,
-      }],
-    };
+    const gri = getGri('null', {
+      aspect: `transfer_stats_collection_schema,${collectionRef}`,
+      scope: 'public',
+    });
+    return this.timeSeriesManager.getTimeSeriesCollectionSchema(gri);
   },
 
   /**
