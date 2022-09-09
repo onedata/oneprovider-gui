@@ -36,6 +36,7 @@
 
 // a full-height modal that looks like content overlay (currently starting from right)
 .modal.modal-content-overlay {
+  --modal-overlay-shadow-size: 4px;
   .modal-dialog {
     width: calc(100% - #{$content-col-padding * 2});
 
@@ -60,7 +61,7 @@
   &.in {
     .modal-dialog {
       transform: none;
-      box-shadow: 0px 0px 8px 0px rgb(0 0 0 / 10%);
+      box-shadow: 0px 0px calc(var(--modal-overlay-shadow-size) * 2) 0px rgb(0 0 0 / 10%);
 
       .modal-content {
         height: 100%;
@@ -101,12 +102,12 @@
     transform: translateX(100%);
     transition: transition-ease(transform);
 
-    top: 0;
+    top: auto;
     bottom: 0;
     right: 0;
     left: initial;
     max-height: none;
-    height: 100%;
+    height: calc(100% - var(--modal-overlay-shadow-size));
     background-color: #fff;
     border-radius: 0;
   }
