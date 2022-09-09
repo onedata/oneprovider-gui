@@ -9,7 +9,7 @@ import { entityType as storageEntityType } from 'oneprovider-gui/models/storage'
 import sinon from 'sinon';
 import { all as allFulfilled } from 'rsvp';
 
-export default class FilePermissionsHelper {
+export default class FileDistributionHelper {
   /**
    * @param {Mocha.Context} context
    */
@@ -61,14 +61,6 @@ export default class FilePermissionsHelper {
     await this.beforeRender();
     await this.context.render(hbs`
       {{file-distribution/body
-        viewModel=viewModel
-      }}
-    `);
-  }
-  async renderAll() {
-    await this.beforeRender();
-    await this.context.render(hbs`
-      {{file-permissions/body
         viewModel=viewModel
       }}
     `);

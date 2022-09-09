@@ -13,7 +13,7 @@
       {{/if}}
     </p>
     {{file-distribution/oneproviders-distribution
-      visible=(eq activeTab "distribution-summary")
+      visible=true
       batchMode=true
       fileDistributionData=fileDistributionData
       oneproviders=oneproviders
@@ -54,6 +54,7 @@
             {{#listItem.content}}
               <div class="list-content">
                 {{file-distribution/oneproviders-distribution
+                  visible=listItem.isActive
                   oneproviders=oneproviders
                   fileDistributionData=(array fileDistDataContainer)
                   space=space
@@ -70,6 +71,7 @@
     {{else}}
       {{#let fileDistributionData.firstObject as |fileDistDataContainer|}}
         {{file-distribution/oneproviders-distribution
+          visible=true
           oneproviders=oneproviders
           fileDistributionData=(array fileDistDataContainer)
           space=space
