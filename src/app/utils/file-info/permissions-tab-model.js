@@ -9,24 +9,9 @@
 import BaseTabModel from './base-tab-model';
 import { computed } from '@ember/object';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
-import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { inject as service } from '@ember/service';
 import { conditional, raw } from 'ember-awesome-macros';
 
-/**
- * @typedef {Object} PermissionsViewModelCreateData
- * @property {boolean} readonly
- */
-
-const mixins = [
-  OwnerInjector,
-  I18n,
-];
-
-export default BaseTabModel.extend(...mixins, {
-  i18n: service(),
-
+export default BaseTabModel.extend({
   /**
    * @override
    */

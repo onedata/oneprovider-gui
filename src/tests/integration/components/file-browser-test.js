@@ -502,11 +502,11 @@ describe('Integration | Component | file browser (main component)', function () 
             async function (done) {
               this.set('dir.effQosMembership', effQosMembership);
               this.set('spacePrivileges', { view: true, viewQos: true });
-              const openQos = sinon.spy();
-              this.set('openQos', openQos);
+              const openInfo = sinon.spy();
+              this.set('openInfo', openInfo);
 
               await renderComponent(this);
-              expect(openQos).to.have.not.been.called;
+              expect(openInfo).to.have.not.been.called;
 
               const headStatusBar = findAll('.filesystem-table-head-status-bar');
               const qosTagGroup = headStatusBar[0]
@@ -522,8 +522,8 @@ describe('Integration | Component | file browser (main component)', function () 
               }
               await click(qosTagGroup[0].querySelector('.file-status-qos'));
               await settled();
-              expect(openQos).to.have.been.calledOnce;
-              expect(openQos).to.have.been.calledWith([this.get('dir')]);
+              expect(openInfo).to.have.been.calledOnce;
+              expect(openInfo).to.have.been.calledWith([this.get('dir')], 'qos');
               done();
             }
           );
@@ -850,12 +850,10 @@ async function renderComponent(testCase) {
     openCreateNewDirectory,
     openInfo,
     openDatasets,
-    openQos,
   } = testCase.getProperties(
     'openCreateNewDirectory',
     'openInfo',
     'openDatasets',
-    'openQos'
   );
   setDefaultTestProperty(testCase, 'spacePrivileges', {});
   setDefaultTestProperty(testCase, 'spaceId', 'some_space_id');
@@ -865,7 +863,6 @@ async function renderComponent(testCase) {
       notStubbed('openCreateNewDirectory'),
     openDatasets: openDatasets || notStubbed('openDatasets'),
     openInfo: openInfo || notStubbed('openInfo'),
-    openQos: openQos || notStubbed('openQos'),
   }));
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.set('changeSelectedItemsImmediately', function (selectedItems) {

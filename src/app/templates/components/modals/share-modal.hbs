@@ -1,0 +1,64 @@
+{{#global-modal
+  classNames="share-modal"
+  modalId=modalId
+  allowClose=false
+  onHide=(action "onHide")
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>{{tt this "header" fileType=(tt this (concat "fileType." file.type))}}</h1>
+    {{modal-file-subheader files=(array file)}}
+    {{file-shares/other-view-forbidden-warning file=file aboutTimeType="future"}}
+  {{/modal.header}}
+  {{#modal.body}}
+    <div class="share-modal-loadable-row loadable-row">
+      <p>{{tt this "setName"}}:</p>
+      <div class="row">
+        {{#bs-form class="form-horizontal without-labels" as |form|}}
+          {{#form.group
+            validation=(if validationError "error")
+            class=(concat-classes
+              "new-share-name-form-group"
+              (if validationError "has-message")
+            )
+          }}
+            <input
+              id={{inputId}}
+              type="text"
+              class="form-control new-share-name"
+              value={{newShareName}}
+              oninput={{action (mut newShareName) value="target.value"}}
+              onkeydown={{invoke-on-enter (action "submitNew")}}
+              disabled={{isSaving}}
+              autofocus=true
+            >
+            <div class="form-message form-message-name {{unless validationError "transparent"}}">
+              {{validationErrorMessage}}
+              {{#if (eq validationError "regexp")}}
+                <div class="inline-icon-container hint-trigger clickable">
+                  {{one-label-tip title=(tt this "regexpHint") class="share-name-regexp-hint"}}
+                </div>
+              {{/if}}
+            </div>
+          {{/form.group}}
+        {{/bs-form}}
+      </div>
+    </div>
+  {{/modal.body}}
+  {{#modal.footer}}
+    {{#one-button
+      onClick=modal.close
+    }}
+      {{tt this "cancel"}}
+    {{/one-button}}
+    {{#one-button
+      type="primary"
+      buttonType="submit"
+      onClick=(action "submitNew")
+      isPending=isSaving
+      disabled=submitNewDisabled
+    }}
+      {{tt this "createNew"}}
+    {{/one-button}}
+  {{/modal.footer}}
+{{/global-modal}}

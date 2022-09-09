@@ -631,18 +631,18 @@ const atmStoreHandlers = {
       Math.max((Number(index) || 0) + offset, 0),
       maxEntriesCount
     );
-    const endPositon = Math.min(startPosition + limit, maxEntriesCount);
+    const endPositon = Math.min(startPosition + limit, maxEntriesCount - 1);
     const storeEntries = [];
     const entryGeneratorFunc = entityId.startsWith('auditLog') ?
       generateStoreAuditLogContentEntry : generateStoreContentEntry;
 
-    for (let i = startPosition; i < endPositon; i++) {
-      storeEntries.push(entryGeneratorFunc({ startPosition, index: i }));
+    for (let i = startPosition; i <= endPositon; i++) {
+      storeEntries.push(entryGeneratorFunc(i));
     }
 
     const storeType = type.slice(0, type.indexOf('StoreContentBrowseOptions'));
-    const isLast = startPosition >= maxEntriesCount;
-    if (storeType === 'list') {
+    const isLast = endPositon >= maxEntriesCount - 1;
+    if (storeType === 'list' || storeType === 'treeForest') {
       return {
         items: storeEntries,
         isLast,
@@ -1295,7 +1295,7 @@ function atmWorkflowExecutionSummaryToAttrsData(record) {
   });
 }
 
-function generateStoreAuditLogContentEntry({ index }) {
+function generateStoreAuditLogContentEntry(index) {
   const startTimestamp = 1658912037;
   const allSeverities = Object.values(EntrySeverity);
   const isUserLog = index % 10 === 0;
@@ -1321,8 +1321,8 @@ function generateStoreAuditLogContentEntry({ index }) {
   };
 }
 
-function generateStoreContentEntry({ startPosition, index }) {
-  const valueKeys = _.range(Math.ceil((startPosition + 1) / 10))
+function generateStoreContentEntry(index) {
+  const valueKeys = _.range(Math.ceil((index + 1) / 10))
     .map(j => `key${j}`);
   const value = valueKeys.reduce((obj, key) => {
     obj[key] = 123;

@@ -1,0 +1,151 @@
+<div class="qos-main-line">
+  <div class="qos-general-info">
+    <span class="item-icon-container qos-status-icon-container">
+      {{one-icon class=(concat "item-icon qos-status-" statusId) icon=statusIcon}}
+      {{one-tooltip title=(tt this (concat "statusHint." statusId))}}
+    </span>
+    <span class="header-replicas-number">
+      <span class="replicas-number-text">
+        <span class="replicas-number">
+          {{if (gt replicasNumber 99) "99+" replicasNumber}}
+        </span>
+        {{tt this (if (gt replicasNumber 1) "replicas" "replica")}}
+        {{#if (gt replicasNumber 99)}}
+          {{one-tooltip title=replicasNumber}}
+        {{/if}}
+      </span>
+    </span>
+    <div class="qos-buttons">
+      {{#one-copy-button
+        class="clipboard-btn qos-expression-clipboard-btn copy-btn-icon copy-trigger clickable"
+        parentElementId=elementId
+        localTarget="input.raw-expression-infix"
+      }}
+        {{one-icon
+          icon="circle-copy"
+          class="copy-btn-icon icon-trigger"
+        }}
+        {{#if rawExpressionInfix}}
+          {{!-- do not break line, because Firefox interprets it as extra line in raw code view --}}
+          {{#one-tooltip class="tooltip-lg"}}<code class="raw-expression-infix-preview">{{rawExpressionInfix}}</code>{{/one-tooltip}}
+        {{/if}}
+      {{/one-copy-button}}
+      {{one-icon
+        id=idInfoTriggerId
+        icon="circle-id"
+        class="icon-trigger id-trigger clickable"
+      }}
+      {{#one-webui-popover
+        class="id-info"
+        popoverStyle="id-info over-modals"
+        triggerSelector=(concat "#" idInfoTriggerId)
+        as |popover|
+      }}
+        <div class="form-group without-margin">
+          <label class="control-label">{{tt this "qosId"}}:</label>
+          {{one-clipboard-line
+            size="sm"
+            value=qosId
+            showText=false
+            btnType="default"
+          }}
+        </div>
+      {{/one-webui-popover}}
+      {{#one-icon
+        id=removeTriggerId
+        icon="browser-delete"
+        class=(concat-classes
+          "icon-trigger remove-qos-trigger"
+          (if direct "clickable enabled" "disabled")
+        )
+      }}
+        {{#if inherited}}
+          {{one-tooltip title=(tt this "disabledRemoveHint")}}
+        {{/if}}
+      {{/one-icon}}
+      {{#if direct}}
+        {{#one-switchable-popover-modal
+          class="qos-remove-question"
+          triggersConfiguration=(concat "#" removeTriggerId)
+          popoverStyle="qos-remove-question over-modals"
+          submit=(action "confirmRemove")
+          as |ospm|
+        }}
+          <h1>{{tt this "removeQuestion.header"}}</h1>
+          <p>{{tt this "removeQuestion.information"}}</p>
+          <div class="btn-toolbar">
+            {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+              {{tt this "removeQuestion.cancel"}}
+            {{/bs-button}}
+            {{#one-button
+              type="danger"
+              buttonType="submit"
+              size="sm"
+              onClick=ospm.submit
+            }}
+              {{one-icon icon="browser-delete"}} <span>{{tt this "removeQuestion.remove"}}</span>
+            {{/one-button}}
+          </div>
+        {{/one-switchable-popover-modal}}
+      {{/if}}
+    </div>
+  </div>
+  <div class="qos-expression-text-field">
+    {{qos-expression-viewer
+      valuesBuilder=valuesBuilder
+      expressionRpn=expressionRpn
+      storages=storages
+      providers=providers
+      queryProperties=queryProperties
+    }}
+  </div>
+</div>
+{{#unless direct}}
+  <div class="qos-subheader qos-path-subheader with-icon-left">
+    <span class="inherited-text">
+      <div class="inline-icon-container info-icon">
+        {{one-icon icon="inheritance"}}
+      </div>
+      {{tt this "inheritedFrom"}}
+    </span>
+    {{file-path
+      file=qosSourceFile
+      target=navigateDataTarget
+      onLinkClicked=(action "fileLinkClicked")
+    }}
+  </div>
+{{/unless}}
+<div class="qos-subheader qos-info-subheader with-icon-left">
+  {{qos-evaluation-info qosEvaluationProxy=qosEvaluationProxy}}
+  {{file-qos/qos-entry-details-switch
+    value=detailsType
+    onChange=(action "changeDetailsType")
+  }}
+</div>
+{{#one-collapse
+  collapsed=(not-eq detailsType "charts")
+  onHidden=(action "hideCharts")
+}}
+  {{#if areChartsRendered}}
+    {{file-qos/qos-entry-charts
+      spaceId=qosItem.qosSourceFile.spaceEntityId
+      qosRequirementId=qosId
+    }}
+  {{/if}}
+{{/one-collapse}}
+{{#one-collapse
+  collapsed=(not-eq detailsType "logs")
+  onHidden=(action "hideLogs")
+}}
+  {{file-qos/qos-entry-logs
+    qosRequirementId=qosId
+    fileType=qosItem.qosSourceFile.type
+    spaceId=qosItem.qosSourceFile.spaceEntityId
+    isRendered=areLogsRendered
+  }}
+{{/one-collapse}}
+<input
+  type="text"
+  value={{rawExpressionInfix}}
+  class="hidden-clipboard-source raw-expression-infix"
+>

@@ -302,7 +302,7 @@ export default Service.extend({
         subscribe: false,
       });
     } catch (error) {
-      if (error && error.id === 'atmStoreEmpty') {
+      if (error && error.id === 'atmStoreContentNotSet') {
         return null;
       } else {
         throw error;

@@ -17,8 +17,18 @@
 import EmberObject from '@ember/object';
 import { conditional, not, raw } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { inject as service } from '@ember/service';
 
-export default EmberObject.extend({
+const mixins = [
+  OwnerInjector,
+  I18n,
+];
+
+export default EmberObject.extend(...mixins, {
+  i18n: service(),
+
   /**
    * @virtual
    * @type {Components.FileInfoModal}

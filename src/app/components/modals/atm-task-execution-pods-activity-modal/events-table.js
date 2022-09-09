@@ -11,11 +11,6 @@ import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-/**
- * @typedef {Object} EventsTableApi
- * @property {() => void} recomputeTableItems
- */
-
 export default Component.extend(I18n, {
   classNames: ['events-table'],
 

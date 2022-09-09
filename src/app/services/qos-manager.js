@@ -50,6 +50,7 @@ export default Service.extend({
   onedataGraph: service(),
   timeSeriesManager: service(),
   auditLogManager: service(),
+  fileManager: service(),
 
   async getRecord(qosGri, reload = false) {
     const cachedRecord = reload ?
@@ -65,20 +66,32 @@ export default Service.extend({
     return this.getRecord(getGri(entityId, { scope }));
   },
 
-  createQosRequirement(file, expression, replicasNum) {
-    return this.get('store').createRecord('qosRequirement', {
-      replicasNum,
-      _meta: {
-        additionalData: {
-          fileId: get(file, 'cdmiObjectId'),
-          expression,
+  async createQosRequirement(file, expression, replicasNum) {
+    try {
+      return await this.get('store').createRecord('qosRequirement', {
+        replicasNum,
+        _meta: {
+          additionalData: {
+            fileId: get(file, 'cdmiObjectId'),
+            expression,
+          },
         },
-      },
-    }).save();
+      }).save();
+    } finally {
+      this.fileManager.refreshRelatedFiles(file);
+    }
   },
 
-  removeQosRequirement(qosRequirement) {
-    return qosRequirement.destroyRecord();
+  async removeQosRequirement(qosRequirement) {
+    const filePromise = get(qosRequirement, 'file');
+    try {
+      return qosRequirement.destroyRecord();
+    } finally {
+      const file = await filePromise;
+      if (file) {
+        this.fileManager.refreshRelatedFiles(file);
+      }
+    }
   },
 
   /**

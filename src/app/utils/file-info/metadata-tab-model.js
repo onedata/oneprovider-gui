@@ -11,19 +11,9 @@ import { conditional, raw } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import FileMetadataViewModel from 'oneprovider-gui/utils/file-metadata-view-model';
-import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import { inject as service } from '@ember/service';
 
-const mixins = [
-  OwnerInjector,
-  I18n,
-];
-
-export default BaseTabModel.extend(...mixins, {
-  i18n: service(),
-
+export default BaseTabModel.extend({
   /**
    * @override
    */

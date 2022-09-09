@@ -425,7 +425,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           const file = EmberObject.create({
             entityId: fileId,
             belongsTo(relation) {
-              if (relation === 'storageLocations') {
+              if (relation === 'storageLocationInfo') {
                 return { reload() { return ''; } };
               }
             },

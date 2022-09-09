@@ -1,5 +1,5 @@
 /**
- * Tab model for showing file-permissions in file-info-modal
+ * Model and logic for file-permissions components
  *
  * @author Jakub Liput, Michał Borzęcki
  * @copyright (C) 2022 ACK CYFRONET AGH

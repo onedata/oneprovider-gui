@@ -18,7 +18,7 @@ import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
-  classNames: ['row', 'row-single-file-info', 'single-file-info'],
+  classNames: ['single-file-info', 'details-with-icon'],
 
   appProxy: service('appProxy'),
   parentAppNavigation: service('parentAppNavigation'),

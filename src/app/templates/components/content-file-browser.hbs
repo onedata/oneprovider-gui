@@ -59,16 +59,6 @@
     }}
   {{/if}}
 
-  {{#if fileToShare}}
-    {{file-browser/fb-share-modal
-      open=true
-      file=fileToShare
-      managePrivilege=spacePrivileges.manageShares
-      onHide=(action closeShareModal)
-      getShareUrl=(action "getShareUrl")
-    }}
-  {{/if}}
-
   {{#if filesToRemove}}
     {{file-browser/fb-remove-modal
       open=true
@@ -98,18 +88,6 @@
       getDatasetsUrl=(action "getDatasetsUrl")
       getDataUrl=(action "getFileUrl")
       onCloseAllModals=(action "closeAllModals")
-    }}
-  {{/if}}
-
-  {{#if filesToShowQos}}
-    {{qos-modal
-      open=true
-      files=filesToShowQos
-      space=spaceProxy.content
-      showPrivilege=spacePrivileges.viewQos
-      editPrivilege=spacePrivileges.manageQos
-      onHide=(action closeQosModal)
-      getDataUrl=(action "getFileUrl")
     }}
   {{/if}}
 

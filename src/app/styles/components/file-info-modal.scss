@@ -8,7 +8,7 @@
   .file-info-modal-header {
     padding-bottom: 0;
     .file-info-header-extension {
-      margin-top: $modal-title-padding;
+      margin-top: $modal-title-padding + 15px;
     }
   }
 
@@ -122,10 +122,20 @@
         line-height: 0;
         margin-left: 0.2em;
       }
+      .tab-status-icon {
+        color: var(--tab-status-icon-color, 'inherit');
+      }
+      &.tab-status-default {
+        --tab-status-icon-color: #{$color-one-default};
+      }
       &.tab-status-success {
-        .tab-status-icon {
-          color: $color-one-success;
-        }
+        --tab-status-icon-color: #{$color-one-success};
+      }
+      &.tab-status-warning {
+        --tab-status-icon-color: #{$color-one-warning};
+      }
+      &.tab-status-danger {
+        --tab-status-icon-color: #{$color-one-danger};
       }
     }
   }

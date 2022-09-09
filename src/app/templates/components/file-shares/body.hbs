@@ -1,0 +1,22 @@
+{{#promise-proxy-container proxy=sharesProxy}}
+  {{#if shares.length}}
+    {{#each shares as |share|}}
+      {{file-shares/item
+        share=share
+        getShareUrl=(action "getShareUrl")
+      }}
+    {{/each}}
+  {{else}}
+    {{#content-info
+      class="scroll-breakpoint-600 fill-flex-using-column content-info-no-shares"
+      header=(tt this "noShares.header" fileType=fileTypeText)
+      buttonAction=(action "createShare")
+      buttonLabel=(tt this "noShares.buttonCreateShare")
+      buttonClass="create-share-btn"
+      buttonDisabled=isCreateShareDisabled
+      buttonTip=createShareDisabledTip
+    }}
+      {{file-shares/other-view-forbidden-warning file=file aboutTimeType="future"}}
+    {{/content-info}}
+  {{/if}}
+{{/promise-proxy-container}}
