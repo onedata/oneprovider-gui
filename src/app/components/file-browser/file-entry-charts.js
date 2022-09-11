@@ -24,7 +24,7 @@ const timeSeriesNameGenerators = {
   sizeOnStorage: 'storage_use_',
 };
 
-export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayout'), {
+export default Component.extend(I18n, createDataProxyMixin('timeSeriesCollectionLayout'), {
   classNames: ['file-entry-charts'],
 
   i18n: service(),
@@ -63,10 +63,10 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayout'), 
   fileId: reads('file.entityId'),
 
   /**
-   * Timestamp of the last `timeSeriesLayout` proxy reload
+   * Timestamp of the last `timeSeriesCollectionLayout` proxy reload
    * @type {number}
    */
-  lastTimeSeriesLayoutReloadTimestamp: undefined,
+  lastTSCollectionLayoutReloadTimestamp: undefined,
 
   /**
    * @type {ComputedProperty<Utils.ColorGenerator>}
@@ -497,7 +497,7 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayout'), 
     metricNames,
   }) {
     const spaceId = get(this.space, 'entityId');
-    const timeSeriesNames = Object.keys(await this.getTimeSeriesLayout());
+    const timeSeriesNames = Object.keys(await this.getTimeSeriesCollectionLayout());
     const dynamicSeries = await allFulfilled(
       timeSeriesNames
       .filter((timeSeriesName) => timeSeriesName.startsWith(timeSeriesNameGenerator))
@@ -581,31 +581,31 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayout'), 
   },
 
   /**
-   * @returns {Promise<TimeSeriesLayout>}
+   * @returns {Promise<TimeSeriesCollectionLayout>}
    */
-  async getTimeSeriesLayout() {
+  async getTimeSeriesCollectionLayout() {
     const nowTimestamp = Math.floor(Date.now() / 1000);
     if (
-      !this.lastTimeSeriesLayoutReloadTimestamp ||
-      nowTimestamp - this.lastTimeSeriesLayoutReloadTimestamp >= 15
+      !this.lastTSCollectionLayoutReloadTimestamp ||
+      nowTimestamp - this.lastTSCollectionLayoutReloadTimestamp >= 15
     ) {
-      this.set('lastTimeSeriesLayoutReloadTimestamp', nowTimestamp);
-      return this.updateTimeSeriesLayoutProxy();
+      this.set('lastTSCollectionLayoutReloadTimestamp', nowTimestamp);
+      return this.updateTimeSeriesCollectionLayoutProxy();
     } else {
-      return this.getTimeSeriesLayoutProxy();
+      return this.getTimeSeriesCollectionLayoutProxy();
     }
   },
 
   /**
    * @override
    */
-  async fetchTimeSeriesLayout() {
-    return this.fileManager.getDirSizeStatsTimeSeriesLayout(this.fileId);
+  async fetchTimeSeriesCollectionLayout() {
+    return this.fileManager.getDirSizeStatsTimeSeriesCollectionLayout(this.fileId);
   },
 
   actions: {
     /**
-     * @returns {Promise<Array<AtmTimeSeriesSchema>>}
+     * @returns {Promise<Array<TimeSeriesSchema>>}
      */
     async getTimeSeriesSchemas() {
       return (await this.timeSeriesCollectionSchemaProxy)?.timeSeriesSchemas;
@@ -613,7 +613,7 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayout'), 
 
     /**
      * @param {{ batchedQuery: BatchedTimeSeriesQuery }} param
-     * @returns {Promise<TimeSeriesSlice>}
+     * @returns {Promise<TimeSeriesCollectionSlice>}
      */
     async queryBatcherFetchData({ batchedQuery }) {
       const queryParams = {
@@ -622,7 +622,7 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayout'), 
         windowLimit: batchedQuery.windowLimit,
       };
 
-      const slice = await this.fileManager.queryDirSizeStatsTimeSeriesSlice(
+      const slice = await this.fileManager.getDirSizeStatsTimeSeriesCollectionSlice(
         this.fileId,
         queryParams
       );

@@ -496,21 +496,21 @@ export default Service.extend({
 
   /**
    * @param {string} fileId
-   * @returns {Promise<TimeSeriesLayout>}
+   * @returns {Promise<TimeSeriesCollectionLayout>}
    */
-  async getDirSizeStatsTimeSeriesLayout(fileId) {
+  async getDirSizeStatsTimeSeriesCollectionLayout(fileId) {
     const requestGri = dirSizeStatsGri(fileId);
-    return this.timeSeriesManager.getTimeSeriesLayout(requestGri);
+    return this.timeSeriesManager.getTimeSeriesCollectionLayout(requestGri);
   },
 
   /**
    * @param {string} fileId
-   * @param {TimeSeriesSliceQueryParams} queryParams
-   * @returns {Promise<TimeSeriesSlice>}
+   * @param {TimeSeriesCollectionSliceQueryParams} queryParams
+   * @returns {Promise<TimeSeriesCollectionSlice>}
    */
-  async queryDirSizeStatsTimeSeriesSlice(fileId, queryParams) {
+  async getDirSizeStatsTimeSeriesCollectionSlice(fileId, queryParams) {
     const requestGri = dirSizeStatsGri(fileId);
-    return this.timeSeriesManager.queryTimeSeriesSlice(requestGri, queryParams);
+    return this.timeSeriesManager.getTimeSeriesCollectionSlice(requestGri, queryParams);
   },
 
   /**

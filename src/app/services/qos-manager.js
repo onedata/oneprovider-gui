@@ -109,25 +109,25 @@ export default Service.extend({
   /**
    * @param {string} qosRequirementId
    * @param {string} collectionRef
-   * @returns {Promise<TimeSeriesLayout>}
+   * @returns {Promise<TimeSeriesCollectionLayout>}
    */
-  async getTransferTimeSeriesLayout(
+  async getTransferTimeSeriesCollectionLayout(
     qosRequirementId,
     collectionRef
   ) {
     const gri = getGri(qosRequirementId, {
       aspect: `transfer_stats_collection,${collectionRef}`,
     });
-    return this.timeSeriesManager.getTimeSeriesLayout(gri);
+    return this.timeSeriesManager.getTimeSeriesCollectionLayout(gri);
   },
 
   /**
    * @param {string} qosRequirementId
    * @param {string} collectionRef
-   * @param {TimeSeriesSliceQueryParams} queryParams
-   * @returns {Promise<TimeSeriesSlice>}
+   * @param {TimeSeriesCollectionSliceQueryParams} queryParams
+   * @returns {Promise<TimeSeriesCollectionSlice>}
    */
-  async queryTransferTimeSeriesSlice(
+  async getTransferTimeSeriesCollectionSlice(
     qosRequirementId,
     collectionRef,
     queryParams
@@ -135,7 +135,7 @@ export default Service.extend({
     const gri = getGri(qosRequirementId, {
       aspect: `transfer_stats_collection,${collectionRef}`,
     });
-    return this.timeSeriesManager.queryTimeSeriesSlice(gri, queryParams);
+    return this.timeSeriesManager.getTimeSeriesCollectionSlice(gri, queryParams);
   },
 
   /**

@@ -9,29 +9,6 @@
 
 import Service, { inject as service } from '@ember/service';
 
-/**
- * @typedef {Object} TimeSeriesCollectionSchema
- * @property {Array<AtmTimeSeriesSchema>} timeSeriesSchemas
- */
-
-/**
- * @typedef {Object} TimeSeriesSliceQueryParams
- * @property {Object<string,Array<string>>} layout object with series names as keys
- *   and arrays of metrics names as values
- * @property {number|null} startTimestamp
- * @property {number} windowLimit
- */
-
-/**
- * @typedef {Object<string,Object<string,Array<{ timestamp: number, value: number }>>} TimeSeriesSlice
- *   is a nested map (seriesName -> (metricName -> array of points))
- */
-
-/**
- * @typedef {Object<string, Array<string>} TimeSeriesLayout
- *   is a map (seriesName -> (array of metric names))
- */
-
 export default Service.extend({
   onedataGraph: service(),
 
@@ -51,9 +28,9 @@ export default Service.extend({
 
   /**
    * @param {string} timeSeriesCollectionGri
-   * @returns {Promise<TimeSeriesLayout>}
+   * @returns {Promise<TimeSeriesCollectionLayout>}
    */
-  async getTimeSeriesLayout(timeSeriesCollectionGri) {
+  async getTimeSeriesCollectionLayout(timeSeriesCollectionGri) {
     const result = await this.onedataGraph.request({
       gri: timeSeriesCollectionGri,
       operation: 'get',
@@ -68,10 +45,10 @@ export default Service.extend({
 
   /**
    * @param {string} timeSeriesCollectionGri
-   * @param {TimeSeriesSliceQueryParams} queryParams
-   * @returns {Promise<TimeSeriesSlice>}
+   * @param {TimeSeriesCollectionSliceQueryParams} queryParams
+   * @returns {Promise<TimeSeriesCollectionSlice>}
    */
-  async queryTimeSeriesSlice(timeSeriesCollectionGri, queryParams) {
+  async getTimeSeriesCollectionSlice(timeSeriesCollectionGri, queryParams) {
     if (!queryParams) {
       return {};
     }

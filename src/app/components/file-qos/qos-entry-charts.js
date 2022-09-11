@@ -19,7 +19,7 @@ import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 const perStorageTimeSeriesNameGenerator = 'st_';
 const totalTimeSeriesNameGenerator = 'total';
 
-export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'), {
+export default Component.extend(I18n, createDataProxyMixin('timeSeriesCollectionLayouts'), {
   classNames: ['qos-entry-charts'],
 
   i18n: service(),
@@ -47,10 +47,10 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'),
   qosRequirementId: undefined,
 
   /**
-   * Timestamp of the last `timeSeriesLayouts` proxy reload
+   * Timestamp of the last `timeSeriesCollectionLayouts` proxy reload
    * @type {number}
    */
-  lastTimeSeriesLayoutReloadTimestamp: undefined,
+  lastTSCollectionLayoutsReloadTimestamp: undefined,
 
   /**
    * @type {ComputedProperty<Utils.ColorGenerator>}
@@ -506,7 +506,7 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'),
     );
 
     const timeSeriesNames = Object.keys(
-      (await this.getTimeSeriesLayout(collectionRef))
+      (await this.getTimeSeriesCollectionLayout(collectionRef))
     );
     const storagesIds = timeSeriesNames
       ?.map((timeSeriesName) => {
@@ -582,19 +582,19 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'),
 
   /**
    * @param {string} collectionRef
-   * @returns {Promise<TimeSeriesLayout>}
+   * @returns {Promise<TimeSeriesCollectionLayout>}
    */
-  async getTimeSeriesLayout(collectionRef) {
+  async getTimeSeriesCollectionLayout(collectionRef) {
     const nowTimestamp = Math.floor(Date.now() / 1000);
     let proxy;
     if (
-      !this.lastTimeSeriesLayoutReloadTimestamp ||
-      nowTimestamp - this.lastTimeSeriesLayoutReloadTimestamp >= 15
+      !this.lastTSCollectionLayoutsReloadTimestamp ||
+      nowTimestamp - this.lastTSCollectionLayoutsReloadTimestamp >= 15
     ) {
-      this.set('lastTimeSeriesLayoutReloadTimestamp', nowTimestamp);
-      proxy = this.updateTimeSeriesLayoutsProxy();
+      this.set('lastTSCollectionLayoutsReloadTimestamp', nowTimestamp);
+      proxy = this.updateTimeSeriesCollectionLayoutsProxy();
     } else {
-      proxy = this.getTimeSeriesLayoutsProxy();
+      proxy = this.getTimeSeriesCollectionLayoutsProxy();
     }
     return (await proxy)?.[collectionRef] ?? {};
   },
@@ -602,13 +602,13 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'),
   /**
    * @override
    */
-  async fetchTimeSeriesLayouts() {
+  async fetchTimeSeriesCollectionLayouts() {
     return hashFulfilled({
-      bytes: this.qosManager.getTransferTimeSeriesLayout(
+      bytes: this.qosManager.getTransferTimeSeriesCollectionLayout(
         this.qosRequirementId,
         'bytes',
       ),
-      files: this.qosManager.getTransferTimeSeriesLayout(
+      files: this.qosManager.getTransferTimeSeriesCollectionLayout(
         this.qosRequirementId,
         'files',
       ),
@@ -618,7 +618,7 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'),
   actions: {
     /**
      * @param {string} collectionRef
-     * @returns {Promise<Array<AtmTimeSeriesSchema>>}
+     * @returns {Promise<Array<TimeSeriesSchema>>}
      */
     async getTimeSeriesSchemas(collectionRef) {
       return (await this.timeSeriesCollectionSchemasProxy)
@@ -636,7 +636,7 @@ export default Component.extend(I18n, createDataProxyMixin('timeSeriesLayouts'),
         windowLimit: batchedQuery.windowLimit,
       };
 
-      return this.qosManager.queryTransferTimeSeriesSlice(
+      return this.qosManager.getTransferTimeSeriesCollectionSlice(
         this.qosRequirementId,
         batchedQuery.collectionRef,
         queryParams
