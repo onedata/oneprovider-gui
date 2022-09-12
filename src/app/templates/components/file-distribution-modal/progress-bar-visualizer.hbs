@@ -8,11 +8,14 @@
         target={{navigateProvidersTarget}}
       >
         {{tt this "disableStatistics"}}
-        {{one-icon icon="overview" class="inline-icon-container"}}
+        {{one-icon icon="overview" class="inline-icon-container dir-stats-icon"}}
+        {{#one-tooltip}}
+          {{tt this "naTip"}}
+          {{one-icon icon="link-external" class="dir-stats-settings-external-link"}}
+        {{/one-tooltip}}
       </a>
     </div>
     <div class="progress-bar-background"></div>
-    {{one-tooltip title=(tt this "naTip")}}
   {{else}}
     <div class="progress-bar bar" style={{occupiedSpaceBarStyle}}>
       <div class="size-label">

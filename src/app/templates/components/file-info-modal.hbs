@@ -62,32 +62,20 @@
         {{#if isSizeTabVisible}}
           {{#nav.item
             active=(eq tab.activeId "size")
-            disabled=(eq itemType "symlink")
           }}
             <a class={{concat-classes
                 "nav-link nav-link-size"
                 (if (eq tab.activeId "size") "active")
+                (if (not isSizeStatsDisabled) "with-status-icon tab-status-success")
               }}
               role="tab"
               {{action "changeTab" "size"}}
             >
-              <div 
-                class={{concat-classes 
-                  "tab-label-size"
-                  (if (not isSizeTabDisabled) "with-status-icon tab-status-success")
-                  }}
-              >
-                {{tt this "tabs.size.tabTitle"}}
-                {{#if (not isSizeTabDisabled)}}
-                  {{one-icon class="tab-status-icon" icon="checkbox-filled"}}
-                {{/if}}
-              </div>
+              {{tt this "tabs.size.tabTitle"}}
+              {{#if (not isSizeStatsDisabled)}}
+                {{one-icon class="tab-status-icon" icon="checkbox-filled"}}
+              {{/if}}
             </a>
-            {{#if (eq itemType "symlink")}}
-              {{one-tooltip
-                title=(tt this "tabs.size.disabledTip")
-              }}
-            {{/if}}
           {{/nav.item}}
         {{/if}}
         {{#if isApiSamplesTabVisible}}
@@ -350,7 +338,7 @@
         </ul>
       {{/promise-proxy-container}}
     {{else if (eq activeTab "size")}}
-      {{#if isSizeTabDisabled}}
+      {{#if isSizeStatsDisabled}}
         {{file-browser/fb-no-dir-statistics
           getProvidersUrl=(action "getProvidersUrl")
         }}
