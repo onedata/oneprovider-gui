@@ -9,10 +9,7 @@
       >
         {{tt this "disableStatistics"}}
         {{one-icon icon="overview" class="inline-icon-container dir-stats-icon"}}
-        {{#one-tooltip}}
-          {{tt this "naTip"}}
-          {{one-icon icon="link-external" class="dir-stats-settings-external-link"}}
-        {{/one-tooltip}}
+        {{one-tooltip title=(tt this "naTip")}}
       </a>
     </div>
     <div class="progress-bar-background"></div>

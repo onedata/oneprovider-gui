@@ -28,7 +28,7 @@ export default {
   },
   progressBarVisualizer: {
     na: 'n/a',
-    naTip: 'Click for more information',
+    naTip: 'Click to open directory statistics settings',
     disableStatistics: 'Directory statistics are disabled',
   },
   oneprovidersDistribution: {

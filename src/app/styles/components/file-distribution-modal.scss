@@ -277,8 +277,8 @@
   }
 
   .dir-stats-icon {
-    vertical-align: sub;
-    font-size: 120%;
+    vertical-align: middle;
+    font-size: 150%;
     width: auto;
   }
 
@@ -455,10 +455,4 @@
     flex-grow: 1;
     margin-left: $padding-small-horizontal;
   }
-}
-
-.dir-stats-settings-external-link {
-  vertical-align: sub;
-  font-size: 120%;
-  width: auto;
 }
