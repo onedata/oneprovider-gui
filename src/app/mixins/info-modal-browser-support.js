@@ -10,6 +10,8 @@ import Mixin from '@ember/object/mixin';
 import { isArray } from '@ember/array';
 
 export default Mixin.create({
+  // required method: async changeSelectedItems(items)
+
   /**
    * @type {Array<Models.File>}
    */
@@ -24,7 +26,9 @@ export default Mixin.create({
    * @param {Models.File|Array<Models.File>} files
    * @param {FileInfoTabId} activeTab
    */
-  openInfoModal(files, activeTab) {
+  async openInfoModal(files, activeTab) {
+    // we want to see items selected under the info panel
+    await this.changeSelectedItems(files);
     this.setProperties({
       filesToShowInfo: isArray(files) ? files : [files],
       showInfoInitialTab: activeTab || 'general',
