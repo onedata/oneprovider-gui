@@ -37,7 +37,23 @@ describe('Integration | Component | modal file subheader', function () {
     expect(find('.file-item-icon')).to.have.class('oneicon-browser-directory');
   });
 
-  it('does not render icon for multiple items', async function () {
+  it('renders opened folder icon for multiple items', async function () {
+    this.set('files', [{
+      type: 'file',
+      name: 'hello1.txt',
+      index: 'hello1.txt',
+    }, {
+      type: 'dir',
+      name: 'hello2.txt',
+      index: 'hello2.txt',
+    }]);
+    await render(hbs`{{modal-file-subheader files=files}}`);
+    const fileItemIcon = find('.file-item-icon');
+    expect(fileItemIcon).to.exist;
+    expect(fileItemIcon).to.have.class('oneicon-folder-open');
+  });
+
+  it('renders names of items for multiple items', async function () {
     this.set('files', [{
       type: 'file',
       name: 'hello1.txt',
@@ -48,7 +64,10 @@ describe('Integration | Component | modal file subheader', function () {
       index: 'hello2.txt',
     }]);
     await render(hbs `{{modal-file-subheader files=files}}`);
-    expect(find('.file-item-icon')).to.not.exist;
+    expect(this.element)
+      .to.contain.text('hello1.txt')
+      .and
+      .to.contain.text('hello2.txt');
   });
 
   it('renders items count for multiple items', async function () {

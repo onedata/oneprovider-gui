@@ -16,6 +16,7 @@ export default {
     file: 'file',
     dir: 'directory',
     symlink: 'symbolic link',
+    multi: 'selected items',
   },
   tabs: {
     general: {

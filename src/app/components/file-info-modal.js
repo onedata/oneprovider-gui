@@ -164,7 +164,8 @@ export default Component.extend(...mixins, {
   itemType: reads('file.type'),
 
   typeTranslation: computed('itemType', function typeTranslation() {
-    return _.upperFirst(this.t(`fileType.${this.get('itemType')}`, {}, {
+    const headerItemType = this.isMultiFile ? 'multi' : this.itemType;
+    return _.upperFirst(this.t(`fileType.${headerItemType}`, {}, {
       defaultValue: this.t('fileType.file'),
     }));
   }),
