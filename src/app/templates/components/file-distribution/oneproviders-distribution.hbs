@@ -1,8 +1,9 @@
 {{#loading-container
   isLoading=isDistributionLoading
-  errorReason=distributionErrorReason}}
+  errorReason=distributionErrorReason
+}}
   {{#if isMigrationDestinationSelectorVisible}}
-    {{file-distribution-modal/destination-oneprovider-selector
+    {{file-distribution/destination-oneprovider-selector
       files=(map-by "file" fileDistributionData)
       oneproviders=oneproviders
       evictingOneproviders=evictingOneproviders
@@ -11,7 +12,7 @@
       onMigrate=(action "tryStartMigration")
       onCancel=(action "cancelNewMigration")}}
   {{else if isStartSubsequentTransferConfirmationVisible}}
-    {{file-distribution-modal/confirm-subsequent-transfer
+    {{file-distribution/confirm-subsequent-transfer
       transferType=startSubsequentTransferType
       oneprovider=(if (eq startSubsequentTransferType "replication") startSubsequentTransferData.destinationOneprovider startSubsequentTransferData.sourceOneprovider)
       onConfirm=(action "startSubsequentTransfer")
@@ -21,7 +22,7 @@
     <ul>
       {{#promise-proxy-container proxy=initialRequiredDataProxy}}
         {{#each distributionItemsProxy.content as |distributionItem|}}
-          {{file-distribution-modal/oneproviders-distribution-item
+          {{file-distribution/oneproviders-distribution-item
             class=(concat "oneprovider-" distributionItem.oneprovider.entityId)
             oneprovider=distributionItem.oneprovider
             hasReadonlySupport=(contains

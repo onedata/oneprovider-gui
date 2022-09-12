@@ -1,7 +1,6 @@
 /**
  * Renders visualization of file replication rate.
- * 
- * @module components/file-distribution-modal/progress-bar-visualizer
+ *
  * @author Agnieszka Warchoł
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -23,7 +22,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDistributionModal.progressBarVisualizer',
+  i18nPrefix: 'components.fileDistribution.progressBarVisualizer',
 
   /**
    * @virtual

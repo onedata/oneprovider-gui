@@ -123,7 +123,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -139,7 +139,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -159,7 +159,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -182,7 +182,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -200,7 +200,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -227,7 +227,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -250,7 +250,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -282,7 +282,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -310,7 +310,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       ];
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -342,7 +342,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -371,7 +371,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -402,7 +402,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
+        {{file-distribution/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
           space=space
@@ -503,7 +503,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
           this.set('fileDistributionData', fileDistributionData);
           await render(hbs `
-            {{file-distribution-modal/oneproviders-distribution
+            {{file-distribution/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
@@ -542,7 +542,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
         await render(hbs `
-          {{file-distribution-modal/oneproviders-distribution
+          {{file-distribution/oneproviders-distribution
             oneproviders=oneproviders
             fileDistributionData=fileDistributionData
             space=space
@@ -574,7 +574,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
         await render(hbs `
-          {{file-distribution-modal/oneproviders-distribution
+          {{file-distribution/oneproviders-distribution
             oneproviders=oneproviders
             fileDistributionData=fileDistributionData
             space=space
@@ -610,7 +610,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         ]);
 
         await render(hbs `
-          {{file-distribution-modal/oneproviders-distribution
+          {{file-distribution/oneproviders-distribution
             oneproviders=oneproviders
             fileDistributionData=fileDistributionData
             space=space
@@ -641,7 +641,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           this.set('space.privileges.scheduleReplication', false);
 
           await render(hbs `
-            {{file-distribution-modal/oneproviders-distribution
+            {{file-distribution/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
@@ -669,7 +669,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           ]);
 
           await render(hbs `
-            {{file-distribution-modal/oneproviders-distribution
+            {{file-distribution/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
@@ -697,7 +697,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             ]);
 
             await render(hbs `
-              {{file-distribution-modal/oneproviders-distribution
+              {{file-distribution/oneproviders-distribution
                 oneproviders=oneproviders
                 fileDistributionData=fileDistributionData
                 space=space

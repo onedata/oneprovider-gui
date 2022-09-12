@@ -200,6 +200,10 @@ $color-qos-entry-info-block-bg-level-2: #f2f2f2;
     height: 50vh;
     margin-top: 0.8em;
 
+    .audit-log-browser {
+      flex-grow: 1;
+    }
+
     .file-column-header {
       width: 12em;
     }

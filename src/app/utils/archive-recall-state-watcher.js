@@ -12,7 +12,7 @@ import { bool } from 'ember-awesome-macros';
 import Looper from 'onedata-gui-common/utils/looper';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import { all as allSettled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 
 export default EmberObject.extend(OwnerInjector, {
   fileManager: service(),
@@ -194,7 +194,7 @@ export default EmberObject.extend(OwnerInjector, {
       fileManager,
     } = this.getProperties('refreshedDirsIdSet', 'fileManager');
     if (refreshedDirsIdSet.size) {
-      await allSettled([...refreshedDirsIdSet].map(dirId =>
+      await allFulfilled([...refreshedDirsIdSet].map(dirId =>
         fileManager.dirChildrenRefresh(dirId)
       ));
     }

@@ -1,8 +1,7 @@
 /**
  * Asks for confirmation before starting new transfer when there are active
  * transfers in selected Oneprovider.
- * 
- * @module components/file-distribution-modal/confirm-subsequent-transfer
+ *
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -25,7 +24,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDistributionModal.confirmSubsequentTransfer',
+  i18nPrefix: 'components.fileDistribution.confirmSubsequentTransfer',
 
   /**
    * One of: replication, migration, eviction

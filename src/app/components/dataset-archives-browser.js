@@ -196,16 +196,6 @@ export default Component.extend(...mixins, {
   showInfoInitialTab: undefined,
 
   /**
-   * @type {Array<Models.File>}
-   */
-  filesToShowDistribution: null,
-
-  /**
-   * @type {Array<Models.File>}
-   */
-  filesToShowQos: null,
-
-  /**
    * @type {Models.File}
    */
   fileForConfirmDownload: null,
@@ -631,7 +621,6 @@ export default Component.extend(...mixins, {
       archiveDipMode: reads('ownerSource.archiveDipMode'),
       onArchiveDipModeChange: this.changeArchiveDipMode.bind(this),
       openInfo: this.openInfoModal.bind(this),
-      openFileDistribution: this.openFileDistributionModal.bind(this),
       openConfirmDownload: this.openConfirmDownload.bind(this),
     });
   }),
@@ -677,13 +666,6 @@ export default Component.extend(...mixins, {
 
   closeArchivesDeleteModal() {
     this.set('archivesToDelete', null);
-  },
-  openFileDistributionModal(files) {
-    this.set('filesToShowDistribution', [...files]);
-  },
-
-  closeFileDistributionModal() {
-    this.set('filesToShowDistribution', null);
   },
 
   openConfirmDownload(file) {

@@ -302,7 +302,6 @@ export default OneEmbeddedComponent.extend(
         openInfo: this.openInfoModal.bind(this),
         openRecallInfo: this.openRecallInfoModal.bind(this),
         openDatasets: this.openDatasetsModal.bind(this),
-        openFileDistribution: this.openFileDistributionModal.bind(this),
         openConfirmDownload: this.openConfirmDownload.bind(this),
         openWorkflowRunView: this.openWorkflowRunView.bind(this),
         closeAllModals: this.closeAllModals.bind(this),
@@ -442,9 +441,6 @@ export default OneEmbeddedComponent.extend(
     openDatasetsModal(files) {
       this.set('filesToShowDatasets', files);
     },
-    openFileDistributionModal(files) {
-      this.set('filesToShowDistribution', [...files]);
-    },
     openConfirmDownload(file) {
       this.set('fileForConfirmDownload', file);
     },
@@ -464,16 +460,12 @@ export default OneEmbeddedComponent.extend(
       // directory, so make sure that it is restored
       uploadManager.changeTargetDirectory(dir);
     },
-    closeFileDistributionModal() {
-      this.set('filesToShowDistribution', null);
-    },
 
     closeAllModals() {
       this.closeCreateItemModal();
       this.closeRemoveModal();
       this.closeRenameModal();
       this.closeInfoModal();
-      this.closeFileDistributionModal();
       this.closeDatasetsModal();
     },
 

@@ -1,0 +1,86 @@
+{{#promise-proxy-container proxy=oneprovidersProxy}}
+  {{#if (eq activeTab "summary")}}
+    <p class="batch-mode-intro">
+      {{#if itemsNumber}}
+        {{summaryText}}
+        {{#if filesSizeDetails}}
+          {{one-label-tip
+            title=filesSizeDetails
+            icon="browser-info"
+            class="details-size-info"
+          }}
+        {{/if}}
+      {{/if}}
+    </p>
+    {{file-distribution/oneproviders-distribution
+      visible=true
+      batchMode=true
+      fileDistributionData=fileDistributionData
+      oneproviders=oneproviders
+      space=space
+      onReplicate=(action "replicate" files)
+      onMigrate=(action "migrate" files)
+      onEvict=(action "evict" files)
+      getTransfersUrl=(action "getTransfersUrl")
+    }}
+  {{else if (eq activeTab "details")}}
+    {{#if isMultiFile}}
+      {{#one-collapsible-list class="per-file-distribution-list" as |list|}}
+        {{#each fileDistributionData as |fileDistDataContainer|}}
+          {{#list.item as |listItem|}}
+            {{#listItem.header disableToggleIcon=true}}
+              <span class="item-icon-container">
+                {{one-icon
+                  class="item-icon"
+                  icon=(if (eq fileDistDataContainer.fileType "file")
+                    "browser-file"
+                    "browser-directory"
+                  )
+                }}
+                {{one-tooltip
+                  title=fileDistDataContainer.file.name
+                  placement="top"
+                  arrowPlacement="left"
+                  triggerEvents="hover"
+                }}
+              </span>
+              <span class="file-name truncate">
+                {{fileDistDataContainer.file.name}}
+              </span>
+              <span class="file-size">
+                {{bytes-to-string fileDistDataContainer.file.size}}
+              </span>
+            {{/listItem.header}}
+            {{#listItem.content}}
+              <div class="list-content">
+                {{file-distribution/oneproviders-distribution
+                  visible=listItem.isActive
+                  oneproviders=oneproviders
+                  fileDistributionData=(array fileDistDataContainer)
+                  space=space
+                  onReplicate=(action "replicate" fileDistDataContainer.file)
+                  onMigrate=(action "migrate" fileDistDataContainer.file)
+                  onEvict=(action "evict" fileDistDataContainer.file)
+                  getTransfersUrl=(action "getTransfersUrl")
+                }}
+              </div>
+            {{/listItem.content}}
+          {{/list.item}}
+        {{/each}}
+      {{/one-collapsible-list}}
+    {{else}}
+      {{#let fileDistributionData.firstObject as |fileDistDataContainer|}}
+        {{file-distribution/oneproviders-distribution
+          visible=true
+          oneproviders=oneproviders
+          fileDistributionData=(array fileDistDataContainer)
+          space=space
+          onReplicate=(action "replicate" fileDistDataContainer.file)
+          onMigrate=(action "migrate" fileDistDataContainer.file)
+          onEvict=(action "evict" fileDistDataContainer.file)
+          getTransfersUrl=(action "getTransfersUrl")
+        }}
+      {{/let}}
+    {{/if}}
+  {{/if}}
+{{/promise-proxy-container}}

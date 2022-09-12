@@ -3,7 +3,7 @@ import hbs from 'htmlbars-inline-precompile';
 import { find } from '@ember/test-helpers';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
 import { lookupService } from './stub-service';
-import { all as allSettled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import { findByText } from './find';
 import { click } from '@ember/test-helpers';
 import createSpace from './create-space';
@@ -115,17 +115,17 @@ export default class FilePermissionsHelper {
     ];
   }
   async givenDifferentPosix() {
-    this.files = await allSettled([
+    this.files = await allFulfilled([
       this.createFile({ posixPermissions: '644' }),
       this.createFile({ posixPermissions: '777' }),
     ]);
   }
   async givenDifferentAcl() {
-    const acls = await allSettled([
+    const acls = await allFulfilled([
       this.createAcl([this.createExampleAce(0)]),
       this.createAcl([this.createExampleAce(1)]),
     ]);
-    this.files = await allSettled([
+    this.files = await allFulfilled([
       this.createFile({
         activePermissionsType: 'acl',
         acl: acls[0],
