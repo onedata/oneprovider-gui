@@ -720,8 +720,9 @@ const qosRequirementHandlers = {
 
     switch (data?.mode) {
       case 'layout': {
+        const storageId = this.mockBackend.entityRecords.storage[0].entityId;
         const layout = {
-          [`st_${storageIdAlpha}`]: ['minute', 'hour', 'day', 'month'],
+          [`st_${storageId}`]: ['minute', 'hour', 'day', 'month'],
         };
         if (aspectId === 'bytes') {
           layout.total = ['minute', 'hour', 'day', 'month'];

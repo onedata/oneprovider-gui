@@ -102,7 +102,7 @@ export default Service.extend({
    * @param {string} collectionRef
    * @returns {Promise<TimeSeriesCollectionSchema>}
    */
-  async getTransferTimeSeriesCollectionSchema(collectionRef) {
+  async getQosTransferTimeSeriesCollectionSchema(collectionRef) {
     const gri = getGri('null', {
       aspect: `transfer_stats_collection_schema,${collectionRef}`,
       scope: 'public',
@@ -115,7 +115,7 @@ export default Service.extend({
    * @param {QosTimeSeriesCollectionRef} collectionRef
    * @returns {Promise<TimeSeriesCollectionLayout>}
    */
-  async getTransferTimeSeriesCollectionLayout(
+  async getQosTransferTimeSeriesCollectionLayout(
     qosRequirementId,
     collectionRef
   ) {
@@ -131,7 +131,7 @@ export default Service.extend({
    * @param {TimeSeriesCollectionSliceQueryParams} queryParams
    * @returns {Promise<TimeSeriesCollectionSlice>}
    */
-  async getTransferTimeSeriesCollectionSlice(
+  async getQosTransferTimeSeriesCollectionSlice(
     qosRequirementId,
     collectionRef,
     queryParams

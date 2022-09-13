@@ -71,7 +71,7 @@ export default Component.extend(...mixins, {
    * Timestamp of the last `timeSeriesCollectionLayout` proxy reload
    * @type {number}
    */
-  lastTSCollectionLayoutReloadTimestamp: undefined,
+  lastTsCollectionLayoutReloadTimestamp: undefined,
 
   /**
    * @type {ComputedProperty<Utils.ColorGenerator>}
@@ -616,10 +616,10 @@ export default Component.extend(...mixins, {
   async getTimeSeriesCollectionLayout() {
     const nowTimestamp = Math.floor(Date.now() / 1000);
     if (
-      !this.lastTSCollectionLayoutReloadTimestamp ||
-      nowTimestamp - this.lastTSCollectionLayoutReloadTimestamp >= 15
+      !this.lastTsCollectionLayoutReloadTimestamp ||
+      nowTimestamp - this.lastTsCollectionLayoutReloadTimestamp >= 15
     ) {
-      this.set('lastTSCollectionLayoutReloadTimestamp', nowTimestamp);
+      this.set('lastTsCollectionLayoutReloadTimestamp', nowTimestamp);
       return this.updateTimeSeriesCollectionLayoutProxy();
     } else {
       return this.getTimeSeriesCollectionLayoutProxy();

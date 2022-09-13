@@ -15,7 +15,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-parameters-suggestions';
 import { Promise, all as allFulfilled, allSettled } from 'rsvp';
 import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
-import { raw, array, promise, gt, or, not, eq } from 'ember-awesome-macros';
+import { raw, promise, gt, or, not, eq } from 'ember-awesome-macros';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
@@ -113,7 +113,9 @@ export default EmberObject.extend(...mixins, {
 
   spaceId: reads('space.entityId'),
 
-  summaryProxies: array.mapBy('files', raw('fileQosSummary')),
+  summaryProxies: computed('files.@each.fileQosSummary', function summaryProxies() {
+    return this.files.mapBy('fileQosSummary');
+  }),
 
   /**
    * Resolves to true if there is no QoS requirement in any file.

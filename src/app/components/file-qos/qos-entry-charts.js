@@ -55,7 +55,7 @@ export default Component.extend(...mixins, {
    * Timestamp of the last `timeSeriesCollectionLayouts` proxy reload
    * @type {number}
    */
-  lastTSCollectionLayoutsReloadTimestamp: undefined,
+  lastTsCollectionLayoutsReloadTimestamp: undefined,
 
   /**
    * @type {ComputedProperty<Utils.ColorGenerator>}
@@ -106,8 +106,8 @@ export default Component.extend(...mixins, {
   timeSeriesCollectionSchemasProxy: promise.object(computed(
     function timeSeriesCollectionSchemasProxy() {
       return hashFulfilled({
-        bytes: this.qosManager.getTransferTimeSeriesCollectionSchema('bytes'),
-        files: this.qosManager.getTransferTimeSeriesCollectionSchema('files'),
+        bytes: this.qosManager.getQosTransferTimeSeriesCollectionSchema('bytes'),
+        files: this.qosManager.getQosTransferTimeSeriesCollectionSchema('files'),
       });
     }
   )),
@@ -623,10 +623,10 @@ export default Component.extend(...mixins, {
     const nowTimestamp = Math.floor(Date.now() / 1000);
     let proxy;
     if (
-      !this.lastTSCollectionLayoutsReloadTimestamp ||
-      nowTimestamp - this.lastTSCollectionLayoutsReloadTimestamp >= 15
+      !this.lastTsCollectionLayoutsReloadTimestamp ||
+      nowTimestamp - this.lastTsCollectionLayoutsReloadTimestamp >= 15
     ) {
-      this.set('lastTSCollectionLayoutsReloadTimestamp', nowTimestamp);
+      this.set('lastTsCollectionLayoutsReloadTimestamp', nowTimestamp);
       proxy = this.updateTimeSeriesCollectionLayoutsProxy();
     } else {
       proxy = this.getTimeSeriesCollectionLayoutsProxy();
@@ -639,11 +639,11 @@ export default Component.extend(...mixins, {
    */
   async fetchTimeSeriesCollectionLayouts() {
     return hashFulfilled({
-      bytes: this.qosManager.getTransferTimeSeriesCollectionLayout(
+      bytes: this.qosManager.getQosTransferTimeSeriesCollectionLayout(
         this.qosRequirementId,
         'bytes',
       ),
-      files: this.qosManager.getTransferTimeSeriesCollectionLayout(
+      files: this.qosManager.getQosTransferTimeSeriesCollectionLayout(
         this.qosRequirementId,
         'files',
       ),
@@ -671,7 +671,7 @@ export default Component.extend(...mixins, {
         windowLimit: batchedQuery.windowLimit,
       };
 
-      return this.qosManager.getTransferTimeSeriesCollectionSlice(
+      return this.qosManager.getQosTransferTimeSeriesCollectionSlice(
         this.qosRequirementId,
         batchedQuery.collectionRef,
         queryParams
