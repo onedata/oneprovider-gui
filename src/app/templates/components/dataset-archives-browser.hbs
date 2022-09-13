@@ -38,27 +38,6 @@
   }}
 {{/if}}
 
-{{#if filesToShowDistribution}}
-  {{file-distribution-modal
-    files=filesToShowDistribution
-    space=space
-    onClose=(action closeFileDistributionModal)
-    getTransfersUrl=(action getTransfersUrl)
-  }}
-{{/if}}
-
-{{#if filesToShowQos}}
-  {{qos-modal
-    open=true
-    files=filesToShowQos
-    space=space
-    showPrivilege=spacePrivileges.viewQos
-    editPrivilege=spacePrivileges.manageQos
-    getDataUrl=(action "getFileUrl")
-    onHide=(action closeQosModal)
-  }}
-{{/if}}
-
 {{file-browser/fb-download-modal
   file=fileForConfirmDownload
   confirmDownload=(action confirmFileDownload)

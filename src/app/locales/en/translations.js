@@ -7,13 +7,12 @@ import contentFileBrowser from './components/content-file-browser';
 import contentSpaceDatasets from './components/content-space-datasets';
 import fileBrowser from './components/file-browser';
 import posixPermissionsEditor from './components/posix-permissions-editor';
-import fileDistributionModal from './components/file-distribution-modal';
+import fileDistribution from './components/file-distribution';
 import websocketConnectionModal from './components/websocket-connection-modal';
 import spaceTransfers from './components/space-transfers';
 import spaceShares from './components/space-shares';
 import spaceAutomation from './components/space-automation';
 import dbViewModal from './components/db-view-modal';
-import qosModal from './components/qos-modal';
 import fileDatasets from './components/file-datasets';
 import contentEndpointError from './components/content-endpoint-error';
 import modalFileSubheader from './components/modal-file-subheader';
@@ -41,6 +40,7 @@ import fileInfoModal from './components/file-info-modal';
 import fileMetadata from './components/file-metadata';
 import filePermissions from './components/file-permissions';
 import fileShares from './components/file-shares';
+import fileQos from './components/file-qos';
 
 import uploadManager from './services/upload-manager';
 
@@ -60,6 +60,8 @@ import datasetActions from './utils/dataset/actions';
 import fileInfo from './utils/file-info';
 import fileMetadataViewModel from './utils/file-metadata-view-model';
 import filePermissionsViewModel from './utils/file-permissions-view-model';
+import fileQosViewModel from './utils/file-qos-view-model';
+import fileDistributionViewModel from './utils/file-distribution-view-model';
 
 const translations = {
   components: {
@@ -69,13 +71,12 @@ const translations = {
     contentSpaceDatasets,
     fileBrowser,
     posixPermissionsEditor,
-    fileDistributionModal,
+    fileDistribution,
     websocketConnectionModal,
     spaceTransfers,
     spaceShares,
     spaceAutomation,
     dbViewModal,
-    qosModal,
     fileDatasets,
     contentEndpointError,
     modalFileSubheader,
@@ -103,6 +104,7 @@ const translations = {
     fileMetadata,
     filePermissions,
     fileShares,
+    fileQos,
   },
   services: {
     uploadManager,
@@ -120,6 +122,8 @@ const translations = {
     workflowVisualiser,
     fileMetadataViewModel,
     filePermissionsViewModel,
+    fileQosViewModel,
+    fileDistributionViewModel,
     fileInfo,
     archiveForm: {
       baseModel: archiveFormBaseModel,

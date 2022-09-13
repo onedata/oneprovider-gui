@@ -1,0 +1,73 @@
+<div class="btn-group-tabs">
+  <div class="box-item with-scroll-shadow shares-header-text">
+    <strong>
+      {{tt this (if isAddMode
+        (if (media "isMobile") "headerAddMobile" "headerAdd")
+        "headerShow"
+      )}}
+    </strong>
+    {{#if isAddMode}}
+      {{one-icon
+        icon="sign-question-rounded"
+        class="qos-header-hint-trigger qos-add-hint-trigger hint-trigger clickable"
+      }}
+      {{#one-switchable-popover-modal
+        class="qos-add-hint qos-hint"
+        triggersConfiguration=".qos-add-hint-trigger"
+        popoverStyle="qos-add-hint-info over-modals"
+        modalClass="modal-compact-help"
+        layoutType="modal"
+        as |ospm|
+      }}
+        {{#ospm.modal.header}}
+          <h1>{{tt this "addHintTitle"}}</h1>
+        {{/ospm.modal.header}}
+        {{#ospm.modal.body}}
+          <p>{{tt this "addHint"}}</p>
+        {{/ospm.modal.body}}
+        {{#ospm.modal.footer}}
+          <div class="btn-toolbar text-right visible-xs-block">
+            {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+              {{tt this "hintClose"}}
+            {{/bs-button}}
+          </div>
+        {{/ospm.modal.footer}}
+      {{/one-switchable-popover-modal}}
+    {{else}}
+      {{one-icon
+        icon="sign-question-rounded"
+        class="qos-header-hint-trigger qos-show-hint-trigger hint-trigger clickable"
+      }}
+      {{#one-switchable-popover-modal
+        class="qos-show-hint qos-hint"
+        triggersConfiguration=".qos-show-hint-trigger"
+        popoverStyle="qos-show-hint-info over-modals"
+        modalClass="modal-compact-help"
+        layoutType="modal"
+        as |ospm|
+      }}
+        {{#ospm.modal.header}}
+          <h1>{{tt this "showHintTitle"}}</h1>
+        {{/ospm.modal.header}}
+        {{#ospm.modal.body}}
+          <p>{{tt this "showHintIntro"}}</p>
+          <p>{{tt this "showHintTransfers"}}</p>
+          <p>{{tt this "showHintRemoving"}}</p>
+          <p>
+            {{one-doc-see-more
+              linkName=(tt this "showHintDocLinkName")
+              docPath="using_onedata/qos.html"
+            }}
+          </p>
+        {{/ospm.modal.body}}
+        {{#ospm.modal.footer}}
+          <div class="btn-toolbar text-right visible-xs-block">
+            {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+              {{tt this "hintClose"}}
+            {{/bs-button}}
+          </div>
+        {{/ospm.modal.footer}}
+      {{/one-switchable-popover-modal}}
+    {{/if}}
+  </div>
+</div>

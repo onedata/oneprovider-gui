@@ -360,6 +360,11 @@
           apiSamples=apiSamples
         }}
       {{/promise-proxy-container}}
+    {{else if (eq activeTab "distribution")}}
+      {{component activeTabModel.bodyComponent 
+        viewModel=activeTabModel.viewModel 
+        getProvidersUrl=(action "getProvidersUrl")
+      }}
     {{else}}
       {{component activeTabModel.bodyComponent viewModel=activeTabModel.viewModel}}
     {{/if}}

@@ -1,0 +1,26 @@
+{{#promise-proxy-container proxy=qosItemsProxy}}
+  {{#if (gt qosItemsProxy.length 0)}}
+    <div class="qos-list">
+      {{#each sortedQosItems key="entityId" as |qosItem|}}
+        {{file-qos/qos-entry
+          qosItem=qosItem
+          valuesBuilder=valuesBuilder
+          queryProperties=queryProperties
+          providers=providers
+          storages=storages
+          areChartsInitiallyVisible=areChartsInitiallyVisible
+          getDataUrl=getDataUrl
+          evaluateQosExpression=(action "evaluateQosExpression")
+          removeQosRequirement=(action "removeQosRequirement" qosItem)
+          closeModal=(action "closeModal")
+        }}
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="no-qos-requirements">
+      <div class="no-qos-requirements-message">
+        {{tt this "noRequirements" fileType=(tt this (concat "fileType." file.type))}}
+      </div>
+    </div>
+  {{/if}}
+{{/promise-proxy-container}}

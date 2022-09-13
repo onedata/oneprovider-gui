@@ -1,0 +1,84 @@
+{{#if (eq activeSlideId "list")}}
+  {{#promise-proxy-container proxy=initialDataProxy}}
+    {{#if noQosRequirements}}
+      {{content-info
+        class="scroll-breakpoint-600 fill-flex-using-column content-info-no-qos"
+        header=(tt this "noQos.header" filesTypeText=filesTypeText)
+        imagePath="assets/images/no-qos.svg"
+        buttonAction=(action "addQosRequirement")
+        buttonLabel=(tt this "noQos.buttonCreateQosRequirement")
+        buttonClass="create-qos-requirement-btn"
+        buttonDisabled=isAddDisabled
+        buttonTip=isAddDisabledTip
+      }}
+    {{else}}
+      {{#if multipleFiles}}
+        {{#one-collapsible-list class="hide-final-border" as |list|}}
+          {{#each fileItems key="entityId" as |fileItem|}}
+            {{#list.item as |listItem|}}
+              {{file-qos/file-entry
+                listItem=listItem
+                fileItem=fileItem
+                valuesBuilder=valuesBuilder
+                queryProperties=queryProperties
+                storages=storages
+                providers=providers
+                getDataUrl=getDataUrl
+                evaluateQosExpression=(action "evaluateQosExpression")
+                removeQosRequirement=(action "removeQosRequirement")
+                closeModal=(action "close")
+              }}
+            {{/list.item}}
+          {{/each}}
+        {{/one-collapsible-list}}
+      {{else}}
+        {{file-qos/file-qos-summary
+          file=fileItems.firstObject.file
+          qosItemsProxy=fileItems.firstObject.qosItemsProxy
+          valuesBuilder=valuesBuilder
+          queryProperties=queryProperties
+          storages=storages
+          providers=providers
+          showChartsOfSingleQos=true
+          getDataUrl=getDataUrl
+          evaluateQosExpression=(action "evaluateQosExpression")
+          removeQosRequirement=(action "removeQosRequirement")
+          closeModal=(action "close")
+        }}
+      {{/if}}
+    {{/if}}
+  {{/promise-proxy-container}}
+{{else if (eq activeSlideId "add")}}
+  {{file-qos/qos-add
+    spaceId=spaceId
+    valuesBuilder=valuesBuilder
+    queryPropertiesProxy=queryPropertiesProxy
+    storages=storages
+    providers=providers
+    evaluateQosExpression=(action "evaluateQosExpression")
+    refreshQueryProperties=(action "refreshQueryProperties")
+    update=(action "changeNewEntry")
+  }}
+  <div class="qos-add-form-buttons">
+    {{#one-button
+      onClick=(action "cancelQosRequirementCreation")
+      type="default"
+    }}
+      {{tt this "cancel"}}
+    {{/one-button}}
+    {{!-- not using btn-tooltip-container because of its issues with styling --}}
+    <div class="tooltip-container">
+      {{#one-button
+        type="primary"
+        buttonType="submit"
+        disabled=isSaveDisabled
+        onClick=(action "saveQosRequirement")
+      }}
+        {{tt this "save"}}
+      {{/one-button}}
+      {{#if (and (not saveDisabled) multipleFiles)}}
+        {{one-tooltip title=(tt this "addMultiHint" count=files.length)}}
+      {{/if}}
+    </div>
+  </div>
+{{/if}}

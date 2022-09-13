@@ -9,6 +9,8 @@
 import MetadataTabModel from './metadata-tab-model';
 import PermissionsTabModel from './permissions-tab-model';
 import SharesTabModel from './shares-tab-model';
+import QosTabModel from './qos-tab-model';
+import DistributionTabModel from './distribution-tab-model';
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
@@ -33,6 +35,10 @@ export default EmberObject.extend(OwnerInjector, {
         return this.createPermissionsTabModel(options);
       case 'shares':
         return this.createSharesTabModel(options);
+      case 'qos':
+        return this.createQosTabModel();
+      case 'distribution':
+        return this.createDistributionTabModel();
       default:
         throw new Error(`no such file info tab type or has no model: "${type}"`);
     }
@@ -68,6 +74,36 @@ export default EmberObject.extend(OwnerInjector, {
       fileInfoModal: this.fileInfoModal,
       ownerSource: this,
       ...options,
+    });
+  },
+
+  /**
+   * @returns {Utils.QosTabModel}
+   */
+  createQosTabModel() {
+    return QosTabModel.extend({
+      files: reads('fileInfoModal.files'),
+      space: reads('fileInfoModal.space'),
+      previewMode: reads('fileInfoModal.previewMode'),
+    }).create({
+      fileInfoModal: this.fileInfoModal,
+      ownerSource: this,
+      ...this.fileInfoModal.tabOptions?.qos,
+    });
+  },
+
+  /**
+   * @returns
+   */
+  createDistributionTabModel() {
+    return DistributionTabModel.extend({
+      files: reads('fileInfoModal.files'),
+      space: reads('fileInfoModal.space'),
+      previewMode: reads('fileInfoModal.previewMode'),
+    }).create({
+      fileInfoModal: this.fileInfoModal,
+      ownerSource: this,
+      ...this.fileInfoModal.tabOptions?.distribution,
     });
   },
 });

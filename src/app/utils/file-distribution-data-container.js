@@ -1,7 +1,7 @@
 /**
  * Class that allows to retrieve distribution-related data for specified file including
  * distribution per Oneprovider and active transfers.
- * 
+ *
  * @module utils/file-distribution-data-container
  * @author Michał Borzęcki
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -141,13 +141,13 @@ export default EmberObject.extend(
 
     /**
      * True if real number of ended transfers for file could overflow the limit
-     * (see `fetchTransfers` method). 
+     * (see `fetchTransfers` method).
      * @type {Ember.ComputedProperty<boolean>}
      */
     endedTransfersOverflow: reads('transfers.endedOverflow'),
 
     /**
-     * If true, storage locations will be reloaded 
+     * If true, storage locations will be reloaded
      * @type {Boolean}
      */
     isStorageLocationsUpdated: true,
@@ -218,7 +218,7 @@ export default EmberObject.extend(
      *     greater than or equal to backend listing limit
      * }
      * ```
-     * 
+     *
      * @override
      */
     fetchTransfers() {
@@ -246,7 +246,7 @@ export default EmberObject.extend(
 
     fetchStorageLocations() {
       const file = this.get('file');
-      return file.belongsTo('storageLocations').reload();
+      return file.belongsTo('storageLocationInfo').reload();
     },
 
     /**
@@ -257,7 +257,7 @@ export default EmberObject.extend(
         isFileDistributionError,
         transfersProxy,
       } = this.getProperties('isFileDistributionError', 'transfersProxy');
-      return Promise.all([
+      const x = Promise.all([
         !isFileDistributionError ?
         this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
         !get(transfersProxy, 'isRejected') ?
@@ -265,6 +265,7 @@ export default EmberObject.extend(
         this.get('isStorageLocationsUpdated') ?
         this.updateStorageLocationsProxy({ replace: true }) : resolve(),
       ]);
+      return x;
     },
 
     /**
@@ -291,14 +292,11 @@ export default EmberObject.extend(
      * @returns {Array<String>}
      */
     getStorageIdsForOneprovider(oneprovider) {
-      const {
-        isFileDistributionLoaded,
-      } = this.getProperties('isFileDistributionLoaded');
-      if (isFileDistributionLoaded) {
+      if (this.isFileDistributionLoaded) {
         const oneproviderData = this.getDistributionForOneprovider(oneprovider);
         return Object.keys(get(oneproviderData, 'distributionPerStorage'));
       } else {
-        return {};
+        return [];
       }
     },
 

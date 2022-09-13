@@ -189,7 +189,7 @@ export default Component.extend(...mixins, {
    */
   storageLocationsProxy: computedRelationProxy(
     'file',
-    'storageLocations'
+    'storageLocationInfo'
   ),
 
   /**
@@ -501,13 +501,21 @@ export default Component.extend(...mixins, {
   ),
 
   // TODO: VFS-9628 this is a temporary list of tabs moved from separate modals
-  specialFileTabs: Object.freeze(['metadata', 'permissions', 'shares']),
+  specialFileTabs: Object.freeze([
+    'metadata',
+    'permissions',
+    'shares',
+    'qos',
+    'distribution',
+  ]),
 
   // TODO: VFS-9628 will contain all tab models after refactor
   allTabModels: collect(
     'tabModels.metadata',
     'tabModels.permissions',
     'tabModels.shares',
+    'tabModels.qos',
+    'tabModels.distribution',
   ),
 
   // TODO: VFS-9628 will contain all tab models after refactor
@@ -559,6 +567,14 @@ export default Component.extend(...mixins, {
           });
         }
       ),
+
+      qos: computed(function qos() {
+        return this.tabModelFactory.createTabModel('qos');
+      }),
+
+      distribution: computed(function distribution() {
+        return this.tabModelFactory.createTabModel('distribution');
+      }),
     }).create({
       fileInfoModal: this,
     });
@@ -583,6 +599,16 @@ export default Component.extend(...mixins, {
     const initialTab = this.initialTab;
     const visibleTabs = this.visibleTabs;
     this.set('activeTab', visibleTabs.includes(initialTab) ? initialTab : visibleTabs[0]);
+  },
+
+  willDestroyElement() {
+    try {
+      for (const tabModel of this.allTabModels) {
+        tabModel?.destroy?.();
+      }
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   /**
@@ -632,6 +658,15 @@ export default Component.extend(...mixins, {
     });
   },
 
+  close() {
+    (async () => {
+      if ((await this.activeTabModel?.checkClose?.()) ?? true) {
+        this.onHide?.();
+      }
+    })();
+    return false;
+  },
+
   actions: {
     async changeTab(tabName) {
       if (tabName === this.activeTab) {
@@ -642,18 +677,13 @@ export default Component.extend(...mixins, {
       }
     },
     close() {
-      (async () => {
-        if ((await this.activeTabModel?.checkClose?.()) ?? true) {
-          this.onHide?.();
-        }
-      })();
-      return false;
+      return this.close();
     },
     toggleStorageLocations() {
       this.toggleProperty('areStorageLocationsExpanded');
     },
     getProvidersUrl(...args) {
-        return this.get('getProvidersUrl')(...args);
+      return this.get('getProvidersUrl')(...args);
     },
   },
 });

@@ -167,6 +167,10 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
     .editor-disabled-lock-icon {
       margin-right: -0.2em;
     }
+    .hint-trigger {
+      font-size: inherit;
+      margin-right: 0;
+    }
   }
   // turn on special decoration, because shadow of header is off when on top
   &.scroll-on-top {

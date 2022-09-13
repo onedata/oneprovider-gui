@@ -1,0 +1,93 @@
+{{#loading-container
+  isLoading=isDistributionLoading
+  errorReason=distributionErrorReason
+}}
+  {{#if isMigrationDestinationSelectorVisible}}
+    {{file-distribution/destination-oneprovider-selector
+      files=(map-by "file" fileDistributionData)
+      oneproviders=oneproviders
+      evictingOneproviders=evictingOneproviders
+      sourceOneprovider=newMigrationSourceOneprovider
+      providersWithReadonlySupport=space.providersWithReadonlySupport
+      onMigrate=(action "tryStartMigration")
+      onCancel=(action "cancelNewMigration")}}
+  {{else if isStartSubsequentTransferConfirmationVisible}}
+    {{file-distribution/confirm-subsequent-transfer
+      transferType=startSubsequentTransferType
+      oneprovider=(if (eq startSubsequentTransferType "replication") startSubsequentTransferData.destinationOneprovider startSubsequentTransferData.sourceOneprovider)
+      onConfirm=(action "startSubsequentTransfer")
+      onCancel=(action "cancelSubsequentTransfer")}}
+  {{/if}}
+  <div class="{{if (or isMigrationDestinationSelectorVisible isStartSubsequentTransferConfirmationVisible) "hidden"}}">
+    <ul>
+      {{#promise-proxy-container proxy=initialRequiredDataProxy}}
+        {{#each distributionItemsProxy.content as |distributionItem|}}
+          {{file-distribution/oneproviders-distribution-item
+            class=(concat "oneprovider-" distributionItem.oneprovider.entityId)
+            oneprovider=distributionItem.oneprovider
+            hasReadonlySupport=(contains
+              distributionItem.oneprovider.entityId
+              space.providersWithReadonlySupport
+            )
+            spaceHasSingleOneprovider=(eq oneproviders.length 1)
+            fileDistributionData=fileDistributionData
+            replicationForbidden=(not space.privileges.scheduleReplication)
+            evictionForbidden=(not space.privileges.scheduleEviction)
+            onReplicate=(action "tryStartReplication" distributionItem.oneprovider)
+            onMigrate=(action "selectMigrationDestination" distributionItem.oneprovider)
+            onEvict=(action "tryStartEviction" distributionItem.oneprovider)
+            storage=distributionItem.storage
+            space=space
+            locationsPerProvider=locationsPerProvider
+            getProvidersUrl=(action "getProvidersUrl")
+          }}
+        {{/each}}
+      {{/promise-proxy-container}}
+      <div class="bottom-distribution-description">
+        {{#unless batchMode}}
+          {{#promise-proxy-container
+            proxy=fileDistributionData.firstObject.transfersProxy
+            isLoading=(and fileDistributionData.firstObject.transfersProxy.isPending (not fileDistributionData.firstObject.transfersProxy.content))
+            alwaysRender=true
+            customErrorMessage=(tt this "cannotLoadTransfers")
+            absoluteCentered=false
+            sizeClass="xxs"
+          }}
+            <p class="transfers-counter-info">
+              {{#if fileDistributionData.firstObject.transfersProxy.content}}
+                {{#if activeTransfersExist}}
+                  {{tt this "currentlyTransferredText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
+                  &ndash;
+                  <a class="link-to-transfers link-to-transfers-ongoing" href={{navigateTransfersHref}} target={{navigateTransfersTarget}}>{{tt this "currentlyTransferredLink"}}</a>.
+                {{else if endedTransfersCount}}
+                  {{tt this "endedTransfersText"
+                    elementType=(tt this fileDistributionData.firstObject.fileType)
+                    count=endedTransfersCount
+                    countUnit=(tt this (if (gt endedTransfersCount 1) "times" "time"))
+                  }}
+                  {{#if endedTransfersOverflow}}
+                    {{tt this "orMore"}}
+                  {{/if}}
+                  &ndash;
+                  <a class="link-to-transfers link-to-transfers-ended" href={{navigateTransfersHref}} target={{navigateTransfersTarget}}>{{tt this "endedTransfersLink"}}</a>.
+                {{else}}
+                  {{tt this "noTransfersText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
+                {{/if}}
+              {{/if}}
+            </p>
+          {{/promise-proxy-container}}
+        {{/unless}}
+        <div class="main-legend">
+          <div class="legend">
+            {{#if hasSingleRegFile}}
+              <div class="block-legend"></div>{{tt this "blockDistributionLegend"}}
+            {{else}}
+              <div class="replication-legend"></div>{{tt this "replicationRatioLegend"}}
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </ul>
+  </div>
+{{/loading-container}}
+{{yield}}

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { find } from '@ember/test-helpers';
-import { all as allSettled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import Helper from '../../../helpers/file-permissions';
 
 describe('Integration | Component | file-permissions/body', function () {
@@ -10,7 +10,7 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders visible POSIX permissions editor when all files permissions are the same POSIX', async function () {
     const helper = new Helper(this);
-    helper.files = await allSettled([
+    helper.files = await allFulfilled([
       helper.createFile({
         activePermissionsType: 'posix',
         posixPermissions: '644',
@@ -69,11 +69,11 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders visible ACL permissions editor when all files permissions are the same ACL', async function () {
     const helper = new Helper(this);
-    const acls = await allSettled([
+    const acls = await allFulfilled([
       helper.createAcl([helper.createExampleAce(0)]),
       helper.createAcl([helper.createExampleAce(0)]),
     ]);
-    helper.files = await allSettled([
+    helper.files = await allFulfilled([
       helper.createFile({
         activePermissionsType: 'acl',
         acl: acls[0],
@@ -131,11 +131,11 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders "different ACL" alert when one file have POSIX and other ACL', async function () {
     const helper = new Helper(this);
-    const acls = await allSettled([
+    const acls = await allFulfilled([
       helper.createAcl([]),
       helper.createAcl([helper.createExampleAce()]),
     ]);
-    helper.files = await allSettled([
+    helper.files = await allFulfilled([
       helper.createFile({
         activePermissionsType: 'posix',
         posixPermissions: '644',
@@ -161,11 +161,11 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders "mixed file types" alert when files with ACL have mixed types', async function () {
     const helper = new Helper(this);
-    const acls = await allSettled([
+    const acls = await allFulfilled([
       helper.createAcl([helper.createExampleAce(0)]),
       helper.createAcl([helper.createExampleAce(0)]),
     ]);
-    helper.files = await allSettled([
+    helper.files = await allFulfilled([
       helper.createFile({
         type: 'file',
         activePermissionsType: 'acl',
@@ -194,11 +194,11 @@ describe('Integration | Component | file-permissions/body', function () {
       helper.viewModelOptions = {
         readonly: true,
       };
-      const acls = await allSettled([
+      const acls = await allFulfilled([
         helper.createAcl([helper.createExampleAce(0)]),
         helper.createAcl([helper.createExampleAce(0)]),
       ]);
-      helper.files = await allSettled([
+      helper.files = await allFulfilled([
         helper.createFile({
           type: 'file',
           activePermissionsType: 'acl',
