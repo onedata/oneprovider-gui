@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find } from '@ember/test-helpers';
+import { render, find, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
 describe('Integration | Component | modal file subheader', function () {
@@ -68,6 +68,28 @@ describe('Integration | Component | modal file subheader', function () {
       .to.contain.text('hello1.txt')
       .and
       .to.contain.text('hello2.txt');
+  });
+
+  it('renders names with conflict suffix of items for multiple items with name conflict', async function () {
+    this.set('files', [{
+      type: 'file',
+      name: 'hello@a123',
+      conflictingName: 'hello',
+    }, {
+      type: 'file',
+      name: 'hello@b456',
+      conflictingName: 'hello',
+    }]);
+
+    await render(hbs`{{modal-file-subheader files=files}}`);
+
+    const baseNames = [...findAll('.file-base-name')];
+    expect(baseNames[0]).to.have.trimmed.text('hello');
+    expect(baseNames[1]).to.have.trimmed.text('hello');
+
+    const suffixes = [...findAll('.file-suffix')];
+    expect(suffixes[0]).to.have.trimmed.text('@a123');
+    expect(suffixes[1]).to.have.trimmed.text('@b456');
   });
 
   it('renders items count for multiple items', async function () {

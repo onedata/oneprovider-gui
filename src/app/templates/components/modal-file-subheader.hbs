@@ -16,7 +16,12 @@
       {{tt this "selectedItems" count=filesCount}}:
     </span>
     <span class="item-names">
-      {{selectedNamesText}}
+      {{#let (sub files.length 1) as |lastIndex|}}
+        {{#each files as |file i|}}
+          {{!-- must be in single-line to avoid unnecessary space before comma --}}
+          {{file-name-conflict class="file-name" file=file}}{{#if (lt i lastIndex)}},{{/if}}
+        {{/each}}
+      {{/let}}
     </span>
   {{else}}
     {{file-name-conflict class="file-name" file=firstFile}}

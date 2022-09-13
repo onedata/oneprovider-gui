@@ -597,7 +597,6 @@ describe('Integration | Component | file info modal', function () {
       expect(header).to.have.trimmed.text('Details');
       const subheader = modalHeader.querySelector('h2');
       expect(subheader).to.exist;
-      console.log(subheader.outerHTML);
       expect(subheader)
         .to.contain.text('foo.txt')
         .and
@@ -625,7 +624,6 @@ describe('Integration | Component | file info modal', function () {
       expect(header).to.have.trimmed.text('Directory details');
       const subheader = modalHeader.querySelector('h2');
       expect(subheader).to.exist;
-      console.log(subheader.outerHTML);
       expect(subheader).to.contain.text('foo');
     });
 
