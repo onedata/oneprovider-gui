@@ -163,11 +163,21 @@ export default Component.extend(...mixins, {
 
   itemType: reads('file.type'),
 
-  typeTranslation: computed('itemType', function typeTranslation() {
-    const headerItemType = this.isMultiFile ? 'multi' : this.itemType;
-    return _.upperFirst(this.t(`fileType.${headerItemType}`, {}, {
+  typeTranslation: computed('isMultiFile', 'itemType', function typeTranslation() {
+    if (this.isMultiFile) {
+      return '';
+    }
+    return _.upperFirst(this.t(`fileType.${this.itemType}`, {}, {
       defaultValue: this.t('fileType.file'),
     }));
+  }),
+
+  headerText: computed('typeTranslation', function headerText() {
+    if (this.typeTranslation) {
+      return this.t('header', { type: this.typeTranslation });
+    } else {
+      return this.t('headerDefault');
+    }
   }),
 
   fileName: reads('file.name'),

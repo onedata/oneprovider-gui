@@ -568,7 +568,7 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
-  it('has "Selected items details" header and item names in subheader for multiple files',
+  it('has "Details" header and item names in subheader for multiple files',
     async function () {
       await givenDefaultStubs(this);
       await givenMultipleFileModels(this, [{
@@ -594,7 +594,7 @@ describe('Integration | Component | file info modal', function () {
       const modalHeader = find('.file-info-modal-header');
       const header = modalHeader.querySelector('h1');
       expect(header).to.exist;
-      expect(header).to.have.trimmed.text('Selected items details');
+      expect(header).to.have.trimmed.text('Details');
       const subheader = modalHeader.querySelector('h2');
       expect(subheader).to.exist;
       console.log(subheader.outerHTML);
@@ -606,6 +606,27 @@ describe('Integration | Component | file info modal', function () {
         .to.contain.text('hello')
         .and
         .to.contain.text('world');
+    }
+  );
+
+  it('has "Directory details" header and directory name in subheader for single directory-type file',
+    async function () {
+      await givenDefaultStubs(this);
+      await givenFileModel(this, {
+        name: 'foo',
+        type: 'dir',
+      });
+
+      await renderComponent();
+
+      const modalHeader = find('.file-info-modal-header');
+      const header = modalHeader.querySelector('h1');
+      expect(header).to.exist;
+      expect(header).to.have.trimmed.text('Directory details');
+      const subheader = modalHeader.querySelector('h2');
+      expect(subheader).to.exist;
+      console.log(subheader.outerHTML);
+      expect(subheader).to.contain.text('foo');
     });
 
   it('shows API operations provided by fileManager', async function () {

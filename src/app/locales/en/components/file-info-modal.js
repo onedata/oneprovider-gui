@@ -1,5 +1,6 @@
 export default {
   header: '{{type}} details',
+  headerDefault: 'Details',
   name: '{{type}} name',
   path: '{{type}} location',
   storageLocations: 'Storage locations',
@@ -16,7 +17,6 @@ export default {
     file: 'file',
     dir: 'directory',
     symlink: 'symbolic link',
-    multi: 'selected items',
   },
   tabs: {
     general: {
