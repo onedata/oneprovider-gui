@@ -8,8 +8,8 @@
   {{#promise-proxy-container proxy=loadingProxy}}
     {{one-time-series-charts-section
       sectionSpec=dashboardSpec.rootSection
-      onGetTimeSeriesSchemas=(action "getTimeSeriesSchemas")
       externalDataSources=chartsExternalDataSources
+      onGetTimeSeriesSchemas=(action "getTimeSeriesSchemas")
       onQueryBatcherFetchData=(action "queryBatcherFetchData")
     }}
   {{/promise-proxy-container}}

@@ -29,6 +29,10 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
  * @param {QosLogErrorReason} [reason] error object - only if status is failed
  */
 
+/**
+ * @typedef {'bytes'|'files'} QosTimeSeriesCollectionRef
+ */
+
 const auditLogAspect = 'audit_log';
 
 /**
@@ -108,7 +112,7 @@ export default Service.extend({
 
   /**
    * @param {string} qosRequirementId
-   * @param {string} collectionRef
+   * @param {QosTimeSeriesCollectionRef} collectionRef
    * @returns {Promise<TimeSeriesCollectionLayout>}
    */
   async getTransferTimeSeriesCollectionLayout(
@@ -123,7 +127,7 @@ export default Service.extend({
 
   /**
    * @param {string} qosRequirementId
-   * @param {string} collectionRef
+   * @param {QosTimeSeriesCollectionRef} collectionRef
    * @param {TimeSeriesCollectionSliceQueryParams} queryParams
    * @returns {Promise<TimeSeriesCollectionSlice>}
    */
