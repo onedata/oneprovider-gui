@@ -24,12 +24,6 @@ export default Component.extend({
   viewModel: undefined,
 
   /**
-   * @virtual
-   * @type {Function}
-   */
-  getProvidersUrl: notImplementedIgnore,
-
-  /**
    * @type {ComputedProperty<Models.File>}
    */
   files: reads('viewModel.files'),
@@ -66,7 +60,7 @@ export default Component.extend({
       return await this.viewModel.evict([file], sourceOneprovider);
     },
     getProvidersUrl(...args) {
-      return this.get('getProvidersUrl')(...args);
+      return this.viewModel.getProvidersUrl?.(...args);
     },
   },
 });

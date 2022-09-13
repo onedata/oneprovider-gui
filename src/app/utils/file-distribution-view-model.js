@@ -27,6 +27,7 @@ export default EmberObject.extend(...mixins, {
   transferManager: service(),
   globalNotify: service(),
   i18n: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -263,5 +264,9 @@ export default EmberObject.extend(...mixins, {
     )).catch(error => {
       globalNotify.backendError(this.t('startingEviction'), error);
     });
+  },
+
+  getProvidersUrl({ oneproviderId }) {
+    return this.appProxy.callParent('getProvidersUrl', { oneproviderId });
   },
 });
