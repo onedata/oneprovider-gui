@@ -29,8 +29,25 @@
 
 .modal-backdrop {
   &.in, &.fade {
+    background-color: transparent;
+  }
+}
+
+.modal:nth-of-type(1) + div .modal-backdrop {
+  &.in, &.fade {
     background-color: $main-tabbed-content-background;
   }
+}
+
+// modals and their backdrop above the deepest modal
+.modal:first-child ~ .modal:not(.modal-content-overlay) ~ div .modal-backdrop {
+  &.in, &.fade {
+    background-color: $main-tabbed-content-background;
+    z-index: $zindex-modal + 5;
+  }
+}
+.modal ~ .modal {
+  z-index: $zindex-modal + 10;
 }
 
 @media (max-width: $screen-xs-max) {
@@ -41,8 +58,8 @@
 
 // a full-height modal that looks like content overlay (currently starting from right)
 .modal.modal-content-overlay {
-  --shadow-color: rgba(0, 0, 0, 0.15);
-  --overlay-border-color: rgba(0, 0, 0, 0.1);
+  --shadow-color: transparent;
+  --overlay-border-color: #e6e6e6;
   box-shadow: none;
   .modal-dialog {
     width: calc(100% - #{$content-col-padding * 2});
@@ -73,11 +90,11 @@
 
   &.in {
     transition: box-shadow ease-in-out 0.15s;
-    box-shadow: inset calc(-1 * var(--shadow-width)) var(--shadow-width) var(--shadow-width) calc(-1 * var(--shadow-width)) var(--shadow-color);
 
     .modal-dialog {
-      transform: none;
       border-top-color: var(--overlay-border-color);
+      transition: transition-ease(transform), transition-ease(border-top-color);
+      transform: none;
 
       .modal-content {
         height: 100%;
@@ -115,7 +132,6 @@
 
   .modal-dialog {
     transform: translateX(100%);
-    transition: transition-ease(transform), transition-ease(border-top-color);
 
     top: 0;
     bottom: 0;
@@ -127,5 +143,13 @@
     border-top: 1px solid;
     border-top-color: transparent;
     border-radius: 0;
+  }
+}
+
+// additional shadow decortion only for deepest overlay modal
+div.modal.modal-content-overlay:first-of-type {
+  --shadow-color: rgba(0, 0, 0, 0.15);
+  &.in {
+    box-shadow: inset calc(-1 * var(--shadow-width)) var(--shadow-width) var(--shadow-width) calc(-1 * var(--shadow-width)) var(--shadow-color);
   }
 }

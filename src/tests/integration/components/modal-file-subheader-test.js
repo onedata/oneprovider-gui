@@ -37,7 +37,7 @@ describe('Integration | Component | modal file subheader', function () {
     expect(find('.file-item-icon')).to.have.class('oneicon-browser-directory');
   });
 
-  it('renders opened folder icon for multiple items', async function () {
+  it('renders "items grid" icon for multiple items', async function () {
     this.set('files', [{
       type: 'file',
       name: 'hello1.txt',
@@ -50,7 +50,7 @@ describe('Integration | Component | modal file subheader', function () {
     await render(hbs`{{modal-file-subheader files=files}}`);
     const fileItemIcon = find('.file-item-icon');
     expect(fileItemIcon).to.exist;
-    expect(fileItemIcon).to.have.class('oneicon-folder-open');
+    expect(fileItemIcon).to.have.class('oneicon-items-grid');
   });
 
   it('renders names of items for multiple items', async function () {

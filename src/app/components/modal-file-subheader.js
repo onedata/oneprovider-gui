@@ -38,7 +38,7 @@ export default Component.extend(I18n, {
 
   dirIcon: 'browser-directory',
 
-  multiIcon: 'folder-open',
+  multiIcon: 'items-grid',
 
   filesCount: reads('files.length'),
 
