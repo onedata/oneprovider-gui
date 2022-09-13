@@ -124,12 +124,6 @@ export default Component.extend(...mixins, {
   onCloseAllModals: notImplementedIgnore,
 
   /**
-   * @virtual
-   * @type {Function}
-   */
-  getProvidersUrl: notImplementedIgnore,
-
-  /**
    * @implements ItemBrowserContainerBase.selectedItems
    */
   selectedItems: undefined,
@@ -862,6 +856,9 @@ export default Component.extend(...mixins, {
   getTransfersUrl(options) {
     return this.get('appProxy').callParent('getTransfersUrl', options);
   },
+  getProvidersUrl(options) {
+    return this.get('appProxy').callParent('getProvidersUrl', options);
+  },
 
   //#endregion
 
@@ -898,7 +895,7 @@ export default Component.extend(...mixins, {
       return this.get('filesViewResolver').generateUrlById(id, type);
     },
     getProvidersUrl(...args) {
-        return this.get('getProvidersUrl')(...args);
+      return this.getProvidersUrl(...args);
     },
   },
 });

@@ -954,8 +954,5 @@ export default OneEmbeddedComponent.extend(...mixins, {
         return this.fetchDatasetChildren(...fetchArgs);
       }
     },
-    getProvidersUrl({ oneproviderId }) {
-      return this.callParent('getProvidersUrl', { oneproviderId });
-    },
   },
 });
