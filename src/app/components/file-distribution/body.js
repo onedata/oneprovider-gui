@@ -9,7 +9,6 @@
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend({
   classNames: ['file-distribution-body'],
