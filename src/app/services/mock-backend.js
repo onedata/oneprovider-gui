@@ -142,7 +142,7 @@ export default Service.extend({
    */
   symlinkMap: computed(() => ({})),
 
-  generateDevelopmentModel() {
+  async generateDevelopmentModel() {
     const store = this.get('store');
     const promiseHash = {};
     let promiseChain = resolve();
@@ -161,85 +161,61 @@ export default Service.extend({
         return createRecordsPromise;
       });
     });
-    return this.createEmptyQos(store)
-      .then(async () => {
-        await this.createEmptyDatasetSummary(store);
-        const resultHash = await promiseChain.then(() => hashFulfilled(promiseHash));
-        await this.createStorageLocationInfoRecords(store);
-        return resultHash;
-      })
-      .then((listRecords) => {
-        const { space: spaceList } = listRecords;
-        return store.createRecord('user', {
-          fullName: 'John Smith',
-          username: 'smith',
-        }).save().then(owner => {
-          const entityRecords = this.get('entityRecords');
-          if (!get(entityRecords, 'owner')) {
-            set(entityRecords, 'owner', []);
-          }
-          get(entityRecords, 'owner').push(owner);
-          return get(spaceList, 'list').then(list => {
-              return list.forEach(space => {
-                return get(space, 'rootDir').then(rootDir => {
-                  this.set('entityRecords.rootDir', [rootDir]);
-                  return this.createFileRecords(store, rootDir, owner)
-                    .then(() => this.createTransferRecords(store))
-                    .then((transferList) => {
-                      const dataSourceId = get(rootDir, 'entityId');
-                      const firstProvider =
-                        this.get('entityRecords.provider')[0];
-                      // currently to make it simpler, all files are rootDir
-                      return allFulfilled(
-                        transferList.map((transfer) => {
-                          setProperties(transfer, {
-                            type: 'replication',
-                            dataSourceId,
-                            user: owner,
-                            replicatingProvider: firstProvider,
-                          });
-                          return transfer.save();
-                        })
-                      );
-                    });
+    await this.createEmptyQos(store);
+    await this.createEmptyDatasetSummary(store);
+    const listRecords = await promiseChain.then(() => hashFulfilled(promiseHash));
+    await this.createStorageRecords(store);
+    await this.createStorageLocationInfoRecords(store);
+    await this.createFileDistribution(store);
+    const { space: spaceList } = listRecords;
+    const owner = await store.createRecord('user', {
+      fullName: 'John Smith',
+      username: 'smith',
+    }).save();
+    const entityRecords = this.get('entityRecords');
+    if (!get(entityRecords, 'owner')) {
+      set(entityRecords, 'owner', []);
+    }
+    get(entityRecords, 'owner').push(owner);
+    const spaceListList = await get(spaceList, 'list');
+    const fillSpacePromises = spaceListList.map(space =>
+      get(space, 'rootDir').then(rootDir => {
+        this.set('entityRecords.rootDir', [rootDir]);
+        return this.createFileRecords(store, rootDir, owner)
+          .then(() => this.createTransferRecords(store))
+          .then((transferList) => {
+            const dataSourceId = get(rootDir, 'entityId');
+            const firstProvider =
+              this.get('entityRecords.provider')[0];
+            // currently to make it simpler, all files are rootDir
+            return allFulfilled(
+              transferList.map((transfer) => {
+                setProperties(transfer, {
+                  type: 'replication',
+                  dataSourceId,
+                  user: owner,
+                  replicatingProvider: firstProvider,
                 });
-              });
-            })
-            .then(() => listRecords);
-        });
+                return transfer.save();
+              })
+            );
+          });
       })
-      .then(listRecords =>
-        this.pushProviderListIntoSpaces(listRecords).then(() => listRecords)
-      )
-      .then(listRecords =>
-        this.pushSpaceListIntoProviders(listRecords).then(() => listRecords)
-      )
-      .then(listRecords => {
-        return this.createAndAddShare(store).then(() => listRecords);
-      })
-      .then(listRecords => {
-        return this.createAndAddQos(store).then(() => listRecords);
-      })
-      .then(listRecords => {
-        return this.createDatasetMock(store).then(() => listRecords);
-      })
-      .then(listRecords => {
-        return this.createArchivesMock(store).then(() => listRecords);
-      })
-      .then(listRecords => {
-        return this.createAtmWorkflowExecutionRecords(store).then(() => listRecords);
-      })
-      .then(async listRecords => {
-        await this.createRecallState(store);
-        return listRecords;
-      })
-      .then(listRecords => this.createUserRecord(store, listRecords))
-      .then(user => {
-        return user.get('effSpaceList')
-          .then(effSpaceList => get(effSpaceList, 'list'))
-          .then(list => allFulfilled(list.toArray()))
-          .then(() => user);
-      });
+    );
+    await allFulfilled(fillSpacePromises);
+    await this.pushProviderListIntoSpaces(listRecords);
+    await this.pushSpaceListIntoProviders(listRecords);
+    await this.createAndAddShare(store);
+    await this.createAndAddQos(store);
+    await this.createDatasetMock(store);
+    await this.createArchivesMock(store);
+    await this.createAtmWorkflowExecutionRecords(store);
+    await this.createRecallState(store);
+    const user = await this.createUserRecord(store, listRecords);
+    const effSpaceList = await user.get('effSpaceList');
+    const effSpaceListList = await get(effSpaceList, 'list');
+    await allFulfilled(effSpaceListList.toArray());
+    return user;
   },
 
   createListRecord(store, type, records) {
@@ -248,29 +224,6 @@ export default Service.extend({
     return get(listRecord, 'list').then(list => {
       list.pushObjects(records);
       return list.save().then(() => listRecord.save());
-    });
-  },
-
-  createFileDistribution(store) {
-    const providerIds = this.get('entityRecords.provider').mapBy('entityId');
-    const providersCount = providerIds.length;
-    const distributionPerProvider = {};
-    for (let i = 0; i < providersCount; ++i) {
-      const start = Math.floor((i / providersCount) * 320);
-      const end = Math.floor(((i + 1) / providersCount) * 320);
-      distributionPerProvider[providerIds[i]] = {
-        blocksPercentage: 100 / providersCount,
-        chunksBarData: {
-          0: 0,
-          [start]: 100,
-          [end]: 0,
-        },
-      };
-    }
-    return store.createRecord('fileDistribution', {
-      distributionPerProvider,
-    }).save().then(fileDistribution => {
-      this.set('entityRecords.fileDistribution', [fileDistribution]);
     });
   },
 
@@ -472,6 +425,7 @@ export default Service.extend({
    */
   createSpaceRecords(store, names) {
     const timestamp = getCurrentTimestamp();
+    const distribution = this.get('entityRecords.fileDistribution.firstObject');
     const provider = this.get('entityRecords.provider.firstObject');
     const providerId = get(provider, 'entityId');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
@@ -492,6 +446,7 @@ export default Service.extend({
           fileQosSummary,
           fileDatasetSummary: emptyDatasetSummary,
           provider,
+          distribution,
         }).save()
       ))
       .then(rootDirs => allFulfilled(_.range(numberOfSpaces).map((i) => {
@@ -522,6 +477,9 @@ export default Service.extend({
             'space_remove_archives',
             'space_view_atm_workflow_executions',
             'space_schedule_atm_workflow_executions',
+            'space_schedule_replication',
+            'space_schedule_migration',
+            'space_schedule_eviction',
           ],
         }).save();
       })))
@@ -909,6 +867,7 @@ export default Service.extend({
 
   async createArchiveRootDir(archiveId, fileId) {
     const store = this.get('store');
+    const distribution = this.get('entityRecords.fileDistribution.firstObject');
     const owner = this.get('entityRecords.owner.0');
     const timestamp = getCurrentTimestamp();
     const provider = this.get('entityRecords.provider.firstObject');
@@ -940,6 +899,7 @@ export default Service.extend({
       fileQosSummary,
       emptyDatasetSummary,
       provider,
+      distribution,
     }).save();
     const entityRecords = this.get('entityRecords');
     if (!get(entityRecords, 'archiveDir')) {
@@ -966,8 +926,7 @@ export default Service.extend({
         })).save()
       )).then(([privateRecord /*, protectedRecord */ ]) => privateRecord);
     })).then((records) => {
-      this.set('entityRecords.provider', records);
-      return this.createFileDistribution(store).then(() => records);
+      return this.set('entityRecords.provider', records);
     });
   },
 
@@ -1135,6 +1094,7 @@ export default Service.extend({
           fileQosSummary,
           fileDatasetSummary: emptyDatasetSummary,
           provider,
+          distribution,
         }).save();
       }))
       .then(dirs => {
@@ -1161,6 +1121,7 @@ export default Service.extend({
               fileQosSummary,
               emptyDatasetSummary,
               provider,
+              distribution,
             }).save();
           })).then(chainDirs => {
             this.set('entityRecords.chainDir', chainDirs);
@@ -1236,6 +1197,7 @@ export default Service.extend({
     const store = this.get('store');
     const parent = this.get('entityRecords.spaceRootDir.firstObject');
     const parentEntityId = get(parent, 'entityId');
+    const distribution = this.get('entityRecords.fileDistribution.firstObject');
     const promises = _.range(0, count).map(i => {
       const name = `A-${String(i).padStart(4, '0')}`;
       const entityId = btoa(`${parentEntityId}-${name}`);
@@ -1245,6 +1207,7 @@ export default Service.extend({
         name,
         index: name,
         parent,
+        distribution,
       })).save();
     });
     const frontFiles = await allFulfilled(promises);
@@ -1281,29 +1244,88 @@ export default Service.extend({
     }, customData);
   },
 
-  async createStorageLocationInfoRecords(store) {
-    const storageId = 'storage_id';
-    const storageGri = gri({
-      entityType: storageEntityType,
-      entityId: storageId,
-      aspect: 'instance',
-      scope: 'shared',
-    });
-    const provider = this.get('entityRecords.provider.firstObject');
-    const providerId = get(provider, 'entityId');
-    await store.createRecord('storage', {
-      id: storageGri,
-      name: 'Dummy storage',
-      provider,
-    }).save();
-    const storageLocationInfo = await store.createRecord('storageLocationInfo', {
-      locationsPerProvider: {
-        [providerId]: {
-          locationsPerStorage: {
-            [storageId]: '/path',
-          },
+  /**
+   * Requires entityRecords: provider
+   */
+  async createStorageRecords(store) {
+    const providers = this.entityRecords.provider;
+    const storages = await allFulfilled(providers.map(async provider => {
+      const storageId = `storage_${get(provider, 'entityId')}`;
+      const storageGri = gri({
+        entityType: storageEntityType,
+        entityId: storageId,
+        aspect: 'instance',
+        scope: 'shared',
+      });
+      return store.createRecord('storage', {
+        id: storageGri,
+        name: `Storage of ${get(provider, 'name')}`,
+        provider,
+      }).save();
+    }));
+    this.set('entityRecords.storage', storages);
+  },
+
+  /**
+   * Requires entityRecords: provider, storage
+   */
+  async createFileDistribution(store) {
+    // NOTE: assuming that list of providers and storages are the same lenght
+    // and each provider corresponds to storage 1:1 by their array index
+    const providers = this.entityRecords.provider;
+    const storages = this.entityRecords.storage;
+    const logicalSize = 10000;
+    const physicalSize = logicalSize / storages.length;
+    const distributionPerProvider = {};
+    for (let i = 0; i < providers.length; ++i) {
+      const providerId = get(providers[i], 'entityId');
+      const storageId = get(storages[i], 'entityId');
+      const start = Math.floor((i / storages.length) * 320);
+      const end = Math.floor(((i + 1) / storages.length) * 320);
+      const distributionPerStorage = {};
+      distributionPerStorage[storageId] = {
+        physicalSize,
+        blocksPercentage: 100 / providers.length,
+        chunksBarData: {
+          0: 0,
+          [start]: 100,
+          [end]: 0,
         },
-      },
+      };
+      const providerDistribution = {
+        logicalSize,
+        success: true,
+        distributionPerStorage,
+      };
+      distributionPerProvider[providerId] = providerDistribution;
+    }
+    const fileDistributionData = { distributionPerProvider };
+    const fileDistribution =
+      await store.createRecord('file-distribution', fileDistributionData).save();
+    return this.set('entityRecords.fileDistribution', [fileDistribution]);
+  },
+
+  /**
+   * Requires entityRecords: provider, storage
+   */
+  async createStorageLocationInfoRecords(store) {
+    // NOTE: assuming that list of providers and storages are the same lenght
+    // and each provider corresponds to storage 1:1 by their array index
+    const providers = this.entityRecords.provider;
+    const storages = this.entityRecords.storage;
+    const locationsPerProvider = {};
+    for (let i = 0; i < providers.length; ++i) {
+      const providerId = get(providers[i], 'entityId');
+      const storageId = get(storages[i], 'entityId');
+      const providerLocationInfo = {
+        locationsPerStorage: {
+          [storageId]: `/${storageId}/path/foo/bar`,
+        },
+      };
+      locationsPerProvider[providerId] = providerLocationInfo;
+    }
+    const storageLocationInfo = await store.createRecord('storageLocationInfo', {
+      locationsPerProvider,
     }).save();
     return this.set('entityRecords.storageLocationInfo', [storageLocationInfo]);
   },

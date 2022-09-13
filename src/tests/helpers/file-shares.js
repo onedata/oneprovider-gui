@@ -2,7 +2,7 @@ import hbs from 'htmlbars-inline-precompile';
 import { find } from '@ember/test-helpers';
 import FileSharesViewModel from 'oneprovider-gui/utils/file-shares-view-model';
 import { lookupService, registerService } from './stub-service';
-import { all as allSettled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import createSpace from './create-space';
 import { get } from '@ember/object';
 import Service from '@ember/service';
@@ -104,7 +104,7 @@ export default class FileSharesHelper {
         rootFileType: get(file, 'type'),
       });
     }
-    await allSettled(shares.invoke('save'));
+    await allFulfilled(shares.invoke('save'));
     this.file.setProperties({
       shareRecords: shares,
       sharesCount: shares.length,

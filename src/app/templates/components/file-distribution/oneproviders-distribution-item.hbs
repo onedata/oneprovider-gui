@@ -54,7 +54,7 @@
     {{/status-toolbar}}
   {{/one-pill-button}}
   {{#if hasSingleRegFile}}
-    {{file-distribution-modal/chunks-visualizer
+    {{file-distribution/chunks-visualizer
       neverSynchronized=neverSynchronized
       fileSize=filesSize
       fileSizeOnStorage=filesSizeOnStorage
@@ -64,7 +64,7 @@
       blockCount=blockCount
     }}
   {{else}}
-    {{file-distribution-modal/progress-bar-visualizer
+    {{file-distribution/progress-bar-visualizer
       size=filesSizeOnStorage
       percentage=percentage
     }}

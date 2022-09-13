@@ -144,6 +144,10 @@
     // standard size for multiple-file or multiple-entries QoS panel
     height: 50vh;
 
+    .audit-log-browser {
+      flex-grow: 1;
+    }
+
     .file-column-header {
       width: 12em;
     }

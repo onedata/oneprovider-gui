@@ -257,7 +257,7 @@ export default EmberObject.extend(
         isFileDistributionError,
         transfersProxy,
       } = this.getProperties('isFileDistributionError', 'transfersProxy');
-      return Promise.all([
+      const x = Promise.all([
         !isFileDistributionError ?
         this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
         !get(transfersProxy, 'isRejected') ?
@@ -265,6 +265,7 @@ export default EmberObject.extend(
         this.get('isStorageLocationsUpdated') ?
         this.updateStorageLocationsProxy({ replace: true }) : resolve(),
       ]);
+      return x;
     },
 
     /**
@@ -291,14 +292,11 @@ export default EmberObject.extend(
      * @returns {Array<String>}
      */
     getStorageIdsForOneprovider(oneprovider) {
-      const {
-        isFileDistributionLoaded,
-      } = this.getProperties('isFileDistributionLoaded');
-      if (isFileDistributionLoaded) {
+      if (this.isFileDistributionLoaded) {
         const oneproviderData = this.getDistributionForOneprovider(oneprovider);
         return Object.keys(get(oneproviderData, 'distributionPerStorage'));
       } else {
-        return {};
+        return [];
       }
     },
 

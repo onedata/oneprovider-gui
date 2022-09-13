@@ -1,6 +1,6 @@
 /**
  * Modal for showing information and source of functions od Database View (aka Index)
- * 
+ *
  * @module components/db-view-modal
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -15,7 +15,7 @@ import { inject as service } from '@ember/service';
 import { promise } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { all as allSettled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend(I18n, {
   spaceManager: service(),
@@ -81,7 +81,7 @@ export default Component.extend(I18n, {
       } = this.getProperties('providerManager', 'dbViewProxy');
       return dbViewProxy.then((dbView) => {
         const providers = get(dbView, 'providers');
-        return allSettled(providers.map((providerId) => {
+        return allFulfilled(providers.map((providerId) => {
           return providerManager.getProviderById(providerId)
             .then(provider => get(provider, 'name'))
             .catch(() => providerId);
