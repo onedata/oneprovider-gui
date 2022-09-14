@@ -268,7 +268,9 @@
               <td class="property-value">
                 {{#truncated-string}}
                   <span class="file-info-size">{{bytes-to-string fileSize}}</span>
-                  <span class="file-info-detail-size">({{fileSize}} B)</span>
+                  {{#if (gte fileSize 1024)}}
+                    <span class="file-info-detail-size">({{fileSize}} B)</span>
+                  {{/if}}
                 {{/truncated-string}}
               </td>
             </tr>
