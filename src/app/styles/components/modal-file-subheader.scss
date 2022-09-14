@@ -18,3 +18,29 @@
     @include font-semibold;
   }
 }
+
+.tooltip-modal-file-subheader-multi {
+  $margin-base: 0.4em;
+  .tooltip-inner {
+    max-width: 80vw;
+    // empirical value to fit space from bottom of subheader to the bottom of page
+    max-height: 65vw;
+    padding-top: $margin-base;
+    padding-bottom: $margin-base;
+  }
+  .multi-item-list {
+    // overflow-wrap: break-word;
+    line-height: 2.4;
+    span.item {
+      margin-right: $margin-base / 2;
+      padding: $margin-base / 2 $margin-base;
+      border-radius: 4px;
+      border: 1px solid #ffffff33;
+      background: #ffffff22;
+      white-space: nowrap;
+      &:last-of-type {
+        margin-right: 0;
+      }
+    }
+  }
+}

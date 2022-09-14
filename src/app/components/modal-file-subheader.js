@@ -12,6 +12,7 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { gt, conditional, raw, or, and, eq } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { htmlSafe } from '@ember/string';
 
 export default Component.extend(I18n, {
   tagName: 'h2',
@@ -66,7 +67,25 @@ export default Component.extend(I18n, {
     null
   ),
 
-  selectedNamesText: computed('files', function selectedNamesText() {
-    return this.files.mapBy('name').join(', ');
-  }),
+  truncatedTextTip: conditional(
+    'multi',
+    computed('files.@each.name', function tuncatedTextTip() {
+      return htmlSafe(
+        '<div class="multi-item-list">' +
+        this.files.map(file =>
+          `<span class="item">${file.name}</span>`
+          // NOTE: span list MUST be separated by spaces, because otherwise it will not
+          // wrap elements in Firefox
+        ).join(' ') +
+        '</div>'
+      );
+    }),
+    raw(undefined),
+  ),
+
+  truncatedTextTooltipClass: conditional(
+    'multi',
+    raw('tooltip-modal-file-subheader-multi'),
+    raw(undefined),
+  ),
 });
