@@ -283,26 +283,28 @@
               {{/truncated-string}}
             </td>
           </tr>
-          <tr class="file-info-row-owner">
-            <td class="property-name">{{tt this "owner"}}</td>
-            <td class="property-value">
-              {{#promise-proxy-container
-                proxy=ownerProxy
-                sizeClass="xs"
-                centered=false
-                spinnerBlockClass="loading-owner-full-name"
-              }}
-                {{#truncated-string}}
-                  <span class="file-owner-fullname">{{or owner.fullName "—"}}</span>
-                  {{#if owner.username}}
-                    <span class="file-owner-username">
-                      ({{owner.username}})
-                    </span>
-                  {{/if}}
-                {{/truncated-string}}
-              {{/promise-proxy-container}}
-            </td>
-          </tr>
+          {{#if isOwnerVisible}}
+            <tr class="file-info-row-owner">
+              <td class="property-name">{{tt this "owner"}}</td>
+              <td class="property-value">
+                {{#promise-proxy-container
+                  proxy=ownerProxy
+                  sizeClass="xs"
+                  centered=false
+                  spinnerBlockClass="loading-owner-full-name"
+                }}
+                  {{#truncated-string}}
+                    <span class="file-owner-fullname">{{or owner.fullName "—"}}</span>
+                    {{#if owner.username}}
+                      <span class="file-owner-username">
+                        ({{owner.username}})
+                      </span>
+                    {{/if}}
+                  {{/truncated-string}}
+                {{/promise-proxy-container}}
+              </td>
+            </tr>
+          {{/if}}
         </tbody>
       </table>
     {{else if (eq activeTab "hardlinks")}}

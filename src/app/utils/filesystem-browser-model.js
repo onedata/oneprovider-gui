@@ -22,7 +22,7 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
-import { array, raw, and } from 'ember-awesome-macros';
+import { array, raw, and, not } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
@@ -880,6 +880,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   // #endregion
+
+  isOwnerVisible: not('previewMode'),
 
   /**
    * @type {ComputedProperty<Array<String>>}

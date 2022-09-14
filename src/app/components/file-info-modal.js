@@ -155,6 +155,8 @@ export default Component.extend(...mixins, {
    */
   hardlinksLimit: 100,
 
+  isOwnerVisible: not('previewMode'),
+
   /**
    * @type {ComputedProperty<Models.File>}
    */
