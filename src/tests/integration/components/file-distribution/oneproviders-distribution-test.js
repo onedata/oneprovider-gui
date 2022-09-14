@@ -192,7 +192,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       expect(find('.oneprovider-providerkrk .progress-bar-visualizer')).to
         .exist;
       expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('n/a');
-      expect(find('.oneprovider-providerkrk .progress-bar-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerkrk .progress-bar-text')).to.contain.text(
+        'Directory statistics are disabled'
+      );
     });
 
     it('renders distribution for single file', async function () {
@@ -265,7 +267,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       expect(find('.oneprovider-providerpar .progress-bar-visualizer')).to
         .exist;
       expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('n/a');
-      expect(find('.oneprovider-providerpar .progress-bar-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerpar .progress-bar-text')).to.contain.text(
+        'Directory statistics are disabled'
+      );
     });
 
     it('renders distribution for two dir with one provider dir stats off', async function () {
@@ -297,7 +301,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       expect(find('.oneprovider-providerpar .progress-bar-visualizer')).to
         .exist;
       expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('n/a');
-      expect(find('.oneprovider-providerpar .progress-bar-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerpar .progress-bar-text')).to.contain.text(
+        'Directory statistics are disabled'
+      );
     });
 
     it('renders distribution for single file and single dir with one provider dir stats off', async function () {
@@ -325,7 +331,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       expect(find('.oneprovider-providerpar .progress-bar-visualizer')).to
         .exist;
       expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('n/a');
-      expect(find('.oneprovider-providerpar .progress-bar-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerpar .progress-bar-text')).to.contain.text(
+        'Directory statistics are disabled'
+      );
     });
 
     it('shows that replication is in progress', async function () {

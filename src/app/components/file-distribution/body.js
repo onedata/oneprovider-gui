@@ -58,5 +58,8 @@ export default Component.extend({
     async evict(file, sourceOneprovider) {
       return await this.viewModel.evict([file], sourceOneprovider);
     },
+    getProvidersUrl(...args) {
+      return this.viewModel.getProvidersUrl(...args);
+    },
   },
 });

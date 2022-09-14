@@ -12,6 +12,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe } from '@ember/string';
 import { or, eq } from 'ember-awesome-macros';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
   classNames: ['progress-bar-visualizer'],
@@ -35,6 +36,18 @@ export default Component.extend(I18n, {
    * @type {number}
    */
   size: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  getProvidersUrl: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  providerId: undefined,
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -77,4 +90,18 @@ export default Component.extend(I18n, {
       return percentage === undefined ? undefined : Math.min(percentage, 100);
     }
   ),
+
+  /**
+   * Frame name, where Onezone providers link should be opened
+   * @type {String}
+   */
+  navigateProvidersTarget: '_top',
+
+  /**
+   * @type {Ember.ComputedProperty<string>}
+   */
+  providersUrl: computed('providerId', function providersUrl() {
+    const providerId = this.get('providerId');
+    return this.getProvidersUrl({ oneproviderId: providerId});
+  }),
 });

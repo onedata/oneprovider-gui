@@ -22,6 +22,7 @@
       onMigrate=(action "migrate" files)
       onEvict=(action "evict" files)
       getTransfersUrl=(action "getTransfersUrl")
+      getProvidersUrl=(action "getProvidersUrl")
     }}
   {{else if (eq activeTab "details")}}
     {{#if isMultiFile}}
@@ -62,6 +63,7 @@
                   onMigrate=(action "migrate" fileDistDataContainer.file)
                   onEvict=(action "evict" fileDistDataContainer.file)
                   getTransfersUrl=(action "getTransfersUrl")
+                  getProvidersUrl=(action "getProvidersUrl")
                 }}
               </div>
             {{/listItem.content}}
@@ -79,6 +81,7 @@
           onMigrate=(action "migrate" fileDistDataContainer.file)
           onEvict=(action "evict" fileDistDataContainer.file)
           getTransfersUrl=(action "getTransfersUrl")
+          getProvidersUrl=(action "getProvidersUrl")
         }}
       {{/let}}
     {{/if}}

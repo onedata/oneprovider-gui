@@ -24,9 +24,9 @@
       <div
         class={{concat-classes
           "dir-size-container"
-          (if isDirStatsServiceStarted "active" "disabled")
+          "active"
         }}
-        onclick={{if isDirStatsServiceStarted (action "invokeFileAction" file "info" "size")}}
+        onclick={{action "invokeFileAction" file "info" "size"}}
       >
         <span class="dir-size-value">
           {{#if (not-eq file.effFile.size null)}}

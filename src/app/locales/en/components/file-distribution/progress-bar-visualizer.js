@@ -1,4 +1,5 @@
 export default {
   na: 'n/a',
-  naTip: 'Directory statistics are disabled',
+  naTip: 'Click to open directory statistics settings',
+  disableStatistics: 'Directory statistics are disabled',
 };
