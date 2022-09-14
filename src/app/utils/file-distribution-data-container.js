@@ -12,7 +12,7 @@ import EmberObject, { get, set, setProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve, Promise, reject } from 'rsvp';
-import { conditional, raw, gt, and, not, notEmpty } from 'ember-awesome-macros';
+import { conditional, raw, gt, and, not, notEmpty, or, eq } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
 import { computed } from '@ember/object';
@@ -127,7 +127,11 @@ export default EmberObject.extend(
     /**
      * @type {ComputedProperty<LocationsPerProvider>}
      */
-    storageLocationsPerProvider: reads('storageLocations.locationsPerProvider'),
+    storageLocationsPerProvider: or(
+      eq('fileType', raw('dir')),
+      null,
+      'storageLocations.locationsPerProvider',
+    ),
 
     /**
      * @type {Ember.ComputedProperty<Array<Models.Transfer>>}
@@ -150,7 +154,7 @@ export default EmberObject.extend(
      * If true, storage locations will be reloaded
      * @type {Boolean}
      */
-    isStorageLocationsUpdated: true,
+    isStorageLocationsUpdated: not(eq('fileType', raw('dir'))),
 
     pollingTimeObserver: observer('pollingTime', function pollingTimeObserver() {
       const {
