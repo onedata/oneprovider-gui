@@ -417,16 +417,14 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  ownerFullNameProxy: promise.object(
-    computed('file.owner', function ownerFullNamePromise() {
-      const ownerProxy = this.get('file.owner');
-      if (ownerProxy) {
-        return ownerProxy.then(owner => owner && get(owner, 'fullName'));
-      } else {
-        return resolve('—');
-      }
-    })
-  ),
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.User>>}
+   */
+  ownerProxy: promise.object(computed('file.owner', async function ownerProxy() {
+    return await this.fileManager.getFileOwner(this.file);
+  })),
+
+  owner: reads('ownerProxy.content'),
 
   filePathProxy: promise.object(
     computed('file.parent', function filePathPromise() {

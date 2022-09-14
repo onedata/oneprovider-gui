@@ -3,9 +3,11 @@
     {{#truncated-string class="file-owner-line file-owner-fullname"}}
       {{or owner.fullName "—"}}
     {{/truncated-string}}
-    {{#truncated-string class="file-owner-line file-owner-username"}}
-      ({{or owner.username (tt this "unknownUsername")}})
-    {{/truncated-string}}
+    {{#if owner.username}}
+      {{#truncated-string class="file-owner-line file-owner-username"}}
+        ({{owner.username}})
+      {{/truncated-string}}
+    {{/if}}
   </span>
 </td>
 

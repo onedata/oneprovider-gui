@@ -6,5 +6,4 @@ export default {
   initializingStatsInfo: 'Directory statistics are being initialized',
   enabledStatsInfo: 'Show more size statistics',
   disabledStatsInfo: 'Directory statistics are disabled. Click for more information.',
-  unknownUsername: 'unknown username',
 };

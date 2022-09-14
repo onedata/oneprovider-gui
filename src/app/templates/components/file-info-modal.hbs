@@ -285,13 +285,18 @@
             <td class="property-name">{{tt this "owner"}}</td>
             <td class="property-value">
               {{#promise-proxy-container
-                proxy=ownerFullNameProxy
+                proxy=ownerProxy
                 sizeClass="xs"
                 centered=false
                 spinnerBlockClass="loading-owner-full-name"
               }}
                 {{#truncated-string}}
-                  {{or ownerFullNameProxy.content "—"}}
+                  <span class="file-owner-fullname">{{or owner.fullName "—"}}</span>
+                  {{#if owner.username}}
+                    <span class="file-owner-username">
+                      ({{owner.username}})
+                    </span>
+                  {{/if}}
                 {{/truncated-string}}
               {{/promise-proxy-container}}
             </td>
