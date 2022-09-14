@@ -349,6 +349,9 @@ export default Model.extend(
     parent: belongsTo('file'),
     distribution: belongsTo('file-distribution'),
     storageLocationInfo: belongsTo('storage-location-info'),
+    // NOTE: User record from this relation can be fetched only if the user has been
+    // already fetched using authHint (eg. using userManager or from space.userList).
+    // If you want to fetch owner before this, consider using `fileManager.getFileOwner`.
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
     fileQosSummary: belongsTo('file-qos-summary'),

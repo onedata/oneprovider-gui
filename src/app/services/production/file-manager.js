@@ -52,6 +52,7 @@ export default Service.extend({
   timeSeriesManager: service(),
   auditLogManager: service(),
   apiSamplesManager: service(),
+  userManager: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -550,6 +551,13 @@ export default Service.extend({
       listingParams,
       normalizeRecallAuditLogEntryContent
     );
+  },
+
+  async getFileOwner(file) {
+    const ownerId = file.relationEntityId('owner');
+    return await this.userManager.getUserById(ownerId, {
+      throughSpaceId: file.spaceEntityId,
+    });
   },
 
   /**

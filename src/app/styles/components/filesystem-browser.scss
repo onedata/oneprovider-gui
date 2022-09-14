@@ -39,6 +39,22 @@
     width: 200px;
     text-align: center;
   }
+  .fb-table-col-owner {
+    $width: 200px;
+    width: $width;
+    text-align: center;
+    // approx. width of provider iframe when resultion is Full HD with desktop sidebar
+    @media (max-width: 1350px) {
+      display: none;
+    }
+    .file-owner-line {
+      max-width: $width;
+    }
+    .file-owner-username {
+      opacity: $disabled-opacity;
+      font-size: 90%;
+    }
+  }
   .empty-dir-image {
     background-image: url($root-url + 'images/empty-directory.svg');
   }

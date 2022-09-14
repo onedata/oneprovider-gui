@@ -1,3 +1,14 @@
+<td class="fb-table-col-owner multiline">
+  <span class="file-item-text">
+    {{#truncated-string class="file-owner-line file-owner-fullname"}}
+      {{or owner.fullName "—"}}
+    {{/truncated-string}}
+    {{#truncated-string class="file-owner-line file-owner-username"}}
+      ({{or owner.username (tt this "unknownUsername")}})
+    {{/truncated-string}}
+  </span>
+</td>
+
 <td class={{concat "fb-table-col-size hidden-xs " (if file.effFile.isShowProgress "multiline")}}>
   <span class="file-item-text">
     {{#if (eq file.effFile.type "file")}}
