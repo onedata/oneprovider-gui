@@ -9,6 +9,7 @@ import fbDirLoadError from './file-browser/fb-dir-load-error';
 import itemFeaturesContainer from './file-browser/item-features-container';
 import jumpControl from './file-browser/jump-control';
 import fileEntryCharts from './file-browser/file-entry-charts';
+import fbNoDirStatistics from './file-browser/fb-no-dir-statistics';
 
 export default {
   menuCurrentDir: 'Current directory',
@@ -23,4 +24,5 @@ export default {
   itemFeaturesContainer,
   jumpControl,
   fileEntryCharts,
+  fbNoDirStatistics,
 };

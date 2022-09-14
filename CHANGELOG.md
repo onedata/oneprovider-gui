@@ -7,6 +7,8 @@ CHANGELOG
 ### Latest changes
 
 * VFS-8401 Improved styles and behaviour of panels and modals
+* VFS-9478 Migrated to charts dashboards in QoS and directory size statistics
+* VFS-9607 Added better showing start directory statistics
 * VFS-9473 Moved file distribution settings from separate modal to file info panel
 * VFS-9606 Moved file QoS settings from separate modal to file info panel
 * VFS-9603 Moved file shares settings from separate modal to file info panel

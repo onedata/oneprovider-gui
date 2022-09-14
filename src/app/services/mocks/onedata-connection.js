@@ -18,12 +18,5 @@ export default OnedataConnection.extend({
     transfersHistoryLimitPerFile: 100,
     openfaasAvailable: true,
     bagitUploaderWorkflowSchemaId: null,
-    qosTransferStatsConfig: {
-      minuteMetricId: 'minute',
-      hourMetricId: 'hour',
-      dayMetricId: 'day',
-      monthMetricId: 'month',
-      totalTimeSeriesId: 'total',
-    },
   }),
 });

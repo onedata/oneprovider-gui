@@ -12,6 +12,7 @@ import { observer, get, set, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { conditional, raw, notEmpty, array, equal, and, promise } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { Promise } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -63,6 +64,12 @@ export default Component.extend(I18n, {
    * @type {Models.Space}
    */
   space: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  getProvidersUrl: notImplementedIgnore,
 
   /**
    * @type {PromiseObject}
@@ -549,6 +556,9 @@ export default Component.extend(I18n, {
         newMigrationSourceHasActiveTransfers: false,
       });
       this.resolveStartTransferPromise();
+    },
+    getProvidersUrl(...args) {
+        return this.get('getProvidersUrl')(...args);
     },
   },
 });
