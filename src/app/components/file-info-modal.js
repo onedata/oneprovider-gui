@@ -134,6 +134,12 @@ export default Component.extend(...mixins, {
   dirStatsServiceState: undefined,
 
   /**
+   * @virtual
+   * @type {Function}
+   */
+  getProvidersUrl: notImplementedIgnore,
+
+  /**
    * @type {FileInfoTabId}
    */
   activeTab: 'general',
@@ -357,10 +363,10 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isSizeTabDisabled: computed(
+  isSizeStatsDisabled: computed(
     'dirStatsServiceStatus',
     'itemType',
-    function isSizeTabDisabled() {
+    function isSizeStatsDisabled() {
       const {
         dirStatsServiceStatus,
         itemType,
@@ -449,9 +455,11 @@ export default Component.extend(...mixins, {
     'previewMode',
     'isMultiFile',
     'file.effFile.type',
+    'itemType',
     function isSizeTabVisible() {
       const effItemType = this.file.effFile?.type || 'file';
-      return !this.previewMode && !this.isMultiFile && effItemType !== 'file';
+      return !this.previewMode && !this.isMultiFile && effItemType !== 'file'
+        && this.itemType !== 'symlink';
     }
   ),
 
@@ -673,6 +681,9 @@ export default Component.extend(...mixins, {
     },
     toggleStorageLocations() {
       this.toggleProperty('areStorageLocationsExpanded');
+    },
+    getProvidersUrl(...args) {
+      return this.get('getProvidersUrl')(...args);
     },
   },
 });

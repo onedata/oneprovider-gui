@@ -23,8 +23,6 @@ export default {
     },
     size: {
       tabTitle: 'Size statistics',
-      disabledTip: 'Not available for symbolic links.',
-      turnOffTip: 'Directory statistics are disabled',
     },
     hardlinks: {
       tabTitle: 'Hard links ({{hardlinksCount}})',

@@ -5,5 +5,5 @@ export default {
   initializingSizeInfo: 'Requested directory statistics are not ready yet – calculation is in progress.',
   initializingStatsInfo: 'Directory statistics are being initialized',
   enabledStatsInfo: 'Show more size statistics',
-  disabledStatsInfo: 'Directory statistics are disabled',
+  disabledStatsInfo: 'Directory statistics are disabled. Click for more information.',
 };
