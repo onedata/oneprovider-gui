@@ -41,13 +41,14 @@
   }
   .fb-table-col-owner {
     $width: 200px;
-    width: $width;
+    width: $width + 2 * $table-cell-padding;
     text-align: center;
     // approx. width of provider iframe when resultion is Full HD with desktop sidebar
     @media (max-width: 1350px) {
       display: none;
     }
     .file-owner-line {
+      width: $width;
       max-width: $width;
     }
     .file-owner-username {
