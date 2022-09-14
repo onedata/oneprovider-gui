@@ -145,10 +145,10 @@ export default BaseTabModel.extend({
     'files.[]',
     'isVisible',
     function autoStatusWatchConfigurator() {
-      if (this.files && this.isVisible) {
-        this.reinitializeFilesQosStatusModel();
-      } else {
+      if (!this.files?.length || !this.isVisible) {
         this.filesQosStatusModel?.destroy();
+      } else if (this.filesQosStatusModel?.files !== this.files) {
+        this.reinitializeFilesQosStatusModel();
       }
     }
   ),
