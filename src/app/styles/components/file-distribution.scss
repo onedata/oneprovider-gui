@@ -135,25 +135,27 @@
     }
   }
 
-  @media (max-width: $screen-xs-max) {
-    flex-flow: row wrap;
-    .name-section {
-      order: 1;
-    }
-    .one-pill-button {
-      order: 2;
-    }
-    .first-line-breaker {
-      flex-basis: 100%;
-      order: 3;
-      margin-bottom: $padding-small-vertical;
-    }
-    .chunks-visualizer, .progress-bar-visualizer {
-      flex-grow: 1;
-      order: 4;
-      margin: 0;
-      .chunks-scale-container {
-        display: none;
+  .oneproviders-distribution-item-content {
+    @media (max-width: $screen-xs-max) {
+      flex-flow: row wrap;
+      .name-section {
+        order: 1;
+      }
+      .one-pill-button {
+        order: 2;
+      }
+      .first-line-breaker {
+        flex-basis: 100%;
+        order: 3;
+        margin-bottom: $padding-small-vertical;
+      }
+      .chunks-visualizer, .progress-bar-visualizer {
+        flex-grow: 1;
+        order: 4;
+        margin: 0;
+        .chunks-scale-container {
+          display: none;
+        }
       }
     }
   }
