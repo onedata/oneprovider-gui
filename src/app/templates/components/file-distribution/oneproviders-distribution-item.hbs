@@ -9,13 +9,8 @@
           value=storageFileLocation
           size="sm"
           class="storage-file-path-clipboard"
-        }}
-        {{one-tooltip
-          title=storageFileLocation
-          placement="top"
-          arrowPlacement="left"
-          triggerEvents="hover"
-          class="string-path-tooltip"
+          copyHint=(tt this "copyHint")
+          isTooltipHint=true
         }}
       </div>
     {{/if}}

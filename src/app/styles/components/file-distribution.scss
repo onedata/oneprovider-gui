@@ -55,6 +55,7 @@
       flex-grow: 1;
       width: 60%;
       min-width: 0;
+      height: 36px;
 
       .distribution-row-name.path-container {
         opacity: 0.8;
@@ -72,6 +73,10 @@
           @include font-monospace();
           font-size: inherit;
           height: $font-size-base;
+        }
+
+        .clipboard-container {
+          flex-grow: 1;
         }
       }
 

@@ -300,6 +300,14 @@ export default Component.extend(...mixins, {
     }
   )),
 
+  storageLocationsPerProviderLength: computed(
+    'storageLocationsPerProvider',
+    function storageLocationsPerProviderLength() {
+      const storageLocationsPerProvider = this.get('storageLocationsPerProvider.content');
+      return Object.keys(storageLocationsPerProvider).length;
+    }
+  ),
+
   fileGuiUrlProxy: promise.object(computed('file.entityId', async function fileGuiUrl() {
     const {
       file,

@@ -183,7 +183,7 @@
                       locations=currentProviderLocationsProxy.content
                     }}
                   {{/if}}
-                  {{#if storageLocationsPerProvider}}
+                  {{#if (and storageLocationsPerProvider (gt storageLocationsPerProviderLength 1))}}
                     {{#if areStorageLocationsExpanded}}
                       {{#each-in storageLocationsPerProvider as |providerId locations|}}
                         {{#if (not-eq providerId currentProviderId)}}
