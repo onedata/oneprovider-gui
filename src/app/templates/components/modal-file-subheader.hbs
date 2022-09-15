@@ -1,17 +1,33 @@
-{{#if multi}}
-  {{#if multiTextPrefix}}
-    {{multiTextPrefix}}
+{{#truncated-string
+  customTooltipText=truncatedTextTip
+  tooltipClass=truncatedTextTooltipClass
+}}
+  {{#if icon}}
+    <div class={{concat-classes
+      "inline-icon-container"
+      "file-item-icon-container"
+      (concat "file-item-icon-container-" type)
+    }}>
+      {{one-icon icon=icon class=(concat "file-item-icon file-item-icon-" type)}}
+    </div>
   {{/if}}
-  {{tt this "selectedItems" count=filesCount}}
-  {{yield}}
-{{else}}
-  {{#truncated-string}}
-    {{#if icon}}
-      <div class={{concat "inline-icon-container file-item-icon-container file-item-icon-container-" type}}>
-        {{one-icon icon=icon class=(concat "file-item-icon file-item-icon-" type)}}
-      </div>
-    {{/if}}
+  {{#if multi}}
+    <span class="multi-text">
+      {{#if multiTextPrefix}}
+        {{multiTextPrefix}}
+      {{/if}}
+      {{tt this "selectedItems" count=filesCount}}:
+    </span>
+    <span class="item-names">
+      {{#let (sub files.length 1) as |lastIndex|}}
+        {{#each files as |file i|}}
+          {{!-- must be in single-line to avoid unnecessary space before comma --}}
+          {{file-name-conflict class="file-name" file=file}}{{#if (lt i lastIndex)}},{{/if}}
+        {{/each}}
+      {{/let}}
+    </span>
+  {{else}}
     {{file-name-conflict class="file-name" file=firstFile}}
-    {{yield}}
-  {{/truncated-string}}
-{{/if}}
+  {{/if}}
+  {{yield}}
+{{/truncated-string}}

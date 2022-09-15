@@ -480,6 +480,7 @@ export default Service.extend({
             'space_schedule_replication',
             'space_schedule_migration',
             'space_schedule_eviction',
+            'space_manage_shares',
           ],
         }).save();
       })))

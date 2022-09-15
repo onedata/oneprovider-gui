@@ -11,7 +11,7 @@
   as |modal|
 }}
   {{#modal.header class="file-info-modal-header"}}
-    <h1>{{tt this "header" type=typeTranslation}}</h1>
+    <h1>{{headerText}}</h1>
     {{modal-file-subheader files=files}}
     {{#bs-tab
       class="bs-tab-onedata bs-tab-modern file-info-tabbar"
@@ -136,7 +136,9 @@
   {{/modal.header}}
   {{#modal.body class="file-info-modal-body"}}
     {{#if (eq activeTab "general")}}
-      <table class="table table-info table-info-large table-info-collapsible">
+      <table
+        class="table table-info table-info-large table-info-collapsible table-file-info"
+      >
         <tbody>
           <tr class="file-info-row-name">
             <td class="property-name with-input{{if smallContent "-sm"}}">

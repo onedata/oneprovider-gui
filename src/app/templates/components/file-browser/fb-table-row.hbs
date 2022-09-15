@@ -23,9 +23,7 @@
       {{else}}
         <div
           class="inline-icon-container inline-icon-container-file"
-          onclick={{if infoIconActionName
-            (action "invokeFileAction" file infoIconActionName)
-          }}
+          onclick={{action "handleInfoIconClick"}}
           style={{cursorStyleForIcon}}
         >
           {{#one-icon-tagged

@@ -517,5 +517,12 @@ export default Component.extend(I18n, FastDoubleClick, {
     invokeFileAction(file, btnId, ...args) {
       this.get('invokeFileAction')(file, btnId, ...args);
     },
+    async handleInfoIconClick(event) {
+      if (!this.infoIconActionName) {
+        return;
+      }
+      this.invokeFileAction(this.file, this.infoIconActionName);
+      event.stopPropagation();
+    },
   },
 });

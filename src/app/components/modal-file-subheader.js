@@ -3,14 +3,16 @@
  *
  * @module components/modal-file-subheader
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
+import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { gt, conditional, raw, or, and, eq } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { htmlSafe } from '@ember/string';
 
 export default Component.extend(I18n, {
   tagName: 'h2',
@@ -33,12 +35,21 @@ export default Component.extend(I18n, {
    */
   multiTextPrefix: undefined,
 
+  fileIcon: 'browser-file',
+
+  dirIcon: 'browser-directory',
+
+  multiIcon: 'items-grid',
+
   filesCount: reads('files.length'),
 
   firstFile: reads('files.firstObject'),
 
   multi: gt('filesCount', 1),
 
+  /**
+   * @type {'symlink'|'file'|'dir'|'multi'}
+   */
   type: conditional(
     'multi',
     raw('multi'),
@@ -49,13 +60,32 @@ export default Component.extend(I18n, {
     )
   ),
 
-  fileIcon: 'browser-file',
-
-  dirIcon: 'browser-directory',
-
   icon: or(
     and(eq('type', raw('file')), 'fileIcon'),
     and(eq('type', raw('dir')), 'dirIcon'),
+    and(eq('type', raw('multi')), 'multiIcon'),
     null
+  ),
+
+  truncatedTextTip: conditional(
+    'multi',
+    computed('files.@each.name', function tuncatedTextTip() {
+      return htmlSafe(
+        '<div class="multi-item-list">' +
+        this.files.map(file =>
+          `<span class="item">${file.name}</span>`
+          // NOTE: span list MUST be separated by spaces, because otherwise it will not
+          // wrap elements in Firefox
+        ).join(' ') +
+        '</div>'
+      );
+    }),
+    raw(undefined),
+  ),
+
+  truncatedTextTooltipClass: conditional(
+    'multi',
+    raw('tooltip-modal-file-subheader-multi'),
+    raw(undefined),
   ),
 });
