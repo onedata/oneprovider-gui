@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { equal, raw, conditional, not } from 'ember-awesome-macros';
+import { equal, raw, conditional, not, or, and } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
@@ -77,7 +77,13 @@ export default Component.extend(...mixins, {
     computedT('owner')
   ),
 
-  isDifferentOwnersShown: not('viewModel.filesHaveSameOwners'),
+  isOwnerShown: and(
+    not('previewMode'),
+    or(
+      not('isMultiFile'),
+      'viewModel.filesHaveSameOwners',
+    )
+  ),
 
   actions: {
     acceptPosixIncompatibility() {

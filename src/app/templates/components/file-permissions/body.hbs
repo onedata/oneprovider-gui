@@ -1,10 +1,6 @@
-{{#if isDifferentOwnersShown}}
-    <div class="alert alert-info alert-simple-info different-owners-alert">
-    {{tt this "differentOwners"}}
-  </div>
-{{else if (not viewModel.previewMode)}}
+{{#if isOwnerShown}}
   <div class="owner-info-line">
-    <strong class="owner-info-label">{{ownerLabel}}:</strong>
+    <strong class="owner-info-label">{{tt this "owner"}}:</strong>
     {{#truncated-string tagName="span" class="owner-info-fullname"}}
       {{or owner.fullName "—"}}
     {{/truncated-string}}
