@@ -22,6 +22,7 @@ import {
   bool,
   equal,
   not,
+  eq,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -155,8 +156,6 @@ export default Component.extend(...mixins, {
    */
   hardlinksLimit: 100,
 
-  isOwnerVisible: not('previewMode'),
-
   /**
    * @type {ComputedProperty<Models.File>}
    */
@@ -166,6 +165,15 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<boolean>}
    */
   isMultiFile: gt('files.length', 1),
+
+  isOwnerVisible: not(or('previewMode', 'fileIsSpaceRoot')),
+
+  fileIsSpaceRoot: computed('file.entityId', 'space', function fileIsSpaceRoot() {
+    if (!this.space) {
+      return false;
+    }
+    return this.file.entityId === this.space.relationEntityId('rootDir');
+  }),
 
   showApiSection: reads('previewMode'),
 
