@@ -14,12 +14,6 @@ import { get } from '@ember/object';
 import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/qos-requirement';
 
 /**
- * @typedef {Object} QosEntryTimeSeriesCollections
- * @param {Array<string>} bytes
- * @param {Array<string>} files
- */
-
-/**
  * @typedef {'scheduled'|'skipped'|'completed'|'failed'} QosLogStatus
  */
 
@@ -33,6 +27,10 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
  * @param {string|null} fileId CDMI Object ID of the file that the event is about
  * @param {string|null} description a human-readable description of event
  * @param {QosLogErrorReason} [reason] error object - only if status is failed
+ */
+
+/**
+ * @typedef {'bytes'|'files'} QosTimeSeriesCollectionRef
  */
 
 const auditLogAspect = 'audit_log';
@@ -101,36 +99,47 @@ export default Service.extend({
   },
 
   /**
-   * @param {string} qosRequirementId
-   * @param {'bytes'|'files'} timeSeriesCollectionId
-   * @param {TimeSeriesMetricsQueryParams} queryParams
-   * @returns {Promise<TimeSeriesMetricsQueryResult>}
+   * @param {string} collectionRef
+   * @returns {Promise<TimeSeriesCollectionSchema>}
    */
-  async queryTimeSeriesMetrics(
-    qosRequirementId,
-    timeSeriesCollectionId,
-    queryParams
-  ) {
-    const gri = getGri(qosRequirementId, {
-      aspect: `time_series_collection,${timeSeriesCollectionId}`,
+  async getQosTransferTimeSeriesCollectionSchema(collectionRef) {
+    const gri = getGri('null', {
+      aspect: `transfer_stats_collection_schema,${collectionRef}`,
+      scope: 'public',
     });
-    return this.get('timeSeriesManager')
-      .queryTimeSeriesMetrics(gri, queryParams);
+    return this.timeSeriesManager.getTimeSeriesCollectionSchema(gri);
   },
 
   /**
    * @param {string} qosRequirementId
-   * @returns {Promise<QosEntryTimeSeriesCollections>}
+   * @param {QosTimeSeriesCollectionRef} collectionRef
+   * @returns {Promise<TimeSeriesCollectionLayout>}
    */
-  async getTimeSeriesCollections(qosRequirementId) {
+  async getQosTransferTimeSeriesCollectionLayout(
+    qosRequirementId,
+    collectionRef
+  ) {
     const gri = getGri(qosRequirementId, {
-      aspect: 'time_series_collections',
+      aspect: `transfer_stats_collection,${collectionRef}`,
     });
-    return this.get('onedataGraph').request({
-      gri,
-      operation: 'get',
-      subscribe: false,
+    return this.timeSeriesManager.getTimeSeriesCollectionLayout(gri);
+  },
+
+  /**
+   * @param {string} qosRequirementId
+   * @param {QosTimeSeriesCollectionRef} collectionRef
+   * @param {TimeSeriesCollectionSliceQueryParams} queryParams
+   * @returns {Promise<TimeSeriesCollectionSlice>}
+   */
+  async getQosTransferTimeSeriesCollectionSlice(
+    qosRequirementId,
+    collectionRef,
+    queryParams
+  ) {
+    const gri = getGri(qosRequirementId, {
+      aspect: `transfer_stats_collection,${collectionRef}`,
     });
+    return this.timeSeriesManager.getTimeSeriesCollectionSlice(gri, queryParams);
   },
 
   /**

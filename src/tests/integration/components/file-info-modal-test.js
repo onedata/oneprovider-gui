@@ -13,6 +13,7 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import FileDistributionHelper from '../../helpers/file-distribution';
+import createSpace from '../../helpers/create-space';
 
 const storageLocations = {
   locationsPerProvider: {
@@ -567,6 +568,65 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
+  it('has "Details" header and item names in subheader for multiple files',
+    async function () {
+      await givenDefaultStubs(this);
+      await givenMultipleFileModels(this, [{
+          name: 'foo.txt',
+          type: 'file',
+        },
+        {
+          name: 'bar.txt',
+          type: 'file',
+        },
+        {
+          name: 'hello',
+          type: 'dir',
+        },
+        {
+          name: 'world',
+          type: 'dir',
+        },
+      ]);
+
+      await renderComponent();
+
+      const modalHeader = find('.file-info-modal-header');
+      const header = modalHeader.querySelector('h1');
+      expect(header).to.exist;
+      expect(header).to.have.trimmed.text('Details');
+      const subheader = modalHeader.querySelector('h2');
+      expect(subheader).to.exist;
+      expect(subheader)
+        .to.contain.text('foo.txt')
+        .and
+        .to.contain.text('bar.txt')
+        .and
+        .to.contain.text('hello')
+        .and
+        .to.contain.text('world');
+    }
+  );
+
+  it('has "Directory details" header and directory name in subheader for single directory-type file',
+    async function () {
+      await givenDefaultStubs(this);
+      await givenFileModel(this, {
+        name: 'foo',
+        type: 'dir',
+      });
+
+      await renderComponent();
+
+      const modalHeader = find('.file-info-modal-header');
+      const header = modalHeader.querySelector('h1');
+      expect(header).to.exist;
+      expect(header).to.have.trimmed.text('Directory details');
+      const subheader = modalHeader.querySelector('h2');
+      expect(subheader).to.exist;
+      expect(subheader).to.contain.text('foo');
+    });
+
   it('shows API operations provided by fileManager', async function () {
     await givenDefaultStubs(this);
     await givenApiSamplesForSharedFile(this);
@@ -676,6 +736,29 @@ async function givenFileModel(testCase, data) {
   return file;
 }
 
+/**
+ *
+ * @param {Mocha.Context} testCase
+ * @param {Array<Object>} filesData array of data to create files
+ * @returns
+ */
+async function givenMultipleFileModels(testCase, filesData) {
+  const files = [];
+  for (let i = 0; i < filesData.length; ++i) {
+    const entityId = window.btoa(`guid#space_id#file_id_${i}`);
+    const file = await createFile(testCase, {
+      id: gri({
+        entityId,
+        entityType: fileEntityType,
+        aspect: 'instance',
+      }),
+      ...filesData[i],
+    });
+    files.push(file);
+  }
+  return testCase.set('files', files);
+}
+
 async function givenFileModelWithQos(testCase, data) {
   const store = lookupService(testCase, 'store');
   return givenFileModel(testCase, {
@@ -688,12 +771,10 @@ async function givenFileModelWithQos(testCase, data) {
 
 async function createSpaceModel(testCase, data) {
   const store = lookupService(testCase, 'store');
-  const record = store.createRecord('space', {
+  return await createSpace(store, {
     name: 'Dummy space',
-    providerList: await store.createRecord('providerList', { list: [] }).save(),
     ...data,
   });
-  return await record.save();
 }
 
 function givenEmptyTabOptions(testCase) {

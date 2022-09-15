@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find } from '@ember/test-helpers';
+import { render, find, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
 describe('Integration | Component | modal file subheader', function () {
@@ -37,7 +37,23 @@ describe('Integration | Component | modal file subheader', function () {
     expect(find('.file-item-icon')).to.have.class('oneicon-browser-directory');
   });
 
-  it('does not render icon for multiple items', async function () {
+  it('renders "items grid" icon for multiple items', async function () {
+    this.set('files', [{
+      type: 'file',
+      name: 'hello1.txt',
+      index: 'hello1.txt',
+    }, {
+      type: 'dir',
+      name: 'hello2.txt',
+      index: 'hello2.txt',
+    }]);
+    await render(hbs`{{modal-file-subheader files=files}}`);
+    const fileItemIcon = find('.file-item-icon');
+    expect(fileItemIcon).to.exist;
+    expect(fileItemIcon).to.have.class('oneicon-items-grid');
+  });
+
+  it('renders names of items for multiple items', async function () {
     this.set('files', [{
       type: 'file',
       name: 'hello1.txt',
@@ -48,7 +64,32 @@ describe('Integration | Component | modal file subheader', function () {
       index: 'hello2.txt',
     }]);
     await render(hbs `{{modal-file-subheader files=files}}`);
-    expect(find('.file-item-icon')).to.not.exist;
+    expect(this.element)
+      .to.contain.text('hello1.txt')
+      .and
+      .to.contain.text('hello2.txt');
+  });
+
+  it('renders names with conflict suffix of items for multiple items with name conflict', async function () {
+    this.set('files', [{
+      type: 'file',
+      name: 'hello@a123',
+      conflictingName: 'hello',
+    }, {
+      type: 'file',
+      name: 'hello@b456',
+      conflictingName: 'hello',
+    }]);
+
+    await render(hbs`{{modal-file-subheader files=files}}`);
+
+    const baseNames = [...findAll('.file-base-name')];
+    expect(baseNames[0]).to.have.trimmed.text('hello');
+    expect(baseNames[1]).to.have.trimmed.text('hello');
+
+    const suffixes = [...findAll('.file-suffix')];
+    expect(suffixes[0]).to.have.trimmed.text('@a123');
+    expect(suffixes[1]).to.have.trimmed.text('@b456');
   });
 
   it('renders items count for multiple items', async function () {

@@ -1,5 +1,6 @@
 export default {
   header: '{{type}} details',
+  headerDefault: 'Details',
   name: '{{type}} name',
   path: '{{type}} location',
   storageLocations: 'Storage locations',
