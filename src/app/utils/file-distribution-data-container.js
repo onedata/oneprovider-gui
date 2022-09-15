@@ -154,7 +154,7 @@ export default EmberObject.extend(
      * If true, storage locations will be reloaded
      * @type {Boolean}
      */
-    isStorageLocationsUpdated: not(eq('fileType', raw('dir'))),
+    isStorageLocationsUpdated: true,
 
     pollingTimeObserver: observer('pollingTime', function pollingTimeObserver() {
       const {
@@ -172,6 +172,59 @@ export default EmberObject.extend(
         });
       }
     }),
+
+    fileDistributionCache: undefined,
+
+    storageLocationsPerProviderCache: undefined,
+
+    storageLocationsObserver: observer(
+      'pollingTime',
+      async function storageLocationsObserver() {
+        if (this.get('fileType') === 'dir') {
+          this.set('isStorageLocationsUpdated', false);
+          return;
+        }
+        const {
+          fileDistributionCache,
+          storageLocationsPerProviderCache,
+        } = this.getProperties(
+          'fileDistributionCache',
+          'storageLocationsPerProviderCache',
+        );
+        const fileDistribution = await this.get('fileDistribution');
+        const storageLocationsPerProvider = await this.get('storageLocationsPerProvider');
+        if (fileDistributionCache) {
+          for (const providerId in fileDistribution) {
+            const distributionPerStorages = fileDistribution[
+              providerId].distributionPerStorage;
+            const distributionPerStoragesPast = fileDistributionCache[
+              providerId].distributionPerStorage;
+            for (const storageId in distributionPerStorages) {
+              if (distributionPerStorages[storageId].blocksPercentage !==
+                distributionPerStoragesPast[storageId].blocksPercentage) {
+                this.set('isStorageLocationsUpdated', true);
+              }
+            }
+          }
+        }
+        if (storageLocationsPerProviderCache) {
+          for (const providerId in storageLocationsPerProvider) {
+            const locationsPerStorage = storageLocationsPerProvider[providerId]
+              .locationsPerStorage;
+            const locationsPerStoragePast = storageLocationsPerProviderCache[
+              providerId].locationsPerStorage;
+            for (const storageId in locationsPerStorage) {
+              if (locationsPerStorage[storageId] !==
+                locationsPerStoragePast[storageId]) {
+                this.set('isStorageLocationsUpdated', false);
+              }
+            }
+          }
+        }
+        this.set('fileDistributionCache', fileDistribution);
+        this.set('storageLocationsPerProviderCache', storageLocationsPerProvider);
+      }
+    ),
 
     init() {
       this._super(...arguments);
