@@ -260,6 +260,14 @@ export default EmberObject.extend(...mixins, {
     raw('posixPermissions')
   ),
 
+  filesHaveSameOwners: computed('files.@each.owner', function filesHaveSameOwners() {
+    if (this.files.length === 1) {
+      return true;
+    }
+    const firstOwnerId = this.files[0].relationEntityId('owner');
+    return this.files.every(file => file.relationEntityId('owner') === firstOwnerId);
+  }),
+
   /**
    * True if Posix permissions are not conflicted or conflict was accepted.
    * @type {Ember.ComputedProperty<boolean>}
