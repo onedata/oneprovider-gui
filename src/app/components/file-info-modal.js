@@ -22,7 +22,6 @@ import {
   bool,
   equal,
   not,
-  eq,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';

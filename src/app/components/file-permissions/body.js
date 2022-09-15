@@ -66,6 +66,10 @@ export default Component.extend(...mixins, {
 
   effectiveReadonlyTip: reads('viewModel.effectiveReadonlyTip'),
 
+  isMultiFile: reads('viewModel.isMultiFile'),
+
+  owner: reads('viewModel.ownerProxy.content'),
+
   actions: {
     acceptPosixIncompatibility() {
       this.viewModel.acceptPosixIncompatibility();
