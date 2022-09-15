@@ -315,7 +315,10 @@ export default Component.extend(...mixins, {
     'storageLocationsPerProvider',
     function storageLocationsPerProviderLength() {
       const storageLocationsPerProvider = this.get('storageLocationsPerProvider.content');
-      return Object.keys(storageLocationsPerProvider).length;
+      if (storageLocationsPerProvider) {
+        return Object.keys(storageLocationsPerProvider).length;
+      }
+      return 0;
     }
   ),
 
