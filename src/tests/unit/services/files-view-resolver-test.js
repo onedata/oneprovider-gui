@@ -15,6 +15,7 @@ const AppProxy = Service.extend({
 
 const FileManager = Service.extend({
   getFileById() {},
+  async getFileOwner() {},
 });
 
 describe('Unit | Service | files view resolver', function () {

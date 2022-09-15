@@ -554,7 +554,13 @@ export default Service.extend({
   },
 
   async getFileOwner(file) {
-    const ownerId = file.relationEntityId('owner');
+    // Allowing file to not have relationEntityId beacuse some integration tests
+    // are using not-fully-mocked files
+    // TODO: VFS-9850 Use real file model in tests
+    const ownerId = file.relationEntityId?.('owner');
+    if (!ownerId) {
+      return null;
+    }
     return await this.userManager.getUserById(ownerId, {
       throughSpaceId: file.spaceEntityId,
     });

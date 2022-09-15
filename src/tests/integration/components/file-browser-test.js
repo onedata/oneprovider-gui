@@ -36,6 +36,7 @@ const FileManager = Service.extend(Evented, {
   deregisterRefreshHandler() {},
   refreshDirChildren() {},
   getFileDownloadUrl() {},
+  async getFileOwner() {},
 });
 
 describe('Integration | Component | file browser (main component)', function () {

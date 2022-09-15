@@ -7,7 +7,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
-import { equal, raw, conditional, isEmpty, not } from 'ember-awesome-macros';
+import { equal, raw, conditional, isEmpty } from 'ember-awesome-macros';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';

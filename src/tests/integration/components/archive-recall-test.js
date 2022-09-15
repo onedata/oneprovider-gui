@@ -5,6 +5,7 @@ import { render, find, findAll, click, fillIn } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { createFile, mockRootFiles } from '../../helpers/files';
 import { lookupService } from '../../helpers/stub-service';
+import DefaultUser from '../../helpers/default-user';
 import {
   getFileRow,
 } from '../../helpers/item-browser';
@@ -17,7 +18,9 @@ import { generateDirEntityId } from 'oneprovider-gui/services/mock-backend';
 describe('Integration | Component | archive recall (internal)', function () {
   setupRenderingTest();
 
-  beforeEach(function () {
+  beforeEach(async function () {
+    const defaultUserHelper = new DefaultUser(this);
+    await defaultUserHelper.createUser('null');
     this.setProperties({
       onCancel: () => {},
       onArchiveRecallStarted: () => {},
@@ -29,23 +32,23 @@ describe('Integration | Component | archive recall (internal)', function () {
     archiveManager.recallArchive = async () => {};
     const store = lookupService(this, 'store');
     const dirEntityId = generateDirEntityId('root_id');
-    const spaceRootDir = store.createRecord('file', {
+    const spaceRootDir = await store.createRecord('file', {
       id: `file.${dirEntityId}.instance:private`,
       name: 'space_root_dir',
       type: 'dir',
-    });
-    const space = store.createRecord('space', {
+    }).save();
+    const space = await store.createRecord('space', {
       id: 'space.space_id.instance:private',
       name: 'space_name',
       currentUserIsOwner: false,
       currentUserEffPrivileges: ['space_view'],
       rootDir: spaceRootDir,
-    });
+    }).save();
     const datasetDirName = 'hello';
-    const datasetDir = store.createRecord('file', {
+    const datasetDir = await store.createRecord('file', {
       name: datasetDirName,
-    });
-    const dataset = store.createRecord('dataset', {
+    }).save();
+    const dataset = await store.createRecord('dataset', {
       index: datasetDirName,
       spaceId: get(space, 'entityId'),
       parent: null,
@@ -58,9 +61,9 @@ describe('Integration | Component | archive recall (internal)', function () {
       rootFilePath: '/abc',
       rootFileType: 'dir',
       rootFileDeleted: false,
-    });
+    }).save();
     const archiveEntityId = 'archive_id';
-    const archive = store.createRecord('archive', {
+    const archive = await store.createRecord('archive', {
       config: {
         incremental: {
           enabled: false,
@@ -92,7 +95,7 @@ describe('Integration | Component | archive recall (internal)', function () {
       // NOTE: for this test it is not needed, but archive may be malfunctioning
       rootDir: null,
       baseArchive: null,
-    });
+    }).save();
 
     this.setProperties({
       spaceRootDir,
