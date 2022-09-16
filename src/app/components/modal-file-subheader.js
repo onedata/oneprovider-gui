@@ -99,7 +99,7 @@ export default Component.extend(I18n, {
     }
   ),
 
-  isHugeMultiText: computed('files.@each.name', function hugeMultiText() {
+  isHugeMultiText: computed('files.@each.name', function isHugeMultiText() {
     if (this.files.length === 1) {
       return false;
     }
