@@ -32,6 +32,7 @@ const FileManager = Service.extend({
   getFileById() {},
   createArchive() {},
   dirChildrenRefresh() {},
+  async getFileOwner() {},
 });
 
 describe('Integration | Component | file datasets/archives tab', function () {

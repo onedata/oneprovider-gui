@@ -295,6 +295,7 @@ function checkNoAccessTag({ renders, description, properties }) {
   });
 }
 
+// TODO: VFS-9850 Use real file model in tests
 function createFile(override = {}, ownerGri = userGri) {
   const data = Object.assign({
     modificationTime: moment('2020-01-01T08:50:00+00:00').unix(),

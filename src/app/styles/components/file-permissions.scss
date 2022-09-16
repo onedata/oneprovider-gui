@@ -5,4 +5,22 @@
   .acl-editor {
     margin-top: 1.25em;
   }
+  .owner-info-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.5em;
+    margin-bottom: 0.25em;
+    .owner-info-label {
+      margin-right: 0.5em;
+    }
+    .owner-info-fullname {
+      max-width: 70%;
+    }
+    .owner-info-username {
+      margin-left: 0.5em;
+      opacity: $disabled-opacity;
+      max-width: 30%;
+    }
+  }
 }

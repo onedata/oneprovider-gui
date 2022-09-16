@@ -30,6 +30,7 @@ const FileManager = Service.extend(Evented, {
   },
   registerRefreshHandler() {},
   deregisterRefreshHandler() {},
+  async getFileOwner() {},
   async checkFileNameExists() {
     return false;
   },

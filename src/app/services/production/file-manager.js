@@ -52,6 +52,7 @@ export default Service.extend({
   timeSeriesManager: service(),
   auditLogManager: service(),
   apiSamplesManager: service(),
+  userManager: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -550,6 +551,19 @@ export default Service.extend({
       listingParams,
       normalizeRecallAuditLogEntryContent
     );
+  },
+
+  async getFileOwner(file) {
+    // Allowing file to not have relationEntityId beacuse some integration tests
+    // are using not-fully-mocked files
+    // TODO: VFS-9850 Use real file model in tests
+    const ownerId = file.relationEntityId?.('owner');
+    if (!ownerId) {
+      return null;
+    }
+    return await this.userManager.getUserById(ownerId, {
+      throughSpaceId: file.spaceEntityId,
+    });
   },
 
   /**

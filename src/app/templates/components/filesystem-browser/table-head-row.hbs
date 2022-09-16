@@ -17,6 +17,11 @@
     <div class="table-header-status-bar">{{yield}}</div>
   </div>
 </th>
+{{#if browserModel.isOwnerVisible}}
+  <th class="fb-table-col-owner fb-table-secondary-col">
+    {{tt this "owner"}}
+  </th>
+{{/if}}
 <th class="fb-table-col-size fb-table-secondary-col hidden-xs">{{tt this "size"}}</th>
 <th class="fb-table-col-modification fb-table-secondary-col hidden-xs">
   {{tt this "modification"}}

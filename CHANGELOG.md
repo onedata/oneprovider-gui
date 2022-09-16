@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9800 Fixed showing owner name in file info, added owner column in file browser
 * VFS-8401 Improved styles and behaviour of panels and modals
 * VFS-9478 Migrated to charts dashboards in QoS and directory size statistics
 * VFS-9607 Added better showing start directory statistics

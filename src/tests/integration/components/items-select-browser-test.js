@@ -16,6 +16,7 @@ const FileManager = Service.extend(Evented, {
   },
   registerRefreshHandler() {},
   deregisterRefreshHandler() {},
+  async getFileOwner() {},
 });
 
 describe('Integration | Component | items select browser', function () {
