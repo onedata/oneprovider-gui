@@ -41,7 +41,7 @@ export default FbTableRowStatusBar.extend({
 
   isOpenDataProxy: promise.object(computed(
     'isShared',
-    'file.sharesCount',
+    'file.shareRecords.@each.hasHandle',
     async function isOpenData() {
       if (!this.isShared) {
         return null;
