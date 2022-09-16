@@ -1,12 +1,19 @@
 <div class="row row-share-local-url">
-  <a href={{shareUrl}} class="share-local-url" target={{navigateShareTarget}}>
-    {{#truncated-string}}
-      <span class="inline-icon-container">
-        {{one-icon icon="browser-share"}}
-      </span>
-      {{name-conflict tagName="span" item=share class="one-label share-name"}}
-    {{/truncated-string}}
-  </a>
+  <div class="link-container">
+    <a href={{shareUrl}} class="share-local-url" target={{navigateShareTarget}}>
+      {{#truncated-string}}
+        <span class="inline-icon-container">
+          {{one-icon icon="browser-share"}}
+        </span>
+        {{name-conflict tagName="span" item=share class="one-label share-name"}}
+      {{/truncated-string}}
+    </a>
+  </div>
+  {{#if isOpenData}}
+    <span class="labels-container">
+        <span class="label label-primary open-data-tag">{{tt this "openData"}}</span>
+    </span>
+  {{/if}}
 </div>
 <div class="row row-share-public-url">
   {{clipboard-line value=publicShareUrl}}
