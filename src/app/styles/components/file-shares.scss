@@ -4,7 +4,6 @@
 
   .row-share-local-url {
     display: flex;
-    align-items: end;
     padding-bottom: $padding-base-vertical;
     .share-local-url {
       display: inline-block;
@@ -12,11 +11,9 @@
     }
     .link-container {
       overflow: hidden;
-      line-height: 1;
     }
     .labels-container {
       flex-grow: 1;
-      align-self: flex-end;
       text-align: right;
     }
   }
