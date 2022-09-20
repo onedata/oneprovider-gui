@@ -78,37 +78,30 @@
       color: $color-one-default;
     }
 
-    &.status-preparing,
-    &.status-aborting {
+    &.status-resuming,
+    &.status-stopping {
       @extend .animated;
       @extend .infinite;
       @extend .hinge;
+      @extend .pulse-orange-transparent;
     }
 
-    &.status-preparing {
-      @extend .pulse-orange;
-    }
-
-    &.status-enqueued,
     &.status-active,
     &.status-interrupted {
       color: $color-one-warning;
     }
 
-    &.status-skipped {
-      color: $color-one-azure;
+    &.status-paused {
+      color: $color-one-light-gray;
     }
 
     &.status-finished {
       color: $color-one-success;
     }
 
-    &.status-aborting {
-      @extend .pulse-red-transparent;
-    }
-
     &.status-failed,
-    &.status-cancelled {
+    &.status-cancelled,
+    &.status-crashed  {
       color: $color-one-danger;
     }
   }

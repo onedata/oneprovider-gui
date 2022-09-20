@@ -84,7 +84,7 @@ export const storageIdBeta = '39a423bbc90437434723bca789ab9ddc8a7abd8b8b8a232731
 const transferStates = ['waiting', 'ongoing', 'ended'];
 const atmWorkflowExecutionPhases = ['waiting', 'ongoing', 'ended'];
 const atmWorkflowExecutionStatusForPhase = {
-  waiting: 'enqueued',
+  waiting: 'scheduled',
   ongoing: 'active',
   ended: 'finished',
 };

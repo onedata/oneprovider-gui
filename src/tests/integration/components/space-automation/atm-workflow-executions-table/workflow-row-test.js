@@ -29,29 +29,25 @@ const statuses = [{
   icon: 'time',
   tooltip: 'Scheduled',
 }, {
-  name: 'preparing',
+  name: 'resuming',
   icon: 'time',
-  tooltip: 'Preparing',
-}, {
-  name: 'enqueued',
-  icon: 'time',
-  tooltip: 'Enqueued',
+  tooltip: 'Resuming',
 }, {
   name: 'active',
   icon: 'update',
   tooltip: 'Active',
 }, {
-  name: 'aborting',
+  name: 'stopping',
   icon: 'cancelled',
-  tooltip: 'Aborting',
+  tooltip: 'Stopping',
 }, {
   name: 'interrupted',
   icon: 'cancelled',
   tooltip: 'Interrupted',
 }, {
-  name: 'skipped',
-  icon: 'skipped',
-  tooltip: 'Skipped',
+  name: 'paused',
+  icon: 'cancelled',
+  tooltip: 'Paused',
 }, {
   name: 'finished',
   icon: 'checkbox-filled',
@@ -60,6 +56,10 @@ const statuses = [{
   name: 'failed',
   icon: 'checkbox-filled-x',
   tooltip: 'Failed',
+}, {
+  name: 'crashed',
+  icon: 'checkbox-filled-x',
+  tooltip: 'Crashed',
 }];
 
 const executionActionsSpec = [{

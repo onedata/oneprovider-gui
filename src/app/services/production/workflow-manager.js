@@ -219,7 +219,7 @@ export default Service.extend({
 
   /**
    * @param {Models.Space} space
-   * @param {String} phase one of: `'waiting'`, `'ongoing'`, `'ended'`
+   * @param {'waiting'|'ongoing'|'ended'|'suspended'} phase
    * @param {String} startFromIndex
    * @param {number} limit
    * @param {number} offset

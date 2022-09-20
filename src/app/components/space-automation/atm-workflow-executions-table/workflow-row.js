@@ -84,20 +84,19 @@ export default Component.extend(I18n, {
   statusIcon: computed('status', function statusIcon() {
     switch (this.get('status')) {
       case 'scheduled':
-      case 'preparing':
-      case 'enqueued':
+      case 'resuming':
         return 'time';
       case 'active':
         return 'update';
-      case 'aborting':
+      case 'stopping':
       case 'interrupted':
       case 'cancelled':
+      case 'paused':
         return 'cancelled';
-      case 'skipped':
-        return 'skipped';
       case 'finished':
         return 'checkbox-filled';
       case 'failed':
+      case 'crashed':
         return 'checkbox-filled-x';
       case 'unknown':
       default:
