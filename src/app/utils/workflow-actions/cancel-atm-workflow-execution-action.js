@@ -19,7 +19,7 @@ import {
 import { reject } from 'rsvp';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
-const nonCancellableStatuses = [...workflowEndedStatuses, 'stopping'];
+const nonCancellableStatuses = workflowEndedStatuses;
 
 export default Action.extend({
   workflowManager: service(),
