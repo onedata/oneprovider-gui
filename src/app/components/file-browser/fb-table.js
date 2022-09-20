@@ -905,8 +905,11 @@ export default Component.extend(I18n, {
           }
         });
       });
-
     promises.push(filesArrayReload);
+    const browserModelRefreshPromise = this.browserModel.onListRefresh?.();
+    if (browserModelRefreshPromise) {
+      promises.push(browserModelRefreshPromise);
+    }
     await allFulfilled(promises);
   },
 
