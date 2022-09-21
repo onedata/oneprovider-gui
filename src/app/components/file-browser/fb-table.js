@@ -827,11 +827,9 @@ export default Component.extend(I18n, {
     );
   },
 
-  onDirChildrenRefresh(parentDirEntityId) {
-    if (this.get('dir.entityId') === parentDirEntityId) {
+  async onDirChildrenRefresh(parentDirEntityId) {
+    if (get(this.dir, 'entityId') === parentDirEntityId) {
       return this.refreshFileList();
-    } else {
-      return resolve();
     }
   },
 

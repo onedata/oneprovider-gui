@@ -119,13 +119,12 @@ export default Service.extend({
   async destroyDataset(dataset) {
     const isAttached = get(dataset, 'state') === 'attached';
     const fileRelation = isAttached ? dataset.belongsTo('rootFile') : null;
+    const fileRelationId = fileRelation?.id();
     await dataset.destroyRecord();
-    dataset.unloadRecord();
-    // if file is not attached, updating file is redundant (and causes problems when
-    // source file has been deleted)
-    if (isAttached && fileRelation && fileRelation.id()) {
+    this.store.unloadRecord(dataset);
+    if (isAttached && fileRelationId) {
       try {
-        const file = await fileRelation.load();
+        const file = await this.store.findRecord('file', fileRelationId);
         if (file) {
           await this.updateFileDatasetsData(file);
         }
@@ -264,7 +263,7 @@ export default Service.extend({
     if (!limit || limit <= 0) {
       return { childrenRecords: [], isLast: false };
     } else {
-      return this.fetchChildrenAttrs({
+      const childrenAttrsData = await this.fetchChildrenAttrs({
         parentType,
         parentId,
         scope,
@@ -272,13 +271,13 @@ export default Service.extend({
         index,
         limit,
         offset,
-      }).then(async ({ datasets, isLast }) => {
-        const childrenRecords = await this.pushChildrenAttrsToStore(
-          datasets,
-          scope,
-        );
-        return { childrenRecords, isLast };
       });
+      const { datasets, isLast } = childrenAttrsData;
+      const childrenRecords = await this.pushChildrenAttrsToStore(
+        datasets,
+        scope,
+      );
+      return { childrenRecords, isLast };
     }
   },
 
