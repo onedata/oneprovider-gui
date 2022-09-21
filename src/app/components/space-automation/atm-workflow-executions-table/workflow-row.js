@@ -1,14 +1,13 @@
 /**
  * Shows single workflow executions table row.
  *
- * @module components/space-automation/atm-workflow-executions-table/workflow-row
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { tag } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -59,7 +58,7 @@ export default Component.extend(I18n, {
    * @type {Function}
    * @returns {any}
    */
-  onCancel: undefined,
+  onLifecycleChange: undefined,
 
   /**
    * @type {Boolean}
@@ -126,15 +125,32 @@ export default Component.extend(I18n, {
     const action = workflowActions.createCancelAtmWorkflowExecutionAction({
       atmWorkflowExecution: atmWorkflowExecutionSummary,
     });
-    action.addExecuteHook(result => {
-      if (result && get(result, 'status') !== 'done') {
-        return;
+    action.addExecuteHook((result) => {
+      if (result?.status === 'done') {
+        this.onLifecycleChange?.();
       }
-      const onCancel = this.get('onCancel');
-      onCancel && onCancel();
     });
     return action;
   }),
+
+  /**
+   * @type {ComputedProperty<Utils.Action>}
+   */
+  pauseResumeAction: computed(
+    'atmWorkflowExecutionSummary',
+    function pauseResumeAction() {
+      const action = this.workflowActions
+        .createPauseResumeAtmWorkflowExecutionAction({
+          atmWorkflowExecution: this.atmWorkflowExecutionSummary,
+        });
+      action.addExecuteHook((result) => {
+        if (result?.status === 'done') {
+          this.onLifecycleChange?.();
+        }
+      });
+      return action;
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
@@ -153,7 +169,11 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Array<Utils.Action>>}
    */
-  atmWorkflowExecutionActions: collect('cancelAction', 'copyIdAction'),
+  atmWorkflowExecutionActions: collect(
+    'pauseResumeAction',
+    'cancelAction',
+    'copyIdAction',
+  ),
 
   click(event) {
     this._super(...arguments);

@@ -203,6 +203,10 @@ export default Service.extend({
     }).save();
   },
 
+  /**
+   * @param {string} atmWorkflowExecutionId
+   * @returns {Promise<void>}
+   */
   async cancelAtmWorkflowExecution(atmWorkflowExecutionId) {
     const cancelGri = gri({
       entityType: atmWorkflowExecutionEntityType,
@@ -212,6 +216,42 @@ export default Service.extend({
     });
     await this.get('onedataGraph').request({
       gri: cancelGri,
+      operation: 'create',
+      subscribe: false,
+    });
+  },
+
+  /**
+   * @param {string} atmWorkflowExecutionId
+   * @returns {Promise<void>}
+   */
+  async pauseAtmWorkflowExecution(atmWorkflowExecutionId) {
+    const requestGri = gri({
+      entityType: atmWorkflowExecutionEntityType,
+      entityId: atmWorkflowExecutionId,
+      aspect: 'pause',
+      scope: 'private',
+    });
+    await this.onedataGraph.request({
+      gri: requestGri,
+      operation: 'create',
+      subscribe: false,
+    });
+  },
+
+  /**
+   * @param {string} atmWorkflowExecutionId
+   * @returns {Promise<void>}
+   */
+  async resumeAtmWorkflowExecution(atmWorkflowExecutionId) {
+    const requestGri = gri({
+      entityType: atmWorkflowExecutionEntityType,
+      entityId: atmWorkflowExecutionId,
+      aspect: 'resume',
+      scope: 'private',
+    });
+    await this.onedataGraph.request({
+      gri: requestGri,
       operation: 'create',
       subscribe: false,
     });

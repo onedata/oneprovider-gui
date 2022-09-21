@@ -261,7 +261,7 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    atmWorkflowExecutionCancelled() {
+    atmWorkflowExecutionLifecycleChanged() {
       this.updateAtmWorkflowExecutionSummaries();
     },
   },
