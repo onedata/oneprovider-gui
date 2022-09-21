@@ -19,6 +19,13 @@ export default ObjectProxy.extend({
   save: proxyMethod('save'),
   reload: proxyMethod('reload'),
   destroyRecord: proxyMethod('destroyRecord'),
+
+  unloadRecord() {
+    proxyMethod('unloadRecord').bind(this)();
+    // invalidating record from store causes errors when its a content of proxy,
+    // so treat unloading record as end of proxy instance life
+    this.set('content', null);
+  },
 });
 
 // TODO: VFS-7643 redundancy: maybe create util, and mixin/class for browsable model

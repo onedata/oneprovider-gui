@@ -22,7 +22,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
-import { resolve, all as allFulfilled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -827,11 +827,9 @@ export default Component.extend(I18n, {
     );
   },
 
-  onDirChildrenRefresh(parentDirEntityId) {
-    if (this.get('dir.entityId') === parentDirEntityId) {
+  async onDirChildrenRefresh(parentDirEntityId) {
+    if (get(this.dir, 'entityId') === parentDirEntityId) {
       return this.refreshFileList();
-    } else {
-      return resolve();
     }
   },
 
