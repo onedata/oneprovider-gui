@@ -19,10 +19,36 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const datasetArchivesAspect = 'archives_details';
 
+/**
+ * @typedef {Object} ArchiveLogErrorReason
+ */
+
+/**
+ * There are 3 types of log events:
+ * - archivisation finished
+ * - archivisation failed
+ * - archived file verification failed
+ *
+ * @typedef {Object} ArchiveAuditLogEntryContent
+ * @property {string|null} fileId CDMI Object ID of the file that the event is about.
+ *   For archivisation finish/fail it's a file from dataset.
+ *   For verification fail it's a file created in archive.
+ * @property {string|null} description A human-readable description of event.
+ * @property {string} path Path to file specified with `fileId`.
+ * @property {number} [startTimestamp] Milliseconds timestamp when the archivisation
+ *   process started of file for which the event is about. Only for archivisation
+ *   finish/fail events.
+ * @property {ArchiveLogErrorReason} [reason] Error object - only for archivisation failed
+ *   event.
+ */
+
+const auditLogAspect = 'audit_log';
+
 export default Service.extend({
   onedataGraph: service(),
   store: service(),
   fileManager: service(),
+  auditLogManager: service(),
 
   /**
    * Mapping of `archiveId` -> PromiseProxy of cached browsable-wrapped archive
@@ -288,6 +314,24 @@ export default Service.extend({
   },
 
   /**
+   * @param {string} archiveId
+   * @param {AuditLogListingParams} listingParams
+   * @returns {Promise<AuditLogEntriesPage<ArchiveAuditLogEntryContent>>}
+   */
+  async getAuditLog(archiveId, listingParams) {
+    const requestGri = gri({
+      entityType: archiveEntityType,
+      entityId: archiveId,
+      aspect: auditLogAspect,
+    });
+    return await this.auditLogManager.getAuditLogEntries(
+      requestGri,
+      listingParams,
+      normalizeQosAuditLogEntryContent
+    );
+  },
+
+  /**
    * @param {Array<Object>} attrs data for creating Archive model
    * @param {String} [scope='private'] currently only private is supported
    * @returns {Promise<Array<Model>>}
@@ -334,3 +378,20 @@ export default Service.extend({
     });
   },
 });
+
+/**
+ * @param {unknown} content should be a `ArchiveAuditLogEntryContent`-like object
+ * @returns {ArchiveAuditLogEntryContent}
+ */
+function normalizeQosAuditLogEntryContent(content) {
+  const normalizedContent = content || {};
+
+  if (typeof normalizedContent.fileId !== 'string') {
+    normalizedContent.fileId = null;
+  }
+  if (typeof normalizedContent.description !== 'string') {
+    normalizedContent.description = null;
+  }
+
+  return normalizedContent;
+}
