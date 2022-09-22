@@ -17,12 +17,14 @@ import { reject, hash as hashFulfilled } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import Looper from 'onedata-gui-common/utils/looper';
+import {
+  AtmWorkflowExecutionPhase,
+  atmWorkflowExecutionPhases,
+  translateAtmWorkflowExecutionPhase,
+} from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
 const possibleTabs = [
-  'waiting',
-  'ongoing',
-  'ended',
-  'suspended',
+  ...atmWorkflowExecutionPhases,
   'preview',
   'create',
 ];
@@ -118,12 +120,21 @@ export default Component.extend(...mixins, {
   possibleTabs: undefined,
 
   /**
+   * @type {Object<string, AtmWorkflowExecutionPhase>}
+   */
+  AtmWorkflowExecutionPhase,
+
+  /**
+   * @type {Array<AtmWorkflowExecutionPhase>}
+   */
+  atmWorkflowExecutionPhases,
+
+  /**
    * @type {Looper}
    */
   suspendedExecutionsCountInfoUpdater: undefined,
 
   /**
-   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'suspended'`, `'create'`, `'preview'`
    * @type {ComputedProperty<String>}
    */
   normalizedTab: conditional(
@@ -167,6 +178,17 @@ export default Component.extend(...mixins, {
       }
     }
   ),
+
+  /**
+   * @type {ComputedProperty<(tabId: string) => SafeString}
+   */
+  getTabLabel: computed(function getTabLabel() {
+    return (tabId) => {
+      return atmWorkflowExecutionPhases.includes(tabId) ?
+        translateAtmWorkflowExecutionPhase(this.i18n, tabId) :
+        this.t(`tabs.${tabId}.tabLabel`);
+    };
+  }),
 
   atmWorkflowExecutionForPreviewLoader: observer(
     'atmWorkflowExecutionId',
@@ -252,7 +274,7 @@ export default Component.extend(...mixins, {
     const { array: executions } = await this.workflowManager
       .getAtmWorkflowExecutionSummariesForSpace(
         this.space,
-        'suspended',
+        AtmWorkflowExecutionPhase.Suspended,
         null,
         suspendedExecutionsCounterLimit + 1
       );

@@ -259,7 +259,7 @@ export default Service.extend({
 
   /**
    * @param {Models.Space} space
-   * @param {'waiting'|'ongoing'|'ended'|'suspended'} phase
+   * @param {AtmWorkflowExecutionPhase} phase
    * @param {String} startFromIndex
    * @param {number} limit
    * @param {number} offset

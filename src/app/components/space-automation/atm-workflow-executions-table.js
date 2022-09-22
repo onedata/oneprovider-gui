@@ -11,6 +11,7 @@ import $ from 'jquery';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { isEmpty } from '@ember/utils';
 import { htmlSafe } from '@ember/string';
+import { AtmWorkflowExecutionPhase } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
 // TODO: VFS-7803 DRY in infinite scrollable lists
 
@@ -26,9 +27,8 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.spaceAutomation.atmWorkflowExecutionsTable',
 
   /**
-   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'suspended'`
    * @virtual
-   * @type {String}
+   * @type {AtmWorkflowExecutionPhase}
    */
   phase: undefined,
 
@@ -89,30 +89,29 @@ export default Component.extend(I18n, {
   columns: computed('phase', function columns() {
     const commonStartColumns = ['name', 'inventory'];
     const commonEndColumns = ['status', 'actions'];
-    switch (this.get('phase')) {
-      case 'waiting':
+    switch (this.phase) {
+      case AtmWorkflowExecutionPhase.Waiting:
         return [
           ...commonStartColumns,
           'scheduledAt',
           ...commonEndColumns,
         ];
-      case 'ongoing':
+      case AtmWorkflowExecutionPhase.Ongoing:
         return [
           ...commonStartColumns,
           'startedAt',
           ...commonEndColumns,
         ];
-      case 'ended':
+      case AtmWorkflowExecutionPhase.Ended:
         return [
           ...commonStartColumns,
           'startedAt',
           'finishedAt',
           ...commonEndColumns,
         ];
-      case 'suspended':
+      case AtmWorkflowExecutionPhase.Suspended:
         return [
           ...commonStartColumns,
-          'startedAt',
           'suspendedAt',
           ...commonEndColumns,
         ];
