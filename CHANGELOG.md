@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9841 Fixed file/archive/dataset browser item blink animation
 * VFS-9723 Fixed error message on removing dataset
 * VFS-9709 Added Open Data tag to items in file browser
 * VFS-9800 Fixed showing owner name in file info, added owner column in file browser

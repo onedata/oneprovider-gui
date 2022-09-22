@@ -761,7 +761,11 @@ export default Component.extend(I18n, {
   highlightAnimateRows(rowsIds) {
     const rowFocusAnimationClasses = this.get('rowFocusAnimationClasses');
     const rowElements = this.findItemRows(rowsIds);
-    rowElements.forEach(rowElement => {
+    /** @type {Array<HTMLTableCellElement>} */
+    const cellElements = _.flatten(
+      [...rowElements].map(row => [...row.querySelectorAll(':scope > td')])
+    );
+    cellElements.forEach(rowElement => {
       animateCss(rowElement, ...rowFocusAnimationClasses);
     });
   },
