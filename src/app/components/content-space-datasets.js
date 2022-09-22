@@ -37,6 +37,7 @@ import SplitGrid from 'split-grid';
 import _ from 'lodash';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -471,7 +472,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'selectedArchives',
   ),
 
-  noViewArchivesPrivilege: not('space.privileges.viewArchives'),
+  noViewArchivesPrivilege: not('spacePrivileges.viewArchives'),
 
   viewPrivilegeExpression: computed(function viewPrivilegeExpression() {
     const i18n = this.get('i18n');
@@ -513,7 +514,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
       onDragEnd: (...args) => this.onGutterDragEnd(...args),
     });
     this.set('splitGrid', splitGrid);
-    this.updateContainersClasses();
+    this.initialRequiredDataProxy.finally(async () => {
+      await waitForRender();
+      this.updateContainersClasses();
+    });
   },
 
   /**
@@ -556,16 +560,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   updateContainersClasses() {
-    const element = this.get('element');
-    if (!element) {
+    if (!this.element || !this.initialRequiredDataProxy.isSettled) {
       return;
     }
 
     const lowHeightBreakpoint = 300;
     const datasetBrowserContainer =
-      element.querySelector('.dataset-browser-container');
+      this.element.querySelector('.dataset-browser-container');
     const archiveBrowserContainer =
-      element.querySelector('.archive-browser-container');
+      this.element.querySelector('.archive-browser-container');
 
     this.set(
       'datasetContainerLowHeight',

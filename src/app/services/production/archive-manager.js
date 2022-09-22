@@ -268,8 +268,8 @@ export default Service.extend({
     limit,
     offset,
   }) {
-    if (!limit || limit <= 0) {
-      return { childrenRecords: [], isLast: false };
+    if (!datasetId || !limit || limit <= 0) {
+      return { childrenRecords: [], isLast: true };
     } else {
       return this.fetchDatasetArchivesAttrs({
         datasetId,

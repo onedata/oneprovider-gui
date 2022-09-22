@@ -21,10 +21,26 @@
 
 .tooltip-modal-file-subheader-multi {
   $margin-base: 0.4em;
+  &.huge-content {
+    .tooltip-inner {
+      max-width: calc(100vw - 60px);
+    }
+  }
   .tooltip-inner {
-    max-width: 80vw;
+    // flexible panel width on desktop
+    @media (max-width: 1250px) {
+      max-width: calc(100vw - 200px);
+    }
+    @media (max-width: $screen-xs-max) {
+      // empirical value to fit space from bottom of subheader to the bottom of page
+      max-height: 87vh;
+      max-width: calc(100vw - 60px);
+    }
+
     // empirical value to fit space from bottom of subheader to the bottom of page
-    max-height: 65vw;
+    max-height: 85vh;
+    max-width: 1075px;
+
     padding-top: $margin-base;
     padding-bottom: $margin-base;
   }

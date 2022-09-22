@@ -8,11 +8,12 @@
  */
 
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { gt, conditional, raw, or, and, eq } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe } from '@ember/string';
+import _ from 'lodash';
 
 export default Component.extend(I18n, {
   tagName: 'h2',
@@ -83,9 +84,25 @@ export default Component.extend(I18n, {
     raw(undefined),
   ),
 
-  truncatedTextTooltipClass: conditional(
+  truncatedTextTooltipClass: computed(
     'multi',
-    raw('tooltip-modal-file-subheader-multi'),
-    raw(undefined),
+    'isHugeMultiText',
+    function truncatedTextTooltipClass() {
+      const resultClasses = [];
+      if (this.multi) {
+        resultClasses.push('tooltip-modal-file-subheader-multi');
+        if (this.isHugeMultiText) {
+          resultClasses.push('huge-content');
+        }
+      }
+      return resultClasses.join(' ');
+    }
   ),
+
+  isHugeMultiText: computed('files.@each.name', function isHugeMultiText() {
+    if (this.files.length === 1) {
+      return false;
+    }
+    return _.sum(this.files.map(file => get(file, 'name').length)) > 2750;
+  }),
 });

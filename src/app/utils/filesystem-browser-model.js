@@ -25,6 +25,7 @@ import recordIcon from 'onedata-gui-common/utils/record-icon';
 import { array, raw, and, not } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { allSettled } from 'rsvp';
 
 const buttonNames = Object.freeze([
   'btnBagitUpload',
@@ -1064,6 +1065,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     } else {
       this.downloadFiles([file]);
     }
+  },
+
+  /**
+   * @override
+   */
+  async onListRefresh() {
+    const files = this.fbTableApi.getFilesArray();
+    const filesRefreshPromises = files.map(async file => {
+      if (get(file, 'isShared')) {
+        const shares = await get(file, 'shareRecords');
+        await allSettled(shares.invoke('reload'));
+      }
+    });
+    return allSettled(filesRefreshPromises);
   },
 
   /**

@@ -14,7 +14,7 @@
 {{/if}}
 {{#if (and (not previewMode) (not isSymlink) isShared)}}
   <div
-    class="file-status-tag file-status-shared {{if disabled "file-status-tag-disabled"}}"
+    class="file-status-tag-group"
     {{action
       (if disabled
         (no-action)
@@ -23,7 +23,22 @@
       bubbles=(bool disabled)
     }}
   >
-    {{tt this "status.shared"}}
+    <div
+      class="file-status-tag file-status-shared {{if disabled "file-status-tag-disabled"}}"
+    >
+      {{tt this "status.shared"}}
+    </div>
+    {{#if isOpenData}}
+      <div
+        class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-open-data"
+      >
+        {{one-icon
+          icon="globe-cursor"
+          class="file-open-data-icon"
+        }}
+        {{one-tooltip title=(tt this "hintOpenData" fileType=typeText)}}
+      </div>
+    {{/if}}
   </div>
 {{/if}}
 {{#if nameConflict}}
