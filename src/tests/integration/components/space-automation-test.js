@@ -106,13 +106,14 @@ describe('Integration | Component | space automation', function () {
     expect(this.element.children[0]).to.have.class('space-automation');
   });
 
-  it('renders tabs: "waiting", "ongoing", "ended" and "run workflow"',
+  it('renders tabs: "waiting", "ongoing", "ended", "suspended" and "run workflow"',
     async function () {
       await renderComponent();
 
       const tabLinks = findAll('.nav-tabs .nav-link');
-      expect(tabLinks).to.have.length(4);
-      ['Waiting', 'Ongoing', 'Ended', 'Run workflow'].forEach((label, idx) => {
+      expect(tabLinks).to.have.length(5);
+      ['Waiting', 'Ongoing', 'Ended', 'Suspended', 'Run workflow']
+      .forEach((label, idx) => {
         expect(tabLinks[idx]).to.have.trimmed.text(label);
       });
     });

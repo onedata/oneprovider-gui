@@ -34,14 +34,16 @@ export default Action.extend({
   className: 'pause-resume-atm-workflow-execution-action-trigger',
 
   /**
-   * @override
-   */
-  icon: 'cancelled',
-
-  /**
    * @type {boolean}
    */
   isBeingExecuted: false,
+
+  /**
+   * @override
+   */
+  icon: computed('operation', function icon() {
+    return this.operation === 'resume' ? 'play' : 'pause';
+  }),
 
   /**
    * @override
@@ -112,19 +114,10 @@ export default Action.extend({
       this.resumeAtmWorkflowExecution() :
       this.pauseAtmWorkflowExecution();
 
-    operationPromise.finally(() =>
-      safeExec(this, () => this.set('isBeingExecuted', false))
-    );
-
-    return actionResult;
-  },
-
-  /**
-   * @override
-   */
-  getSuccessNotificationText(actionResult) {
-    const operation = this.getOperationFromActionResult(actionResult);
-    return this.t(`successNotificationText.${operation}`);
+    return actionResult.interceptPromise(operationPromise)
+      .then(() => actionResult)
+      .catch(() => actionResult)
+      .finally(() => safeExec(this, () => this.set('isBeingExecuted', false)));
   },
 
   /**

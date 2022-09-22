@@ -15,16 +15,26 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import { conditional, raw, array } from 'ember-awesome-macros';
 import { reject, hash as hashFulfilled } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import Looper from 'onedata-gui-common/utils/looper';
 
 const possibleTabs = [
   'waiting',
   'ongoing',
   'ended',
+  'suspended',
   'preview',
   'create',
 ];
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  createDataProxyMixin('suspendedExecutionsCountInfo'),
+];
+
+const suspendedExecutionsCounterLimit = 50;
+
+export default Component.extend(...mixins, {
   classNames: ['space-automation', 'fill-flex-using-column'],
 
   i18n: service(),
@@ -108,7 +118,12 @@ export default Component.extend(I18n, {
   possibleTabs: undefined,
 
   /**
-   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'create'`, `'preview'`
+   * @type {Looper}
+   */
+  suspendedExecutionsCountInfoUpdater: undefined,
+
+  /**
+   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'suspended'`, `'create'`, `'preview'`
    * @type {ComputedProperty<String>}
    */
   normalizedTab: conditional(
@@ -206,8 +221,53 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
 
-    this.set('possibleTabs', [...possibleTabs]);
+    const suspendedExecutionsCountInfoUpdater = Looper.create({
+      immediate: false,
+      interval: 5000,
+    });
+    suspendedExecutionsCountInfoUpdater.on('tick', () => {
+      this.updateSuspendedExecutionsCountInfoProxy({ replace: true });
+    });
+    this.setProperties({
+      possibleTabs: [...possibleTabs],
+      suspendedExecutionsCountInfoUpdater,
+    });
+
     this.atmWorkflowExecutionForPreviewLoader();
+  },
+
+  willDestroyElement() {
+    try {
+      this.suspendedExecutionsCountInfoUpdater?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  /**
+   * @override
+   * @returns {Promise<{ content: string|null, className: string }>}
+   */
+  async fetchSuspendedExecutionsCountInfo() {
+    const { array: executions } = await this.workflowManager
+      .getAtmWorkflowExecutionSummariesForSpace(
+        this.space,
+        'suspended',
+        null,
+        suspendedExecutionsCounterLimit + 1
+      );
+    const executionsCount = executions?.length || 0;
+    if (executionsCount > suspendedExecutionsCounterLimit) {
+      return {
+        content: `${suspendedExecutionsCounterLimit}+`,
+        className: 'text-danger',
+      };
+    } else {
+      return {
+        content: executionsCount > 0 ? String(executionsCount) : null,
+        className: executionsCount > 0 ? 'text-danger' : '',
+      };
+    }
   },
 
   actions: {
@@ -219,6 +279,14 @@ export default Component.extend(I18n, {
     },
     workflowSelected(atmWorkflowExecutionSummary) {
       this.get('openPreviewTab')(get(atmWorkflowExecutionSummary, 'entityId'));
+    },
+    workflowLifecycleChanged(lifecycleChangingOperation) {
+      if (
+        lifecycleChangingOperation === 'pause' ||
+        lifecycleChangingOperation === 'resume'
+      ) {
+        this.updateSuspendedExecutionsCountInfoProxy({ replace: true });
+      }
     },
     closeWorkflowPreview() {
       this.get('closePreviewTab')();

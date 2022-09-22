@@ -34,6 +34,11 @@
                   {{tt this (concat "tabs." tabId ".tabLabel")}}
                 {{/if}}
               {{/truncated-string}}
+              {{#if (and (eq tabId "suspended") suspendedExecutionsCountInfo.content)}}
+                <span class={{suspendedExecutionsCountInfo.className}}>
+                  ({{suspendedExecutionsCountInfo.content}})
+                </span>
+              {{/if}}
               {{#if (eq tabId "preview")}}
                 <span
                   class="tab-close clickable"
@@ -49,14 +54,15 @@
     {{/each}}
   {{/bs-nav}}
   <div class="tab-content no-vertical-padding fill-flex-using-column">
-    {{#each (array "waiting" "ongoing" "ended") as |tabId|}}
+    {{#each (array "waiting" "ongoing" "ended" "suspended") as |tabId|}}
       {{#bsTab.pane elementId=tabId}}
         {{#if (eq bsTab.activeId tabId)}}
           <div class="row loadable-row">
             {{space-automation/atm-workflow-executions-table
               space=space
               phase=tabId
-              onWorkflowSelect=(action "workflowSelected")
+              onAtmWorkflowExecutionLifecycleChange=(action "workflowLifecycleChanged")
+              onAtmWorkflowExecutionSelect=(action "workflowSelected")
             }}
           </div>
         {{/if}}

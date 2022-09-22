@@ -3,10 +3,6 @@ export default {
     pause: 'Pause',
     resume: 'Resume',
   },
-  successNotificationText: {
-    pause: 'Pausing workflow has started successfully.',
-    resume: 'Resuming workflow has started successfully.',
-  },
   failureNotificationActionName: {
     pause: 'pausing workflow',
     resume: 'resuming workflow',

@@ -63,6 +63,10 @@ const statuses = [{
 }];
 
 const executionActionsSpec = [{
+  className: 'pause-resume-atm-workflow-execution-action-trigger',
+  label: 'Pause',
+  icon: 'pause',
+}, {
   className: 'cancel-atm-workflow-execution-action-trigger',
   label: 'Cancel',
   icon: 'cancelled',
@@ -75,6 +79,7 @@ const executionActionsSpec = [{
 const scheduleTime = moment();
 const startTime = moment().add(1, 'h');
 const finishTime = moment().add(2, 'h');
+const suspendTime = moment().add(3, 'h');
 const timeFormat = 'D MMM YYYY H:mm:ss';
 
 describe('Integration | Component | space automation/atm workflow executions table/workflow row', function () {
@@ -96,6 +101,10 @@ describe('Integration | Component | space automation/atm workflow executions tab
         scheduleTime: scheduleTime.unix(),
         startTime: startTime.unix(),
         finishTime: finishTime.unix(),
+        // It's probably not entirely correct to have both `finishTime` and
+        // `suspendTime`, but for a sake of test convenience it's
+        // a good simplification.
+        suspendTime: suspendTime.unix(),
         atmInventory: promiseObject(resolve({
           name: 'inv1',
         })),
@@ -164,6 +173,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
     ['scheduledAt', 'schedule time', scheduleTime],
     ['startedAt', 'start time', startTime],
     ['finishedAt', 'finish time', finishTime],
+    ['suspendedAt', 'suspend time', suspendTime],
   ].forEach(([colName, colDescription, time]) => {
     it(`shows workflow ${colDescription} in "${colName}" column`, async function () {
       this.set('columnNames', [colName]);

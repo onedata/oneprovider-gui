@@ -18,6 +18,9 @@ export default {
     ended: {
       tabLabel: 'Ended',
     },
+    suspended: {
+      tabLabel: 'Suspended',
+    },
     preview: {
       tabLoadingLabel: 'Loading...',
       tabErrorLabel: 'Cannot load',

@@ -55,7 +55,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Function}
+   * @type {(operation: 'cancel'|'pause'|'resume') => void}
    * @returns {any}
    */
   onLifecycleChange: undefined,
@@ -127,7 +127,7 @@ export default Component.extend(I18n, {
     });
     action.addExecuteHook((result) => {
       if (result?.status === 'done') {
-        this.onLifecycleChange?.();
+        this.onLifecycleChange?.('cancel');
       }
     });
     return action;
@@ -145,7 +145,7 @@ export default Component.extend(I18n, {
         });
       action.addExecuteHook((result) => {
         if (result?.status === 'done') {
-          this.onLifecycleChange?.();
+          this.onLifecycleChange?.(result?.additionalData?.operation);
         }
       });
       return action;

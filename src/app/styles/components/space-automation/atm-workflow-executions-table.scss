@@ -40,7 +40,9 @@
   .table-col-startedAt,
   .cell-startedAt,
   .table-col-finishedAt,
-  .cell-finishedAt {
+  .cell-finishedAt,
+  .table-col-suspendedAt,
+  .cell-suspendedAt {
     width: $time-col-width;
     min-width: $time-col-width;
 

@@ -26,7 +26,7 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.spaceAutomation.atmWorkflowExecutionsTable',
 
   /**
-   * One of: `'waiting'`, `'ongoing'`, `'ended'`
+   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'suspended'`
    * @virtual
    * @type {String}
    */
@@ -39,11 +39,17 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * @virtual optional
+   * @type {(operation: 'cancel'|'pause'|'resume') => void}
+   */
+  onAtmWorkflowExecutionLifecycleChange: undefined,
+
+  /**
    * @type {Function}
    * @param {Models.AtmWorkflowExecutionSummary}
    * @returns {any}
    */
-  onWorkflowSelect: undefined,
+  onAtmWorkflowExecutionSelect: undefined,
 
   /**
    * @type {Number}
@@ -81,31 +87,34 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Array<String>>}
    */
   columns: computed('phase', function columns() {
+    const commonStartColumns = ['name', 'inventory'];
+    const commonEndColumns = ['status', 'actions'];
     switch (this.get('phase')) {
       case 'waiting':
         return [
-          'name',
-          'inventory',
+          ...commonStartColumns,
           'scheduledAt',
-          'status',
-          'actions',
+          ...commonEndColumns,
         ];
       case 'ongoing':
         return [
-          'name',
-          'inventory',
+          ...commonStartColumns,
           'startedAt',
-          'status',
-          'actions',
+          ...commonEndColumns,
         ];
       case 'ended':
         return [
-          'name',
-          'inventory',
+          ...commonStartColumns,
           'startedAt',
           'finishedAt',
-          'status',
-          'actions',
+          ...commonEndColumns,
+        ];
+      case 'suspended':
+        return [
+          ...commonStartColumns,
+          'startedAt',
+          'suspendedAt',
+          ...commonEndColumns,
         ];
     }
   }),
@@ -261,8 +270,13 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    atmWorkflowExecutionLifecycleChanged() {
+    /**
+     * @param {'cancel'|'pause'|'resume'} lifecycleChangingOperation
+     * @returns {void}
+     */
+    atmWorkflowExecutionLifecycleChanged(lifecycleChangingOperation) {
       this.updateAtmWorkflowExecutionSummaries();
+      this.onAtmWorkflowExecutionLifecycleChange?.(lifecycleChangingOperation);
     },
   },
 });
