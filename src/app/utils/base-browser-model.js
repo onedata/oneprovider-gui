@@ -59,6 +59,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   onOpenFile: notImplementedIgnore,
 
   /**
+   * Invoked when items list is refreshed.
+   * Items table will wait until it is resolved before ending refresh procedure.
+   * @virtual
+   * @type {() => Promise}
+   */
+  onListRefresh: notImplementedIgnore,
+
+  /**
    * Return true for item that should be presented as disabled (muted, non-selectable).
    * @virtual optional
    * @type {(item: Object) => boolean}

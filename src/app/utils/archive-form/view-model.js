@@ -115,7 +115,6 @@ export default ArchiveFormBaseModel.extend({
   baseArchiveTextProxy: promise.object(computed(
     'archive',
     'baseArchiveProxy',
-
     async function baseArchiveTextProxy() {
       const {
         archive,
@@ -127,7 +126,7 @@ export default ArchiveFormBaseModel.extend({
       const baseArchiveId = archive && archive.relationEntityId('baseArchive');
       try {
         const baseArchive = await baseArchiveProxy;
-        return get(baseArchive, 'name') || '–';
+        return baseArchive && get(baseArchive, 'name') || '–';
       } catch (error) {
         if (
           error &&
