@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9611 Showing current size and file counters directly in directory size statistics view
 * VFS-9722 Fixed bugs in fetching head of infinite scroll list
 * VFS-9841 Fixed file/archive/dataset browser item blink animation
 * VFS-9723 Fixed error message on removing dataset
