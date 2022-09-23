@@ -1,9 +1,8 @@
-@use 'sass:math';
 .transfer-details {
   .row-transfer-query-params {
     position: relative;
     margin-left: $padding-base-horizontal;
-    margin-right: math.div($padding-base-horizontal, 2);
+    margin-right: $padding-base-horizontal * 0.5;
     margin-bottom: $padding-base-horizontal;
     padding-top: $padding-base-horizontal;
     padding-bottom: $padding-base-horizontal;
@@ -26,7 +25,7 @@
   }
   .transfers-transfer-chart {
     $-ct-chart-padding-top: 40px;
-
+    
     position: relative;
     .loadable-row {
       // height of chart + top-padding (TODO: parametrize height of chart?)
