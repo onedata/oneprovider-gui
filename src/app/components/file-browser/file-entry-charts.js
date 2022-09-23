@@ -720,8 +720,9 @@ export default Component.extend(...mixins, {
 
     const layout = {};
     staticTimeSeries.forEach((tsName) => {
-      layout[timeSeriesNameGenerators[tsName]] = [
-        this.metricNamesForTimeSeries[timeSeriesNameGenerators[tsName]]?.[0],
+      const rawTsName = timeSeriesNameGenerators[tsName];
+      layout[rawTsName] = [
+        this.metricNamesForTimeSeries[rawTsName]?.[0],
       ];
     });
     perStorageTimeSeries.forEach((tsName) => {
