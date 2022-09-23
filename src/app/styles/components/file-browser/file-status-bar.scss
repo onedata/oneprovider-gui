@@ -1,3 +1,4 @@
+@use 'sass:math';
 $file-status-tag-padding: 6px;
 $file-status-tag-height: 26px;
 $file-status-tag-border-width: 1px;
@@ -30,7 +31,7 @@ $file-status-tag-spacing: 6px;
     }
   }
   .file-status-tag {
-    $margin-vertical-fix: ($file-status-tag-height - 20px) / 2;
+    $margin-vertical-fix: math.div(($file-status-tag-height - 20px), 2);
 
     display: inline-flex;
     height: $file-status-tag-height;

@@ -1,3 +1,4 @@
+@use 'sass:math';
 .acl-editor {
   .one-collapsible-list-item .one-collapsible-list-item-header .collapsible-toolbar-toggle {
     display: block;
@@ -135,8 +136,8 @@
       display: inline-block;
       height: 0;
       min-width: 0;
-      margin-top: -$input-height-base / 2;
-      margin-bottom: -$input-height-base / 2;
+      margin-top: math.div(-$input-height-base, 2);
+      margin-bottom: math.div(-$input-height-base, 2);
     }
   }
 

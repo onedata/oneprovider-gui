@@ -1,3 +1,4 @@
+@use 'sass:math';
 $space-transfers-table-padding: 8px;
 $space-transfers-gray: #B6BAC0;
 
@@ -22,7 +23,7 @@ $space-transfers-gray: #B6BAC0;
 
   .transfer-item-header .cell-data-name {
     margin-top: 8px;
-  } 
+  }
 
   // TODO: this seems to be generic for new style in content views
   h1, h2 {
@@ -152,7 +153,7 @@ $space-transfers-gray: #B6BAC0;
     $arrow-top-position: $chart-tooltip-arrow-size * 0.65;
     position: absolute;
     display: none;
-    transform: translateX(-100%) translateX(-$chart-tooltip-arrow-size / 2 - 5px) translateY(-$arrow-top-position);
+    transform: translateX(-100%) translateX(math.div(-$chart-tooltip-arrow-size, 2) - 5px) translateY(-$arrow-top-position);
     padding: $chart-tooltip-padding;
     background-color: white;
     border: 1px solid $chart-border-color;
@@ -162,7 +163,7 @@ $space-transfers-gray: #B6BAC0;
     white-space: nowrap;
     width: 200px;
     .ct-tooltip-arrow {
-      border: ($chart-tooltip-arrow-size / 2) solid transparent;
+      border: math.div($chart-tooltip-arrow-size, 2) solid transparent;
       border-left-color: $chart-border-color;
       height: $chart-tooltip-arrow-size;
       position: absolute;
@@ -174,30 +175,30 @@ $space-transfers-gray: #B6BAC0;
       &::after {
         content: '';
         position: absolute;
-        border: ($chart-tooltip-arrow-size / 2) solid transparent;
+        border: math.div($chart-tooltip-arrow-size, 2) solid transparent;
         border-left-color: white;
         border-right-width: 0;
         height: $chart-tooltip-arrow-size - 4px;
-        margin-left: -$chart-tooltip-arrow-size / 2 - 1px;
-        margin-top: -($chart-tooltip-arrow-size / 2);
+        margin-left: math.div(-$chart-tooltip-arrow-size, 2) - 1px;
+        margin-top: math.div(-$chart-tooltip-arrow-size, 2);
       }
     }
     &.right {
-      transform: translateX($chart-tooltip-arrow-size / 2 + 5px) translateY(-$arrow-top-position);
+      transform: translateX(math.div($chart-tooltip-arrow-size, 2) + 5px) translateY(-$arrow-top-position);
       .ct-tooltip-arrow {
         left: initial;
         right: 100%;
         transform: translateY(-50%) rotate(180deg);
       }
       &.top {
-        transform: translateX($chart-tooltip-arrow-size / 2 + 5px) translateY(-100%) translateY($arrow-top-position);
+        transform: translateX(math.div($chart-tooltip-arrow-size, 2) + 5px) translateY(-100%) translateY($arrow-top-position);
         .ct-tooltip-arrow {
           transform: translateY(50%) rotate(180deg);
         }
       }
     }
     &.top {
-      transform: translateX(-100%) translateX(-$chart-tooltip-arrow-size / 2 - 5px) translateY(-100%) translateY($arrow-top-position);
+      transform: translateX(-100%) translateX(math.div(-$chart-tooltip-arrow-size, 2) - 5px) translateY(-100%) translateY($arrow-top-position);
       .ct-tooltip-arrow {
         top: initial;
         bottom: $arrow-top-position;

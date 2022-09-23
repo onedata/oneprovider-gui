@@ -13,7 +13,7 @@ const breakpoints = require('./lib/onedata-gui-common/config/breakpoints');
 const copyDynamicLibraries = require('./lib/onedata-gui-common/addon/utils/copy-dynamic-libraries');
 const dynamicLibraries = require('./lib/onedata-gui-common/config/dynamic-libraries');
 
-const sass = require('sass');
+const sass = require('sass-embedded');
 
 const environment = EmberApp.env();
 
@@ -43,6 +43,7 @@ module.exports = function (defaults) {
     'babel': {},
     'sassOptions': {
       implementation: sass,
+      outputStyle: 'expanded',
       includePaths: [
         'app/styles',
         // onedata-gui-common addon

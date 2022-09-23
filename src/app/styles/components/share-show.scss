@@ -1,3 +1,4 @@
+@use 'sass:math';
 $share-show-description-bar-height: 60px;
 // this padding aligns content to first icon in tab bar
 $share-show-content-padding-horizontal: 12px;
@@ -127,7 +128,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       &.share-show-pane-container-files {
         .table-bottom-spacing {
           // do not need original large bottom spacing, because there is a footer
-          height: $share-show-public-footer-height / 2;
+          height: math.div($share-show-public-footer-height, 2);
         }
       }
       .share-show-pane-description {
