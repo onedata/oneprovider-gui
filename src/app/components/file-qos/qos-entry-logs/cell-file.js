@@ -35,6 +35,13 @@ export default Component.extend(I18n, {
   fileCdmiObjectId: undefined,
 
   /**
+   * Absolute file path.
+   * @virtual
+   * @type {string}
+   */
+  path: undefined,
+
+  /**
    * Should generate a full file URL.
    * @virtual
    * @type {(fileId: string) => string}

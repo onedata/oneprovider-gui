@@ -12,6 +12,7 @@
     {{#if isFileColumnVisible}}
       {{file-qos/qos-entry-logs/cell-file
         fileCdmiObjectId=logEntry.content.fileId
+        path=logEntry.content.path
         onGenerateFileUrl=(action "generateFileUrl")
       }}
     {{/if}}

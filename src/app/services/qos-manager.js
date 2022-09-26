@@ -24,9 +24,10 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
 /**
  * @typedef {Object} QosAuditLogEntryContent
  * @param {QosLogStatus|null} status
- * @param {string|null} fileId CDMI Object ID of the file that the event is about
- * @param {string|null} description a human-readable description of event
- * @param {QosLogErrorReason} [reason] error object - only if status is failed
+ * @param {string|null} fileId CDMI Object ID of the file that the event is about.
+ * @param {string} path Absolute path of file.
+ * @param {string|null} description A human-readable description of event.
+ * @param {QosLogErrorReason} [reason] Error object - only if status is failed.
  */
 
 /**
