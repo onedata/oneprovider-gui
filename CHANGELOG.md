@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9712 Added detailed view of upload errors
 * VFS-9623 Increased speed of SASS compilation and fixed its unnecessary recompilation
 * VFS-9611 Showing current size and file counters directly in directory size statistics view
 * VFS-9722 Fixed bugs in fetching head of infinite scroll list
