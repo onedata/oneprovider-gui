@@ -43,6 +43,10 @@ export default EmberObject.extend(
      */
     dataUpdater: undefined,
 
+    fileDistributionCache: undefined,
+
+    storageLocationsPerProviderCache: undefined,
+
     /**
      * @type {number}
      */
@@ -127,10 +131,10 @@ export default EmberObject.extend(
     /**
      * @type {ComputedProperty<LocationsPerProvider>}
      */
-    storageLocationsPerProvider: or(
+    storageLocationsPerProvider: conditional(
       eq('fileType', raw('dir')),
       null,
-      'storageLocations.locationsPerProvider',
+      'storageLocations.locationsPerProvider'
     ),
 
     /**
@@ -173,35 +177,34 @@ export default EmberObject.extend(
       }
     }),
 
-    fileDistributionCache: undefined,
-
-    storageLocationsPerProviderCache: undefined,
-
     storageLocationsObserver: observer(
       'pollingTime',
       async function storageLocationsObserver() {
-        if (this.get('fileType') === 'dir') {
+        if (this.get('fileType') === 'dir' || fileDistribution.length === 1) {
           this.set('isStorageLocationsUpdated', false);
           return;
         }
         const {
           fileDistributionCache,
           storageLocationsPerProviderCache,
+          fileDistribution,
         } = this.getProperties(
           'fileDistributionCache',
           'storageLocationsPerProviderCache',
+          'fileDistribution',
         );
-        const fileDistribution = await this.get('fileDistribution');
         const storageLocationsPerProvider = await this.get('storageLocationsPerProvider');
         if (fileDistributionCache) {
           for (const providerId in fileDistribution) {
-            const distributionPerStorages = fileDistribution[
-              providerId].distributionPerStorage;
-            const distributionPerStoragesPast = fileDistributionCache[
-              providerId].distributionPerStorage;
+            const distributionPerStorages =
+              fileDistribution[providerId].distributionPerStorage;
+            const distributionPerStoragesPast =
+              fileDistributionCache[providerId].distributionPerStorage;
             for (const storageId in distributionPerStorages) {
-              if (distributionPerStorages[storageId].blocksPercentage !==
-                distributionPerStoragesPast[storageId].blocksPercentage) {
+              if (
+                distributionPerStorages[storageId].blocksPercentage !==
+                distributionPerStoragesPast[storageId].blocksPercentage
+              ) {
                 this.set('isStorageLocationsUpdated', true);
               }
             }
@@ -209,20 +212,24 @@ export default EmberObject.extend(
         }
         if (storageLocationsPerProviderCache) {
           for (const providerId in storageLocationsPerProvider) {
-            const locationsPerStorage = storageLocationsPerProvider[providerId]
-              .locationsPerStorage;
-            const locationsPerStoragePast = storageLocationsPerProviderCache[
-              providerId].locationsPerStorage;
+            const locationsPerStorage =
+              storageLocationsPerProvider[providerId].locationsPerStorage;
+            const locationsPerStoragePast =
+              storageLocationsPerProviderCache[providerId].locationsPerStorage;
             for (const storageId in locationsPerStorage) {
-              if (locationsPerStorage[storageId] !==
-                locationsPerStoragePast[storageId]) {
+              if (
+                locationsPerStorage[storageId] !==
+                locationsPerStoragePast[storageId]
+              ) {
                 this.set('isStorageLocationsUpdated', false);
               }
             }
           }
         }
-        this.set('fileDistributionCache', fileDistribution);
-        this.set('storageLocationsPerProviderCache', storageLocationsPerProvider);
+        this.setProperties({
+          fileDistributionCache: fileDistribution,
+          storageLocationsPerProviderCache: storageLocationsPerProvider,
+        });
       }
     ),
 

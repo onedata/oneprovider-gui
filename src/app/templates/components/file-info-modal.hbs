@@ -185,9 +185,12 @@
                       locations=currentProviderLocationsProxy.content
                     }}
                   {{/if}}
-                  {{#if (and storageLocationsPerProvider (gt storageLocationsPerProviderLength 1))}}
+                  {{#if (and 
+                    storageLocationsPerProviderProxy 
+                    (gt storageLocationsPerProviderLength 1)
+                  )}}
                     {{#if areStorageLocationsExpanded}}
-                      {{#each-in storageLocationsPerProvider as |providerId locations|}}
+                      {{#each-in storageLocationsPerProviderProxy as |providerId locations|}}
                         {{#if (not-eq providerId currentProviderId)}}
                           {{file-browser/storage-location-per-provider-table
                             spaceId=spaceId

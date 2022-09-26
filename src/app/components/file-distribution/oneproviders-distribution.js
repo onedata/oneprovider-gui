@@ -85,7 +85,7 @@ export default Component.extend(I18n, {
   isSingleFile: equal('fileDistributionData.length', 1),
 
   /**
-   * @type {ComputedProperty<Models.StorageLocations>}
+   * @type {ComputedProperty<Models.StorageLocationInfo>}
    */
   locationsPerProvider: computed(
     'fileDistributionData.firstObject.storageLocationsPerProvider',
