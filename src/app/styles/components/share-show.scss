@@ -127,7 +127,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       &.share-show-pane-container-files {
         .table-bottom-spacing {
           // do not need original large bottom spacing, because there is a footer
-          height: $share-show-public-footer-height / 2;
+          height: $share-show-public-footer-height * 0.5;
         }
       }
       .share-show-pane-description {
