@@ -1,0 +1,20 @@
+<a style="display:block;text-align:center;margin: 5em;">
+  <span>File path.</span>
+  {{#one-tooltip class="string-path-tooltip" triggerEvents="" visible=true}}
+    {{formatted-path-string
+      class="simple-file-path-0"
+      absolutePath=filePath
+    }}
+  {{/one-tooltip}}
+</a>
+
+
+<a style="display:block;text-align:center;">
+  <span>File in archive path.</span>
+  {{#one-tooltip class="string-path-tooltip" triggerEvents="" visible=true}}
+    {{formatted-path-string
+      class="simple-file-path-1"
+      absolutePath=fileInArchivePath
+    }}
+  {{/one-tooltip}}
+</a>

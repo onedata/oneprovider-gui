@@ -9,7 +9,10 @@
         {{fileInfo.name}}
       {{/truncated-string}}
       {{#one-tooltip class="string-path-tooltip"}}
-        {{simple-file-path absolutePath=path browsableArchive=parentBrowsableArchive}}
+        {{formatted-path-string
+          absolutePath=path
+          browsableArchive=parentBrowsableArchive
+        }}
       {{/one-tooltip}}
     </a>
   {{else}}
@@ -17,7 +20,10 @@
       {{fileInfo.name}}
     {{/truncated-string}}
       {{#one-tooltip class="string-path-tooltip"}}
-        {{simple-file-path absolutePath=path browsableArchive=parentBrowsableArchive}}
+        {{formatted-path-string
+          absolutePath=path
+          browsableArchive=parentBrowsableArchive
+        }}
       {{/one-tooltip}}
   {{/if}}
 </div>
