@@ -48,6 +48,14 @@ export default Component.extend(I18n, {
    */
   onGenerateFileUrl: undefined,
 
+  /**
+   * If file that logs are about is inside archive, you can provide it here to display
+   * archive name in log entries path tooltip.
+   * @virtual optional
+   * @type {Utils.BrowsabledArchive}
+   */
+  parentBrowsableArchive: undefined,
+
   navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   fileId: and(
@@ -67,6 +75,9 @@ export default Component.extend(I18n, {
     return fileManager.getFileById(fileId);
   })),
 
+  /**
+   * @type {PromiseObject<{name: string, href: string, className: string}>}
+   */
   fileInfoProxy: promise.object(computed(
     'fileId',
     'fileProxy.name',

@@ -8,12 +8,16 @@
       {{#truncated-string class=(concat-classes "file-name" fileInfo.className)}}
         {{fileInfo.name}}
       {{/truncated-string}}
-      {{one-tooltip title=path class="string-path-tooltip"}}
+      {{#one-tooltip class="string-path-tooltip"}}
+        {{simple-file-path absolutePath=path browsableArchive=parentBrowsableArchive}}
+      {{/one-tooltip}}
     </a>
   {{else}}
     {{#truncated-string class=(concat-classes "file-name" fileInfo.className)}}
       {{fileInfo.name}}
     {{/truncated-string}}
-    {{one-tooltip title=path class="string-path-tooltip"}}
+      {{#one-tooltip class="string-path-tooltip"}}
+        {{simple-file-path absolutePath=path browsableArchive=parentBrowsableArchive}}
+      {{/one-tooltip}}
   {{/if}}
 </div>

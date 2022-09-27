@@ -12,7 +12,9 @@
     {{#if isFileColumnVisible}}
       {{file-qos/qos-entry-logs/cell-file
         fileCdmiObjectId=logEntry.content.fileId
+        archive=archive
         path=logEntry.content.path
+        parentBrowsableArchive=parentBrowsableArchive
         onGenerateFileUrl=(action "generateFileUrl")
       }}
     {{/if}}
