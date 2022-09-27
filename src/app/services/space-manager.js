@@ -51,6 +51,7 @@ export default Service.extend({
   providerManager: service(),
 
   /**
+   * Mapping (space ID) -> PromiseObject<DirStatsServiceState>
    * @type {Object<string, PromiseObject<DirStatsServiceState>>}
    */
   dirsStatsServiceStateCache: undefined,
