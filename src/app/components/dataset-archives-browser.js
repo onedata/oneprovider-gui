@@ -438,7 +438,7 @@ export default Component.extend(...mixins, {
         spaceManager,
         space,
       } = this.getProperties('spaceManager', 'space');
-      return space && spaceManager.fetchDirStatsServiceState(get(space, 'entityId'));
+      return space && spaceManager.getDirStatsServiceState(get(space, 'entityId'));
     }
   )),
 

@@ -1,11 +1,11 @@
 /**
  * Lists transfers using replacing chunks array.
- * 
+ *
  * For each transfer it provides set of available actions and allows to open
  * transfer details (charts, etc.).
- * 
+ *
  * To get infinite scroll support, see `space-transfers/transfers-table-container`
- * 
+ *
  * @module components/space-transfers/transfers-table
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -31,15 +31,16 @@ const allColumnNames = [
   'scheduledAt',
   'startedAt',
   'finishedAt',
+  'processedFiles',
+  'affectedFiles',
   'totalBytes',
-  'totalFiles',
   'type',
   'status',
 ];
 
 const tableExcludedColumnNames = {
   file: ['path'],
-  waiting: ['startedAt', 'finishedAt', 'totalBytes', 'totalFiles'],
+  waiting: ['startedAt', 'finishedAt', 'totalBytes', 'processedFiles', 'affectedFiles'],
   ongoing: ['scheduledAt', 'finishedAt'],
   ended: ['scheduledAt'],
 };
@@ -345,9 +346,16 @@ export default Component.extend(I18n, {
     });
   }),
 
-  totalFilesColumn: computed(function totalFilesColumn() {
-    return this.createColumn('totalFiles', {
-      component: 'cell-total-files',
+  processedFilesColumn: computed(function processedFilesColumn() {
+    return this.createColumn('processedFiles', {
+      component: 'cell-processed-files',
+      className: 'col-hide-1',
+    });
+  }),
+
+  affectedFilesColumn: computed(function affectedFilesColumn() {
+    return this.createColumn('affectedFiles', {
+      component: 'cell-affected-files',
       className: 'col-hide-1',
     });
   }),

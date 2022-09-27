@@ -12,12 +12,15 @@ import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import EmberObject, {
   computed,
+  observer,
   get,
   getProperties,
 } from '@ember/object';
 import { reads } from '@ember/object/computed';
+import { inject as service } from '@ember/service';
 import { promise } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 
 const startEndTimeFormat = 'D MMM YYYY H:mm:ss';
 
@@ -43,7 +46,9 @@ const statusGroups = {
   ]),
 };
 
-export default EmberObject.extend({
+export default EmberObject.extend(OwnerInjector, {
+  fileManager: service(),
+
   /**
    * @virtual
    * @type {models/Transfer}
@@ -70,10 +75,18 @@ export default EmberObject.extend({
 
   isLoading: false,
 
+  /**
+   * Total number of files, which has to be processed (scanned) during this
+   * transfer. It's available only for ongoing transfers.
+   * @type {number|null}
+   */
+  filesToProcess: null,
+
   transferId: reads('transfer.entityId'),
   userName: reads('userProxy.content.name'),
   replicatedFiles: reads('transfer.transferProgressProxy.replicatedFiles'),
   evictedFiles: reads('transfer.transferProgressProxy.evictedFiles'),
+  processedFiles: reads('transfer.transferProgressProxy.processedFiles'),
   status: reads('transfer.transferProgressProxy.status'),
   transferProgressError: reads('transfer.transferProgressProxy.reason'),
   type: reads('transfer.type'),
@@ -95,7 +108,7 @@ export default EmberObject.extend({
   ),
 
   /**
-   * Displayet desitnation name
+   * Displayed desitnation name
    * @type {ComputedProperty<String>}
    */
   destination: computed(
@@ -135,7 +148,36 @@ export default EmberObject.extend({
     }
   ),
 
+  filesToProcessSetter: observer(
+    'transfer.{state,dataSourceType,dataSourceId}',
+    async function filesToProcessSetter() {
+      const {
+        dataSourceType,
+        dataSourceId,
+        state,
+      } = getProperties(this.transfer, 'dataSourceType', 'dataSourceId', 'state');
+
+      if (
+        typeof this.filesToProcess === 'number' ||
+        state !== 'ongoing' ||
+        dataSourceType !== 'dir'
+      ) {
+        return;
+      }
+
+      const dirSizeStats = await this.fileManager.getDirCurrentSizeStats(dataSourceId);
+      if (dirSizeStats) {
+        this.set(
+          'filesToProcess',
+          dirSizeStats.regFileAndLinkCount + dirSizeStats.dirCount + 1
+        );
+      }
+    }
+  ),
+
   init() {
+    this._super(...arguments);
+
     const {
       transfer,
       transferCollection,
@@ -148,6 +190,7 @@ export default EmberObject.extend({
       // enable observer
       this.get('status');
     }
+    this.filesToProcessSetter();
   },
 
   reloadRecordIfNeeded(transfer = this.get('transfer')) {

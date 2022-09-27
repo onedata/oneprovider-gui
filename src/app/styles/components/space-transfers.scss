@@ -22,7 +22,7 @@ $space-transfers-gray: #B6BAC0;
 
   .transfer-item-header .cell-data-name {
     margin-top: 8px;
-  } 
+  }
 
   // TODO: this seems to be generic for new style in content views
   h1, h2 {
@@ -359,7 +359,7 @@ $space-transfers-gray: #B6BAC0;
     right: 8px;
   }
 }
-.cell-total-files {
+.cell-affected-files {
   display: inline-block;
 }
 .table-empty-message {

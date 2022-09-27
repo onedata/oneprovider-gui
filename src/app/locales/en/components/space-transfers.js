@@ -53,7 +53,7 @@ export default {
     eviction: 'Eviction',
     unknown: 'Unknown',
   },
-  cellTotalFiles: {
+  cellAffectedFiles: {
     evicted: 'evicted',
     replicated: 'replicated',
   },

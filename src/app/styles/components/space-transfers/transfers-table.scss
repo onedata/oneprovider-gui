@@ -1,10 +1,10 @@
-.transfers-table.one-infinite-list {  
+.transfers-table.one-infinite-list {
   .data-row {
     td {
       height: 73px;
     }
   }
-  
+
   .first-row td {
     height: 0;
     padding: 0;
@@ -18,7 +18,7 @@
     white-space: nowrap;
     background-color: $color-one-white;
   }
-  
+
   .transfers-table-thead th,
   .transfers-table-tbody td {
     text-align: center;
@@ -27,25 +27,25 @@
       text-align: left;
     }
   }
-  
+
   .transfers-table-col-scheduledAt,
   .transfers-table-col-startedAt,
   .transfers-table-col-finishedAt {
     min-width: 120px;
   }
-  
+
   .transfers-table-cell-userName {
     .truncate {
       max-width: 110px;
     }
   }
-  
-  @include hide-on-breakpoint(col-hide-1, 1060px);
+
+  @include hide-on-breakpoint(col-hide-1, 1180px);
   @include hide-on-breakpoint(col-hide-2, 900px);
   @include hide-on-breakpoint(col-hide-3, 810px);
   @include hide-on-breakpoint(col-hide-4, 700px);
   @include hide-on-breakpoint(col-hide-5, 600px);
-  
+
   tr {
     .first-row-space {
       width: 100%;
@@ -71,11 +71,11 @@
       }
     }
   }
-  
+
   .expand-row td {
     background-color: $color-one-light-gray;
   }
-  
+
   .data-row td.special-row-cell, td.special-row-cell {
     position: relative;
     height: 73px;
@@ -83,14 +83,14 @@
       height: 76px;
     }
   }
-  
+
   &.waiting {
     tr.data-row:hover {
       background-color: initial;
       cursor: initial;
     }
   }
-  
+
   table {
     table-layout: auto;
     thead {
@@ -100,9 +100,9 @@
           vertical-align: middle;
         }
       }
-    } 
+    }
   }
-  
+
   // TODO: HACK for waiting table, which does not have status column
   th.table-header:nth-last-of-type(1) {
     width: 70px;
