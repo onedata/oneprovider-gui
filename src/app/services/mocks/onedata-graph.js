@@ -443,6 +443,7 @@ const transferHandlers = {
       replicatedBytes: Math.pow(1024, 3),
       replicatedFiles: 14,
       evictedFiles: 0,
+      processedFiles: 20,
     };
   },
   rerun(operation /*, entityId, data*/ ) {
