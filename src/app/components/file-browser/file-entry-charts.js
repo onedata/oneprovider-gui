@@ -16,6 +16,15 @@ import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import Looper from 'onedata-gui-common/utils/looper';
+
+/**
+ * @typedef {Object} LatestDirSizeStatsValues
+ * @property {number} regFileAndLinkCount
+ * @property {number} dirCount
+ * @property {number} logicalSize
+ * @property {number} physicalSize
+ */
 
 const timeSeriesNameGenerators = {
   regFileAndLinkCount: 'reg_file_and_link_count',
@@ -27,6 +36,7 @@ const timeSeriesNameGenerators = {
 const mixins = [
   I18n,
   createDataProxyMixin('timeSeriesCollectionLayout'),
+  createDataProxyMixin('latestDirSizeStatsValues'),
 ];
 
 export default Component.extend(...mixins, {
@@ -88,6 +98,11 @@ export default Component.extend(...mixins, {
   seriesColorsConfig: undefined,
 
   /**
+   * @type {Looper}
+   */
+  latestDirSizeStatsValuesUpdater: undefined,
+
+  /**
    * @type {ComputedProperty<PromiseObject<TimeSeriesCollectionSchema>>}
    */
   timeSeriesCollectionSchemaProxy: promise.object(computed(
@@ -99,7 +114,10 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<PromiseObject>}
    */
-  loadingProxy: reads('timeSeriesCollectionSchemaProxy'),
+  loadingProxy: promise.object(promise.all(
+    'timeSeriesCollectionSchemaProxy',
+    'latestDirSizeStatsValuesProxy'
+  )),
 
   /**
    * Mapping time series name generator -> metric names.
@@ -127,8 +145,8 @@ export default Component.extend(...mixins, {
       return {
         rootSection: {
           title: {
-            content: String(this.t('header')),
-            tip: String(this.t('headerTooltip')),
+            content: String(this.t('historicalSize.header')),
+            tip: String(this.t('historicalSize.headerTooltip')),
           },
           chartNavigation: 'sharedWithinSection',
           charts: [this.fileCountChartSpec, this.sizeChartSpec],
@@ -146,12 +164,12 @@ export default Component.extend(...mixins, {
     function fileCountChartSpec() {
       return {
         title: {
-          content: this.t('titles.fileCount.content'),
-          tip: this.t('titles.fileCount.tip'),
+          content: this.t('historicalSize.titles.fileCount.content'),
+          tip: this.t('historicalSize.titles.fileCount.tip'),
         },
         yAxes: [{
           id: 'countAxis',
-          name: String(this.t('axes.files')),
+          name: String(this.t('historicalSize.axes.files')),
           minInterval: 1,
         }],
         seriesGroupBuilders: [{
@@ -159,7 +177,7 @@ export default Component.extend(...mixins, {
           builderRecipe: {
             seriesGroupTemplate: {
               id: 'totalCount',
-              name: String(this.t('seriesGroups.totalCount')),
+              name: String(this.t('historicalSize.seriesGroups.totalCount')),
               stacked: true,
               showSum: true,
             },
@@ -170,7 +188,7 @@ export default Component.extend(...mixins, {
           builderRecipe: {
             seriesTemplate: {
               id: 'directoriesCount',
-              name: String(this.t('series.directoriesCount')),
+              name: String(this.t('historicalSize.series.directoriesCount')),
               color: this.seriesColorsConfig?.directoriesCountColor,
               type: 'line',
               yAxisId: 'countAxis',
@@ -221,7 +239,7 @@ export default Component.extend(...mixins, {
           builderRecipe: {
             seriesTemplate: {
               id: 'regAndLinksCount',
-              name: String(this.t('series.regAndLinksCount')),
+              name: String(this.t('historicalSize.series.regAndLinksCount')),
               color: this.seriesColorsConfig.regAndLinksCountColor,
               type: 'line',
               yAxisId: 'countAxis',
@@ -283,12 +301,12 @@ export default Component.extend(...mixins, {
     function sizeChartSpec() {
       return {
         title: {
-          content: this.t('titles.size.content'),
-          tip: this.t('titles.size.tip'),
+          content: this.t('historicalSize.titles.size.content'),
+          tip: this.t('historicalSize.titles.size.tip'),
         },
         yAxes: [{
           id: 'bytesAxis',
-          name: String(this.t('axes.bytes')),
+          name: String(this.t('historicalSize.axes.bytes')),
           minInterval: 1,
           unitName: 'bytes',
         }],
@@ -311,7 +329,7 @@ export default Component.extend(...mixins, {
               nameProvider: {
                 functionName: 'literal',
                 functionArguments: {
-                  data: String(this.t('seriesGroups.totalPhysicalSize')),
+                  data: String(this.t('historicalSize.seriesGroups.totalPhysicalSize')),
                 },
               },
               stackedProvider: {
@@ -340,7 +358,7 @@ export default Component.extend(...mixins, {
           builderRecipe: {
             seriesTemplate: {
               id: 'totalLogicalSize',
-              name: String(this.t('series.totalLogicalSize')),
+              name: String(this.t('historicalSize.series.totalLogicalSize')),
               type: 'line',
               color: this.seriesColorsConfig?.bytesColor,
               yAxisId: 'bytesAxis',
@@ -488,15 +506,67 @@ export default Component.extend(...mixins, {
     };
   }),
 
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  stringifiedLatestElementsCount: computed(
+    'latestDirSizeStatsValues.{regFileAndLinkCount,dirCount}',
+    function stringifiedLatestElementsCount() {
+      const fileCount = this.latestDirSizeStatsValues.regFileAndLinkCount ?? 0;
+      const dirCount = this.latestDirSizeStatsValues.dirCount ?? 0;
+      const totalCount = fileCount + dirCount;
+
+      const filesNounVer = fileCount === 1 ? 'singular' : 'plural';
+      const dirNounVer = dirCount === 1 ? 'singular' : 'plural';
+      const elementNounVer = totalCount === 1 ? 'singular' : 'plural';
+
+      return this.t('currentSize.elementsCount.template', {
+        fileCount,
+        dirCount,
+        totalCount,
+        fileNoun: this.t(`currentSize.elementsCount.file.${filesNounVer}`),
+        dirNoun: this.t(`currentSize.elementsCount.dir.${dirNounVer}`),
+        elementNoun: this.t(`currentSize.elementsCount.element.${elementNounVer}`),
+      });
+    }
+  ),
+
+  /**
+   * @override
+   */
   init() {
     this._super(...arguments);
+
     const colorGenerator = this.colorGenerator;
-    const colors = {
+    const seriesColorsConfig = {
       regAndLinksCountColor: colorGenerator.generateColorForKey('regAndLinksCount'),
       directoriesCountColor: colorGenerator.generateColorForKey('directoriesCount'),
       bytesColor: colorGenerator.generateColorForKey('bytes'),
     };
-    this.set('seriesColorsConfig', colors);
+
+    const latestDirSizeStatsValuesUpdater = Looper.create({
+      immediate: false,
+      interval: 5000,
+    });
+    latestDirSizeStatsValuesUpdater.on('tick', () =>
+      this.updateLatestDirSizeStatsValuesProxy({ replace: true })
+    );
+
+    this.setProperties({
+      seriesColorsConfig,
+      latestDirSizeStatsValuesUpdater,
+    });
+  },
+
+  /**
+   * @override
+   */
+  willDestroyElement() {
+    try {
+      this.latestDirSizeStatsValuesUpdater?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   /**
@@ -513,9 +583,11 @@ export default Component.extend(...mixins, {
     // All useful (for us) metrics in every time series use `last` aggregator.
     // To catch all possible resolutions of `last` and be more flexible, we
     // use all metrics with `last` aggregator instead of hardcoding their names.
-    return Object.keys(metrics).filter((metricName) =>
-      metrics[metricName]?.aggregator === 'last'
-    );
+    return Object.keys(metrics)
+      .filter((metricName) =>
+        metrics[metricName]?.aggregator === 'last' && metrics[metricName]?.resolution
+      )
+      .sort((m1, m2) => metrics[m1].resolution - metrics[m2].resolution);
   },
 
   /**
@@ -557,7 +629,7 @@ export default Component.extend(...mixins, {
         }
         return {
           id: storageId,
-          name: storageName || String(this.t('unknownStorage', {
+          name: storageName || String(this.t('historicalSize.unknownStorage', {
             id: storageId.slice(0, 6),
           })),
           groupId,
@@ -598,7 +670,7 @@ export default Component.extend(...mixins, {
     });
     const allProvidersGroups = [...knownProvidersGroups, {
       id: 'provider_unknown',
-      name: this.t('unknownProvider'),
+      name: this.t('historicalSize.unknownProvider'),
       showSum: true,
     }];
 
@@ -631,6 +703,70 @@ export default Component.extend(...mixins, {
    */
   async fetchTimeSeriesCollectionLayout() {
     return this.fileManager.getDirSizeStatsTimeSeriesCollectionLayout(this.fileId);
+  },
+
+  /**
+   * @override
+   * @returns {Promise<LatestDirSizeStatsValues>}
+   */
+  async fetchLatestDirSizeStatsValues() {
+    const [, collectionLayout] = await allFulfilled([
+      this.timeSeriesCollectionSchemaProxy,
+      this.getTimeSeriesCollectionLayout(),
+    ]);
+    const staticTimeSeries = ['regFileAndLinkCount', 'dirCount', 'totalSize'];
+    const perStorageTimeSeries = Object.keys(collectionLayout)
+      .filter((tsName) => tsName.startsWith(timeSeriesNameGenerators.sizeOnStorage));
+
+    const layout = {};
+    staticTimeSeries.forEach((tsName) => {
+      const rawTsName = timeSeriesNameGenerators[tsName];
+      layout[rawTsName] = [
+        this.metricNamesForTimeSeries[rawTsName]?.[0],
+      ];
+    });
+    perStorageTimeSeries.forEach((tsName) => {
+      layout[tsName] = [
+        this.metricNamesForTimeSeries[timeSeriesNameGenerators.sizeOnStorage]?.[0],
+      ];
+    });
+
+    const queryParams = {
+      layout,
+      windowLimit: 1,
+    };
+
+    const result = await this.fileManager.getDirSizeStatsTimeSeriesCollectionSlice(
+      this.fileId,
+      queryParams,
+    );
+
+    const staticStatsValues = staticTimeSeries.reduce((acc, tsName) => {
+      const rawTsName = timeSeriesNameGenerators[tsName];
+      acc[tsName] = result
+        ?.[rawTsName]
+        ?.[this.metricNamesForTimeSeries[rawTsName]?.[0]]
+        ?.[0]?.value ?? 0;
+      return acc;
+    }, {});
+    const perStorageTotalSize = perStorageTimeSeries
+      .map((tsName) =>
+        result
+        ?.[tsName]
+        ?.[this.metricNamesForTimeSeries[timeSeriesNameGenerators.sizeOnStorage]?.[0]]
+        ?.[0]?.value ?? 0
+      )
+      .filter(Number.isFinite)
+      .reduce((acc, size) => acc + size, 0);
+
+    const latestStatsValues = {
+      regFileAndLinkCount: staticStatsValues.regFileAndLinkCount,
+      dirCount: staticStatsValues.dirCount,
+      logicalSize: staticStatsValues.totalSize,
+      physicalSize: perStorageTotalSize,
+    };
+
+    return latestStatsValues;
   },
 
   actions: {

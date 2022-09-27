@@ -18,7 +18,8 @@
     }
   }
 
-  .file-info-row-size .file-info-detail-size {
+  .file-info-row-size .file-info-detail-size,
+  .current-size-section .extra-info {
     opacity: $disabled-opacity;
     margin-left: 0.5em;
   }
@@ -38,6 +39,22 @@
       padding-top: 30px;
       padding-bottom: 30px;
     }
+  }
+
+  .current-size-section {
+    .current-size-header {
+      @include font-semibold();
+      font-size: 100%;
+      margin-top: 0;
+    }
+
+    .one-label-tip {
+      margin-left: 0.5em;
+    }
+  }
+
+  .historical-size-section {
+    margin-top: 2em;
   }
 
   .api-command-type-row {
