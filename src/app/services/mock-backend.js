@@ -43,6 +43,10 @@ import {
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
 import { aspect as archiveRecallStateAspect } from 'oneprovider-gui/models/archive-recall-state';
+import {
+  AtmWorkflowExecutionPhase,
+  atmWorkflowExecutionPhases,
+} from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -82,11 +86,11 @@ export const storageIdAlpha = '90ca74738947307403740234723bca7890678acb5c7bac567
 export const storageIdBeta = '39a423bbc90437434723bca789ab9ddc8a7abd8b8b8a232731901';
 
 const transferStates = ['waiting', 'ongoing', 'ended'];
-const atmWorkflowExecutionPhases = ['waiting', 'ongoing', 'ended'];
 const atmWorkflowExecutionStatusForPhase = {
-  waiting: 'scheduled',
-  ongoing: 'active',
-  ended: 'finished',
+  [AtmWorkflowExecutionPhase.Waiting]: 'scheduled',
+  [AtmWorkflowExecutionPhase.Ongoing]: 'active',
+  [AtmWorkflowExecutionPhase.Ended]: 'finished',
+  [AtmWorkflowExecutionPhase.Suspended]: 'paused',
 };
 
 const protectionFlagSets = [
@@ -1434,9 +1438,6 @@ export default Service.extend({
     const atmWorkflowSchemas = this.get('entityRecords.atmWorkflowSchema');
     const atmWorkflowSchemasCount = get(atmWorkflowSchemas, 'length');
     const timestamp = getCurrentTimestamp();
-    const waitingPhaseIndex = atmWorkflowExecutionPhases.indexOf('waiting');
-    const ongoingPhaseIndex = atmWorkflowExecutionPhases.indexOf('ongoing');
-    const endedPhaseIndex = atmWorkflowExecutionPhases.indexOf('ended');
 
     const atmWorkflowExecutions = [];
     const atmWorkflowExecutionSummaries = [];
@@ -1445,12 +1446,10 @@ export default Service.extend({
       const executionsGroup = await allFulfilled(
         _.range(numberOfAtmWorkflowExecutions).map(async (i) => {
           const atmInventory = atmInventories[i % atmInventories.length];
-          const scheduleTime = phaseIndex >= waitingPhaseIndex ?
-            timestamp + i * 3600 : null;
-          const startTime = phaseIndex >= ongoingPhaseIndex ?
-            timestamp + (i + 1) * 3600 : null;
-          const finishTime = phaseIndex >= endedPhaseIndex ?
-            timestamp + (i + 2) * 3600 : null;
+          const scheduleTime = timestamp + i * 3600;
+          const startTime = timestamp + (i + 1) * 3600;
+          const suspendTime = timestamp + (i + 2) * 3600;
+          const finishTime = timestamp + (i + 3) * 3600;
           const entityId = generateAtmWorkflowExecutionEntityId(
             i,
             phaseIndex,
@@ -1614,6 +1613,7 @@ export default Service.extend({
             scheduleTime,
             startTime,
             finishTime,
+            suspendTime,
             atmWorkflowSchemaSnapshot,
             space,
           }).save();
@@ -1630,6 +1630,7 @@ export default Service.extend({
             scheduleTime,
             startTime,
             finishTime,
+            suspendTime,
             atmWorkflowExecution,
             atmInventory,
           }).save();

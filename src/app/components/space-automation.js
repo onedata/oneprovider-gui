@@ -12,7 +12,7 @@ import { inject as service } from '@ember/service';
 import { get, getProperties, observer, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
-import { conditional, raw, array } from 'ember-awesome-macros';
+import { conditional, array } from 'ember-awesome-macros';
 import { reject, hash as hashFulfilled } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -23,18 +23,16 @@ import {
   translateAtmWorkflowExecutionPhase,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
-const possibleTabs = [
-  ...atmWorkflowExecutionPhases,
-  'preview',
-  'create',
-];
-
 const mixins = [
   I18n,
   createDataProxyMixin('suspendedExecutionsCountInfo'),
 ];
 
 const suspendedExecutionsCounterLimit = 50;
+
+/**
+ * @typedef {'cancel'|'pause'|'resume'} AtmWorkflowExecutionLifecycleChangingOperation
+ */
 
 export default Component.extend(...mixins, {
   classNames: ['space-automation', 'fill-flex-using-column'],
@@ -138,7 +136,7 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<String>}
    */
   normalizedTab: conditional(
-    array.includes(raw(possibleTabs), 'tab'),
+    array.includes('possibleTabs', 'tab'),
     'tab',
     'possibleTabs.firstObject'
   ),
@@ -180,7 +178,7 @@ export default Component.extend(...mixins, {
   ),
 
   /**
-   * @type {ComputedProperty<(tabId: string) => SafeString}
+   * @type {ComputedProperty<(tabId: string) => SafeString>}
    */
   getTabLabel: computed(function getTabLabel() {
     return (tabId) => {
@@ -251,7 +249,11 @@ export default Component.extend(...mixins, {
       this.updateSuspendedExecutionsCountInfoProxy({ replace: true });
     });
     this.setProperties({
-      possibleTabs: [...possibleTabs],
+      possibleTabs: [
+        ...atmWorkflowExecutionPhases,
+        'preview',
+        'create',
+      ],
       suspendedExecutionsCountInfoUpdater,
     });
 
@@ -302,6 +304,11 @@ export default Component.extend(...mixins, {
     workflowSelected(atmWorkflowExecutionSummary) {
       this.get('openPreviewTab')(get(atmWorkflowExecutionSummary, 'entityId'));
     },
+
+    /**
+     * @param {AtmWorkflowExecutionLifecycleChangingOperation} lifecycleChangingOperation
+     * @returns {void}
+     */
     workflowLifecycleChanged(lifecycleChangingOperation) {
       if (
         lifecycleChangingOperation === 'pause' ||
@@ -310,6 +317,7 @@ export default Component.extend(...mixins, {
         this.updateSuspendedExecutionsCountInfoProxy({ replace: true });
       }
     },
+
     closeWorkflowPreview() {
       this.get('closePreviewTab')();
     },

@@ -16,7 +16,6 @@ import {
   workflowEndedStatuses,
   workflowSuspendedStatuses,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
-import { reject } from 'rsvp';
 import ActionResult from 'onedata-gui-common/utils/action-result';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
@@ -134,7 +133,7 @@ export default Action.extend({
   async pauseAtmWorkflowExecution() {
     const atmWorkflowExecutionId = this.get('atmWorkflowExecution.entityId');
     if (!atmWorkflowExecutionId) {
-      return reject();
+      throw new Error('Cannot pause workflow execution due to undefined execution ID.');
     }
     await this.workflowManager.pauseAtmWorkflowExecution(atmWorkflowExecutionId);
   },
@@ -145,7 +144,7 @@ export default Action.extend({
   async resumeAtmWorkflowExecution() {
     const atmWorkflowExecutionId = this.get('atmWorkflowExecution.entityId');
     if (!atmWorkflowExecutionId) {
-      return reject();
+      throw new Error('Cannot resume workflow execution due to undefined execution ID.');
     }
     await this.workflowManager.resumeAtmWorkflowExecution(atmWorkflowExecutionId);
   },

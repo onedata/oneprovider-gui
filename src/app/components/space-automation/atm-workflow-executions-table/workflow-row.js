@@ -55,7 +55,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {(operation: 'cancel'|'pause'|'resume') => void}
+   * @type {(operation: AtmWorkflowExecutionLifecycleChangingOperation) => void}
    * @returns {any}
    */
   onLifecycleChange: undefined,

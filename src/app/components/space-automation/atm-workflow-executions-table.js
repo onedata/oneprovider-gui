@@ -40,7 +40,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {(operation: 'cancel'|'pause'|'resume') => void}
+   * @type {(operation: AtmWorkflowExecutionLifecycleChangingOperation') => void}
    */
   onAtmWorkflowExecutionLifecycleChange: undefined,
 
@@ -87,35 +87,25 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Array<String>>}
    */
   columns: computed('phase', function columns() {
-    const commonStartColumns = ['name', 'inventory'];
-    const commonEndColumns = ['status', 'actions'];
+    const phaseColumns = ['name', 'inventory'];
+
     switch (this.phase) {
       case AtmWorkflowExecutionPhase.Waiting:
-        return [
-          ...commonStartColumns,
-          'scheduledAt',
-          ...commonEndColumns,
-        ];
+        phaseColumns.push('scheduledAt');
+        break;
       case AtmWorkflowExecutionPhase.Ongoing:
-        return [
-          ...commonStartColumns,
-          'startedAt',
-          ...commonEndColumns,
-        ];
+        phaseColumns.push('startedAt');
+        break;
       case AtmWorkflowExecutionPhase.Ended:
-        return [
-          ...commonStartColumns,
-          'startedAt',
-          'finishedAt',
-          ...commonEndColumns,
-        ];
+        phaseColumns.push('startedAt', 'finishedAt');
+        break;
       case AtmWorkflowExecutionPhase.Suspended:
-        return [
-          ...commonStartColumns,
-          'suspendedAt',
-          ...commonEndColumns,
-        ];
+        phaseColumns.push('suspendedAt');
+        break;
     }
+
+    phaseColumns.push('status', 'actions');
+    return phaseColumns;
   }),
 
   /**
@@ -270,7 +260,7 @@ export default Component.extend(I18n, {
 
   actions: {
     /**
-     * @param {'cancel'|'pause'|'resume'} lifecycleChangingOperation
+     * @param {AtmWorkflowExecutionLifecycleChangingOperation} lifecycleChangingOperation
      * @returns {void}
      */
     atmWorkflowExecutionLifecycleChanged(lifecycleChangingOperation) {
