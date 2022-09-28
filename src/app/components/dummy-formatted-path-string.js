@@ -10,23 +10,15 @@ import { computed } from '@ember/object';
 export default Component.extend({
   classNames: ['dummy-formatted-path-string'],
 
-  /**
-   * @override
-   */
-  didInsertElement() {
-    this._super(...arguments);
-    this.runTests();
-  },
-
   filePath: computed(function filePath() {
     const base = '/krk-p-par-p/';
-    return base + this.generateLongPath(['hello', 'world', 'foo', 'bar'], 80);
+    return base + this.generateLongPath(['hello', 'world', 'foo', 'bar'], 3);
   }),
 
   fileInArchivePath: computed(function fileInArchivePath() {
     const base =
       '/krk-p-par-p/.__onedata__archive/dataset_archives_2aa19599223ab67fc5354c864290dbbdch7d43/archive_6e825b9946eb026645bbf7df90b71675ch1eb7/';
-    return base + this.generateLongPath(['hello', 'world', 'foo', 'bar'], 40);
+    return base + this.generateLongPath(['hello', 'world', 'foo', 'bar'], 80);
   }),
 
   generateLongPath(names, count) {

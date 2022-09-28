@@ -37,40 +37,45 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Array<FilePathItem>>}
    */
-  pathItems: computed(function pathItems() {
-    const stringPath = this.absolutePath.startsWith(directorySeparator) ?
-      this.absolutePath.slice(1) : this.absolutePath;
-    const items = [];
-    const allFileNames = stringPath.split(directorySeparator);
-    const simpleFilePath = allFileNames.map(name => new SimpleFileInfo(name));
-    const isInArchive = getIsInArchivePath(simpleFilePath);
-    const spaceRootDir = simpleFilePath[0];
-    let remainSimpleFiles = simpleFilePath;
-    if (isInArchive) {
-      items.push({
-        itemType: 'archive',
-        icon: 'browser-archive',
-        record: this.browsableArchive || this.defaultArchiveItem,
+  pathItems: computed(
+    'absolutePath',
+    'browsableArchive',
+    'defaultArchiveItem',
+    function pathItems() {
+      const stringPath = this.absolutePath.startsWith(directorySeparator) ?
+        this.absolutePath.slice(1) : this.absolutePath;
+      const items = [];
+      const allFileNames = stringPath.split(directorySeparator);
+      const simpleFilePath = allFileNames.map(name => new SimpleFileInfo(name));
+      const isInArchive = getIsInArchivePath(simpleFilePath);
+      const spaceRootDir = simpleFilePath[0];
+      let remainSimpleFiles = simpleFilePath;
+      if (isInArchive) {
+        items.push({
+          itemType: 'archive',
+          icon: 'browser-archive',
+          record: this.browsableArchive || this.defaultArchiveItem,
+        });
+        remainSimpleFiles = getArchiveRelativeFilePath(remainSimpleFiles);
+      } else {
+        items.push({
+          itemType: 'space',
+          icon: 'space',
+          record: spaceRootDir,
+        });
+        remainSimpleFiles = remainSimpleFiles.slice(1);
+      }
+      const regularItems = remainSimpleFiles.map(simpleFile => {
+        return {
+          itemType: 'file',
+          separator: directorySeparator,
+          record: simpleFile,
+        };
       });
-      remainSimpleFiles = getArchiveRelativeFilePath(remainSimpleFiles);
-    } else {
-      items.push({
-        itemType: 'space',
-        icon: 'space',
-        record: spaceRootDir,
-      });
-      remainSimpleFiles = remainSimpleFiles.slice(1);
+      items.push(...regularItems);
+      return items;
     }
-    const regularItems = remainSimpleFiles.map(simpleFile => {
-      return {
-        itemType: 'file',
-        separator: directorySeparator,
-        record: simpleFile,
-      };
-    });
-    items.push(...regularItems);
-    return items;
-  }),
+  ),
 
   /**
    * Fallback archive item if there is no `browsableArchive` provided.

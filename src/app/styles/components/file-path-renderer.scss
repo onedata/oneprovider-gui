@@ -3,6 +3,8 @@
 // `file-path-base` and `path` to enable formatting.
 // It is necessary do to more complex things like dynamic path shortening.
 .file-path-base {
+  display: flex;
+  flex-direction: column;
   &.has-single-path-item {
     .path {
       display: flex;
