@@ -53,10 +53,6 @@ export default {
     eviction: 'Eviction',
     unknown: 'Unknown',
   },
-  cellAffectedFiles: {
-    evicted: 'evicted',
-    replicated: 'replicated',
-  },
   transferDetails,
   transfersTable,
   transferChart,

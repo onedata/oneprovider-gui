@@ -9,7 +9,6 @@
 
 import moment from 'moment';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
-import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import EmberObject, {
   computed,
   observer,
@@ -76,17 +75,18 @@ export default EmberObject.extend(OwnerInjector, {
   isLoading: false,
 
   /**
-   * Total number of files, which has to be processed (scanned) during this
+   * Total number of files and directories, which has to be processed (scanned) during this
    * transfer. It's available only for ongoing transfers.
    * @type {number|null}
    */
-  filesToProcess: null,
+  itemsToProcess: null,
 
   transferId: reads('transfer.entityId'),
   userName: reads('userProxy.content.name'),
   replicatedFiles: reads('transfer.transferProgressProxy.replicatedFiles'),
+  replicatedBytes: computedPipe('transfer.transferProgressProxy.replicatedBytes'),
   evictedFiles: reads('transfer.transferProgressProxy.evictedFiles'),
-  processedFiles: reads('transfer.transferProgressProxy.processedFiles'),
+  processedItems: reads('transfer.transferProgressProxy.processedFiles'),
   status: reads('transfer.transferProgressProxy.status'),
   transferProgressError: reads('transfer.transferProgressProxy.reason'),
   type: reads('transfer.type'),
@@ -102,10 +102,6 @@ export default EmberObject.extend(OwnerInjector, {
   scheduledAtReadable: computedPipe('transfer.scheduleTime', timeReadable),
   startedAtReadable: computedPipe('transfer.startTime', timeReadable),
   finishedAtReadable: computedPipe('transfer.finishTime', timeReadable),
-  totalBytesReadable: computedPipe(
-    'transfer.transferProgressProxy.replicatedBytes',
-    bytesToString
-  ),
 
   /**
    * Displayed desitnation name
@@ -148,27 +144,28 @@ export default EmberObject.extend(OwnerInjector, {
     }
   ),
 
-  filesToProcessSetter: observer(
+  itemsToProcessSetter: observer(
     'transfer.{state,dataSourceType,dataSourceId}',
-    async function filesToProcessSetter() {
+    async function itemsToProcessSetter() {
       const {
         dataSourceType,
         dataSourceId,
         state,
       } = getProperties(this.transfer, 'dataSourceType', 'dataSourceId', 'state');
 
-      if (
-        typeof this.filesToProcess === 'number' ||
-        state !== 'ongoing' ||
-        dataSourceType !== 'dir'
-      ) {
+      if (state !== 'ongoing' || dataSourceType !== 'dir') {
+        if (typeof this.itemsToProcess === 'number') {
+          this.set('itemsToProcess', null);
+        }
+        return;
+      } else if (typeof this.itemsToProcess === 'number') {
         return;
       }
 
       const dirSizeStats = await this.fileManager.getDirCurrentSizeStats(dataSourceId);
       if (dirSizeStats) {
         this.set(
-          'filesToProcess',
+          'itemsToProcess',
           dirSizeStats.regFileAndLinkCount + dirSizeStats.dirCount + 1
         );
       }
@@ -190,7 +187,7 @@ export default EmberObject.extend(OwnerInjector, {
       // enable observer
       this.get('status');
     }
-    this.filesToProcessSetter();
+    this.itemsToProcessSetter();
   },
 
   reloadRecordIfNeeded(transfer = this.get('transfer')) {

@@ -1,6 +1,5 @@
 {{#if record.transferProgressError}}
   {{error-inline}}
 {{else}}
-  {{affectedFiles}}
-  {{bs-tooltip placement="top" title=tooltipTitle}}
+  <span class="evicted-files">{{evictedFilesStringified}}</span>
 {{/if}}

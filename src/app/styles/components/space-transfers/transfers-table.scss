@@ -2,6 +2,7 @@
   .data-row {
     td {
       height: 73px;
+      vertical-align: middle;
     }
   }
 
@@ -41,10 +42,11 @@
   }
 
   @include hide-on-breakpoint(col-hide-1, 1180px);
-  @include hide-on-breakpoint(col-hide-2, 900px);
-  @include hide-on-breakpoint(col-hide-3, 810px);
-  @include hide-on-breakpoint(col-hide-4, 700px);
+  @include hide-on-breakpoint(col-hide-2, 1060px);
+  @include hide-on-breakpoint(col-hide-3, 940px);
+  @include hide-on-breakpoint(col-hide-4, 790px);
   @include hide-on-breakpoint(col-hide-5, 600px);
+  @include hide-on-breakpoint(col-hide-6, 470px);
 
   tr {
     .first-row-space {
@@ -122,7 +124,9 @@
     .transfers-table-cell-path {
       // thanks to this, cell has a max-width, but in real width is controlled by header
       max-width: 0;
-      min-width: 180px;
+      @media (min-width: 800px) {
+        min-width: 180px;
+      }
     }
   }
 }

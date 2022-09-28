@@ -1,7 +1,0 @@
-{{processedFiles}}
-{{#if (not-eq progressPercent null)}}
-  {{!-- Inserting space as an HTML entity because Ember templates trims whitespaces
-  and joins processed files count with percentage. --}}
-  &#32;
-  <span class="text-muted">({{progressPercent}}%)</span>
-{{/if}}
