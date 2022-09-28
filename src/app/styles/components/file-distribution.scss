@@ -40,7 +40,7 @@
 
       .chunks-visualizer {
         .chunks-scale-container {
-          top: -14px;
+          top: -20px;
         }
       }
 
@@ -56,6 +56,10 @@
       width: 60%;
       min-width: 0;
       height: 36px;
+
+      &.center-name-section {
+        padding-top: 8px;
+      }
 
       .distribution-row-name.path-container {
         opacity: 0.8;
@@ -153,6 +157,7 @@
         flex-grow: 1;
         order: 4;
         margin: 0;
+        margin-top: $padding-small-horizontal;
         .chunks-scale-container {
           display: none;
         }
@@ -372,8 +377,8 @@
   .chunks-scale-container, .progress-bar-scale-container {
     display: flex;
     position: absolute;
-    top: -$padding-small-vertical - 2px;
-    bottom: -$padding-small-vertical - 2px;
+    top: -$padding-small-vertical - 4px;
+    bottom: -$padding-small-vertical - 4px;
     left: -1px;
     right: -1px;
     justify-content: space-between;

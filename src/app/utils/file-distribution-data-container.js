@@ -158,7 +158,7 @@ export default EmberObject.extend(
      * If true, storage locations will be reloaded
      * @type {Boolean}
      */
-    isStorageLocationsUpdated: true,
+    isStorageLocationsUpdated: false,
 
     pollingTimeObserver: observer('pollingTime', function pollingTimeObserver() {
       const {
@@ -180,19 +180,19 @@ export default EmberObject.extend(
     storageLocationsObserver: observer(
       'pollingTime',
       async function storageLocationsObserver() {
-        if (this.get('fileType') === 'dir' || fileDistribution.length === 1) {
+        const fileDistribution = this.get('fileDistribution');
+        if (this.get('fileType') === 'dir' || fileDistribution?.length === 1) {
           this.set('isStorageLocationsUpdated', false);
           return;
         }
         const {
           fileDistributionCache,
           storageLocationsPerProviderCache,
-          fileDistribution,
         } = this.getProperties(
           'fileDistributionCache',
           'storageLocationsPerProviderCache',
-          'fileDistribution',
-        );
+          );
+        let isStorageLocationsUpdatedChanged = false;
         const storageLocationsPerProvider = await this.get('storageLocationsPerProvider');
         if (fileDistributionCache) {
           for (const providerId in fileDistribution) {
@@ -202,15 +202,16 @@ export default EmberObject.extend(
               fileDistributionCache[providerId].distributionPerStorage;
             for (const storageId in distributionPerStorages) {
               if (
-                distributionPerStorages[storageId].blocksPercentage !==
-                distributionPerStoragesPast[storageId].blocksPercentage
+                distributionPerStoragesPast[storageId].blocksPercentage === 0 &&
+                  distributionPerStorages[storageId].blocksPercentage !== 0
               ) {
                 this.set('isStorageLocationsUpdated', true);
+                isStorageLocationsUpdatedChanged = true;
               }
             }
           }
         }
-        if (storageLocationsPerProviderCache) {
+        if (!isStorageLocationsUpdatedChanged && storageLocationsPerProviderCache) {
           for (const providerId in storageLocationsPerProvider) {
             const locationsPerStorage =
               storageLocationsPerProvider[providerId].locationsPerStorage;
@@ -241,6 +242,7 @@ export default EmberObject.extend(
       });
       dataUpdater.on('tick', () => this.updateData());
       this.set('dataUpdater', dataUpdater);
+      this.storageLocationsObserver();
     },
 
     willDestroy() {
