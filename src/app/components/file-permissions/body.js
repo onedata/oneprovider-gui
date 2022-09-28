@@ -9,8 +9,9 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { equal, raw } from 'ember-awesome-macros';
+import { equal, raw, conditional, not, or, and } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 const mixins = [
   I18n,
@@ -65,6 +66,24 @@ export default Component.extend(...mixins, {
   effectiveReadonly: reads('viewModel.effectiveReadonly'),
 
   effectiveReadonlyTip: reads('viewModel.effectiveReadonlyTip'),
+
+  isMultiFile: reads('viewModel.isMultiFile'),
+
+  owner: reads('viewModel.ownerProxy.content'),
+
+  ownerLabel: conditional(
+    'isMultiFile',
+    computedT('allFilesOwner'),
+    computedT('owner')
+  ),
+
+  isOwnerShown: and(
+    not('previewMode'),
+    or(
+      not('isMultiFile'),
+      'viewModel.filesHaveSameOwners',
+    )
+  ),
 
   actions: {
     acceptPosixIncompatibility() {

@@ -30,7 +30,7 @@ $file-status-tag-spacing: 6px;
     }
   }
   .file-status-tag {
-    $margin-vertical-fix: ($file-status-tag-height - 20px) / 2;
+    $margin-vertical-fix: ($file-status-tag-height - 20px) * 0.5;
 
     display: inline-flex;
     height: $file-status-tag-height;

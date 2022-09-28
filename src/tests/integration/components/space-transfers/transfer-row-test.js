@@ -19,7 +19,9 @@ function notImplementedThrow(name, args) {
   throw new Error(`${name} not implemented, args: ${Array.from(args).join(',')}`);
 }
 
-const FileManager = Service.extend({});
+const FileManager = Service.extend({
+  async getFileOwner() {},
+});
 const DatasetManager = Service.extend({
   async getDataset() {
     notImplementedThrow('getDataset', arguments);

@@ -3,10 +3,18 @@
   padding-bottom: $padding-base-vertical;
 
   .row-share-local-url {
+    display: flex;
     padding-bottom: $padding-base-vertical;
     .share-local-url {
       display: inline-block;
       max-width: 100%;
+    }
+    .link-container {
+      overflow: hidden;
+    }
+    .labels-container {
+      flex-grow: 1;
+      text-align: right;
     }
   }
 }

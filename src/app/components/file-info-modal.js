@@ -165,6 +165,15 @@ export default Component.extend(...mixins, {
    */
   isMultiFile: gt('files.length', 1),
 
+  isOwnerVisible: not(or('previewMode', 'fileIsSpaceRoot')),
+
+  fileIsSpaceRoot: computed('file.entityId', 'space', function fileIsSpaceRoot() {
+    if (!this.space) {
+      return false;
+    }
+    return this.file.entityId === this.space.relationEntityId('rootDir');
+  }),
+
   showApiSection: reads('previewMode'),
 
   itemType: reads('file.type'),
@@ -432,16 +441,14 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  ownerFullNameProxy: promise.object(
-    computed('file.owner', function ownerFullNamePromise() {
-      const ownerProxy = this.get('file.owner');
-      if (ownerProxy) {
-        return ownerProxy.then(owner => owner && get(owner, 'fullName'));
-      } else {
-        return resolve('—');
-      }
-    })
-  ),
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.User>>}
+   */
+  ownerProxy: promise.object(computed('file.owner', async function ownerProxy() {
+    return await this.fileManager.getFileOwner(this.file);
+  })),
+
+  owner: reads('ownerProxy.content'),
 
   filePathProxy: promise.object(
     computed('file.parent', function filePathPromise() {

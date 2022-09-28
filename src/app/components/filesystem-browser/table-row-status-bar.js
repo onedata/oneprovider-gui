@@ -8,7 +8,7 @@
  */
 
 import FbTableRowStatusBar from 'oneprovider-gui/components/file-browser/fb-table-row-status-bar';
-import { equal, raw, or } from 'ember-awesome-macros';
+import { equal, raw, or, promise } from 'ember-awesome-macros';
 import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -38,6 +38,29 @@ export default FbTableRowStatusBar.extend({
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   isShared: reads('file.isShared'),
+
+  isOpenDataProxy: promise.object(computed(
+    'isShared',
+    'file.shareRecords.@each.hasHandle',
+    async function isOpenDataProxy() {
+      if (!this.isShared) {
+        return null;
+      }
+      const file = this.file;
+      try {
+        const shareRecords = await get(file, 'shareRecords');
+        return shareRecords.isAny('hasHandle');
+      } catch (error) {
+        console.error(
+          `cannot resolve handle service info for file share records; file ID: ${file.entityId}`,
+          error
+        );
+        return null;
+      }
+    }
+  )),
+
+  isOpenData: reads('isOpenDataProxy.content'),
 
   typeText: computed('type', function typeText() {
     const type = this.get('type');

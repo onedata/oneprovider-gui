@@ -7,6 +7,7 @@ import { all as allFulfilled } from 'rsvp';
 import { findByText } from './find';
 import { click } from '@ember/test-helpers';
 import createSpace from './create-space';
+import DefaultUserHelper from './default-user';
 
 export default class FilePermissionsHelper {
   /**
@@ -16,6 +17,12 @@ export default class FilePermissionsHelper {
     this.context = context;
     this.store = lookupService(this.context, 'store');
     this.viewModelOptions = {};
+    /** @type {Promise<Models.User>} */
+    this.defaultOwnerPromise = false;
+    this.defaultUserHelper = new DefaultUserHelper(context);
+  }
+  async getDefaultOwner() {
+    return this.defaultUserHelper.getDefaultUser();
   }
   async createFile(properties = {}) {
     return await this.store.createRecord('file', {
@@ -23,6 +30,7 @@ export default class FilePermissionsHelper {
       type: 'file',
       posixPermissions: '644',
       activePermissionsType: 'posix',
+      owner: await this.getDefaultOwner(),
       ...properties,
     }).save();
   }

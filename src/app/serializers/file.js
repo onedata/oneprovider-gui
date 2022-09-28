@@ -62,13 +62,13 @@ export default Serializer.extend({
           scope,
         }),
       ],
-      ownerId: (attribute, scope) => [
+      ownerId: (attribute) => [
         'owner',
         attribute === '0' ? null : gri({
           entityType: userEntityType,
           entityId: attribute,
           aspect: 'instance',
-          scope,
+          scope: 'shared',
         }),
       ],
       providerId: (attribute, scope) => [

@@ -123,7 +123,7 @@
     th {
       background-color: white;
       vertical-align: middle;
-      padding-top: $table-cell-padding / 2;
+      padding-top: $table-cell-padding * 0.5;
 
       &:first-of-type {
         text-align: left;

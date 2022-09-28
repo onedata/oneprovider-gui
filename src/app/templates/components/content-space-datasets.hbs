@@ -73,50 +73,52 @@
     class="split-browser-container archive-browser-container"
     as |perfectScrollbarContainer|
   }}
-    {{#if noViewArchivesPrivilege}}
-      <div class="bottom-panel-content">
-        <div class="bottom-panel-text">
-          {{tt this "noViewPrivilege.insufficientPrivileges"}}
-        </div>
-        {{one-image
-          class="no-archives-view-image"
-          imagePath="assets/images/no-view.svg"
-        }}
-        <div class="bottom-panel-text bottom-panel-text-secondary">
-          {{tt this "noViewPrivilege.requiresPrivilege"
-            privilegeExpression=viewPrivilegeExpression
+    {{#promise-proxy-container proxy=initialRequiredDataProxy}}
+      {{#if noViewArchivesPrivilege}}
+        <div class="bottom-panel-content">
+          <div class="bottom-panel-text">
+            {{tt this "noViewPrivilege.insufficientPrivileges"}}
+          </div>
+          {{one-image
+            class="no-archives-view-image"
+            imagePath="assets/images/no-view.svg"
           }}
+          <div class="bottom-panel-text bottom-panel-text-secondary">
+            {{tt this "noViewPrivilege.requiresPrivilege"
+              privilegeExpression=viewPrivilegeExpression
+            }}
+          </div>
         </div>
-      </div>
-    {{else if singleDatasetIsSelected}}
-      {{dataset-archives-browser
-        space=space
-        browsableDataset=selectedSingleDataset
-        contentScroll=perfectScrollbarContainer.element
-        ignoreDeselectSelector=ignoreArchiveDeselectSelector
-        showSelectionToolkit=(hash desktop=true mobile=false)
-        navigateAfterRecall=true
-        selectedIds=selectedSecondaryIds
-        archiveId=archiveId
-        dirId=dirId
-        openCreateArchiveModal=(action openCreateArchiveModal)
-        onUpdateArchiveId=(action "updateArchiveId")
-        onUpdateDirId=(action "updateDirId")
-        onRegisterApi=(action (mut archiveBrowserApi))
-      }}
-    {{else}}
-      <div class="bottom-panel-content">
-        <div class="bottom-panel-text">
-          {{#if (gt selectedItems.length 1)}}
-            {{tt this "multiDatasetsSelected" count=selectedItems.length}}
-          {{else}}
-            {{tt this "noDatasetSelected"}}
-          {{/if}}
+      {{else if singleDatasetIsSelected}}
+        {{dataset-archives-browser
+          space=space
+          browsableDataset=selectedSingleDataset
+          contentScroll=perfectScrollbarContainer.element
+          ignoreDeselectSelector=ignoreArchiveDeselectSelector
+          showSelectionToolkit=(hash desktop=true mobile=false)
+          navigateAfterRecall=true
+          selectedIds=selectedSecondaryIds
+          archiveId=archiveId
+          dirId=dirId
+          openCreateArchiveModal=(action openCreateArchiveModal)
+          onUpdateArchiveId=(action "updateArchiveId")
+          onUpdateDirId=(action "updateDirId")
+          onRegisterApi=(action (mut archiveBrowserApi))
+        }}
+      {{else}}
+        <div class="bottom-panel-content">
+          <div class="bottom-panel-text">
+            {{#if (gt selectedItems.length 1)}}
+              {{tt this "multiDatasetsSelected" count=selectedItems.length}}
+            {{else}}
+              {{tt this "noDatasetSelected"}}
+            {{/if}}
+          </div>
+          <div class="bottom-panel-text bottom-panel-text-secondary">
+            {{selectSingleDatasetText}}
+          </div>
         </div>
-        <div class="bottom-panel-text bottom-panel-text-secondary">
-          {{selectSingleDatasetText}}
-        </div>
-      </div>
-    {{/if}}
+      {{/if}}
+    {{/promise-proxy-container}}
   {{/perfect-scrollbar-element}}
 </div>

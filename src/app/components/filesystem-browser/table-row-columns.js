@@ -8,13 +8,15 @@
  */
 
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
-import { raw, array } from 'ember-awesome-macros';
+import { raw, array, promise } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 
 export default FbTableRowColumns.extend(I18n, {
   i18n: service(),
+  fileManager: service(),
 
   /**
    * @override
@@ -60,6 +62,15 @@ export default FbTableRowColumns.extend(I18n, {
       return this.t(dirStatsServiceStatus + 'StatsInfo', {}, { defaultValue: '' });
     }
   ),
+
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.User>>}
+   */
+  ownerProxy: promise.object(computed('file.owner', async function ownerProxy() {
+    return await this.fileManager.getFileOwner(this.file);
+  })),
+
+  owner: reads('ownerProxy.content'),
 
   actions: {
     invokeFileAction(file, btnId, ...args) {

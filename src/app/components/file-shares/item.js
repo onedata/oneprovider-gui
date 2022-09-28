@@ -18,6 +18,11 @@ export default Component.extend(I18n, {
   ],
 
   /**
+   * @override
+   */
+  i18nPrefix: 'components.fileShares.item',
+
+  /**
    * @virtual
    */
   share: undefined,
@@ -39,4 +44,6 @@ export default Component.extend(I18n, {
   }),
 
   publicShareUrl: reads('share.publicUrl'),
+
+  isOpenData: reads('share.hasHandle'),
 });

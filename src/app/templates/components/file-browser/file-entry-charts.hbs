@@ -6,7 +6,51 @@
   </div>
 {{else}}
   {{#promise-proxy-container proxy=loadingProxy}}
+    <div class="current-size-section">
+      <h2 class="current-size-header">{{tt this "currentSize.header"}}</h2>
+      <p class="latest-dir-stats-values">
+        <ul class="details-property-list">
+          <li class="property-row property-contains">
+            <span class="property-label">
+              {{tt this "currentSize.containsLabel"}}:
+            </span>
+            <span class="property-value">
+              {{stringifiedLatestElementsCount}}
+            </span>
+          </li>
+          <li class="property-row property-logical-size">
+            <span class="property-label">
+              {{tt this "currentSize.logicalSizeLabel"}}:
+            </span>
+            <span class="property-value">
+              {{bytes-to-string latestDirSizeStatsValues.logicalSize}}
+              {{#if (gte latestDirSizeStatsValues.logicalSize 1024)}}
+                <span class="extra-info">
+                  ({{latestDirSizeStatsValues.logicalSize}} B)
+                </span>
+              {{/if}}
+              {{one-label-tip title=(tt this "currentSize.logicalSizeTip")}}
+            </span>
+          </li>
+          <li class="property-row property-physical-size">
+            <span class="property-label">
+              {{tt this "currentSize.physicalSizeLabel"}}:
+            </span>
+            <span class="property-value">
+              {{bytes-to-string latestDirSizeStatsValues.physicalSize}}
+              {{#if (gte latestDirSizeStatsValues.physicalSize 1024)}}
+                <span class="extra-info">
+                  ({{latestDirSizeStatsValues.physicalSize}} B)
+                </span>
+              {{/if}}
+              {{one-label-tip title=(tt this "currentSize.physicalSizeTip")}}
+            </span>
+          </li>
+        </ul>
+      </p>
+    </div>
     {{one-time-series-charts-section
+      class="historical-size-section"
       sectionSpec=dashboardSpec.rootSection
       externalDataSources=chartsExternalDataSources
       onGetTimeSeriesSchemas=(action "getTimeSeriesSchemas")

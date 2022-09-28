@@ -6,7 +6,8 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { set, computed } from '@ember/object';
+import EmberObject, { set, get, getProperties, computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import {
   array,
@@ -15,8 +16,9 @@ import {
   equal,
   or,
   bool,
+  promise,
+  gt,
 } from 'ember-awesome-macros';
-import { get, getProperties } from '@ember/object';
 import { Promise, all as allFulfilled, allSettled, resolve, reject } from 'rsvp';
 import _ from 'lodash';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
@@ -42,6 +44,7 @@ export default EmberObject.extend(...mixins, {
   i18n: service(),
   modalManager: service(),
   globalNotify: service(),
+  fileManager: service(),
 
   /**
    * @override
@@ -118,6 +121,22 @@ export default EmberObject.extend(...mixins, {
   lastResetTime: undefined,
 
   //#endregion
+
+  isMultiFile: gt('files.length', 1),
+
+  singleFile: reads('files.firstObject'),
+
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.User>>}
+   */
+  ownerProxy: promise.object(computed('singleFile.owner', async function ownerProxy() {
+    try {
+      return await this.fileManager.getFileOwner(this.singleFile);
+    } catch (error) {
+      console.error('could not fetch owner in file permissions view', error);
+      return null;
+    }
+  })),
 
   /**
    * True if any file metadata is protected.
@@ -240,6 +259,14 @@ export default EmberObject.extend(...mixins, {
     'files',
     raw('posixPermissions')
   ),
+
+  filesHaveSameOwners: computed('files.@each.owner', function filesHaveSameOwners() {
+    if (this.files.length === 1) {
+      return true;
+    }
+    const firstOwnerId = this.files[0].relationEntityId('owner');
+    return this.files.every(file => file.relationEntityId('owner') === firstOwnerId);
+  }),
 
   /**
    * True if Posix permissions are not conflicted or conflict was accepted.

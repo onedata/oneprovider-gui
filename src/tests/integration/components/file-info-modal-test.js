@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, click, find, findAll, settled } from '@ember/test-helpers';
+import { get } from '@ember/object';
 import hbs from 'htmlbars-inline-precompile';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
@@ -14,6 +15,7 @@ import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import FileDistributionHelper from '../../helpers/file-distribution';
 import createSpace from '../../helpers/create-space';
+import DefaultUser from '../../helpers/default-user';
 
 const storageLocations = {
   locationsPerProvider: {
@@ -124,10 +126,23 @@ describe('Integration | Component | file info modal', function () {
 
   it('renders owner full name asynchronously', async function () {
     await givenDefaultStubs(this);
-    const file = this.set('file', file1);
-    const owner = file.owner;
+    const store = lookupService(this, 'store');
+    const defaultUserHelper = new DefaultUser(this);
+    const owner = await defaultUserHelper.getDefaultUser('user_id', {
+      fullName: 'Hello Worlder',
+    });
+    const file = await store.createRecord('file', {
+      name: 'Onedata.txt',
+      type: 'file',
+      owner,
+    }).save();
+    this.set('file', file);
+    const fileManager = lookupService(this, 'fileManager');
+    const getFileOwner = sinon.stub(fileManager, 'getFileOwner');
     let resolveOwner;
-    file.owner = new Promise((resolve) => resolveOwner = resolve);
+    getFileOwner.withArgs(file).callsFake(() => {
+      return new Promise((resolve) => resolveOwner = resolve);
+    });
 
     await renderComponent();
 
@@ -138,7 +153,7 @@ describe('Integration | Component | file info modal', function () {
       .to.not.exist;
     expect(
       find('.file-info-row-owner .property-value').textContent
-    ).to.contain(owner1.fullName);
+    ).to.contain(get(owner, 'fullName'));
   });
 
   it('does not render symlink target path when file is not symlink', async function () {
@@ -203,10 +218,14 @@ describe('Integration | Component | file info modal', function () {
           type: 'symlink',
           targetPath: '<__onedata_space_id:space2>/some/path',
         },
-        space: {
-          entityId: 'space1',
+        space: await createSpaceModel(this, {
+          id: gri({
+            entityType: spaceEntityType,
+            entityId: 'space1',
+            aspect: 'instance',
+          }),
           name: 'space 1',
-        },
+        }),
       });
 
       await renderComponent();
@@ -435,7 +454,15 @@ describe('Integration | Component | file info modal', function () {
     await givenDefaultStubs(this);
     await givenDummyFile(this);
     const spaceEntityId = 's893y37439';
-    this.set('space', { entityId: spaceEntityId });
+    const space = await createSpaceModel(this, {
+      id: gri({
+        entityType: spaceEntityType,
+        entityId: spaceEntityId,
+        aspect: 'instance',
+      }),
+      name: 'space 1',
+    });
+    this.set('space', space);
 
     await renderComponent();
 
