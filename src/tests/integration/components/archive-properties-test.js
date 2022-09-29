@@ -18,17 +18,6 @@ describe('Integration | Component | archive properties', function () {
     await run(() => createArchive(this));
   });
 
-  it('renders "Archive properties" text and archive name in header', async function () {
-    const name = await getBrowsableArchiveName(this);
-
-    await renderComponent(this);
-
-    const header = find('.archive-properties-modal-header');
-    expect(header).to.exist;
-    expect(header.textContent).to.contain('Archive properties');
-    expect(header.textContent).to.contain(name);
-  });
-
   it('renders "Description" field with label and textarea in edit mode', async function () {
     whenInEditMode(this);
 

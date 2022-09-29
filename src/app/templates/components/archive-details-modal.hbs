@@ -1,0 +1,58 @@
+{{#one-modal
+  modalId=modalId
+  class="archive-details-modal modal-content-overlay without-footer with-close-button"
+  open=open
+  size="xl"
+  backdropClose=true
+  keyboard=true
+  onHide=(action "hide")
+  onShown=(action "onShown")
+  as |modal|
+}}
+
+  {{#modal.header class="archive-details-modal-header"}}
+    <h1 class="archive-details-header">
+      <span class="header-text">
+        {{tt this "archiveDetailsHeader"}}
+      </span>
+    </h1>
+    {{modal-archive-subheader archives=(array browsableArchive)}}
+    {{#bs-tab
+      class="bs-tab-onedata bs-tab-modern file-info-tabbar"
+      activeId=activeTab
+      customTabs=true
+      as |tab|
+    }}
+      {{#bs-nav
+        type="tabs"
+        class="nav-tabs-file-info"
+        as |nav|
+      }}
+        {{#nav.item
+          active=(eq tab.activeId "properties")
+        }}
+          <a
+            class={{concat-classes
+              "nav-link nav-link-properties"
+              (if (eq tab.activeId "properties") "active")
+            }}
+            role="tab"
+          >
+            {{tt this "tabNames.properties"}}
+          </a>
+        {{/nav.item}}
+      {{/bs-nav}}
+    {{/bs-tab}}
+  {{/modal.header}}
+
+  {{#modal.body class="archive-details-modal-body"}}
+    {{archive-properties
+      space=space
+      browsableArchive=browsableArchive
+      options=options.properties
+      modal=modal
+      onClose=(action "hide")
+    }}
+  {{/modal.body}}
+
+{{/one-modal}}

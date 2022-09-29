@@ -14,7 +14,18 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 
 /**
  * @typedef {Object} ArchiveFormOptions
- * @property {boolean} focusDescription
+ * @property {archiveDetailsInitialTab} initialTab
+ * @property {boolean} [focusDescription]
+ */
+
+/**
+ * @typedef {Object} ArchiveFormOptions
+ * @property {boolean} [focusDescription] If true, description textarea is focused
+ *   on component init.
+ */
+
+/**
+ * @typedef {ArchiveFormOptions} ArchivePropertiesTabOptions
  */
 
 export default Component.extend(I18n, {

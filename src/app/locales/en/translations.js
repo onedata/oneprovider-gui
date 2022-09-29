@@ -36,7 +36,7 @@ import archiveRecall from './components/archive-recall';
 import fileRecall from './components/file-recall';
 import archiveContentCount from './components/archive-content-count';
 import archiveState from './components/archive-state';
-import archivePropertiesModal from './components/archive-properties-modal';
+import archiveDetailsModal from './components/archive-details-modal';
 import fileInfoModal from './components/file-info-modal';
 import fileMetadata from './components/file-metadata';
 import filePermissions from './components/file-permissions';
@@ -101,7 +101,7 @@ const translations = {
     fileRecall,
     archiveContentCount,
     archiveState,
-    archivePropertiesModal,
+    archivePropertiesModal: archiveDetailsModal,
     fileInfoModal,
     fileMetadata,
     filePermissions,

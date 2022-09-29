@@ -104,7 +104,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @virtual
    * @type {(archives: Array<Utils.BrowsableArchive>, options: Object) => any}
    */
-  openArchivePropertiesModal: notImplementedThrow,
+  openArchiveDetailsModal: notImplementedThrow,
 
   /**
    * @virtual optional
@@ -330,7 +330,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         id: 'archiveProperties',
         icon: 'properties',
         action: (archives) => {
-          return this.openArchivePropertiesModal(archives[0]);
+          return this.openArchiveDetailsModal(archives[0], { initialTab: 'properties' });
         },
         showIn: [
           actionContext.singleDir,
@@ -346,7 +346,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         id: 'editDescription',
         icon: 'rename',
         action: (archives) => {
-          return this.openArchivePropertiesModal(archives[0], { focusDescription: true });
+          return this.openArchiveDetailsModal(archives[0], {
+            initialTab: 'properties',
+            properties: { focusDescription: true },
+          });
         },
         showIn: [
           actionContext.singleDir,

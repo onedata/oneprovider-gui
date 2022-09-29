@@ -19,10 +19,6 @@ import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model'
 import { and, or } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
-  // do not use tag, because the layout is built by `modal` property
-  // for styling, use: `archive-properties-part` class
-  tagName: '',
-
   i18n: service(),
   globalNotify: service(),
   archiveManager: service(),
@@ -123,6 +119,21 @@ export default Component.extend(I18n, {
     }
     return ModelClass.create(modelOptions);
   }),
+
+  /**
+   * @override
+   */
+  didInsertElement() {
+    if (this.options?.focusDescription) {
+      /** @type {HTMLTextAreaElement} */
+      const descriptionInput =
+        this.element.querySelector('.description-field .form-control');
+      if (descriptionInput) {
+        descriptionInput.focus();
+        descriptionInput.select();
+      }
+    }
+  },
 
   /**
    * @override

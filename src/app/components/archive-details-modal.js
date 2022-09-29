@@ -1,8 +1,6 @@
 /**
- * Standalone component for viewing and editing archive properties using archive settings
- * editor.
+ * A modal with various details about an archive.
  *
- * @module components/archive-properties-modal
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -14,6 +12,17 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
+
+/**
+ * @typedef {'properties'} ArchiveDetailsModalTabId
+ */
+
+/**
+ * Contains global (like `initialTab`) and per-tab options for modal.
+ * @typedef {Object} ArchiveDetailsModalOptions
+ * @property {ArchiveDetailsModalTabId} initialTab
+ * @property {ArchivePropertiesTabOptions} properties Options for "properties" tab.
+ */
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -52,17 +61,42 @@ export default Component.extend(I18n, {
   onHide: notImplementedIgnore,
 
   /**
+   * @type {}
+   */
+  initialTab: undefined,
+
+  /**
    * @virtual optional
-   * @type {ArchiveFormOptions}
+   * @type {ArchiveDetailsModalOptions}
    */
   options: undefined,
 
+  /**
+   * @type {ArchiveDetailsModalTabId}
+   */
+  activeTab: 'properties',
+
+  /**
+   * @type {Array<ArchiveDetailsModalTabId>}
+   */
+  availableTabs: Object.freeze(['properties']),
+
   modalId: computed(function modalId() {
-    return `archive-properties-modal-${guidFor(this)}`;
+    return `archive-details-modal-${guidFor(this)}`;
   }),
 
+  init() {
+    this._super(...arguments);
+    const initialTab = this.initialTab;
+    const availableTabs = this.availableTabs;
+    this.set(
+      'activeTab',
+      initialTab && availableTabs.includes(initialTab) ? initialTab : availableTabs[0]
+    );
+  },
+
   onShown() {
-    if (this.get('options.focusDescription')) {
+    if (this.options?.properties?.focusDescription) {
       const modalId = this.get('modalId');
       /** @type {HTMLElement} */
       const descriptionInput =
