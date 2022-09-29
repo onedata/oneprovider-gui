@@ -27,7 +27,6 @@ export default Service.extend(I18n, {
   appProxy: service(),
   fileManager: service(),
   onedataRpc: service(),
-  errorExtractor: service(),
   i18n: service(),
   guiContext: service(),
 
@@ -198,14 +197,10 @@ export default Service.extend(I18n, {
               // manually.
               fileChunk.resumableObj.uploadNextChunk();
 
-              const errorMessage = get(
-                this.get('errorExtractor').getMessage(error),
-                'message.string'
-              ) || this.t('unknownError');
               this.notifyParent({
                 uploadId: resumableFile.uploadId,
                 path: resumableFile.relativePath,
-                error: errorMessage,
+                error: error ?? String(this.t('unknownError')),
               });
 
               this.deleteFailedFile(resumableFile)
@@ -377,14 +372,10 @@ export default Service.extend(I18n, {
           resumableFile.fileModel.pollSize(2000, resumableFile.size, 10);
         })
         .catch(error => {
-          const errorMessage = get(
-            this.get('errorExtractor').getMessage(error),
-            'message.string'
-          ) || this.t('unknownError');
           this.notifyParent({
             uploadId: resumableFile.uploadId,
             path: resumableFile.relativePath,
-            error: errorMessage,
+            error: error ?? String(this.t('unknownError')),
           });
 
           this.deleteFailedFile(resumableFile);
@@ -399,20 +390,16 @@ export default Service.extend(I18n, {
    * @returns {undefined}
    */
   fileUploadFailure(resumableFile, message) {
-    let stringMessage;
+    let error;
     try {
-      const parsedMessage = (JSON.parse(message) || {}).error || message;
-      stringMessage = get(
-        this.get('errorExtractor').getMessage(parsedMessage),
-        'message.string'
-      ) || JSON.stringify(message);
+      error = (JSON.parse(message) || {}).error || message;
     } catch (e) {
-      stringMessage = message;
+      error = message;
     }
     this.notifyParent({
       uploadId: resumableFile.uploadId,
       path: resumableFile.relativePath,
-      error: stringMessage || this.t('unknownError'),
+      error: error ?? String(this.t('unknownError')),
     });
 
     // GUI does not have to wait for result, because error has been already
