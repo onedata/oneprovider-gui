@@ -50,6 +50,14 @@ export default Component.extend(I18n, {
    */
   spaceId: undefined,
 
+  /**
+   * If file that logs are about is inside archive, you can provide it here to display
+   * archive name in log entries path tooltip.
+   * @virtual optional
+   * @type {Utils.BrowsabledArchive}
+   */
+  parentBrowsableArchive: undefined,
+
   fileUrlGenerator: computed(function fileUrlGenerator() {
     return new FileUrlGenerator(this.get('appProxy'));
   }),

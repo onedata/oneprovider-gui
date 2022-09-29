@@ -8,10 +8,12 @@
 
 import Component from '@ember/component';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { array } from 'ember-awesome-macros';
+import { array, promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 
 const objectMixins = [
   I18n,
@@ -106,6 +108,25 @@ export default Component.extend(...objectMixins, {
     'qosItemsProxy.content',
     ['direct:desc', 'entityId:desc']
   ),
+
+  parentBrowsableArchiveProxy: promise.object(computed(
+    async function parentBrowsableArchiveProxy() {
+      const fileArchiveInfo = FileArchiveInfo.create({
+        ownerSource: this,
+        file: this.file,
+      });
+      if (await fileArchiveInfo.isInArchiveProxy) {
+        return await fileArchiveInfo.browsableArchiveProxy;
+      } else {
+        return null;
+      }
+    }
+  )),
+
+  /**
+   * @type {ComputedProperty<Utils.BrowsableArchive|null>}
+   */
+  parentBrowsableArchive: reads('parentBrowsableArchiveProxy.content'),
 
   init() {
     this._super(...arguments);
