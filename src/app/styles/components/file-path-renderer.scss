@@ -1,4 +1,10 @@
-.file-path {
+// NOTE: `file-path-renderer` is tagless component used by another components.
+// All components that use it should wrap it into two containers classes:
+// `file-path-base` and `path` to enable formatting.
+// It is necessary do to more complex things like dynamic path shortening.
+.file-path-base {
+  display: flex;
+  flex-direction: column;
   &.has-single-path-item {
     .path {
       display: flex;
@@ -44,3 +50,4 @@
     padding-right: 0.2em;
   }
 }
+
