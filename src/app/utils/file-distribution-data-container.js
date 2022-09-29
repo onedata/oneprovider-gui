@@ -177,23 +177,28 @@ export default EmberObject.extend(
       }
     }),
 
-    storageLocationsObserver: observer(
+    storageLocationsUpdateSetuper: observer(
       'pollingTime',
-      async function storageLocationsObserver() {
-        const fileDistribution = this.get('fileDistribution');
+      'storageLocationsPerProvider',
+      'fileDistribution',
+      async function storageLocationsUpdateSetuper() {
+        const {
+          fileDistribution,
+          fileDistributionCache,
+          storageLocationsPerProviderCache,
+          storageLocationsPerProvider,
+        } = this.getProperties(
+          'fileDistributionCache',
+          'storageLocationsPerProviderCache',
+          'fileDistribution',
+          'storageLocationsPerProvider',
+        );
         if (this.get('fileType') === 'dir' || fileDistribution?.length === 1) {
           this.set('isStorageLocationsUpdated', false);
           return;
         }
-        const {
-          fileDistributionCache,
-          storageLocationsPerProviderCache,
-        } = this.getProperties(
-          'fileDistributionCache',
-          'storageLocationsPerProviderCache',
-          );
+
         let isStorageLocationsUpdatedChanged = false;
-        const storageLocationsPerProvider = await this.get('storageLocationsPerProvider');
         if (fileDistributionCache) {
           for (const providerId in fileDistribution) {
             const distributionPerStorages =
@@ -203,7 +208,7 @@ export default EmberObject.extend(
             for (const storageId in distributionPerStorages) {
               if (
                 distributionPerStoragesPast[storageId].blocksPercentage === 0 &&
-                  distributionPerStorages[storageId].blocksPercentage !== 0
+                distributionPerStorages[storageId].blocksPercentage !== 0
               ) {
                 this.set('isStorageLocationsUpdated', true);
                 isStorageLocationsUpdatedChanged = true;
@@ -242,7 +247,7 @@ export default EmberObject.extend(
       });
       dataUpdater.on('tick', () => this.updateData());
       this.set('dataUpdater', dataUpdater);
-      this.storageLocationsObserver();
+      this.storageLocationsUpdateSetuper();
     },
 
     willDestroy() {

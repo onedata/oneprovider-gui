@@ -323,15 +323,15 @@ export default Component.extend(...mixins, {
   )),
 
   storageLocationsPerProviderLength: computed(
-    'storageLocationsPerProviderProxy',
+    'storageLocationsPerProviderProxy.content',
     function storageLocationsPerProviderLength() {
       const storageLocationsPerProvider = this.get(
         'storageLocationsPerProviderProxy.content'
       );
-      if (storageLocationsPerProvider) {
-        return Object.keys(storageLocationsPerProvider).length;
+      if (!storageLocationsPerProvider) {
+        return 0;
       }
-      return 0;
+      return Object.keys(storageLocationsPerProvider).length;
     }
   ),
 
@@ -491,8 +491,8 @@ export default Component.extend(...mixins, {
     'itemType',
     function isSizeTabVisible() {
       const effItemType = this.file.effFile?.type || 'file';
-      return !this.previewMode && !this.isMultiFile && effItemType !== 'file'
-        && this.itemType !== 'symlink';
+      return !this.previewMode && !this.isMultiFile && effItemType !== 'file' &&
+        this.itemType !== 'symlink';
     }
   ),
 
