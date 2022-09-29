@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9614 Added archivisation audit log
 * VFS-9712 Added detailed view of upload errors
 * VFS-9513 Added file path tooltip to file event in QoS audit log
 * VFS-9623 Increased speed of SASS compilation and fixed its unnecessary recompilation
