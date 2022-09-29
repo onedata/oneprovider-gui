@@ -21,20 +21,7 @@ import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolv
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { getArchiveRelativeFilePath } from 'oneprovider-gui/utils/file-archive-info';
-
-/**
- * @typedef {Object} FilePathItem
- * @property {'ellipsis'|'dataset'|'archive'|'space'|'file'} itemType
- * @property {string} separator
- * @property {Models.File|{ name: string}} record
- * @property {string} [icon]
- * @property {boolean} [isFirst]
- * @property {boolean} [isLast]
- */
-
-const datasetSeparator = '›';
-const directorySeparator = '/';
-const ellipsisString = '...';
+import { datasetSeparator, directorySeparator, ellipsisString } from 'oneprovider-gui/components/file-path-renderer';
 
 const mixins = [
   I18n,
@@ -42,7 +29,7 @@ const mixins = [
 ];
 
 export default Component.extend(...mixins, {
-  classNames: ['file-path'],
+  classNames: ['file-path', 'file-path-base'],
   classNameBindings: [
     'hasSinglePathItem:has-single-path-item',
   ],

@@ -1,0 +1,22 @@
+{{!-- NOTE: add triggerEvents="" visible=true to one-tooltip to always see tooltip --}}
+
+<a style="display:block;text-align:center;margin: 5em;">
+  <span>Hover for file path.</span>
+  {{#one-tooltip class="string-path-tooltip"}}
+    {{formatted-path-string
+      class="simple-file-path-0"
+      absolutePath=filePath
+    }}
+  {{/one-tooltip}}
+</a>
+
+
+<a style="display:block;text-align:center;">
+  <span>Hover for file in archive path.</span>
+  {{#one-tooltip class="string-path-tooltip"}}
+    {{formatted-path-string
+      class="simple-file-path-1"
+      absolutePath=fileInArchivePath
+    }}
+  {{/one-tooltip}}
+</a>

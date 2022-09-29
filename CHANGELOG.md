@@ -7,6 +7,8 @@ CHANGELOG
 ### Latest changes
 
 * VFS-9729 Improved showing storage locations for file in data distribution modal and file info modal
+* VFS-9712 Added detailed view of upload errors
+* VFS-9513 Added file path tooltip to file event in QoS audit log
 * VFS-9623 Increased speed of SASS compilation and fixed its unnecessary recompilation
 * VFS-9611 Showing current size and file counters directly in directory size statistics view
 * VFS-9722 Fixed bugs in fetching head of infinite scroll list
