@@ -323,20 +323,30 @@ export default EmberObject.extend(
     /**
      * @returns {Promise}
      */
-    updateData() {
+    async updateData() {
       const {
+        isStorageLocationsUpdated: firstIsStorageLocationsUpdated,
         isFileDistributionError,
         transfersProxy,
-      } = this.getProperties('isFileDistributionError', 'transfersProxy');
-      const x = Promise.all([
+      } = this.getProperties(
+        'isStorageLocationsUpdated',
+        'isFileDistributionError',
+        'transfersProxy'
+      );
+      await Promise.all([
         !isFileDistributionError ?
         this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
         !get(transfersProxy, 'isRejected') ?
         this.updateTransfersProxy({ replace: true }) : resolve(),
-        this.get('isStorageLocationsUpdated') ?
+        firstIsStorageLocationsUpdated ?
         this.updateStorageLocationsProxy({ replace: true }) : resolve(),
       ]);
-      return x;
+      // getting current value of isStorageLocationsUpdated, because it might be updated
+      // after async call
+      if (!firstIsStorageLocationsUpdated && this.isStorageLocationsUpdated) {
+        await this.updateStorageLocationsProxy({ replace: true });
+        // this.storageLocationsUpdateSetuper();
+      }
     },
 
     /**
