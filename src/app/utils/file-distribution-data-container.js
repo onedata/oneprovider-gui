@@ -187,13 +187,15 @@ export default EmberObject.extend(
           fileDistributionCache,
           storageLocationsPerProviderCache,
           storageLocationsPerProvider,
+          fileType,
         } = this.getProperties(
           'fileDistributionCache',
           'storageLocationsPerProviderCache',
           'fileDistribution',
           'storageLocationsPerProvider',
+          'fileType',
         );
-        if (this.get('fileType') === 'dir' || fileDistribution?.length === 1) {
+        if (fileType === 'dir' || fileDistribution?.length === 1) {
           this.set('isStorageLocationsUpdated', false);
           return;
         }
