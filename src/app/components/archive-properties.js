@@ -2,7 +2,6 @@
  * Component for managing properties of archive or create archives.
  * Needs modal-like for layout rendering.
  *
- * @module components/archive-properties
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -13,12 +12,12 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import ArchiveFormEditModel from 'oneprovider-gui/utils/archive-form/edit-model';
 import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model';
 import { and, or } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
+  classNames: ['archive-properties'],
   i18n: service(),
   globalNotify: service(),
   archiveManager: service(),
@@ -27,12 +26,6 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.archiveProperties',
-
-  /**
-   * @virtual
-   * @type {Function}
-   */
-  onClose: notImplementedIgnore,
 
   /**
    * @virtual
@@ -96,6 +89,9 @@ export default Component.extend(I18n, {
 
   isModified: or('options.focusDescription', 'formModel.isModified'),
 
+  /**
+   * @type {ComputedProperty<Utils.ArchiveFrom.ViewModel|Utils.ArchiveFrom.EditModel>}
+   */
   formModel: computed(function formModel() {
     const {
       browsableArchive,
@@ -183,10 +179,6 @@ export default Component.extend(I18n, {
     }
   },
 
-  close() {
-    this.get('onClose')();
-  },
-
   formDataUpdate({ formData = {}, isValid = false } = {}) {
     this.setProperties({
       formData,
@@ -195,12 +187,15 @@ export default Component.extend(I18n, {
   },
 
   actions: {
+    discard() {
+      this.formModel.reset();
+    },
     async submit() {
       try {
         await this.modifyArchive();
-        this.close();
+        this.formModel.onSubmitted();
       } catch (error) {
-        this.get('globalNotify').backendError(this.t('modifyingArchive'), error);
+        this.globalNotify.backendError(this.t('modifyingArchive'), error);
       }
     },
     close() {

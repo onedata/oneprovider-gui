@@ -1,5 +1,5 @@
 export default {
-  cancel: 'Cancel',
-  submit: 'Submit changes',
+  discard: 'Discard changes',
+  submit: 'Save',
   modifyingArchive: 'modifying archive properties',
 };

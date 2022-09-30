@@ -1,0 +1,10 @@
+.archive-properties {
+  .submit-buttons-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1em;
+    .btn + .btn {
+      margin-left: 0.5em;
+    }
+  }
+}

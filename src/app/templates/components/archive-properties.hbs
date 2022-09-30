@@ -9,16 +9,16 @@
     {{#bs-button
       class="close-btn"
       type="default"
-      disabled=isSubmitting
-      onClick=(action "close")
+      disabled=(or (not isModified) isSubmitting disabled)
+      onClick=(action "discard")
     }}
-      {{tt this (if isModified "cancel" "close")}}
+      {{tt this "discard"}}
     {{/bs-button}}
     {{#one-button
       type="primary"
       buttonType="submit"
       class="submit-archive-modification-btn"
-      disabled=disabled
+      disabled=(or (not isModified) disabled)
       isPending=isSubmitting
       onClick=(action "submit")
     }}
