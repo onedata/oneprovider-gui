@@ -1,5 +1,8 @@
 <div class="oneproviders-distribution-item-content">
-  <div class="name-section">
+  <div class={{concat-classes 
+    "name-section"
+    (if (not storageFileLocation) "center-name-section")
+  }}>
     {{#truncated-string class="distribution-row-name"}}
       <span class="storage-name">{{storageName}}</span> @ <span class="oneprovider-name"><strong>{{oneprovider.name}}</strong></span>
     {{/truncated-string}}
@@ -9,13 +12,8 @@
           value=storageFileLocation
           size="sm"
           class="storage-file-path-clipboard"
-        }}
-        {{one-tooltip
-          title=storageFileLocation
-          placement="top"
-          arrowPlacement="left"
-          triggerEvents="hover"
-          class="string-path-tooltip"
+          buttonTip=(tt this "buttonTip")
+          enableValueTip=true
         }}
       </div>
     {{/if}}

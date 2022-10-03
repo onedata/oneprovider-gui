@@ -12,7 +12,7 @@ import EmberObject, { get, set, setProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve, Promise, reject } from 'rsvp';
-import { conditional, raw, gt, and, not, notEmpty } from 'ember-awesome-macros';
+import { conditional, raw, gt, and, not, notEmpty, eq } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
 import { computed } from '@ember/object';
@@ -42,6 +42,10 @@ export default EmberObject.extend(
      * @type {Looper}
      */
     dataUpdater: undefined,
+
+    fileDistributionCache: undefined,
+
+    storageLocationsPerProviderCache: undefined,
 
     /**
      * @type {number}
@@ -127,7 +131,11 @@ export default EmberObject.extend(
     /**
      * @type {ComputedProperty<LocationsPerProvider>}
      */
-    storageLocationsPerProvider: reads('storageLocations.locationsPerProvider'),
+    storageLocationsPerProvider: conditional(
+      eq('fileType', raw('dir')),
+      null,
+      'storageLocations.locationsPerProvider'
+    ),
 
     /**
      * @type {Ember.ComputedProperty<Array<Models.Transfer>>}
@@ -150,7 +158,7 @@ export default EmberObject.extend(
      * If true, storage locations will be reloaded
      * @type {Boolean}
      */
-    isStorageLocationsUpdated: true,
+    isStorageLocationsUpdated: false,
 
     pollingTimeObserver: observer('pollingTime', function pollingTimeObserver() {
       const {
@@ -169,6 +177,70 @@ export default EmberObject.extend(
       }
     }),
 
+    storageLocationsUpdateSetuper: observer(
+      'pollingTime',
+      'storageLocationsPerProvider',
+      'fileDistribution',
+      async function storageLocationsUpdateSetuper() {
+        const {
+          fileDistribution,
+          fileDistributionCache,
+          storageLocationsPerProviderCache,
+          storageLocationsPerProvider,
+          fileType,
+        } = this.getProperties(
+          'fileDistributionCache',
+          'storageLocationsPerProviderCache',
+          'fileDistribution',
+          'storageLocationsPerProvider',
+          'fileType',
+        );
+        if (fileType === 'dir' || fileDistribution?.length === 1) {
+          this.set('isStorageLocationsUpdated', false);
+          return;
+        }
+
+        let isStorageLocationsUpdatedChanged = false;
+        if (fileDistributionCache) {
+          for (const providerId in fileDistribution) {
+            const distributionPerStorages =
+              fileDistribution[providerId].distributionPerStorage;
+            const distributionPerStoragesPast =
+              fileDistributionCache[providerId].distributionPerStorage;
+            for (const storageId in distributionPerStorages) {
+              if (
+                distributionPerStoragesPast[storageId].blocksPercentage === 0 &&
+                distributionPerStorages[storageId].blocksPercentage !== 0
+              ) {
+                this.set('isStorageLocationsUpdated', true);
+                isStorageLocationsUpdatedChanged = true;
+              }
+            }
+          }
+        }
+        if (!isStorageLocationsUpdatedChanged && storageLocationsPerProviderCache) {
+          for (const providerId in storageLocationsPerProvider) {
+            const locationsPerStorage =
+              storageLocationsPerProvider[providerId].locationsPerStorage;
+            const locationsPerStoragePast =
+              storageLocationsPerProviderCache[providerId].locationsPerStorage;
+            for (const storageId in locationsPerStorage) {
+              if (
+                locationsPerStorage[storageId] !==
+                locationsPerStoragePast[storageId]
+              ) {
+                this.set('isStorageLocationsUpdated', false);
+              }
+            }
+          }
+        }
+        this.setProperties({
+          fileDistributionCache: fileDistribution,
+          storageLocationsPerProviderCache: storageLocationsPerProvider,
+        });
+      }
+    ),
+
     init() {
       this._super(...arguments);
 
@@ -177,6 +249,7 @@ export default EmberObject.extend(
       });
       dataUpdater.on('tick', () => this.updateData());
       this.set('dataUpdater', dataUpdater);
+      this.storageLocationsUpdateSetuper();
     },
 
     willDestroy() {
@@ -252,20 +325,30 @@ export default EmberObject.extend(
     /**
      * @returns {Promise}
      */
-    updateData() {
+    async updateData() {
       const {
+        isStorageLocationsUpdated: firstIsStorageLocationsUpdated,
         isFileDistributionError,
         transfersProxy,
-      } = this.getProperties('isFileDistributionError', 'transfersProxy');
-      const x = Promise.all([
+      } = this.getProperties(
+        'isStorageLocationsUpdated',
+        'isFileDistributionError',
+        'transfersProxy'
+      );
+      await Promise.all([
         !isFileDistributionError ?
         this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
         !get(transfersProxy, 'isRejected') ?
         this.updateTransfersProxy({ replace: true }) : resolve(),
-        this.get('isStorageLocationsUpdated') ?
+        firstIsStorageLocationsUpdated ?
         this.updateStorageLocationsProxy({ replace: true }) : resolve(),
       ]);
-      return x;
+      // getting current value of isStorageLocationsUpdated, because it might be updated
+      // after async call
+      if (!firstIsStorageLocationsUpdated && this.isStorageLocationsUpdated) {
+        await this.updateStorageLocationsProxy({ replace: true });
+        // this.storageLocationsUpdateSetuper();
+      }
     },
 
     /**

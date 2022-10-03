@@ -21,4 +21,5 @@ export default {
   disabledMigrationIsEmpty: 'Cannot schedule migration as there are no file blocks on this Oneprovider.',
   disabledEvictionSingleOneprovider: 'Eviction' + disabledActionSingleOneprovider,
   disabledEvictionNoBlocks: 'Eviction is not possible unless some data blocks on this Oneprovider are redundant.',
+  buttonTip: 'Copy storage file path to clipboard',
 };
