@@ -79,7 +79,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<ArchiveDetailsModalTabId>}
    */
-  availableTabs: Object.freeze(['properties']),
+  availableTabs: Object.freeze(['properties', 'logs']),
 
   modalId: computed(function modalId() {
     return `archive-details-modal-${guidFor(this)}`;
@@ -89,10 +89,10 @@ export default Component.extend(I18n, {
     this._super(...arguments);
     const initialTab = this.initialTab;
     const availableTabs = this.availableTabs;
-    this.set(
-      'activeTab',
-      initialTab && availableTabs.includes(initialTab) ? initialTab : availableTabs[0]
-    );
+    this.changeTab(initialTab);
+    if (!this.activeTab) {
+      this.changeTab(availableTabs[0]);
+    }
   },
 
   onShown() {
@@ -108,12 +108,29 @@ export default Component.extend(I18n, {
     }
   },
 
+  /**
+   * @param {ArchiveDetailsModalTabId} tabId
+   * @returns {void}
+   */
+  changeTab(tabId) {
+    if (this.availableTabs.includes(tabId)) {
+      this.set('activeTab', tabId);
+    }
+  },
+
   actions: {
     hide() {
       this.get('onHide')();
     },
     onShown() {
       this.onShown();
+    },
+    /**
+     *
+     * @param {ArchiveDetailsModalTabId} tabId
+     */
+    changeTab(tabId) {
+      this.changeTab(tabId);
     },
   },
 });

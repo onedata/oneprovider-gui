@@ -3,5 +3,6 @@ export default {
   archiveDetailsHeader: 'Archive details',
   tabNames: {
     properties: 'Properties',
+    logs: 'Audit log',
   },
 };

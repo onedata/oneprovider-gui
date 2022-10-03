@@ -28,30 +28,38 @@
         class="nav-tabs-file-info"
         as |nav|
       }}
-        {{#nav.item
-          active=(eq tab.activeId "properties")
-        }}
-          <a
-            class={{concat-classes
-              "nav-link nav-link-properties"
-              (if (eq tab.activeId "properties") "active")
-            }}
-            role="tab"
-          >
-            {{tt this "tabNames.properties"}}
-          </a>
-        {{/nav.item}}
+        {{#each availableTabs as |tabId|}}
+          {{#nav.item
+            active=(eq tab.activeId tabId)
+          }}
+            <a
+              class={{concat-classes
+                "nav-link"
+                (concat "nav-link-" tabId)
+                (if (eq tab.activeId tabId) "active")
+              }}
+              role="tab"
+              {{action "changeTab" tabId}}
+            >
+              {{tt this (concat "tabNames." tabId)}}
+            </a>
+          {{/nav.item}}
+        {{/each}}
       {{/bs-nav}}
     {{/bs-tab}}
   {{/modal.header}}
 
   {{#modal.body class="archive-details-modal-body"}}
-    {{archive-properties
-      space=space
-      browsableArchive=browsableArchive
-      options=options.properties
-      modal=modal
-    }}
+    {{#if (eq activeTab "properties")}}
+      {{archive-properties
+        space=space
+        browsableArchive=browsableArchive
+        options=options.properties
+        modal=modal
+      }}
+    {{else if (eq activeTab "logs")}}
+      {{archive-audit-log class="fill-flex-using-column" archive=browsableArchive}}
+    {{/if}}
   {{/modal.body}}
 
 {{/one-modal}}
