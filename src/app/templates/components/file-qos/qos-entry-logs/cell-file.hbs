@@ -5,13 +5,27 @@
       target={{navigateTarget}}
       href={{fileInfo.href}}
     >
-      {{#truncated-string class=(concat-classes "file-name" fileInfo.className)}}
+      <div class={{concat-classes "truncate file-name" fileInfo.className}}>
         {{fileInfo.name}}
-      {{/truncated-string}}
+      </div>
+      {{#one-tooltip class="string-path-tooltip"}}
+        {{formatted-path-string
+          absolutePath=path
+          browsableArchive=parentBrowsableArchive
+        }}
+      {{/one-tooltip}}
     </a>
   {{else}}
-    {{#truncated-string class=(concat-classes "file-name" fileInfo.className)}}
-      {{fileInfo.name}}
-    {{/truncated-string}}
+    <div class="truncate">
+      <span class={{concat-classes "file-name" fileInfo.className}}>
+        {{fileInfo.name}}
+      </span>
+      {{#one-tooltip class="string-path-tooltip"}}
+        {{formatted-path-string
+          absolutePath=path
+          browsableArchive=parentBrowsableArchive
+        }}
+      {{/one-tooltip}}
+    </div>
   {{/if}}
 </div>

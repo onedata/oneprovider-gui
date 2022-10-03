@@ -77,6 +77,14 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   evaluateQosExpression: notImplementedReject,
 
   /**
+   * If file that logs are about is inside archive, you can provide it here to display
+   * archive name in log entries path tooltip.
+   * @virtual optional
+   * @type {Utils.BrowsabledArchive}
+   */
+  parentBrowsableArchive: undefined,
+
+  /**
    * @type {boolean}
    */
   areChartsInitiallyVisible: false,

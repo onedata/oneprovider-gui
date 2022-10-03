@@ -205,7 +205,7 @@ export default Component.extend(...mixins, {
   apiSamples: reads('apiSamplesProxy.content'),
 
   /**
-   * @type {PromiseObject<Models.StorageLocations>}
+   * @type {PromiseObject<Models.StorageLocationInfo>}
    */
   storageLocationsProxy: computedRelationProxy(
     'file',
@@ -233,12 +233,14 @@ export default Component.extend(...mixins, {
    * @type {PromiseObject<Ember.Array<Object>|null> }
    */
   currentProviderLocationsProxy: promise.object(computed(
-    'storageLocationsPerProvider',
+    'storageLocationsPerProviderProxy',
     'currentProviderProxy',
     async function currentProviderLocationsProxy() {
       const currentProvider = await this.get('currentProviderProxy');
       const currentProviderId = get(currentProvider, 'entityId');
-      const storageLocationsPerProvider = await this.get('storageLocationsPerProvider');
+      const storageLocationsPerProvider = await this.get(
+        'storageLocationsPerProviderProxy'
+      );
       if (
         storageLocationsPerProvider &&
         currentProviderId in storageLocationsPerProvider
@@ -254,7 +256,7 @@ export default Component.extend(...mixins, {
    * @type {PromiseObject}
    */
   storageLocationRequiredDataProxy: promise.object(promise.all(
-    'storageLocationsPerProvider',
+    'storageLocationsPerProviderProxy',
     'currentProviderProxy',
     'currentProviderLocationsProxy',
   )),
@@ -267,11 +269,11 @@ export default Component.extend(...mixins, {
   /**
    * @type {PromiseObject<Ember.Array<Object>|null>}
    */
-  storageLocationsPerProvider: promise.object(computed(
+  storageLocationsPerProviderProxy: promise.object(computed(
     'storageLocationsProxy',
     'storageManager',
     'spaceId',
-    async function storageLocationsPerProvider() {
+    async function storageLocationsPerProviderProxy() {
       const {
         spaceId,
         storageManager,
@@ -319,6 +321,19 @@ export default Component.extend(...mixins, {
       }
     }
   )),
+
+  storageLocationsPerProviderLength: computed(
+    'storageLocationsPerProviderProxy.content',
+    function storageLocationsPerProviderLength() {
+      const storageLocationsPerProvider = this.get(
+        'storageLocationsPerProviderProxy.content'
+      );
+      if (!storageLocationsPerProvider) {
+        return 0;
+      }
+      return Object.keys(storageLocationsPerProvider).length;
+    }
+  ),
 
   fileGuiUrlProxy: promise.object(computed('file.entityId', async function fileGuiUrl() {
     const {
@@ -476,8 +491,8 @@ export default Component.extend(...mixins, {
     'itemType',
     function isSizeTabVisible() {
       const effItemType = this.file.effFile?.type || 'file';
-      return !this.previewMode && !this.isMultiFile && effItemType !== 'file'
-        && this.itemType !== 'symlink';
+      return !this.previewMode && !this.isMultiFile && effItemType !== 'file' &&
+        this.itemType !== 'symlink';
     }
   ),
 

@@ -85,16 +85,17 @@ export default Component.extend(I18n, {
   isSingleFile: equal('fileDistributionData.length', 1),
 
   /**
-   * @type {ComputedProperty<Models.StorageLocations>}
+   * @type {ComputedProperty<Models.StorageLocationInfo>}
    */
   locationsPerProvider: computed(
     'fileDistributionData.firstObject.storageLocationsPerProvider',
     function locationsPerProvider() {
       const filesDistributionData = this.get('fileDistributionData');
-      if (filesDistributionData.length > 1) {
+      const fileDistributionData = get(filesDistributionData, 'firstObject');
+      const fileType = get(fileDistributionData, 'fileType');
+      if (filesDistributionData.length > 1 || fileType === 'dir') {
         return undefined;
       } else {
-        const fileDistributionData = get(filesDistributionData, 'firstObject');
         return get(fileDistributionData, 'storageLocationsPerProvider');
       }
     }
