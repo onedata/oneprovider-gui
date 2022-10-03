@@ -2,7 +2,7 @@
  * Cell that shows number of files and bytes replicated.
  *
  * @author Michał Borzęcki
- * @copyright (C) 2018-2022 ACK CYFRONET AGH
+ * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 

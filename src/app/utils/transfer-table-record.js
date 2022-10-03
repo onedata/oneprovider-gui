@@ -145,13 +145,20 @@ export default EmberObject.extend(OwnerInjector, {
   ),
 
   itemsToProcessSetter: observer(
-    'transfer.{state,dataSourceType,dataSourceId}',
+    'transfer.{type,dataSourceType,dataSourceId,state}',
     async function itemsToProcessSetter() {
       const {
+        type,
         dataSourceType,
         dataSourceId,
         state,
-      } = getProperties(this.transfer, 'dataSourceType', 'dataSourceId', 'state');
+      } = getProperties(
+        this.transfer,
+        'type',
+        'dataSourceType',
+        'dataSourceId',
+        'state'
+      );
 
       if (state !== 'ongoing' || dataSourceType !== 'dir') {
         if (typeof this.itemsToProcess === 'number') {
@@ -164,10 +171,11 @@ export default EmberObject.extend(OwnerInjector, {
 
       const dirSizeStats = await this.fileManager.getDirCurrentSizeStats(dataSourceId);
       if (dirSizeStats) {
-        this.set(
-          'itemsToProcess',
-          dirSizeStats.regFileAndLinkCount + dirSizeStats.dirCount + 1
-        );
+        let itemsToProcess = dirSizeStats.regFileAndLinkCount + dirSizeStats.dirCount + 1;
+        if (type === 'migration') {
+          itemsToProcess *= 2;
+        }
+        this.set('itemsToProcess', itemsToProcess);
       }
     }
   ),

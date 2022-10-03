@@ -257,7 +257,6 @@ export default Component.extend(I18n, {
             actionMessage: this.t('rerunSuccess'),
             actionMessageType: 'success',
           });
-          globalNotify.success(this.t('rerunSuccess'));
           return transfer.reload()
             .then(transfer => transfer.updateTransferProgressProxy());
         })
@@ -439,7 +438,7 @@ export default Component.extend(I18n, {
 
   actions: {
     toggleTransferDetails(transferId, open, event) {
-      if (!isDirectlyClicked(event, event.currentTarget)) {
+      if (!isDirectlyClicked(event)) {
         return;
       }
 
