@@ -13,18 +13,13 @@ import { inject as service } from '@ember/service';
 import { all as allFulfilled, hash as hashFulfilled } from 'rsvp';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
+import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
 
 const perStorageTimeSeriesNameGenerator = 'st_';
 const totalTimeSeriesNameGenerator = 'total';
 
-const mixins = [
-  I18n,
-  createDataProxyMixin('timeSeriesCollectionLayouts'),
-];
-
-export default Component.extend(...mixins, {
+export default Component.extend(I18n, {
   classNames: ['qos-entry-charts'],
 
   i18n: service(),
@@ -50,12 +45,6 @@ export default Component.extend(...mixins, {
    * @type {string}
    */
   qosRequirementId: undefined,
-
-  /**
-   * Timestamp of the last `timeSeriesCollectionLayouts` proxy reload
-   * @type {number}
-   */
-  lastTsCollectionLayoutsReloadTimestamp: undefined,
 
   /**
    * @type {ComputedProperty<Utils.ColorGenerator>}
@@ -133,16 +122,19 @@ export default Component.extend(...mixins, {
           [totalTimeSeriesNameGenerator]: this.extractMetricNamesForTimeSeries(
             timeSeriesCollectionSchemas?.bytes,
             totalTimeSeriesNameGenerator,
+            'sum'
           ),
           [perStorageTimeSeriesNameGenerator]: this.extractMetricNamesForTimeSeries(
             timeSeriesCollectionSchemas?.bytes,
             perStorageTimeSeriesNameGenerator,
+            'sum'
           ),
         },
         files: {
           [perStorageTimeSeriesNameGenerator]: this.extractMetricNamesForTimeSeries(
             timeSeriesCollectionSchemas?.files,
             perStorageTimeSeriesNameGenerator,
+            'sum'
           ),
         },
       };
@@ -481,18 +473,20 @@ export default Component.extend(...mixins, {
   /**
    * @param {TimeSeriesCollectionSchema|undefined} timeSeriesCollectionSchema
    * @param {string} timeSeriesNameGenerator
+   * @param {TimeSeriesMetricAggregator} timeSeriesMetricAggregator
    * @returns {Array<string>}
    */
-  extractMetricNamesForTimeSeries(timeSeriesCollectionSchema, timeSeriesNameGenerator) {
+  extractMetricNamesForTimeSeries(
+    timeSeriesCollectionSchema,
+    timeSeriesNameGenerator,
+    timeSeriesMetricAggregator
+  ) {
     const timeSeriesSchemas = timeSeriesCollectionSchema?.timeSeriesSchemas;
     const timeSeriesSchema =
       timeSeriesSchemas?.findBy('nameGenerator', timeSeriesNameGenerator);
-    const metrics = timeSeriesSchema?.metrics ?? {};
-    // All useful (for us) metrics in every time series use `sum` aggregator.
-    // To catch all possible resolutions of `sum` and be more flexible, we
-    // use all metrics with `sum` aggregator instead of hardcoding their names.
-    return Object.keys(metrics).filter((metricName) =>
-      metrics[metricName]?.aggregator === 'sum'
+    return getTimeSeriesMetricNamesWithAggregator(
+      timeSeriesSchema,
+      timeSeriesMetricAggregator
     );
   },
 
@@ -620,34 +614,10 @@ export default Component.extend(...mixins, {
    * @returns {Promise<TimeSeriesCollectionLayout>}
    */
   async getTimeSeriesCollectionLayout(collectionRef) {
-    const nowTimestamp = Math.floor(Date.now() / 1000);
-    let proxy;
-    if (
-      !this.lastTsCollectionLayoutsReloadTimestamp ||
-      nowTimestamp - this.lastTsCollectionLayoutsReloadTimestamp >= 15
-    ) {
-      this.set('lastTsCollectionLayoutsReloadTimestamp', nowTimestamp);
-      proxy = this.updateTimeSeriesCollectionLayoutsProxy();
-    } else {
-      proxy = this.getTimeSeriesCollectionLayoutsProxy();
-    }
-    return (await proxy)?.[collectionRef] ?? {};
-  },
-
-  /**
-   * @override
-   */
-  async fetchTimeSeriesCollectionLayouts() {
-    return hashFulfilled({
-      bytes: this.qosManager.getQosTransferTimeSeriesCollectionLayout(
-        this.qosRequirementId,
-        'bytes',
-      ),
-      files: this.qosManager.getQosTransferTimeSeriesCollectionLayout(
-        this.qosRequirementId,
-        'files',
-      ),
-    });
+    return this.qosManager.getQosTransferTimeSeriesCollectionLayout(
+      this.qosRequirementId,
+      collectionRef,
+    );
   },
 
   actions: {

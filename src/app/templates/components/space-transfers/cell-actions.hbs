@@ -27,5 +27,10 @@
 {{#if message}}
   <div class="action-message {{messageType}}">
     {{message}}
+    {{one-icon
+      icon="close"
+      class="clickable close-message"
+      click=(action "closeMessage")
+    }}
   </div>
 {{/if}}

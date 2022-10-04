@@ -54,21 +54,24 @@ export default Component.extend(I18n, {
 
   isFileDeleted: equal('dataSourceType', raw('deleted')),
 
-  deletedIsDir: computed('totalFiles', function deletedIsDir() {
-    const totalFiles = this.get('totalFiles');
-    return Boolean(totalFiles) && totalFiles > 1;
+  deletedIsDir: computed('affectedFiles', function deletedIsDir() {
+    const affectedFiles = this.get('affectedFiles');
+    return Boolean(affectedFiles) && affectedFiles > 1;
   }),
 
   /**
    * @type {Ember.ComputedProperty<Number>}
    */
-  totalFiles: computed('record.{replicatedFiles,evictedFiles}', function () {
-    const {
-      replicatedFiles,
-      evictedFiles,
-    } = getProperties(this.get('record'), 'replicatedFiles', 'evictedFiles');
-    return (replicatedFiles + evictedFiles) || 0;
-  }),
+  affectedFiles: computed(
+    'record.{replicatedFiles,evictedFiles}',
+    function affectedFiles() {
+      const {
+        replicatedFiles,
+        evictedFiles,
+      } = getProperties(this.get('record'), 'replicatedFiles', 'evictedFiles');
+      return (replicatedFiles + evictedFiles) || 0;
+    }
+  ),
 
   isFileSource: array.includes(raw(['file', 'dir', 'deleted']), 'dataSourceType'),
 

@@ -32,10 +32,11 @@ export const entityType = 'op_transfer';
  * @property {String} status one of:
  *   waiting, replicating, evicting, aborting, skipped, completed, cancelled,
  *   failed
- * @property {Number} timestamp
- * @property {Number} replicatedBytes
- * @property {Number} replicatedFiles
- * @property {Number} evictedFiles
+ * @property {number} timestamp
+ * @property {number} replicatedBytes
+ * @property {number} replicatedFiles
+ * @property {number} evictedFiles
+ * @property {number} processedFiles
  */
 
 export default Model.extend(

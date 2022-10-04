@@ -17,25 +17,13 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import Looper from 'onedata-gui-common/utils/looper';
-
-/**
- * @typedef {Object} LatestDirSizeStatsValues
- * @property {number} regFileAndLinkCount
- * @property {number} dirCount
- * @property {number} logicalSize
- * @property {number} physicalSize
- */
-
-const timeSeriesNameGenerators = {
-  regFileAndLinkCount: 'reg_file_and_link_count',
-  dirCount: 'dir_count',
-  totalSize: 'total_size',
-  sizeOnStorage: 'storage_use_',
-};
+import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
+import {
+  dirSizeStatsTimeSeriesNameGenerators as timeSeriesNameGenerators,
+} from 'oneprovider-gui/models/file';
 
 const mixins = [
   I18n,
-  createDataProxyMixin('timeSeriesCollectionLayout'),
   createDataProxyMixin('latestDirSizeStatsValues'),
 ];
 
@@ -76,12 +64,6 @@ export default Component.extend(...mixins, {
    * @type {string}
    */
   fileId: reads('file.entityId'),
-
-  /**
-   * Timestamp of the last `timeSeriesCollectionLayout` proxy reload
-   * @type {number}
-   */
-  lastTsCollectionLayoutReloadTimestamp: undefined,
 
   /**
    * @type {ComputedProperty<Utils.ColorGenerator>}
@@ -126,10 +108,14 @@ export default Component.extend(...mixins, {
   metricNamesForTimeSeries: computed(
     'timeSeriesCollectionSchemaProxy.content',
     function metricNamesForTimeSeries() {
+      const timeSeriesSchemas =
+        this.timeSeriesCollectionSchemaProxy.content?.timeSeriesSchemas;
       return Object.values(timeSeriesNameGenerators)
         .reduce((acc, timeSeriesNameGenerator) => {
+          const timeSeriesSchema =
+            timeSeriesSchemas?.findBy('nameGenerator', timeSeriesNameGenerator);
           acc[timeSeriesNameGenerator] =
-            this.extractMetricNamesForTimeSeries(timeSeriesNameGenerator);
+            getTimeSeriesMetricNamesWithAggregator(timeSeriesSchema, 'last');
           return acc;
         }, {});
     }
@@ -570,27 +556,6 @@ export default Component.extend(...mixins, {
   },
 
   /**
-   * @param {TimeSeriesCollectionSchema|undefined} timeSeriesCollectionSchema
-   * @param {string} timeSeriesNameGenerator
-   * @returns {Array<string>}
-   */
-  extractMetricNamesForTimeSeries(timeSeriesNameGenerator) {
-    const timeSeriesSchemas =
-      this.timeSeriesCollectionSchemaProxy.content?.timeSeriesSchemas;
-    const timeSeriesSchema =
-      timeSeriesSchemas?.findBy('nameGenerator', timeSeriesNameGenerator);
-    const metrics = timeSeriesSchema?.metrics ?? {};
-    // All useful (for us) metrics in every time series use `last` aggregator.
-    // To catch all possible resolutions of `last` and be more flexible, we
-    // use all metrics with `last` aggregator instead of hardcoding their names.
-    return Object.keys(metrics)
-      .filter((metricName) =>
-        metrics[metricName]?.aggregator === 'last' && metrics[metricName]?.resolution
-      )
-      .sort((m1, m2) => metrics[m1].resolution - metrics[m2].resolution);
-  },
-
-  /**
    * @param {{ collectionRef: string, timeSeriesNameGenerator: string, metricNames: Array<string> }} sourceParameters
    * @returns {Promise<Array<{ id: string, name: string, groupId: string, color: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
    */
@@ -686,87 +651,15 @@ export default Component.extend(...mixins, {
    * @returns {Promise<TimeSeriesCollectionLayout>}
    */
   async getTimeSeriesCollectionLayout() {
-    const nowTimestamp = Math.floor(Date.now() / 1000);
-    if (
-      !this.lastTsCollectionLayoutReloadTimestamp ||
-      nowTimestamp - this.lastTsCollectionLayoutReloadTimestamp >= 15
-    ) {
-      this.set('lastTsCollectionLayoutReloadTimestamp', nowTimestamp);
-      return this.updateTimeSeriesCollectionLayoutProxy();
-    } else {
-      return this.getTimeSeriesCollectionLayoutProxy();
-    }
-  },
-
-  /**
-   * @override
-   */
-  async fetchTimeSeriesCollectionLayout() {
     return this.fileManager.getDirSizeStatsTimeSeriesCollectionLayout(this.fileId);
   },
 
   /**
    * @override
-   * @returns {Promise<LatestDirSizeStatsValues>}
+   * @returns {Promise<DirCurrentSizeStats>}
    */
   async fetchLatestDirSizeStatsValues() {
-    const [, collectionLayout] = await allFulfilled([
-      this.timeSeriesCollectionSchemaProxy,
-      this.getTimeSeriesCollectionLayout(),
-    ]);
-    const staticTimeSeries = ['regFileAndLinkCount', 'dirCount', 'totalSize'];
-    const perStorageTimeSeries = Object.keys(collectionLayout)
-      .filter((tsName) => tsName.startsWith(timeSeriesNameGenerators.sizeOnStorage));
-
-    const layout = {};
-    staticTimeSeries.forEach((tsName) => {
-      const rawTsName = timeSeriesNameGenerators[tsName];
-      layout[rawTsName] = [
-        this.metricNamesForTimeSeries[rawTsName]?.[0],
-      ];
-    });
-    perStorageTimeSeries.forEach((tsName) => {
-      layout[tsName] = [
-        this.metricNamesForTimeSeries[timeSeriesNameGenerators.sizeOnStorage]?.[0],
-      ];
-    });
-
-    const queryParams = {
-      layout,
-      windowLimit: 1,
-    };
-
-    const result = await this.fileManager.getDirSizeStatsTimeSeriesCollectionSlice(
-      this.fileId,
-      queryParams,
-    );
-
-    const staticStatsValues = staticTimeSeries.reduce((acc, tsName) => {
-      const rawTsName = timeSeriesNameGenerators[tsName];
-      acc[tsName] = result
-        ?.[rawTsName]
-        ?.[this.metricNamesForTimeSeries[rawTsName]?.[0]]
-        ?.[0]?.value ?? 0;
-      return acc;
-    }, {});
-    const perStorageTotalSize = perStorageTimeSeries
-      .map((tsName) =>
-        result
-        ?.[tsName]
-        ?.[this.metricNamesForTimeSeries[timeSeriesNameGenerators.sizeOnStorage]?.[0]]
-        ?.[0]?.value ?? 0
-      )
-      .filter(Number.isFinite)
-      .reduce((acc, size) => acc + size, 0);
-
-    const latestStatsValues = {
-      regFileAndLinkCount: staticStatsValues.regFileAndLinkCount,
-      dirCount: staticStatsValues.dirCount,
-      logicalSize: staticStatsValues.totalSize,
-      physicalSize: perStorageTotalSize,
-    };
-
-    return latestStatsValues;
+    return this.fileManager.getDirCurrentSizeStats(this.fileId);
   },
 
   actions: {
