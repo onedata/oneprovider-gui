@@ -1,1 +1,16 @@
-{{yield}}
+{{#audit-log-browser
+  onFetchLogEntries=fetchLogEntriesCallback
+  customColumnHeaders=customColumnHeaders
+  isSeverityColumnVisible=false
+  as |logEntry|
+}}
+  {{archive-audit-log/cell-file
+    absoluteFilePath=logEntry.content.path
+  }}
+  {{archive-audit-log/cell-event
+    description=logEntry.content.description
+    reason=logEntry.content.reason
+    severity=logEntry.severity
+  }}
+  {{archive-audit-log/cell-time-taken}}
+{{/audit-log-browser}}

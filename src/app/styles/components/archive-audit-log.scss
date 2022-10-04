@@ -1,0 +1,23 @@
+.archive-audit-log {
+  .file-column-header {
+    width: 12em;
+  }
+  .time-taken-column-header {
+    width: 8em;
+  }
+  .cell-time-taken {
+    text-align: center;
+  }
+  .cell-event {
+    .severity-icon {
+      font-size: 200%;
+      margin-right: 0.1em;
+      margin-left: -0.15em;
+    }
+  }
+  // override text-align
+  // FIXME: maybe text-align should be css custom property to avoid selector override
+  .infinite-scroll-table .table-head th.time-taken-column-header {
+    text-align: center;
+  }
+}
