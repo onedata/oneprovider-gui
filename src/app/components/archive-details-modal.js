@@ -61,11 +61,6 @@ export default Component.extend(I18n, {
   onHide: notImplementedIgnore,
 
   /**
-   * @type {}
-   */
-  initialTab: undefined,
-
-  /**
    * @virtual optional
    * @type {ArchiveDetailsModalOptions}
    */
@@ -87,11 +82,12 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    const initialTab = this.initialTab;
-    const availableTabs = this.availableTabs;
-    this.changeTab(initialTab);
+    const initialTab = this.options?.initialTab;
+    if (initialTab) {
+      this.changeTab(this.options?.initialTab);
+    }
     if (!this.activeTab) {
-      this.changeTab(availableTabs[0]);
+      this.changeTab(this.availableTabs[0]);
     }
   },
 

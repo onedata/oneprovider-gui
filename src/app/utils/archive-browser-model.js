@@ -29,6 +29,7 @@ import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insuffi
 const allButtonNames = Object.freeze([
   'btnArchiveProperties',
   'btnEditDescription',
+  'btnShowAuditLog',
   'btnCreateArchive',
   'btnRefresh',
   'btnCopyId',
@@ -349,6 +350,24 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           return this.openArchiveDetailsModal(archives[0], {
             initialTab: 'properties',
             properties: { focusDescription: true },
+          });
+        },
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnShowAuditLog: computed(
+    function btnShowAuditLog() {
+      return this.createFileAction({
+        id: 'showAuditLog',
+        icon: 'view-list',
+        action: (archives) => {
+          return this.openArchiveDetailsModal(archives[0], {
+            initialTab: 'logs',
           });
         },
         showIn: [
