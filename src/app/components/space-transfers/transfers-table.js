@@ -1,11 +1,11 @@
 /**
  * Lists transfers using replacing chunks array.
- * 
+ *
  * For each transfer it provides set of available actions and allows to open
  * transfer details (charts, etc.).
- * 
+ *
  * To get infinite scroll support, see `space-transfers/transfers-table-container`
- * 
+ *
  * @module components/space-transfers/transfers-table
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -23,6 +23,7 @@ import { A } from '@ember/array';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import { sum } from 'ember-awesome-macros';
+import isDirectlyClicked from 'onedata-gui-common/utils/is-directly-clicked';
 
 const allColumnNames = [
   'path',
@@ -31,15 +32,16 @@ const allColumnNames = [
   'scheduledAt',
   'startedAt',
   'finishedAt',
-  'totalBytes',
-  'totalFiles',
+  'processed',
+  'replicated',
+  'evicted',
   'type',
   'status',
 ];
 
 const tableExcludedColumnNames = {
   file: ['path'],
-  waiting: ['startedAt', 'finishedAt', 'totalBytes', 'totalFiles'],
+  waiting: ['startedAt', 'finishedAt', 'processed', 'replicated', 'evicted'],
   ongoing: ['scheduledAt', 'finishedAt'],
   ended: ['scheduledAt'],
 };
@@ -255,7 +257,6 @@ export default Component.extend(I18n, {
             actionMessage: this.t('rerunSuccess'),
             actionMessageType: 'success',
           });
-          globalNotify.success(this.t('rerunSuccess'));
           return transfer.reload()
             .then(transfer => transfer.updateTransferProgressProxy());
         })
@@ -338,17 +339,23 @@ export default Component.extend(I18n, {
     });
   }),
 
-  totalBytesColumn: computed(function totalBytesColumn() {
-    return this.createColumn('totalBytes', {
-      propertyName: 'totalBytesReadable',
-      component: 'cell-errorable',
+  processedColumn: computed(function processedColumn() {
+    return this.createColumn('processed', {
+      component: 'cell-processed',
+      className: 'col-hide-1',
     });
   }),
 
-  totalFilesColumn: computed(function totalFilesColumn() {
-    return this.createColumn('totalFiles', {
-      component: 'cell-total-files',
-      className: 'col-hide-1',
+  replicatedColumn: computed(function replicatedColumn() {
+    return this.createColumn('replicated', {
+      component: 'cell-replicated',
+    });
+  }),
+
+  evictedColumn: computed(function evictedColumn() {
+    return this.createColumn('evicted', {
+      component: 'cell-evicted',
+      className: 'col-hide-6',
     });
   }),
 
@@ -430,7 +437,11 @@ export default Component.extend(I18n, {
   //#region Actions
 
   actions: {
-    toggleTransferDetails(transferId, open) {
+    toggleTransferDetails(transferId, open, event) {
+      if (!isDirectlyClicked(event)) {
+        return;
+      }
+
       const expandedTransferIds = this.get('expandedTransferIds');
       let _open;
       if (typeof open === 'boolean') {

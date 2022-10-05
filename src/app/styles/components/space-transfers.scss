@@ -22,7 +22,7 @@ $space-transfers-gray: #B6BAC0;
 
   .transfer-item-header .cell-data-name {
     margin-top: 8px;
-  } 
+  }
 
   // TODO: this seems to be generic for new style in content views
   h1, h2 {
@@ -325,7 +325,6 @@ $space-transfers-gray: #B6BAC0;
   display: block;
   position: relative;
   font-size: 2em;
-  top: -5px;
   &.completed {
     color: $color-one-success;
   }
@@ -350,18 +349,6 @@ $space-transfers-gray: #B6BAC0;
     @extend .pulse-red-transparent;
   }
 }
-.transfer-actions-cell {
-  position: relative;
-  width: 40px;
-  .cell-actions {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-  }
-}
-.cell-total-files {
-  display: inline-block;
-}
 .table-empty-message {
   padding-left: $space-transfers-table-padding;
 }
@@ -373,9 +360,10 @@ $space-transfers-gray: #B6BAC0;
   .action-message {
     $-left-border-style: 5px solid;
     position: absolute;
-    bottom: -15px;
+    bottom: -12px;
     right: 12px;
     padding: 2px $padding-base-horizontal;
+    padding-right: 0.5em;
     background-color: $color-one-semiwhite;
     white-space: nowrap;
     font-size: 80%;
@@ -389,7 +377,26 @@ $space-transfers-gray: #B6BAC0;
     &.warning {
       border-left: $-left-border-style $color-one-warning;
     }
+
+    .close-message {
+      vertical-align: middle;
+      transform: translateY(-0.1em);
+      display: inline-block;
+      margin-left: 0.5em;
+      font-size: 125%;
+
+      &:hover {
+        color: $color-one-danger;
+      }
+    }
   }
+}
+
+.transfer-actions-cell {
+  width: 40px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 // tooltip style - must be outside component class

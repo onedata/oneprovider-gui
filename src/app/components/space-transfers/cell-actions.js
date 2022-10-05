@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import EmberObject, { computed, get } from '@ember/object';
+import EmberObject, { computed, get, setProperties } from '@ember/object';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { tag } from 'ember-awesome-macros';
@@ -246,6 +246,12 @@ export default Component.extend(I18n, {
     toggleActions(open) {
       const _open = (typeof open === 'boolean') ? open : !this.get('actionsOpened');
       this.set('actionsOpened', _open);
+    },
+    closeMessage() {
+      setProperties(this.record, {
+        actionMessageType: undefined,
+        actionMessage: undefined,
+      });
     },
   },
 });
