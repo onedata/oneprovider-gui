@@ -40,6 +40,7 @@ const datasetArchivesAspect = 'archives_details';
  *   finish/fail events.
  * @property {ArchiveLogErrorReason} [reason] Error object - only for archivisation failed
  *   event.
+ * @property {FileType} fileType Type of file specified with `fileId`.
  */
 
 const auditLogAspect = 'audit_log';

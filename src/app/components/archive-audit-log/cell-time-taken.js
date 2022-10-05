@@ -3,12 +3,20 @@ import { computed } from '@ember/object';
 import moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
 import { htmlSafe } from '@ember/string';
+import { detailedReportFormatter } from 'onedata-gui-common/helpers/date-format';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { translateFileType } from 'onedata-gui-common/utils/file';
 
 momentDurationFormatSetup(moment);
 
-export default Component.extend({
+export default Component.extend(I18n, {
   tagName: 'td',
   classNames: ['cell-time-taken'],
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.archiveAuditLog.cellTimeTaken',
 
   /**
    * Milliseconds timestamp of file archivisation start.
@@ -26,9 +34,15 @@ export default Component.extend({
   endTimeMs: undefined,
 
   /**
+   * @virtual
+   * @type {FileType}
+   */
+  fileType: undefined,
+
+  /**
    * @type {ComputedProperty<SafeString>}
    */
-  timeTakenHtml: computed('startTime', 'endTime', function timeTakenHtml() {
+  timeTakenHtml: computed('startTimeMs', 'endTimeMs', function timeTakenHtml() {
     if (!this.startTimeMs || !this.endTimeMs) {
       return '–';
     }
@@ -51,5 +65,24 @@ export default Component.extend({
       trim: 'both final',
     });
     return htmlSafe(resultString);
+  }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  startTimeFormatted: computed('startTimeMs', function startTimeFormatted() {
+    return moment(this.startTimeMs).format(detailedReportFormatter);
+  }),
+
+  tooltipHtml: computed('startTimeFormatted', 'fileType', function tooltipHtml() {
+    const fileTypeText = translateFileType(
+      this.i18n,
+      this.fileType, {
+        upperFirst: true,
+      }
+    );
+    return htmlSafe(
+      `<strong>${this.t('startedAt', { fileTypeText })}</strong>:<br>${this.startTimeFormatted}`
+    );
   }),
 });

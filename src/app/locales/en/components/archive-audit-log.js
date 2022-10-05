@@ -4,4 +4,7 @@ export default {
     event: 'Event',
     timeTaken: 'Time taken',
   },
+  cellTimeTaken: {
+    startedAt: '{{fileTypeText}} archivisation started at',
+  },
 };
