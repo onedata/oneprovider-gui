@@ -12,5 +12,8 @@
     reason=logEntry.content.reason
     severity=logEntry.severity
   }}
-  {{archive-audit-log/cell-time-taken}}
+  {{archive-audit-log/cell-time-taken
+    startTimeMs=logEntry.content.startTimestamp
+    endTimeMs=logEntry.timestamp
+  }}
 {{/audit-log-browser}}

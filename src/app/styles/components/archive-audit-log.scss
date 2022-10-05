@@ -7,6 +7,9 @@
   }
   .cell-time-taken {
     text-align: center;
+    .unit {
+      margin-left: 0.15em;
+    }
   }
   .cell-event {
     .severity-icon {
