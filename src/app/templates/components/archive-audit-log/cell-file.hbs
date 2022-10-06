@@ -1,9 +1,10 @@
 <div class="flex-vertical-center">
+  {{one-file-icon class="entry-file-icon" fileType=fileType}}
   {{#if fileName}}
-    {{#truncated-string}}
+    {{#truncated-string class="entry-file-name"}}
       {{fileName}}
     {{/truncated-string}}
   {{else}}
-    –
+    <span class="entry-missing-file-name">–</span>
   {{/if}}
 </div>

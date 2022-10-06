@@ -30,7 +30,7 @@ export default Component.extend({
   reason: undefined,
 
   severityToIconMapping: Object.freeze({
-    info: 'browser-info',
+    info: 'checkbox-filled',
     error: 'checkbox-filled-x',
   }),
 

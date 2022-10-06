@@ -6,7 +6,9 @@
     width: 8em;
   }
   .cell-time-taken {
-    text-align: center;
+    .time-taken-container {
+      text-align: center;
+    }
     .unit {
       margin-left: 0.15em;
     }
@@ -16,6 +18,12 @@
       font-size: 200%;
       margin-right: 0.1em;
       margin-left: -0.15em;
+    }
+  }
+  .cell-file {
+    .entry-file-icon {
+      top: -0.05em;
+      margin-right: 0.15em;
     }
   }
   // override text-align

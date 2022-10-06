@@ -17,6 +17,12 @@ export default Component.extend({
    */
   absoluteFilePath: undefined,
 
+  /**
+   * @virtual
+   * @type {FileType}
+   */
+  fileType: undefined,
+
   fileName: computed('absoluteFilePath', function fileName() {
     return getFileNameFromPath(this.absoluteFilePath);
   }),
