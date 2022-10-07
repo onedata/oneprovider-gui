@@ -7,4 +7,7 @@ export default {
   cellTimeTaken: {
     startedAt: '{{fileTypeText}} archivisation started at',
   },
+  logEntryDetails: {
+    // FIXME: remove if empty
+  },
 };

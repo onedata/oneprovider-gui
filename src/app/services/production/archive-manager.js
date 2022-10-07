@@ -43,6 +43,14 @@ const datasetArchivesAspect = 'archives_details';
  * @property {FileType} fileType Type of file specified with `fileId`.
  */
 
+/**
+ * Info about pair of source and file created in archive for the source file.
+ * @typedef {Object} ArchiveFileInfo
+ * @property {string} archivedFile GRI of file created in archive.
+ * @property {string} sourceFile GRI of source file from space that was used to create
+ *   file in an archive.
+ */
+
 const auditLogAspect = 'audit_log';
 
 export default Service.extend({
@@ -330,6 +338,30 @@ export default Service.extend({
       listingParams,
       normalizeQosAuditLogEntryContent
     );
+  },
+
+  /**
+   * Resolves information about file under file path in archive.
+   * @param {string} archiveId
+   * @param {string} relativePath A path to file excluding space dir or archive dirs.
+   *   The path is without `/` previx, eg. if absolute path is
+   *   `/space_name/hello/world.txt` then relative path is `hello/world.txt`.
+   * @returns {ArchiveFileInfo}
+   */
+  async getFileInfo(archiveId, relativePath) {
+    const fileInfoGri = gri({
+      entityType: archiveEntityType,
+      entityId: archiveId,
+      aspect: 'file_info',
+    });
+    return this.onedataGraph.request({
+      gri: fileInfoGri,
+      operation: 'get',
+      data: {
+        relativePath,
+      },
+      subscribe: false,
+    });
   },
 
   /**

@@ -1,6 +1,9 @@
 {{#audit-log-browser
   onFetchLogEntries=fetchLogEntriesCallback
   customColumnHeaders=customColumnHeaders
+  logEntryDetailsComponentName="archive-audit-log/log-entry-details"
+  logEntryDetailsModel=logEntryDetailsModel
+  doesOpenDetailsOnClick=true
   isSeverityColumnVisible=false
   as |logEntry|
 }}

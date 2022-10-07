@@ -50,4 +50,11 @@ export default Component.extend(I18n, {
       content: this.t('customColumns.timeTaken'),
     }];
   }),
+
+  /**
+   * @type {ComputedProperty<ArchiveLogEntryDetailsModel>}
+   */
+  logEntryDetailsModel: computed('archiveId', function logEntryDetailsModel() {
+    return { archiveId: this.archiveId };
+  }),
 });

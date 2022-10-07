@@ -1,0 +1,43 @@
+{{#if logEntry}}
+  <div class="header">
+    <div class="timestamp">
+      {{audit-log-browser/timestamp
+        timestamp=logEntry.timestamp
+        isTimestampRoundedToSeconds=isTimestampRoundedToSeconds
+      }}
+    </div>
+  </div>
+  <div class="content">
+    {{#promise-proxy-container proxy=fileInfoProxy}}
+      <div class="row">
+        {{file-path file=fileInfo.sourceFile}}
+      </div>
+      <div class="row">
+        {{clipboard-line
+          value=fileInfo.sourceFile.cdmiObjectId
+          type="textarea"
+          textareaRows="3"
+          size="sm"
+          class="monospace-font compact"
+        }}
+      </div>
+      <div class="row">
+        {{file-path file=fileInfo.archivedFile}}
+      </div>
+      <div class="row">
+        {{clipboard-line
+          value=fileInfo.archivedFile.cdmiObjectId
+          type="textarea"
+          textareaRows="3"
+          size="sm"
+          class="monospace-font compact"
+        }}
+      </div>
+      {{!-- source file path z linkiem (file-path) --}}
+
+      {{!-- archived file path z linkiem (file-path) --}}
+      {{!-- id obu plików --}}
+    {{/promise-proxy-container}}
+  </div>
+  {{yield}}
+{{/if}}
