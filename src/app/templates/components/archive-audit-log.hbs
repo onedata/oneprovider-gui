@@ -7,18 +7,18 @@
   isSeverityColumnVisible=false
   as |logEntry|
 }}
-  {{archive-audit-log/cell-file
-    absoluteFilePath=logEntry.content.path
-    fileType=logEntry.content.fileType
-  }}
-  {{archive-audit-log/cell-event
-    description=logEntry.content.description
-    reason=logEntry.content.reason
-    severity=logEntry.severity
-  }}
-  {{archive-audit-log/cell-time-taken
-    startTimeMs=logEntry.content.startTimestamp
-    endTimeMs=logEntry.timestamp
-    fileType=logEntry.content.fileType
-  }}
+  {{#let (evaluate-function (action "createEntryModel") logEntry) as |entryModel|}}
+    {{archive-audit-log/cell-file
+      entryModel=entryModel
+    }}
+    {{archive-audit-log/cell-event
+      entryModel=entryModel
+      description=logEntry.content.description
+      reason=logEntry.content.reason
+      severity=logEntry.severity
+    }}
+    {{archive-audit-log/cell-time-taken
+      entryModel=entryModel
+    }}
+  {{/let}}
 {{/audit-log-browser}}

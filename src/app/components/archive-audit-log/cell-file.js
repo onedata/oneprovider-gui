@@ -1,5 +1,6 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import {
   getFileNameFromPath,
 } from 'onedata-gui-common/utils/file';
@@ -13,16 +14,23 @@ export default Component.extend({
 
   /**
    * @virtual
-   * @type {string}
+   * @type {Utils.ArchiveAuditLogEntryModel}
    */
-  absoluteFilePath: undefined,
+  entryModel: undefined,
 
   /**
-   * @virtual
-   * @type {FileType}
+   * @type {ComputedProperty<string>}
    */
-  fileType: undefined,
+  absoluteFilePath: reads('entryModel.absoluteFilePath'),
 
+  /**
+   * @type {ComputedProperty<FileType>}
+   */
+  fileType: reads('entryModel.fileType'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
   fileName: computed('absoluteFilePath', function fileName() {
     return getFileNameFromPath(this.absoluteFilePath);
   }),

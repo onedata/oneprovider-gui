@@ -1,9 +1,9 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import parseLogError from 'oneprovider-gui/utils/create-error-message-spec';
-import { raw, eq, conditional, or, getBy } from 'ember-awesome-macros';
-import _ from 'lodash';
+import { raw, or, getBy } from 'ember-awesome-macros';
 
 export default Component.extend({
   tagName: 'td',
@@ -51,22 +51,7 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<SafeString>}
    */
-  displayedMessage: conditional(
-    eq('severity', raw('error')),
-    computed('description', 'errorInfo', function displayedMessage() {
-      const errorInfoText =
-        _.upperFirst(this.errorInfo?.message);
-      let text = this.description;
-      if (errorInfoText) {
-        text += ` ${errorInfoText}`;
-      }
-      if (!text.endsWith('.')) {
-        text += '.';
-      }
-      return text;
-    }),
-    'description',
-  ),
+  displayedMessage: reads('entryModel.displayedMessage'),
 
   icon: or(
     getBy('severityToIconMapping', 'severity'),

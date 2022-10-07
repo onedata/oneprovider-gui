@@ -1,3 +1,5 @@
+import logEntryDetails from './archive-audit-log/log-entry-details';
+
 export default {
   customColumns: {
     file: 'File',
@@ -7,7 +9,5 @@ export default {
   cellTimeTaken: {
     startedAt: '{{fileTypeText}} archivisation started at',
   },
-  logEntryDetails: {
-    // FIXME: remove if empty
-  },
+  logEntryDetails,
 };

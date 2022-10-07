@@ -1,15 +1,147 @@
 {{#if logEntry}}
   <div class="header">
-    <div class="timestamp">
-      {{audit-log-browser/timestamp
-        timestamp=logEntry.timestamp
-        isTimestampRoundedToSeconds=isTimestampRoundedToSeconds
-      }}
+    <div class="primary-header">{{headerText}}</div>
+    <div class="secondary-header">
+      {{one-file-icon class="entry-details-file-icon" fileType=fileType}}
+      {{#truncated-string tagName="span" class="entry-details-file-name"}}
+        {{fileName}}
+      {{/truncated-string}}
     </div>
   </div>
   <div class="content">
     {{#promise-proxy-container proxy=fileInfoProxy}}
-      <div class="row">
+        <table
+          class="table table-info table-info-large table-info-collapsible table-entry-file-info"
+        >
+          <tbody>
+            <tr class="entry-info-row-event">
+              <td class="property-name">
+                {{tt this "labels.event"}}
+              </td>
+              <td class="property-value">
+                {{eventMessage}}
+              </td>
+            </tr>
+            <tr class="entry-info-row-relative-location">
+              <td class="property-name with-input-sm">
+                {{tt this "labels.relativeLocation"}}
+              </td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=relativePath
+                  size="sm"
+                  class="monospace-font compact"
+                }}
+              </td>
+            </tr>
+            <tr class="entry-info-row-start-time">
+              <td class="property-name">
+                {{tt this "labels.startTime"}}
+              </td>
+              <td class="property-value">
+                {{startTimeText}}
+              </td>
+            </tr>
+            <tr class="entry-info-row-end-time">
+              <td class="property-name">
+                {{tt this "labels.endTime"}}
+              </td>
+              <td class="property-value">
+                {{endTimeText}}
+              </td>
+            </tr>
+            <tr class="entry-info-row-event">
+              <td class="property-name">
+                {{tt this "labels.timeTaken"}}
+              </td>
+              <td class="property-value time-taken-text">
+                {{timeTakenHtml}}
+              </td>
+            </tr>
+            <tr class="entry-info-row-source-item">
+              <td class="property-name section-header" colspan="2">
+                {{tt this "labels.sourceItem"}}
+              </td>
+            </tr>
+            <tr class="entry-info-row-source-item-link">
+              <td class="property-name">
+                {{fileTypeText}}
+              </td>
+              <td class="property-value">
+                {{file-path file=fileInfo.sourceFile}}
+              </td>
+            </tr>
+            <tr class="entry-info-row-source-item-absolute-location">
+              <td class="property-name with-input-sm">
+                {{tt this "labels.absoluteLocation"}}
+              </td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=sourceFileAbsolutePath
+                  size="sm"
+                  class="monospace-font compact"
+                }}
+              </td>
+            </tr>
+            <tr class="entry-info-row-source-item-file-id">
+              <td class="property-name with-input-sm">
+                {{tt this "labels.fileId"}}
+              </td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=fileInfo.sourceFile.cdmiObjectId
+                  type="textarea"
+                  textareaRows="3"
+                  size="sm"
+                  class="monospace-font compact"
+                }}
+              </td>
+            </tr>
+
+            <tr class="entry-info-row-source-item section-header">
+              <td class="property-name section-header" colspan="2">
+                {{tt this "labels.archivedItem"}}
+              </td>
+            </tr>
+            <tr class="entry-info-row-archived-item-link">
+              <td class="property-name">
+                {{fileTypeText}}
+              </td>
+              <td class="property-value">
+                {{file-path file=fileInfo.archivedFile}}
+              </td>
+            </tr>
+            <tr class="entry-info-row-archived-item-absolute-location">
+              <td class="property-name with-input-sm">
+                {{tt this "labels.absoluteLocation"}}
+              </td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=archivedFileAbsolutePath
+                  size="sm"
+                  class="monospace-font compact"
+                }}
+              </td>
+            </tr>
+            <tr class="entry-info-row-archived-item-file-id">
+              <td class="property-name with-input-sm">
+                {{tt this "labels.fileId"}}
+              </td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=fileInfo.archivedFile.cdmiObjectId
+                  type="textarea"
+                  textareaRows="3"
+                  size="sm"
+                  class="monospace-font compact"
+                }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+
+      {{!-- <div class="row">
         {{file-path file=fileInfo.sourceFile}}
       </div>
       <div class="row">
@@ -32,7 +164,7 @@
           size="sm"
           class="monospace-font compact"
         }}
-      </div>
+      </div> --}}
       {{!-- source file path z linkiem (file-path) --}}
 
       {{!-- archived file path z linkiem (file-path) --}}

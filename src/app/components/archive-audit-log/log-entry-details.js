@@ -13,8 +13,12 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import layout from 'onedata-gui-common/templates/components/audit-log-browser/log-entry-details';
 import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
-import { getArchiveRelativeFilePath, getIsInArchivePath } from 'oneprovider-gui/utils/file-archive-info';
-import { directorySeparator } from 'onedata-gui-common/utils/file';
+import { translateFileType, directorySeparator } from 'onedata-gui-common/utils/file';
+import ArchiveAuditLogEntryModel from 'oneprovider-gui/utils/archive-audit-log-entry-model';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+
+// FIXME: details model may be not needed, because entryModel has archiveId
+// FIXME: on the other side - archiveId may be not needed in entryModel
 
 /**
  * @typedef {Object} ArchiveLogEntryDetailsModel
@@ -50,11 +54,6 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<string>}
    */
-  absolutePath: reads('logEntry.content.path'),
-
-  /**
-   * @type {ComputedProperty<string>}
-   */
   fileId: reads('logEntry.content.fileId'),
 
   /**
@@ -62,17 +61,40 @@ export default Component.extend(I18n, {
    */
   archiveId: reads('logEntryDetailsModel.archiveId'),
 
+  fileName: reads('entryModel.fileName'),
+
+  fileType: reads('entryModel.fileType'),
+
   /**
    * @type {ComputedProperty<string>}
    */
-  relativePath: computed('path', function relativePath() {
-    const absolutePath = this.absolutePath;
-    if (getIsInArchivePath(absolutePath)) {
-      return getArchiveRelativeFilePath(absolutePath);
-    } else {
-      const sep = directorySeparator;
-      return absolutePath.split(sep).slice(2).join(sep);
+  absoluteFilePath: reads('entryModel.absoluteFilePath'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  eventMessage: reads('entryModel.displayedMessage'),
+
+  /**
+   * @type {ComputedProperty<Utils.ArchiveAuditLogEntryModel>}
+   */
+  entryModel: computed('logEntry', 'archiveId', function entryModel() {
+    if (!this.logEntry || !this.archiveId) {
+      return null;
     }
+    return ArchiveAuditLogEntryModel.create({
+      logEntry: this.logEntry,
+      archiveId: this.archiveId,
+    });
+  }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  relativePath: computed('absoluteFilePath', function relativePath() {
+    const sep = directorySeparator;
+    // absolute path looks like `/<space_or_archive_dir>/<rest_of_path>`
+    return this.absoluteFilePath.split(sep).slice(2).join(sep);
   }),
 
   /**
@@ -117,4 +139,48 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<{ sourceFile: Models.File, archivedFile: Models.File }>}
    */
   fileInfo: reads('fileInfoProxy.content'),
+
+  sourceFileAbsolutePathProxy: promise.object(computed(
+    'fileInfoProxy',
+    async function sourceFileAbsolutePathProxy() {
+      const fileInfo = await this.fileInfoProxy;
+      const sourceFile = fileInfo?.sourceFile;
+      if (!sourceFile) {
+        return '';
+      }
+      return stringifyFilePath(await resolveFilePath(sourceFile));
+    }
+  )),
+
+  sourceFileAbsolutePath: reads('sourceFileAbsolutePathProxy.content'),
+
+  archivedFileAbsolutePathProxy: promise.object(computed(
+    'fileInfoProxy',
+    async function sourceFileAbsolutePathProxy() {
+      const fileInfo = await this.fileInfoProxy;
+      const archivedFile = fileInfo?.archivedFile;
+      if (!archivedFile) {
+        return '';
+      }
+      return stringifyFilePath(await resolveFilePath(archivedFile));
+    }
+  )),
+
+  archivedFileAbsolutePath: reads('archivedFileAbsolutePathProxy.content'),
+
+  fileTypeText: computed('fileType', function fileTypeText() {
+    return translateFileType(this.i18n, this.fileType, { upperFirst: true });
+  }),
+
+  headerText: computed('fileTypeText', function headerText() {
+    return this.t('archivisationEventHeader', {
+      fileTypeText: this.fileTypeText,
+    });
+  }),
+
+  startTimeText: reads('entryModel.startTimeText'),
+
+  endTimeText: reads('entryModel.endTimeText'),
+
+  timeTakenHtml: reads('entryModel.timeTakenHtml'),
 });

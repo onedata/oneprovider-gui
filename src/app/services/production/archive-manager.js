@@ -34,7 +34,12 @@ const datasetArchivesAspect = 'archives_details';
  *   For archivisation finish/fail it's a file from dataset.
  *   For verification fail it's a file created in archive.
  * @property {string|null} description A human-readable description of event.
- * @property {string} path Path to file specified with `fileId`.
+ * @property {string} path Absolute path to file specified with `fileId`.
+ *   All paths start with `/`.
+ *   - If event is archivisation finish/failure then it is path starting with space root
+ *     dir.
+ *   - If event is file verification failure then it is path starting with archive root
+ *     dir.
  * @property {number} [startTimestamp] Milliseconds timestamp when the archivisation
  *   process started of file for which the event is about. Only for archivisation
  *   finish/fail events.
@@ -343,8 +348,8 @@ export default Service.extend({
   /**
    * Resolves information about file under file path in archive.
    * @param {string} archiveId
-   * @param {string} relativePath A path to file excluding space dir or archive dirs.
-   *   The path is without `/` previx, eg. if absolute path is
+   * @param {string} relativePath A path to file excluding space dir or archive dir.
+   *   The path is without `/` prefix, eg. if absolute path is
    *   `/space_name/hello/world.txt` then relative path is `hello/world.txt`.
    * @returns {ArchiveFileInfo}
    */
