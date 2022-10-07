@@ -1,0 +1,7 @@
+{{#if record.transferProgressError}}
+  {{error-inline}}
+{{else}}
+  <span class="replicated-files">{{replicatedFilesStringified}}</span>
+  <br />
+  <small class="text-muted replicated-bytes">{{bytes-to-string replicatedBytes}}</small>
+{{/if}}

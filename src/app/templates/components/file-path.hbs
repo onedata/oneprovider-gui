@@ -18,30 +18,7 @@
       onLinkClicked=onLinkClicked
       onLinkKeydown=onLinkKeydown
     }}
-      {{#each displayedPathItems as |item|}}
-        {{#if item.separator}}
-          <div class={{concat-classes
-            "path-item path-separator"
-            item.className
-          }}>
-            {{item.separator}}
-          </div>
-        {{/if}}
-        {{#if item.icon}}
-          <div class={{concat-classes
-            "path-item path-icon-container"
-            item.className
-          }}>
-            {{one-icon icon=item.icon class="path-icon"}}
-          </div>
-        {{/if}}
-        <div class={{concat-classes
-          "path-item path-label"
-          item.className
-        }}>
-          {{item.record.name}}
-        </div>
-      {{/each}}
+      {{file-path-renderer pathItems=displayedPathItems}}
       {{yield}}
       {{#if renderTooltip}}
         {{one-tooltip

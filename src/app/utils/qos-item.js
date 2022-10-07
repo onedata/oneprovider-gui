@@ -18,7 +18,7 @@ export default EmberObject.extend({
   qos: undefined,
 
   /**
-   * File on which this QoS is set directly(to contrast modalFileId)
+   * File on which this QoS is set directly (to contrast modalFileId)
    * @virtual
    * @type {Models.File}
    */

@@ -40,7 +40,7 @@
 
       .chunks-visualizer {
         .chunks-scale-container {
-          top: -14px;
+          top: -20px;
         }
       }
 
@@ -55,6 +55,11 @@
       flex-grow: 1;
       width: 60%;
       min-width: 0;
+      height: 36px;
+
+      &.center-name-section {
+        padding-top: 8px;
+      }
 
       .distribution-row-name.path-container {
         opacity: 0.8;
@@ -72,6 +77,10 @@
           @include font-monospace();
           font-size: inherit;
           height: $font-size-base;
+        }
+
+        .clipboard-container {
+          flex-grow: 1;
         }
       }
 
@@ -130,25 +139,28 @@
     }
   }
 
-  @media (max-width: $screen-xs-max) {
-    flex-flow: row wrap;
-    .name-section {
-      order: 1;
-    }
-    .one-pill-button {
-      order: 2;
-    }
-    .first-line-breaker {
-      flex-basis: 100%;
-      order: 3;
-      margin-bottom: $padding-small-vertical;
-    }
-    .chunks-visualizer, .progress-bar-visualizer {
-      flex-grow: 1;
-      order: 4;
-      margin: 0;
-      .chunks-scale-container {
-        display: none;
+  .oneproviders-distribution-item-content {
+    @media (max-width: $screen-xs-max) {
+      flex-flow: row wrap;
+      .name-section {
+        order: 1;
+      }
+      .one-pill-button {
+        order: 2;
+      }
+      .first-line-breaker {
+        flex-basis: 100%;
+        order: 3;
+        margin-bottom: $padding-small-vertical;
+      }
+      .chunks-visualizer, .progress-bar-visualizer {
+        flex-grow: 1;
+        order: 4;
+        margin: 0;
+        margin-top: $padding-small-horizontal;
+        .chunks-scale-container, .progress-bar-scale-container {
+          display: none;
+        }
       }
     }
   }
@@ -365,14 +377,14 @@
   .chunks-scale-container, .progress-bar-scale-container {
     display: flex;
     position: absolute;
-    top: -$padding-small-vertical - 2px;
-    bottom: -$padding-small-vertical - 2px;
+    top: -$padding-small-vertical - 4px;
+    bottom: -$padding-small-vertical - 4px;
     left: -1px;
     right: -1px;
     justify-content: space-between;
     border: 1px solid $color-one-light-gray;
     border-width: 0 1px;
-    padding: 0 ($padding-xs-horizontal * 0.5) 6px ($padding-xs-horizontal * 0.5);
+    padding: 6px ($padding-xs-horizontal * 0.5) 6px ($padding-xs-horizontal * 0.5);
   }
 
   .chunks-scale {

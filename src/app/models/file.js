@@ -58,6 +58,13 @@ export function getFileGri(fileId, scope) {
   });
 }
 
+export const dirSizeStatsTimeSeriesNameGenerators = {
+  regFileAndLinkCount: 'reg_file_and_link_count',
+  dirCount: 'dir_count',
+  totalSize: 'total_size',
+  sizeOnStorage: 'storage_use_',
+};
+
 export const RuntimeProperties = Mixin.create({
   /**
    * Not empty when file is a symlink and points to an accessible file.

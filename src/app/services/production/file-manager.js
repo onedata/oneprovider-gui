@@ -13,10 +13,16 @@ import { get, set, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
-import { entityType as fileEntityType, getFileGri } from 'oneprovider-gui/models/file';
+import {
+  entityType as fileEntityType,
+  getFileGri,
+  dirSizeStatsTimeSeriesNameGenerators,
+} from 'oneprovider-gui/models/file';
+import { getSpaceIdFromFileId } from 'onedata-gui-common/utils/file-id-parsers';
 import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink-utils';
 import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
+import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
 
 /**
  * @typedef {Object} FileEntryTimeSeriesCollections
@@ -25,6 +31,14 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
  * @param {Array<string>} reg_file_and_link_count
  * @param {Array<string>} storage_use_<id>
  * @param {Array<string>} total_size
+ */
+
+/**
+ * @typedef {Object} DirCurrentSizeStats
+ * @property {number} regFileAndLinkCount
+ * @property {number} dirCount
+ * @property {number} logicalSize
+ * @property {number} physicalSize
  */
 
 /**
@@ -53,6 +67,7 @@ export default Service.extend({
   auditLogManager: service(),
   apiSamplesManager: service(),
   userManager: service(),
+  spaceManager: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -497,11 +512,12 @@ export default Service.extend({
 
   /**
    * @param {string} fileId
+   * @param {{reload: boolean}} [options]
    * @returns {Promise<TimeSeriesCollectionLayout>}
    */
-  async getDirSizeStatsTimeSeriesCollectionLayout(fileId) {
+  async getDirSizeStatsTimeSeriesCollectionLayout(fileId, { reload = false } = {}) {
     const requestGri = dirSizeStatsGri(fileId);
-    return this.timeSeriesManager.getTimeSeriesCollectionLayout(requestGri);
+    return this.timeSeriesManager.getTimeSeriesCollectionLayout(requestGri, { reload });
   },
 
   /**
@@ -512,6 +528,92 @@ export default Service.extend({
   async getDirSizeStatsTimeSeriesCollectionSlice(fileId, queryParams) {
     const requestGri = dirSizeStatsGri(fileId);
     return this.timeSeriesManager.getTimeSeriesCollectionSlice(requestGri, queryParams);
+  },
+
+  /**
+   * @param {string} fileId
+   * @returns {DirCurrentSizeStats|null}
+   */
+  async getDirCurrentSizeStats(fileId) {
+    const spaceId = getSpaceIdFromFileId(fileId);
+    if (
+      (await this.spaceManager.getDirStatsServiceState(spaceId))?.status !== 'enabled'
+    ) {
+      return null;
+    }
+
+    const [collectionSchema, collectionLayout] = await allFulfilled([
+      this.getDirSizeStatsTimeSeriesCollectionSchema(),
+      this.getDirSizeStatsTimeSeriesCollectionLayout(fileId),
+    ]);
+
+    const neededTimeSeriesNameGenerators = [
+      dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount,
+      dirSizeStatsTimeSeriesNameGenerators.dirCount,
+      dirSizeStatsTimeSeriesNameGenerators.totalSize,
+      dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage,
+    ];
+
+    const neededMetrics = neededTimeSeriesNameGenerators
+      .reduce((acc, tsNameGenerator) => {
+        const timeSeriesSchema = collectionSchema
+          ?.timeSeriesSchemas
+          ?.findBy('nameGenerator', tsNameGenerator);
+        acc[tsNameGenerator] =
+          getTimeSeriesMetricNamesWithAggregator(timeSeriesSchema, 'last')[0];
+        return acc;
+      }, {});
+
+    const staticTimeSeries = neededTimeSeriesNameGenerators.slice(0, 3);
+    const perStorageTimeSeries = Object.keys(collectionLayout).filter((tsName) =>
+      tsName.startsWith(dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage)
+    );
+
+    const layout = {};
+    staticTimeSeries.forEach((tsName) => layout[tsName] = [neededMetrics[tsName]]);
+    perStorageTimeSeries.forEach((tsName) =>
+      layout[tsName] = [
+        neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage],
+      ]
+    );
+
+    const queryParams = {
+      layout,
+      windowLimit: 1,
+    };
+
+    const result = await this.getDirSizeStatsTimeSeriesCollectionSlice(
+      fileId,
+      queryParams,
+    );
+
+    const staticStatsValues = staticTimeSeries.reduce((acc, tsName) => {
+      acc[tsName] = result
+        ?.[tsName]
+        ?.[neededMetrics[tsName]]
+        ?.[0]?.value ?? 0;
+      return acc;
+    }, {});
+    const perStorageTotalSize = perStorageTimeSeries
+      .map((tsName) =>
+        result
+        ?.[tsName]
+        ?.[neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage]]
+        ?.[0]?.value ?? 0
+      )
+      .filter(Number.isFinite)
+      .reduce((acc, size) => acc + size, 0);
+
+    const latestStatsValues = {
+      regFileAndLinkCount: staticStatsValues[
+        dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount
+      ],
+      dirCount: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.dirCount],
+      logicalSize: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.totalSize],
+      physicalSize: perStorageTotalSize,
+    };
+
+    return latestStatsValues;
   },
 
   /**

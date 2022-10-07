@@ -43,11 +43,11 @@
 .modal:first-child ~ .modal:not(.modal-content-overlay) ~ div .modal-backdrop {
   &.in, &.fade {
     background-color: $main-tabbed-content-background;
-    z-index: $zindex-modal + 5;
+    z-index: $zindex-modal-secondary-backdrop;
   }
 }
 .modal ~ .modal {
-  z-index: $zindex-modal + 10;
+  z-index: $zindex-modal-secondary;
 }
 
 @media (max-width: $screen-xs-max) {

@@ -182,7 +182,7 @@ export default OneEmbeddedComponent.extend(
           spaceManager,
           spaceEntityId,
         } = this.getProperties('spaceManager', 'spaceEntityId');
-        return spaceManager.fetchDirStatsServiceState(spaceEntityId);
+        return spaceManager.getDirStatsServiceState(spaceEntityId);
       }
     )),
 

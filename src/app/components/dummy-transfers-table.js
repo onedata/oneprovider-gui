@@ -79,6 +79,7 @@ export default Component.extend({
     replicatedBytes: 100000,
     replicatedFiles: 12,
     evictedFiles: 10,
+    processedFiles: 30,
   })),
 
   index1: computed(function index1() {
