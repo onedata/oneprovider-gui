@@ -19,7 +19,11 @@ import ExecutionDataFetcher from 'onedata-gui-common/utils/workflow-visualiser/e
 import { get, getProperties } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
-import { laneEndedStatuses, taskEndedStatuses } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
+import {
+  laneSuspendedStatuses,
+  laneEndedStatuses,
+  taskEndedStatuses,
+} from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { hash as hashFulfilled } from 'rsvp';
 import _ from 'lodash';
@@ -30,6 +34,11 @@ import { serializedFileTypes } from 'onedata-gui-websocket-client/transforms/fil
 
 const notFoundError = { id: 'notFound' };
 const unavailableTaskInstanceIdPrefix = '__unavailableTaskInstanceId';
+const laneStatusesCausingUnscheduled = [
+  ...laneSuspendedStatuses,
+  ...laneEndedStatuses,
+  'unscheduled',
+];
 
 export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   workflowManager: service(),
@@ -529,16 +538,18 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         const isPreparedInAdvanceRun = run.runNumber === null;
         // status of the previous lane in the same run
         const prevLaneRunStatus = (isPreparedInAdvanceRun ?
-          prevLaneLatestRunStatus : prevLaneStatusesPerRun[run.no]) || 'pending';
+          prevLaneLatestRunStatus : prevLaneStatusesPerRun[run.runNumber]) || 'pending';
         // status, that should be used as a fallback value when status of this run
         // is not defined
-        const fallbackLaneRunStatus = laneEndedStatuses.includes(prevLaneRunStatus) ?
-          'skipped' : 'pending';
+        const fallbackLaneRunStatus =
+          laneStatusesCausingUnscheduled.includes(prevLaneRunStatus) ?
+          'unscheduled' : 'pending';
         run.status = run.status || fallbackLaneRunStatus;
         // status, that should be used as a fallback value when status of inner-lane
         // elements (parallel boxes and tasks) is not defined
         const laneElementsFallbackRunStatus =
-          laneEndedStatuses.includes(run.status) ? 'skipped' : 'pending';
+          laneStatusesCausingUnscheduled.includes(run.status) ?
+          'unscheduled' : 'pending';
         const parallelBoxes = run.parallelBoxes || [];
         // normalize each parallel box (and so tasks inside it) in this run
         run.parallelBoxes = parallelBoxesSchemas.map((parallelBoxSchema) =>

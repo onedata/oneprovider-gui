@@ -1511,7 +1511,7 @@ export default Service.extend({
                     storeIdFromSpec : prevRunExceptionStoreId,
                   exceptionStoreId,
                   isRetriable: status === 'failed',
-                  isRerunable: true,
+                  isRerunable: false,
                   status,
                   parallelBoxes: [],
                 };
