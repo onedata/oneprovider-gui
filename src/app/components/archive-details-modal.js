@@ -14,7 +14,7 @@ import { computed } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 
 /**
- * @typedef {'properties'} ArchiveDetailsModalTabId
+ * @typedef {'properties'|'logs'} ArchiveDetailsModalTabId
  */
 
 /**
@@ -92,7 +92,7 @@ export default Component.extend(I18n, {
   },
 
   onShown() {
-    if (this.options?.properties?.focusDescription) {
+    if (this.options?.properties?.editDescription) {
       const modalId = this.get('modalId');
       /** @type {HTMLElement} */
       const descriptionInput =

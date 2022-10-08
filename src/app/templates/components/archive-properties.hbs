@@ -4,16 +4,16 @@
   isSubmitting=isSubmitting
 }}
 {{yield}}
-{{#if isModified}}
+{{#if areSubmitButtonsVisible}}
   <div class="submit-buttons-container">
-    {{#bs-button
+    {{#one-button
       class="close-btn"
       type="default"
       disabled=(or (not isModified) isSubmitting disabled)
       onClick=(action "discard")
     }}
       {{tt this "discard"}}
-    {{/bs-button}}
+    {{/one-button}}
     {{#one-button
       type="primary"
       buttonType="submit"

@@ -16,6 +16,10 @@ import ArchiveFormEditModel from 'oneprovider-gui/utils/archive-form/edit-model'
 import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model';
 import { and, or } from 'ember-awesome-macros';
 
+/**
+ * @typedef {ArchiveFormOptions} ArchivePropertiesTabOptions
+ */
+
 export default Component.extend(I18n, {
   classNames: ['archive-properties'],
   i18n: service(),
@@ -48,7 +52,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {ArchiveFormOptions}
+   * @type {ArchivePropertiesTabOptions}
    */
   options: undefined,
 
@@ -87,7 +91,9 @@ export default Component.extend(I18n, {
 
   isEditable: reads('hasEditPrivileges'),
 
-  isModified: or('options.focusDescription', 'formModel.isModified'),
+  areSubmitButtonsVisible: or('options.editDescription', 'isModified'),
+
+  isModified: reads('formModel.isModified'),
 
   /**
    * @type {ComputedProperty<Utils.ArchiveFrom.ViewModel|Utils.ArchiveFrom.EditModel>}
@@ -100,12 +106,11 @@ export default Component.extend(I18n, {
       'browsableArchive',
       'isEditable',
     );
-    const focusDescription = Boolean(this.get('options.focusDescription'));
     let ModelClass = isEditable ? ArchiveFormEditModel : ArchiveFormViewModel;
     const modelOptions = {
       ownerSource: this,
       archive: browsableArchive,
-      checkUnmodifiedDescription: !focusDescription,
+      checkUnmodifiedDescription: true,
     };
     if (isEditable) {
       modelOptions.onChange = this.formDataUpdate.bind(this);
@@ -120,7 +125,7 @@ export default Component.extend(I18n, {
    * @override
    */
   didInsertElement() {
-    if (this.options?.focusDescription) {
+    if (this.options?.editDescription) {
       /** @type {HTMLTextAreaElement} */
       const descriptionInput =
         this.element.querySelector('.description-field .form-control');

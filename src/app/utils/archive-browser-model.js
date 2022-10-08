@@ -349,7 +349,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         action: (archives) => {
           return this.openArchiveDetailsModal(archives[0], {
             initialTab: 'properties',
-            properties: { focusDescription: true },
+            properties: { editDescription: true },
           });
         },
         showIn: [
