@@ -5,7 +5,7 @@
   size="xl"
   backdropClose=true
   keyboard=true
-  onHide=(action "hide")
+  onHide=(action "close")
   onShown=(action "onShown")
   as |modal|
 }}
@@ -51,12 +51,7 @@
 
   {{#modal.body class="archive-details-modal-body"}}
     {{#if (eq activeTab "properties")}}
-      {{archive-properties
-        space=space
-        browsableArchive=browsableArchive
-        options=options.properties
-        modal=modal
-      }}
+      {{archive-properties viewModel=archivePropertiesViewModel}}
     {{else if (eq activeTab "logs")}}
       {{archive-audit-log class="fill-flex-using-column" archive=browsableArchive}}
     {{/if}}

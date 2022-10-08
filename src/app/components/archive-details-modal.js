@@ -10,8 +10,9 @@ import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { computed } from '@ember/object';
+import { computed, observer } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
+import ArchivePropertiesViewModel from 'oneprovider-gui/utils/archive-properties-view-model';
 
 /**
  * @typedef {'properties'|'logs'} ArchiveDetailsModalTabId
@@ -80,6 +81,29 @@ export default Component.extend(I18n, {
     return `archive-details-modal-${guidFor(this)}`;
   }),
 
+  /**
+   * @type {ComputedProperty<Utils.ArchivePropertiesViewModel>}
+   */
+  archivePropertiesViewModel: computed(
+    function archivePropertiesViewModel() {
+      return ArchivePropertiesViewModel.create({
+        ownerSource: this,
+        browsableArchive: this.browsableArchive,
+        space: this.space,
+        options: this.options?.properties,
+      });
+    }
+  ),
+
+  archivePropertiesViewModelReloader: observer(
+    'browsableArchive',
+    'space',
+    'options.properties',
+    function archivePropertiesViewModelReloader() {
+      this.createArchivePropertiesViewModel();
+    }
+  ),
+
   init() {
     this._super(...arguments);
     const initialTab = this.options?.initialTab;
@@ -91,7 +115,30 @@ export default Component.extend(I18n, {
     }
   },
 
+  /**
+   * @override
+   */
+  willDestroyElement() {
+    try {
+      this.archivePropertiesViewModel?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  createArchivePropertiesViewModel() {
+    this.archivePropertiesViewModel?.destroy();
+    const archivePropertiesViewModel = ArchivePropertiesViewModel.create({
+      ownerSource: this,
+      browsableArchive: this.browsableArchive,
+      space: this.space,
+      options: this.options?.properties,
+    });
+    this.set('archivePropertiesViewModel', archivePropertiesViewModel);
+  },
+
   onShown() {
+    // FIXME: should not be here, but focus on open does not work without this, use viewModel
     if (this.options?.properties?.editDescription) {
       const modalId = this.get('modalId');
       /** @type {HTMLElement} */
@@ -105,28 +152,55 @@ export default Component.extend(I18n, {
   },
 
   /**
-   * @param {ArchiveDetailsModalTabId} tabId
-   * @returns {void}
+   * True if current tab can be closed (if want to be changed or modal complete close).
+   * @returns {Promise<boolean>}
    */
-  changeTab(tabId) {
-    if (this.availableTabs.includes(tabId)) {
-      this.set('activeTab', tabId);
+  async checkTabClose() {
+    if (this.activeTab === 'properties') {
+      return this.archivePropertiesViewModel.checkClose();
+    } else {
+      return true;
     }
   },
 
+  /**
+   * @param {ArchiveDetailsModalTabId} tabId
+   */
+  async changeTab(tabId) {
+    if (this.activeTab === tabId) {
+      return;
+    }
+    if (this.availableTabs.includes(tabId)) {
+      if (await this.checkTabClose()) {
+        this.set('activeTab', tabId);
+      }
+    }
+    if (this.activeTab === 'properties') {
+      this.createArchivePropertiesViewModel();
+    }
+  },
+
+  close() {
+    (async () => {
+      if (await this.checkTabClose()) {
+        this.onHide?.();
+      }
+    })();
+    return false;
+  },
+
   actions: {
-    hide() {
-      this.get('onHide')();
+    close() {
+      return this.close();
     },
     onShown() {
       this.onShown();
     },
     /**
-     *
      * @param {ArchiveDetailsModalTabId} tabId
      */
-    changeTab(tabId) {
-      this.changeTab(tabId);
+    async changeTab(tabId) {
+      return this.changeTab(tabId);
     },
   },
 });

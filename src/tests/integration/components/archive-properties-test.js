@@ -8,6 +8,7 @@ import {
   createDataset,
 } from '../../helpers/datasets-archives';
 import { run } from '@ember/runloop';
+import ArchivePropertiesViewModel from 'oneprovider-gui/utils/archive-properties-view-model';
 
 describe('Integration | Component | archive properties', function () {
   setupRenderingTest();
@@ -67,25 +68,34 @@ describe('Integration | Component | archive properties', function () {
   });
 });
 
+/**
+ * @param {Mocha.Context} testCase
+ */
 async function renderComponent(testCase) {
   if (!testCase.get('spacePrivileges')) {
     testCase.set('spacePrivileges', {
       viewArchives: true,
     });
   }
+  const space = {
+    privileges: testCase.get('spacePrivileges'),
+  };
+  const viewModel = ArchivePropertiesViewModel.create({
+    ownerSource: testCase.owner,
+    space,
+    browsableArchive: testCase.get('browsableArchive'),
+  });
+  testCase.set('viewModel', viewModel);
   await render(hbs `
     {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
-      {{archive-properties
-        browsableArchive=browsableArchive
-        modal=modal
-        spacePrivileges=spacePrivileges
-        onClose=onClose
-        onSubmit=onSubmit
-      }}
+      {{archive-properties viewModel=viewModel}}
     {{/one-pseudo-modal}}
   `);
 }
 
+/**
+ * @param {Mocha.Context} testCase
+ */
 function whenInEditMode(testCase) {
   testCase.set('spacePrivileges', {
     manageDatasets: true,
