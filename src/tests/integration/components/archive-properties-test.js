@@ -4,7 +4,6 @@ import { setupRenderingTest } from 'ember-mocha';
 import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import {
-  getBrowsableArchiveName,
   createArchive,
   createDataset,
 } from '../../helpers/datasets-archives';
