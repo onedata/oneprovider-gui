@@ -1,8 +1,6 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import parseLogError from 'oneprovider-gui/utils/create-error-message-spec';
 import { raw, or, getBy } from 'ember-awesome-macros';
 
 export default Component.extend({
@@ -13,21 +11,9 @@ export default Component.extend({
 
   /**
    * @virtual
-   * @type {AuditLogEntrySeverity}
+   * @type {Utils.ArchiveAuditLogEntryModel}
    */
-  severity: undefined,
-
-  /**
-   * @virtual
-   * @type {string}
-   */
-  description: undefined,
-
-  /**
-   * @virtual
-   * @type {Object}
-   */
-  reason: undefined,
+  entryModel: undefined,
 
   severityToIconMapping: Object.freeze({
     info: 'checkbox-filled',
@@ -35,23 +21,14 @@ export default Component.extend({
   }),
 
   /**
-   * @type {ComputedProperty<ErrorMessageSpec|null>}
-   */
-  errorInfo: computed('reason', function errorInfo() {
-    const {
-      reason,
-      errorExtractor,
-    } = this.getProperties('reason', 'errorExtractor');
-    if (!reason || typeof reason === 'string') {
-      return null;
-    }
-    return parseLogError(reason, errorExtractor);
-  }),
-
-  /**
    * @type {ComputedProperty<SafeString>}
    */
   displayedMessage: reads('entryModel.displayedMessage'),
+
+  /**
+   * @type {ComputedProperty<AuditLogEntrySeverity>}
+   */
+  severity: reads('entryModel.severity'),
 
   icon: or(
     getBy('severityToIconMapping', 'severity'),

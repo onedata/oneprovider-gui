@@ -8,10 +8,19 @@ import { detailedReportFormatter } from 'onedata-gui-common/helpers/date-format'
 import moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
 import { htmlSafe } from '@ember/string';
+import parseLogError from 'oneprovider-gui/utils/create-error-message-spec';
+import { inject as service } from '@ember/service';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 
 momentDurationFormatSetup(moment);
 
-export default EmberObject.extend({
+const mixins = [
+  OwnerInjector,
+];
+
+export default EmberObject.extend(...mixins, {
+  errorExtractor: service(),
+
   /**
    * Archivisation log entry.
    * @virtual
@@ -43,6 +52,10 @@ export default EmberObject.extend({
 
   description: reads('logEntry.content.description'),
 
+  reason: reads('logEntry.content.reason'),
+
+  severity: reads('logEntry.severity'),
+
   fileName: computed('absoluteFilePath', function fileName() {
     return getFileNameFromPath(this.absoluteFilePath);
   }),
@@ -66,6 +79,20 @@ export default EmberObject.extend({
     }),
     'description',
   ),
+
+  /**
+   * @type {ComputedProperty<ErrorMessageSpec|null>}
+   */
+  errorInfo: computed('reason', function errorInfo() {
+    const {
+      reason,
+      errorExtractor,
+    } = this.getProperties('reason', 'errorExtractor');
+    if (!reason || typeof reason === 'string') {
+      return null;
+    }
+    return parseLogError(reason, errorExtractor);
+  }),
 
   /**
    * @type {ComputedProperty<SafeString>}

@@ -65,6 +65,7 @@ export default Component.extend(I18n, {
    */
   createEntryModel(logEntry) {
     return ArchiveAuditLogEntryModel.create({
+      ownerSource: this,
       logEntry,
       archiveId: this.archiveId,
     });

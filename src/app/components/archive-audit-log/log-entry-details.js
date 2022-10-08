@@ -83,6 +83,7 @@ export default Component.extend(I18n, {
       return null;
     }
     return ArchiveAuditLogEntryModel.create({
+      ownerSource: this,
       logEntry: this.logEntry,
       archiveId: this.archiveId,
     });
