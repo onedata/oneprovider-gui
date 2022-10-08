@@ -1,5 +1,11 @@
 .archive-details-modal {
+  .archive-details-modal-header {
+    padding-bottom: 0;
+  }
   .archive-details-modal-body {
+    .bs-modal-body-scroll {
+      padding-top: $modal-inner-padding;
+    }
     .archive-audit-log {
       height: 100%;
     }
