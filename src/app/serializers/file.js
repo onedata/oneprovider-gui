@@ -71,13 +71,13 @@ export default Serializer.extend({
           scope: 'shared',
         }),
       ],
-      providerId: (attribute, scope) => [
+      providerId: (attribute) => [
         'provider',
         attribute && gri({
           entityType: providerEntityType,
           entityId: attribute,
           aspect: 'instance',
-          scope,
+          scope: 'protected',
         }),
       ],
       archiveId: (attribute, scope) => [

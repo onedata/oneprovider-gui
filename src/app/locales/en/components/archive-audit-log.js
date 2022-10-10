@@ -6,6 +6,11 @@ export default {
     event: 'Event',
     timeTaken: 'Time taken',
   },
+  noLogs: {
+    notOnCurrentProvider: 'No log entries available on current provider.',
+    visitPrefix: 'Visit',
+    visitSuffix: 'provider to see logs.',
+  },
   cellTimeTaken: {
     startedAt: '{{fileTypeText}} archivisation started at',
   },
