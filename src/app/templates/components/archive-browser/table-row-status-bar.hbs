@@ -1,3 +1,22 @@
+{{#if showFailedTag}}
+  <div
+    class={{concat-classes
+      "file-status-tag archive-failed-tag"
+      "file-status-tag-danger"
+      (if disabled "file-status-tag-disabled")
+    }}
+    {{action
+      (if disabled
+        (no-action)
+        (action invokeFileAction archive "showAuditLog")
+      )
+      bubbles=(bool disabled)
+    }}
+  >
+    {{tt this "status.failed"}}
+    {{one-tooltip title=(tt this "failedTip")}}
+  </div>
+{{/if}}
 {{#if showBagitTag}}
   <div class={{concat-classes
     "file-status-tag archive-bagit-tag"
