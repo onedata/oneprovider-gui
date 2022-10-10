@@ -122,6 +122,14 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   relatedAip: belongsTo('archive'),
 
+  /**
+   * Provider that created and stores the archive. You can ia. get audit log of
+   * archivisation using this provider.
+   * @type {ComputedProperty<Models.Provider>}
+   */
+  // FIXME: change to "provider" after API change
+  providerId: belongsTo('provider'),
+
   dataset: belongsTo('dataset'),
   rootDir: belongsTo('file'),
 

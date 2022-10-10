@@ -6,14 +6,14 @@ import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ArchiveAuditLogEntryModel from 'oneprovider-gui/utils/archive-audit-log-entry-model';
-import { promise } from 'ember-awesome-macros';
-import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
+import { promise, conditional, raw } from 'ember-awesome-macros';
 import { htmlSafe } from '@ember/string';
 import _ from 'lodash';
 
 export default Component.extend(I18n, {
   archiveManager: service(),
   appProxy: service(),
+  providerManager: service(),
 
   classNames: ['archive-audit-log'],
 
@@ -28,15 +28,16 @@ export default Component.extend(I18n, {
    */
   archive: undefined,
 
-  /**
-   * A flag set to true when fetching archive logs ends with not found error - it
-   * typically occurs when the archive was not created on current provider and logs are
-   * availalbe only on creating provider.
-   * @type {boolean}
-   */
-  hasNotFoundErrorOccured: false,
-
   archiveId: reads('archive.entityId'),
+
+  /**
+   * @type {InfiniteScrollTableUpdateStrategy}
+   */
+  updateStrategy: conditional(
+    'areLogsOnCurrentProvider',
+    raw('onTop'),
+    raw('never')
+  ),
 
   /**
    * @type {ComputedProperty<(listingParams: AuditLogListingParams) => Promise<AuditLogEntriesPage<ArchiveAuditLogEntryContent>>>}
@@ -44,32 +45,31 @@ export default Component.extend(I18n, {
   fetchLogEntriesCallback: computed(
     'archiveId',
     function fetchLogEntriesCallback() {
-      return async (listingParams) => {
-        try {
-          const result = await this.archiveManager.getAuditLog(
-            this.archiveId,
-            listingParams
-          );
-          if (this.hasNotFoundErrorOccured) {
-            this.set('hasNotFoundErrorOccured');
-          }
-          return result;
-        } catch (error) {
-          if (error) {
-            if (isNotFoundError(error)) {
-              this.set('hasNotFoundErrorOccured', true);
-            }
-          }
-          throw error;
-        }
-      };
+      return async (listingParams) => this.archiveManager.getAuditLog(
+        this.archiveId,
+        listingParams
+      );
+    }
+  ),
+
+  areLogsOnCurrentProvider: computed(
+    // FIXME: change to "provider" after API change
+    'archive.providerId',
+    function areLogsOnCurrentProvider() {
+      const currentProviderId = this.providerManager.getCurrentProviderId();
+      // FIXME: change to "provider" after API change
+      const archiveProviderId = this.archive.relationEntityId('providerId');
+      if (!currentProviderId || !archiveProviderId) {
+        return false;
+      }
+      return currentProviderId === archiveProviderId;
     }
   ),
 
   noLogEntriesTextProxy: promise.object(computed(
-    'hasNotFoundErrorOccured',
+    'areLogsOnCurrentProvider',
     async function noLogEntriesTextProxy() {
-      if (this.hasNotFoundErrorOccured) {
+      if (!this.areLogsOnCurrentProvider) {
         const provider = await this.getArchiveProvider();
         const providerId = _.escape(get(provider, 'entityId'));
         const providerName = _.escape(get(provider, 'name'));
@@ -127,10 +127,9 @@ export default Component.extend(I18n, {
     });
   },
 
-  // FIXME: new API will conatain provider in archive record
   async getArchiveProvider() {
-    const rootDir = await get(this.archive, 'rootDir');
-    return get(rootDir, 'provider');
+    // FIXME: change to "provider" after API change
+    return await get(this.archive, 'providerId');
   },
 
   actions: {
