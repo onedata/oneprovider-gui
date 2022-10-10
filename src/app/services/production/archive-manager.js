@@ -51,8 +51,8 @@ const datasetArchivesAspect = 'archives_details';
 /**
  * Info about pair of source and file created in archive for the source file.
  * @typedef {Object} ArchiveFileInfo
- * @property {string} archivedFile GRI of file created in archive.
- * @property {string} sourceFile GRI of source file from space that was used to create
+ * @property {string} archivedFileId GUID of file created in archive.
+ * @property {string} sourceFileId GUID of source file from space that was used to create
  *   file in an archive.
  */
 

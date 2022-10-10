@@ -31,7 +31,7 @@ export default Component.extend(I18n, {
 
   i18n: service(),
   archiveManager: service(),
-  store: service(),
+  fileManager: service(),
 
   /**
    * @override
@@ -116,7 +116,7 @@ export default Component.extend(I18n, {
   rawFileInfo: reads('rawFileInfoProxy.content'),
 
   /**
-   * @type {ComputedProperty<PromiseObject{ sourceFile: Models.File, archivedFile: Models.File }>>}
+   * @type {ComputedProperty<PromiseObject{ sourceFileId: Models.File, archivedFileId: Models.File }>>}
    */
   fileInfoProxy: promise.object(computed(
     'rawFileInfo',
@@ -125,8 +125,12 @@ export default Component.extend(I18n, {
       if (!rawFileInfo) {
         return null;
       }
-      const sourceFilePromise = this.store.findRecord('file', rawFileInfo.sourceFile);
-      const archivedFilePromise = this.store.findRecord('file', rawFileInfo.archivedFile);
+      const sourceFilePromise = this.fileManager.getFileById(
+        rawFileInfo.sourceFileId
+      );
+      const archivedFilePromise = this.fileManager.getFileById(
+        rawFileInfo.archivedFileId
+      );
       const sourceFile = await sourceFilePromise;
       const archivedFile = await archivedFilePromise;
       return {
