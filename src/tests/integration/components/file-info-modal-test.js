@@ -306,19 +306,6 @@ describe('Integration | Component | file info modal', function () {
     expect(find('.nav-tabs').textContent).to.not.contain('API');
   });
 
-  it('does not show api sample tab when previewMode is false', async function () {
-    await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
-      type: 'file',
-    });
-    this.set('previewMode', false);
-
-    await renderComponent();
-
-    expect(find('.nav-tabs').textContent).to.not.contain('API');
-  });
-
   it('shows hardlinks list', async function () {
     await givenDefaultStubs(this);
     this.set('file', {
