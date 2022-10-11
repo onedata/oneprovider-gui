@@ -53,12 +53,10 @@ export default Component.extend(I18n, {
   ),
 
   areLogsOnCurrentProvider: computed(
-    // FIXME: change to "provider" after API change
-    'archive.providerId',
+    'archive.provider',
     function areLogsOnCurrentProvider() {
       const currentProviderId = this.providerManager.getCurrentProviderId();
-      // FIXME: change to "provider" after API change
-      const archiveProviderId = this.archive.relationEntityId('providerId');
+      const archiveProviderId = this.archive.relationEntityId('provider');
       if (!currentProviderId || !archiveProviderId) {
         return false;
       }
@@ -128,8 +126,7 @@ export default Component.extend(I18n, {
   },
 
   async getArchiveProvider() {
-    // FIXME: change to "provider" after API change
-    return await get(this.archive, 'providerId');
+    return await get(this.archive, 'provider');
   },
 
   actions: {

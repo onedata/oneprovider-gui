@@ -127,8 +127,7 @@ export default Model.extend(GraphSingleModelMixin, {
    * archivisation using this provider.
    * @type {ComputedProperty<Models.Provider>}
    */
-  // FIXME: change to "provider" after API change
-  providerId: belongsTo('provider'),
+  provider: belongsTo('provider'),
 
   dataset: belongsTo('dataset'),
   rootDir: belongsTo('file'),

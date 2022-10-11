@@ -357,15 +357,11 @@ export default Service.extend({
     const fileInfoGri = gri({
       entityType: archiveEntityType,
       entityId: archiveId,
-      // FIXME: API changes
-      // aspect: 'identify_file',
-      aspect: 'file_info',
+      aspect: 'identify_file',
     });
     return this.onedataGraph.request({
       gri: fileInfoGri,
-      // FIXME: API changes
-      // operation: 'create',
-      operation: 'get',
+      operation: 'create',
       data: {
         relativePath,
       },
