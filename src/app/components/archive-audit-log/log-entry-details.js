@@ -16,6 +16,7 @@ import { promise } from 'ember-awesome-macros';
 import { translateFileType, directorySeparator } from 'onedata-gui-common/utils/file';
 import ArchiveAuditLogEntryModel from 'oneprovider-gui/utils/archive-audit-log-entry-model';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import PerfectScrollbarMixin from 'onedata-gui-common/mixins/perfect-scrollbar';
 
 // FIXME: details model may be not needed, because entryModel has archiveId
 // FIXME: on the other side - archiveId may be not needed in entryModel
@@ -25,7 +26,12 @@ import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolv
  * @property {string} archiveId
  */
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  PerfectScrollbarMixin,
+];
+
+export default Component.extend(...mixins, {
   layout,
   classNames: ['log-entry-details', 'archive-log-entry-details'],
 

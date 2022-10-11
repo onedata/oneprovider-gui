@@ -38,6 +38,9 @@
   }
   .log-entry-details {
     --main-log-entry-details-padding: 1em;
+    display: block;
+    // needed for perfect-scrollbar
+    position: relative;
     .content {
       place-items: start;
     }
