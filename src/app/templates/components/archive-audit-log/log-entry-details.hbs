@@ -2,7 +2,7 @@
   <div class="header">
     <div class="primary-header">{{headerText}}</div>
     <div class="secondary-header">
-      {{one-file-icon class="entry-details-file-icon" fileType=fileType}}
+      {{one-file-icon class="entry-details-file-icon" fileType=archivedFileType}}
       {{#truncated-string tagName="span" class="entry-details-file-name"}}
         {{fileName}}
       {{/truncated-string}}
@@ -65,7 +65,11 @@
             </tr>
             <tr class="entry-info-row-source-item-link">
               <td class="property-name">
-                {{fileTypeText}}
+                {{!--
+                  FIXME: currently it displays type from log entry, which can be
+                  invalid because backend has bug resolving target file instead of symlink
+                --}}
+                {{sourceFileTypeText}}
               </td>
               <td class="property-value">
                 {{file-path file=fileInfo.sourceFile}}
@@ -105,7 +109,7 @@
             </tr>
             <tr class="entry-info-row-archived-item-link">
               <td class="property-name">
-                {{fileTypeText}}
+                {{archivedFileTypeText}}
               </td>
               <td class="property-value">
                 {{file-path file=fileInfo.archivedFile}}

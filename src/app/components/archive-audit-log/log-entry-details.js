@@ -69,7 +69,7 @@ export default Component.extend(...mixins, {
 
   fileName: reads('entryModel.fileName'),
 
-  fileType: reads('entryModel.fileType'),
+  archivedFileType: reads('entryModel.fileType'),
 
   /**
    * @type {ComputedProperty<string>}
@@ -165,6 +165,8 @@ export default Component.extend(...mixins, {
 
   sourceFileAbsolutePath: reads('sourceFileAbsolutePathProxy.content'),
 
+  sourceFileType: reads('fileInfo.sourceFile.type'),
+
   archivedFileAbsolutePathProxy: promise.object(computed(
     'fileInfoProxy',
     async function sourceFileAbsolutePathProxy() {
@@ -179,13 +181,17 @@ export default Component.extend(...mixins, {
 
   archivedFileAbsolutePath: reads('archivedFileAbsolutePathProxy.content'),
 
-  fileTypeText: computed('fileType', function fileTypeText() {
-    return translateFileType(this.i18n, this.fileType, { upperFirst: true });
+  archivedFileTypeText: computed('archivedFileType', function archivedFileTypeText() {
+    return translateFileType(this.i18n, this.archivedFileType, { upperFirst: true });
   }),
 
-  headerText: computed('fileTypeText', function headerText() {
+  sourceFileTypeText: computed('sourceFileType', function sourceFileTypeText() {
+    return translateFileType(this.i18n, this.sourceFileType, { upperFirst: true });
+  }),
+
+  headerText: computed('archivedFileTypeText', function headerText() {
     return this.t('archivisationEventHeader', {
-      fileTypeText: this.fileTypeText,
+      archivedFileTypeText: this.archivedFileTypeText,
     });
   }),
 
