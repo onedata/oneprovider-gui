@@ -12,7 +12,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import layout from 'onedata-gui-common/templates/components/audit-log-browser/log-entry-details';
 import { reads } from '@ember/object/computed';
-import { promise } from 'ember-awesome-macros';
+import { promise, conditional, raw } from 'ember-awesome-macros';
 import { translateFileType, directorySeparator } from 'onedata-gui-common/utils/file';
 import ArchiveAuditLogEntryModel from 'oneprovider-gui/utils/archive-audit-log-entry-model';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -200,4 +200,10 @@ export default Component.extend(...mixins, {
   endTimeText: reads('entryModel.endTimeText'),
 
   timeTakenHtml: reads('entryModel.timeTakenHtml'),
+
+  eventMessageClass: conditional(
+    'entryModel.isError',
+    raw('text-danger'),
+    raw(''),
+  ),
 });

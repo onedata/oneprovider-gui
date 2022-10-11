@@ -60,11 +60,13 @@ export default EmberObject.extend(...mixins, {
     return getFileNameFromPath(this.absoluteFilePath);
   }),
 
+  isError: eq('severity', raw('error')),
+
   /**
    * @type {ComputedProperty<SafeString>}
    */
   displayedMessage: conditional(
-    eq('severity', raw('error')),
+    'isError',
     computed('description', 'errorInfo', function displayedMessage() {
       const errorInfoText =
         _.upperFirst(this.errorInfo?.message);
