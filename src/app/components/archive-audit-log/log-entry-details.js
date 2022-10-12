@@ -16,6 +16,7 @@ import { promise, conditional, raw } from 'ember-awesome-macros';
 import { translateFileType } from 'onedata-gui-common/utils/file';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import PerfectScrollbarMixin from 'onedata-gui-common/mixins/perfect-scrollbar';
+import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
 
 // FIXME: details model may be not needed, because entryModel has archiveId
 // FIXME: on the other side - archiveId may be not needed in entryModel
@@ -38,6 +39,7 @@ export default Component.extend(...mixins, {
   i18n: service(),
   archiveManager: service(),
   fileManager: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -118,11 +120,25 @@ export default Component.extend(...mixins, {
       const archivedFilePromise = this.fileManager.getFileById(
         rawFileInfo.archivedFileId
       );
-      const sourceFile = await sourceFilePromise;
-      const archivedFile = await archivedFilePromise;
+      let sourceFile;
+      let sourceFileError;
+      let archivedFile;
+      let archivedFileError;
+      try {
+        sourceFile = await sourceFilePromise;
+      } catch (error) {
+        sourceFileError = error;
+      }
+      try {
+        archivedFile = await archivedFilePromise;
+      } catch (error) {
+        archivedFileError = error;
+      }
       return {
         sourceFile,
+        sourceFileError,
         archivedFile,
+        archivedFileError,
       };
     }
   )),
@@ -187,4 +203,23 @@ export default Component.extend(...mixins, {
     raw('text-danger'),
     raw(''),
   ),
+
+  isSourceFileDeleted: computed(
+    'fileInfo.sourceFileError',
+    function isSourceFileDeleted() {
+      if (!this.fileInfo?.sourceFileError) {
+        return false;
+      }
+      return isNotFoundError(this.fileInfo.sourceFileError);
+    }
+  ),
+
+  sourceFileUrl: computed('fileInfo.sourceFile', function sourceFileUrl() {
+    if (!this.fileInfo?.sourceFile) {
+      return '';
+    }
+    return this.appProxy.callParent('getDataUrl', {
+      selected: [this.fileInfo.sourceFile.entityId],
+    });
+  }),
 });

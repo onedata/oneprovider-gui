@@ -62,50 +62,6 @@
             </tr>
             <tr class="entry-info-row-source-item">
               <td class="property-name section-header" colspan="2">
-                {{tt this "labels.sourceItem"}}
-              </td>
-            </tr>
-            <tr class="entry-info-row-source-item-link">
-              <td class="property-name">
-                {{!--
-                  FIXME: currently it displays type from log entry, which can be
-                  invalid because backend has bug resolving target file instead of symlink
-                --}}
-                {{sourceFileTypeText}}
-              </td>
-              <td class="property-value">
-                {{file-path file=fileInfo.sourceFile}}
-              </td>
-            </tr>
-            <tr class="entry-info-row-source-item-absolute-location">
-              <td class="property-name with-input-sm">
-                {{tt this "labels.absoluteLocation"}}
-              </td>
-              <td class="property-value">
-                {{clipboard-line
-                  value=sourceFileAbsolutePath
-                  size="sm"
-                  class="monospace-font compact"
-                }}
-              </td>
-            </tr>
-            <tr class="entry-info-row-source-item-file-id">
-              <td class="property-name with-input-sm">
-                {{tt this "labels.fileId"}}
-              </td>
-              <td class="property-value">
-                {{clipboard-line
-                  value=fileInfo.sourceFile.cdmiObjectId
-                  type="textarea"
-                  textareaRows="3"
-                  size="sm"
-                  class="monospace-font compact"
-                }}
-              </td>
-            </tr>
-
-            <tr class="entry-info-row-source-item section-header">
-              <td class="property-name section-header" colspan="2">
                 {{tt this "labels.archivedItem"}}
               </td>
             </tr>
@@ -143,38 +99,47 @@
                 }}
               </td>
             </tr>
+            <tr class="entry-info-row-source-item">
+              <td class="property-name section-header" colspan="2">
+                {{tt this "labels.sourceItem"}}
+              </td>
+            </tr>
+            <tr class="entry-info-row-source-item-absolute-location">
+              <td class="property-name with-input-sm">
+                {{tt this "labels.absoluteLocation"}}
+              </td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=sourceFileAbsolutePath
+                  size="sm"
+                  class="monospace-font compact"
+                }}
+              </td>
+            </tr>
+            {{!-- FIXME: remove unused fields and translations --}}
+            {{!-- FIXME: cannot read source and archived file info messages --}}
+            <tr class="entry-info-row-source-item-info">
+              <td class="property-name" colspan="2">
+                {{#if isSourceFileDeleted}}
+                  <div class="alert alert-warning source-file-alert">
+                    {{tt this "sourceFile.deletedText"}}
+                  </div>
+                {{else}}
+                  <div class="alert alert-info source-file-alert">
+                    {{tt this "sourceFile.infoTextPrefix"}}
+                    <a
+                      href={{sourceFileUrl}}
+                      target="_top"
+                      class="navy source-file-link"
+                    >{{tt this "sourceFile.infoLink"}}</a>
+                    {{!-- ^ single line to aviod spaces --}}
+                    {{tt this "sourceFile.infoTextSuffix"}}
+                  </div>
+                {{/if}}
+              </td>
+            </tr>
           </tbody>
         </table>
-
-
-      {{!-- <div class="row">
-        {{file-path file=fileInfo.sourceFile}}
-      </div>
-      <div class="row">
-        {{clipboard-line
-          value=fileInfo.sourceFile.cdmiObjectId
-          type="textarea"
-          textareaRows="3"
-          size="sm"
-          class="monospace-font compact"
-        }}
-      </div>
-      <div class="row">
-        {{file-path file=fileInfo.archivedFile}}
-      </div>
-      <div class="row">
-        {{clipboard-line
-          value=fileInfo.archivedFile.cdmiObjectId
-          type="textarea"
-          textareaRows="3"
-          size="sm"
-          class="monospace-font compact"
-        }}
-      </div> --}}
-      {{!-- source file path z linkiem (file-path) --}}
-
-      {{!-- archived file path z linkiem (file-path) --}}
-      {{!-- id obu plików --}}
     {{/promise-proxy-container}}
   </div>
   {{yield}}

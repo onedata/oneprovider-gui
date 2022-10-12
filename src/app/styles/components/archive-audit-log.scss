@@ -79,5 +79,17 @@
         text-transform: uppercase;
       }
     }
+    .source-file-link {
+      text-decoration: underline;
+    }
+    .entry-info-row-source-item-info {
+      .property-name {
+        @include font-regular;
+      }
+    }
+    .source-file-alert {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
   }
 }
