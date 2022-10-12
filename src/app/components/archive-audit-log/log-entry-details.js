@@ -172,7 +172,7 @@ export default Component.extend(...mixins, {
 
   headerText: computed('archivedFileTypeText', function headerText() {
     return this.t('archivisationEventHeader', {
-      archivedFileTypeText: this.archivedFileTypeText,
+      fileTypeText: this.archivedFileTypeText,
     });
   }),
 
