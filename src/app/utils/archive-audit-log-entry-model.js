@@ -11,6 +11,7 @@ import { htmlSafe } from '@ember/string';
 import parseLogError from 'oneprovider-gui/utils/create-error-message-spec';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import { directorySeparator } from 'onedata-gui-common/utils/file';
 
 momentDurationFormatSetup(moment);
 
@@ -30,9 +31,11 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {string}
+   * @type {Utils.BrowsableDataset}
    */
-  archiveId: undefined,
+  browsableDataset: undefined,
+
+  spaceName: reads('space.name'),
 
   /**
    * Milliseconds timestamp of file archivisation start.
@@ -46,6 +49,14 @@ export default EmberObject.extend(...mixins, {
    */
   endTimeMs: reads('logEntry.timestamp'),
 
+  /**
+   * Can be one of:
+   * 1. absolute path to source file from space root dir,
+   * 2. path to archived file, where first dir is archive root dir (eg. archive_12345678).
+   *
+   * Type of path is determined in `isArchivedFilePath`
+   * @type {ComputedProperty<string>}
+   */
   absoluteFilePath: reads('logEntry.content.path'),
 
   fileType: reads('logEntry.content.fileType'),
@@ -55,6 +66,8 @@ export default EmberObject.extend(...mixins, {
   reason: reads('logEntry.content.reason'),
 
   severity: reads('logEntry.severity'),
+
+  datasetRootPath: reads('browsableDataset.rootFilePath'),
 
   fileName: computed('absoluteFilePath', function fileName() {
     return getFileNameFromPath(this.absoluteFilePath);
@@ -137,4 +150,37 @@ export default EmberObject.extend(...mixins, {
   endTimeText: computed('endTimeMs', function endTimeText() {
     return moment(this.endTimeMs).format(detailedReportFormatter);
   }),
+
+  /**
+   * Relative path to file from dataset root.
+   * @type {ComputedProperty<string>}
+   */
+  relativePath: computed(
+    'absoluteFilePath',
+    'datasetRootPath',
+    function relativePath() {
+      const sep = directorySeparator;
+      const datasetRootParentPath =
+        this.datasetRootPath.split(sep).slice(0, -1).join(sep);
+      if (this.isAbsolutePathFromArchive) {
+        // first item after split is '' (because of leading separator)
+        // second is effectively first dir in path (in this case: archive root)
+        return this.absoluteFilePath.split(sep).slice(2).join(sep);
+      } else {
+        return this.absoluteFilePath
+          .replace(new RegExp(`^${datasetRootParentPath}${sep}`), '');
+      }
+    }
+  ),
+
+  /**
+   * Returns true if path data from the event has its root in archive (not space).
+   * @returns {boolean}
+   */
+  isAbsolutePathFromArchive: computed(
+    'description',
+    function isAbsolutePathFromArchive() {
+      return /verification failed/.test(this.description);
+    }
+  ),
 });

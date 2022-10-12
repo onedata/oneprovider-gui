@@ -12,6 +12,7 @@ import _ from 'lodash';
 
 export default Component.extend(I18n, {
   archiveManager: service(),
+  datasetManager: service(),
   appProxy: service(),
   providerManager: service(),
 
@@ -24,11 +25,30 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.Archive}
+   * @type {Utils.BrowsableArchive}
    */
-  archive: undefined,
+  browsableArchive: undefined,
 
-  archiveId: reads('archive.entityId'),
+  /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
+   * @type {ComputedProperty<PromiseObject<Utils.BrowsableDataset>>}
+   */
+  browsableDatasetProxy: promise.object(computed(
+    'browsableArchive',
+    async function browsableDatasetProxy() {
+      const datasetId = this.browsableArchive.relationEntityId('dataset');
+      return await this.datasetManager.getBrowsableDataset(datasetId);
+    }
+  )),
+
+  browsableDataset: reads('browsableDatasetProxy.content'),
+
+  archiveId: reads('browsableArchive.entityId'),
 
   /**
    * @type {InfiniteScrollTableUpdateStrategy}
@@ -53,10 +73,10 @@ export default Component.extend(I18n, {
   ),
 
   areLogsOnCurrentProvider: computed(
-    'archive.provider',
+    'browsableArchive.provider',
     function areLogsOnCurrentProvider() {
       const currentProviderId = this.providerManager.getCurrentProviderId();
-      const archiveProviderId = this.archive.relationEntityId('provider');
+      const archiveProviderId = this.browsableArchive.relationEntityId('provider');
       if (!currentProviderId || !archiveProviderId) {
         return false;
       }
@@ -109,9 +129,15 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<ArchiveLogEntryDetailsModel>}
    */
-  logEntryDetailsModel: computed('archiveId', function logEntryDetailsModel() {
-    return { archiveId: this.archiveId };
-  }),
+  logEntryDetailsModel: computed(
+    'archiveId',
+    function logEntryDetailsModel() {
+      return {
+        archiveId: this.archiveId,
+        createEntryModel: this.createEntryModel.bind(this),
+      };
+    }
+  ),
 
   /**
    * @param {AuditLogEntry<ArchiveAuditLogEntryContent>} logEntry
@@ -121,12 +147,12 @@ export default Component.extend(I18n, {
     return ArchiveAuditLogEntryModel.create({
       ownerSource: this,
       logEntry,
-      archiveId: this.archiveId,
+      browsableDataset: this.browsableDataset,
     });
   },
 
   async getArchiveProvider() {
-    return await get(this.archive, 'provider');
+    return await get(this.browsableArchive, 'provider');
   },
 
   actions: {

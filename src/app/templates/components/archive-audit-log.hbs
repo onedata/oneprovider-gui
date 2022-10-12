@@ -1,22 +1,24 @@
-{{#audit-log-browser
-  onFetchLogEntries=fetchLogEntriesCallback
-  customColumnHeaders=customColumnHeaders
-  logEntryDetailsComponentName="archive-audit-log/log-entry-details"
-  logEntryDetailsModel=logEntryDetailsModel
-  doesOpenDetailsOnClick=true
-  isSeverityColumnVisible=false
-  noLogEntriesText=noLogEntriesText
-  as |logEntry|
-}}
-  {{#let (evaluate-function (action "createEntryModel") logEntry) as |entryModel|}}
-    {{archive-audit-log/cell-file
-      entryModel=entryModel
-    }}
-    {{archive-audit-log/cell-event
-      entryModel=entryModel
-    }}
-    {{archive-audit-log/cell-time-taken
-      entryModel=entryModel
-    }}
-  {{/let}}
-{{/audit-log-browser}}
+{{#promise-proxy-container proxy=browsableDatasetProxy class="fill-flex-using-column"}}
+  {{#audit-log-browser
+    onFetchLogEntries=fetchLogEntriesCallback
+    customColumnHeaders=customColumnHeaders
+    logEntryDetailsComponentName="archive-audit-log/log-entry-details"
+    logEntryDetailsModel=logEntryDetailsModel
+    doesOpenDetailsOnClick=true
+    isSeverityColumnVisible=false
+    noLogEntriesText=noLogEntriesText
+    as |logEntry|
+  }}
+    {{#let (evaluate-function (action "createEntryModel") logEntry) as |entryModel|}}
+      {{archive-audit-log/cell-file
+        entryModel=entryModel
+      }}
+      {{archive-audit-log/cell-event
+        entryModel=entryModel
+      }}
+      {{archive-audit-log/cell-time-taken
+        entryModel=entryModel
+      }}
+    {{/let}}
+  {{/audit-log-browser}}
+{{/promise-proxy-container}}

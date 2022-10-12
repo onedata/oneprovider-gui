@@ -7,6 +7,7 @@ import {
 import { inject as service } from '@ember/service';
 import createErrorMessageSpec from 'oneprovider-gui/utils/create-error-message-spec';
 import { equal, raw, or, and } from 'ember-awesome-macros';
+import filePathViewCreateRelative from 'oneprovider-gui/utils/file-path-view/create-relative';
 
 export default Component.extend({
   tagName: 'td',
@@ -74,4 +75,12 @@ export default Component.extend({
     ),
     raw(''),
   ),
+
+  pathItems: computed('absoluteFilePath', function pathItems() {
+    if (!this.entryModel.relativePath) {
+      return '';
+    }
+    // presenting only relative path, removing leading slash
+    return filePathViewCreateRelative(this.entryModel.relativePath);
+  }),
 });

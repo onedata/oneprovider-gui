@@ -53,7 +53,11 @@
     {{#if (eq activeTab "properties")}}
       {{archive-properties viewModel=archivePropertiesViewModel}}
     {{else if (eq activeTab "logs")}}
-      {{archive-audit-log class="fill-flex-using-column" archive=browsableArchive}}
+      {{archive-audit-log
+        class="fill-flex-using-column"
+        browsableArchive=browsableArchive
+        space=space
+      }}
     {{/if}}
   {{/modal.body}}
 

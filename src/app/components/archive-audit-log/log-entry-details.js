@@ -13,8 +13,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import layout from 'onedata-gui-common/templates/components/audit-log-browser/log-entry-details';
 import { reads } from '@ember/object/computed';
 import { promise, conditional, raw } from 'ember-awesome-macros';
-import { translateFileType, directorySeparator } from 'onedata-gui-common/utils/file';
-import ArchiveAuditLogEntryModel from 'oneprovider-gui/utils/archive-audit-log-entry-model';
+import { translateFileType } from 'onedata-gui-common/utils/file';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import PerfectScrollbarMixin from 'onedata-gui-common/mixins/perfect-scrollbar';
 
@@ -24,6 +23,7 @@ import PerfectScrollbarMixin from 'onedata-gui-common/mixins/perfect-scrollbar';
 /**
  * @typedef {Object} ArchiveLogEntryDetailsModel
  * @property {string} archiveId
+ * @property {(logEntry: AuditLogEntry<ArchiveAuditLogEntryContent>) => Utils.ArchiveAuditLogEntryModel} createEntryModel
  */
 
 const mixins = [
@@ -62,19 +62,9 @@ export default Component.extend(...mixins, {
    */
   fileId: reads('logEntry.content.fileId'),
 
-  /**
-   * @type {ComputedProperty<string>}
-   */
-  archiveId: reads('logEntryDetailsModel.archiveId'),
-
   fileName: reads('entryModel.fileName'),
 
   archivedFileType: reads('entryModel.fileType'),
-
-  /**
-   * @type {ComputedProperty<string>}
-   */
-  absoluteFilePath: reads('entryModel.absoluteFilePath'),
 
   /**
    * @type {ComputedProperty<string>}
@@ -84,25 +74,16 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<Utils.ArchiveAuditLogEntryModel>}
    */
-  entryModel: computed('logEntry', 'archiveId', function entryModel() {
-    if (!this.logEntry || !this.archiveId) {
+  entryModel: computed('logEntry', function entryModel() {
+    if (!this.logEntry) {
       return null;
     }
-    return ArchiveAuditLogEntryModel.create({
-      ownerSource: this,
-      logEntry: this.logEntry,
-      archiveId: this.archiveId,
-    });
+    return this.logEntryDetailsModel.createEntryModel(this.logEntry);
   }),
 
-  /**
-   * @type {ComputedProperty<string>}
-   */
-  relativePath: computed('absoluteFilePath', function relativePath() {
-    const sep = directorySeparator;
-    // absolute path looks like `/<space_or_archive_dir>/<rest_of_path>`
-    return this.absoluteFilePath.split(sep).slice(2).join(sep);
-  }),
+  relativePath: reads('entryModel.relativePath'),
+
+  archiveId: reads('logEntryDetailsModel.archiveId'),
 
   /**
    * A file-pair info without file records resolved.

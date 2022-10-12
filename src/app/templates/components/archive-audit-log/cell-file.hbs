@@ -1,9 +1,20 @@
 <div class="flex-vertical-center">
   {{one-file-icon class="entry-file-icon" fileType=fileType}}
   {{#if fileName}}
-    {{#truncated-string class="entry-file-name"}}
-      {{fileName}}
-    {{/truncated-string}}
+    <span class="entry-file-name truncate">
+      <span class="file-name">
+        {{fileName}}
+      </span>
+      {{#if pathItems}}
+        {{#one-tooltip class="string-path-tooltip"}}
+          <div class="formatted-path-string file-path-base">
+            <span class="path">
+              {{file-path-renderer pathItems=pathItems}}
+            </span>
+          </div>
+        {{/one-tooltip}}
+      {{/if}}
+    </span>
   {{else}}
     <span class="entry-missing-file-name">–</span>
   {{/if}}
