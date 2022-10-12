@@ -342,10 +342,22 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnEditDescription: computed(
+    'spacePrivileges.createArchives',
     function btnEditDescription() {
+      const hasPrivileges = this.spacePrivileges.createArchives;
+      let disabledTip;
+      if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n: this.i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_create_archives'],
+        });
+      }
       return this.createFileAction({
         id: 'editDescription',
         icon: 'rename',
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
         action: (archives) => {
           return this.openArchiveDetailsModal(archives[0], {
             initialTab: 'properties',
