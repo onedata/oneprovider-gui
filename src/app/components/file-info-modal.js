@@ -195,14 +195,17 @@ export default Component.extend(...mixins, {
 
   fileName: reads('file.name'),
 
-  apiSamplesProxy: promise.object(computed(function apiSamples() {
-    const fileId = this.get('file.entityId');
-    if (this.previewMode) {
-      return this.get('fileManager').getFileApiSamples(fileId, 'public');
-    } else {
-      return this.get('fileManager').getFileApiSamples(fileId, 'private');
+  apiSamplesProxy: promise.object(computed(
+    'file.entityId',
+    'previewMode',
+    function apiSamples() {
+      const fileId = this.get('file.entityId');
+      return this.fileManager.getFileApiSamples(
+        fileId,
+        this.previewMode ? 'public' : 'private'
+      );
     }
-  })),
+  )),
 
   apiSamples: reads('apiSamplesProxy.content'),
 

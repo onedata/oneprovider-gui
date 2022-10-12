@@ -45,13 +45,13 @@ export default ProductionFileManager.extend({
     }, {
       apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
       type: 'rest',
-      swaggerOperationId: 'get_test_data',
+      swaggerOperationId: 'remove_file',
       requiresAuthorization: true,
       placeholders: {},
-      path: '/test/path/to/data',
-      name: 'Get test data with token',
-      description: 'Return test data.',
-      method: 'GET',
+      path: '/test/path/to/file',
+      name: 'Remove file',
+      description: 'Remove file.',
+      method: 'DELETE',
       data: null,
       followRedirects: true,
     }, {
@@ -66,7 +66,7 @@ export default ProductionFileManager.extend({
       requiresAuthorization: true,
       path: '/data/012738917623892469234781347107472364234/content?offset=$OFFSET',
       name: 'Update file content without optional',
-      description: 'endpoint desc',
+      description: 'Updates the content of the file.',
       method: 'PUT',
       data: '$NEW_FILE_CONTENT',
       followRedirects: true,
@@ -82,7 +82,7 @@ export default ProductionFileManager.extend({
       requiresAuthorization: true,
       path: '/data/012738917623892469234781347107472364234/content',
       name: 'Update file content with optional',
-      description: 'endpoint desc',
+      description: 'Updates the content of the file.',
       method: 'PUT',
       data: '$NEW_FILE_CONTENT',
       followRedirects: true,
@@ -93,12 +93,12 @@ export default ProductionFileManager.extend({
     }, {
       apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
       type: 'rest',
-      swaggerOperationId: 'update_file_content',
+      swaggerOperationId: 'update_privileges',
       requiresAuthorization: true,
-      path: '/data/012738917623892469234781347107472364234/content',
-      name: 'Update file content',
+      path: '/spaces/spaceId/users/$USER_ID/privileges',
+      name: 'Update user\'s space privileges ',
       description: 'endpoint desc',
-      method: 'PUT',
+      method: 'PATCH',
       data: '{"grant": $GRANT, "revoke": $REVOKE}',
       followRedirects: true,
       placeholders: {
@@ -106,7 +106,6 @@ export default ProductionFileManager.extend({
         $GRANT: 'A list of privileges to be granted, for example: ["space_view", "space_update"]',
         $REVOKE: 'A list of privileges to be revoked.',
       },
-      optionalParameters: ['offset'],
     }];
     return new Promise((resolve) => {
       setTimeout(() => resolve(apiSamples), 1);
