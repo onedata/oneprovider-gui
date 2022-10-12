@@ -104,18 +104,20 @@
                 {{tt this "labels.sourceItem"}}
               </td>
             </tr>
-            <tr class="entry-info-row-source-item-absolute-location">
-              <td class="property-name with-input-sm">
-                {{tt this "labels.absoluteLocation"}}
-              </td>
-              <td class="property-value">
-                {{clipboard-line
-                  value=sourceFileAbsolutePath
-                  size="sm"
-                  class="monospace-font compact"
-                }}
-              </td>
-            </tr>
+            {{#unless isSourceFileDeleted}}
+              <tr class="entry-info-row-source-item-absolute-location">
+                <td class="property-name with-input-sm">
+                  {{tt this "labels.absoluteLocation"}}
+                </td>
+                <td class="property-value">
+                  {{clipboard-line
+                    value=sourceFileAbsolutePath
+                    size="sm"
+                    class="monospace-font compact"
+                  }}
+                </td>
+              </tr>
+            {{/unless}}
             {{!-- FIXME: remove unused fields and translations --}}
             {{!-- FIXME: cannot read source and archived file info messages --}}
             <tr class="entry-info-row-source-item-info">

@@ -27,6 +27,17 @@ import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
  * @property {(logEntry: AuditLogEntry<ArchiveAuditLogEntryContent>) => Utils.ArchiveAuditLogEntryModel} createEntryModel
  */
 
+/**
+ * Provides resolved data about pair of archived and source file for details view.
+ * @typedef {Object} ArchiveAuditLogEntryDetailsFileInfo
+ * @property {Models.File} archivedFile
+ * @property {string} archivedFileId
+ * @property {Object|null} archivedFileError
+ * @property {Models.File|null} sourceFile
+ * @property {string|null} sourceFileId
+ * @property {Object|null} sourceFileError
+ */
+
 const mixins = [
   I18n,
   PerfectScrollbarMixin,
@@ -105,7 +116,7 @@ export default Component.extend(...mixins, {
   rawFileInfo: reads('rawFileInfoProxy.content'),
 
   /**
-   * @type {ComputedProperty<PromiseObject{ sourceFileId: Models.File, archivedFileId: Models.File }>>}
+   * @type {ComputedProperty<PromiseObject<ArchiveAuditLogEntryDetailsFileInfo>>}
    */
   fileInfoProxy: promise.object(computed(
     'rawFileInfo',
@@ -114,16 +125,14 @@ export default Component.extend(...mixins, {
       if (!rawFileInfo) {
         return null;
       }
-      const sourceFilePromise = this.fileManager.getFileById(
-        rawFileInfo.sourceFileId
-      );
-      const archivedFilePromise = this.fileManager.getFileById(
-        rawFileInfo.archivedFileId
-      );
-      let sourceFile;
-      let sourceFileError;
-      let archivedFile;
-      let archivedFileError;
+      const sourceFilePromise = rawFileInfo.sourceFileId &&
+        this.fileManager.getFileById(rawFileInfo.sourceFileId);
+      const archivedFilePromise = rawFileInfo.archivedFileId &&
+        this.fileManager.getFileById(rawFileInfo.archivedFileId);
+      let sourceFile = null;
+      let sourceFileError = null;
+      let archivedFile = null;
+      let archivedFileError = null;
       try {
         sourceFile = await sourceFilePromise;
       } catch (error) {
@@ -135,10 +144,12 @@ export default Component.extend(...mixins, {
         archivedFileError = error;
       }
       return {
-        sourceFile,
-        sourceFileError,
         archivedFile,
+        archivedFileId: rawFileInfo.archivedFileId,
         archivedFileError,
+        sourceFile,
+        sourceFileId: rawFileInfo.sourceFileId,
+        sourceFileError,
       };
     }
   )),
@@ -205,12 +216,13 @@ export default Component.extend(...mixins, {
   ),
 
   isSourceFileDeleted: computed(
-    'fileInfo.sourceFileError',
+    'fileInfo',
     function isSourceFileDeleted() {
-      if (!this.fileInfo?.sourceFileError) {
+      if (!this.fileInfo) {
         return false;
       }
-      return isNotFoundError(this.fileInfo.sourceFileError);
+      return !this.fileInfo.sourceFileId ||
+        isNotFoundError(this.fileInfo.sourceFileError);
     }
   ),
 
@@ -219,7 +231,7 @@ export default Component.extend(...mixins, {
       return '';
     }
     return this.appProxy.callParent('getDataUrl', {
-      selected: [this.fileInfo.sourceFile.entityId],
+      selected: [this.fileInfo.sourceFileId],
     });
   }),
 });
