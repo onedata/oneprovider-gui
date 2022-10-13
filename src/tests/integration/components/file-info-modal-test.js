@@ -670,7 +670,7 @@ describe('Integration | Component | file info modal', function () {
       .to.contain.text('Return test data.');
     expect(find('.item-info-row-api-command .clipboard-input'))
       .to.contain.text(
-        'curl -L -X GET \'https://dev-onezone.default.svc.cluster.local/api/v3/onezone/test/path/to/data\''
+        'curl -L -X GET "https://dev-onezone.default.svc.cluster.local/api/v3/onezone/test/path/to/data"'
       );
   });
 
@@ -687,7 +687,7 @@ describe('Integration | Component | file info modal', function () {
       expect(find('.item-info-row-description .description-value'))
         .to.contain.text('Test xrootd.');
       expect(find('.item-info-row-api-command .clipboard-input'))
-        .to.contain.text('xrdcp -r \'root://root.example.com//data/test\' \'.\'');
+        .to.contain.text('xrdcp -r "root://root.example.com//data/test" "."');
     }
   );
 });
