@@ -14,6 +14,7 @@ import { entityType as providerEntityType } from 'oneprovider-gui/models/provide
 
 export default Service.extend({
   store: service(),
+  guiContext: service(),
 
   /**
    * @param {String} providerId 
@@ -27,5 +28,19 @@ export default Service.extend({
       scope: 'protected',
     });
     return this.get('store').findRecord('provider', providerGri);
+  },
+
+  /**
+   * @returns {string}
+   */
+  getCurrentProviderId() {
+    return this.get('guiContext.clusterId');
+  },
+
+  /**
+   * @returns {Promise<Models.Provider>}
+   */
+  getCurrentProvider() {
+    return this.getProviderById(this.getCurrentProviderId());
   },
 });
