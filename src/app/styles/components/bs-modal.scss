@@ -89,7 +89,7 @@
   }
 
   &.in {
-    transition: box-shadow ease-in-out 0.15s;
+    transition: box-shadow ease-in-out $transition-base-time;
 
     .modal-dialog {
       border-top-color: var(--overlay-border-color);

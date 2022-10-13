@@ -249,8 +249,8 @@ export default EmberObject.extend(...mixins, {
 
   async onShown() {
     if (this.options?.editDescription) {
-      // 0.15s from .modal-content-overlay style
-      await sleep(150);
+      // 0.2s from .modal-content-overlay style transition time
+      await sleep(200);
       await waitForRender();
       this.selectDescription();
     }
