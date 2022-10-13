@@ -16,6 +16,9 @@ import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model'
 import { and, or } from 'ember-awesome-macros';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { Promise } from 'rsvp';
+import sleep from 'onedata-gui-common/utils/sleep';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import { panelSlideInDurationMs } from 'onedata-gui-common/components/one-modal';
 
 /**
  * @typedef {ArchiveFormOptions} ArchivePropertiesTabOptions
@@ -49,6 +52,12 @@ export default EmberObject.extend(...mixins, {
    * @type {Model.Space}
    */
   space: undefined,
+
+  /**
+   * @virtual optional
+   * @type {HTMLElement}
+   */
+  element: undefined,
 
   /**
    * @virtual optional
@@ -223,5 +232,27 @@ export default EmberObject.extend(...mixins, {
       formData,
       isValid,
     });
+  },
+
+  selectDescription() {
+    if (!this.element || this.isDestroyed) {
+      return;
+    }
+    /** @type {HTMLTextAreaElement} */
+    const descriptionInput =
+      this.element.querySelector('.description-field .form-control');
+    if (descriptionInput) {
+      descriptionInput.focus();
+      descriptionInput.select();
+    }
+  },
+
+  async onShown() {
+    if (this.options?.editDescription) {
+      // 0.15s from .modal-content-overlay style
+      await sleep(150);
+      await waitForRender();
+      this.selectDescription();
+    }
   },
 });

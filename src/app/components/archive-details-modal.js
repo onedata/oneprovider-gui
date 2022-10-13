@@ -137,18 +137,8 @@ export default Component.extend(I18n, {
     this.set('archivePropertiesViewModel', archivePropertiesViewModel);
   },
 
-  onShown() {
-    // FIXME: should not be here, but focus on open does not work without this, use viewModel
-    if (this.options?.properties?.editDescription) {
-      const modalId = this.get('modalId');
-      /** @type {HTMLElement} */
-      const descriptionInput =
-        document.querySelector(`#${modalId} .description-field .form-control`);
-      if (descriptionInput) {
-        descriptionInput.focus();
-        descriptionInput.select();
-      }
-    }
+  async onShown() {
+    this.archivePropertiesViewModel.onShown();
   },
 
   /**

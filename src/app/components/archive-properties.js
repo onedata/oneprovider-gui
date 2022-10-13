@@ -10,6 +10,7 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { set } from '@ember/object';
 
 export default Component.extend(I18n, {
   classNames: ['archive-properties'],
@@ -30,21 +31,8 @@ export default Component.extend(I18n, {
    * @override
    */
   didInsertElement() {
-    if (this.viewModel.options?.editDescription) {
-      this.selectDescription();
-    }
+    set(this.viewModel, 'element', this.element);
   },
-
-  selectDescription() {
-    /** @type {HTMLTextAreaElement} */
-    const descriptionInput =
-      this.element.querySelector('.description-field .form-control');
-    if (descriptionInput) {
-      descriptionInput.focus();
-      descriptionInput.select();
-    }
-  },
-
   actions: {
     discard() {
       this.viewModel.discard();
