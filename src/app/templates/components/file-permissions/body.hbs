@@ -1,14 +1,9 @@
 {{#if isOwnerShown}}
   <div class="owner-info-line">
     <strong class="owner-info-label">{{tt this "owner"}}:</strong>
-    {{#truncated-string tagName="span" class="owner-info-fullname"}}
-      {{or owner.fullName "—"}}
-    {{/truncated-string}}
-    {{#if owner.username}}
-      {{#truncated-string tagName="span" class="owner-info-username"}}
-        ({{owner.username}})
-      {{/truncated-string}}
-    {{/if}}
+    {{user-info-with-icon
+      owner=owner
+    }}
   </div>
 {{/if}}
 {{#if (and posixViewActive (not filesHaveCompatiblePosixPermissions))}}

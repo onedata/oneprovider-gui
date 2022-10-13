@@ -1,0 +1,92 @@
+.user-info-with-icon {
+  $transition-time: 0.5s;
+  // a hack to set a stacking context to fix issues in Safari/WebKit
+  perspective: 1px;
+  background-color: transparent;
+  .inline-icon-container {
+    margin-left: -2px;
+    // width: 20px;
+    width: 25px;
+    transition: transform $transition-time;
+    transform-style: preserve-3d;
+    &.not-animation {
+      transform: rotateY(180deg);
+      vertical-align: top;
+      .oneicon-browser-info.one-icon {
+        opacity: 1;
+      }
+    }
+    &.animation {
+      vertical-align: top;
+    }
+  }
+  &:hover {
+    .inline-icon-container {
+      &.animation {
+        transform: rotateY(180deg);
+        .oneicon-browser-info.one-icon {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .file-owner-fullname.user-info-trigger:hover {
+    text-decoration: underline;
+  }
+  .oneicon-browser-info.one-icon {
+    transform: rotateY(180deg) translateY(-50%) translateY(1px);
+    color: inherit;
+    opacity: 0;
+    transition: opacity $transition-time;
+  }
+  .oneicon-user.one-icon {
+    // for Safari <= 15.3
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  // .file-owner-line.file-owner-fullname {
+  //   padding-right: 25px;
+  // }
+}
+
+.webui-popover-provider-info {
+  max-width: 500px;
+
+  .popup-title {
+    margin-bottom: 20px;
+    .one-label {
+      font-size: $font-size-h4;
+    }
+  }
+  .table {
+    margin-bottom: 0;
+    tr {
+      .property-name {
+        padding-left: 0;
+      }
+      td {
+        overflow-wrap: break-word;
+      }
+    }
+  }
+  .property-name {
+    width: 85px;
+  }
+  .clipboard-line {
+    margin-top: -5px;
+  }
+  .webui-popover-content {
+    padding: $padding-large-horizontal;
+  }
+  &.bottom, &.bottom-right {
+    .webui-arrow {
+      margin-left: -$padding-base-vertical;
+    }
+  }
+}
+.user-info-trigger {
+  height: 18px;
+  vertical-align: middle;
+}

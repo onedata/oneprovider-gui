@@ -1,0 +1,53 @@
+{{#truncated-string
+  mouseEnter=(action "changeIconHover" true)
+  mouseLeave=(action "changeIconHover" false)
+  class="file-owner-line file-owner-fullname"
+}}
+  <span class="user-info-trigger">
+    {{#truncated-string}}
+      <span 
+        class="file-owner-fullname" 
+        {{action
+          (mut userInfoOpened)
+          (not userInfoOpened)
+          bubbles=false
+        }}
+      >
+        {{or owner.fullName "—"}}
+      </span>
+    {{/truncated-string}}
+    {{#truncated-string class="file-owner-line file-owner-username"}}
+      {{#if owner.username}}
+        <span 
+          class="file-owner-username" 
+          {{action
+            (mut userInfoOpened)
+            (not userInfoOpened)
+            bubbles=false
+          }}
+        >
+          ({{owner.username}})
+        </span>
+      {{/if}}
+    {{/truncated-string}}
+  </span>
+  {{#render-later triggerRender=userInfoOpened}}
+    {{#one-webui-popover
+      popoverStyle="user-info"
+      open=userInfoOpened
+      triggerSelector=(concat "#" elementId " .user-info-trigger")
+      as |popover|
+    }}
+      {{#click-outside
+        onClickOutside=(action (mut userInfoOpened) false)
+        exceptSelector=".user-info-trigger, .webui-popover-user-info"
+      }}
+        {{user-info-content
+          class="form-group without-margin"
+          owner=owner
+        }}
+      {{/click-outside}}
+    {{/one-webui-popover}}
+  {{/render-later}}
+{{/truncated-string}}
+
