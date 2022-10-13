@@ -110,11 +110,11 @@ export default EmberObject.extend(...mixins, {
   }),
 
   /**
-   * @type {ComputedProperty<SafeString>}
+   * @type {ComputedProperty<SafeString|null>}
    */
   timeTakenHtml: computed('startTimeMs', 'endTimeMs', function timeTakenHtml() {
     if (!this.startTimeMs || !this.endTimeMs) {
-      return '–';
+      return null;
     }
     const effDurationMs = this.endTimeMs - this.startTimeMs;
 
@@ -141,6 +141,9 @@ export default EmberObject.extend(...mixins, {
    * @type {ComputedProperty<string>}
    */
   startTimeText: computed('startTimeMs', function startTimeText() {
+    if (!this.startTimeMs) {
+      return '';
+    }
     return moment(this.startTimeMs).format(detailedReportFormatter);
   }),
 
@@ -148,6 +151,9 @@ export default EmberObject.extend(...mixins, {
    * @type {ComputedProperty<string>}
    */
   endTimeText: computed('endTimeMs', function endTimeText() {
+    if (!this.endTimeMs) {
+      return '';
+    }
     return moment(this.endTimeMs).format(detailedReportFormatter);
   }),
 
@@ -180,7 +186,7 @@ export default EmberObject.extend(...mixins, {
   isAbsolutePathFromArchive: computed(
     'description',
     function isAbsolutePathFromArchive() {
-      return /verification failed/.test(this.description);
+      return /verification.*failed/i.test(this.description);
     }
   ),
 });

@@ -36,30 +36,36 @@
                 }}
               </td>
             </tr>
-            <tr class="entry-info-row-start-time">
-              <td class="property-name">
-                {{tt this "labels.startTime"}}
-              </td>
-              <td class="property-value">
-                {{startTimeText}}
-              </td>
-            </tr>
-            <tr class="entry-info-row-end-time">
-              <td class="property-name">
-                {{tt this "labels.endTime"}}
-              </td>
-              <td class="property-value">
-                {{endTimeText}}
-              </td>
-            </tr>
-            <tr class="entry-info-row-event">
-              <td class="property-name">
-                {{tt this "labels.timeTaken"}}
-              </td>
-              <td class="property-value time-taken-text">
-                {{timeTakenHtml}}
-              </td>
-            </tr>
+            {{#if startTimeText}}
+              <tr class="entry-info-row-start-time">
+                <td class="property-name">
+                  {{tt this "labels.startTime"}}
+                </td>
+                <td class="property-value">
+                  {{startTimeText}}
+                </td>
+              </tr>
+            {{/if}}
+            {{#if endTimeText}}
+              <tr class="entry-info-row-end-time">
+                <td class="property-name">
+                  {{tt this "labels.endTime"}}
+                </td>
+                <td class="property-value">
+                  {{endTimeText}}
+                </td>
+              </tr>
+            {{/if}}
+            {{#if timeTakenHtml}}
+              <tr class="entry-info-row-event">
+                <td class="property-name">
+                  {{tt this "labels.timeTaken"}}
+                </td>
+                <td class="property-value time-taken-text">
+                  {{timeTakenHtml}}
+                </td>
+              </tr>
+            {{/if}}
             <tr class="entry-info-row-source-item">
               <td class="property-name section-header" colspan="2">
                 {{tt this "labels.archivedItem"}}
