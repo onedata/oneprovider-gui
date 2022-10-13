@@ -195,6 +195,10 @@
   .table-bottom-spacing {
     height: 122px;
   }
+
+  .user-info-trigger:hover .file-owner-fullname {
+    text-decoration: underline;
+  }
 }
 
 .modal-dialog {
