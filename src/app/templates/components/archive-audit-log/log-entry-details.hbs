@@ -66,51 +66,67 @@
                 </td>
               </tr>
             {{/if}}
-            <tr class="entry-info-row-source-item">
+            <tr class="entry-info-row-archived-item">
               <td class="property-name section-header" colspan="2">
                 {{tt this "labels.archivedItem"}}
               </td>
             </tr>
-            <tr class="entry-info-row-archived-item-link">
-              <td class="property-name">
-                {{archivedFileTypeText}}
-              </td>
-              <td class="property-value">
-                {{file-path file=fileInfo.archivedFile}}
-              </td>
-            </tr>
-            <tr class="entry-info-row-archived-item-absolute-location">
-              <td class="property-name with-input-sm">
-                {{tt this "labels.absoluteLocation"}}
-              </td>
-              <td class="property-value">
-                {{clipboard-line
-                  value=archivedFileAbsolutePath
-                  size="sm"
-                  class="monospace-font compact"
-                }}
-              </td>
-            </tr>
-            <tr class="entry-info-row-archived-item-file-id">
-              <td class="property-name with-input-sm">
-                {{tt this "labels.fileId"}}
-              </td>
-              <td class="property-value">
-                {{clipboard-line
-                  value=fileInfo.archivedFile.cdmiObjectId
-                  type="textarea"
-                  textareaRows="3"
-                  size="sm"
-                  class="monospace-font compact"
-                }}
-              </td>
-            </tr>
+            {{#if fileInfo.archivedFile}}
+              <tr class="entry-info-row-archived-item-link">
+                <td class="property-name">
+                  {{archivedFileTypeText}}
+                </td>
+                <td class="property-value">
+                  {{file-path file=fileInfo.archivedFile}}
+                </td>
+              </tr>
+              <tr class="entry-info-row-archived-item-absolute-location">
+                <td class="property-name with-input-sm">
+                  {{tt this "labels.absoluteLocation"}}
+                </td>
+                <td class="property-value">
+                  {{clipboard-line
+                    value=archivedFileAbsolutePath
+                    size="sm"
+                    class="monospace-font compact"
+                  }}
+                </td>
+              </tr>
+              <tr class="entry-info-row-archived-item-file-id">
+                <td class="property-name with-input-sm">
+                  {{tt this "labels.fileId"}}
+                </td>
+                <td class="property-value">
+                  {{clipboard-line
+                    value=fileInfo.archivedFile.cdmiObjectId
+                    type="textarea"
+                    textareaRows="3"
+                    size="sm"
+                    class="monospace-font compact"
+                  }}
+                </td>
+              </tr>
+            {{else}}
+              <tr class="entry-info-row-archived-item-info row-item-info">
+                <td class="property-name" colspan="2">
+                  {{#if isArchivedFileNotFound}}
+                    <div class="alert alert-warning file-alert">
+                      {{tt this "archivedFile.notFoundText"}}
+                    </div>
+                  {{else if archivedFileErrorMessage}}
+                    <div class="alert alert-danger file-alert">
+                      {{archivedFileErrorMessage}}
+                    </div>
+                  {{/if}}
+                </td>
+              </tr>
+            {{/if}}
             <tr class="entry-info-row-source-item">
               <td class="property-name section-header" colspan="2">
                 {{tt this "labels.sourceItem"}}
               </td>
             </tr>
-            {{#unless isSourceFileDeleted}}
+            {{#unless (or isSourceFileDeleted sourceFileErrorMessage)}}
               <tr class="entry-info-row-source-item-absolute-location">
                 <td class="property-name with-input-sm">
                   {{tt this "labels.absoluteLocation"}}
@@ -124,12 +140,15 @@
                 </td>
               </tr>
             {{/unless}}
-            {{!-- FIXME: cannot read source and archived file info messages --}}
-            <tr class="entry-info-row-source-item-info">
+            <tr class="entry-info-row-source-item-info row-item-info">
               <td class="property-name" colspan="2">
                 {{#if isSourceFileDeleted}}
-                  <div class="alert alert-warning source-file-alert">
+                  <div class="alert alert-warning file-alert">
                     {{tt this "sourceFile.deletedText"}}
+                  </div>
+                {{else if sourceFileErrorMessage}}
+                  <div class="alert alert-danger file-alert">
+                    {{sourceFileErrorMessage}}
                   </div>
                 {{else}}
                   <div class="alert alert-info source-file-alert">
@@ -139,7 +158,7 @@
                       target="_top"
                       class="navy source-file-link"
                     >{{tt this "sourceFile.infoLink"}}</a>
-                    {{!-- ^ single line to aviod spaces --}}
+                    {{!-- ^ single line to avoid spaces in anchor tag --}}
                     {{tt this "sourceFile.infoTextSuffix"}}
                   </div>
                 {{/if}}

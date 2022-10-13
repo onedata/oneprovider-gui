@@ -81,12 +81,12 @@
     .source-file-link {
       text-decoration: underline;
     }
-    .entry-info-row-source-item-info {
+    .row-item-info {
       .property-name {
         @include font-regular;
       }
     }
-    .source-file-alert {
+    .file-alert {
       margin-top: 0;
       margin-bottom: 0;
     }

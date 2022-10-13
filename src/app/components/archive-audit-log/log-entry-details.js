@@ -48,6 +48,7 @@ export default Component.extend(...mixins, {
   archiveManager: service(),
   fileManager: service(),
   appProxy: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -219,6 +220,17 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  isArchivedFileNotFound: computed(
+    'fileInfo',
+    function isArchivedFileNotFound() {
+      if (!this.fileInfo) {
+        return false;
+      }
+      return !this.fileInfo.archivedFileId ||
+        isNotFoundError(this.fileInfo.archivedFileError);
+    }
+  ),
+
   sourceFileUrl: computed('fileInfo.sourceFile', function sourceFileUrl() {
     if (!this.fileInfo?.sourceFile) {
       return '';
@@ -227,6 +239,38 @@ export default Component.extend(...mixins, {
       selected: [this.fileInfo.sourceFileId],
     });
   }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  archivedFileErrorMessage: computed(
+    'fileInfo.archivedFileError',
+    function archivedFileErrorMessage() {
+      const error = this.fileInfo?.archivedFileError;
+      if (!error) {
+        return '';
+      }
+      const errorMessage = this.errorExtractor.getMessage(error)?.message ||
+        this.t('unknownError');
+      return `${this.t('archivedFile.errorPrefix')}: ${errorMessage}`;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  sourceFileErrorMessage: computed(
+    'fileInfo.sourceFileError',
+    function sourceFileErrorMessage() {
+      const error = this.fileInfo?.sourceFileError;
+      if (!error) {
+        return '';
+      }
+      const errorMessage = this.errorExtractor.getMessage(error)?.message ||
+        this.t('unknownError');
+      return `${this.t('sourceFile.errorPrefix')}: ${errorMessage}`;
+    }
+  ),
 
   async getFile(fileId) {
     return this.fileManager.getFileById(fileId);
