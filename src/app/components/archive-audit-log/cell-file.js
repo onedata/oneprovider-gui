@@ -76,7 +76,7 @@ export default Component.extend({
     raw(''),
   ),
 
-  pathItems: computed('absoluteFilePath', function pathItems() {
+  pathItems: computed('entryModel.relativePath', function pathItems() {
     if (!this.entryModel.relativePath) {
       return '';
     }

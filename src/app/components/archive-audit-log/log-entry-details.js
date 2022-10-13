@@ -18,9 +18,6 @@ import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolv
 import PerfectScrollbarMixin from 'onedata-gui-common/mixins/perfect-scrollbar';
 import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
 
-// FIXME: details model may be not needed, because entryModel has archiveId
-// FIXME: on the other side - archiveId may be not needed in entryModel
-
 /**
  * @typedef {Object} ArchiveLogEntryDetailsModel
  * @property {string} archiveId
@@ -126,9 +123,9 @@ export default Component.extend(...mixins, {
         return null;
       }
       const sourceFilePromise = rawFileInfo.sourceFileId &&
-        this.fileManager.getFileById(rawFileInfo.sourceFileId);
+        this.getFile(rawFileInfo.sourceFileId);
       const archivedFilePromise = rawFileInfo.archivedFileId &&
-        this.fileManager.getFileById(rawFileInfo.archivedFileId);
+        this.getFile(rawFileInfo.archivedFileId);
       let sourceFile = null;
       let sourceFileError = null;
       let archivedFile = null;
@@ -193,10 +190,6 @@ export default Component.extend(...mixins, {
     return translateFileType(this.i18n, this.archivedFileType, { upperFirst: true });
   }),
 
-  sourceFileTypeText: computed('sourceFileType', function sourceFileTypeText() {
-    return translateFileType(this.i18n, this.sourceFileType, { upperFirst: true });
-  }),
-
   headerText: computed('archivedFileTypeText', function headerText() {
     return this.t('archivisationEventHeader', {
       fileTypeText: this.archivedFileTypeText,
@@ -234,4 +227,8 @@ export default Component.extend(...mixins, {
       selected: [this.fileInfo.sourceFileId],
     });
   }),
+
+  async getFile(fileId) {
+    return this.fileManager.getFileById(fileId);
+  },
 });

@@ -32,7 +32,6 @@
     }
   }
   // override text-align
-  // FIXME: maybe text-align should be css custom property to avoid selector override
   .infinite-scroll-table .table-head th.time-taken-column-header {
     text-align: center;
   }

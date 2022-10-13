@@ -1,5 +1,5 @@
 /**
- * FIXME: jsdoc
+ * Logic and state for `archive-properties` component.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
@@ -18,7 +18,6 @@ import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { Promise } from 'rsvp';
 import sleep from 'onedata-gui-common/utils/sleep';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
-import { panelSlideInDurationMs } from 'onedata-gui-common/components/one-modal';
 
 /**
  * @typedef {ArchiveFormOptions} ArchivePropertiesTabOptions
@@ -36,10 +35,9 @@ export default EmberObject.extend(...mixins, {
   modalManager: service(),
 
   /**
-   * The view model is tightly coupled with component - use its translations.
    * @override
    */
-  i18nPrefix: 'components.archiveProperties',
+  i18nPrefix: 'utils.archivePropertiesViewModel',
 
   /**
    * @virtual
@@ -187,7 +185,6 @@ export default EmberObject.extend(...mixins, {
       await this.modifyArchive();
       this.formModel.onSubmitted();
     } catch (error) {
-      // FIXME: move translations to viewModel and test
       this.globalNotify.backendError(this.t('modifyingArchive'), error);
     }
   },
