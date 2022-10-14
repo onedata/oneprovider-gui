@@ -16,7 +16,7 @@ export default ApiSamples.extend({
   /**
    * @type {String} URL to create access token view
    */
-  getAccessTokenUrl: computed(function getAccessTokenUrl() {
+  accessTokenUrl: computed(function accessTokenUrl() {
     return this.appProxy.callParent('getAccessTokenUrl');
   }),
 });
