@@ -16,15 +16,4 @@ export default Component.extend({
    * @type {Object}
    */
   owner: undefined,
-
-  /**
-   * @type {Boolean}
-   */
-  isIconHovered: false,
-
-  actions: {
-    changeIconHover(isIconHovered) {
-      this.set('isIconHovered', isIconHovered);
-    },
-  },
 });
