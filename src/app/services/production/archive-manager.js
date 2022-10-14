@@ -30,22 +30,15 @@ const datasetArchivesAspect = 'archives_details';
  * - archived file verification failed
  *
  * @typedef {Object} ArchiveAuditLogEntryContent
- * @property {string|null} fileId CDMI Object ID of the file that the event is about.
- *   For archivisation finish/fail it's a file from dataset.
- *   For verification fail it's a file created in archive.
  * @property {string|null} description A human-readable description of event.
- * @property {string} path Absolute path to file specified with `fileId`.
- *   All paths start with `/`.
- *   - If event is archivisation finish/failure then it is path starting with space root
- *     dir.
- *   - If event is file verification failure then it is path starting with archive root
- *     dir.
+ * @property {string} path Relative path to file which the event is about, starting
+ *   from dataset root dir. This path can be used in `ArchiveManager.getFileInfo`.
  * @property {number} [startTimestamp] Milliseconds timestamp when the archivisation
  *   process started of file for which the event is about. Only for archivisation
  *   finish/fail events.
  * @property {ArchiveLogErrorReason} [reason] Error object - only for archivisation failed
  *   event.
- * @property {FileType} fileType Type of file specified with `fileId`.
+ * @property {FileType} fileType Type of file for event.
  */
 
 /**
@@ -341,7 +334,7 @@ export default Service.extend({
     return await this.auditLogManager.getAuditLogEntries(
       requestGri,
       listingParams,
-      normalizeQosAuditLogEntryContent
+      normalizeAuditLogEntryContent
     );
   },
 
@@ -349,8 +342,10 @@ export default Service.extend({
    * Resolves information about file under file path in archive.
    * @param {string} archiveId
    * @param {string} relativePath A path to file excluding space dir or archive dir.
-   *   The path is without `/` prefix, eg. if absolute path is
-   *   `/space_name/hello/world.txt` then relative path is `hello/world.txt`.
+   *   Assuming that on space dataset is established on directory with absolute path:
+   *   `/space_name/hello/world` and we have a file:
+   *   `/space_name/hello/world/foo/bar/file.txt` then the relative path should be:
+   *   `foo/bar/file.txt`. Note lack of leading `/` separator.
    * @returns {ArchiveFileInfo}
    */
   async getFileInfo(archiveId, relativePath) {
@@ -421,12 +416,9 @@ export default Service.extend({
  * @param {unknown} content should be a `ArchiveAuditLogEntryContent`-like object
  * @returns {ArchiveAuditLogEntryContent}
  */
-function normalizeQosAuditLogEntryContent(content) {
+function normalizeAuditLogEntryContent(content) {
   const normalizedContent = content || {};
 
-  if (typeof normalizedContent.fileId !== 'string') {
-    normalizedContent.fileId = null;
-  }
   if (typeof normalizedContent.description !== 'string') {
     normalizedContent.description = null;
   }

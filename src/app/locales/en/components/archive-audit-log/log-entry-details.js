@@ -23,4 +23,5 @@ export default {
     errorPrefix: 'Could not get source file info',
   },
   unknownError: 'unknown error',
+  filesInformationNotAvailable: 'Information about the archived file and the source file is not available.',
 };

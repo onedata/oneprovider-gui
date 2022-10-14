@@ -104,6 +104,9 @@ export default Component.extend(...mixins, {
     'archiveId',
     'relativePath',
     async function fileInfoProxy() {
+      if (!this.relativePath) {
+        return null;
+      }
       return await this.archiveManager.getFileInfo(this.archiveId, this.relativePath);
     },
   )),
