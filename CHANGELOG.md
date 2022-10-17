@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9902 Fixed GUI crash when a long path to file is shortened
 * VFS-9801 Added number of all processed (scanned) files in transfer
 * VFS-9729 Improved showing storage locations for file in data distribution modal and file info modal
 * VFS-9712 Added detailed view of upload errors
