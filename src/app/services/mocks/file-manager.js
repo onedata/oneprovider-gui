@@ -42,6 +42,7 @@ export default ProductionFileManager.extend({
       method: 'GET',
       data: null,
       followRedirects: true,
+      headers: {},
     }, {
       apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
       type: 'rest',
@@ -54,6 +55,7 @@ export default ProductionFileManager.extend({
       method: 'DELETE',
       data: null,
       followRedirects: true,
+      headers: {},
     }, {
       type: 'xrootd',
       name: 'Test xrootd command',
@@ -75,6 +77,7 @@ export default ProductionFileManager.extend({
         $NEW_FILE_CONTENT: 'Binary content that will be written to the file.',
       },
       optionalParameters: [],
+      headers: {},
     }, {
       apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
       type: 'rest',
@@ -90,6 +93,7 @@ export default ProductionFileManager.extend({
         $NEW_FILE_CONTENT: 'Binary content that will be written to the file.',
       },
       optionalParameters: ['offset'],
+      headers: {},
     }, {
       apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
       type: 'rest',
@@ -106,6 +110,7 @@ export default ProductionFileManager.extend({
         $GRANT: 'A list of privileges to be granted, for example: ["space_view", "space_update"]',
         $REVOKE: 'A list of privileges to be revoked.',
       },
+      headers: {},
     }];
     return new Promise((resolve) => {
       setTimeout(() => resolve(apiSamples), 1);

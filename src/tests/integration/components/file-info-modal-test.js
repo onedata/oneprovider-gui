@@ -687,7 +687,7 @@ describe('Integration | Component | file info modal', function () {
       expect(find('.item-info-row-description .description-value'))
         .to.contain.text('Test xrootd.');
       expect(find('.item-info-row-api-command .clipboard-input'))
-        .to.contain.text('xrdcp -r "root://root.example.com//data/test" "."');
+        .to.contain.text('xrdcp -r \'root://root.example.com//data/test\' \'.\'');
     }
   );
 });
