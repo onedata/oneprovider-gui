@@ -1,14 +1,22 @@
+/**
+ * Cell of archive audit log entry presenting archivised file basic info.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import createErrorMessageSpec from 'oneprovider-gui/utils/create-error-message-spec';
-import { equal, raw, or, and } from 'ember-awesome-macros';
 import filePathViewCreateRelative from 'oneprovider-gui/utils/file-path-view/create-relative';
 
 export default Component.extend({
   tagName: 'td',
   classNames: ['cell-file'],
+
+  errorExtractor: service(),
 
   /**
    * @virtual
@@ -31,49 +39,12 @@ export default Component.extend({
    */
   fileName: reads('entryModel.fileName'),
 
-  errorExtractor: service(),
-
   /**
-   * @virtual
-   * @type {string}
+   *  @returns {Array<FilePathItem>}
    */
-
-  /**
-   * @virtual
-   * @type {Object}
-   */
-  reason: undefined,
-
-  /**
-   * @type {ComputedProperty<ErrorMessageSpec>}
-   */
-  errorInfo: computed('reason', function errorInfo() {
-    const {
-      reason,
-      errorExtractor,
-    } = this.getProperties('reason', 'errorExtractor');
-    return createErrorMessageSpec(reason, errorExtractor);
-  }),
-
-  /**
-   * @type {ComputedProperty<string>}
-   */
-  message: or('errorInfo.message', raw('–')),
-
-  /**
-   * @type {ComputedProperty<string>}
-   */
-  messageClass: or(
-    and(
-      equal('errorInfo.type', raw('raw')),
-      raw('font-monospace')
-    ),
-    raw(''),
-  ),
-
   pathItems: computed('entryModel.relativePath', function pathItems() {
     if (!this.entryModel.relativePath) {
-      return '';
+      return [];
     }
     // presenting only relative path, removing leading slash
     return filePathViewCreateRelative(this.entryModel.relativePath);

@@ -103,7 +103,7 @@ const translations = {
     fileRecall,
     archiveContentCount,
     archiveState,
-    archivePropertiesModal: archiveDetailsModal,
+    archiveDetailsModal,
     fileInfoModal,
     fileMetadata,
     filePermissions,

@@ -31,6 +31,7 @@ export default Component.extend(I18n, {
    * @override
    */
   didInsertElement() {
+    this._super(...arguments);
     set(this.viewModel, 'element', this.element);
   },
   actions: {

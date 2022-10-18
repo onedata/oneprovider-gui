@@ -16,6 +16,7 @@ import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive'
 import { all as allFulfilled } from 'rsvp';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { FileType, isFileType } from 'onedata-gui-common/utils/file';
 
 const datasetArchivesAspect = 'archives_details';
 
@@ -30,15 +31,15 @@ const datasetArchivesAspect = 'archives_details';
  * - archived file verification failed
  *
  * @typedef {Object} ArchiveAuditLogEntryContent
- * @property {string|null} description A human-readable description of event.
+ * @property {string} description A human-readable description of event.
  * @property {string} path Relative path to file which the event is about, starting
  *   from dataset root dir. This path can be used in `ArchiveManager.getFileInfo`.
+ * @property {FileType} fileType Type of file for event.
  * @property {number} [startTimestamp] Milliseconds timestamp when the archivisation
  *   process started of file for which the event is about. Only for archivisation
  *   finish/fail events.
  * @property {ArchiveLogErrorReason} [reason] Error object - only for archivisation failed
  *   event.
- * @property {FileType} fileType Type of file for event.
  */
 
 /**
@@ -420,7 +421,22 @@ function normalizeAuditLogEntryContent(content) {
   const normalizedContent = content || {};
 
   if (typeof normalizedContent.description !== 'string') {
-    normalizedContent.description = null;
+    normalizedContent.description = '';
+  }
+
+  if (typeof normalizedContent.path !== 'string') {
+    normalizedContent.path = '';
+  }
+
+  if (!isFileType(normalizedContent.fileType)) {
+    normalizedContent.fileType = FileType.Regular;
+  }
+
+  if (
+    'startTimestamp' in normalizedContent &&
+    typeof normalizedContent.startTimestamp !== 'number'
+  ) {
+    delete normalizedContent.startTimestamp;
   }
 
   return normalizedContent;

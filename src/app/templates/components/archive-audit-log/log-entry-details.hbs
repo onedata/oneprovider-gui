@@ -107,18 +107,12 @@
                     }}
                   </td>
                 </tr>
-              {{else}}
+              {{else if archivedFileErrorMessage}}
                 <tr class="entry-info-row-archived-item-info row-item-info">
                   <td class="property-name" colspan="2">
-                    {{#if isArchivedFileNotFound}}
-                      <div class="alert alert-warning file-alert">
-                        {{tt this "archivedFile.notFoundText"}}
-                      </div>
-                    {{else if archivedFileErrorMessage}}
-                      <div class="alert alert-danger file-alert">
-                        {{archivedFileErrorMessage}}
-                      </div>
-                    {{/if}}
+                    <div class="alert alert-danger file-alert">
+                      {{archivedFileErrorMessage}}
+                    </div>
                   </td>
                 </tr>
               {{/if}}
@@ -158,9 +152,7 @@
                         href={{sourceFileUrl}}
                         target="_top"
                         class="navy source-file-link"
-                      >{{tt this "sourceFile.infoLink"}}</a>
-                      {{!-- ^ single line to avoid spaces in anchor tag --}}
-                      {{tt this "sourceFile.infoTextSuffix"}}
+                      >{{tt this "sourceFile.infoLink"}}</a>.
                     </div>
                   {{/if}}
                 </td>

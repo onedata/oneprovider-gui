@@ -34,7 +34,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.archivePropertiesModal',
+  i18nPrefix: 'components.archiveDetailsModal',
 
   /**
    * @virtual
@@ -70,7 +70,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ArchiveDetailsModalTabId}
    */
-  activeTab: 'properties',
+  activeTab: null,
 
   /**
    * @type {Array<ArchiveDetailsModalTabId>}
@@ -82,18 +82,11 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * @type {ComputedProperty<Utils.ArchivePropertiesViewModel>}
+   * Initialized in `changeTab` -> `createArchivePropertiesViewModel`.
+   * Recomputed if needed in `createArchivePropertiesViewModel`.
+   * @type {Utils.ArchivePropertiesViewModel}
    */
-  archivePropertiesViewModel: computed(
-    function archivePropertiesViewModel() {
-      return ArchivePropertiesViewModel.create({
-        ownerSource: this,
-        browsableArchive: this.browsableArchive,
-        space: this.space,
-        options: this.options?.properties,
-      });
-    }
-  ),
+  archivePropertiesViewModel: null,
 
   archivePropertiesViewModelReloader: observer(
     'browsableArchive',
@@ -108,10 +101,14 @@ export default Component.extend(I18n, {
     this._super(...arguments);
     const initialTab = this.options?.initialTab;
     if (initialTab) {
-      this.changeTab(this.options?.initialTab);
-    }
-    if (!this.activeTab) {
-      this.changeTab(this.availableTabs[0]);
+      (async () => {
+        await this.changeTab(initialTab);
+        if (!this.activeTab) {
+          await this.changeTab(this.availableTabs[0]);
+        }
+      })();
+    } else {
+      this.changeTabToDefault();
     }
   },
 
@@ -120,14 +117,14 @@ export default Component.extend(I18n, {
    */
   willDestroyElement() {
     try {
-      this.archivePropertiesViewModel?.destroy();
+      this.destroyArchivePropertiesViewModel();
     } finally {
       this._super(...arguments);
     }
   },
 
   createArchivePropertiesViewModel() {
-    this.archivePropertiesViewModel?.destroy();
+    this.destroyArchivePropertiesViewModel();
     const archivePropertiesViewModel = ArchivePropertiesViewModel.create({
       ownerSource: this,
       browsableArchive: this.browsableArchive,
@@ -137,8 +134,14 @@ export default Component.extend(I18n, {
     this.set('archivePropertiesViewModel', archivePropertiesViewModel);
   },
 
+  destroyArchivePropertiesViewModel() {
+    this.archivePropertiesViewModel?.destroy();
+  },
+
   async onShown() {
-    this.archivePropertiesViewModel.onShown();
+    if (this.activeTab === 'properties') {
+      this.archivePropertiesViewModel.onShown();
+    }
   },
 
   /**
@@ -155,19 +158,30 @@ export default Component.extend(I18n, {
 
   /**
    * @param {ArchiveDetailsModalTabId} tabId
+   * @returns {void}
    */
   async changeTab(tabId) {
     if (this.activeTab === tabId) {
       return;
     }
-    if (this.availableTabs.includes(tabId)) {
-      if (await this.checkTabClose()) {
-        this.set('activeTab', tabId);
+    if (
+      this.availableTabs.includes(tabId) &&
+      await this.checkTabClose()
+    ) {
+      if (tabId === 'properties') {
+        this.createArchivePropertiesViewModel();
+      } else {
+        this.destroyArchivePropertiesViewModel();
       }
+      this.set('activeTab', tabId);
     }
-    if (this.activeTab === 'properties') {
-      this.createArchivePropertiesViewModel();
-    }
+  },
+
+  /**
+   * @returns {void}
+   */
+  async changeTabToDefault() {
+    await this.changeTab(this.availableTabs[0]);
   },
 
   close() {

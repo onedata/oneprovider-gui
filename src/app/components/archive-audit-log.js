@@ -21,6 +21,7 @@ export default Component.extend(I18n, {
   datasetManager: service(),
   appProxy: service(),
   providerManager: service(),
+  media: service(),
 
   classNames: ['archive-audit-log'],
 
@@ -119,17 +120,21 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Array<AuditLogBrowserCustomColumnHeader>>}
    */
-  customColumnHeaders: computed(function customColumnHeaders() {
-    return [{
+  customColumnHeaders: computed('media.isMobile', function customColumnHeaders() {
+    const headers = [{
       classNames: 'file-column-header',
       content: this.t('customColumns.file'),
     }, {
       classNames: 'event-column-header',
       content: this.t('customColumns.event'),
-    }, {
-      classNames: 'time-taken-column-header',
-      content: this.t('customColumns.timeTaken'),
     }];
+    if (!this.media.isMobile) {
+      headers.push({
+        classNames: 'time-taken-column-header',
+        content: this.t('customColumns.timeTaken'),
+      });
+    }
+    return headers;
   }),
 
   /**

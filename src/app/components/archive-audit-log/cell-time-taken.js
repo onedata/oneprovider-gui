@@ -32,6 +32,11 @@ export default Component.extend(I18n, {
 
   startTimeText: reads('entryModel.startTimeText'),
 
+  /**
+   * @type {ComputedProperty<FileType>}
+   */
+  fileType: reads('entryModel.fileType'),
+
   tooltipHtml: computed('startTimeText', 'fileType', function tooltipHtml() {
     const fileTypeText = translateFileType(
       this.i18n,

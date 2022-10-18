@@ -189,6 +189,10 @@ export default EmberObject.extend(...mixins, {
     }
   },
 
+  /**
+   * Resolves true if properties view can be closed.
+   * @returns {Promise<boolean>}
+   */
   async checkClose() {
     if (this.isModified) {
       return this.handleUnsavedChanges();
@@ -246,7 +250,11 @@ export default EmberObject.extend(...mixins, {
 
   async onShown() {
     if (this.options?.editDescription) {
-      // 0.2s from .modal-content-overlay style transition time
+      // TODO: VFS-9995 Fix modal transition detection and onShown to avoid hacks
+      // Wait for completion of slide-in transition because of bug causing animation
+      // and onShown break if transition inside modal is performed before slide-in
+      // transition is completed. 200ms (0.2s) is taken from .modal-content-overlay
+      // style transition time.
       await sleep(200);
       await waitForRender();
       this.selectDescription();

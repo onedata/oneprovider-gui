@@ -18,14 +18,14 @@
     </h1>
     {{modal-archive-subheader archives=(array browsableArchive)}}
     {{#bs-tab
-      class="bs-tab-onedata bs-tab-modern file-info-tabbar"
+      class="bs-tab-onedata bs-tab-modern archive-details-tabbar"
       activeId=activeTab
       customTabs=true
       as |tab|
     }}
       {{#bs-nav
         type="tabs"
-        class="nav-tabs-file-info"
+        class="nav-tabs-archive-details"
         as |nav|
       }}
         {{#each availableTabs as |tabId|}}

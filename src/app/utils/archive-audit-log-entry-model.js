@@ -1,3 +1,11 @@
+/**
+ * Provides common computed data about archive audit log entry for audit log components.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject from '@ember/object';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -6,13 +14,10 @@ import { conditional, eq, raw } from 'ember-awesome-macros';
 import _ from 'lodash';
 import { detailedReportFormatter } from 'onedata-gui-common/helpers/date-format';
 import moment from 'moment';
-import momentDurationFormatSetup from 'moment-duration-format';
 import { htmlSafe } from '@ember/string';
 import parseLogError from 'oneprovider-gui/utils/create-error-message-spec';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-
-momentDurationFormatSetup(moment);
 
 const mixins = [
   OwnerInjector,

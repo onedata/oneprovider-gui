@@ -156,7 +156,7 @@ export default Component.extend(...mixins, {
   )),
 
   /**
-   * @type {ComputedProperty<{ sourceFile: Models.File, archivedFile: Models.File }>}
+   * @type {ComputedProperty<ArchiveAuditLogEntryDetailsFileInfo>}
    */
   fileInfo: reads('fileInfoProxy.content'),
 

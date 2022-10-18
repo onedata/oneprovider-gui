@@ -123,7 +123,7 @@ export default Model.extend(GraphSingleModelMixin, {
   relatedAip: belongsTo('archive'),
 
   /**
-   * Provider that created and stores the archive. You can ia. get audit log of
+   * Provider that created and stores the archive. E.g. you can get audit log of
    * archivisation using this provider.
    * @type {ComputedProperty<Models.Provider>}
    */

@@ -12,16 +12,14 @@ export default {
     fileId: 'File ID',
   },
   archivedFile: {
-    notFoundText: 'Archived file not found.',
-    errorPrefix: 'Could not get archived file info',
+    errorPrefix: 'Could not retrieve details about the archived item.',
   },
   sourceFile: {
-    deletedText: 'File at the source location has been deleted.',
-    infoTextPrefix: 'File at the source location exists, but note that it could have been modified or replaced since it was archived. You can',
-    infoLink: 'navigate to its location',
-    infoTextSuffix: 'anyway.',
-    errorPrefix: 'Could not get source file info',
+    deletedText: 'The source item no longer exists in the dataset.',
+    infoTextPrefix: 'The source location indicates from where the item was copied at the moment of its archivisation. Since then, it may have been modified or replaced. You can still',
+    infoLink: 'view this location in file browser',
+    errorPrefix: 'Could not retrieve details about the source item',
   },
   unknownError: 'unknown error',
-  filesInformationNotAvailable: 'Information about the archived file and the source file is not available.',
+  filesInformationNotAvailable: 'Detailed information about the archived item and the source item is not available.',
 };

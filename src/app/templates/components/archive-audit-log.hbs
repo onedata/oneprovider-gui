@@ -17,9 +17,11 @@
       {{archive-audit-log/cell-event
         entryModel=entryModel
       }}
-      {{archive-audit-log/cell-time-taken
-        entryModel=entryModel
-      }}
+      {{#unless (media "isMobile")}}
+        {{archive-audit-log/cell-time-taken
+          entryModel=entryModel
+        }}
+      {{/unless}}
     {{/let}}
   {{/audit-log-browser}}
 {{/promise-proxy-container}}
