@@ -19,7 +19,7 @@ import PerfectScrollbarMixin from 'onedata-gui-common/mixins/perfect-scrollbar';
 import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
 
 /**
- * @typedef {Object} ArchiveLogEntryDetailsModel
+ * @typedef {Object} ArchiveLogEntryDetailsConfiguration
  * @property {string} archiveId
  * @property {(logEntry: AuditLogEntry<ArchiveAuditLogEntryContent>) => Utils.ArchiveAuditLogEntryModel} createEntryModel
  */
@@ -64,9 +64,9 @@ export default Component.extend(...mixins, {
   logEntry: undefined,
 
   /**
-   * @type {ArchiveLogEntryDetailsModel}
+   * @type {ArchiveLogEntryDetailsConfiguration}
    */
-  logEntryDetailsModel: undefined,
+  logEntryDetailsConfiguration: undefined,
 
   /**
    * @type {ComputedProperty<string>}
@@ -89,12 +89,12 @@ export default Component.extend(...mixins, {
     if (!this.logEntry) {
       return null;
     }
-    return this.logEntryDetailsModel.createEntryModel(this.logEntry);
+    return this.logEntryDetailsConfiguration.createEntryModel(this.logEntry);
   }),
 
   relativePath: reads('entryModel.relativePath'),
 
-  archiveId: reads('logEntryDetailsModel.archiveId'),
+  archiveId: reads('logEntryDetailsConfiguration.archiveId'),
 
   /**
    * A file-pair info without file records resolved.

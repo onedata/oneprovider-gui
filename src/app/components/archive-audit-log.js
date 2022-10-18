@@ -138,11 +138,11 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * @type {ComputedProperty<ArchiveLogEntryDetailsModel>}
+   * @type {ComputedProperty<ArchiveLogEntryDetailsConfiguration>}
    */
-  logEntryDetailsModel: computed(
+  logEntryDetailsConfiguration: computed(
     'archiveId',
-    function logEntryDetailsModel() {
+    function logEntryDetailsConfiguration() {
       return {
         archiveId: this.archiveId,
         createEntryModel: this.createEntryModel.bind(this),
