@@ -7,7 +7,8 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import { directorySeparator } from 'oneprovider-gui/components/file-path-renderer';
+import { directorySeparator as renderedDirectorySeparator } from 'oneprovider-gui/components/file-path-renderer';
+import { directorySeparator as rawDirectorySeparator } from 'onedata-gui-common/utils/file';
 
 /**
  * @param {string} stringPath Relative path to file, eg. `hello/world/foo/bar.txt`.
@@ -15,12 +16,12 @@ import { directorySeparator } from 'oneprovider-gui/components/file-path-rendere
  * @returns {Array<FilePathItem>}
  */
 export default function createRelative(stringPath) {
-  const allFileNames = stringPath.split(directorySeparator);
+  const allFileNames = stringPath.split(rawDirectorySeparator);
   const simpleFilePath = allFileNames.map(name => ({ name }));
   const items = simpleFilePath.map(simpleFile => {
     return {
       itemType: 'file',
-      separator: directorySeparator,
+      separator: renderedDirectorySeparator,
       record: simpleFile,
     };
   });

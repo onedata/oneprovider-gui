@@ -19,6 +19,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 import Component from '@ember/component';
+import { directorySeparator as rawDirectorySeparator } from 'onedata-gui-common/utils/file';
 
 /**
  * @typedef {Object} FilePathItem
@@ -31,7 +32,7 @@ import Component from '@ember/component';
  */
 
 export const datasetSeparator = '›';
-export const directorySeparator = '/';
+export const directorySeparator = rawDirectorySeparator;
 export const ellipsisString = '...';
 
 export default Component.extend({
