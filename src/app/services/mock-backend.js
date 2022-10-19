@@ -78,7 +78,7 @@ export const numberOfProviders = 3;
 export const numberOfSpaces = 1;
 export const numberOfFiles = 200;
 export const numberOfDirs = 5;
-export const numberOfChainDirs = 5;
+export const numberOfChainDirs = 20;
 export const numberOfTransfers = 10;
 export const numberOfAtmWorkflowExecutions = 10;
 

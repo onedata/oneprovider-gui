@@ -1,7 +1,6 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import { reads } from '@ember/object/computed';
-import { set, get } from '@ember/object';
+import { set, get, computed } from '@ember/object';
 import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend({
@@ -9,7 +8,9 @@ export default Component.extend({
 
   mockBackend: service(),
 
-  file: reads('mockBackend.entityRecords.chainDir.3'),
+  file: computed('mockBackend.entityRecords.chainDir', function file() {
+    return this.mockBackend.entityRecords.chainDir.at(-1);
+  }),
 
   /**
    * @override
