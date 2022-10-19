@@ -42,6 +42,10 @@
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
   }
+  .user-info-trigger {
+    height: 18px;
+    vertical-align: middle;
+  }
 }
 
 .webui-popover-user-info {
@@ -79,7 +83,4 @@
     }
   }
 }
-.user-info-trigger {
-  height: 18px;
-  vertical-align: middle;
-}
+

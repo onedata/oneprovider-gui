@@ -13,7 +13,15 @@ export default Component.extend({
 
   /**
    * @virtual
-   * @type {Object}
+   * @type {Models.User}
    */
   owner: undefined,
+
+  userInfoOpened: false,
+
+  actions: {
+    toggleUserInfo() {
+      this.set('userInfoOpened', !this.userInfoOpened);
+    },
+  },
 });

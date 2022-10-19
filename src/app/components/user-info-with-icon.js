@@ -13,18 +13,7 @@ export default Component.extend({
 
   /**
    * @virtual
-   * @type {Object}
+   * @type {Models.User}
    */
   owner: undefined,
-
-  /**
-   * @type {Boolean}
-   */
-  isIconHovered: false,
-
-  actions: {
-    changeIconHover(isIconHovered) {
-      this.set('isIconHovered', isIconHovered);
-    },
-  },
 });

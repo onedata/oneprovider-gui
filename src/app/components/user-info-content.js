@@ -19,7 +19,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Object}
+   * @type {Models.User}
    */
   owner: undefined,
 });
