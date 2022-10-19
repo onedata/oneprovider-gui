@@ -58,7 +58,7 @@ const statuses = [{
   tooltip: 'Failed',
 }, {
   name: 'crashed',
-  icon: 'checkbox-filled-x',
+  icon: 'checkbox-filled-warning',
   tooltip: 'Crashed',
 }];
 
