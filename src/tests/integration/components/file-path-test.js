@@ -14,6 +14,7 @@ import {
   createFilesChain,
 } from '../../helpers/files';
 import OneTooltipHelper from '../../helpers/one-tooltip';
+import _ from 'lodash';
 
 const DatasetManager = Service.extend({
   async getBrowsableDataset() {
@@ -402,6 +403,14 @@ describe('Integration | Component | file path', function () {
     expect(findAll('.path-item-first.path-label'), 'label').to.have.lengthOf(1);
     expect(find('.path-item.path-label.path-item-first'))
       .to.have.trimmed.text('root');
+  });
+
+  it('renders path shortened by more than 10 items without crash', async function () {
+    const names = _.times(100, i => `file_name_${i}`);
+    const filesChain = createFilesChain(names);
+    this.set('file', filesChain.at(-1));
+
+    await renderInSmallContainer();
   });
 });
 
