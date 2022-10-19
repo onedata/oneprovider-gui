@@ -1,19 +1,20 @@
 /**
  * Injects function for generating development model for onezone-gui
  *
- * @module routes/application
  * @author Jakub Liput, Michał Borzęcki
- * @copyright (C) 2017-2019 ACK CYFRONET AGH
+ * @copyright (C) 2017-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import { inject as service } from '@ember/service';
 import OnedataApplicationRoute from 'onedata-gui-common/routes/application';
 import DevelopmentModelRouteMixin from 'onedata-gui-websocket-client/mixins/routes/development-model';
+import UnifiedGuiController from 'onedata-gui-common/utils/unified-gui-controller';
 
 export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   onedataWebsocket: service(),
   mockBackend: service(),
+  providerManager: service(),
 
   /**
    * @override
@@ -28,15 +29,22 @@ export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
     return this.get('mockBackend').generateDevelopmentModel();
   },
 
-  beforeModel() {
-    const superResult = this._super(...arguments);
-    return this.get('onedataWebsocket.webSocketInitializedProxy')
-      .catch(() => {
-        throw {
-          isOnedataCustomError: true,
-          type: 'cannot-init-oneprovider-websocket',
-        };
-      })
-      .then(() => superResult);
+  async beforeModel() {
+    const superPromise = this._super(...arguments);
+    if (UnifiedGuiController.shouldRedirectToOnezone()) {
+      const providerId = this.get('providerManager').getCurrentProviderId();
+      const path = `#/onedata/providers/${providerId}`;
+      UnifiedGuiController.redirectToOnezone(path);
+      return;
+    }
+    try {
+      await this.get('onedataWebsocket.webSocketInitializedProxy');
+    } catch (error) {
+      throw {
+        isOnedataCustomError: true,
+        type: 'cannot-init-oneprovider-websocket',
+      };
+    }
+    return await superPromise;
   },
 });
