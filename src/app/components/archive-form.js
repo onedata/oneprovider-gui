@@ -14,7 +14,8 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 
 /**
  * @typedef {Object} ArchiveFormOptions
- * @property {boolean} focusDescription
+ * @property {boolean} [editDescription] If true, description textarea is focused
+ *   on component init.
  */
 
 export default Component.extend(I18n, {
@@ -38,7 +39,7 @@ export default Component.extend(I18n, {
    * @type {ArchiveFormOptions}
    */
   options: Object.freeze({
-    focusDescription: false,
+    editDescription: false,
   }),
 
   /**

@@ -347,7 +347,6 @@ export default EmberObject.extend(
       // after async call
       if (!firstIsStorageLocationsUpdated && this.isStorageLocationsUpdated) {
         await this.updateStorageLocationsProxy({ replace: true });
-        // this.storageLocationsUpdateSetuper();
       }
     },
 

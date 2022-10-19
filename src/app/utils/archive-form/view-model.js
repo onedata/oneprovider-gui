@@ -197,4 +197,9 @@ export default ArchiveFormBaseModel.extend({
       name: 'deletedCallback',
     });
   }),
+
+  init() {
+    this._super(...arguments);
+    this.rootFieldGroup.useCurrentValueAsDefault();
+  },
 });
