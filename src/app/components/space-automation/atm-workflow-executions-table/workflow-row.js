@@ -95,8 +95,9 @@ export default Component.extend(I18n, {
       case 'finished':
         return 'checkbox-filled';
       case 'failed':
-      case 'crashed':
         return 'checkbox-filled-x';
+      case 'crashed':
+        return 'checkbox-filled-warning';
       case 'unknown':
       default:
         return 'unknown';
