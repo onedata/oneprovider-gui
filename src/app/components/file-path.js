@@ -23,6 +23,8 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { getArchiveRelativeFilePath } from 'oneprovider-gui/utils/file-archive-info';
 import { datasetSeparator, directorySeparator, ellipsisString } from 'oneprovider-gui/components/file-path-renderer';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import sleep from 'onedata-gui-common/utils/sleep';
+import { race } from 'rsvp';
 
 const mixins = [
   I18n,
@@ -108,6 +110,13 @@ export default Component.extend(...mixins, {
   batchRenderCount: 0,
 
   /**
+   * If set to true - do not invoke updateView after didRender, which is done to adjust
+   * length of the path. This procedure needs to be locked because of Ember limitations.
+   * @type {boolean}
+   */
+  ignoreRenderRepeat: false,
+
+  /**
    * Indicates that path length needs adjustments on next render.
    * If this flag is set to true, `didRender` will invoke path length adjustment.
    * @type {Boolean}
@@ -131,7 +140,16 @@ export default Component.extend(...mixins, {
     }
     const styleDeclaration = window.getComputedStyle(this.element);
     const font = styleDeclaration.font;
-    return document.fonts.load(font);
+    const fontLoadPromise = document.fonts.load(font);
+    const timeoutPromise = sleep(3000);
+    // Wait either for font load settled (no matter if it fulfilled or rejected)
+    // or timeout occured. Ignore font load error with catch.
+    try {
+      await race([fontLoadPromise, timeoutPromise]);
+    } catch {
+      // Font load error is completely ignored - error logs are available in console or
+      // network inspector.
+    }
   })),
 
   allPathItemsProxy: promise.array(computed(
@@ -343,16 +361,28 @@ export default Component.extend(...mixins, {
    */
   didRender() {
     this._super(...arguments);
+    if (this.ignoreRenderRepeat) {
+      return;
+    }
+    // For batch render value see: https://github.com/emberjs/ember.js/blob/v3.4.8/packages/ember-glimmer/lib/renderer.ts#L228
+    // at specific Ember version.
+    // TODO: VFS-10002 use ENV._RERENDER_LOOP_LIMIT for the limit as in Ember 3.12
+    // Variable usage: https://github.com/emberjs/ember.js/blob/v3.12.0/packages/@ember/-internals/glimmer/lib/renderer.ts#L226
+    // Variable definition: https://github.com/emberjs/ember.js/blob/v3.12.0/packages/@ember/-internals/environment/lib/env.ts#L140
     if (this.batchRenderCount > 9) {
+      this.set('ignoreRenderRepeat', true);
       (async () => {
         await waitForRender();
+        this.setProperties({
+          batchRenderCount: 0,
+          ignoreRenderRepeat: false,
+        });
         this.updateView();
       })();
-      this.set('batchRenderCount', 0);
     } else {
       this.updateView();
+      this.incrementProperty('batchRenderCount');
     }
-    this.incrementProperty('batchRenderCount');
   },
 
   /**
