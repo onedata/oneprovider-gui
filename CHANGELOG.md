@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9767 Added support for new automation workflow execution states
 * VFS-9824 Removed "OnedataFS credentials" automation type
 * VFS-9801 Added number of all processed (scanned) files in transfer
 * VFS-9729 Improved showing storage locations for file in data distribution modal and file info modal
