@@ -373,6 +373,9 @@ export default Component.extend(...mixins, {
       this.set('ignoreRenderRepeat', true);
       (async () => {
         await waitForRender();
+        if (this.isDestroyed || this.isDestroying) {
+          return;
+        }
         this.setProperties({
           batchRenderCount: 0,
           ignoreRenderRepeat: false,
