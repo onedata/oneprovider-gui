@@ -10,12 +10,12 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  classNames: ['user-info-content'],
+  classNames: ['user-info-popover'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.userInfoContent',
+  i18nPrefix: 'components.userInfoPopover',
 
   /**
    * @virtual

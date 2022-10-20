@@ -115,12 +115,11 @@
         padding-left: 0;
       }
     }
+  }
 
-    // general tab
-    .file-owner-username {
-      opacity: $disabled-opacity;
-      margin-left: 0.5em;
-    }
+  .file-owner-username {
+    opacity: $disabled-opacity;
+    margin-left: 0.5em;
   }
 
   .file-info-row-storage-location {

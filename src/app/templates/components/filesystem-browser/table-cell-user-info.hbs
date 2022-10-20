@@ -1,8 +1,7 @@
-<span class="user-info-trigger">
+<span class="user-info-trigger" {{action "toggleUserInfo" bubbles=false}}>
   {{#truncated-string class="file-owner-line file-owner-fullname"}}
     <span 
       class="file-owner-fullname" 
-      {{action "toggleUserInfo" bubbles=false}}
     >
       {{or owner.fullName "—"}}
     </span>
@@ -11,29 +10,15 @@
     {{#truncated-string class="file-owner-line file-owner-username"}}
       <span 
         class="file-owner-username" 
-        {{action "toggleUserInfo" bubbles=false}}
       >
         ({{owner.username}})
       </span>
     {{/truncated-string}}
   {{/if}}
 </span>
-{{#render-later triggerRender=userInfoOpened}}
-  {{#one-webui-popover
-    popoverStyle="user-info"
-    open=userInfoOpened
-    triggerSelector=(concat "#" elementId " .user-info-trigger")
-    as |popover|
-  }}
-    {{#click-outside
-      onClickOutside=(action (mut userInfoOpened) false)
-      exceptSelector=".user-info-trigger, .webui-popover-user-info"
-    }}
-      {{user-info-content
-        class="form-group without-margin"
-        owner=owner
-      }}
-    {{/click-outside}}
-  {{/one-webui-popover}}
-{{/render-later}}
+{{user-info-popover
+  owner=owner
+  userInfoOpened=userInfoOpened
+  triggerSelector=(concat "#" elementId " .user-info-trigger")
+}}
 

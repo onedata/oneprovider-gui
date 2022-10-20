@@ -19,22 +19,9 @@
       ({{owner.username}})
     </span>
   {{/if}}
-  {{#render-later triggerRender=userInfoOpened}}
-    {{#one-webui-popover
-      popoverStyle="user-info"
-      open=userInfoOpened
-      triggerSelector=(concat "#" elementId " .user-info-trigger")
-      as |popover|
-    }}
-      {{#click-outside
-        onClickOutside=(action (mut userInfoOpened) false)
-        exceptSelector=".user-info-trigger, .webui-popover-user-info"
-      }}
-        {{user-info-content
-          class="form-group without-margin"
-          owner=owner
-        }}
-      {{/click-outside}}
-    {{/one-webui-popover}}
-  {{/render-later}}
+  {{user-info-popover
+    owner=owner
+    userInfoOpened=userInfoOpened
+    triggerSelector=(concat "#" elementId " .user-info-trigger")
+  }}
 {{/truncated-string}}
