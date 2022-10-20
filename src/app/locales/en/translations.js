@@ -41,12 +41,9 @@ import fileInfoModal from './components/file-info-modal';
 import fileMetadata from './components/file-metadata';
 import filePermissions from './components/file-permissions';
 import fileShares from './components/file-shares';
-import fileQos from './components/file-qos'; <<
-<< << < HEAD
-import userInfoPopover from './components/user-info-popover'; ===
-=== =
-import archiveAuditLog from './components/archive-audit-log'; >>>
->>> > 8215587 ae8c2128c0b9dcc0a43d38a0295c69e3a
+import fileQos from './components/file-qos';
+import userInfoPopover from './components/user-info-popover';
+import archiveAuditLog from './components/archive-audit-log';
 
 import uploadManager from './services/upload-manager';
 

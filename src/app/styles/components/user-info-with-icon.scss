@@ -1,4 +1,5 @@
 .user-info-with-icon {
+  max-width: 80%;
   $transition-time: 0.5s;
   // a hack to set a stacking context to fix issues in Safari/WebKit
   perspective: 1px;
