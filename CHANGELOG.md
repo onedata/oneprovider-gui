@@ -8,6 +8,8 @@ CHANGELOG
 
 * VFS-9767 Added support for new automation workflow execution states
 * VFS-9824 Removed "OnedataFS credentials" automation type
+* VFS-9339 Added showing rest api for file
+* VFS-9614 Added archivisation audit log
 * VFS-9902 Fixed GUI crash when a long path to file is shortened
 * VFS-9926 Redirecting from non-iframed Oneprovider GUI to provider view in Onezone GUI
 * VFS-9801 Added number of all processed (scanned) files in transfer

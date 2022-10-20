@@ -172,7 +172,7 @@ function isValidQosLogStatus(status) {
 }
 
 /**
- * @param {unknown} content shoold be a `QosAuditLogEntryContent`-like object
+ * @param {unknown} content should be a `QosAuditLogEntryContent`-like object
  * @returns {QosAuditLogEntryContent}
  */
 function normalizeQosAuditLogEntryContent(content) {

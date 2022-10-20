@@ -46,6 +46,15 @@ export default ArchiveFormViewModel.extend({
     });
   }),
 
+  reset() {
+    this.rootFieldGroup.reset();
+  },
+
+  onSubmitted() {
+    this.rootFieldGroup.useCurrentValueAsDefault();
+    this.rootFieldGroup.markAsNotModified();
+  },
+
   init() {
     this._super(...arguments);
     const {

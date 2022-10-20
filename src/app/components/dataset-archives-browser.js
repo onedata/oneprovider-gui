@@ -183,12 +183,12 @@ export default Component.extend(...mixins, {
   /**
    * @type {Utils.BrowsableArchive}
    */
-  archiveToShowSettings: null,
+  archiveToShowDetails: null,
 
   /**
    * @type {ArchiveFormOptions}
    */
-  archivePropertiesOptions: null,
+  archiveDetailsOptions: null,
 
   /**
    * @type {FileInfoTabId} activeTab
@@ -593,7 +593,7 @@ export default Component.extend(...mixins, {
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openDeleteModal: this.openArchivesDeleteModal.bind(this),
       openRecallModal: this.openArchiveRecallModal.bind(this),
-      openArchivePropertiesModal: this.openArchivePropertiesModal.bind(this),
+      openArchiveDetailsModal: this.openArchiveDetailsModal.bind(this),
       browseArchiveDip: this.browseArchiveDip.bind(this),
     }, options));
   },
@@ -643,17 +643,17 @@ export default Component.extend(...mixins, {
     });
   },
 
-  openArchivePropertiesModal(archive, options) {
+  openArchiveDetailsModal(archive, options) {
     this.setProperties({
-      archiveToShowSettings: archive,
-      archivePropertiesOptions: options,
+      archiveToShowDetails: archive,
+      archiveDetailsOptions: options,
     });
   },
 
   closeArchivePropertiesModal() {
     this.setProperties({
-      archiveToShowSettings: null,
-      archivePropertiesOptions: null,
+      archiveToShowDetails: null,
+      archiveDetailsOptions: null,
     });
   },
 

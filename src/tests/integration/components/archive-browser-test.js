@@ -162,8 +162,8 @@ describe('Integration | Component | archive browser', function () {
     });
     const archive = mockArray.array[0];
     const firstArchiveName = mockArray.array[0].name;
-    const openArchivePropertiesModal = sinon.spy();
-    this.set('openArchivePropertiesModal', openArchivePropertiesModal);
+    const openArchiveDetailsModal = sinon.spy();
+    this.set('openArchiveDetailsModal', openArchiveDetailsModal);
     this.set('spacePrivileges', {
       viewArchives: true,
       manageDatasets: true,
@@ -179,8 +179,8 @@ describe('Integration | Component | archive browser', function () {
       'archive settings item'
     ).to.exist;
     await click(action);
-    expect(openArchivePropertiesModal).to.have.been.calledOnce;
-    expect(openArchivePropertiesModal).to.have.been.calledWith(archive);
+    expect(openArchiveDetailsModal).to.have.been.calledOnce;
+    expect(openArchiveDetailsModal).to.have.been.calledWith(archive);
   });
 
   it('has non-disabled "cancel archivization" action for archive item that invokes cancel confirmation modal on click',
@@ -245,13 +245,13 @@ async function renderComponent(testCase) {
     refreshInterval,
     openCreateArchiveModal,
     openRecallModal,
-    openArchivePropertiesModal,
+    openArchiveDetailsModal,
     openCancelModal,
   } = testCase.getProperties(
     'refreshInterval',
     'openCreateArchiveModal',
     'openRecallModal',
-    'openArchivePropertiesModal',
+    'openArchiveDetailsModal',
     'openCancelModal',
   );
   const defaultDataset = {
@@ -283,8 +283,8 @@ async function renderComponent(testCase) {
       notStubbed('openCreateArchiveModal'),
     openRecallModal: openRecallModal ||
       notStubbed('openRecallModal'),
-    openArchivePropertiesModal: openArchivePropertiesModal ||
-      notStubbed('openArchivePropertiesModal'),
+    openArchiveDetailsModal: openArchiveDetailsModal ||
+      notStubbed('openArchiveDetailsModal'),
     openCancelModal: openCancelModal ||
       notStubbed('openCancelModal'),
   }));
