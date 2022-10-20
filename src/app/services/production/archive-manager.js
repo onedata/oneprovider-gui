@@ -16,13 +16,47 @@ import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive'
 import { all as allFulfilled } from 'rsvp';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { FileType, isFileType } from 'onedata-gui-common/utils/file';
 
 const datasetArchivesAspect = 'archives_details';
+
+/**
+ * @typedef {Object} ArchiveLogErrorReason
+ */
+
+/**
+ * There are 3 types of log events:
+ * - archivisation finished
+ * - archivisation failed
+ * - archived file verification failed
+ *
+ * @typedef {Object} ArchiveAuditLogEntryContent
+ * @property {string} description A human-readable description of event.
+ * @property {string} path Relative path to file which the event is about, starting
+ *   from dataset root dir. This path can be used in `ArchiveManager.getFileInfo`.
+ * @property {FileType} fileType Type of file for event.
+ * @property {number} [startTimestamp] Milliseconds timestamp when the archivisation
+ *   process started of file for which the event is about. Only for archivisation
+ *   finish/fail events.
+ * @property {ArchiveLogErrorReason} [reason] Error object - only for archivisation failed
+ *   event.
+ */
+
+/**
+ * Info about pair of source and file created in archive for the source file.
+ * @typedef {Object} ArchiveFileInfo
+ * @property {string} archivedFileId GUID of file created in archive.
+ * @property {string} sourceFileId GUID of source file from space that was used to create
+ *   file in an archive.
+ */
+
+const auditLogAspect = 'audit_log';
 
 export default Service.extend({
   onedataGraph: service(),
   store: service(),
   fileManager: service(),
+  auditLogManager: service(),
 
   /**
    * Mapping of `archiveId` -> PromiseProxy of cached browsable-wrapped archive
@@ -288,6 +322,50 @@ export default Service.extend({
   },
 
   /**
+   * @param {string} archiveId
+   * @param {AuditLogListingParams} listingParams
+   * @returns {Promise<AuditLogEntriesPage<ArchiveAuditLogEntryContent>>}
+   */
+  async getAuditLog(archiveId, listingParams) {
+    const requestGri = gri({
+      entityType: archiveEntityType,
+      entityId: archiveId,
+      aspect: auditLogAspect,
+    });
+    return await this.auditLogManager.getAuditLogEntries(
+      requestGri,
+      listingParams,
+      normalizeAuditLogEntryContent
+    );
+  },
+
+  /**
+   * Resolves information about file under file path in archive.
+   * @param {string} archiveId
+   * @param {string} relativePath A path to file excluding space dir or archive dir.
+   *   Assuming that on space dataset is established on directory with absolute path:
+   *   `/space_name/hello/world` and we have a file:
+   *   `/space_name/hello/world/foo/bar/file.txt` then the relative path should be:
+   *   `foo/bar/file.txt`. Note lack of leading `/` separator.
+   * @returns {ArchiveFileInfo}
+   */
+  async getFileInfo(archiveId, relativePath) {
+    const fileInfoGri = gri({
+      entityType: archiveEntityType,
+      entityId: archiveId,
+      aspect: 'identify_file',
+    });
+    return this.onedataGraph.request({
+      gri: fileInfoGri,
+      operation: 'create',
+      data: {
+        relativePath,
+      },
+      subscribe: false,
+    });
+  },
+
+  /**
    * @param {Array<Object>} attrs data for creating Archive model
    * @param {String} [scope='private'] currently only private is supported
    * @returns {Promise<Array<Model>>}
@@ -334,3 +412,32 @@ export default Service.extend({
     });
   },
 });
+
+/**
+ * @param {unknown} content should be a `ArchiveAuditLogEntryContent`-like object
+ * @returns {ArchiveAuditLogEntryContent}
+ */
+function normalizeAuditLogEntryContent(content) {
+  const normalizedContent = content || {};
+
+  if (typeof normalizedContent.description !== 'string') {
+    normalizedContent.description = '';
+  }
+
+  if (typeof normalizedContent.path !== 'string') {
+    normalizedContent.path = '';
+  }
+
+  if (!isFileType(normalizedContent.fileType)) {
+    normalizedContent.fileType = FileType.Regular;
+  }
+
+  if (
+    'startTimestamp' in normalizedContent &&
+    typeof normalizedContent.startTimestamp !== 'number'
+  ) {
+    delete normalizedContent.startTimestamp;
+  }
+
+  return normalizedContent;
+}

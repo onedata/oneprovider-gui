@@ -14,6 +14,7 @@ export default _.merge({}, BaseBrowserModel, {
   fileActions: {
     archiveProperties: 'Properties',
     editDescription: 'Edit description',
+    showAuditLog: 'Show audit log',
     createArchive: 'Create archive',
     createIncrementalArchive,
     recall: 'Recall to...',

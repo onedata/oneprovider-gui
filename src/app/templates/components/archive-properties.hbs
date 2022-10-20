@@ -1,40 +1,28 @@
-{{#modal.header class="archive-properties-part archive-properties-modal-header"}}
-  <h1 class="archive-properties-header">
-    <span class="header-text">
-      {{tt this "archivePropertiesHeader"}}
-    </span>
-  </h1>
-  {{modal-archive-subheader archives=(array browsableArchive)}}
-{{/modal.header}}
-
-{{#modal.body class="archive-properties-part archive-properties-modal-body"}}
-  {{archive-form
-    formModel=formModel
-    options=options
-    isSubmitting=isSubmitting
-  }}
-  {{yield}}
-{{/modal.body}}
-
-{{#modal.footer class="archive-properties-part archive-properties-modal-footer"}}
-  {{#bs-button
-    class="close-btn"
-    type="default"
-    disabled=isSubmitting
-    onClick=(action "close")
-  }}
-    {{tt this (if isModified "cancel" "close")}}
-  {{/bs-button}}
-  {{#if isModified}}
+{{archive-form
+  formModel=viewModel.formModel
+  options=viewModel.options
+  isSubmitting=viewModel.isSubmitting
+}}
+{{yield}}
+{{#if viewModel.areSubmitButtonsVisible}}
+  <div class="submit-buttons-container">
+    {{#one-button
+      class="close-btn"
+      type="default"
+      disabled=(or (not viewModel.isModified) viewModel.isSubmitting viewModel.disabled)
+      onClick=(action "discard")
+    }}
+      {{tt this "discard"}}
+    {{/one-button}}
     {{#one-button
       type="primary"
       buttonType="submit"
       class="submit-archive-modification-btn"
-      disabled=disabled
-      isPending=isSubmitting
+      disabled=(or (not viewModel.isModified) viewModel.disabled)
+      isPending=viewModel.isSubmitting
       onClick=(action "submit")
     }}
       {{tt this "submit"}}
     {{/one-button}}
-  {{/if}}
-{{/modal.footer}}
+  </div>
+{{/if}}

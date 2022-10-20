@@ -51,12 +51,12 @@
   }}
 {{/if}}
 
-{{#if archiveToShowSettings}}
-  {{archive-properties-modal
+{{#if archiveToShowDetails}}
+  {{archive-details-modal
     open=true
     space=space
-    browsableArchive=archiveToShowSettings
-    options=archivePropertiesOptions
+    browsableArchive=archiveToShowDetails
+    options=archiveDetailsOptions
     onHide=(action closeArchivePropertiesModal)
   }}
 {{/if}}

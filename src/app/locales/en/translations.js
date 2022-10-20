@@ -36,12 +36,13 @@ import archiveRecall from './components/archive-recall';
 import fileRecall from './components/file-recall';
 import archiveContentCount from './components/archive-content-count';
 import archiveState from './components/archive-state';
-import archivePropertiesModal from './components/archive-properties-modal';
+import archiveDetailsModal from './components/archive-details-modal';
 import fileInfoModal from './components/file-info-modal';
 import fileMetadata from './components/file-metadata';
 import filePermissions from './components/file-permissions';
 import fileShares from './components/file-shares';
 import fileQos from './components/file-qos';
+import archiveAuditLog from './components/archive-audit-log';
 
 import uploadManager from './services/upload-manager';
 
@@ -63,6 +64,7 @@ import fileMetadataViewModel from './utils/file-metadata-view-model';
 import filePermissionsViewModel from './utils/file-permissions-view-model';
 import fileQosViewModel from './utils/file-qos-view-model';
 import fileDistributionViewModel from './utils/file-distribution-view-model';
+import archivePropertiesViewModel from './utils/archive-properties-view-model';
 
 const translations = {
   components: {
@@ -101,12 +103,13 @@ const translations = {
     fileRecall,
     archiveContentCount,
     archiveState,
-    archivePropertiesModal,
+    archiveDetailsModal,
     fileInfoModal,
     fileMetadata,
     filePermissions,
     fileShares,
     fileQos,
+    archiveAuditLog,
   },
   services: {
     uploadManager,
@@ -127,6 +130,7 @@ const translations = {
     fileQosViewModel,
     fileDistributionViewModel,
     fileInfo,
+    archivePropertiesViewModel,
     archiveForm: {
       baseModel: archiveFormBaseModel,
       viewModel: archiveFormViewModel,

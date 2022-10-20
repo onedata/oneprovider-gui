@@ -29,6 +29,7 @@ import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insuffi
 const allButtonNames = Object.freeze([
   'btnArchiveProperties',
   'btnEditDescription',
+  'btnShowAuditLog',
   'btnCreateArchive',
   'btnRefresh',
   'btnCopyId',
@@ -104,7 +105,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @virtual
    * @type {(archives: Array<Utils.BrowsableArchive>, options: Object) => any}
    */
-  openArchivePropertiesModal: notImplementedThrow,
+  openArchiveDetailsModal: notImplementedThrow,
 
   /**
    * @virtual optional
@@ -330,7 +331,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         id: 'archiveProperties',
         icon: 'properties',
         action: (archives) => {
-          return this.openArchivePropertiesModal(archives[0]);
+          return this.openArchiveDetailsModal(archives[0], { initialTab: 'properties' });
         },
         showIn: [
           actionContext.singleDir,
@@ -341,12 +342,45 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnEditDescription: computed(
+    'spacePrivileges.createArchives',
     function btnEditDescription() {
+      const hasPrivileges = this.spacePrivileges.createArchives;
+      let disabledTip;
+      if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n: this.i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_create_archives'],
+        });
+      }
       return this.createFileAction({
         id: 'editDescription',
         icon: 'rename',
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
         action: (archives) => {
-          return this.openArchivePropertiesModal(archives[0], { focusDescription: true });
+          return this.openArchiveDetailsModal(archives[0], {
+            initialTab: 'properties',
+            properties: { editDescription: true },
+          });
+        },
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnShowAuditLog: computed(
+    function btnShowAuditLog() {
+      return this.createFileAction({
+        id: 'showAuditLog',
+        icon: 'view-list',
+        action: (archives) => {
+          return this.openArchiveDetailsModal(archives[0], {
+            initialTab: 'logs',
+          });
         },
         showIn: [
           actionContext.singleDir,
