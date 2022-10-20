@@ -15,13 +15,16 @@ import { reads } from '@ember/object/computed';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import pathShorten from 'oneprovider-gui/utils/path-shorten';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
-import { debounce, next } from '@ember/runloop';
+import { debounce } from '@ember/runloop';
 import { promise, lte, or, array, raw, equal } from 'ember-awesome-macros';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { getArchiveRelativeFilePath } from 'oneprovider-gui/utils/file-archive-info';
 import { datasetSeparator, directorySeparator, ellipsisString } from 'oneprovider-gui/components/file-path-renderer';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import sleep from 'onedata-gui-common/utils/sleep';
+import { race } from 'rsvp';
 
 const mixins = [
   I18n,
@@ -91,6 +94,29 @@ export default Component.extend(...mixins, {
   displayedPathItemsCount: Number.MAX_SAFE_INTEGER,
 
   /**
+   * Max number of renders that are invoked one-after-another.
+   * Ember has limit of scheduled rerenders without "settling" (see:
+   * https://github.com/emberjs/ember.js/blob/master/packages/@ember/-internals/environment/lib/env.ts#L146)
+   * so we need to defer next the render after reaching the limit.
+   *
+   * In Ember 3.4.8, the limit is set to 10: https://github.com/emberjs/ember.js/blob/v3.4.8/packages/ember-glimmer/lib/renderer.ts#L228.
+   * As the time this code was written, the limit in the latest Ember version still
+   * occurs, but is much larger.
+   *
+   * The limit is used in `didRender`.
+   * Please examine the limit after Ember update to make it larger.
+   * @type {number}
+   */
+  batchRenderCount: 0,
+
+  /**
+   * If set to true - do not invoke updateView after didRender, which is done to adjust
+   * length of the path. This procedure needs to be locked because of Ember limitations.
+   * @type {boolean}
+   */
+  ignoreRenderRepeat: false,
+
+  /**
    * Indicates that path length needs adjustments on next render.
    * If this flag is set to true, `didRender` will invoke path length adjustment.
    * @type {Boolean}
@@ -99,14 +125,31 @@ export default Component.extend(...mixins, {
 
   //#region asynchronous data
 
-  filePathProxy: promise.object(computed('file', function filePathProxy() {
-    const file = this.get('file');
-    return resolveFilePath(file);
+  filePathProxy: promise.object(computed('file', async function filePathProxy() {
+    return await resolveFilePath(this.file);
   })),
 
   filesViewContextProxy: promise.object(computed('file', function filesViewContext() {
     const file = this.get('file');
     return FilesViewContextFactory.create({ ownerSource: this }).createFromFile(file);
+  })),
+
+  fontProxy: promise.object(computed('element', async function fontProxy() {
+    if (!this.element) {
+      await waitForRender();
+    }
+    const styleDeclaration = window.getComputedStyle(this.element);
+    const font = styleDeclaration.font;
+    const fontLoadPromise = document.fonts.load(font);
+    const timeoutPromise = sleep(3000);
+    // Wait either for font load settled (no matter if it fulfilled or rejected)
+    // or timeout occured. Ignore font load error with catch.
+    try {
+      await race([fontLoadPromise, timeoutPromise]);
+    } catch {
+      // Font load error is completely ignored - error logs are available in console or
+      // network inspector.
+    }
   })),
 
   allPathItemsProxy: promise.array(computed(
@@ -175,9 +218,15 @@ export default Component.extend(...mixins, {
 
   hasSinglePathItem: equal('displayedPathItemsCount', 1),
 
-  isLoading: or('allPathItemsProxy.isPending', 'filesViewContextProxy.isPending'),
+  requiredDataProxy: promise.object(promise.all(
+    'allItemsProxy',
+    'filesViewContextProxy',
+    'fontProxy',
+  )),
 
-  isError: or('allPathItemsProxy.isRejected', 'filesViewContextProxy.isRejected'),
+  isLoading: reads('requiredDataProxy.isPending'),
+
+  isError: reads('requiredDataProxy.isRejected'),
 
   filesViewContext: reads('filesViewContextProxy.content'),
 
@@ -287,11 +336,12 @@ export default Component.extend(...mixins, {
       'transitionend',
       windowResizeHandler
     );
-    this.get('allPathItemsProxy').then(() => {
-      next(() => {
-        this.displayedPathItemsObserver();
-      });
-    });
+
+    (async () => {
+      await this.requiredDataProxy;
+      await waitForRender();
+      this.displayedPathItemsObserver();
+    })();
   },
 
   /**
@@ -311,11 +361,35 @@ export default Component.extend(...mixins, {
    */
   didRender() {
     this._super(...arguments);
-    this.updateView();
+    if (this.ignoreRenderRepeat) {
+      return;
+    }
+    // For batch render value see: https://github.com/emberjs/ember.js/blob/v3.4.8/packages/ember-glimmer/lib/renderer.ts#L228
+    // at specific Ember version.
+    // TODO: VFS-10002 use ENV._RERENDER_LOOP_LIMIT for the limit as in Ember 3.12
+    // Variable usage: https://github.com/emberjs/ember.js/blob/v3.12.0/packages/@ember/-internals/glimmer/lib/renderer.ts#L226
+    // Variable definition: https://github.com/emberjs/ember.js/blob/v3.12.0/packages/@ember/-internals/environment/lib/env.ts#L140
+    if (this.batchRenderCount > 9) {
+      this.set('ignoreRenderRepeat', true);
+      (async () => {
+        await waitForRender();
+        if (this.isDestroyed || this.isDestroying) {
+          return;
+        }
+        this.setProperties({
+          batchRenderCount: 0,
+          ignoreRenderRepeat: false,
+        });
+        this.updateView();
+      })();
+    } else {
+      this.updateView();
+      this.incrementProperty('batchRenderCount');
+    }
   },
 
   /**
-   * Should be invoked every time the view of componetn or its container view changes
+   * Should be invoked every time the view of component or its container view changes
    * somehow, eg.
    * - on `didRender` hook, because content of component changed
    * - on window resize

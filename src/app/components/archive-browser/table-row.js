@@ -10,9 +10,9 @@
 
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
 import EmberObject, { computed, get } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, equal } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise, bool } from 'ember-awesome-macros';
+import { promise, bool, or } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -117,6 +117,14 @@ const RowModel = EmberObject.extend(...rowModelMixins, {
       return get(baseArchive, 'name');
     }
   )),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isFailed: or(
+    equal('archive.state', 'failed'),
+    equal('archive.state', 'verification_failed'),
+  ),
 
   /**
    * @override

@@ -1,0 +1,106 @@
+.archive-audit-log {
+  .audit-log-browser {
+    flex-grow: 1;
+  }
+  .time-taken-text {
+    .unit {
+      margin-left: 0.15em;
+    }
+  }
+  .file-column-header {
+    width: 12em;
+    @media (max-width: $screen-xs-max) {
+      width: 8em;
+    }
+  }
+  .time-taken-column-header {
+    width: 8em;
+  }
+  .cell-time-taken {
+    .time-taken-container {
+      text-align: center;
+    }
+  }
+  .cell-event {
+    .severity-icon {
+      font-size: 200%;
+      margin-right: 0.1em;
+      margin-left: -0.15em;
+    }
+  }
+  .cell-file {
+    .entry-file-icon {
+      top: -0.05em;
+      margin-right: 0.15em;
+    }
+  }
+  // override text-align
+  .infinite-scroll-table .table-head th.time-taken-column-header {
+    text-align: center;
+  }
+  .log-entry-details {
+    --main-log-entry-details-padding: 1em;
+    @media (max-width: $screen-xs-max) {
+      --main-log-entry-details-padding: 0.25em;
+    }
+    display: block;
+    // needed for perfect-scrollbar
+    position: relative;
+    .content {
+      place-items: start;
+    }
+    .header {
+      display: block;
+      margin: var(--main-log-entry-details-padding);
+      margin-bottom: 1em;
+      overflow: hidden;
+      .primary-header {
+        font-size: 120%;
+        @include font-semibold;
+      }
+      .secondary-header {
+        display: flex;
+        align-items: center;
+        margin-top: 0.5em;
+        max-width: 100%;
+      }
+      .entry-details-file-icon {
+        margin-right: 0.2em;
+        margin-top: -0.05em;
+
+        &.effective-type-regular {
+          margin-left: -0.15em;
+        }
+        &.effective-type-directory {
+          margin-left: -0.1em;
+        }
+      }
+    }
+    .table-entry-file-info {
+      td:first-child {
+        padding-left: var(--main-log-entry-details-padding);
+      }
+      @media (max-width: $screen-xs-max) {
+        td {
+          padding-left: var(--main-log-entry-details-padding);
+        }
+      }
+      .section-header {
+        padding-top: 2em;
+        text-transform: uppercase;
+      }
+    }
+    .source-file-link {
+      text-decoration: underline;
+    }
+    .row-item-info {
+      .property-name {
+        @include font-regular;
+      }
+    }
+    .file-alert {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+}
