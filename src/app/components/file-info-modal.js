@@ -174,8 +174,6 @@ export default Component.extend(...mixins, {
     return this.file.entityId === this.space.relationEntityId('rootDir');
   }),
 
-  showApiSection: reads('previewMode'),
-
   itemType: reads('file.type'),
 
   typeTranslation: computed('isMultiFile', 'itemType', function typeTranslation() {
@@ -197,10 +195,17 @@ export default Component.extend(...mixins, {
 
   fileName: reads('file.name'),
 
-  apiSamplesProxy: promise.object(computed(function apiSamples() {
-    const fileId = this.get('file.entityId');
-    return this.get('fileManager').getFileApiSamples(fileId, 'public');
-  })),
+  apiSamplesProxy: promise.object(computed(
+    'file.entityId',
+    'previewMode',
+    function apiSamples() {
+      const fileId = this.get('file.entityId');
+      return this.fileManager.getFileApiSamples(
+        fileId,
+        this.previewMode ? 'public' : 'private'
+      );
+    }
+  )),
 
   apiSamples: reads('apiSamplesProxy.content'),
 
@@ -500,7 +505,6 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<boolean>}
    */
   isApiSamplesTabVisible: and(
-    'showApiSection',
     not('isMultiFile'),
     notEqual('itemType', raw('symlink'))
   ),

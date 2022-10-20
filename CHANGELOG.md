@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9339 Added showing rest api for file
 * VFS-9614 Added archivisation audit log
 * VFS-9902 Fixed GUI crash when a long path to file is shortened
 * VFS-9926 Redirecting from non-iframed Oneprovider GUI to provider view in Onezone GUI

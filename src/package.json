@@ -34,7 +34,6 @@
     "pupa": "2.1.1",
     "resumablejs": "git+https://github.com/23/resumable.js.git#2d5e06b3ed3c4ead0550a0d5a52536016b02b04b",
     "round10": "1.0.3",
-    "shell-escape": "0.2.0",
     "showdown": "1.9.1",
     "smoothscroll-polyfill": "git+https://github.com/michalborzecki/smoothscroll.git#d875d528259e928aa815afd1fc46fb91c18d7282",
     "spin.js": "2.3.2",

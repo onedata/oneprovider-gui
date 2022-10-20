@@ -306,19 +306,6 @@ describe('Integration | Component | file info modal', function () {
     expect(find('.nav-tabs').textContent).to.not.contain('API');
   });
 
-  it('does not show api sample tab when previewMode is false', async function () {
-    await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
-      type: 'file',
-    });
-    this.set('previewMode', false);
-
-    await renderComponent();
-
-    expect(find('.nav-tabs').textContent).to.not.contain('API');
-  });
-
   it('shows hardlinks list', async function () {
     await givenDefaultStubs(this);
     this.set('file', {
@@ -683,7 +670,7 @@ describe('Integration | Component | file info modal', function () {
       .to.contain.text('Return test data.');
     expect(find('.item-info-row-api-command .clipboard-input'))
       .to.contain.text(
-        'curl -L -X GET \'https://dev-onezone.default.svc.cluster.local/api/v3/onezone/test/path/to/data\''
+        'curl -L -X GET "https://dev-onezone.default.svc.cluster.local/api/v3/onezone/test/path/to/data"'
       );
   });
 
