@@ -1,7 +1,7 @@
 /**
  * Manages uploading files using resumable.js and external state of upload
  * received from Onezone.
- * 
+ *
  * @module services/upload-manager
  * @author Michał Borzęcki
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -9,10 +9,10 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { computed, observer, get, getProperties } from '@ember/object';
+import { computed, observer, get, getProperties, setProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import Resumable from 'npm:resumablejs';
-import { Promise, resolve } from 'rsvp';
+import { Promise, resolve, reject, defer } from 'rsvp';
 import getGuiAuthToken from 'onedata-gui-websocket-client/utils/get-gui-auth-token';
 import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
 import moment from 'moment';
@@ -27,7 +27,7 @@ import _ from 'lodash';
  * (`limit`) elapsed.
  * In contrast to Ember throttle, this makes last invocation of function after limit
  * time if there is no invocations.
- * @param {Function} func 
+ * @param {Function} func
  * @param {Number} limit in milliseconds
  * @returns {Function}
  */
@@ -137,20 +137,34 @@ export default Service.extend(I18n, {
         const injectedPathsPerUploadId = new Map();
         const resumableFiles =
           _.flatten([...resumablePerSpaceMap.values()].mapBy('files'));
-        resumableFiles
-          .reject(resumableFile => {
-            const {
-              uploadId,
-              relativePath,
-            } = getProperties(resumableFile, 'uploadId', 'relativePath');
+        resumableFiles.forEach((resumableFile) => {
+          const {
+            uploadId,
+            relativePath,
+          } = getProperties(resumableFile, 'uploadId', 'relativePath');
+
+          let shouldBeCancelled = false;
+          if (injectedUploadState[uploadId]) {
+            resumableFile.isUploadAccepted = true;
+            resumableFile.uploadAcceptedDefer.resolve();
+
             if (!injectedPathsPerUploadId.has(uploadId)) {
-              const upload = injectedUploadState[uploadId] || {};
+              const upload = injectedUploadState[uploadId];
               const uploadFilesPaths = (upload.files || []).mapBy('path');
               injectedPathsPerUploadId.set(uploadId, new Set(uploadFilesPaths));
             }
-            return injectedPathsPerUploadId.get(uploadId).has(relativePath);
-          })
-          .forEach(resumableFile => {
+
+            if (!injectedPathsPerUploadId.get(uploadId).has(relativePath)) {
+              shouldBeCancelled = true;
+            }
+          } else {
+            if (!resumableFile.isUploadAccepted) {
+              return;
+            }
+            shouldBeCancelled = true;
+          }
+
+          if (shouldBeCancelled && !resumableFile.isCancelled) {
             resumableFile.isCancelled = true;
             resumableFile.cancel();
             // Make cleanup after 1s delay to let xhr connections abort
@@ -163,7 +177,8 @@ export default Service.extend(I18n, {
               .finally(() => this.finalizeFileUpload(resumableFile)),
               1000
             );
-          });
+          }
+        });
       }
     }
   ),
@@ -199,7 +214,13 @@ export default Service.extend(I18n, {
 
           if (!resumableFile.initializeUploadPromise) {
             resumableFile.initializeUploadPromise =
-              this.createCorrespondingFile(resumableFile)
+              resumableFile.uploadAcceptedPromise
+              .then(() => {
+                if (resumableFile.isCancelled) {
+                  return reject('cancelled');
+                }
+              })
+              .then(() => this.createCorrespondingFile(resumableFile))
               .then(() => this.initializeFileUpload(resumableFile))
               .then(() => this.notifyUploadInitialized(resumableFile));
           }
@@ -210,24 +231,27 @@ export default Service.extend(I18n, {
             ])
             .then(() => fileChunk.preprocessFinished())
             .catch(error => {
-              // Error occurred in chunk preprocessing so either cannot create
-              // directory/file or cannot get auth token. In both cases the whole
-              // file upload must be cancelled.
-              resumableFile.cancel();
+              if (!resumableFile.isCancelled) {
+                // Error occurred in chunk preprocessing so either cannot create
+                // directory/file or cannot get auth token. In both cases the whole
+                // file upload must be cancelled.
+                resumableFile.cancel();
+
+                const errorMessage = get(
+                  this.get('errorExtractor').getMessage(error),
+                  'message.string'
+                ) || this.t('unknownError');
+                this.notifyParent({
+                  uploadId: resumableFile.uploadId,
+                  path: resumableFile.relativePath,
+                  error: errorMessage,
+                });
+              }
+
               // BUGFIX: Resumable does not replace cancelled not-started chunk
               // with a new one in upload queue. We need to invoke `uploadNextChunk`
               // manually.
               fileChunk.resumableObj.uploadNextChunk();
-
-              const errorMessage = get(
-                this.get('errorExtractor').getMessage(error),
-                'message.string'
-              ) || this.t('unknownError');
-              this.notifyParent({
-                uploadId: resumableFile.uploadId,
-                path: resumableFile.relativePath,
-                error: errorMessage,
-              });
 
               this.deleteFailedFile(resumableFile)
                 .finally(() => this.finalizeFileUpload(resumableFile));
@@ -312,6 +336,21 @@ export default Service.extend(I18n, {
 
     const uploadId = uuid();
     const createdDirectories = {};
+
+    resumableFiles.forEach((resumableFile) => {
+      const uploadAcceptedDefer = defer();
+      setProperties(resumableFile, {
+        uploadId,
+        targetRootDirectory: targetDirectory,
+        createdDirectories,
+        uploadAcceptedDefer,
+        uploadAcceptedPromise: uploadAcceptedDefer.promise,
+        // `true` value means that Onezone has at least once mentioned about
+        // this upload in OZ-OP GUI communication.
+        isUploadAccepted: false,
+        isCancelled: false,
+      });
+    });
 
     resumableFiles.setEach('uploadId', uploadId);
     resumableFiles.setEach('targetRootDirectory', targetDirectory);
@@ -427,7 +466,7 @@ export default Service.extend(I18n, {
 
   /**
    * Initializes upload of given file.
-   * @param {ResumableFile} resumableFile 
+   * @param {ResumableFile} resumableFile
    * @returns {Promise}
    */
   initializeFileUpload(resumableFile) {
@@ -442,7 +481,7 @@ export default Service.extend(I18n, {
 
   /**
    * Ends upload of given file.
-   * @param {ResumableFile} resumableFile 
+   * @param {ResumableFile} resumableFile
    * @returns {Promise}
    */
   finalizeFileUpload(resumableFile) {
@@ -456,7 +495,7 @@ export default Service.extend(I18n, {
 
   /**
    * Deletes file, that was used as a target for failed upload.
-   * @param {ResumableFile} resumableFile 
+   * @param {ResumableFile} resumableFile
    * @returns {Promise}
    */
   deleteFailedFile(resumableFile) {
@@ -693,7 +732,7 @@ function buildFilesTree(resumableFiles) {
  * Converts tree back to array of files, but ordered in a way, that minimizes
  * the number of unnecessary created directories in case of file upload failure.
  * Order: 'Files first, then run itself recurrently on each directory`.
- * @param {Object} tree 
+ * @param {Object} tree
  * @returns {Array<ResumableFile>}
  */
 function sortFilesToUpload(tree) {
