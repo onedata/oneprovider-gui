@@ -215,10 +215,6 @@ export default Service.extend(I18n, {
                 // file upload must be cancelled.
                 resumableFile.cancel();
 
-                const errorMessage = get(
-                  this.get('errorExtractor').getMessage(error),
-                  'message.string'
-                ) || this.t('unknownError');
                 this.notifyParent({
                   uploadId: resumableFile.uploadId,
                   path: resumableFile.relativePath,
