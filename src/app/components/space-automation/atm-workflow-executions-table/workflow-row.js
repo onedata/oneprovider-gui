@@ -1,14 +1,13 @@
 /**
  * Shows single workflow executions table row.
  *
- * @module components/space-automation/atm-workflow-executions-table/workflow-row
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { tag } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -56,10 +55,10 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Function}
+   * @type {(operation: AtmWorkflowExecutionLifecycleChangingOperation) => void}
    * @returns {any}
    */
-  onCancel: undefined,
+  onLifecycleChange: undefined,
 
   /**
    * @type {Boolean}
@@ -84,21 +83,21 @@ export default Component.extend(I18n, {
   statusIcon: computed('status', function statusIcon() {
     switch (this.get('status')) {
       case 'scheduled':
-      case 'preparing':
-      case 'enqueued':
+      case 'resuming':
         return 'time';
       case 'active':
         return 'update';
-      case 'aborting':
+      case 'stopping':
       case 'interrupted':
       case 'cancelled':
+      case 'paused':
         return 'cancelled';
-      case 'skipped':
-        return 'skipped';
       case 'finished':
         return 'checkbox-filled';
       case 'failed':
         return 'checkbox-filled-x';
+      case 'crashed':
+        return 'checkbox-filled-warning';
       case 'unknown':
       default:
         return 'unknown';
@@ -127,15 +126,32 @@ export default Component.extend(I18n, {
     const action = workflowActions.createCancelAtmWorkflowExecutionAction({
       atmWorkflowExecution: atmWorkflowExecutionSummary,
     });
-    action.addExecuteHook(result => {
-      if (result && get(result, 'status') !== 'done') {
-        return;
+    action.addExecuteHook((result) => {
+      if (result?.status === 'done') {
+        this.onLifecycleChange?.('cancel');
       }
-      const onCancel = this.get('onCancel');
-      onCancel && onCancel();
     });
     return action;
   }),
+
+  /**
+   * @type {ComputedProperty<Utils.Action>}
+   */
+  pauseResumeAction: computed(
+    'atmWorkflowExecutionSummary',
+    function pauseResumeAction() {
+      const action = this.workflowActions
+        .createPauseResumeAtmWorkflowExecutionAction({
+          atmWorkflowExecution: this.atmWorkflowExecutionSummary,
+        });
+      action.addExecuteHook((result) => {
+        if (result?.status === 'done') {
+          this.onLifecycleChange?.(result?.additionalData?.operation);
+        }
+      });
+      return action;
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
@@ -154,7 +170,11 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Array<Utils.Action>>}
    */
-  atmWorkflowExecutionActions: collect('cancelAction', 'copyIdAction'),
+  atmWorkflowExecutionActions: collect(
+    'pauseResumeAction',
+    'cancelAction',
+    'copyIdAction',
+  ),
 
   click(event) {
     this._super(...arguments);

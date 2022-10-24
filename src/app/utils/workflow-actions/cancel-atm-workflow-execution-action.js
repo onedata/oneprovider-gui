@@ -9,7 +9,7 @@
 
 import Action from 'onedata-gui-common/utils/action';
 import ActionResult from 'onedata-gui-common/utils/action-result';
-import { computed } from '@ember/object';
+import { computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import {
@@ -19,7 +19,7 @@ import {
 import { reject } from 'rsvp';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
-const nonCancellableStatuses = [...workflowEndedStatuses, 'aborting'];
+const nonCancellableStatuses = workflowEndedStatuses;
 
 export default Action.extend({
   workflowManager: service(),
@@ -71,6 +71,12 @@ export default Action.extend({
    */
   executionStatus: computed('atmWorkflowExecution.status', function executionStatus() {
     return normalizeWorkflowStatus(this.get('atmWorkflowExecution.status'));
+  }),
+
+  executionStatusObserver: observer('executionStatus', function executionStatusObserver() {
+    if (this.hasBeenExecuted && this.executionStatus !== 'stopping') {
+      this.set('hasBeenExecuted', false);
+    }
   }),
 
   /**

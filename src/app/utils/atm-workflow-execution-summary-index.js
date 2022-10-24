@@ -10,6 +10,7 @@
 
 import { getProperties } from '@ember/object';
 import reversedTimestamp from 'oneprovider-gui/utils/reversed-timestamp';
+import { AtmWorkflowExecutionPhase } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
 export default function atmWorkflowExecutionIndex(record, phase) {
   const {
@@ -18,6 +19,6 @@ export default function atmWorkflowExecutionIndex(record, phase) {
     finishTime,
   } = getProperties(record, 'entityId', 'scheduleTime', 'finishTime');
 
-  const timestamp = phase === 'ended' ? finishTime : scheduleTime;
+  const timestamp = phase === AtmWorkflowExecutionPhase.Ended ? finishTime : scheduleTime;
   return `${reversedTimestamp(timestamp)}${entityId}`;
 }

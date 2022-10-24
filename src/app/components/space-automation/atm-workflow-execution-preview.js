@@ -157,18 +157,23 @@ export default Component.extend({
   cancelAction: computed(
     'atmWorkflowExecutionProxy.isFulfilled',
     function cancelAction() {
-      const {
-        workflowActions,
-        atmWorkflowExecutionProxy,
-      } = this.getProperties('workflowActions', 'atmWorkflowExecutionProxy');
-      const {
-        isFulfilled,
-        content: atmWorkflowExecution,
-      } = getProperties(atmWorkflowExecutionProxy, 'isFulfilled', 'content');
+      if (this.atmWorkflowExecutionProxy.isFulfilled) {
+        return this.workflowActions.createCancelAtmWorkflowExecutionAction({
+          atmWorkflowExecution: this.atmWorkflowExecutionProxy.content,
+        });
+      }
+    }
+  ),
 
-      if (isFulfilled) {
-        return workflowActions.createCancelAtmWorkflowExecutionAction({
-          atmWorkflowExecution,
+  /**
+   * @type {ComputedProperty<Utils.Action>}
+   */
+  pauseResumeAction: computed(
+    'atmWorkflowExecutionProxy.isFulfilled',
+    function pauseResumeAction() {
+      if (this.atmWorkflowExecutionProxy.isFulfilled) {
+        return this.workflowActions.createPauseResumeAtmWorkflowExecutionAction({
+          atmWorkflowExecution: this.atmWorkflowExecutionProxy.content,
         });
       }
     }

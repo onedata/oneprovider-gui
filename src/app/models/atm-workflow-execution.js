@@ -15,29 +15,27 @@ export const entityType = 'op_atm_workflow_execution';
 
 export default Model.extend(GraphSingleModelMixin, {
   /**
-   * One of:
-   * - `'scheduled'`,
-   * - `'preparing'`,
-   * - `'enqueued'`,
-   * - `'active'`,
-   * - `'finished'`,
-   * - `'failed'`.
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<AtmWorkflowExecutionStatus>}
    */
   status: attr('string'),
 
   /**
-   * @type {ComputedProperty<Number>}
+   * @type {ComputedProperty<number>}
    */
   scheduleTime: attr('number'),
 
   /**
-   * @type {ComputedProperty<Number>}
+   * @type {ComputedProperty<number>}
    */
   startTime: attr('number'),
 
   /**
-   * @type {ComputedProperty<Number>}
+   * @type {ComputedProperty<number>}
+   */
+  suspendTime: attr('number'),
+
+  /**
+   * @type {ComputedProperty<number>}
    */
   finishTime: attr('number'),
 
@@ -54,7 +52,7 @@ export default Model.extend(GraphSingleModelMixin, {
   storeRegistry: attr('object'),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
   systemAuditLogId: attr('string'),
 

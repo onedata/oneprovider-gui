@@ -11,6 +11,7 @@ import $ from 'jquery';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { isEmpty } from '@ember/utils';
 import { htmlSafe } from '@ember/string';
+import { AtmWorkflowExecutionPhase } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
 // TODO: VFS-7803 DRY in infinite scrollable lists
 
@@ -26,9 +27,8 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.spaceAutomation.atmWorkflowExecutionsTable',
 
   /**
-   * One of: `'waiting'`, `'ongoing'`, `'ended'`
    * @virtual
-   * @type {String}
+   * @type {AtmWorkflowExecutionPhase}
    */
   phase: undefined,
 
@@ -39,11 +39,17 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * @virtual optional
+   * @type {(operation: AtmWorkflowExecutionLifecycleChangingOperation') => void}
+   */
+  onAtmWorkflowExecutionLifecycleChange: undefined,
+
+  /**
    * @type {Function}
    * @param {Models.AtmWorkflowExecutionSummary}
    * @returns {any}
    */
-  onWorkflowSelect: undefined,
+  onAtmWorkflowExecutionSelect: undefined,
 
   /**
    * @type {Number}
@@ -81,33 +87,25 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Array<String>>}
    */
   columns: computed('phase', function columns() {
-    switch (this.get('phase')) {
-      case 'waiting':
-        return [
-          'name',
-          'inventory',
-          'scheduledAt',
-          'status',
-          'actions',
-        ];
-      case 'ongoing':
-        return [
-          'name',
-          'inventory',
-          'startedAt',
-          'status',
-          'actions',
-        ];
-      case 'ended':
-        return [
-          'name',
-          'inventory',
-          'startedAt',
-          'finishedAt',
-          'status',
-          'actions',
-        ];
+    const phaseColumns = ['name', 'inventory'];
+
+    switch (this.phase) {
+      case AtmWorkflowExecutionPhase.Waiting:
+        phaseColumns.push('scheduledAt');
+        break;
+      case AtmWorkflowExecutionPhase.Ongoing:
+        phaseColumns.push('startedAt');
+        break;
+      case AtmWorkflowExecutionPhase.Ended:
+        phaseColumns.push('startedAt', 'finishedAt');
+        break;
+      case AtmWorkflowExecutionPhase.Suspended:
+        phaseColumns.push('suspendedAt');
+        break;
     }
+
+    phaseColumns.push('status', 'actions');
+    return phaseColumns;
   }),
 
   /**
@@ -261,8 +259,13 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    atmWorkflowExecutionCancelled() {
+    /**
+     * @param {AtmWorkflowExecutionLifecycleChangingOperation} lifecycleChangingOperation
+     * @returns {void}
+     */
+    atmWorkflowExecutionLifecycleChanged(lifecycleChangingOperation) {
       this.updateAtmWorkflowExecutionSummaries();
+      this.onAtmWorkflowExecutionLifecycleChange?.(lifecycleChangingOperation);
     },
   },
 });
