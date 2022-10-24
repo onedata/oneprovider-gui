@@ -343,18 +343,20 @@ export default Service.extend(I18n, {
         uploadId,
         targetRootDirectory: targetDirectory,
         createdDirectories,
+        // When upload is "accepted", then we are sure that Onezone GUI
+        // knows about it and it took responsibility for managing it's lifecycle.
+        // It fixes bug, when Onezone injected new upload state without
+        // some files not because these were cancelled, but because these were not
+        // acknowledged to Onezone yet (race condition).
+        // Until below defer, promise and flag are truthy, Oneprovider GUI
+        // suspends upload of this file and waits for Onezone to inject
+        // first information about it.
         uploadAcceptedDefer,
         uploadAcceptedPromise: uploadAcceptedDefer.promise,
-        // `true` value means that Onezone has at least once mentioned about
-        // this upload in OZ-OP GUI communication.
         isUploadAccepted: false,
         isCancelled: false,
       });
     });
-
-    resumableFiles.setEach('uploadId', uploadId);
-    resumableFiles.setEach('targetRootDirectory', targetDirectory);
-    resumableFiles.setEach('createdDirectories', createdDirectories);
 
     // Sort files to optimize directories creation
     const filesTree = buildFilesTree(resumableFiles);
