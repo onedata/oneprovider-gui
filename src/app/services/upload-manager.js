@@ -9,10 +9,10 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { computed, observer, get, getProperties } from '@ember/object';
+import { computed, observer, get, getProperties, setProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import Resumable from 'resumablejs';
-import { Promise, resolve } from 'rsvp';
+import { Promise, resolve, reject, defer } from 'rsvp';
 import getGuiAuthToken from 'onedata-gui-websocket-client/utils/get-gui-auth-token';
 import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
 import moment from 'moment';
@@ -115,20 +115,34 @@ export default Service.extend(I18n, {
         const injectedPathsPerUploadId = new Map();
         const resumableFiles =
           _.flatten([...resumablePerSpaceMap.values()].mapBy('files'));
-        resumableFiles
-          .reject(resumableFile => {
-            const {
-              uploadId,
-              relativePath,
-            } = getProperties(resumableFile, 'uploadId', 'relativePath');
+        resumableFiles.forEach((resumableFile) => {
+          const {
+            uploadId,
+            relativePath,
+          } = getProperties(resumableFile, 'uploadId', 'relativePath');
+
+          let shouldBeCancelled = false;
+          if (injectedUploadState[uploadId]) {
+            resumableFile.isUploadAccepted = true;
+            resumableFile.uploadAcceptedDefer.resolve();
+
             if (!injectedPathsPerUploadId.has(uploadId)) {
-              const upload = injectedUploadState[uploadId] || {};
+              const upload = injectedUploadState[uploadId];
               const uploadFilesPaths = (upload.files || []).mapBy('path');
               injectedPathsPerUploadId.set(uploadId, new Set(uploadFilesPaths));
             }
-            return injectedPathsPerUploadId.get(uploadId).has(relativePath);
-          })
-          .forEach(resumableFile => {
+
+            if (!injectedPathsPerUploadId.get(uploadId).has(relativePath)) {
+              shouldBeCancelled = true;
+            }
+          } else {
+            if (!resumableFile.isUploadAccepted) {
+              return;
+            }
+            shouldBeCancelled = true;
+          }
+
+          if (shouldBeCancelled && !resumableFile.isCancelled) {
             resumableFile.isCancelled = true;
             resumableFile.cancel();
             // Make cleanup after 1s delay to let xhr connections abort
@@ -141,7 +155,8 @@ export default Service.extend(I18n, {
               .finally(() => this.finalizeFileUpload(resumableFile)),
               1000
             );
-          });
+          }
+        });
       }
     }
   ),
@@ -177,7 +192,13 @@ export default Service.extend(I18n, {
 
           if (!resumableFile.initializeUploadPromise) {
             resumableFile.initializeUploadPromise =
-              this.createCorrespondingFile(resumableFile)
+              resumableFile.uploadAcceptedPromise
+              .then(() => {
+                if (resumableFile.isCancelled) {
+                  return reject('cancelled');
+                }
+              })
+              .then(() => this.createCorrespondingFile(resumableFile))
               .then(() => this.initializeFileUpload(resumableFile))
               .then(() => this.notifyUploadInitialized(resumableFile));
           }
@@ -188,20 +209,23 @@ export default Service.extend(I18n, {
             ])
             .then(() => fileChunk.preprocessFinished())
             .catch(error => {
-              // Error occurred in chunk preprocessing so either cannot create
-              // directory/file or cannot get auth token. In both cases the whole
-              // file upload must be cancelled.
-              resumableFile.cancel();
+              if (!resumableFile.isCancelled) {
+                // Error occurred in chunk preprocessing so either cannot create
+                // directory/file or cannot get auth token. In both cases the whole
+                // file upload must be cancelled.
+                resumableFile.cancel();
+
+                this.notifyParent({
+                  uploadId: resumableFile.uploadId,
+                  path: resumableFile.relativePath,
+                  error: error ?? String(this.t('unknownError')),
+                });
+              }
+
               // BUGFIX: Resumable does not replace cancelled not-started chunk
               // with a new one in upload queue. We need to invoke `uploadNextChunk`
               // manually.
               fileChunk.resumableObj.uploadNextChunk();
-
-              this.notifyParent({
-                uploadId: resumableFile.uploadId,
-                path: resumableFile.relativePath,
-                error: error ?? String(this.t('unknownError')),
-              });
 
               this.deleteFailedFile(resumableFile)
                 .finally(() => this.finalizeFileUpload(resumableFile));
@@ -292,9 +316,26 @@ export default Service.extend(I18n, {
     const uploadId = uuid();
     const createdDirectories = {};
 
-    resumableFiles.setEach('uploadId', uploadId);
-    resumableFiles.setEach('targetRootDirectory', targetDirectory);
-    resumableFiles.setEach('createdDirectories', createdDirectories);
+    resumableFiles.forEach((resumableFile) => {
+      const uploadAcceptedDefer = defer();
+      setProperties(resumableFile, {
+        uploadId,
+        targetRootDirectory: targetDirectory,
+        createdDirectories,
+        // When upload is "accepted", then we are sure that Onezone GUI
+        // knows about it and it took responsibility for managing it's lifecycle.
+        // It fixes bug, when Onezone injected new upload state without
+        // some files not because these were cancelled, but because these were not
+        // acknowledged to Onezone yet (race condition).
+        // Until below defer, promise and flag are truthy, Oneprovider GUI
+        // suspends upload of this file and waits for Onezone to inject
+        // first information about it.
+        uploadAcceptedDefer,
+        uploadAcceptedPromise: uploadAcceptedDefer.promise,
+        isUploadAccepted: false,
+        isCancelled: false,
+      });
+    });
 
     // Sort files to optimize directories creation
     const filesTree = buildFilesTree(resumableFiles);
