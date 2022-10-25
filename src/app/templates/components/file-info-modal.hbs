@@ -13,7 +13,6 @@
   {{#modal.header class="file-info-modal-header"}}
     <h1>{{headerText}}</h1>
     {{modal-file-subheader files=files}}
-    {{!-- FIXME: use .bs-tab-onedata.bs-tab-modern.file-info-tabbar class --}}
     {{one-tab-bar
       class="nav-tabs-file-info"
       items=visibleTabsItems
@@ -21,6 +20,8 @@
       selectDefaultOnInit=true
       selectedItemChanged=(action "changeTab")
       tabBarLiComponentName="file-info-modal/tab-bar-li"
+      tabsRenderMode="always"
+      dropdownRenderMode="never"
       isSorted=false
     }}
     {{#if activeTabModel.headerComponent}}
