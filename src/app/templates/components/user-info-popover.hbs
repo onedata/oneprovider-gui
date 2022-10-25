@@ -1,13 +1,13 @@
-{{#render-later triggerRender=userInfoOpened}}
+{{#render-later triggerRender=isOpened}}
   {{#one-webui-popover
     popoverStyle="user-info"
-    open=userInfoOpened
+    open=isOpened
     triggerSelector=triggerSelector
     as |popover|
   }}
     {{#click-outside
-      onClickOutside=(action (mut userInfoOpened) false)
-      exceptSelector=".user-info-trigger, .webui-popover-user-info"
+      onClickOutside=(action (mut isOpened) false)
+      exceptSelector=triggerSelector
     }}
       <h1 class="popup-title">
         <span class="one-label">
@@ -17,18 +17,18 @@
       <table class="table table-condensed table-info">
         <tr>
           <td class="property-name">{{tt this "fullName"}}</td>
-          <td class="property-value">{{or owner.fullName "—"}}</td>
+          <td class="property-value">{{or user.fullName "—"}}</td>
         </tr>
         <tr>
           <td class="property-name">{{tt this "username"}}</td>
-          <td class="property-value">{{or owner.username "—"}}</td>
+          <td class="property-value">{{or user.username "—"}}</td>
         </tr>
         <tr>
           <td class="property-name">{{tt this "userId"}}</td>
           <td class="property-value">
             {{one-clipboard-line
               size="sm"
-              value=owner.entityId
+              value=user.entityId
               showText=false
               btnType="success"
             }}

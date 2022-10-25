@@ -27,9 +27,4 @@
   .webui-popover-content {
     padding: $padding-large-horizontal;
   }
-  &.bottom, &.bottom-right {
-    .webui-arrow {
-      margin-left: -$padding-base-vertical;
-    }
-  }
 }

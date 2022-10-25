@@ -1,8 +1,9 @@
 {{#truncated-string}}
   <span
     class={{concat-classes
-      "inline-icon-container user-info-trigger"
+      "inline-icon-container"
       (if userInfoOpened "not-animation" "animation")
+      (if (not(media "isMobile")) "user-info-trigger")
     }}
     {{action
       (mut userInfoOpened)
@@ -20,8 +21,8 @@
     </span>
   {{/if}}
   {{user-info-popover
-    owner=owner
-    userInfoOpened=userInfoOpened
+    user=owner
+    isOpened=userInfoOpened
     triggerSelector=(concat "#" elementId " .user-info-trigger")
   }}
 {{/truncated-string}}

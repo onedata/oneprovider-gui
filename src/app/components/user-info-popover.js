@@ -21,5 +21,5 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Models.User}
    */
-  owner: undefined,
+  user: undefined,
 });

@@ -21,7 +21,7 @@ export default Component.extend({
 
   actions: {
     toggleUserInfo() {
-      this.set('userInfoOpened', !this.userInfoOpened);
+      this.toggleProperty('userInfoOpened');
     },
   },
 });
