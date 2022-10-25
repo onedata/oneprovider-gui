@@ -35,8 +35,8 @@
           {{space-automation/atm-workflow-executions-table/workflow-row
             atmWorkflowExecutionSummary=atmWorkflowExecutionSummary
             columns=columns
-            onSelect=onWorkflowSelect
-            onCancel=(action "atmWorkflowExecutionCancelled")
+            onSelect=onAtmWorkflowExecutionSelect
+            onLifecycleChange=(action "atmWorkflowExecutionLifecycleChanged")
           }}
         {{/each}}
         {{#if (and atmWorkflowExecutionSummaries.initialLoad.isSettled fetchingNext)}}

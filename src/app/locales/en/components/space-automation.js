@@ -9,15 +9,6 @@ export default {
   runWorkflowCreator,
   atmWorkflowExecutionsTable,
   tabs: {
-    waiting: {
-      tabLabel: 'Waiting',
-    },
-    ongoing: {
-      tabLabel: 'Ongoing',
-    },
-    ended: {
-      tabLabel: 'Ended',
-    },
     preview: {
       tabLoadingLabel: 'Loading...',
       tabErrorLabel: 'Cannot load',

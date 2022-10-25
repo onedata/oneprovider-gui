@@ -19,27 +19,22 @@ export const aspects = {
 
 export default Model.extend(GraphSingleModelMixin, {
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
   schemaId: attr('string'),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
   systemAuditLogId: attr('string'),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
   timeSeriesStoreId: attr('string'),
 
   /**
-   * One of:
-   * - `'pending'`,
-   * - `'active'`,
-   * - `'finished'`,
-   * - `'failed'`.
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<AtmTaskExecutionStatus>}
    */
   status: attr('string'),
 

@@ -17,5 +17,5 @@ setApplication(Application.create(config.APP));
 afterEach(unsuppressRejections);
 afterEach(() => sinon.restore());
 
-handleHidepassed(afterEach);
+handleHidepassed();
 start();

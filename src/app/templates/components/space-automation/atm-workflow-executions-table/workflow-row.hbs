@@ -27,6 +27,11 @@
         format="report"
         blank="—"
       }}
+    {{else if (eq column "suspendedAt")}}
+      {{date-format atmWorkflowExecutionSummary.suspendTime
+        format="report"
+        blank="—"
+      }}
     {{else if (eq column "status")}}
       {{#if statusIcon}}
         {{#one-icon
