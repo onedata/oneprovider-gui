@@ -74,13 +74,7 @@ export default BaseTabModel.extend({
   /**
    * @override
    */
-  title: computed('file.name', 'sharesCount', function title() {
-    let text = this.t('title');
-    if (this.sharesCount) {
-      text += ` (${this.sharesCount})`;
-    }
-    return text;
-  }),
+  statusNumber: reads('sharesCount'),
 
   /**
    * @type {ComputedProperty<number>}

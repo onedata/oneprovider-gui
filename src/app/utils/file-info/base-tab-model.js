@@ -55,6 +55,14 @@ export default EmberObject.extend(...mixins, {
   statusIcon: undefined,
 
   /**
+   * Number that will be rendered on the right of text as tab status.
+   * For specific cases, can be also a text (eg. for rendering "50+").
+   * @virtual optional
+   * @type {number|string}
+   */
+  statusNumber: undefined,
+
+  /**
    * @virtual optional
    * @type {string}
    */

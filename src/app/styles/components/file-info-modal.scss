@@ -135,6 +135,8 @@
   }
 
   .nav-link {
+    display: inline-flex;
+    align-items: center;
     .tab-icon.oneicon-rest {
       font-size: 19px;
       font-weight: bold;
@@ -149,6 +151,7 @@
       display: inline-flex;
       align-items: center;
       .tab-status-icon {
+        font-size: 1.8em;
         margin-right: -0.3em;
         line-height: 0;
         margin-left: 0.2em;
@@ -168,6 +171,22 @@
       &.tab-status-danger {
         --tab-status-icon-color: #{$color-one-danger};
       }
+    }
+    .tab-status-number {
+      // some sizes are in pixel format here, because using em will cause partial-pixels
+      // and poor rendering
+      $circle-size: 16px;
+      display: inline-block;
+      border-radius: 100%;
+      background-color: $color-one-azure;
+      padding: 0 4px;
+      min-width: $circle-size;
+      height: $circle-size;
+      font-size: 80%;
+      @include font-bold;
+      color: white;
+      text-align: center;
+      margin-left: 0.8em;
     }
   }
 

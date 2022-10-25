@@ -594,12 +594,13 @@ export default Component.extend(...mixins, {
         }
         tabItems.push(this.builtInTabItems[tabId]);
       }
-      // FIXME: maybe extending standard item of one-tabs will be enough
       const modelBasedTabItems = this.visibleTabsModels.map(tabModel => {
+        // FIXME: create class and reuse instead of extending in loop
         return EmberObject.extend({
           id: reads('tabModel.tabId'),
           name: reads('tabModel.title'),
           statusIcon: reads('tabModel.statusIcon'),
+          statusNumber: reads('tabModel.statusNumber'),
           tabClass: reads('tabModel.tabClass'),
           disabled: false,
         }).create({
@@ -647,9 +648,8 @@ export default Component.extend(...mixins, {
             this.fileInfoModal.hardlinksCount;
           return {
             id: 'hardlinks',
-            name: this.t('hardlinks.tabTitle', {
-              hardlinksCount,
-            }),
+            name: this.t('hardlinks.tabTitle'),
+            statusNumber: hardlinksCount,
           };
         }
       ),

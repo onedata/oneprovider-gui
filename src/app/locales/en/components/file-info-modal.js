@@ -26,7 +26,7 @@ export default {
       tabTitle: 'Size statistics',
     },
     hardlinks: {
-      tabTitle: 'Hard links ({{hardlinksCount}})',
+      tabTitle: 'Hard links',
       showingOnlyNFirst: 'Showing only {{limit}} first hard links.',
       andNMoreYouHaveNoAccess: 'And {{count}} more that you cannot access.',
       noAccessToAll: 'You do not have access to the hard links of this {{fileType}}.',
