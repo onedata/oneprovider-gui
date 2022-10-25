@@ -1,11 +1,13 @@
+{{!-- FIXME: ignoreTouchAction=true like in original tab-bar-li --}}
 <a
   class={{concat-classes
-    "nav-link"
+    (concat "nav-link truncate " (if isActive "active"))
     (concat "nav-link-" item.id)
     (if item.statusIcon "with-status-icon")
     item.tabClass
   }}
   role="tab"
+  onclick={{action "anchorClicked"}}
 >
     {{!--
       TODO: VFS-9626
@@ -15,7 +17,7 @@
     {{#if item.icon}}
       {{one-icon class="tab-icon" icon="rest"}}
     {{/if}}
-    <span class="tab-text">{{item.name}}</span>
+    <span class="tab-name">{{item.name}}</span>
     {{#if item.statusIcon}}
       {{one-icon class="tab-icon" icon=item.statusIcon}}
     {{/if}}

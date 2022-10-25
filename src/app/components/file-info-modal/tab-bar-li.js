@@ -1,7 +1,6 @@
-import Component from '@ember/component';
+import tabBarLi from 'onedata-gui-common/components/one-tab-bar/tab-bar-li';
+import layout from '../../templates/components/file-info-modal/tab-bar-li';
 
-export default Component.extend({
-  tagName: 'span',
-  classNames: ['tab-bar-li', 'clickable'],
-  classNameBindings: ['isActive:active', 'disabled'],
+export default tabBarLi.extend({
+  layout,
 });

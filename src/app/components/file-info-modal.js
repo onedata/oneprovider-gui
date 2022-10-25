@@ -45,6 +45,13 @@ const mixins = [
  * @typedef {'general'|'hardlinks'|'size'|'apiSamples'|'metadata'|'permissions'} FileInfoTabId
  */
 
+/**
+ * @typedef {OneTabBarItem} FileInfoTabItem
+ * @property {FileInfoTabId} id
+ * @property {string} [statusIcon]
+ * @property {string} [tabClass]
+ */
+
 export default Component.extend(...mixins, {
   i18n: service(),
   fileManager: service(),
@@ -568,7 +575,7 @@ export default Component.extend(...mixins, {
   ),
 
   /**
-   * @type {ComputedProperty<Array<EmberObject>>} Array of OneTabBarItem-like.
+   * @type {ComputedProperty<Array<FileInfoTabItem>>}
    */
   visibleTabsItems: computed(
     'visibleTabs',
@@ -590,7 +597,7 @@ export default Component.extend(...mixins, {
       // FIXME: maybe extending standard item of one-tabs will be enough
       const modelBasedTabItems = this.visibleTabsModels.map(tabModel => {
         return EmberObject.extend({
-          id: reads('tabModel.id'),
+          id: reads('tabModel.tabId'),
           name: reads('tabModel.title'),
           statusIcon: reads('tabModel.statusIcon'),
           tabClass: reads('tabModel.tabClass'),
@@ -604,6 +611,14 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<FileInfoTabItem|null>}
+   */
+  activeTabItem: computed('activeTab', 'visibleTabItems', function activeTabItem() {
+    const activeTab = this.activeTab;
+    return this.visibleTabsItems.find(({ id }) => id && id === activeTab);
+  }),
+
   builtInTabItems: computed(function builtInTabItems() {
     return EmberObject.extend(OwnerInjector, I18n, {
       i18n: service(),
@@ -615,6 +630,7 @@ export default Component.extend(...mixins, {
 
       // FIXME: define FileInfoModalTabItem type
 
+      /** @type {FileInfoTabItem} */
       general: computed(function general() {
         return {
           id: 'general',
@@ -622,6 +638,7 @@ export default Component.extend(...mixins, {
         };
       }),
 
+      /** @type {FileInfoTabItem} */
       hardlinks: computed(
         'fileInfoModal.{hardlinksLimitExceeded,hardlinksLimit,hardlinksCount}',
         function hardlinks() {
@@ -637,6 +654,7 @@ export default Component.extend(...mixins, {
         }
       ),
 
+      /** @type {FileInfoTabItem} */
       size: computed(
         'fileInfoModal.isSizeStatsDisabled',
         function size() {
@@ -650,6 +668,7 @@ export default Component.extend(...mixins, {
         }
       ),
 
+      /** @type {FileInfoTabItem} */
       apiSamples: computed(function apiSamples() {
         return {
           id: 'apiSamples',
@@ -803,12 +822,16 @@ export default Component.extend(...mixins, {
   },
 
   actions: {
-    async changeTab(tabName) {
-      if (tabName === this.activeTab) {
+    /**
+     * @param {FileInfoTabItem} tabItem
+     * @returns {Promise}
+     */
+    async changeTab({ id: tabId }) {
+      if (tabId === this.activeTab) {
         return;
       }
       if ((await this.activeTabModel?.checkClose?.()) ?? true) {
-        this.set('activeTab', tabName);
+        this.set('activeTab', tabId);
       }
     },
     close() {
