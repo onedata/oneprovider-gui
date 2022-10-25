@@ -22,6 +22,7 @@ import {
   bool,
   equal,
   not,
+  tag,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -33,6 +34,7 @@ import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlin
 import _ from 'lodash';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 
 const mixins = [
   I18n,
@@ -564,6 +566,102 @@ export default Component.extend(...mixins, {
       return this.allTabModels.filterBy('isVisible');
     }
   ),
+
+  /**
+   * @type {ComputedProperty<Array<EmberObject>>} Array of OneTabBarItem-like.
+   */
+  visibleTabsItems: computed(
+    'visibleTabs',
+    'visibleTabsModels',
+    function visibleTabsItems() {
+      const tabItems = [];
+      const nonModelTabIds = [
+        'general',
+        'hardlinks',
+        'size',
+        'apiSamples',
+      ];
+      for (const tabId of nonModelTabIds) {
+        if (!this.visibleTabs.includes(tabId)) {
+          continue;
+        }
+        tabItems.push(this.builtInTabItems[tabId]);
+      }
+      // FIXME: maybe extending standard item of one-tabs will be enough
+      const modelBasedTabItems = this.visibleTabsModels.map(tabModel => {
+        return EmberObject.extend({
+          id: reads('tabModel.id'),
+          name: reads('tabModel.title'),
+          statusIcon: reads('tabModel.statusIcon'),
+          tabClass: reads('tabModel.tabClass'),
+          disabled: false,
+        }).create({
+          tabModel,
+        });
+      });
+      tabItems.push(...modelBasedTabItems);
+      return tabItems;
+    }
+  ),
+
+  builtInTabItems: computed(function builtInTabItems() {
+    return EmberObject.extend(OwnerInjector, I18n, {
+      i18n: service(),
+
+      /**
+       * @override
+       */
+      i18nPrefix: tag`${'fileInfoModal.i18nPrefix'}.tabs`,
+
+      // FIXME: define FileInfoModalTabItem type
+
+      general: computed(function general() {
+        return {
+          id: 'general',
+          name: this.t('general.tabTitle'),
+        };
+      }),
+
+      hardlinks: computed(
+        'fileInfoModal.{hardlinksLimitExceeded,hardlinksLimit,hardlinksCount}',
+        function hardlinks() {
+          const hardlinksCount = this.fileInfoModal.hardlinksLimitExceeded ?
+            `${this.fileInfoModal.hardlinksLimit}+` :
+            this.fileInfoModal.hardlinksCount;
+          return {
+            id: 'hardlinks',
+            name: this.t('hardlinks.tabTitle', {
+              hardlinksCount,
+            }),
+          };
+        }
+      ),
+
+      size: computed(
+        'fileInfoModal.isSizeStatsDisabled',
+        function size() {
+          const areStatsDisabled = this.fileInfoModal.isSizeStatsDisabled;
+          return {
+            id: 'size',
+            name: this.t('size.tabTitle'),
+            tabClass: areStatsDisabled ? '' : 'tab-status-success',
+            statusIcon: areStatsDisabled ? null : 'checkbox-filled',
+          };
+        }
+      ),
+
+      apiSamples: computed(function apiSamples() {
+        return {
+          id: 'apiSamples',
+          name: this.t('apiSamples.tabTitle'),
+          icon: 'rest',
+        };
+      }),
+    }).create({
+      fileInfoModal: this,
+      ownerSource: this,
+    });
+  }),
 
   tabModels: computed(function tabModels() {
     return EmberObject.extend({

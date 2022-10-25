@@ -1,0 +1,22 @@
+<a
+  class={{concat-classes
+    "nav-link"
+    (concat "nav-link-" item.id)
+    (if item.statusIcon "with-status-icon")
+    item.tabClass
+  }}
+  role="tab"
+>
+    {{!--
+      TODO: VFS-9626
+      make something like navComponent in addition
+      to simple title to implement custom tabs look (eg. indicators)
+    --}}
+    {{#if item.icon}}
+      {{one-icon class="tab-icon" icon="rest"}}
+    {{/if}}
+    <span class="tab-text">{{item.name}}</span>
+    {{#if item.statusIcon}}
+      {{one-icon class="tab-icon" icon=item.statusIcon}}
+    {{/if}}
+</a>
