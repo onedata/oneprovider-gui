@@ -138,6 +138,9 @@
     display: inline-flex;
     align-items: center;
     .tab-icon {
+      // every icon has some internal padding - move the icon a little to the left
+      // to make it look centered with text
+      margin-left: -0.2em;
       margin-right: 0.2em;
     }
     .tab-icon.oneicon-rest {
@@ -198,6 +201,15 @@
     .tab-status-tag {
       background-color: var(--tab-status-icon-color, $color-one-azure);
       margin-left: $tab-status-text-margin;
+    }
+  }
+
+  .tab-bar-li:first-child {
+    .nav-link {
+      // first tab icon is specially aligned for alignment with header
+      .tab-icon {
+        margin-left: -0.1em;
+      }
     }
   }
 
