@@ -25,6 +25,10 @@
       <span class="tab-status-tag label">{{item.statusTag}}</span>
     {{/if}}
     {{#if item.statusIcon}}
-      {{one-icon class="tab-status-icon" icon=item.statusIcon}}
+      {{#one-icon class="tab-status-icon" icon=item.statusIcon}}
+        {{#if item.statusIconTip}}
+          {{one-tooltip title=item.statusIconTip}}
+        {{/if}}
+      {{/one-icon}}
     {{/if}}
 </a>

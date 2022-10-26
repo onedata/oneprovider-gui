@@ -602,6 +602,7 @@ export default Component.extend(...mixins, {
           statusIcon: reads('tabModel.statusIcon'),
           statusNumber: reads('tabModel.statusNumber'),
           statusTag: reads('tabModel.statusTag'),
+          statusIconTip: reads('tabModel.statusIconTip'),
           tabClass: reads('tabModel.tabClass'),
           disabled: false,
         }).create({
