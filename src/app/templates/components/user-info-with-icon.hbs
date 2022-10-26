@@ -1,9 +1,8 @@
 {{#truncated-string}}
   <span
     class={{concat-classes
-      "inline-icon-container"
+      "inline-icon-container user-info-trigger"
       (if userInfoOpened "not-animation" "animation")
-      (if (not (media "isMobile")) "user-info-trigger")
     }}
     {{action
       (mut userInfoOpened)
@@ -14,14 +13,14 @@
     {{one-icon icon="user" color=iconColor}}
     {{one-icon icon="browser-info"}}
   </span>
-  <span class="file-owner-fullname">{{or owner.fullName "—"}}</span>
-  {{#if owner.username}}
-    <span class="file-owner-username">
-      ({{owner.username}})
+  <span class="user-fullname">{{or user.fullName "—"}}</span>
+  {{#if user.username}}
+    <span class="user-username">
+      ({{user.username}})
     </span>
   {{/if}}
   {{user-info-popover
-    user=owner
+    user=user
     isOpened=userInfoOpened
     triggerSelector=(concat "#" elementId " .user-info-trigger")
   }}

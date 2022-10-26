@@ -1,5 +1,5 @@
 /**
- * Renders table cell with user info
+ * Renders table cell with owner info
  *
  * @author Agnieszka Warchoł
  * @copyright (C) 2022 ACK CYFRONET AGH
@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 
 export default Component.extend({
-  classNames: ['table-cell-user-info'],
+  classNames: ['table-cell-owner-info'],
 
   /**
    * @virtual
@@ -17,11 +17,23 @@ export default Component.extend({
    */
   owner: undefined,
 
+  /**
+   * @type {Boolean}
+   */
   userInfoOpened: false,
+
+  /**
+   * @type {Boolean}
+   */
+  isUnderline: false,
 
   actions: {
     toggleUserInfo() {
       this.toggleProperty('userInfoOpened');
+    },
+
+    changeIconHover(hasUnderline) {
+      this.set('hasUnderline', hasUnderline);
     },
   },
 });
