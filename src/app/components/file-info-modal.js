@@ -601,6 +601,7 @@ export default Component.extend(...mixins, {
           name: reads('tabModel.title'),
           statusIcon: reads('tabModel.statusIcon'),
           statusNumber: reads('tabModel.statusNumber'),
+          statusTag: reads('tabModel.statusTag'),
           tabClass: reads('tabModel.tabClass'),
           disabled: false,
         }).create({

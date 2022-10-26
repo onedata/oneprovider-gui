@@ -18,10 +18,13 @@
       {{one-icon class="tab-icon" icon="rest"}}
     {{/if}}
     <span class="tab-name">{{item.name}}</span>
-    {{#if item.statusIcon}}
-      {{one-icon class="tab-status-icon" icon=item.statusIcon}}
-    {{/if}}
     {{#if item.statusNumber}}
       <span class="tab-status-number">{{item.statusNumber}}</span>
+    {{/if}}
+    {{#if item.statusTag}}
+      <span class="tab-status-tag label">{{item.statusTag}}</span>
+    {{/if}}
+    {{#if item.statusIcon}}
+      {{one-icon class="tab-status-icon" icon=item.statusIcon}}
     {{/if}}
 </a>

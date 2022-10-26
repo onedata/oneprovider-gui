@@ -63,6 +63,13 @@ export default EmberObject.extend(...mixins, {
   statusNumber: undefined,
 
   /**
+   * Text in tag that will be rendered on the right of text as tab status.
+   * @virtual optional
+   * @type {string}
+   */
+  statusTag: undefined,
+
+  /**
    * @virtual optional
    * @type {string}
    */
