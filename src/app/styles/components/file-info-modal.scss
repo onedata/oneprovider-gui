@@ -137,10 +137,12 @@
   .nav-link {
     display: inline-flex;
     align-items: center;
+    .tab-icon {
+      margin-right: 0.2em;
+    }
     .tab-icon.oneicon-rest {
       font-size: 19px;
       font-weight: bold;
-      margin-right: 0.2em;
     }
 
     .tab-label-api-samples {

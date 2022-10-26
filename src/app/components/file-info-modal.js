@@ -24,7 +24,7 @@ import {
   not,
   tag,
 } from 'ember-awesome-macros';
-import EmberObject, { computed, get, getProperties } from '@ember/object';
+import EmberObject, { computed, get, set, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
@@ -609,6 +609,26 @@ export default Component.extend(...mixins, {
         });
       });
       tabItems.push(...modelBasedTabItems);
+      // FIXME: maybe get icon from filesystem browser model
+      /** @type {Array<[tabId: string, iconName: string]>} */
+      const icons = [
+        ['general', 'browser-info'],
+        ['size', 'overview'],
+        ['hardlinks', 'text-link'],
+        ['apiSamples', 'rest'],
+        ['metadata', 'browser-metadata'],
+        ['permissions', 'browser-permissions'],
+        ['shares', 'browser-share'],
+        ['qos', 'qos'],
+        ['distribution', 'browser-distribution'],
+      ];
+      for (const [itemId, icon] of icons) {
+        const item = tabItems.find(item => item.id === itemId);
+        if (!item) {
+          continue;
+        }
+        set(item, 'icon', icon);
+      }
       return tabItems;
     }
   ),
