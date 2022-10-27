@@ -553,7 +553,7 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
-  it('has active "Data distribution" tab and renders distribution view body when initialTab = distribution is given',
+  it('has active "Distribution" tab and renders distribution view body when initialTab = distribution is given',
     async function () {
       const fileDistributionHelper = new FileDistributionHelper(this);
       await fileDistributionHelper.givenSingleFileWithDistribution();
@@ -577,7 +577,7 @@ describe('Integration | Component | file info modal', function () {
       const sharesNav = find('.nav-link-distribution');
       expect(sharesNav).to.exist;
       expect(sharesNav).to.have.class('active');
-      expect(sharesNav).to.have.trimmed.text('Data distribution');
+      expect(sharesNav).to.have.trimmed.text('Distribution');
       expect(find('.modal-body .file-distribution-body')).to.exist;
     }
   );

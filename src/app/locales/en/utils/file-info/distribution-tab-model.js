@@ -1,3 +1,3 @@
 export default {
-  title: 'Data distribution',
+  title: 'Distribution',
 };

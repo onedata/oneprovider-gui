@@ -20,10 +20,10 @@ export default {
   },
   tabs: {
     general: {
-      tabTitle: 'General',
+      tabTitle: 'Info',
     },
     size: {
-      tabTitle: 'Size statistics',
+      tabTitle: 'Size stats',
     },
     hardlinks: {
       tabTitle: 'Hard links',

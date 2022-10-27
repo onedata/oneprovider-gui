@@ -598,9 +598,9 @@ export default Component.extend(...mixins, {
       const tabItems = [];
       const nonModelTabIds = [
         'general',
+        'apiSamples',
         'hardlinks',
         'size',
-        'apiSamples',
       ];
       for (const tabId of nonModelTabIds) {
         if (!this.visibleTabs.includes(tabId)) {
