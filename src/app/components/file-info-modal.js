@@ -35,6 +35,8 @@ import _ from 'lodash';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
+import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
 
 const mixins = [
   I18n,
@@ -163,6 +165,17 @@ export default Component.extend(...mixins, {
    * @type {Number}
    */
   hardlinksLimit: 100,
+
+  tabItemsIcons: computed(function tabItemsIcons() {
+    const icons = {
+      ...commonActionIcons,
+      apiSamples: 'rest',
+      size: 'overview',
+    };
+    icons.general = icons.info;
+    delete icons.info;
+    return icons;
+  }),
 
   /**
    * @type {ComputedProperty<Models.File>}
@@ -580,6 +593,7 @@ export default Component.extend(...mixins, {
   visibleTabsItems: computed(
     'visibleTabs',
     'visibleTabsModels',
+    'tabItemsIcons',
     function visibleTabsItems() {
       const tabItems = [];
       const nonModelTabIds = [
@@ -595,40 +609,17 @@ export default Component.extend(...mixins, {
         tabItems.push(this.builtInTabItems[tabId]);
       }
       const modelBasedTabItems = this.visibleTabsModels.map(tabModel => {
-        // FIXME: create class and reuse instead of extending in loop
-        return EmberObject.extend({
-          id: reads('tabModel.tabId'),
-          name: reads('tabModel.title'),
-          statusIcon: reads('tabModel.statusIcon'),
-          statusNumber: reads('tabModel.statusNumber'),
-          statusTag: reads('tabModel.statusTag'),
-          statusIconTip: reads('tabModel.statusIconTip'),
-          tabClass: reads('tabModel.tabClass'),
-          disabled: false,
-        }).create({
+        return TabItem.create({
           tabModel,
         });
       });
       tabItems.push(...modelBasedTabItems);
-      // FIXME: maybe get icon from filesystem browser model
-      /** @type {Array<[tabId: string, iconName: string]>} */
-      const icons = [
-        ['general', 'browser-info'],
-        ['size', 'overview'],
-        ['hardlinks', 'text-link'],
-        ['apiSamples', 'rest'],
-        ['metadata', 'browser-metadata'],
-        ['permissions', 'browser-permissions'],
-        ['shares', 'browser-share'],
-        ['qos', 'qos'],
-        ['distribution', 'browser-distribution'],
-      ];
-      for (const [itemId, icon] of icons) {
+      for (const itemId in this.tabItemsIcons) {
         const item = tabItems.find(item => item.id === itemId);
         if (!item) {
           continue;
         }
-        set(item, 'icon', icon);
+        set(item, 'icon', this.tabItemsIcons[itemId]);
       }
       return tabItems;
     }
@@ -650,8 +641,6 @@ export default Component.extend(...mixins, {
        * @override
        */
       i18nPrefix: tag`${'fileInfoModal.i18nPrefix'}.tabs`,
-
-      // FIXME: define FileInfoModalTabItem type
 
       /** @type {FileInfoTabItem} */
       general: computed(function general() {
@@ -695,7 +684,6 @@ export default Component.extend(...mixins, {
         return {
           id: 'apiSamples',
           name: this.t('apiSamples.tabTitle'),
-          icon: 'rest',
         };
       }),
     }).create({
