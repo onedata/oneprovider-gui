@@ -55,6 +55,13 @@ export default EmberObject.extend(...mixins, {
   statusIcon: undefined,
 
   /**
+   * Tooltip text that appear when status icon is hovered.
+   * @virtual optional
+   * @type {string|SafeString}
+   */
+  statusIconTip: undefined,
+
+  /**
    * Number that will be rendered on the right of text as tab status.
    * For specific cases, can be also a text (eg. for rendering "50+").
    * @virtual optional

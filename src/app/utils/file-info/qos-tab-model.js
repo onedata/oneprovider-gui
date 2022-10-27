@@ -100,7 +100,6 @@ export default BaseTabModel.extend({
    */
   statusIcon: reads('allQosStatusIcon'),
 
-  // FIXME: describe in base class
   /**
    * @override
    */
