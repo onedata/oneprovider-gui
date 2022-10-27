@@ -3,6 +3,9 @@
     font-size: 1em;
   }
   .label.label-modal-header-large {
+    .tag-icon {
+      font-size: 1.7em;
+    }
     &.protected-tag-enabled {
       background-color: $dataset-write-protected-color-bg;
       border-color: $dataset-write-protected-color-border;
