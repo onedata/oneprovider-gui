@@ -296,14 +296,9 @@
                   centered=false
                   spinnerBlockClass="loading-owner-full-name"
                 }}
-                  {{#truncated-string}}
-                    <span class="file-owner-fullname">{{or owner.fullName "—"}}</span>
-                    {{#if owner.username}}
-                      <span class="file-owner-username">
-                        ({{owner.username}})
-                      </span>
-                    {{/if}}
-                  {{/truncated-string}}
+                  {{user-info-with-icon
+                    user=owner
+                  }}
                 {{/promise-proxy-container}}
               </td>
             </tr>

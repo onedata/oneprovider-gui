@@ -42,6 +42,7 @@ import fileMetadata from './components/file-metadata';
 import filePermissions from './components/file-permissions';
 import fileShares from './components/file-shares';
 import fileQos from './components/file-qos';
+import userInfoPopover from './components/user-info-popover';
 import archiveAuditLog from './components/archive-audit-log';
 
 import uploadManager from './services/upload-manager';
@@ -109,6 +110,7 @@ const translations = {
     filePermissions,
     fileShares,
     fileQos,
+    userInfoPopover,
     archiveAuditLog,
   },
   services: {
