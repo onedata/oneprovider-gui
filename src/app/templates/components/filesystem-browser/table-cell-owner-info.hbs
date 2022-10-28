@@ -1,5 +1,5 @@
 <span class="user-info-trigger">
-  {{#truncated-string class="file-owner-line user-fullname"}}
+  {{#truncated-string class="file-owner-line"}}
     <span 
       class={{concat-classes 
         "file-owner-fullname" 
@@ -13,7 +13,7 @@
     </span>
   {{/truncated-string}}
   {{#if owner.username}}
-    {{#truncated-string class="file-owner-line file-owner-username"}}
+    {{#truncated-string class="file-owner-line"}}
       <span 
         class="file-owner-username" 
         {{action "toggleUserInfo" bubbles=false}}
