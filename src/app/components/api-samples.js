@@ -14,6 +14,11 @@ export default ApiSamples.extend({
   appProxy: service(),
 
   /**
+   * @type {String} One of: 'onezone', 'oneprovider'
+   */
+  product: 'oneprovider',
+
+  /**
    * @type {String} URL to create access token view
    */
   accessTokenUrl: computed(function accessTokenUrl() {
