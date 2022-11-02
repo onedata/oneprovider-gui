@@ -14,6 +14,11 @@ export default ApiSamples.extend({
   appProxy: service(),
 
   /**
+   * @override
+   */
+  i18nPrefix: 'components.apiSamples',
+
+  /**
    * @type {String} One of: 'onezone', 'oneprovider'
    */
   product: 'oneprovider',
