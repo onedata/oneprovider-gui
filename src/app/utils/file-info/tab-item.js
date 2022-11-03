@@ -1,6 +1,3 @@
-import EmberObject from '@ember/object';
-import { reads } from '@ember/object/computed';
-
 /**
  * Implements interface of FileInfoTabItem type using tab models.
  *
@@ -8,6 +5,9 @@ import { reads } from '@ember/object/computed';
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
+
+import EmberObject from '@ember/object';
+import { reads } from '@ember/object/computed';
 
 export default EmberObject.extend({
   /**
