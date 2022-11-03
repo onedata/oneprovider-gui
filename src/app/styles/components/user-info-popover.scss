@@ -1,0 +1,30 @@
+.webui-popover-user-info {
+  max-width: 500px;
+
+  .popup-title {
+    margin-bottom: 20px;
+    .one-label {
+      font-size: $font-size-h4;
+    }
+  }
+  .table {
+    margin-bottom: 0;
+    tr {
+      .property-name {
+        padding-left: 0;
+      }
+      td {
+        overflow-wrap: break-word;
+      }
+    }
+  }
+  .property-name {
+    width: 85px;
+  }
+  .clipboard-line {
+    margin-top: -5px;
+  }
+  .webui-popover-content {
+    padding: $padding-large-horizontal;
+  }
+}

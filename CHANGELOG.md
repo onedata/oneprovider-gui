@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9866 Added popover with user info
 * VFS-10012 Fixed hanging file uploads
 * VFS-9767 Added support for new automation workflow execution states
 * VFS-9824 Removed "OnedataFS credentials" automation type

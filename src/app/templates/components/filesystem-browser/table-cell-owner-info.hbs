@@ -1,0 +1,33 @@
+<span class="user-info-trigger">
+  {{#truncated-string class="file-owner-line"}}
+    <span 
+      class={{concat-classes 
+        "file-owner-fullname" 
+        (if hasUnderline "has-underline")
+      }}
+      {{action "toggleUserInfo" bubbles=false}}
+      onmouseover={{action "changeIconHover" true}}
+      onmouseout={{action "changeIconHover" false}}
+    >
+      {{or owner.fullName "—"}}
+    </span>
+  {{/truncated-string}}
+  {{#if owner.username}}
+    {{#truncated-string class="file-owner-line"}}
+      <span 
+        class="file-owner-username" 
+        {{action "toggleUserInfo" bubbles=false}}
+        onmouseover={{action "changeIconHover" true}}
+        onmouseout={{action "changeIconHover" false}}
+      >
+        ({{owner.username}})
+      </span>
+    {{/truncated-string}}
+  {{/if}}
+</span>
+{{user-info-popover
+  user=owner
+  isOpened=userInfoOpened
+  triggerSelector=(concat "#" elementId " .user-info-trigger")
+}}
+
