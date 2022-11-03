@@ -22,7 +22,6 @@ import {
   bool,
   equal,
   not,
-  tag,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, set, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -34,7 +33,6 @@ import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlin
 import _ from 'lodash';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
-import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
 import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
 
@@ -637,39 +635,38 @@ export default Component.extend(...mixins, {
     'hardlinksLimit',
     'hardlinksCount',
     function builtInTabItems() {
-      const i18nPrefix = `${this.i18nPrefix}.tabs`;
       const hardlinksCount = this.hardlinksLimitExceeded ?
         `${this.hardlinksLimit}+` :
         this.hardlinksCount;
       const areStatsDisabled = this.isSizeStatsDisabled;
-      return Object.freeze({
+      return {
         /** @type {FileInfoTabItem} */
-        general: Object.freeze({
+        general: {
           id: 'general',
-          name: this.t(`${i18nPrefix}.general.tabTitle`),
-        }),
+          name: this.t('tabs.general.tabTitle'),
+        },
 
         /** @type {FileInfoTabItem} */
-        hardlinks: Object.freeze({
+        hardlinks: {
           id: 'hardlinks',
-          name: this.t(`${i18nPrefix}.hardlinks.tabTitle`),
+          name: this.t('tabs.hardlinks.tabTitle'),
           statusNumber: hardlinksCount,
-        }),
+        },
 
         /** @type {FileInfoTabItem} */
-        size: Object.freeze({
+        size: {
           id: 'size',
-          name: this.t(`${i18nPrefix}.size.tabTitle`),
+          name: this.t('tabs.size.tabTitle'),
           tabClass: areStatsDisabled ? '' : 'tab-status-success',
           statusIcon: areStatsDisabled ? null : 'checkbox-filled',
-        }),
+        },
 
         /** @type {FileInfoTabItem} */
-        apiSamples: Object.freeze({
+        apiSamples: {
           id: 'apiSamples',
-          name: this.t(`${i18nPrefix}.apiSamples.tabTitle`),
-        }),
-      });
+          name: this.t('tabs.apiSamples.tabTitle'),
+        },
+      };
     }),
 
   tabModels: computed(function tabModels() {
