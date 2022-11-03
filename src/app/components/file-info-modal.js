@@ -758,6 +758,8 @@ export default Component.extend(...mixins, {
     return this.tabModels[this.activeTab];
   }),
 
+  effModalClass: tag`${'modalClass'} ${'activeTabModel.modalClass'}`,
+
   init() {
     this._super(...arguments);
     const initialTab = this.initialTab;

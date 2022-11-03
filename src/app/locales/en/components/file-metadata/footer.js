@@ -4,6 +4,4 @@ export default {
     noChanges: 'No unsaved changes',
     someInvalid: 'Entered metadata is invalid – please correct',
   },
-  save: 'Save',
-  discard: 'Discard changes',
 };

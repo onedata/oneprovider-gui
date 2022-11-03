@@ -119,6 +119,12 @@ export default EmberObject.extend(...mixins, {
   title: computedT('title'),
 
   /**
+   * @virtual optional
+   * @type {string}
+   */
+  modalClass: '',
+
+  /**
    * @type {ComputedProperty<boolean>}
    */
   isVisible: conditional(

@@ -5,6 +5,35 @@
     }
   }
 
+  .visible-on-no-body-overflow {
+    display: none;
+  }
+
+  .modal-dialog {
+    // no vertical overflow
+    &.scroll-on-bottom.scroll-on-top {
+      .visible-on-no-body-overflow {
+        display: initial;
+      }
+    }
+  }
+
+  &.footer-visible-on-body-overflow {
+    .modal-dialog {
+      // no vertical overflow
+      &.scroll-on-bottom.scroll-on-top {
+        .show-when-no-body-scroll {
+          display: initial;
+        }
+        .file-info-modal-footer {
+          height: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+      }
+    }
+  }
+
   .file-info-modal-header {
     padding-bottom: 0;
     .file-info-header-extension {

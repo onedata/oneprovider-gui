@@ -43,6 +43,7 @@ import filePermissions from './components/file-permissions';
 import fileShares from './components/file-shares';
 import fileQos from './components/file-qos';
 import archiveAuditLog from './components/archive-audit-log';
+import fileCommon from './components/file-common';
 
 import uploadManager from './services/upload-manager';
 
@@ -110,6 +111,7 @@ const translations = {
     fileShares,
     fileQos,
     archiveAuditLog,
+    fileCommon,
   },
   services: {
     uploadManager,
