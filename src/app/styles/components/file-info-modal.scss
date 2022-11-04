@@ -5,33 +5,36 @@
     }
   }
 
-  .visible-on-no-body-overflow {
-    display: none;
-  }
-
-  .modal-dialog {
-    // no vertical overflow
-    &.scroll-on-bottom.scroll-on-top {
-      .visible-on-no-body-overflow {
-        display: var(--display-on-no-body-overflow, revert);
-      }
+  @media (min-width: $screen-sm-min) {
+    .visible-on-no-body-overflow {
+      display: none;
     }
-  }
 
-  &.footer-visible-on-body-overflow {
     .modal-dialog {
       // no vertical overflow
       &.scroll-on-bottom.scroll-on-top {
-        .show-when-no-body-scroll {
-          display: initial;
-        }
-        .file-info-modal-footer {
-          height: 0;
-          padding-top: 0;
-          padding-bottom: 0;
+        .visible-on-no-body-overflow {
+          display: var(--display-on-no-body-overflow, block);
         }
       }
     }
+
+    &.footer-visible-on-body-overflow {
+      .modal-dialog {
+        // no vertical overflow
+        &.scroll-on-bottom.scroll-on-top {
+          .show-when-no-body-scroll {
+            display: initial;
+          }
+          .file-info-modal-footer {
+            height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+          }
+        }
+      }
+    }
+
   }
 
   .file-info-modal-header {

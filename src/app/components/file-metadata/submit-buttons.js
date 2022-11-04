@@ -12,6 +12,7 @@ import { conditional, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 
 export default SubmitButtons.extend({
+  classNames: ['file-metadata-submit-buttons'],
   layout,
 
   /**
