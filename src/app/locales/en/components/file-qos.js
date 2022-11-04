@@ -1,5 +1,5 @@
 import body from './file-qos/body';
-import footer from './file-qos/footer';
+import bottomToolbar from './file-qos/bottom-toolbar';
 import header from './file-qos/header';
 import qosAdd from './file-qos/qos-add';
 import fileEntry from './file-qos/file-entry';
@@ -11,7 +11,6 @@ import qosEntryLogs from './file-qos/qos-entry-logs';
 
 export default {
   body,
-  footer,
   header,
   qosAdd,
   fileEntry,
@@ -20,4 +19,5 @@ export default {
   qosEntryDetailsSwitch,
   qosEntryCharts,
   qosEntryLogs,
+  bottomToolbar,
 };

@@ -46,6 +46,10 @@
           closeModal=(action "close")
         }}
       {{/if}}
+      {{file-qos/bottom-toolbar
+        class="visible-on-no-body-overflow"
+        viewModel=viewModel
+      }}
     {{/if}}
   {{/promise-proxy-container}}
 {{else if (eq activeSlideId "add")}}

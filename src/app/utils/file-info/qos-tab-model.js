@@ -118,6 +118,11 @@ export default BaseTabModel.extend({
     return this.t(`qosStatusHint.${status}`, { fileTypeText }, { default: '' });
   }),
 
+  /**
+   * @override
+   */
+  modalClass: 'footer-visible-on-body-overflow',
+
   qosStatusClassMapping: Object.freeze({
     error: 'tab-status-danger',
     empty: 'tab-status-default',
