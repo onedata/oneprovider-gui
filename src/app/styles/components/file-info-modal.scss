@@ -47,6 +47,12 @@
     }
   }
 
+  // complex selector for overriding
+  &.modal.in .modal-dialog .file-info-modal-footer {
+    padding-top: 1em;
+    padding-bottom: 1.6em;
+  }
+
   .file-info-row-size .file-info-detail-size,
   .current-size-section .extra-info {
     opacity: $disabled-opacity;
