@@ -6,6 +6,10 @@
         getShareUrl=(action "getShareUrl")
       }}
     {{/each}}
+    {{file-shares/bottom-toolbar
+      class="visible-on-no-body-overflow"
+      viewModel=viewModel
+    }}
   {{else}}
     {{#content-info
       class="scroll-breakpoint-600 fill-flex-using-column content-info-no-shares"

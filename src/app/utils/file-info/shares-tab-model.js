@@ -77,6 +77,11 @@ export default BaseTabModel.extend({
   statusNumber: reads('sharesCount'),
 
   /**
+   * @override
+   */
+  modalClass: 'footer-visible-on-body-overflow',
+
+  /**
    * @type {ComputedProperty<number>}
    */
   sharesCount: reads('file.sharesCount'),
