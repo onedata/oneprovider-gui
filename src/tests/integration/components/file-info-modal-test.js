@@ -278,7 +278,7 @@ describe('Integration | Component | file info modal', function () {
 
     await renderComponent();
 
-    expect(find('.nav-tabs').textContent).to.contain('Hard links (2)');
+    expect(find('.nav-tabs').textContent).to.match(/Hard links\s+2/);
   });
 
   it('shows api sample tab when previewMode is true', async function () {
@@ -530,7 +530,7 @@ describe('Integration | Component | file info modal', function () {
 
     const sharesNav = find('.nav-link-shares');
     expect(sharesNav).to.exist;
-    expect(sharesNav).to.have.trimmed.text('Shares (2)');
+    expect(sharesNav.textContent).to.match(/Shares\s+2/);
   });
 
   it('has active "QoS" tab and renders QoS view body when initialTab = qos is given',
@@ -553,7 +553,7 @@ describe('Integration | Component | file info modal', function () {
     }
   );
 
-  it('has active "Data distribution" tab and renders distribution view body when initialTab = distribution is given',
+  it('has active "Distribution" tab and renders distribution view body when initialTab = distribution is given',
     async function () {
       const fileDistributionHelper = new FileDistributionHelper(this);
       await fileDistributionHelper.givenSingleFileWithDistribution();
@@ -577,7 +577,7 @@ describe('Integration | Component | file info modal', function () {
       const sharesNav = find('.nav-link-distribution');
       expect(sharesNav).to.exist;
       expect(sharesNav).to.have.class('active');
-      expect(sharesNav).to.have.trimmed.text('Data distribution');
+      expect(sharesNav).to.have.trimmed.text('Distribution');
       expect(find('.modal-body .file-distribution-body')).to.exist;
     }
   );

@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9626 Improved look of file info panel tab bar
 * VFS-10037 Added "rate" and "timeDerivative" time series chart functions
 * VFS-9866 Added popover with user info
 * VFS-10012 Fixed hanging file uploads

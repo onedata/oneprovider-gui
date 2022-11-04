@@ -73,6 +73,17 @@
     .nav-tabs {
       margin-left: -$nav-link-padding-vertical;
     }
+    .one-tab-bar {
+      margin-left: -$nav-link-padding-vertical;
+      &.tabs-overflowing {
+        margin-left: 0;
+      }
+      .tab-bar-ul-container {
+        .nav-tabs {
+          margin-left: 0;
+        }
+      }
+    }
   }
 
   .modal-sm {
