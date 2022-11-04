@@ -22,7 +22,6 @@ import {
   bool,
   equal,
   not,
-  tag,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, set, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -34,7 +33,6 @@ import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlin
 import _ from 'lodash';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
-import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
 import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
 
@@ -591,6 +589,7 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<Array<FileInfoTabItem>>}
    */
   visibleTabsItems: computed(
+    'builtInTabItems',
     'visibleTabs',
     'visibleTabsModels',
     'tabItemsIcons',
@@ -614,12 +613,9 @@ export default Component.extend(...mixins, {
         });
       });
       tabItems.push(...modelBasedTabItems);
-      for (const itemId in this.tabItemsIcons) {
-        const item = tabItems.find(item => item.id === itemId);
-        if (!item) {
-          continue;
-        }
-        set(item, 'icon', this.tabItemsIcons[itemId]);
+      for (const item of tabItems) {
+        const itemId = item.id;
+        set(item, 'icon', this.tabItemsIcons[itemId] || null);
       }
       return tabItems;
     }
@@ -633,64 +629,45 @@ export default Component.extend(...mixins, {
     return this.visibleTabsItems.find(({ id }) => id && id === activeTab);
   }),
 
-  builtInTabItems: computed(function builtInTabItems() {
-    return EmberObject.extend(OwnerInjector, I18n, {
-      i18n: service(),
-
-      /**
-       * @override
-       */
-      i18nPrefix: tag`${'fileInfoModal.i18nPrefix'}.tabs`,
-
-      /** @type {FileInfoTabItem} */
-      general: computed(function general() {
-        return {
+  builtInTabItems: computed(
+    'isSizeStatsDisabled',
+    'hardlinksLimitExceeded',
+    'hardlinksLimit',
+    'hardlinksCount',
+    function builtInTabItems() {
+      const hardlinksCount = this.hardlinksLimitExceeded ?
+        `${this.hardlinksLimit}+` :
+        this.hardlinksCount;
+      const areStatsDisabled = this.isSizeStatsDisabled;
+      return {
+        /** @type {FileInfoTabItem} */
+        general: {
           id: 'general',
-          name: this.t('general.tabTitle'),
-        };
-      }),
+          name: this.t('tabs.general.tabTitle'),
+        },
 
-      /** @type {FileInfoTabItem} */
-      hardlinks: computed(
-        'fileInfoModal.{hardlinksLimitExceeded,hardlinksLimit,hardlinksCount}',
-        function hardlinks() {
-          const hardlinksCount = this.fileInfoModal.hardlinksLimitExceeded ?
-            `${this.fileInfoModal.hardlinksLimit}+` :
-            this.fileInfoModal.hardlinksCount;
-          return {
-            id: 'hardlinks',
-            name: this.t('hardlinks.tabTitle'),
-            statusNumber: hardlinksCount,
-          };
-        }
-      ),
+        /** @type {FileInfoTabItem} */
+        hardlinks: {
+          id: 'hardlinks',
+          name: this.t('tabs.hardlinks.tabTitle'),
+          statusNumber: hardlinksCount,
+        },
 
-      /** @type {FileInfoTabItem} */
-      size: computed(
-        'fileInfoModal.isSizeStatsDisabled',
-        function size() {
-          const areStatsDisabled = this.fileInfoModal.isSizeStatsDisabled;
-          return {
-            id: 'size',
-            name: this.t('size.tabTitle'),
-            tabClass: areStatsDisabled ? '' : 'tab-status-success',
-            statusIcon: areStatsDisabled ? null : 'checkbox-filled',
-          };
-        }
-      ),
+        /** @type {FileInfoTabItem} */
+        size: {
+          id: 'size',
+          name: this.t('tabs.size.tabTitle'),
+          tabClass: areStatsDisabled ? '' : 'tab-status-success',
+          statusIcon: areStatsDisabled ? null : 'checkbox-filled',
+        },
 
-      /** @type {FileInfoTabItem} */
-      apiSamples: computed(function apiSamples() {
-        return {
+        /** @type {FileInfoTabItem} */
+        apiSamples: {
           id: 'apiSamples',
-          name: this.t('apiSamples.tabTitle'),
-        };
-      }),
-    }).create({
-      fileInfoModal: this,
-      ownerSource: this,
-    });
-  }),
+          name: this.t('tabs.apiSamples.tabTitle'),
+        },
+      };
+    }),
 
   tabModels: computed(function tabModels() {
     return EmberObject.extend({
