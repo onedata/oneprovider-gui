@@ -13,12 +13,6 @@ export default Component.extend(I18n, {
   classNames: ['text-left'],
 
   /**
-   * FIXME: check if still used
-   * @override
-   */
-  i18nPrefix: 'components.fileMetadata.footer',
-
-  /**
    * @virtual
    * @type {Utils.FileMetadataViewModel}
    */

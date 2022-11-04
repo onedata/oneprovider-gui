@@ -207,7 +207,6 @@ export default EmberObject.extend(...mixins, {
     'isAnyValidating'
   ),
 
-  // FIXME: move translations, test
   isSaveDisabledMessage: or(
     and('isAnyInvalid', computedT('disabledReason.someInvalid')),
     and('isAnyValidating', computedT('disabledReason.validating')),
