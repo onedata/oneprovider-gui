@@ -18,6 +18,8 @@ import {
   bool,
   promise,
   gt,
+  not,
+  and,
 } from 'ember-awesome-macros';
 import { Promise, all as allFulfilled, allSettled, resolve, reject } from 'rsvp';
 import _ from 'lodash';
@@ -27,6 +29,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 const mixins = [
   OwnerInjector,
@@ -311,6 +314,25 @@ export default EmberObject.extend(...mixins, {
    * @type {Ember.ComputedProperty<boolean>}
    */
   isAnyModified: bool('editedPermissionsTypes.length'),
+
+  isDiscardDisabled: not('isAnyModified'),
+
+  isSaveDisabled: or(
+    not('isAnyModified'),
+    not('arePosixPermissionsValid'),
+  ),
+
+  isSaveDisabledMessage: or(
+    and(
+      not('isAnyModified'),
+      computedT('disabledReason.noChanges')
+    ),
+    and(
+      not('arePosixPermissionsValid'),
+      computedT('disabledReason.posixInvalid'),
+    ),
+    raw(null),
+  ),
 
   init() {
     this._super(...arguments);
@@ -607,4 +629,5 @@ export default EmberObject.extend(...mixins, {
       });
     });
   },
+
 });

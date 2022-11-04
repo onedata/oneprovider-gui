@@ -13,7 +13,7 @@
     // no vertical overflow
     &.scroll-on-bottom.scroll-on-top {
       .visible-on-no-body-overflow {
-        display: initial;
+        display: var(--display-on-no-body-overflow, revert);
       }
     }
   }
