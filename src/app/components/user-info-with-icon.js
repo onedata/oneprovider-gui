@@ -16,4 +16,15 @@ export default Component.extend({
    * @type {Models.User}
    */
   user: undefined,
+
+  /**
+   * @type {Boolean}
+   */
+  hasUserInfoHovered: false,
+
+  actions: {
+    userInfoHovered(hasHover) {
+      this.set('hasUserInfoHovered', hasHover);
+    },
+  },
 });

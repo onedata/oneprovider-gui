@@ -121,6 +121,10 @@
     opacity: $disabled-opacity;
     margin-left: 0.5em;
   }
+  .user-fullname {
+    // hack for glitching cursor
+    opacity: 0.99;
+  }
 
   .file-info-row-storage-location {
     td.property-value {
