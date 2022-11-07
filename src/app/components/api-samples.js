@@ -19,9 +19,17 @@ export default ApiSamples.extend({
   i18nPrefix: 'components.apiSamples',
 
   /**
+   * @override
    * @type {String} One of: 'onezone', 'oneprovider'
    */
-  product: 'oneprovider',
+  product: computed('productPerApiSubject', 'apiSubject', function product() {
+    return this.productPerApiSubject[this.apiSubject];
+  }),
+
+  productPerApiSubject: Object.freeze({
+    filePublic: 'onezone',
+    filePrivate: 'oneprovider',
+  }),
 
   /**
    * @type {String} URL to create access token view

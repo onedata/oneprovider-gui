@@ -367,7 +367,7 @@
       }}
         {{api-samples
           apiSamples=apiSamples
-          previewMode=previewMode
+          apiSubject=(if previewMode "filePublic" "filePrivate")
         }}
       {{/promise-proxy-container}}
     {{else}}
