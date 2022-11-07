@@ -9,12 +9,24 @@
 
 import FbTableRowSecondaryInfo from 'oneprovider-gui/components/file-browser/fb-table-row-secondary-info';
 import { reads } from '@ember/object/computed';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default FbTableRowSecondaryInfo.extend({
   classNames: ['archive-table-row-secondary-info'],
 
   /**
+   * @virtual
+   */
+  changeIconHover: notImplementedIgnore,
+
+  /**
    * @type {Utils.BrowsableArchive}
    */
   archive: reads('file'),
+
+  actions: {
+    changeIconHover() {
+      return this.changeIconHover(...arguments);
+    },
+  },
 });

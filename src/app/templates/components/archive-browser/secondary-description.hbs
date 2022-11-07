@@ -6,11 +6,19 @@
   tooltipClass="tooltip-lg tooltip-text-left"
 }}
   {{#if archive.description}}
-    <span class="secondary-description-internal">
+    <span 
+      class="secondary-description-internal"
+      onmouseover={{action "changeIconHover" true}}
+      onmouseout={{action "changeIconHover" false}}
+    >
       {{archive.description}}
     </span>
   {{else}}
-    <span class="secondary-description-internal no-description">
+    <span 
+      class="secondary-description-internal no-description"
+      onmouseover={{action "changeIconHover" true}}
+      onmouseout={{action "changeIconHover" false}}
+    >
       {{tt this "noDescription"}}
     </span>
   {{/if}}
