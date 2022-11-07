@@ -15,11 +15,6 @@ export default ApiSamples.extend({
 
   /**
    * @override
-   */
-  i18nPrefix: 'components.apiSamples',
-
-  /**
-   * @override
    * @type {String} One of: 'onezone', 'oneprovider'
    */
   product: computed('productPerApiSubject', 'apiSubject', function product() {
