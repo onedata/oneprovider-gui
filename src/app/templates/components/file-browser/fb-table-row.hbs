@@ -28,6 +28,8 @@
           }}
           onclick={{action "handleInfoIconClick"}}
           style={{cursorStyleForIcon}}
+          onmouseover={{action "changeIconHover" true}}
+          onmouseout={{action "changeIconHover" false}}
         >
           {{#one-icon-tagged
             class=(concat-classes "tag-right flippable-front" iconTaggedClass)
@@ -44,8 +46,6 @@
             {{one-icon 
               icon="browser-info" 
               class="flippable-back"
-              mouseEnter=(action "changeIconHover" true)
-              mouseLeave=(action "changeIconHover" false)
             }}
           {{/if}}
         </div>
