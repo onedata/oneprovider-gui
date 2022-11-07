@@ -13,120 +13,17 @@
   {{#modal.header class="file-info-modal-header"}}
     <h1>{{headerText}}</h1>
     {{modal-file-subheader files=files}}
-    {{#bs-tab
-      class="bs-tab-onedata bs-tab-modern file-info-tabbar"
-      activeId=activeTab
-      customTabs=true
-      as |tab|
+    {{one-tab-bar
+      class="nav-tabs-file-info"
+      items=visibleTabsItems
+      selectedItem=activeTabItem
+      selectDefaultOnInit=true
+      selectedItemChanged=(action "changeTab")
+      tabBarLiComponentName="file-info-modal/tab-bar-li"
+      tabsRenderMode="always"
+      dropdownRenderMode="never"
+      isSorted=false
     }}
-      {{#bs-nav
-        type="tabs"
-        class="nav-tabs-file-info"
-        as |nav|
-      }}
-        {{!-- TODO: VFS-9628 Refactor original file info modal tabs to separate comp. --}}
-        {{#if isGeneralTabVisible}}
-          {{#nav.item
-            active=(eq tab.activeId "general")
-          }}
-            <a class={{concat-classes
-                "nav-link nav-link-general"
-                (if (eq tab.activeId "general") "active")
-              }}
-              role="tab"
-              {{action "changeTab" "general"}}
-            >
-              {{tt this "tabs.general.tabTitle"}}
-            </a>
-          {{/nav.item}}
-        {{/if}}
-        {{#if isHardlinksTabVisible}}
-          {{#nav.item
-            active=(eq tab.activeId "hardlinks")
-          }}
-            <a class={{concat-classes
-                "nav-link nav-link-hardlinks"
-                (if (eq tab.activeId "hardlinks") "active")
-              }}
-              role="tab"
-              {{action "changeTab" "hardlinks"}}
-            >
-              {{tt this "tabs.hardlinks.tabTitle" hardlinksCount=(if
-                hardlinksLimitExceeded
-                (concat hardlinksLimit "+")
-                hardlinksCount
-              )}}
-            </a>
-          {{/nav.item}}
-        {{/if}}
-        {{#if isSizeTabVisible}}
-          {{#nav.item
-            active=(eq tab.activeId "size")
-          }}
-            <a class={{concat-classes
-                "nav-link nav-link-size"
-                (if (eq tab.activeId "size") "active")
-                (if (not isSizeStatsDisabled) "with-status-icon tab-status-success")
-              }}
-              role="tab"
-              {{action "changeTab" "size"}}
-            >
-              {{tt this "tabs.size.tabTitle"}}
-              {{#if (not isSizeStatsDisabled)}}
-                {{one-icon class="tab-status-icon" icon="checkbox-filled"}}
-              {{/if}}
-            </a>
-          {{/nav.item}}
-        {{/if}}
-        {{#if isApiSamplesTabVisible}}
-          {{#nav.item
-            active=(eq tab.activeId "apiSamples")
-          }}
-            <a class={{concat-classes
-                "nav-link nav-link-apiSamples"
-                (if (eq tab.activeId "apiSamples") "active")
-              }}
-              role="tab"
-              {{action "changeTab" "apiSamples"}}
-            >
-              {{one-icon class="tab-icon" icon="rest"}}
-              <div class="tab-label-api-samples">
-                {{tt this "tabs.apiSamples.tabTitle"}}
-              </div>
-            </a>
-          {{/nav.item}}
-        {{/if}}
-
-        {{#each visibleTabsModels as |tabModel|}}
-          {{#nav.item
-            active=(eq tab.activeId tabModel.tabId)
-            as |navItem|
-          }}
-            <a
-              class={{concat-classes
-                "nav-link"
-                (concat "nav-link-" tabModel.tabId)
-                (if (eq tab.activeId tabModel.tabId) "active")
-                (if tabModel.statusIcon "with-status-icon")
-                tabModel.tabClass
-              }}
-              role="tab"
-              {{action "changeTab" tabModel.tabId}}
-            >
-                {{!--
-                  TODO: VFS-9626
-                  make something like navComponent in addition
-                  to simple title to implement custom tabs look (eg. indicators)
-                --}}
-                <span class="tab-text">{{tabModel.title}}</span>
-                {{#if tabModel.statusIcon}}
-                  {{one-icon class="tab-status-icon" icon=tabModel.statusIcon}}
-                {{/if}}
-            </a>
-          {{/nav.item}}
-        {{/each}}
-      {{/bs-nav}}
-    {{/bs-tab}}
     {{#if activeTabModel.headerComponent}}
       {{component activeTabModel.headerComponent
         class="file-info-header-extension"
@@ -185,8 +82,8 @@
                       locations=currentProviderLocationsProxy.content
                     }}
                   {{/if}}
-                  {{#if (and 
-                    storageLocationsPerProviderProxy 
+                  {{#if (and
+                    storageLocationsPerProviderProxy
                     (gt storageLocationsPerProviderLength 1)
                   )}}
                     {{#if areStorageLocationsExpanded}}

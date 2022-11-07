@@ -13,6 +13,7 @@ import FileQosViewModel from 'oneprovider-gui/utils/file-qos-view-model';
 import { conditional, raw, getBy, eq } from 'ember-awesome-macros';
 import FilesQosStatusModel from 'oneprovider-gui/utils/files-qos-status-model';
 import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
+import { translateFileType } from 'onedata-gui-common/utils/file';
 
 export default BaseTabModel.extend({
   /**
@@ -22,9 +23,9 @@ export default BaseTabModel.extend({
 
   /**
    * @virtual
-   * @type {Models.File}
+   * @type {Array<Models.File>}
    */
-  file: undefined,
+  files: undefined,
 
   /**
    * @virtual
@@ -98,6 +99,24 @@ export default BaseTabModel.extend({
    * @override
    */
   statusIcon: reads('allQosStatusIcon'),
+
+  /**
+   * @override
+   */
+  statusIconTip: computed('allQosStatus', 'files.@each.type', function statusIconTip() {
+    const status = this.allQosStatus;
+    if (status === 'empty') {
+      return '';
+    }
+    let fileType = this.files[0].type;
+    if (this.files.length > 1 && this.files.some(file => file.type !== fileType)) {
+      fileType = null;
+    }
+    const fileTypeText = translateFileType(this.i18n, fileType, {
+      form: this.files.length > 1 ? 'plural' : 'singular',
+    });
+    return this.t(`qosStatusHint.${status}`, { fileTypeText }, { default: '' });
+  }),
 
   qosStatusClassMapping: Object.freeze({
     error: 'tab-status-danger',

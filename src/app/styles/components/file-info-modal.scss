@@ -134,38 +134,80 @@
   }
 
   .nav-link {
+    display: inline-flex;
+    align-items: center;
+    .tab-icon {
+      // every icon has some internal padding - move the icon a little to the left
+      // to make it look centered with text
+      margin-left: -0.2em;
+      margin-right: 0.2em;
+      font-size: 1.8em;
+    }
     .tab-icon.oneicon-rest {
       font-size: 19px;
       font-weight: bold;
-      padding-top: 3px;
     }
 
     .tab-label-api-samples {
       margin-left: 14px;
     }
 
+    &.tab-status-default {
+      --tab-status-icon-color: #{$color-one-default};
+    }
+    &.tab-status-info {
+      --tab-status-icon-color: #{$color-one-azure};
+    }
+    &.tab-status-success {
+      --tab-status-icon-color: #{$color-one-success};
+    }
+    &.tab-status-warning {
+      --tab-status-icon-color: #{$color-one-warning};
+    }
+    &.tab-status-danger {
+      --tab-status-icon-color: #{$color-one-danger};
+    }
+
     &.with-status-icon {
       display: inline-flex;
       align-items: center;
       .tab-status-icon {
+        font-size: 1.8em;
         margin-right: -0.3em;
-        line-height: 0;
         margin-left: 0.2em;
       }
       .tab-status-icon {
         color: var(--tab-status-icon-color, 'inherit');
       }
-      &.tab-status-default {
-        --tab-status-icon-color: #{$color-one-default};
-      }
-      &.tab-status-success {
-        --tab-status-icon-color: #{$color-one-success};
-      }
-      &.tab-status-warning {
-        --tab-status-icon-color: #{$color-one-warning};
-      }
-      &.tab-status-danger {
-        --tab-status-icon-color: #{$color-one-danger};
+    }
+    $tab-status-text-margin: 0.8em;
+    .tab-status-number {
+      // some sizes are in pixel format here, because using em will cause partial-pixels
+      // and poor rendering
+      $circle-size: 16px;
+      display: inline-block;
+      border-radius: 100%;
+      background-color: var(--tab-status-icon-color, $color-one-azure);
+      padding: 0 4px;
+      min-width: $circle-size;
+      height: $circle-size;
+      font-size: 80%;
+      @include font-bold;
+      color: white;
+      text-align: center;
+      margin-left: $tab-status-text-margin;
+    }
+    .tab-status-tag {
+      background-color: var(--tab-status-icon-color, $color-one-azure);
+      margin-left: $tab-status-text-margin;
+    }
+  }
+
+  .tab-bar-li:first-child {
+    .nav-link {
+      // first tab icon is specially aligned for alignment with header
+      .tab-icon {
+        margin-left: -0.1em;
       }
     }
   }
