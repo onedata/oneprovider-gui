@@ -55,12 +55,13 @@
           <div class="file-info-container">
             <div class="file-name">
               {{#truncated-string class="file-name-inner"}}
-                {{!-- NOTE: everything in one line because we avoid space --}}
-                <span 
-                  class="file-base-name"
+                <span
                   onmouseover={{action "changeIconHover" true}}
                   onmouseout={{action "changeIconHover" false}}
-                >{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
+                >
+                  {{!-- NOTE: everything in one line because we avoid space --}}
+                  <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
+                </span>
                 {{#if fileLoadError}}
                   {{one-tooltip title=fileLoadError.message}}
                 {{/if}}
