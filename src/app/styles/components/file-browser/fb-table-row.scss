@@ -66,6 +66,7 @@
       .flippable-back, .flippable-front {
         position: absolute;
         top: 0;
+        transform: translate(-4px, -4px);
       }
 
       &.flip-animated {
@@ -120,7 +121,7 @@
         .secondary-description-internal, 
         .dataset-info-secondary-file-path-internal, 
         .fb-table-row-mobile-secondary-info {
-          padding-left: 10px;
+          padding-left: 12px;
         }
       }
       &.file-icon-container {
