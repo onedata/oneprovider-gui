@@ -14,7 +14,7 @@
       // no vertical overflow
       &.scroll-on-bottom.scroll-on-top {
         .visible-on-no-body-overflow {
-          display: var(--display-on-no-body-overflow, block);
+          display: block;
         }
       }
     }
@@ -23,9 +23,6 @@
       .modal-dialog {
         // no vertical overflow
         &.scroll-on-bottom.scroll-on-top {
-          .show-when-no-body-scroll {
-            display: initial;
-          }
           .file-info-modal-footer {
             display: none;
           }
