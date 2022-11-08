@@ -28,7 +28,7 @@
                 </em>
               {{else}}
                 {{!-- TODO: VFS-9695 remove used of lastResetTime --}}
-                {{#component
+                {{component
                   (concat "file-metadata/" type)
                   class="full-height"
                   isActive=(eq activeTab type)
@@ -38,11 +38,6 @@
                   readonly=effectiveReadonly
                   lastResetTime=viewModel.lastResetTime
                 }}
-                  {{file-metadata/submit-buttons
-                    class="visible-on-no-body-overflow hidden-xs"
-                    viewModel=viewModel
-                  }}
-                {{/component}}
               {{/if}}
             {{/promise-proxy-container}}
           {{/render-later}}

@@ -89,9 +89,13 @@ export default BaseTabModel.extend({
    * @override
    */
   modalClass: conditional(
-    equal('viewModel.activeTab', 'xattrs'),
-    raw('footer-visible-on-body-overflow'),
-    raw('')
+    'footerComponent',
+    conditional(
+      equal('viewModel.activeTab', 'xattrs'),
+      raw('with-sticky-footer'),
+      raw('')
+    ),
+    raw('without-footer'),
   ),
 
   /**

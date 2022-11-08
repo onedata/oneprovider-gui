@@ -1,5 +1,5 @@
 /**
- * Buttons with actions for file-qos. To use as buttom floating buttons.
+ * Buttons with actions for file-qos. To use as bottom floating buttons.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH

@@ -79,7 +79,11 @@ export default BaseTabModel.extend({
   /**
    * @override
    */
-  modalClass: 'footer-visible-on-body-overflow',
+  modalClass: conditional(
+    'footerComponent',
+    raw('with-sticky-footer'),
+    raw('without-footer'),
+  ),
 
   /**
    * @type {ComputedProperty<number>}

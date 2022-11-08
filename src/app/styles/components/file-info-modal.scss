@@ -5,33 +5,6 @@
     }
   }
 
-  @media (min-width: $screen-sm-min) {
-    .visible-on-no-body-overflow {
-      display: none;
-    }
-
-    .modal-dialog {
-      // no vertical overflow
-      &.scroll-on-bottom.scroll-on-top {
-        .visible-on-no-body-overflow {
-          display: block;
-        }
-      }
-    }
-
-    &.footer-visible-on-body-overflow {
-      .modal-dialog {
-        // no vertical overflow
-        &.scroll-on-bottom.scroll-on-top {
-          .file-info-modal-footer {
-            display: none;
-          }
-        }
-      }
-    }
-
-  }
-
   .file-info-modal-header {
     padding-bottom: 0;
     .file-info-header-extension {
@@ -48,7 +21,7 @@
   // complex selector for overriding
   &.modal.in .modal-dialog .file-info-modal-footer {
     padding-top: 1em;
-    padding-bottom: 1.6em;
+    padding-bottom: 1em;
   }
 
   .file-info-row-size .file-info-detail-size,

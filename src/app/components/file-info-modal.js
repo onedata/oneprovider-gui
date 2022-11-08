@@ -22,7 +22,6 @@ import {
   bool,
   equal,
   not,
-  tag,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, set, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -730,13 +729,18 @@ export default Component.extend(...mixins, {
   }),
 
   activeTabModel: computed('activeTab', function activeTabModel() {
-    if (!this.specialFileTabs.includes(this.activeTab)) {
-      return null;
-    }
     return this.tabModels[this.activeTab];
   }),
 
-  effModalClass: tag`${'modalClass'} ${'activeTabModel.modalClass'}`,
+  effModalClass: computed(
+    'modalClass',
+    'activeTabModel.modalClass',
+    function effModalClass() {
+      const additionalClassName = this.activeTabModel ?
+        (this.activeTabModel.modalClass || '') : 'without-footer';
+      return `${this.modalClass || ''} ${additionalClassName}`;
+    }
+  ),
 
   init() {
     this._super(...arguments);

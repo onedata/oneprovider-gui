@@ -81,7 +81,7 @@ export default BaseTabModel.extend({
   /**
    * @override
    */
-  modalClass: 'footer-visible-on-body-overflow',
+  modalClass: 'with-sticky-footer',
 
   statusTag: conditional(
     'isAnyFileWithAcl',
