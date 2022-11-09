@@ -1,22 +1,3 @@
-{{#one-button
-  type="warning"
-  onClick=(action "discardChanges")
-  disabled=isDiscardDisabled
-  class="btn-discard"
+{{file-permissions/submit-buttons
+  viewModel=viewModel
 }}
-  {{tt this "discard"}}
-{{/one-button}}
-<div class="btn-tooltip-container">
-  {{#one-button
-    type="primary"
-    buttonType="submit"
-    onClick=(action "save")
-    disabled=isSaveDisabled
-    class="btn-save"
-  }}
-    {{tt this "save"}}
-  {{/one-button}}
-  {{#if isSaveDisabledMessage}}
-    {{one-tooltip title=isSaveDisabledMessage}}
-  {{/if}}
-</div>

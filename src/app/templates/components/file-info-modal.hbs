@@ -1,7 +1,7 @@
 {{#one-modal
   class=(concat-classes
-    "file-info-modal modal-content-overlay without-footer with-close-button"
-    modalClass
+    "file-info-modal modal-content-overlay with-close-button"
+    effModalClass
   )
   open=open
   size="xl"
@@ -272,7 +272,7 @@
     {{/if}}
   {{/modal.body}}
   {{#if isFooterShown}}
-    {{#modal.footer}}
+    {{#modal.footer class="file-info-modal-footer"}}
       {{component activeTabModel.footerComponent viewModel=activeTabModel.viewModel}}
     {{/modal.footer}}
   {{/if}}

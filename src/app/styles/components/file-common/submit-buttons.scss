@@ -1,0 +1,6 @@
+.file-common-submit-buttons {
+  text-align: center;
+  > * + * {
+    margin-left: 0.5em;;
+  }
+}

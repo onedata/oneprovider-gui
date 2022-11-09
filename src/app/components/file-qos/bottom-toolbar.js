@@ -1,5 +1,5 @@
 /**
- * Provides footer action buttons for QoS view (eg. create new requirement).
+ * Buttons with actions for file-qos. To use as bottom floating buttons.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
@@ -7,10 +7,23 @@
  */
 
 import Component from '@ember/component';
+import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
-  classNames: ['file-qos-footer'],
+const mixins = [
+  I18n,
+];
+
+export default Component.extend(...mixins, {
+  classNames: ['file-qos-bottom-toolbar', 'file-common-submit-buttons'],
+
+  i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.fileQos.bottomToolbar',
 
   /**
    * @virtual

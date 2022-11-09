@@ -118,6 +118,15 @@ export default BaseTabModel.extend({
     return this.t(`qosStatusHint.${status}`, { fileTypeText }, { default: '' });
   }),
 
+  /**
+   * @override
+   */
+  modalClass: conditional(
+    'footerComponent',
+    raw('with-sticky-footer'),
+    raw('without-footer'),
+  ),
+
   qosStatusClassMapping: Object.freeze({
     error: 'tab-status-danger',
     empty: 'tab-status-default',

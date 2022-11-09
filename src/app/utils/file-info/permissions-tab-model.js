@@ -78,6 +78,11 @@ export default BaseTabModel.extend({
     return isSupportedFileType;
   }),
 
+  /**
+   * @override
+   */
+  modalClass: 'with-sticky-footer',
+
   statusTag: conditional(
     'isAnyFileWithAcl',
     computedT('acl'),

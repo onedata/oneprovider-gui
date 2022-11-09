@@ -729,11 +729,18 @@ export default Component.extend(...mixins, {
   }),
 
   activeTabModel: computed('activeTab', function activeTabModel() {
-    if (!this.specialFileTabs.includes(this.activeTab)) {
-      return null;
-    }
     return this.tabModels[this.activeTab];
   }),
+
+  effModalClass: computed(
+    'modalClass',
+    'activeTabModel.modalClass',
+    function effModalClass() {
+      const additionalClassName = this.activeTabModel ?
+        (this.activeTabModel.modalClass || '') : 'without-footer';
+      return `${this.modalClass || ''} ${additionalClassName}`;
+    }
+  ),
 
   init() {
     this._super(...arguments);
