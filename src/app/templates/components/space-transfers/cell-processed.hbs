@@ -1,5 +1,5 @@
 {{#if record.transferProgressError}}
-  {{error-inline}}
+  {{error-inline error=record.transferProgressError}}
 {{else}}
   <span class="processed-items">{{processedItemsStringified}}</span>
   {{#if (not-eq progressPercent null)}}
