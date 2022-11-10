@@ -563,6 +563,7 @@ export default EmberObject.extend(...mixins, {
     const files = this.files;
     try {
       await this.saveAllPermissions();
+      await this.updateAclsProxy({ replace: true });
       this.globalNotify.success(this.t('permissionsModifySuccess'));
       this.clearEditedPermissionsTypes();
     } catch (errors) {
