@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-9905 Added missing error-inline component
+* VFS-10066 Fixed discarding ACL changes after permissions save
 * VFS-9843 Added floating action buttons for file info views
 * VFS-9626 Improved look of file info panel tab bar
 * VFS-10037 Added "rate" and "timeDerivative" time series chart functions
