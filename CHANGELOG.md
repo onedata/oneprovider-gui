@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9162 Added api samples modal for space 
 * VFS-9843 Added floating action buttons for file info views
 * VFS-9626 Improved look of file info panel tab bar
 * VFS-10037 Added "rate" and "timeDerivative" time series chart functions
