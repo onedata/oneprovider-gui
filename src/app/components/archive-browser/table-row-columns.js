@@ -27,8 +27,9 @@ export default FbTableRowColumns.extend({
 
   /**
    * @virtual
+   * @type {Function}
    */
-  changeIconHover: notImplementedIgnore,
+  changeFileNameHover: notImplementedIgnore,
 
   /**
    * Frame name, where Onezone link should be opened
@@ -90,8 +91,8 @@ export default FbTableRowColumns.extend({
       }
     },
 
-    changeIconHover() {
-      return this.changeIconHover(...arguments);
+    changeFileNameHover() {
+      return this.changeFileNameHover(...arguments);
     },
   },
 });

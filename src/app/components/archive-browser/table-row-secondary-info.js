@@ -16,8 +16,9 @@ export default FbTableRowSecondaryInfo.extend({
 
   /**
    * @virtual
+   * @type {Function}
    */
-  changeIconHover: notImplementedIgnore,
+  changeFileNameHover: notImplementedIgnore,
 
   /**
    * @type {Utils.BrowsableArchive}
@@ -25,8 +26,8 @@ export default FbTableRowSecondaryInfo.extend({
   archive: reads('file'),
 
   actions: {
-    changeIconHover() {
-      return this.changeIconHover(...arguments);
+    changeFileNameHover() {
+      return this.changeFileNameHover(...arguments);
     },
   },
 });

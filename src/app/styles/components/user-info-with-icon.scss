@@ -4,7 +4,7 @@
   perspective: 1px;
   background-color: transparent;
   .inline-icon-container {
-    margin-left: -2px;
+    margin-left: -4px;
     width: 25px;
     transition: transform $transition-time;
     transform-style: preserve-3d;
@@ -19,7 +19,7 @@
       vertical-align: top;
     }
   }
-  .inline-icon-container.user-info-icon-container {
+  .inline-icon-container.user-info-icon-container-hovered {
     &.animation {
       transform: rotateY(180deg);
       .oneicon-browser-info.one-icon {

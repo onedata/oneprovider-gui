@@ -212,7 +212,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   /**
    * @type {boolean}
    */
-  hasHover: false,
+  isFileNameHovered: false,
 
   statusBarComponentName: or(
     'browserModel.statusBarComponentName',
@@ -529,8 +529,8 @@ export default Component.extend(I18n, FastDoubleClick, {
       this.invokeFileAction(this.file, this.infoIconActionName);
       event.stopPropagation();
     },
-    changeIconHover(hasHover) {
-      this.set('hasHover', hasHover);
+    changeFileNameHover(isFileNameHovered) {
+      this.set('isFileNameHovered', isFileNameHovered);
     },
   },
 });

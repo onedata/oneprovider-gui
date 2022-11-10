@@ -26,12 +26,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
    */
-  changeIconHover: notImplementedIgnore,
+  changeFileNameHover: notImplementedIgnore,
 
   actions: {
-    changeIconHover() {
-      return this.changeIconHover(...arguments);
+    changeFileNameHover() {
+      return this.changeFileNameHover(...arguments);
     },
   },
 });

@@ -8,16 +8,16 @@
   {{#if archive.description}}
     <span 
       class="secondary-description-internal"
-      onmouseover={{action "changeIconHover" true}}
-      onmouseout={{action "changeIconHover" false}}
+      onmouseover={{action "changeFileNameHover" true}}
+      onmouseout={{action "changeFileNameHover" false}}
     >
       {{archive.description}}
     </span>
   {{else}}
     <span 
       class="secondary-description-internal no-description"
-      onmouseover={{action "changeIconHover" true}}
-      onmouseout={{action "changeIconHover" false}}
+      onmouseover={{action "changeFileNameHover" true}}
+      onmouseout={{action "changeFileNameHover" false}}
     >
       {{tt this "noDescription"}}
     </span>

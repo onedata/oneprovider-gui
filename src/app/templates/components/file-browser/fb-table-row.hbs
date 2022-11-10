@@ -24,12 +24,12 @@
         <div
           class={{concat-classes 
             "inline-icon-container inline-icon-container-file" 
-            (if hasHover "info-icon-container")
+            (if isFileNameHovered "info-icon-container-hovered")
           }}
           onclick={{action "handleInfoIconClick"}}
           style={{cursorStyleForIcon}}
-          onmouseover={{action "changeIconHover" true}}
-          onmouseout={{action "changeIconHover" false}}
+          onmouseover={{action "changeFileNameHover" true}}
+          onmouseout={{action "changeFileNameHover" false}}
         >
           {{#one-icon-tagged
             class=(concat-classes "tag-right flippable-front" iconTaggedClass)
@@ -56,8 +56,8 @@
             <div class="file-name">
               {{#truncated-string class="file-name-inner"}}
                 <span
-                  onmouseover={{action "changeIconHover" true}}
-                  onmouseout={{action "changeIconHover" false}}
+                  onmouseover={{action "changeFileNameHover" true}}
+                  onmouseout={{action "changeFileNameHover" false}}
                 >
                   {{!-- NOTE: everything in one line because we avoid space --}}
                   <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
@@ -75,7 +75,7 @@
                 fileRowModel=fileRowModel
                 browserModel=browserModel
                 invokeFileAction=invokeFileAction
-                changeIconHover=(action "changeIconHover")
+                changeFileNameHover=(action "changeFileNameHover")
               }}
             {{/if}}
           </div>
