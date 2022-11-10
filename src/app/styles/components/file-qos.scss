@@ -3,10 +3,13 @@ $color-qos-status-fulfilled: $color-one-success;
 $color-qos-status-pending: $color-one-warning;
 
 .file-qos-body {
-
   @import './file-qos/file-entry';
   @import './file-qos/file-qos-summary';
   @import './file-qos/qos-entry';
+
+  .file-qos-bottom-toolbar {
+    margin-top: 2em;
+  }
 
   .qos-add-form-buttons {
     display: flex;

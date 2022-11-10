@@ -9,8 +9,6 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { or, not, and, raw } from 'ember-awesome-macros';
-import computedT from 'onedata-gui-common/utils/computed-t';
 
 const mixins = [
   I18n,
@@ -26,39 +24,4 @@ export default Component.extend(...mixins, {
    * @type {Utils.FilePermissionsViewModel}
    */
   viewModel: undefined,
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.filePermissions.footer',
-
-  isSaveDisabled: or(
-    not('viewModel.isAnyModified'),
-    not('viewModel.arePosixPermissionsValid'),
-  ),
-
-  isDiscardDisabled: not('viewModel.isAnyModified'),
-
-  isSaveDisabledMessage: or(
-    and(
-      not('viewModel.isAnyModified'),
-      computedT('disabledReason.noChanges')
-    ),
-    and(
-      not('viewModel.arePosixPermissionsValid'),
-      computedT('disabledReason.posixInvalid'),
-    ),
-    raw(null),
-  ),
-
-  actions: {
-    async save() {
-      if (!this.isSaveDisabled) {
-        this.viewModel.save();
-      }
-    },
-    discardChanges() {
-      this.viewModel.restoreOriginalPermissions();
-    },
-  },
 });

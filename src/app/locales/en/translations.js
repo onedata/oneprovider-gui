@@ -44,6 +44,7 @@ import fileShares from './components/file-shares';
 import fileQos from './components/file-qos';
 import userInfoPopover from './components/user-info-popover';
 import archiveAuditLog from './components/archive-audit-log';
+import fileCommon from './components/file-common';
 import apiSamples from './components/api-samples';
 
 import uploadManager from './services/upload-manager';
@@ -113,6 +114,7 @@ const translations = {
     fileQos,
     userInfoPopover,
     archiveAuditLog,
+    fileCommon,
     apiSamples,
   },
   services: {

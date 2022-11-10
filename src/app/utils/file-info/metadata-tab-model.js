@@ -9,7 +9,7 @@
 import BaseTabModel from './base-tab-model';
 import { conditional, raw } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, equal } from '@ember/object/computed';
 import FileMetadataViewModel from 'oneprovider-gui/utils/file-metadata-view-model';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
@@ -82,6 +82,20 @@ export default BaseTabModel.extend({
     'hasMetadata',
     raw('tab-status-success'),
     raw(undefined),
+  ),
+
+  /**
+   * Only xattrs have auto-hiding footer - other tabs has always footer shown.
+   * @override
+   */
+  modalClass: conditional(
+    'footerComponent',
+    conditional(
+      equal('viewModel.activeTab', 'xattrs'),
+      raw('with-sticky-footer'),
+      raw('')
+    ),
+    raw('without-footer'),
   ),
 
   /**

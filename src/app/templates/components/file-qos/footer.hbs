@@ -1,14 +1,1 @@
-<div class="btn-tooltip-container">
-  {{#one-button
-    type="primary"
-    buttonType="submit"
-    onClick=(action "addQosRequirement")
-    class="add-qos-requirement-btn"
-    disabled=isAddDisabled
-  }}
-    {{tt this "addQosRequirement"}}
-  {{/one-button}}
-  {{#if isAddDisabledTip}}
-    {{one-tooltip title=isAddDisabledTip}}
-  {{/if}}
-</div>
+{{file-qos/bottom-toolbar viewModel=viewModel}}
