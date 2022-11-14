@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10081 Fixed showing initialization state of directory size stats
 * VFS-10094 Fixed delayed live time-series charts in automation
 * VFS-9905 Added missing error-inline component
 * VFS-10066 Fixed discarding ACL changes after permissions save
