@@ -39,6 +39,12 @@ export default EmberObject.extend(...mixins, {
    */
   browsableDataset: undefined,
 
+  /**
+   * @virtual
+   * @type {Utils.HashGenerator}
+   */
+  hashGenerator: undefined,
+
   spaceName: reads('space.name'),
 
   /**
@@ -154,5 +160,15 @@ export default EmberObject.extend(...mixins, {
       return '';
     }
     return moment(this.endTimeMs).format(detailedReportFormatter);
+  }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  fileNameDuplicateHash: computed('relativePath', function fileNameDuplicateHash() {
+    if (!this.relativePath) {
+      return '';
+    }
+    return this.hashGenerator.getHash(this.relativePath);
   }),
 });

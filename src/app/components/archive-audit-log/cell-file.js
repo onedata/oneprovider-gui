@@ -49,4 +49,6 @@ export default Component.extend({
     // presenting only relative path, removing leading slash
     return filePathViewCreateRelative(this.entryModel.relativePath);
   }),
+
+  fileNameHash: reads('entryModel.fileNameDuplicateHash'),
 });

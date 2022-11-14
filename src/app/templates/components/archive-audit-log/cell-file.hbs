@@ -1,4 +1,4 @@
-<div class="flex-vertical-center">
+  <div class="flex-vertical-center">
   {{one-file-icon class="entry-file-icon" fileType=fileType}}
   {{#if fileName}}
     <span class="entry-file-name truncate">
@@ -15,6 +15,9 @@
         {{/one-tooltip}}
       {{/if}}
     </span>
+    {{#if fileNameHash}}
+      <span class="filename-duplicate-hash" style="">{{fileNameHash}}</span>
+    {{/if}}
   {{else}}
     <span class="entry-missing-file-name">–</span>
   {{/if}}

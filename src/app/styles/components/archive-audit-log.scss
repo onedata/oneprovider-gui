@@ -33,6 +33,13 @@
       top: -0.05em;
       margin-right: 0.15em;
     }
+    .entry-file-name {
+      flex-grow: 1;
+    }
+    .filename-duplicate-hash {
+      margin-left: 0.3em;
+      opacity: $disabled-opacity;
+    }
   }
   // override text-align
   .infinite-scroll-table .table-head th.time-taken-column-header {

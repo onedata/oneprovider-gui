@@ -15,6 +15,7 @@ import ArchiveAuditLogEntryModel from 'oneprovider-gui/utils/archive-audit-log-e
 import { promise, conditional, raw } from 'ember-awesome-macros';
 import { htmlSafe } from '@ember/string';
 import _ from 'lodash';
+import HashGenerator from 'oneprovider-gui/utils/hash-generator';
 
 export default Component.extend(I18n, {
   archiveManager: service(),
@@ -41,6 +42,11 @@ export default Component.extend(I18n, {
    * @type {Models.Space}
    */
   space: undefined,
+
+  /**
+   * @type {Utils.HashGenerator}
+   */
+  hashGenerator: undefined,
 
   /**
    * @type {ComputedProperty<PromiseObject<Utils.BrowsableDataset>>}
@@ -150,6 +156,14 @@ export default Component.extend(I18n, {
     }
   ),
 
+  init() {
+    this._super(...arguments);
+    this.set(
+      'hashGenerator',
+      new HashGenerator()
+    );
+  },
+
   /**
    * @param {AuditLogEntry<ArchiveAuditLogEntryContent>} logEntry
    * @returns {Utils.ArchiveAuditLogEntryModel}
@@ -159,6 +173,7 @@ export default Component.extend(I18n, {
       ownerSource: this,
       logEntry,
       browsableDataset: this.browsableDataset,
+      hashGenerator: this.hashGenerator,
     });
   },
 
