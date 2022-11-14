@@ -53,7 +53,7 @@ export default FbTableRowColumns.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   tooltipText: computed(
-    'dirStatsServiceState.dirStatsServiceStatus',
+    'dirStatsServiceState.status',
     function tooltipText() {
       let dirStatsServiceStatus = this.get('dirStatsServiceState.status');
       if (dirStatsServiceStatus === 'stopping') {
