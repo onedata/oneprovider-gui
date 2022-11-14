@@ -41,9 +41,9 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Utils.HashGenerator}
+   * @type {Utils.DuplicateNameHashGenerator}
    */
-  hashGenerator: undefined,
+  duplicateNameHashGenerator: undefined,
 
   spaceName: reads('space.name'),
 
@@ -163,12 +163,14 @@ export default EmberObject.extend(...mixins, {
   }),
 
   /**
+   * FIXME: formatting, names
    * @type {ComputedProperty<string>}
    */
-  fileNameDuplicateHash: computed('relativePath', function fileNameDuplicateHash() {
-    if (!this.relativePath) {
-      return '';
-    }
-    return this.hashGenerator.getHash(this.relativePath);
-  }),
+  fileNameDuplicateHash: computed('relativePath', 'duplicateNameHashGenerator.hashMapping',
+    function fileNameDuplicateHash() {
+      if (!this.relativePath) {
+        return '';
+      }
+      return this.duplicateNameHashGenerator.hashMapping[this.relativePath];
+    }),
 });

@@ -11,6 +11,7 @@
     as |logEntry|
   }}
     {{#let (evaluate-function (action "createEntryModel") logEntry) as |entryModel|}}
+      {{evaluate-function (action "registerEntryRecord") entryModel}}
       {{archive-audit-log/cell-file
         entryModel=entryModel
       }}

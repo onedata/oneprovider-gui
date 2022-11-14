@@ -16,6 +16,7 @@ import { promise, conditional, raw } from 'ember-awesome-macros';
 import { htmlSafe } from '@ember/string';
 import _ from 'lodash';
 import HashGenerator from 'oneprovider-gui/utils/hash-generator';
+import DuplicateNameHashGenerator from 'oneprovider-gui/utils/duplicate-name-hash-generator';
 
 export default Component.extend(I18n, {
   archiveManager: service(),
@@ -158,6 +159,10 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
+    // FIXME: property
+    this.set('fileNames', new Set());
+    this.set('duplicateNames', new Set());
+    this.set('duplicateNameHashGenerator', DuplicateNameHashGenerator.create());
     this.set(
       'hashGenerator',
       new HashGenerator()
@@ -173,7 +178,7 @@ export default Component.extend(I18n, {
       ownerSource: this,
       logEntry,
       browsableDataset: this.browsableDataset,
-      hashGenerator: this.hashGenerator,
+      duplicateNameHashGenerator: this.duplicateNameHashGenerator,
     });
   },
 
@@ -184,6 +189,15 @@ export default Component.extend(I18n, {
   actions: {
     createEntryModel(logEntry) {
       return this.createEntryModel(logEntry);
+    },
+    /**
+     * @param {Utils.ArchiveAuditLogEntryModel} entryModel
+     */
+    registerEntryRecord(entryModel) {
+      this.duplicateNameHashGenerator.addName(
+        entryModel.fileName,
+        entryModel.relativePath
+      );
     },
   },
 });
