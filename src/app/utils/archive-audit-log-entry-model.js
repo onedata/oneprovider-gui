@@ -171,6 +171,7 @@ export default EmberObject.extend(...mixins, {
       if (!this.relativePath) {
         return '';
       }
-      return this.duplicateNameHashGenerator.hashMapping[this.relativePath];
+      const hash = this.duplicateNameHashGenerator.hashMapping[this.relativePath];
+      return hash ? ('#' + hash) : '';
     }),
 });
