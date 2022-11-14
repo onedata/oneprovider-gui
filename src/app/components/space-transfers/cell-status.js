@@ -1,6 +1,6 @@
 /**
  * A cell component with transfer representation used by `transfers-table` component.
- * 
+ *
  * @module components/space-transfers/cell-status
  * @author Michal Borzecki
  * @copyright (C) 2017 ACK CYFRONET AGH
@@ -24,7 +24,7 @@ export default Component.extend(I18n, {
    */
   i18nPrefix: 'components.spaceTransfers.cellStatus',
 
-  /** 
+  /**
    * @virtual
    * @type {TransferTableRecord}
    */

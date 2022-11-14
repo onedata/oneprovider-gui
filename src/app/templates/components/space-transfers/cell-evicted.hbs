@@ -1,5 +1,5 @@
 {{#if record.transferProgressError}}
-  {{error-inline}}
+  {{error-inline error=record.transferProgressError}}
 {{else}}
   <span class="evicted-files">{{evictedFilesStringified}}</span>
 {{/if}}

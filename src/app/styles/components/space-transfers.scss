@@ -324,7 +324,9 @@ $space-transfers-gray: #B6BAC0;
 .cell-icon {
   display: block;
   position: relative;
-  font-size: 2em;
+  .one-icon {
+    font-size: 2em;
+  }
   &.completed {
     color: $color-one-success;
   }
