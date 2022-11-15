@@ -15,7 +15,7 @@ import ArchiveAuditLogEntryModel from 'oneprovider-gui/utils/archive-audit-log-e
 import { promise, conditional, raw } from 'ember-awesome-macros';
 import { htmlSafe } from '@ember/string';
 import _ from 'lodash';
-import DuplicateNameHashGenerator from 'oneprovider-gui/utils/duplicate-name-hash-generator';
+import DuplicateNameHashMapper from 'oneprovider-gui/utils/duplicate-name-hash-mapper';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default Component.extend(I18n, {
@@ -45,9 +45,9 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
-   * @type {Utils.DuplicateNameHashGenerator}
+   * @type {Utils.DuplicateNameHashMapper}
    */
-  duplicateNameHashGenerator: undefined,
+  duplicateNameHashMapper: undefined,
 
   /**
    * @type {ComputedProperty<PromiseObject<Utils.BrowsableDataset>>}
@@ -160,7 +160,7 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     // FIXME: property
-    this.set('duplicateNameHashGenerator', DuplicateNameHashGenerator.create());
+    this.set('duplicateNameHashMapper', DuplicateNameHashMapper.create());
   },
 
   /**
@@ -172,7 +172,7 @@ export default Component.extend(I18n, {
       ownerSource: this,
       logEntry,
       browsableDataset: this.browsableDataset,
-      duplicateNameHashGenerator: this.duplicateNameHashGenerator,
+      duplicateNameHashMapper: this.duplicateNameHashMapper,
     });
   },
 
@@ -190,7 +190,7 @@ export default Component.extend(I18n, {
     registerEntryRecord(entryModel) {
       (async () => {
         await waitForRender();
-        this.duplicateNameHashGenerator.addName(
+        this.duplicateNameHashMapper.addPair(
           entryModel.fileName,
           entryModel.relativePath
         );

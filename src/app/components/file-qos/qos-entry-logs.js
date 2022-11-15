@@ -12,7 +12,7 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise, equal, raw } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
-import DuplicateNameHashGenerator from 'oneprovider-gui/utils/duplicate-name-hash-generator';
+import DuplicateNameHashMapper from 'oneprovider-gui/utils/duplicate-name-hash-mapper';
 import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
@@ -62,9 +62,9 @@ export default Component.extend(I18n, {
   parentBrowsableArchive: undefined,
 
   /**
-   * @type {Utils.DuplicateNameHashGenerator}
+   * @type {Utils.DuplicateNameHashMapper}
    */
-  duplicateNameHashGenerator: undefined,
+  duplicateNameHashMapper: undefined,
 
   fileUrlGenerator: computed(function fileUrlGenerator() {
     return new FileUrlGenerator(this.get('appProxy'));
@@ -178,8 +178,8 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     // FIXME: maybe refactor to remove redundancy with other logs with filename hashes
-    // FIXME: duplicateNameHashGenerator property, registerEntryRecord action
-    this.set('duplicateNameHashGenerator', DuplicateNameHashGenerator.create());
+    // FIXME: duplicateNameHashMapper property, registerEntryRecord action
+    this.set('duplicateNameHashMapper', DuplicateNameHashMapper.create());
   },
 
   actions: {
@@ -198,7 +198,7 @@ export default Component.extend(I18n, {
       (async () => {
         await waitForRender();
         const path = logEntryContent.path;
-        this.duplicateNameHashGenerator.addName(
+        this.duplicateNameHashMapper.addPair(
           getFileNameFromPath(path),
           path
         );

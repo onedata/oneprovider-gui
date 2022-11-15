@@ -7,7 +7,7 @@
   {{file-recall/event-log/cell-file
     fileCdmiObjectId=logEntry.content.fileId
     relativePath=logEntry.content.relativePath
-    duplicateNameHashGenerator=duplicateNameHashGenerator
+    duplicateNameHashMapper=duplicateNameHashMapper
     onGenerateSourceFileUrl=(action "generateSourceFileUrl")
   }}
   {{file-recall/event-log/cell-error reason=logEntry.content.reason}}

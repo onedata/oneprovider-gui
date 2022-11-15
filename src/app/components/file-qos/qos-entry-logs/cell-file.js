@@ -127,9 +127,9 @@ export default Component.extend(I18n, {
   fileNameHash: computed(
     'path',
     // FIXME: add property
-    'duplicateNameHashGenerator.hashMapping',
+    'duplicateNameHashMapper.hashMapping',
     function fileNameHash() {
-      const hashMapping = this.duplicateNameHashGenerator.hashMapping;
+      const hashMapping = this.duplicateNameHashMapper.hashMapping;
       console.log('FIXME: fileNameHash recomputed', this.path, hashMapping[this.path], hashMapping);
       // debugger;
       if (!this.path) {

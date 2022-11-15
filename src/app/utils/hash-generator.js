@@ -1,8 +1,24 @@
-// FIXME: jsdoc
+/**
+ * Generates hashes (short identifiers) for given string in the set.
+ *
+ * Instances of this class takes care of generating hashes for strings that are unique
+ * for strings that have been used in instance of this generator. Note that there is
+ * a limit for attempts to generate unique hash - see `collisionsLimit` property.
+ *
+ * A CRC-16 with KERMIT algorithm is used to generate hashes.
+ *
+ * Implementation of CRC-16 KERMIT is copied from https://github.com/alexgorbatchev/node-crc/blob/v4.1.1/src/calculators/crc16kermit.ts
+ * Distributed with The MIT License: https://github.com/alexgorbatchev/node-crc/blob/v4.1.1/LICENSE
+ * Copyright (c) 2014 Alex Gorbatchev
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
-// FIXME: implementation based on CRC-16: https://github.com/alexgorbatchev/node-crc/blob/master/src/calculators/crc16kermit.ts
-// FIXME: license ^
-
+/**
+ * The table used in CRC-16 KERMIT algorithm.
+ */
 const table = new Int32Array([
   0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf, 0x8c48, 0x9dc1, 0xaf5a,
   0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7, 0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c,
@@ -38,6 +54,10 @@ export default class HashGenerator {
   }
 
   /**
+   * Returns unique (among all strings used with this instance) hash for the given value.
+   * If the value has been used already with this instance, it is read from cache.
+   * Otherwise it is generated using the algorithm.
+   * The hash is a 4-hexdecimal-chars string.
    * @param {string} value
    * @returns {string}
    */
@@ -48,6 +68,14 @@ export default class HashGenerator {
     return this.cache[value];
   }
 
+  /**
+   * Generates unique (among all strings used with this instance) hash for the given
+   * value. If there is a collision (there is already a hash in the cache for other value)
+   * the algorithm is used recursively until `collisionsLimit` is exceeded. In this case,
+   * a non-unique hash is returned.
+   * @param {string} value
+   * @returns {string}
+   */
   generateUniq(value) {
     const allHashes = Object.values(this.cache);
     let tryAgainCountdown = this.collisionsLimit;
@@ -60,6 +88,8 @@ export default class HashGenerator {
   }
 
   /**
+   * A CRC-16 KERMIT algorithm generating hash for a string value.
+   * See header doc for copyright.
    * @param {string} value
    * @returns {string}
    */

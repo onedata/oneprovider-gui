@@ -11,7 +11,7 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import DuplicateNameHashGenerator from 'oneprovider-gui/utils/duplicate-name-hash-generator';
+import DuplicateNameHashMapper from 'oneprovider-gui/utils/duplicate-name-hash-mapper';
 import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
@@ -45,9 +45,9 @@ export default Component.extend(I18n, {
   dataset: undefined,
 
   /**
-   * @type {Utils.DuplicateNameHashGenerator}
+   * @type {Utils.DuplicateNameHashMapper}
    */
-  duplicateNameHashGenerator: undefined,
+  duplicateNameHashMapper: undefined,
 
   recallRootFileId: reads('recallRootFile.entityId'),
 
@@ -91,8 +91,8 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     // FIXME: maybe refactor to remove redundancy with other logs with filename hashes
-    // FIXME: duplicateNameHashGenerator property, registerEntryRecord action
-    this.set('duplicateNameHashGenerator', DuplicateNameHashGenerator.create());
+    // FIXME: duplicateNameHashMapper property, registerEntryRecord action
+    this.set('duplicateNameHashMapper', DuplicateNameHashMapper.create());
   },
 
   /**
@@ -128,7 +128,7 @@ export default Component.extend(I18n, {
       (async () => {
         await waitForRender();
         const path = logEntryContent.relativePath;
-        this.duplicateNameHashGenerator.addName(
+        this.duplicateNameHashMapper.addPair(
           getFileNameFromPath(path),
           path
         );

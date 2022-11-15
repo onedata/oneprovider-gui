@@ -59,9 +59,9 @@ export default Component.extend({
   fileNameHash: computed(
     'relativePath',
     // FIXME: add property
-    'duplicateNameHashGenerator.hashMapping',
+    'duplicateNameHashMapper.hashMapping',
     function fileNameHash() {
-      const hashMapping = this.duplicateNameHashGenerator.hashMapping;
+      const hashMapping = this.duplicateNameHashMapper.hashMapping;
       // debugger;
       if (!this.relativePath) {
         return '';
