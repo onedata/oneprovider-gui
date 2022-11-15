@@ -12,6 +12,9 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise, equal, raw } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
+import DuplicateNameHashGenerator from 'oneprovider-gui/utils/duplicate-name-hash-generator';
+import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default Component.extend(I18n, {
   classNames: ['qos-entry-logs'],
@@ -57,6 +60,11 @@ export default Component.extend(I18n, {
    * @type {Utils.BrowsabledArchive}
    */
   parentBrowsableArchive: undefined,
+
+  /**
+   * @type {Utils.DuplicateNameHashGenerator}
+   */
+  duplicateNameHashGenerator: undefined,
 
   fileUrlGenerator: computed(function fileUrlGenerator() {
     return new FileUrlGenerator(this.get('appProxy'));
@@ -167,6 +175,13 @@ export default Component.extend(I18n, {
     }
   ),
 
+  init() {
+    this._super(...arguments);
+    // FIXME: maybe refactor to remove redundancy with other logs with filename hashes
+    // FIXME: duplicateNameHashGenerator property, registerEntryRecord action
+    this.set('duplicateNameHashGenerator', DuplicateNameHashGenerator.create());
+  },
+
   actions: {
     /**
      * @param {string} fileId ID of file in archive
@@ -174,6 +189,20 @@ export default Component.extend(I18n, {
      */
     generateFileUrl(fileId) {
       return this.get('fileUrlGenerator').getUrl(fileId);
+    },
+    /**
+     * @param {QosAuditLogEntryContent} logEntryContent
+     * @returns {void}
+     */
+    registerLogEntryContent(logEntryContent) {
+      (async () => {
+        await waitForRender();
+        const path = logEntryContent.path;
+        this.duplicateNameHashGenerator.addName(
+          getFileNameFromPath(path),
+          path
+        );
+      })();
     },
   },
 });

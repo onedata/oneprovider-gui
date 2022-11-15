@@ -42,6 +42,12 @@ export default Component.extend(I18n, {
   path: undefined,
 
   /**
+   * @virtual
+   * @type {Object<string, string>}
+   */
+  entryHashMapping: undefined,
+
+  /**
    * Should generate a full file URL.
    * @virtual
    * @type {(fileId: string) => string}
@@ -96,6 +102,7 @@ export default Component.extend(I18n, {
       let className;
       try {
         const file = await fileProxy;
+        // FIXME: nazwa tutaj będzie aktualna, natomiast ścieżka będzie stara
         name = get(file, 'name');
         try {
           href = onGenerateFileUrl(fileId);
@@ -115,4 +122,21 @@ export default Component.extend(I18n, {
   )),
 
   fileInfo: computedLastProxyContent('fileInfoProxy'),
+
+  // FIXME: DRY?
+  fileNameHash: computed(
+    'path',
+    // FIXME: add property
+    'duplicateNameHashGenerator.hashMapping',
+    function fileNameHash() {
+      const hashMapping = this.duplicateNameHashGenerator.hashMapping;
+      console.log('FIXME: fileNameHash recomputed', this.path, hashMapping[this.path], hashMapping);
+      // debugger;
+      if (!this.path) {
+        return '';
+      }
+      const hash = hashMapping[this.path];
+      return hash ? ('#' + hash) : '';
+    }
+  ),
 });

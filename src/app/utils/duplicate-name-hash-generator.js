@@ -46,6 +46,7 @@ export default EmberObject.extend({
       }
     }
     if (isNewHashValueAdded) {
+      console.log('FIXME: isNewHashValueAdded', this.hashMapping, name, value);
       this.notifyPropertyChange('hashMapping');
     }
   },

@@ -9,12 +9,14 @@
     noLogEntriesText=(tt this "noEntries")
     as |logEntry|
   }}
+    {{evaluate-function (action "registerLogEntryContent") logEntry.content}}
     {{#if isFileColumnVisible}}
       {{file-qos/qos-entry-logs/cell-file
         fileCdmiObjectId=logEntry.content.fileId
         archive=archive
         path=logEntry.content.path
         parentBrowsableArchive=parentBrowsableArchive
+        duplicateNameHashGenerator=duplicateNameHashGenerator
         onGenerateFileUrl=(action "generateFileUrl")
       }}
     {{/if}}

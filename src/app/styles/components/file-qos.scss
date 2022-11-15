@@ -7,6 +7,16 @@ $color-qos-status-pending: $color-one-warning;
   @import './file-qos/file-qos-summary';
   @import './file-qos/qos-entry';
 
+  .qos-entry-logs {
+    // FIXME: DRY?
+    .cell-file {
+      .filename-duplicate-hash {
+        margin-left: 0.3em;
+        opacity: $disabled-opacity;
+      }
+    }
+  }
+
   .file-qos-bottom-toolbar {
     margin-top: 2em;
   }

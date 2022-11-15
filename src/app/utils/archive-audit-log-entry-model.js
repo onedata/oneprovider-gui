@@ -166,12 +166,15 @@ export default EmberObject.extend(...mixins, {
    * FIXME: formatting, names
    * @type {ComputedProperty<string>}
    */
-  fileNameDuplicateHash: computed('relativePath', 'duplicateNameHashGenerator.hashMapping',
+  fileNameDuplicateHash: computed(
+    'relativePath',
+    'duplicateNameHashGenerator.hashMapping',
     function fileNameDuplicateHash() {
       if (!this.relativePath) {
         return '';
       }
       const hash = this.duplicateNameHashGenerator.hashMapping[this.relativePath];
       return hash ? ('#' + hash) : '';
-    }),
+    }
+  ),
 });

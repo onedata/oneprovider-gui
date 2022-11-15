@@ -15,8 +15,8 @@ import ArchiveAuditLogEntryModel from 'oneprovider-gui/utils/archive-audit-log-e
 import { promise, conditional, raw } from 'ember-awesome-macros';
 import { htmlSafe } from '@ember/string';
 import _ from 'lodash';
-import HashGenerator from 'oneprovider-gui/utils/hash-generator';
 import DuplicateNameHashGenerator from 'oneprovider-gui/utils/duplicate-name-hash-generator';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default Component.extend(I18n, {
   archiveManager: service(),
@@ -45,9 +45,9 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
-   * @type {Utils.HashGenerator}
+   * @type {Utils.DuplicateNameHashGenerator}
    */
-  hashGenerator: undefined,
+  duplicateNameHashGenerator: undefined,
 
   /**
    * @type {ComputedProperty<PromiseObject<Utils.BrowsableDataset>>}
@@ -161,10 +161,6 @@ export default Component.extend(I18n, {
     this._super(...arguments);
     // FIXME: property
     this.set('duplicateNameHashGenerator', DuplicateNameHashGenerator.create());
-    this.set(
-      'hashGenerator',
-      new HashGenerator()
-    );
   },
 
   /**
@@ -192,10 +188,13 @@ export default Component.extend(I18n, {
      * @param {Utils.ArchiveAuditLogEntryModel} entryModel
      */
     registerEntryRecord(entryModel) {
-      this.duplicateNameHashGenerator.addName(
-        entryModel.fileName,
-        entryModel.relativePath
-      );
+      (async () => {
+        await waitForRender();
+        this.duplicateNameHashGenerator.addName(
+          entryModel.fileName,
+          entryModel.relativePath
+        );
+      })();
     },
   },
 });
