@@ -3,9 +3,11 @@
   customColumnHeaders=customColumnHeaders
   as |logEntry|
 }}
+  {{evaluate-function (action "registerLogEntryContent") logEntry.content}}
   {{file-recall/event-log/cell-file
     fileCdmiObjectId=logEntry.content.fileId
     relativePath=logEntry.content.relativePath
+    duplicateNameHashGenerator=duplicateNameHashGenerator
     onGenerateSourceFileUrl=(action "generateSourceFileUrl")
   }}
   {{file-recall/event-log/cell-error reason=logEntry.content.reason}}

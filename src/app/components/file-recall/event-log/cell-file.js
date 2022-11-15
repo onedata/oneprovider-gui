@@ -16,6 +16,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 
 export default Component.extend({
   tagName: 'td',
+  classNames: ['cell-file'],
 
   parentAppNavigation: service(),
 
@@ -52,4 +53,20 @@ export default Component.extend({
   }),
 
   fileHref: computedPipe('fileId', 'onGenerateSourceFileUrl'),
+
+  // FIXME: DRY?
+  fileNameHash: computed(
+    'relativePath',
+    // FIXME: add property
+    'duplicateNameHashGenerator.hashMapping',
+    function fileNameHash() {
+      const hashMapping = this.duplicateNameHashGenerator.hashMapping;
+      // debugger;
+      if (!this.relativePath) {
+        return '';
+      }
+      const hash = hashMapping[this.relativePath];
+      return hash ? ('#' + hash) : '';
+    }
+  ),
 });

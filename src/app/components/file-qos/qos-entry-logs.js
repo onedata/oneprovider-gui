@@ -217,6 +217,7 @@ class FileUrlGenerator {
     if (cachedUrl) {
       return cachedUrl;
     } else {
+      // FIXME: add cache property doc
       this.cache[fileId] = this.generateNewUrl(fileId);
       return this.cache[fileId];
     }

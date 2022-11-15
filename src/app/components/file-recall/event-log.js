@@ -11,6 +11,9 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import DuplicateNameHashGenerator from 'oneprovider-gui/utils/duplicate-name-hash-generator';
+import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default Component.extend(I18n, {
   classNames: ['file-recall-event-log'],
@@ -40,6 +43,11 @@ export default Component.extend(I18n, {
    * @type {Models.Dataset}
    */
   dataset: undefined,
+
+  /**
+   * @type {Utils.DuplicateNameHashGenerator}
+   */
+  duplicateNameHashGenerator: undefined,
 
   recallRootFileId: reads('recallRootFile.entityId'),
 
@@ -80,6 +88,13 @@ export default Component.extend(I18n, {
     }
   ),
 
+  init() {
+    this._super(...arguments);
+    // FIXME: maybe refactor to remove redundancy with other logs with filename hashes
+    // FIXME: duplicateNameHashGenerator property, registerEntryRecord action
+    this.set('duplicateNameHashGenerator', DuplicateNameHashGenerator.create());
+  },
+
   /**
    * @param {string} fileId ID of file in archive
    * @returns {string} URL of file in archive
@@ -103,6 +118,21 @@ export default Component.extend(I18n, {
   actions: {
     generateSourceFileUrl(fileId) {
       return this.generateSourceFileUrl(fileId);
+    },
+
+    /**
+     * @param {RecallAuditLogEntryContent} logEntryContent
+     * @returns {void}
+     */
+    registerLogEntryContent(logEntryContent) {
+      (async () => {
+        await waitForRender();
+        const path = logEntryContent.relativePath;
+        this.duplicateNameHashGenerator.addName(
+          getFileNameFromPath(path),
+          path
+        );
+      })();
     },
   },
 });
