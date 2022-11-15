@@ -160,8 +160,6 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     // FIXME: property
-    this.set('fileNames', new Set());
-    this.set('duplicateNames', new Set());
     this.set('duplicateNameHashGenerator', DuplicateNameHashGenerator.create());
     this.set(
       'hashGenerator',
