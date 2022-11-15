@@ -8,9 +8,13 @@
     }
   }
   .file-column-header {
-    width: 12em;
+    width: 25%;
+    max-width: 20em;
+    min-width: 12em;
     @media (max-width: $screen-xs-max) {
       width: 8em;
+      max-width: none;
+      min-width: auto;
     }
   }
   .time-taken-column-header {
@@ -33,12 +37,12 @@
       top: -0.05em;
       margin-right: 0.15em;
     }
-    .entry-file-name {
-      flex-grow: 1;
-    }
     .filename-duplicate-hash {
       margin-left: 0.3em;
       opacity: $disabled-opacity;
+      @media (max-width: $screen-xs-max) {
+        display: none;
+      }
     }
   }
   // override text-align
