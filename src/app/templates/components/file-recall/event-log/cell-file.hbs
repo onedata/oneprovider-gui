@@ -6,12 +6,24 @@
       href={{fileHref}}
     >
       <span class="file-name">{{or fileName "–"}}</span>
-      {{one-tooltip title=relativePath class="string-path-tooltip"}}
+      {{#one-tooltip class="string-path-tooltip"}}
+        <div class="formatted-path-string file-path-base">
+          <span class="path">
+            {{file-path-renderer pathItems=pathItems}}
+          </span>
+        </div>
+      {{/one-tooltip}}
     </a>
   {{else}}
     <div class="source-file truncate">
       <span class="file-name">{{or fileName "–"}}</span>
-      {{one-tooltip title=relativePath class="string-path-tooltip"}}
+      {{#one-tooltip class="string-path-tooltip"}}
+        <div class="formatted-path-string file-path-base">
+          <span class="path">
+            {{file-path-renderer pathItems=pathItems}}
+          </span>
+        </div>
+      {{/one-tooltip}}
     </div>
   {{/if}}
   {{#if fileNameHash}}

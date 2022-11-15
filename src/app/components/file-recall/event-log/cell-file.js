@@ -13,6 +13,7 @@ import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import filePathViewCreateRelative from 'oneprovider-gui/utils/file-path-view/create-relative';
 
 export default Component.extend({
   tagName: 'td',
@@ -69,4 +70,15 @@ export default Component.extend({
       return hash ? ('#' + hash) : '';
     }
   ),
+
+  /**
+   *  @returns {Array<FilePathItem>}
+   */
+  pathItems: computed('relativePath', function pathItems() {
+    if (!this.relativePath) {
+      return [];
+    }
+    // presenting only relative path, removing leading slash
+    return filePathViewCreateRelative(this.relativePath);
+  }),
 });
