@@ -19,9 +19,12 @@
       ({{user.username}})
     </span>
   {{/if}}
-  {{user-info-popover
-    user=user
+  {{#record-info-popover
     isOpened=userInfoOpened
     triggerSelector=(concat "#" elementId " .user-info-trigger")
   }}
+    {{user-info-content
+      user=user
+    }}
+  {{/record-info-popover}}
 {{/truncated-string}}
