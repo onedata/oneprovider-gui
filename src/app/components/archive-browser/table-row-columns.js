@@ -26,7 +26,7 @@ export default FbTableRowColumns.extend({
   i18nPrefix: 'components.archiveBrowser.tableRowColumns',
 
   /**
-   * @virtual
+   * @virtual optional
    * @type {Function}
    */
   changeFileNameHover: notImplementedIgnore,

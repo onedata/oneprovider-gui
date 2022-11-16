@@ -49,7 +49,6 @@
     $transition-time: 0.5s;
     vertical-align: middle;
     .file-info-container {
-      padding-left: 4px;
       $min-icon-width: 2em;
       display: flex;
       .inline-icon-container-file {
@@ -62,7 +61,7 @@
         height: 20px;
 
         .spinner-container {
-          transform: translate(-4px, -4px);
+          transform: translate(-4px, -2px);
         }
       }
       
@@ -74,7 +73,7 @@
       .flippable-back, .flippable-front {
         position: absolute;
         top: 0;
-        transform: translate(-4px, -4px);
+        transform: translate(-4px, -5px);
       }
 
       &.flip-animated {
@@ -87,12 +86,12 @@
             backface-visibility: hidden;
             // for Safari <= 15.3
             -webkit-backface-visibility: hidden;
-            transform: rotateX(0deg) translate(-4px, -4px);
+            transform: rotateX(0deg) translate(-4px, -5px);
           }
           .flippable-back {
             opacity: 0;
             transition: opacity $transition-time;
-            transform: rotateY(180deg) translate(4px, -4px);
+            transform: rotateY(180deg) translate(4px, -5px);
             color: inherit;
           }
         }
@@ -125,11 +124,12 @@
         .file-suffix.conflict-label {
           color: $color-one-danger;
         }
-        .file-base-name, 
-        .secondary-description-internal, 
-        .dataset-info-secondary-file-path-internal, 
-        .fb-table-row-mobile-secondary-info {
-          padding-left: 10px;
+        .file-base-name,
+        .secondary-description-internal,
+        .dataset-info-secondary-file-path-internal,
+        span.file-info-mobile-inner
+         {
+          padding-left: 14px;
         }
       }
       &.file-icon-container {

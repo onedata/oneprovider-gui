@@ -25,8 +25,8 @@ export default Component.extend(I18n, {
   archive: undefined,
 
   /**
-   * @virtual
-   * @type {Function}
+   * @virtual optional
+   * @type {(isFileNameHovered: boolean) => void}
    */
   changeFileNameHover: notImplementedIgnore,
 

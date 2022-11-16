@@ -15,7 +15,7 @@ export default FbTableRowSecondaryInfo.extend({
   classNames: ['archive-table-row-secondary-info'],
 
   /**
-   * @virtual
+   * @virtual optional
    * @type {Function}
    */
   changeFileNameHover: notImplementedIgnore,
