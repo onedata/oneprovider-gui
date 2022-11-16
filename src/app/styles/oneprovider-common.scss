@@ -186,3 +186,13 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
     }
   }
 }
+
+// Class used in log entries file cells to present a hash for distinguishing files with
+// the same name.
+.log-filename-duplicate-hash {
+  margin-left: 0.3em;
+  opacity: $disabled-opacity;
+  @media (max-width: $screen-xs-max) {
+    display: none;
+  }
+}

@@ -50,5 +50,5 @@ export default Component.extend({
     return filePathViewCreateRelative(this.entryModel.relativePath);
   }),
 
-  fileNameHash: reads('entryModel.fileNameDuplicateHash'),
+  fileNameHash: reads('entryModel.fileNameHash'),
 });

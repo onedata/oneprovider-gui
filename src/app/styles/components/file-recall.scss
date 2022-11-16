@@ -33,16 +33,6 @@
   }
   .file-recall-event-log {
     min-height: 0;
-    // FIXME: DRY?
-    .cell-file {
-      .filename-duplicate-hash {
-        margin-left: 0.3em;
-        opacity: $disabled-opacity;
-        @media (max-width: $screen-xs-max) {
-          display: none;
-        }
-      }
-    }
   }
 }
 

@@ -18,6 +18,7 @@ import { htmlSafe } from '@ember/string';
 import parseLogError from 'oneprovider-gui/utils/create-error-message-spec';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import computedFileNameHash from 'oneprovider-gui/utils/computed-file-name-hash';
 
 const mixins = [
   OwnerInjector,
@@ -163,18 +164,7 @@ export default EmberObject.extend(...mixins, {
   }),
 
   /**
-   * FIXME: formatting, names
    * @type {ComputedProperty<string>}
    */
-  fileNameDuplicateHash: computed(
-    'relativePath',
-    'duplicateNameHashMapper.hashMapping',
-    function fileNameDuplicateHash() {
-      if (!this.relativePath) {
-        return '';
-      }
-      const hash = this.duplicateNameHashMapper.hashMapping[this.relativePath];
-      return hash ? ('#' + hash) : '';
-    }
-  ),
+  fileNameHash: computedFileNameHash('relativePath'),
 });

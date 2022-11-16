@@ -37,13 +37,6 @@
       top: -0.05em;
       margin-right: 0.15em;
     }
-    .filename-duplicate-hash {
-      margin-left: 0.3em;
-      opacity: $disabled-opacity;
-      @media (max-width: $screen-xs-max) {
-        display: none;
-      }
-    }
   }
   // override text-align
   .infinite-scroll-table .table-head th.time-taken-column-header {

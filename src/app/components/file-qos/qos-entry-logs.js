@@ -62,6 +62,7 @@ export default Component.extend(I18n, {
   parentBrowsableArchive: undefined,
 
   /**
+   * Initialized on init.
    * @type {Utils.DuplicateNameHashMapper}
    */
   duplicateNameHashMapper: undefined,
@@ -177,8 +178,6 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    // FIXME: maybe refactor to remove redundancy with other logs with filename hashes
-    // FIXME: duplicateNameHashMapper property, registerEntryRecord action
     this.set('duplicateNameHashMapper', DuplicateNameHashMapper.create());
   },
 
@@ -194,7 +193,7 @@ export default Component.extend(I18n, {
      * @param {QosAuditLogEntryContent} logEntryContent
      * @returns {void}
      */
-    registerLogEntryContent(logEntryContent) {
+    registerLogEntry(logEntryContent) {
       (async () => {
         await waitForRender();
         const path = logEntryContent.path;
@@ -217,7 +216,6 @@ class FileUrlGenerator {
     if (cachedUrl) {
       return cachedUrl;
     } else {
-      // FIXME: add cache property doc
       this.cache[fileId] = this.generateNewUrl(fileId);
       return this.cache[fileId];
     }

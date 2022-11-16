@@ -45,6 +45,7 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * Initialized on init.
    * @type {Utils.DuplicateNameHashMapper}
    */
   duplicateNameHashMapper: undefined,
@@ -159,7 +160,6 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    // FIXME: property
     this.set('duplicateNameHashMapper', DuplicateNameHashMapper.create());
   },
 
@@ -187,7 +187,7 @@ export default Component.extend(I18n, {
     /**
      * @param {Utils.ArchiveAuditLogEntryModel} entryModel
      */
-    registerEntryRecord(entryModel) {
+    registerLogEntry(entryModel) {
       (async () => {
         await waitForRender();
         this.duplicateNameHashMapper.addPair(

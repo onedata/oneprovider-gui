@@ -14,6 +14,7 @@ import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import filePathViewCreateRelative from 'oneprovider-gui/utils/file-path-view/create-relative';
+import computedFileNameHash from 'oneprovider-gui/utils/computed-file-name-hash';
 
 export default Component.extend({
   tagName: 'td',
@@ -32,6 +33,12 @@ export default Component.extend({
    * @type {string}
    */
   relativePath: undefined,
+
+  /**
+   * @virtual
+   * @type {Utils.DuplicateNameHashMapper}
+   */
+  duplicateNameHashMapper: undefined,
 
   /**
    * Should generate a full source file URL inside archive.
@@ -55,21 +62,10 @@ export default Component.extend({
 
   fileHref: computedPipe('fileId', 'onGenerateSourceFileUrl'),
 
-  // FIXME: DRY?
-  fileNameHash: computed(
-    'relativePath',
-    // FIXME: add property
-    'duplicateNameHashMapper.hashMapping',
-    function fileNameHash() {
-      const hashMapping = this.duplicateNameHashMapper.hashMapping;
-      // debugger;
-      if (!this.relativePath) {
-        return '';
-      }
-      const hash = hashMapping[this.relativePath];
-      return hash ? ('#' + hash) : '';
-    }
-  ),
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  fileNameHash: computedFileNameHash('relativePath'),
 
   /**
    *  @returns {Array<FilePathItem>}
