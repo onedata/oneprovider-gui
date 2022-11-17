@@ -58,19 +58,31 @@ describe('Unit | Utility | hash generator', function () {
       e: '0005',
       f: '0006',
     };
+    const value = 'initial';
     const generate = sinon.stub(subject, 'generate');
+    // NOTE: not a black-box test - uses generate generate recursive logic
     generate
-      .withArgs('initial').returns('0001')
-      .withArgs('0001').returns('0002')
-      .withArgs('0002').returns('0003')
-      .withArgs('0003').returns('0004')
-      .withArgs('0004').returns('0005')
-      .withArgs('0005').returns('0006')
-      .withArgs('0006').throws('too many generate invocations')
+      .withArgs(value).returns('0001')
+      .withArgs('0001' + value).returns('0002')
+      .withArgs('0002' + value).returns('0003')
+      .withArgs('0003' + value).returns('0004')
+      .withArgs('0004' + value).returns('0005')
+      .withArgs('0005' + value).returns('0006')
+      .withArgs('0006' + value).throws('too many generate invocations')
       .throws('generate invocation with unexpected value');
 
-    const result = subject.getHash('initial');
+    const result = subject.getHash(value);
 
     expect(result).to.equal('0005');
+  });
+
+  it('pads result to 4 hex chars string', function () {
+    const subject = new HashGenerator();
+
+    // KERMIT algorithm generates 0x05A5 for this value
+    const result = subject.generate('/root2/one');
+
+    // without padding with "0" this could be "5a5"
+    expect(result).to.equal('05a5');
   });
 });

@@ -1,9 +1,9 @@
 /**
  * Generates hashes (short identifiers) for given string in the set.
  *
- * Instances of this class takes care of generating hashes for strings that are unique
- * for strings that have been used in instance of this generator. Note that there is
- * a limit for attempts to generate unique hash - see `collisionsLimit` property.
+ * Instances of this class generate unique hash for every string provided to `getHash`
+ * method. In case of a hash collision, another hash is generated up to `collisionsLimit`
+ * times.
  *
  * A CRC-16 with KERMIT algorithm is used to generate hashes.
  *
@@ -79,9 +79,9 @@ export default class HashGenerator {
   generateUniq(value) {
     const allHashes = Object.values(this.cache);
     let tryAgainCountdown = this.collisionsLimit;
-    let hash = value;
+    let hash = '';
     do {
-      hash = this.generate(hash);
+      hash = this.generate(hash + value);
       tryAgainCountdown -= 1;
     } while (tryAgainCountdown && allHashes.includes(hash));
     return hash;
@@ -98,6 +98,6 @@ export default class HashGenerator {
     for (let index = 0; index < value.length; index++) {
       crc = (table[(crc ^ value.charCodeAt(index)) & 0xff] ^ (crc >> 8)) & 0xffff;
     }
-    return crc.toString(16);
+    return crc.toString(16).padStart(4, '0');
   }
 }

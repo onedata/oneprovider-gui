@@ -3,6 +3,8 @@ import { describe, it } from 'mocha';
 import DuplicateNameHashMapper from 'oneprovider-gui/utils/duplicate-name-hash-mapper';
 import EmberObject, { computed } from '@ember/object';
 
+const hashMatcher = /[0-9a-f]{4}/;
+
 describe('Unit | Utility | duplicate name hash mapper', function () {
   it('exposes a hash for values if name is duplicated', function () {
     const subject = DuplicateNameHashMapper.create();
@@ -10,8 +12,8 @@ describe('Unit | Utility | duplicate name hash mapper', function () {
     subject.addPair('one', '/root1/one');
     subject.addPair('one', '/root2/one');
 
-    expect(subject.hashMapping['/root1/one'], 'root1').to.be.not.undefined;
-    expect(subject.hashMapping['/root2/one'], 'root2').to.be.not.undefined;
+    expect(subject.hashMapping['/root1/one'], 'root1').to.match(hashMatcher);
+    expect(subject.hashMapping['/root2/one'], 'root2').to.match(hashMatcher);
   });
 
   it('does not expose a hash for name if name has single occurence', function () {
@@ -22,7 +24,7 @@ describe('Unit | Utility | duplicate name hash mapper', function () {
     expect(subject.hashMapping['/root1/one']).to.be.undefined;
   });
 
-  it('does not expose a hash for name if the same name-value pair has been added mutliple times', function () {
+  it('does not expose a hash for name if the same name-value pair has been added multiple times', function () {
     const subject = DuplicateNameHashMapper.create();
 
     subject.addPair('one', '/root/one');
@@ -52,7 +54,7 @@ describe('Unit | Utility | duplicate name hash mapper', function () {
     expect(observingObject.root2).to.be.undefined;
 
     subject.addPair('one', '/root2/one');
-    expect(observingObject.root1).to.be.not.undefined;
-    expect(observingObject.root2).to.be.not.undefined;
+    expect(observingObject.root1).to.match(hashMatcher);
+    expect(observingObject.root2).to.match(hashMatcher);
   });
 });
