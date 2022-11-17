@@ -47,11 +47,16 @@ export default Component.extend(...mixins, {
 
   effectiveReadonlyTip: reads('viewModel.effectiveReadonlyTip'),
 
+  isPermissionsTypeSelectorDisabled: reads('viewModel.isPermissionsTypeSelectorDisabled'),
+
   actions: {
     /**
      * @param {FilePermissionsType} tabId
      */
     changeTab(tabId) {
+      if (this.isPermissionsTypeSelectorDisabled) {
+        return;
+      }
       this.viewModel.onSelectedPermissionsTypeChange(tabId);
     },
   },

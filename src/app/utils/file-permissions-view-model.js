@@ -358,6 +358,11 @@ export default EmberObject.extend(...mixins, {
     raw(null),
   ),
 
+  isPermissionsTypeSelectorDisabled: bool(and(
+    'effectiveReadonly',
+    equal('activePermissionsType', raw('posix')),
+  )),
+
   init() {
     this._super(...arguments);
     this.clearEditedPermissionsTypes();

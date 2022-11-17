@@ -1,6 +1,9 @@
 <div class="btn-group-tabs permissions-type-tabs">
   {{#bs-button-group
-    class="permissions-type-selector with-scroll-shadow"
+    class=(concat-classes
+      "permissions-type-selector with-scroll-shadow"
+      (if isPermissionsTypeSelectorDisabled "disabled")
+    )
     value=activeTab
     type="radio"
     onChange=(action "changeTab") as |bg|
@@ -12,6 +15,7 @@
           "btn-sm"
           "permissions-type-btn"
           (concat "permissions-type-btn-" type)
+          (if isPermissionsTypeSelectorDisabled "disabled")
         )
         value=type
       }}
