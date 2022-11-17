@@ -33,9 +33,9 @@ export default Component.extend(...mixins, {
    */
   viewModel: undefined,
 
-  posixViewActive: equal('viewModel.activePermissionsType', raw('posix')),
+  posixViewActive: equal('viewModel.selectedPermissionsType', raw('posix')),
 
-  aclViewActive: equal('viewModel.activePermissionsType', raw('acl')),
+  aclViewActive: equal('viewModel.selectedPermissionsType', raw('acl')),
 
   posixPermissionsCompatible: reads('viewModel.posixPermissionsCompatible'),
 

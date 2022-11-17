@@ -83,7 +83,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {FilePermissionsType}
    */
-  activePermissionsType: undefined,
+  selectedPermissionsType: undefined,
 
   /**
    * Array of changed permission types. May contain single type or both of them.
@@ -218,8 +218,8 @@ export default EmberObject.extend(...mixins, {
   }),
 
   /**
-   * Active permissions type value inferred from files.
-   * @type {Ember.ComputedProperty<string>}
+   * Initial selected permissions type for viewing/editing inferred from files.
+   * @type {Ember.ComputedProperty<FilePermissionsType>}
    */
   initialActivePermissionsType: conditional(
     array.isEvery('files', raw('activePermissionsType'), raw('posix')),
@@ -302,6 +302,30 @@ export default EmberObject.extend(...mixins, {
   ),
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  areActivePermissionsTypeTheSame: computed(
+    'isMultiFile',
+    'files.@each.activePermissionsType',
+    function isActivePermissionsTypeTheSame() {
+      if (!this.isMultiFile || !this.files?.length) {
+        return true;
+      }
+      const firstType = get(this.files[0], 'activePermissionsType');
+      return this.files.every(file => get(file, 'activePermissionsType') === firstType);
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<FilePermissionsType|null>}
+   */
+  activePermissionsType: conditional(
+    'areActivePermissionsTypeTheSame',
+    'files.0.activePermissionsType',
+    raw(null),
+  ),
+
+  /**
    * True if ACLs are not conflicted or conflict was accepted.
    * @type {Ember.ComputedProperty<boolean>}
    */
@@ -347,7 +371,7 @@ export default EmberObject.extend(...mixins, {
     );
 
     this.setProperties({
-      activePermissionsType: initialActivePermissionsType,
+      selectedPermissionsType: initialActivePermissionsType,
       posixPermissions: initialPosixPermissions,
     });
 
@@ -463,8 +487,8 @@ export default EmberObject.extend(...mixins, {
   /**
    * @param {FilePermissionsType} mode
    */
-  onActivePermissionsTypeChange(mode) {
-    this.set('activePermissionsType', mode);
+  onSelectedPermissionsTypeChange(mode) {
+    this.set('selectedPermissionsType', mode);
 
     if (mode === 'acl') {
       this.initAclValuesOnProxyLoad();
@@ -585,7 +609,7 @@ export default EmberObject.extend(...mixins, {
   restoreOriginalPermissions() {
     this.setProperties({
       lastResetTime: Date.now(),
-      activePermissionsType: this.initialActivePermissionsType,
+      selectedPermissionsType: this.initialActivePermissionsType,
       posixPermissions: this.initialPosixPermissions,
     });
     this.setAclFromInitial();

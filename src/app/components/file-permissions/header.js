@@ -39,7 +39,9 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<FilePermissionsType>}
    */
-  activeTab: reads('viewModel.activePermissionsType'),
+  activeTab: reads('viewModel.selectedPermissionsType'),
+
+  activePermissionsType: reads('viewModel.activePermissionsType'),
 
   effectiveReadonly: reads('viewModel.effectiveReadonly'),
 
@@ -50,7 +52,7 @@ export default Component.extend(...mixins, {
      * @param {FilePermissionsType} tabId
      */
     changeTab(tabId) {
-      this.viewModel.onActivePermissionsTypeChange(tabId);
+      this.viewModel.onSelectedPermissionsTypeChange(tabId);
     },
   },
 });

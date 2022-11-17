@@ -15,6 +15,9 @@
         )
         value=type
       }}
+        {{#if (eq type activePermissionsType)}}
+          {{one-icon class="tab-icon" icon="checkbox-filled"}}
+        {{/if}}
         <span class="tab-name">
           {{tt this (concat "types." type)}}
         </span>

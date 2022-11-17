@@ -1,9 +1,11 @@
+{{!-- FIXME: debug tab --}}
 {{file-info-modal
   open=files
   files=files
   space=space
   share=share
   previewMode=previewMode
+  initialTab="permissions"
   getDataUrl=(action "getDataUrl")
   onHidden=(action "closeInfoModal")
 }}
