@@ -15,7 +15,7 @@ import ArchiveAuditLogEntryModel from 'oneprovider-gui/utils/archive-audit-log-e
 import { promise, conditional, raw } from 'ember-awesome-macros';
 import { htmlSafe } from '@ember/string';
 import _ from 'lodash';
-import DuplicateNameHashMapper from 'oneprovider-gui/utils/duplicate-name-hash-mapper';
+import DuplicateNameHashMapper from 'onedata-gui-common/utils/duplicate-name-hash-mapper';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default Component.extend(I18n, {

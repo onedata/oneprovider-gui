@@ -12,7 +12,7 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise, equal, raw } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
-import DuplicateNameHashMapper from 'oneprovider-gui/utils/duplicate-name-hash-mapper';
+import DuplicateNameHashMapper from 'onedata-gui-common/utils/duplicate-name-hash-mapper';
 import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
