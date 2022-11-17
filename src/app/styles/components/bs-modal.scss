@@ -73,6 +73,17 @@
     .nav-tabs {
       margin-left: -$nav-link-padding-vertical;
     }
+    .one-tab-bar {
+      margin-left: -$nav-link-padding-vertical;
+      &.tabs-overflowing {
+        margin-left: 0;
+      }
+      .tab-bar-ul-container {
+        .nav-tabs {
+          margin-left: 0;
+        }
+      }
+    }
   }
 
   .modal-sm {
@@ -88,6 +99,11 @@
     max-width: $modal-xl;
   }
 
+  &.with-sticky-footer {
+    // to make footer sticky, do not expand modal body vertically
+    --modal-body-flex-grow: 0;
+  }
+
   &.in {
     transition: box-shadow ease-in-out $transition-base-time;
 
@@ -100,7 +116,8 @@
         height: 100%;
       }
       .modal-body {
-        flex-grow: 1;
+        // by default expand modal body vertically
+        flex-grow: var(--modal-body-flex-grow, 1);
       }
     }
 

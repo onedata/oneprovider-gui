@@ -1,0 +1,14 @@
+<div class="btn-tooltip-container">
+  {{#one-button
+    type="primary"
+    buttonType="submit"
+    onClick=(action "createShare")
+    class="create-share-btn"
+    disabled=isCreateShareDisabled
+  }}
+    {{tt this "createShare"}}
+  {{/one-button}}
+  {{#if createShareDisabledTip}}
+    {{one-tooltip title=createShareDisabledTip}}
+  {{/if}}
+</div>

@@ -9,7 +9,7 @@
 
 import EmberObject, { computed, get, defineProperty } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { or, eq, raw, conditional, bool } from 'ember-awesome-macros';
+import { or, eq, raw, conditional, bool, and, not } from 'ember-awesome-macros';
 import _ from 'lodash';
 import { camelize, capitalize } from '@ember/string';
 import { inject as service } from '@ember/service';
@@ -21,6 +21,7 @@ import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insuffi
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { assert } from '@ember/debug';
 import { Promise } from 'rsvp';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 /**
  * @typedef {'xattrs'|'json'|'rdf'} FileMetadataType
@@ -191,6 +192,25 @@ export default EmberObject.extend(...mixins, {
         return '';
       }
     }
+  ),
+
+  isSaveDisabled: or(
+    not('isAnyModified'),
+    'isAnyInvalid',
+    'isAnyValidating'
+  ),
+
+  isDiscardDisabled: or(
+    not('isAnyModified'),
+    // discard action sets isAnyValidating flag to false, so to avoid race do not allow
+    // to invoke it when validating
+    'isAnyValidating'
+  ),
+
+  isSaveDisabledMessage: or(
+    and('isAnyInvalid', computedT('disabledReason.someInvalid')),
+    and('isAnyValidating', computedT('disabledReason.validating')),
+    and(not('isAnyModified'), computedT('disabledReason.noChanges')),
   ),
 
   init() {
@@ -445,6 +465,14 @@ export default EmberObject.extend(...mixins, {
     if (await this.checkCurrentTabClose()) {
       this.set('activeTab', tabId);
     }
+  },
+
+  discardCurrentTab() {
+    this.restoreOriginalMetadata(this.activeTab);
+  },
+
+  async saveCurrentTab() {
+    return await this.save(this.activeTab);
   },
 });
 

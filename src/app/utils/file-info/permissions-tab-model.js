@@ -9,7 +9,8 @@
 import BaseTabModel from './base-tab-model';
 import { computed } from '@ember/object';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
-import { conditional, raw } from 'ember-awesome-macros';
+import { conditional, raw, array } from 'ember-awesome-macros';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default BaseTabModel.extend({
   /**
@@ -76,6 +77,22 @@ export default BaseTabModel.extend({
     );
     return isSupportedFileType;
   }),
+
+  /**
+   * @override
+   */
+  modalClass: 'with-sticky-footer',
+
+  statusTag: conditional(
+    'isAnyFileWithAcl',
+    computedT('acl'),
+    raw(null),
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isAnyFileWithAcl: array.isAny('files', raw('activePermissionsType'), raw('acl')),
 
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}

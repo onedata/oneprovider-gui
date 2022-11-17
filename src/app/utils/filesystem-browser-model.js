@@ -27,6 +27,16 @@ import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
 
+export const commonActionIcons = Object.freeze({
+  info: 'browser-info',
+  hardlinks: 'text-link',
+  metadata: 'browser-metadata',
+  permissions: 'browser-permissions',
+  shares: 'browser-share',
+  qos: 'qos',
+  distribution: 'browser-distribution',
+});
+
 const buttonNames = Object.freeze([
   'btnBagitUpload',
   'btnUpload',
@@ -384,6 +394,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }
       return this.createFileAction({
         id: 'share',
+        icon: commonActionIcons.shares,
         action: (files) => {
           return this.openFileShare(files[0]);
         },
@@ -444,6 +455,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     });
     return this.createFileAction({
       id: 'metadata',
+      icon: commonActionIcons.metadata,
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: (files) => {
@@ -461,6 +473,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnInfo: computed(function btnInfo() {
     return this.createFileAction({
       id: 'info',
+      icon: commonActionIcons.info,
       action: (files, activeTab) => {
         return this.get('openInfo')(files, activeTab);
       },
@@ -582,6 +595,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       });
       return this.createFileAction({
         id: 'permissions',
+        icon: commonActionIcons.permissions,
         disabled: Boolean(disabledTip),
         tip: disabledTip,
         action: (files) => {
@@ -664,7 +678,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     function btnPlaceHardlink() {
       return this.createFileAction({
         id: 'placeHardlink',
-        icon: 'text-link',
+        icon: commonActionIcons.hardlinks,
         action: () => this.placeHardlinks(),
         showIn: [
           actionContext.currentDir,
@@ -778,6 +792,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       });
       return this.createFileAction({
         id: 'distribution',
+        icon: commonActionIcons.distribution,
         disabled: Boolean(disabledTip),
         tip: disabledTip,
         showIn: [
@@ -819,7 +834,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }
       return this.createFileAction({
         id: 'qos',
-        icon: 'qos',
+        icon: commonActionIcons.qos,
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,

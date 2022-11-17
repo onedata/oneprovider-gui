@@ -6,6 +6,13 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10081 Fixed showing initialization state of directory size stats
+* VFS-10094 Fixed delayed live time-series charts in automation
+* VFS-9905 Added missing error-inline component
+* VFS-10066 Fixed discarding ACL changes after permissions save
+* VFS-9843 Added floating action buttons for file info views
+* VFS-9626 Improved look of file info panel tab bar
+* VFS-10037 Added "rate" and "timeDerivative" time series chart functions
 * VFS-9866 Added popover with user info
 * VFS-10012 Fixed hanging file uploads
 * VFS-9767 Added support for new automation workflow execution states

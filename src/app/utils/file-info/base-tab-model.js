@@ -55,6 +55,28 @@ export default EmberObject.extend(...mixins, {
   statusIcon: undefined,
 
   /**
+   * Tooltip text that appear when status icon is hovered.
+   * @virtual optional
+   * @type {string|SafeString}
+   */
+  statusIconTip: undefined,
+
+  /**
+   * Number that will be rendered on the right of text as tab status.
+   * For specific cases, can be also a text (eg. for rendering "50+").
+   * @virtual optional
+   * @type {number|string}
+   */
+  statusNumber: undefined,
+
+  /**
+   * Text in tag that will be rendered on the right of text as tab status.
+   * @virtual optional
+   * @type {string}
+   */
+  statusTag: undefined,
+
+  /**
    * @virtual optional
    * @type {string}
    */
@@ -95,6 +117,12 @@ export default EmberObject.extend(...mixins, {
    * @type {SafeString|string}
    */
   title: computedT('title'),
+
+  /**
+   * @virtual optional
+   * @type {string}
+   */
+  modalClass: '',
 
   /**
    * @type {ComputedProperty<boolean>}
