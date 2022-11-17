@@ -209,6 +209,11 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   statusBarModel: Object.freeze({}),
 
+  /**
+   * @type {boolean}
+   */
+  isFileNameHovered: false,
+
   statusBarComponentName: or(
     'browserModel.statusBarComponentName',
     raw('file-browser/fb-table-row-status-bar')
@@ -523,6 +528,9 @@ export default Component.extend(I18n, FastDoubleClick, {
       }
       this.invokeFileAction(this.file, this.infoIconActionName);
       event.stopPropagation();
+    },
+    changeFileNameHover(isFileNameHovered) {
+      this.set('isFileNameHovered', isFileNameHovered);
     },
   },
 });
