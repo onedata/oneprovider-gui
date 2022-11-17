@@ -5,7 +5,7 @@ export default {
   differentAclReadonly: 'Selected files have different ACL rules. Select an individual file or files with the same rules.',
   // FIXME: consult i18n
   // FIXME: edit should be displayed conditionally only if posix is non-readonly
-  posixNotActive: 'The active type of permissions for selected file is currently ACL. You can review and edit POSIX permissions associated with the selected file, but effectively it is not not used to evaluate access to the file as long as ACL is the chosen type.',
+  posixNotActive: 'Currently, POSIX permissions are ignored for this file/directory, since there is an ACL specified.',
   editAnyway: 'Edit anyway',
   noAclDueToMixedFileTypes: 'Cannot view ACL of files and directories at the same time. Select only files or only directories to enable ACL editor.',
   noAclDueToMixedFileTypesReadonly: 'Cannot view ACL of files and directories at the same time. Select only files or only directories.',
