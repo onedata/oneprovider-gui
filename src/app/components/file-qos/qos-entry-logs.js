@@ -169,16 +169,38 @@ export default Component.extend(I18n, {
         'qosRequirementId',
         'qosManager'
       );
-      return (listingParams) => qosManager.getAuditLog(
-        qosRequirementId,
-        listingParams
-      );
+      return async (listingParams) => {
+        /** @type {AuditLogEntriesPage<QosAuditLogEntryContent>} */
+        const logsPage = await qosManager.getAuditLog(
+          qosRequirementId,
+          listingParams
+        );
+        for (const entry of logsPage.logEntries) {
+          this.registerLogEntry(entry.content);
+        }
+        return logsPage;
+      };
     }
   ),
 
   init() {
     this._super(...arguments);
     this.set('duplicateNameHashMapper', DuplicateNameHashMapper.create());
+  },
+
+  /**
+   * @param {QosAuditLogEntryContent} logEntryContent
+   * @returns {void}
+   */
+  registerLogEntry(logEntryContent) {
+    (async () => {
+      await waitForRender();
+      const path = logEntryContent.path;
+      this.duplicateNameHashMapper.addPair(
+        getFileNameFromPath(path),
+        path
+      );
+    })();
   },
 
   actions: {
@@ -188,20 +210,6 @@ export default Component.extend(I18n, {
      */
     generateFileUrl(fileId) {
       return this.get('fileUrlGenerator').getUrl(fileId);
-    },
-    /**
-     * @param {QosAuditLogEntryContent} logEntryContent
-     * @returns {void}
-     */
-    registerLogEntry(logEntryContent) {
-      (async () => {
-        await waitForRender();
-        const path = logEntryContent.path;
-        this.duplicateNameHashMapper.addPair(
-          getFileNameFromPath(path),
-          path
-        );
-      })();
     },
   },
 });

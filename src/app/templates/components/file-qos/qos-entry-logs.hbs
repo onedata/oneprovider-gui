@@ -9,7 +9,6 @@
     noLogEntriesText=(tt this "noEntries")
     as |logEntry|
   }}
-    {{evaluate-function (action "registerLogEntry") logEntry.content}}
     {{#if isFileColumnVisible}}
       {{file-qos/qos-entry-logs/cell-file
         fileCdmiObjectId=logEntry.content.fileId

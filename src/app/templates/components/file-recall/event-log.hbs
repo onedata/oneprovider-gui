@@ -3,7 +3,6 @@
   customColumnHeaders=customColumnHeaders
   as |logEntry|
 }}
-  {{evaluate-function (action "registerLogEntry") logEntry.content}}
   {{file-recall/event-log/cell-file
     fileCdmiObjectId=logEntry.content.fileId
     relativePath=logEntry.content.relativePath

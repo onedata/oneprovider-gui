@@ -10,8 +10,7 @@
     updateStrategy=updateStrategy
     as |logEntry|
   }}
-    {{#let (evaluate-function (action "createEntryModel") logEntry) as |entryModel|}}
-      {{evaluate-function (action "registerLogEntry") entryModel}}
+    {{#let (evaluate-function (action "createEntryModelForRow") logEntry) as |entryModel|}}
       {{archive-audit-log/cell-file
         entryModel=entryModel
       }}

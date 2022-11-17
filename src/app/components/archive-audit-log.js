@@ -180,21 +180,24 @@ export default Component.extend(I18n, {
     return await get(this.browsableArchive, 'provider');
   },
 
+  /**
+   * @param {Utils.ArchiveAuditLogEntryModel} entryModel
+   */
+  registerLogEntry(entryModel) {
+    (async () => {
+      await waitForRender();
+      this.duplicateNameHashMapper.addPair(
+        entryModel.fileName,
+        entryModel.relativePath
+      );
+    })();
+  },
+
   actions: {
-    createEntryModel(logEntry) {
-      return this.createEntryModel(logEntry);
-    },
-    /**
-     * @param {Utils.ArchiveAuditLogEntryModel} entryModel
-     */
-    registerLogEntry(entryModel) {
-      (async () => {
-        await waitForRender();
-        this.duplicateNameHashMapper.addPair(
-          entryModel.fileName,
-          entryModel.relativePath
-        );
-      })();
+    createEntryModelForRow(logEntry) {
+      const entryModel = this.createEntryModel(logEntry);
+      this.registerLogEntry(entryModel);
+      return entryModel;
     },
   },
 });

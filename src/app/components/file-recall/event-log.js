@@ -82,10 +82,17 @@ export default Component.extend(I18n, {
         'recallRootFileId',
         'fileManager'
       );
-      return (listingParams) => fileManager.getRecallLogs(
-        recallRootFileId,
-        listingParams
-      );
+      return async (listingParams) => {
+        /** @type {AuditLogEntriesPage<RecallAuditLogEntryContent>} */
+        const logsPage = await fileManager.getRecallLogs(
+          recallRootFileId,
+          listingParams
+        );
+        for (const entry of logsPage.logEntries) {
+          this.registerLogEntry(entry.content);
+        }
+        return logsPage;
+      };
     }
   ),
 
@@ -114,24 +121,24 @@ export default Component.extend(I18n, {
     });
   },
 
+  /**
+   * @param {RecallAuditLogEntryContent} logEntryContent
+   * @returns {void}
+   */
+  registerLogEntry(logEntryContent) {
+    (async () => {
+      await waitForRender();
+      const path = logEntryContent.relativePath;
+      this.duplicateNameHashMapper.addPair(
+        getFileNameFromPath(path),
+        path
+      );
+    })();
+  },
+
   actions: {
     generateSourceFileUrl(fileId) {
       return this.generateSourceFileUrl(fileId);
-    },
-
-    /**
-     * @param {RecallAuditLogEntryContent} logEntryContent
-     * @returns {void}
-     */
-    registerLogEntry(logEntryContent) {
-      (async () => {
-        await waitForRender();
-        const path = logEntryContent.relativePath;
-        this.duplicateNameHashMapper.addPair(
-          getFileNameFromPath(path),
-          path
-        );
-      })();
     },
   },
 });
