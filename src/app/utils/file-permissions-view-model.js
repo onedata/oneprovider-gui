@@ -30,6 +30,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import { translateFileType } from 'onedata-gui-common/utils/file';
 
 const mixins = [
   OwnerInjector,
@@ -48,6 +49,7 @@ export default EmberObject.extend(...mixins, {
   modalManager: service(),
   globalNotify: service(),
   fileManager: service(),
+  currentUser: service(),
 
   /**
    * @override
@@ -150,7 +152,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effectiveReadonly: or('readonly', 'metadataIsProtected'),
+  effectiveReadonly: or('readonly', 'metadataIsProtected', 'isPosixNonOwner'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -158,15 +160,27 @@ export default EmberObject.extend(...mixins, {
   effectiveReadonlyTip: computed(
     'readonlyTip',
     'metadataIsProtected',
+    'isPosixNonOwner',
+    'files.@each.type',
     function effectiveReadonlyTip() {
-      const {
-        readonlyTip,
-        metadataIsProtected,
-      } = this.getProperties('readonlyTip', 'metadataIsProtected');
-      if (readonlyTip) {
-        return readonlyTip;
-      } else if (metadataIsProtected) {
+      if (this.readonlyTip) {
+        return this.readonlyTip;
+      } else if (this.metadataIsProtected) {
         return this.t('readonlyDueToMetadataIsProtected');
+      } else if (this.isPosixNonOwner) {
+        let fileType = get(this.files[0], 'type');
+        let fileTypeForm;
+        if (this.files.length === 1) {
+          fileTypeForm = 'singular';
+        } else {
+          fileTypeForm = 'plural';
+          if (!this.files.every(file => get(file, 'type') === fileType)) {
+            fileType = null;
+          }
+        }
+        return this.t('readonlyDueToPosixNonOwner', {
+          fileTypeText: translateFileType(this.i18n, fileType, { form: fileTypeForm }),
+        });
       } else {
         return '';
       }
@@ -362,6 +376,21 @@ export default EmberObject.extend(...mixins, {
     'effectiveReadonly',
     equal('activePermissionsType', raw('posix')),
   )),
+
+  isAllFilesOwner: computed('files.@each.owner', function isAllFilesOwner() {
+    const currentUserId = this.currentUser.userId;
+    return this.files?.every(file => file?.relationEntityId('owner') === currentUserId);
+  }),
+
+  isNotFileOrSpaceOwner: not(or(
+    'space.currentUserIsOwner',
+    'isAllFilesOwner',
+  )),
+
+  isPosixNonOwner: and(
+    equal('activePermissionsType', raw('posix')),
+    'isNotFileOrSpaceOwner',
+  ),
 
   init() {
     this._super(...arguments);
