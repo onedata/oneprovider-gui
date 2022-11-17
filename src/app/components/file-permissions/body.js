@@ -83,7 +83,7 @@ export default Component.extend(...mixins, {
     not('previewMode'),
     or(
       not('isMultiFile'),
-      'viewModel.filesHaveSameOwners',
+      'viewModel.filesHaveSameOwner',
     )
   ),
 

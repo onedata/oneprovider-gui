@@ -35,7 +35,7 @@
 {{posix-permissions-editor
   lastResetTime=viewModel.lastResetTime
   initialPermissions=initialPosixPermissions
-  readonly=effectiveReadonly
+  readonly=viewModel.isPosixEditorReadonly
   readonlyTip=effectiveReadonlyTip
   onChange=(action "posixPermissionsChanged")
   class=(unless (and posixViewActive posixPermissionsCompatible) "hidden")

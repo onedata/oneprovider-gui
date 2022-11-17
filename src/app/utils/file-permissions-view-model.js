@@ -152,7 +152,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effectiveReadonly: or('readonly', 'metadataIsProtected', 'isPosixNonOwner'),
+  effectiveReadonly: or('readonly', 'metadataIsProtected', 'isPosixAndNonOwner'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -160,14 +160,14 @@ export default EmberObject.extend(...mixins, {
   effectiveReadonlyTip: computed(
     'readonlyTip',
     'metadataIsProtected',
-    'isPosixNonOwner',
+    'isPosixAndNonOwner',
     'files.@each.type',
     function effectiveReadonlyTip() {
       if (this.readonlyTip) {
         return this.readonlyTip;
       } else if (this.metadataIsProtected) {
         return this.t('readonlyDueToMetadataIsProtected');
-      } else if (this.isPosixNonOwner) {
+      } else if (this.isPosixAndNonOwner) {
         let fileType = get(this.files[0], 'type');
         let fileTypeForm;
         if (this.files.length === 1) {
@@ -277,7 +277,7 @@ export default EmberObject.extend(...mixins, {
     raw('posixPermissions')
   ),
 
-  filesHaveSameOwners: computed('files.@each.owner', function filesHaveSameOwners() {
+  filesHaveSameOwner: computed('files.@each.owner', function filesHaveSameOwner() {
     if (this.files.length === 1) {
       return true;
     }
@@ -382,14 +382,22 @@ export default EmberObject.extend(...mixins, {
     return this.files?.every(file => file?.relationEntityId('owner') === currentUserId);
   }),
 
-  isNotFileOrSpaceOwner: not(or(
-    'space.currentUserIsOwner',
-    'isAllFilesOwner',
-  )),
+  isNotFilesOrSpaceOwner: and(
+    not('space.currentUserIsOwner'),
+    not('isAllFilesOwner'),
+  ),
 
-  isPosixNonOwner: and(
+  isPosixAndNonOwner: and(
     equal('activePermissionsType', raw('posix')),
-    'isNotFileOrSpaceOwner',
+    'isNotFilesOrSpaceOwner',
+  ),
+
+  isPosixEditorReadonly: or(
+    'effectiveReadonly',
+    and(
+      equal('activePermissionsType', raw('acl')),
+      'isNotFilesOrSpaceOwner',
+    )
   ),
 
   init() {
