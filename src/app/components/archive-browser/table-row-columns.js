@@ -13,6 +13,7 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 import { inject as service } from '@ember/service';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default FbTableRowColumns.extend({
   parentAppNavigation: service(),
@@ -23,6 +24,12 @@ export default FbTableRowColumns.extend({
    * @override
    */
   i18nPrefix: 'components.archiveBrowser.tableRowColumns',
+
+  /**
+   * @virtual optional
+   * @type {Function}
+   */
+  changeFileNameHover: notImplementedIgnore,
 
   /**
    * Frame name, where Onezone link should be opened
@@ -82,6 +89,10 @@ export default FbTableRowColumns.extend({
         event.preventDefault();
         return this.get('browserModel.fbTableApi').forceSelectAndJump([baseArchive]);
       }
+    },
+
+    changeFileNameHover() {
+      return this.changeFileNameHover(...arguments);
     },
   },
 });
