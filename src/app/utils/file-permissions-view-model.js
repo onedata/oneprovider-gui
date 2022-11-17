@@ -161,31 +161,46 @@ export default EmberObject.extend(...mixins, {
     'readonlyTip',
     'metadataIsProtected',
     'isPosixAndNonOwner',
-    'files.@each.type',
+    'fileTypeTextConfig',
     function effectiveReadonlyTip() {
       if (this.readonlyTip) {
         return this.readonlyTip;
       } else if (this.metadataIsProtected) {
         return this.t('readonlyDueToMetadataIsProtected');
       } else if (this.isPosixAndNonOwner) {
-        let fileType = get(this.files[0], 'type');
-        let fileTypeForm;
-        if (this.files.length === 1) {
-          fileTypeForm = 'singular';
-        } else {
-          fileTypeForm = 'plural';
-          if (!this.files.every(file => get(file, 'type') === fileType)) {
-            fileType = null;
-          }
-        }
         return this.t('readonlyDueToPosixNonOwner', {
-          fileTypeText: translateFileType(this.i18n, fileType, { form: fileTypeForm }),
+          fileTypeText: this.fileTypeTextConfig.text,
         });
       } else {
         return '';
       }
     }
   ),
+
+  fileTypeTextConfig: computed('files.@each.type', function fileTypeTextConfig() {
+    let fileType = get(this.files[0], 'type');
+    let form;
+    if (this.files.length === 1) {
+      form = 'singular';
+    } else {
+      form = 'plural';
+      if (!this.files.every(file => get(file, 'type') === fileType)) {
+        fileType = null;
+      }
+    }
+    const text = translateFileType(this.i18n, fileType, { form });
+    return {
+      text,
+      fileType,
+      form,
+    };
+  }),
+
+  posixNotActiveText: computed('fileTypeTextConfig', function posixNotActiveText() {
+    return this.t(`posixNotActive.${this.fileTypeTextConfig.form}`, {
+      fileTypeText: this.fileTypeTextConfig.text,
+    });
+  }),
 
   /**
    * List of system subjects, that represents owner of a file/directory, owning
