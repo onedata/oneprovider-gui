@@ -71,6 +71,8 @@ export default Component.extend(...mixins, {
 
   owner: reads('viewModel.ownerProxy.content'),
 
+  isPosixActivePermissionsType: equal('viewModel.activePermissionsType', raw('posix')),
+
   ownerLabel: conditional(
     'isMultiFile',
     computedT('allFilesOwner'),

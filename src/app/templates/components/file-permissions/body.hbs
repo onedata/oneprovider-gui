@@ -6,6 +6,11 @@
     }}
   </div>
 {{/if}}
+{{#if (and posixViewActive (not isPosixActivePermissionsType))}}
+  <div class="alert alert-warning alert-simple-info">
+    {{tt this "posixNotActive"}}
+  </div>
+{{/if}}
 {{#if (and posixViewActive (not filesHaveCompatiblePosixPermissions))}}
   {{#if effectiveReadonly}}
     <div class="alert alert-info alert-simple-info">
