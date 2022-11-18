@@ -13,7 +13,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import DuplicateNameHashMapper from 'onedata-gui-common/utils/duplicate-name-hash-mapper';
 import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
-import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default Component.extend(I18n, {
   classNames: ['file-recall-event-log'],
@@ -126,14 +125,11 @@ export default Component.extend(I18n, {
    * @returns {void}
    */
   registerLogEntry(logEntryContent) {
-    (async () => {
-      await waitForRender();
-      const path = logEntryContent.relativePath;
-      this.duplicateNameHashMapper.addPair(
-        getFileNameFromPath(path),
-        path
-      );
-    })();
+    const path = logEntryContent.relativePath;
+    this.duplicateNameHashMapper.addPair(
+      getFileNameFromPath(path),
+      path
+    );
   },
 
   actions: {

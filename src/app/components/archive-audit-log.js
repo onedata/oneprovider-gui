@@ -184,19 +184,20 @@ export default Component.extend(I18n, {
    * @param {Utils.ArchiveAuditLogEntryModel} entryModel
    */
   registerLogEntry(entryModel) {
-    (async () => {
-      await waitForRender();
-      this.duplicateNameHashMapper.addPair(
-        entryModel.fileName,
-        entryModel.relativePath
-      );
-    })();
+    this.duplicateNameHashMapper.addPair(
+      entryModel.fileName,
+      entryModel.relativePath
+    );
   },
 
   actions: {
     createEntryModelForRow(logEntry) {
       const entryModel = this.createEntryModel(logEntry);
-      this.registerLogEntry(entryModel);
+      // MUST NOT be invoked within current render, because it modified template data
+      (async () => {
+        await waitForRender();
+        this.registerLogEntry(entryModel);
+      })();
       return entryModel;
     },
   },

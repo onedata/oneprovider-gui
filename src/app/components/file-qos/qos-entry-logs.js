@@ -14,7 +14,6 @@ import { promise, equal, raw } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import DuplicateNameHashMapper from 'onedata-gui-common/utils/duplicate-name-hash-mapper';
 import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
-import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default Component.extend(I18n, {
   classNames: ['qos-entry-logs'],
@@ -193,14 +192,11 @@ export default Component.extend(I18n, {
    * @returns {void}
    */
   registerLogEntry(logEntryContent) {
-    (async () => {
-      await waitForRender();
-      const path = logEntryContent.path;
-      this.duplicateNameHashMapper.addPair(
-        getFileNameFromPath(path),
-        path
-      );
-    })();
+    const path = logEntryContent.path;
+    this.duplicateNameHashMapper.addPair(
+      getFileNameFromPath(path),
+      path
+    );
   },
 
   actions: {
