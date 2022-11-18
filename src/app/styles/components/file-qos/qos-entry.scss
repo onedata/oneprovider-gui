@@ -149,7 +149,14 @@
     }
 
     .file-column-header {
-      width: 12em;
+      width: 25%;
+      max-width: 20em;
+      min-width: 12em;
+      @media (max-width: $screen-xs-max) {
+        width: 7em;
+        max-width: none;
+        min-width: auto;
+      }
     }
 
     .file-not-available {
@@ -162,12 +169,6 @@
         margin-right: 0.1em;
         // custom alignment to left, because of icon internal padding
         margin-left: -0.15em;
-      }
-    }
-
-    @media (max-width: $screen-xs-max) {
-      .file-column-header {
-        width: 7em;
       }
     }
   }

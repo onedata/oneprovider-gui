@@ -15,6 +15,9 @@
         {{/one-tooltip}}
       {{/if}}
     </span>
+    {{#if fileNameHash}}
+      <span class="log-filename-duplicate-hash">{{fileNameHash}}</span>
+    {{/if}}
   {{else}}
     <span class="entry-missing-file-name">–</span>
   {{/if}}

@@ -18,6 +18,7 @@ import { htmlSafe } from '@ember/string';
 import parseLogError from 'oneprovider-gui/utils/create-error-message-spec';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import computedFileNameHash from 'oneprovider-gui/utils/computed-file-name-hash';
 
 const mixins = [
   OwnerInjector,
@@ -38,6 +39,12 @@ export default EmberObject.extend(...mixins, {
    * @type {Utils.BrowsableDataset}
    */
   browsableDataset: undefined,
+
+  /**
+   * @virtual
+   * @type {Utils.DuplicateNameHashMapper}
+   */
+  duplicateNameHashMapper: undefined,
 
   spaceName: reads('space.name'),
 
@@ -155,4 +162,9 @@ export default EmberObject.extend(...mixins, {
     }
     return moment(this.endTimeMs).format(detailedReportFormatter);
   }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  fileNameHash: computedFileNameHash('relativePath'),
 });
