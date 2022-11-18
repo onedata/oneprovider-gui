@@ -193,14 +193,11 @@ export default Component.extend(I18n, {
    * @returns {void}
    */
   registerLogEntry(logEntryContent) {
-    (async () => {
-      await waitForRender();
-      const path = logEntryContent.path;
-      this.duplicateNameHashMapper.addPair(
-        getFileNameFromPath(path),
-        path
-      );
-    })();
+    const path = logEntryContent.path;
+    this.duplicateNameHashMapper.addPair(
+      getFileNameFromPath(path),
+      path
+    );
   },
 
   actions: {
