@@ -52,15 +52,10 @@
         <p>{{tt this (concat "selectorHint.dataAccess" translationKey)}}</p>
       {{/each}}
       <p>
-        {{tt this "selectorHint.seePrefix"}}
-        {{!-- FIXME: generate link using helper/component --}}
-        <a
-          href="https://onedata.org/#/home/documentation/21.02/doc/using_onedata/file_management[file-permissions].html"
-          target="_blank"
-        >
-          {{tt this "selectorHint.seeLink"}}
-        </a>
-        {{tt this "selectorHint.seeSuffix"}}
+        {{one-doc-see-more
+          linkName=(tt this "selectorHint.docLinkName")
+          docPath="using_onedata/file_management[file-permissions].html"
+        }}
       </p>
     {{/ospm.modal.body}}
     {{#ospm.modal.footer}}

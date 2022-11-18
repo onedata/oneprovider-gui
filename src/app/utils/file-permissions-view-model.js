@@ -363,7 +363,6 @@ export default EmberObject.extend(...mixins, {
     'isAclIncompatibilityAccepted'
   ),
 
-  // FIXME: property maybe to remove
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
@@ -723,7 +722,6 @@ export default EmberObject.extend(...mixins, {
         onSubmit: async (data) => {
           if (data.shouldSaveChanges) {
             try {
-              // FIXME: maybe save only selected tab (needs refactor)
               await this.save();
               resolve(true);
             } catch (error) {
