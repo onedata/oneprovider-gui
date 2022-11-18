@@ -28,6 +28,49 @@
       {{/bg.button}}
     {{/each}}
   {{/bs-button-group}}
+  {{one-icon
+    icon="sign-question-rounded"
+    class="permissions-header-hint-trigger permissions-hint-trigger hint-trigger clickable"
+  }}
+  {{#one-switchable-popover-modal
+    class="permissions-type-selector-hint"
+    triggersConfiguration=".permissions-hint-trigger"
+    popoverStyle="permissions-hint-info over-modals"
+    modalClass="modal-compact-help"
+    layoutType="modal"
+    as |ospm|
+  }}
+    {{#ospm.modal.body}}
+      <p>{{tt this "selectorHint.viewDescription"}}</p>
+      <h1>{{tt this "selectorHint.dataAccessHeader"}}</h1>
+      {{#each (array
+        "Intro"
+        "Shared"
+        "Posix"
+        "Acl"
+      ) as |translationKey|}}
+        <p>{{tt this (concat "selectorHint.dataAccess" translationKey)}}</p>
+      {{/each}}
+      <p>
+        {{tt this "selectorHint.seePrefix"}}
+        {{!-- FIXME: generate link using helper/component --}}
+        <a
+          href="https://onedata.org/#/home/documentation/21.02/doc/using_onedata/file_management[file-permissions].html"
+          target="_blank"
+        >
+          {{tt this "selectorHint.seeLink"}}
+        </a>
+        {{tt this "selectorHint.seeSuffix"}}
+      </p>
+    {{/ospm.modal.body}}
+    {{#ospm.modal.footer}}
+      <div class="btn-toolbar text-right visible-xs-block">
+        {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+          {{tt this "selectorHint.close"}}
+        {{/bs-button}}
+      </div>
+    {{/ospm.modal.footer}}
+  {{/one-switchable-popover-modal}}
   {{#if effectiveReadonly}}
     <div class="box-item editor-disabled-lock-container with-scroll-shadow hidden-xs">
       <div class="editor-disabled-lock-text">{{tt this "editorDisabled"}}</div>
