@@ -363,10 +363,22 @@ export default EmberObject.extend(...mixins, {
     'isAclIncompatibilityAccepted'
   ),
 
+  // FIXME: property maybe to remove
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
   isAnyModified: bool('editedPermissionsTypes.length'),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  isCurrentTabModified: computed(
+    'selectedPermissionsType',
+    'editedPermissionsTypes',
+    function isCurrentTabModified() {
+      return this.editedPermissionsTypes.includes(this.selectedPermissionsType);
+    }
+  ),
 
   isDiscardDisabled: not('isAnyModified'),
 
@@ -542,12 +554,28 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
-   * @param {FilePermissionsType} mode
+   * If needed, show unsaved changes prompt with save/restore actions.
+   * @returns {Promise<boolean>} If `true` is returned, the tab can be safely closed.
+   *   If `false` is returned, you should not close the tab due to unsaved changes.
    */
-  onSelectedPermissionsTypeChange(mode) {
-    this.set('selectedPermissionsType', mode);
+  async checkCurrentTabClose() {
+    return this.isCurrentTabModified ? await this.handleUnsavedChanges() : true;
+  },
 
-    if (mode === 'acl') {
+  /**
+   * @param {FilePermissionsType} tabId
+   */
+  async changeTab(tabId) {
+    if (
+      this.isPermissionsTypeSelectorDisabled ||
+      tabId === this.selectedPermissionsType ||
+      !(await this.checkCurrentTabClose())
+    ) {
+      return false;
+    }
+
+    this.set('selectedPermissionsType', tabId);
+    if (tabId === 'acl') {
       this.initAclValuesOnProxyLoad();
     }
   },
@@ -687,7 +715,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
-   * @returns {Promise<boolean>} true if current tab can be closed
+   * @returns {Promise<boolean>} `true` if current tab can be closed.
    */
   async handleUnsavedChanges() {
     return await new Promise(resolve => {
@@ -695,6 +723,7 @@ export default EmberObject.extend(...mixins, {
         onSubmit: async (data) => {
           if (data.shouldSaveChanges) {
             try {
+              // FIXME: maybe save only selected tab (needs refactor)
               await this.save();
               resolve(true);
             } catch (error) {

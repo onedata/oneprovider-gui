@@ -54,10 +54,7 @@ export default Component.extend(...mixins, {
      * @param {FilePermissionsType} tabId
      */
     changeTab(tabId) {
-      if (this.isPermissionsTypeSelectorDisabled) {
-        return;
-      }
-      this.viewModel.onSelectedPermissionsTypeChange(tabId);
+      this.viewModel.changeTab(tabId);
     },
   },
 });
