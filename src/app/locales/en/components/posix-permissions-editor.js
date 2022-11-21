@@ -7,7 +7,7 @@ export default {
   entitiesSecondary: {
     user: 'owner',
     group: 'space members',
-    other: 'anonyous',
+    other: 'anonymous',
   },
   entitiesTip: {
     user: 'Permissions for the owner of the file. For new files, the creator becomes the owner.',
