@@ -131,6 +131,19 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
   .btn-group {
     flex-grow: 0;
     display: flex;
+    // experimental style for fine-align btn-group with button with icons
+    &.flex-aligned {
+      button {
+        display: flex;
+        align-items: center;
+        .tab-icon, .tab-name {
+          line-height: 1.2;
+        }
+        .tab-icon.one-icon {
+          top: auto;
+        }
+      }
+    }
   }
   .box-item {
     display: flex;

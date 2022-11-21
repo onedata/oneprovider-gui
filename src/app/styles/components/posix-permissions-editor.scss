@@ -54,6 +54,7 @@
 
   .entity-name-secondary {
     font-size: $font-size-small;
+    opacity: $disabled-opacity;
   }
 
   .permissions-list {
