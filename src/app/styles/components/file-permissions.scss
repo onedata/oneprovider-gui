@@ -38,8 +38,4 @@
 .webui-popover-permissions-hint-info {
   width: 40em;
   max-width: calc(100vw - $content-col-padding);
-  .webui-popover-inner {
-    max-height: calc(100vh - 240px);
-    overflow: auto;
-  }
 }
