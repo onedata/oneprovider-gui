@@ -35,7 +35,9 @@ export default class FilePermissionsHelper {
     }).save();
   }
   async createSpace() {
-    return await createSpace(this.store);
+    return await createSpace(this.store, {
+      currentUserIsOwner: true,
+    });
   }
   createExampleAce(exampleNumber = 0) {
     const examples = [{

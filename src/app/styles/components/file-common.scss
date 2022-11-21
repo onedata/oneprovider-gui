@@ -1,1 +1,15 @@
 @import './file-common/submit-buttons';
+
+body {
+  // empirically determined distance from top of iframe to main hint trigger,
+  // used for limiting popover height
+  --file-info-tab-view-hint-top: 240px;
+}
+
+// limit height of main hints popovers
+.webui-popover-file-info-view-hint {
+  .webui-popover-inner {
+    max-height: calc(100vh - var(--file-info-tab-view-hint-top, 0px));
+    overflow: auto;
+  }
+}

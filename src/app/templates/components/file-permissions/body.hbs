@@ -6,6 +6,11 @@
     }}
   </div>
 {{/if}}
+{{#if (and posixViewActive (not isPosixActivePermissionsType))}}
+  <div class="alert alert-warning alert-simple-info">
+    {{viewModel.posixNotActiveText}}
+  </div>
+{{/if}}
 {{#if (and posixViewActive (not filesHaveCompatiblePosixPermissions))}}
   {{#if effectiveReadonly}}
     <div class="alert alert-info alert-simple-info">
@@ -30,7 +35,7 @@
 {{posix-permissions-editor
   lastResetTime=viewModel.lastResetTime
   initialPermissions=initialPosixPermissions
-  readonly=effectiveReadonly
+  readonly=viewModel.isPosixEditorReadonly
   readonlyTip=effectiveReadonlyTip
   onChange=(action "posixPermissionsChanged")
   class=(unless (and posixViewActive posixPermissionsCompatible) "hidden")
