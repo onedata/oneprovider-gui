@@ -11,12 +11,12 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { and, promise } from 'ember-awesome-macros';
+import { and } from 'ember-awesome-macros';
 import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
-import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import computedFileNameHash from 'oneprovider-gui/utils/computed-file-name-hash';
 import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
+import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 
 export default Component.extend(I18n, {
   tagName: 'td',
@@ -24,6 +24,7 @@ export default Component.extend(I18n, {
 
   fileManager: service(),
   parentAppNavigation: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -64,6 +65,8 @@ export default Component.extend(I18n, {
    */
   parentBrowsableArchive: undefined,
 
+  _window: window,
+
   navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   fileId: and(
@@ -72,64 +75,50 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * Note: does not depend on fileId changes to prevent recomputations
-   * @type {ComputedProperty<PromiseObject<Models.File>>}
+   * @type {PromiseObject<{name: string, href: string}>}
    */
-  fileProxy: promise.object(computed(async function fileProxy() {
-    const {
-      fileManager,
-      fileId,
-    } = this.getProperties('fileManager', 'fileId');
-    return fileManager.getFileById(fileId);
-  })),
-
-  /**
-   * @type {PromiseObject<{name: string, href: string, className: string}>}
-   */
-  fileInfoProxy: promise.object(computed(
+  fileInfo: computed(
     'fileId',
-    'fileProxy.name',
-    async function fileNameProxy() {
+    'path',
+    'onGenerateFileUrl',
+    function fileInfo() {
       const {
-        fileProxy,
         fileId,
         path,
         onGenerateFileUrl,
       } = this.getProperties(
-        'fileProxy',
         'fileId',
         'path',
         'onGenerateFileUrl',
       );
-      let name;
-      let href;
-      let className;
-      // Get file name from the moment when file has been transferred, not the current
-      // name, because user sees past event log entries and past paths.
-      name = getFileNameFromPath(path);
-      try {
-        await fileProxy;
-        try {
-          href = onGenerateFileUrl(fileId);
-        } catch (error) {
-          href = null;
-        }
-      } catch (error) {
-        name = this.t('fileNotAvailable');
-        className = 'file-not-available';
-      }
       return {
-        name,
-        href,
-        className,
+        name: getFileNameFromPath(path),
+        href: onGenerateFileUrl(fileId),
       };
     }
-  )),
-
-  fileInfo: computedLastProxyContent('fileInfoProxy'),
+  ),
 
   /**
    * @type {ComputedProperty<string>}
    */
   fileNameHash: computedFileNameHash('path'),
+
+  actions: {
+    // not covering all use cases (eg. middle click, contextmenu new link open)
+    fileAnchorClicked(event) {
+      event.preventDefault();
+      (async () => {
+        try {
+          await this.fileManager.getFileById(this.fileId);
+          this._window.open(
+            this.fileInfo.href,
+            isNewTabRequestEvent(event) ? '_blank' : this.navigateTarget
+          );
+        } catch (error) {
+          this.globalNotify.backendError(this.t('openingLocation'), error);
+        }
+      })();
+      return false;
+    },
+  },
 });

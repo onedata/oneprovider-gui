@@ -4,6 +4,7 @@
       class="navy underlined truncate"
       target={{navigateTarget}}
       href={{fileInfo.href}}
+      onclick={{action "fileAnchorClicked"}}
     >
       <div class={{concat-classes "truncate file-name" fileInfo.className}}>
         {{fileInfo.name}}

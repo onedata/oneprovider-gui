@@ -17,6 +17,6 @@ export default {
     failed: 'Failed to reconcile local replica:',
   },
   cellFile: {
-    fileNotAvailable: 'Not available',
+    openingLocation: 'opening the location',
   },
 };
