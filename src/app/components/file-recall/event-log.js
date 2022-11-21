@@ -11,6 +11,8 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import DuplicateNameHashMapper from 'onedata-gui-common/utils/duplicate-name-hash-mapper';
+import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
 
 export default Component.extend(I18n, {
   classNames: ['file-recall-event-log'],
@@ -40,6 +42,12 @@ export default Component.extend(I18n, {
    * @type {Models.Dataset}
    */
   dataset: undefined,
+
+  /**
+   * Initialized on init.
+   * @type {Utils.DuplicateNameHashMapper}
+   */
+  duplicateNameHashMapper: undefined,
 
   recallRootFileId: reads('recallRootFile.entityId'),
 
@@ -73,12 +81,24 @@ export default Component.extend(I18n, {
         'recallRootFileId',
         'fileManager'
       );
-      return (listingParams) => fileManager.getRecallLogs(
-        recallRootFileId,
-        listingParams
-      );
+      return async (listingParams) => {
+        /** @type {AuditLogEntriesPage<RecallAuditLogEntryContent>} */
+        const logsPage = await fileManager.getRecallLogs(
+          recallRootFileId,
+          listingParams
+        );
+        for (const entry of logsPage.logEntries) {
+          this.registerLogEntry(entry.content);
+        }
+        return logsPage;
+      };
     }
   ),
+
+  init() {
+    this._super(...arguments);
+    this.set('duplicateNameHashMapper', DuplicateNameHashMapper.create());
+  },
 
   /**
    * @param {string} fileId ID of file in archive
@@ -98,6 +118,18 @@ export default Component.extend(I18n, {
       archive: archiveId,
       selectedFiles: [fileId],
     });
+  },
+
+  /**
+   * @param {RecallAuditLogEntryContent} logEntryContent
+   * @returns {void}
+   */
+  registerLogEntry(logEntryContent) {
+    const path = logEntryContent.relativePath;
+    this.duplicateNameHashMapper.addPair(
+      getFileNameFromPath(path),
+      path
+    );
   },
 
   actions: {

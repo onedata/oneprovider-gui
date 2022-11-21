@@ -22,9 +22,14 @@
         </div>
       {{else}}
         <div
-          class="inline-icon-container inline-icon-container-file"
+          class={{concat-classes 
+            "inline-icon-container inline-icon-container-file" 
+            (if isFileNameHovered "info-icon-container-hovered")
+          }}
           onclick={{action "handleInfoIconClick"}}
           style={{cursorStyleForIcon}}
+          onmouseover={{action "changeFileNameHover" true}}
+          onmouseout={{action "changeFileNameHover" false}}
         >
           {{#one-icon-tagged
             class=(concat-classes "tag-right flippable-front" iconTaggedClass)
@@ -38,7 +43,10 @@
             {{/if}}
           {{/one-icon-tagged}}
           {{#if infoIconActionName}}
-            {{one-icon icon="browser-info" class="flippable-back"}}
+            {{one-icon 
+              icon="browser-info" 
+              class="flippable-back"
+            }}
           {{/if}}
         </div>
       {{/if}}
@@ -47,8 +55,13 @@
           <div class="file-info-container">
             <div class="file-name">
               {{#truncated-string class="file-name-inner"}}
-                {{!-- NOTE: everything in one line because we avoid space --}}
-                <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
+                <span
+                  onmouseover={{action "changeFileNameHover" true}}
+                  onmouseout={{action "changeFileNameHover" false}}
+                >
+                  {{!-- NOTE: everything in one line because we avoid space --}}
+                  <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
+                </span>
                 {{#if fileLoadError}}
                   {{one-tooltip title=fileLoadError.message}}
                 {{/if}}
@@ -62,6 +75,7 @@
                 fileRowModel=fileRowModel
                 browserModel=browserModel
                 invokeFileAction=invokeFileAction
+                changeFileNameHover=(action "changeFileNameHover")
               }}
             {{/if}}
           </div>

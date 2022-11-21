@@ -8,6 +8,7 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -22,4 +23,16 @@ export default Component.extend(I18n, {
    * @type {Models.Archive}
    */
   archive: undefined,
+
+  /**
+   * @virtual optional
+   * @type {(isFileNameHovered: boolean) => void}
+   */
+  changeFileNameHover: notImplementedIgnore,
+
+  actions: {
+    changeFileNameHover() {
+      return this.changeFileNameHover(...arguments);
+    },
+  },
 });

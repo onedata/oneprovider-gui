@@ -6,6 +6,10 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9946 Added filename hashes for distinguishing files in audit logs
+* VFS-9191 Improved animation trigger area for info file icon
+* VFS-10081 Fixed showing initialization state of directory size stats
+* VFS-10094 Fixed delayed live time-series charts in automation
 * VFS-9905 Added missing error-inline component
 * VFS-10066 Fixed discarding ACL changes after permissions save
 * VFS-9843 Added floating action buttons for file info views

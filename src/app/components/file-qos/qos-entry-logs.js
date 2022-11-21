@@ -12,6 +12,8 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise, equal, raw } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
+import DuplicateNameHashMapper from 'onedata-gui-common/utils/duplicate-name-hash-mapper';
+import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
 
 export default Component.extend(I18n, {
   classNames: ['qos-entry-logs'],
@@ -57,6 +59,12 @@ export default Component.extend(I18n, {
    * @type {Utils.BrowsabledArchive}
    */
   parentBrowsableArchive: undefined,
+
+  /**
+   * Initialized on init.
+   * @type {Utils.DuplicateNameHashMapper}
+   */
+  duplicateNameHashMapper: undefined,
 
   fileUrlGenerator: computed(function fileUrlGenerator() {
     return new FileUrlGenerator(this.get('appProxy'));
@@ -160,12 +168,36 @@ export default Component.extend(I18n, {
         'qosRequirementId',
         'qosManager'
       );
-      return (listingParams) => qosManager.getAuditLog(
-        qosRequirementId,
-        listingParams
-      );
+      return async (listingParams) => {
+        /** @type {AuditLogEntriesPage<QosAuditLogEntryContent>} */
+        const logsPage = await qosManager.getAuditLog(
+          qosRequirementId,
+          listingParams
+        );
+        for (const entry of logsPage.logEntries) {
+          this.registerLogEntry(entry.content);
+        }
+        return logsPage;
+      };
     }
   ),
+
+  init() {
+    this._super(...arguments);
+    this.set('duplicateNameHashMapper', DuplicateNameHashMapper.create());
+  },
+
+  /**
+   * @param {QosAuditLogEntryContent} logEntryContent
+   * @returns {void}
+   */
+  registerLogEntry(logEntryContent) {
+    const path = logEntryContent.path;
+    this.duplicateNameHashMapper.addPair(
+      getFileNameFromPath(path),
+      path
+    );
+  },
 
   actions: {
     /**
