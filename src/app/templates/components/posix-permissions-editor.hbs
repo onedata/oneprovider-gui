@@ -22,7 +22,16 @@
 <div class="row entity-permissions-row">
   {{#each (array "user" "group" "other") as |entity|}}
     <div class="entity-permissions">
-      <div class="entity-name">{{tt this (concat "entities." entity)}}</div>
+      <div class="entity-name-container">
+        <span class="entity-name">{{tt this (concat "entities." entity)}}</span>
+        {{#one-icon
+          icon="sign-question-rounded"
+          class="hint-trigger clickable"
+        }}
+          {{one-tooltip title=(tt this (concat "entitiesTip." entity))}}
+        {{/one-icon}}
+      </div>
+      <div class="entity-name-secondary">({{tt this (concat "entitiesSecondary." entity)}})</div>
       <ul class="permissions-list">
         {{#each (array "read" "write" "execute") as |permission|}}
           <li class="permission">

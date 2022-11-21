@@ -72,14 +72,14 @@ export default FbTableRowStatusBar.extend({
   isForbidden: computed(
     'previewMode',
     'isSpaceOwned',
-    'file.{type,owner.entityId,posixPermissions}',
+    'file.{type,owner.entityId,posixPermissions,activePermissionsType}',
     function isForbidden() {
       const {
         file,
         previewMode,
         isSpaceOwned,
       } = this.getProperties('file', 'previewMode', 'isSpaceOwned');
-      if (isSpaceOwned) {
+      if (isSpaceOwned || get(file, 'activePermissionsType') === 'acl') {
         return false;
       }
 
