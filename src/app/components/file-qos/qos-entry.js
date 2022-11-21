@@ -7,7 +7,7 @@
  */
 
 import Component from '@ember/component';
-import { tag, getBy, raw } from 'ember-awesome-macros';
+import { tag, getBy, raw, or, and, not, bool } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed, observer } from '@ember/object';
 import { camelize } from '@ember/string';
@@ -23,6 +23,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 import _ from 'lodash';
 import { inject as service } from '@ember/service';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   classNames: ['qos-entry', 'qos-entry-saved', 'list-item'],
@@ -51,6 +52,12 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    * @type {Utils.QueryComponentValueBuilder}
    */
   valuesBuilder: undefined,
+
+  /**
+   * @virtual
+   * @type {Utils.FileQosViewModel}
+   */
+  viewModel: undefined,
 
   /**
    * @virtual
@@ -164,6 +171,14 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    */
   inherited: reads('qosItem.inherited'),
 
+  isRemoveButtonDisabled: bool('removeButtonDisabledTip'),
+
+  removeButtonDisabledTip: or(
+    and('inherited', computedT('inheritedDisabledRemoveTip')),
+    and(not('viewModel.editPrivilege'), 'viewModel.manageQosDisabledTip'),
+    raw(null),
+  ),
+
   /**
    * @type {ComputedProperty<boolean>}
    */
@@ -190,6 +205,12 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    * @type {Array<Models.Provider>}
    */
   providers: undefined,
+
+  /**
+   * @virtual
+   * @type {Utils.FileQosViewModel}
+   */
+  viewModel: undefined,
 
   /**
    * See `model:qosReqiurement#status` for available states

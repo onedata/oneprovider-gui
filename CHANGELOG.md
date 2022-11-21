@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9813 Fixed showing lack of privileges in QoS views
 * VFS-9786 Improved UX of file info permissions tab by adding hints and disabling modifications when it is not permitted
 * VFS-9946 Added filename hashes for distinguishing files in audit logs
 * VFS-9191 Improved animation trigger area for info file icon
