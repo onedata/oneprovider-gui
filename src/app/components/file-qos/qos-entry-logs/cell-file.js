@@ -9,27 +9,19 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { and } from 'ember-awesome-macros';
+import { and, bool, promise } from 'ember-awesome-macros';
 import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import computedFileNameHash from 'oneprovider-gui/utils/computed-file-name-hash';
 import { getFileNameFromPath } from 'onedata-gui-common/utils/file';
-import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 
-export default Component.extend(I18n, {
+export default Component.extend({
   tagName: 'td',
   classNames: ['cell-file'],
 
   fileManager: service(),
   parentAppNavigation: service(),
-  globalNotify: service(),
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.fileQos.qosEntryLogs.cellFile',
 
   /**
    * @virtual
@@ -65,8 +57,6 @@ export default Component.extend(I18n, {
    */
   parentBrowsableArchive: undefined,
 
-  _window: window,
-
   navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   fileId: and(
@@ -74,51 +64,28 @@ export default Component.extend(I18n, {
     computedPipe('fileCdmiObjectId', cdmiObjectIdToGuid)
   ),
 
-  /**
-   * @type {PromiseObject<{name: string, href: string}>}
-   */
-  fileInfo: computed(
-    'fileId',
-    'path',
-    'onGenerateFileUrl',
-    function fileInfo() {
-      const {
-        fileId,
-        path,
-        onGenerateFileUrl,
-      } = this.getProperties(
-        'fileId',
-        'path',
-        'onGenerateFileUrl',
-      );
-      return {
-        name: getFileNameFromPath(path),
-        href: onGenerateFileUrl(fileId),
-      };
+  fileProxy: promise.object(computed('fileId', async function fileProxy() {
+    if (!this.fileId) {
+      return null;
     }
-  ),
+    return await this.fileManager.getFileById(this.fileId);
+  })),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isFileAccessible: bool('fileProxy.content'),
+
+  href: computed('onGenerateFileUrl', 'fileId', function href() {
+    return this.onGenerateFileUrl(this.fileId);
+  }),
+
+  fileName: computed('path', function fileName() {
+    return getFileNameFromPath(this.path);
+  }),
 
   /**
    * @type {ComputedProperty<string>}
    */
   fileNameHash: computedFileNameHash('path'),
-
-  actions: {
-    // not covering all use cases (eg. middle click, contextmenu new link open)
-    fileAnchorClicked(event) {
-      event.preventDefault();
-      (async () => {
-        try {
-          await this.fileManager.getFileById(this.fileId);
-          this._window.open(
-            this.fileInfo.href,
-            isNewTabRequestEvent(event) ? '_blank' : this.navigateTarget
-          );
-        } catch (error) {
-          this.globalNotify.backendError(this.t('openingLocation'), error);
-        }
-      })();
-      return false;
-    },
-  },
 });

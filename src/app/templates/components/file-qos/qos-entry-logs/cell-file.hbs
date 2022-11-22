@@ -1,13 +1,12 @@
 <div class="flex-vertical-center">
-  {{#if fileInfo.href}}
+  {{#if (and isFileAccessible href)}}
     <a
       class="navy underlined truncate"
       target={{navigateTarget}}
-      href={{fileInfo.href}}
-      onclick={{action "fileAnchorClicked"}}
+      href={{href}}
     >
-      <div class={{concat-classes "truncate file-name" fileInfo.className}}>
-        {{fileInfo.name}}
+      <div class="truncate file-name">
+        {{fileName}}
       </div>
       {{#one-tooltip class="string-path-tooltip"}}
         {{formatted-path-string
@@ -18,8 +17,8 @@
     </a>
   {{else}}
     <div class="truncate">
-      <span class={{concat-classes "file-name" fileInfo.className}}>
-        {{fileInfo.name}}
+      <span class="file-name">
+        {{fileName}}
       </span>
       {{#one-tooltip class="string-path-tooltip"}}
         {{formatted-path-string
