@@ -7,7 +7,7 @@
  */
 
 import Component from '@ember/component';
-import { tag, getBy, raw, or, and, not, bool } from 'ember-awesome-macros';
+import { tag, getBy, raw, or, and, bool } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed, observer } from '@ember/object';
 import { camelize } from '@ember/string';
@@ -175,7 +175,7 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
 
   removeButtonDisabledTip: or(
     and('inherited', computedT('inheritedDisabledRemoveTip')),
-    and(not('viewModel.editPrivilege'), 'viewModel.manageQosDisabledTip'),
+    'viewModel.manageQosDisabledTip',
     raw(null),
   ),
 
@@ -205,12 +205,6 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    * @type {Array<Models.Provider>}
    */
   providers: undefined,
-
-  /**
-   * @virtual
-   * @type {Utils.FileQosViewModel}
-   */
-  viewModel: undefined,
 
   /**
    * See `model:qosReqiurement#status` for available states
