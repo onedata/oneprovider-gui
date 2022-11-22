@@ -101,7 +101,14 @@ export default ArchiveFormBaseModel.extend({
       'archive',
     );
     const archiveIncrementalConfig = get(archive, 'config.incremental');
-    if (!archiveIncrementalConfig || !get(archiveIncrementalConfig, 'enabled')) {
+    if (!archiveIncrementalConfig ||
+      !get(archiveIncrementalConfig, 'enabled') ||
+      !get(archiveIncrementalConfig, 'basedOn')
+    ) {
+      return null;
+    }
+    const baseArchiveId = archive.relationEntityId('baseArchive');
+    if (!baseArchiveId) {
       return null;
     }
     return await archiveManager.getBrowsableArchive(
