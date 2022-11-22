@@ -111,9 +111,7 @@ export default ArchiveFormBaseModel.extend({
     if (!baseArchiveId) {
       return null;
     }
-    return await archiveManager.getBrowsableArchive(
-      archive.relationEntityId('baseArchive')
-    );
+    return await archiveManager.getBrowsableArchive(baseArchiveId);
   })),
 
   /**
