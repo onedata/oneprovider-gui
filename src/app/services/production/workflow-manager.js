@@ -259,7 +259,7 @@ export default Service.extend({
 
   /**
    * @param {Array<string>} atmWorkflowExecutionIds
-   * @returns {Promise<{ [id: string]: { success: true } | { success:false, error: Object } }>}
+   * @returns {Promise<{ [id: string]: { success: true } | { success: false, error: Object } }>}
    */
   async removeAtmWorkflowExecutions(atmWorkflowExecutionIds) {
     const requestGri = gri({
@@ -268,12 +268,12 @@ export default Service.extend({
       aspect: 'batch',
       scope: 'private',
     });
-    await this.get('onedataGraph').request({
+    return await this.get('onedataGraph').request({
       gri: requestGri,
       operation: 'delete',
       subscribe: false,
       data: {
-        atmWorkflowExecutionIds,
+        ids: atmWorkflowExecutionIds,
       },
     });
   },

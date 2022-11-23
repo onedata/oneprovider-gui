@@ -4,6 +4,6 @@ export default {
   modalHeader: 'Remove workflow execution',
   modalDescription: 'You are about to delete the workflow execution "{{atmWorkflowSchemaName}}".',
   modalYes: 'Remove',
-  successNotificationText: 'Workflow has been removed successfully.',
-  failureNotificationActionName: 'removing workflow',
+  successNotificationText: 'Workflow execution has been removed successfully.',
+  failureNotificationActionName: 'removing workflow execution',
 };

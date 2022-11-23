@@ -308,15 +308,22 @@ export default Component.extend(...mixins, {
     },
 
     /**
+     * @param {Models.AtmWorkflowExecutionSummary} atmWorkflowExecutionSummary
      * @param {AtmWorkflowExecutionLifecycleChangingOperation} lifecycleChangingOperation
      * @returns {void}
      */
-    workflowLifecycleChanged(lifecycleChangingOperation) {
+    workflowLifecycleChanged(atmWorkflowExecutionSummary, lifecycleChangingOperation) {
       if (
         lifecycleChangingOperation === 'pause' ||
         lifecycleChangingOperation === 'resume'
       ) {
         this.updateSuspendedExecutionsCountInfoProxy({ replace: true });
+      }
+      if (
+        lifecycleChangingOperation === 'remove' &&
+        get(atmWorkflowExecutionSummary, 'entityId') === this.atmWorkflowExecutionIdInPreview
+      ) {
+        this.closePreviewTab();
       }
     },
 

@@ -101,7 +101,7 @@ export default Action.extend({
       return reject();
     }
     const batchResult = await this.workflowManager
-      .removeAtmWorkflowExecutions([atmWorkflowExecutionId]);
+      .removeAtmWorkflowExecutions([atmWorkflowExecutionId]) ?? {};
     const singleResult = Object.values(batchResult)[0];
     if (!singleResult?.success) {
       throw singleResult?.error;

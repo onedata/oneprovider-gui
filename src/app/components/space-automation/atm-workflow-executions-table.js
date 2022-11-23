@@ -40,7 +40,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {(operation: AtmWorkflowExecutionLifecycleChangingOperation') => void}
+   * @type {(atmWorkflowExecutionSummary: Models.AtmWorkflowExecutionSummary, operation: AtmWorkflowExecutionLifecycleChangingOperation') => void}
    */
   onAtmWorkflowExecutionLifecycleChange: undefined,
 
@@ -260,12 +260,19 @@ export default Component.extend(I18n, {
 
   actions: {
     /**
+     * @param {Models.atmWorkflowExecutionSummary}
      * @param {AtmWorkflowExecutionLifecycleChangingOperation} lifecycleChangingOperation
      * @returns {void}
      */
-    atmWorkflowExecutionLifecycleChanged(lifecycleChangingOperation) {
+    atmWorkflowExecutionLifecycleChanged(
+      atmWorkflowExecutionSummary,
+      lifecycleChangingOperation
+    ) {
       this.updateAtmWorkflowExecutionSummaries();
-      this.onAtmWorkflowExecutionLifecycleChange?.(lifecycleChangingOperation);
+      this.onAtmWorkflowExecutionLifecycleChange?.(
+        atmWorkflowExecutionSummary,
+        lifecycleChangingOperation
+      );
     },
   },
 });
