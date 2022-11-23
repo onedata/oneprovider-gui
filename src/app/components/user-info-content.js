@@ -1,5 +1,5 @@
 /**
- * Renders user info popover.
+ * Renders user info content.
  *
  * @author Agnieszka Warchoł
  * @copyright (C) 2022 ACK CYFRONET AGH
@@ -10,12 +10,12 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  classNames: ['user-info-popover'],
+  classNames: ['user-info-content'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.userInfoPopover',
+  i18nPrefix: 'components.userInfoContent',
 
   /**
    * @virtual
