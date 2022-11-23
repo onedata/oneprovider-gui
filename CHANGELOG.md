@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10107 Fixed smooth scroll in Chrome
 * VFS-9813 Fixed showing lack of privileges in QoS views
 * VFS-10097 Fixed showing error when first archive was created with base archive
 * VFS-9786 Improved UX of file info permissions tab by adding hints and disabling modifications when it is not permitted
