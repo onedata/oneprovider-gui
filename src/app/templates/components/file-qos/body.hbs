@@ -9,7 +9,7 @@
         buttonLabel=(tt this "noQos.buttonCreateQosRequirement")
         buttonClass="create-qos-requirement-btn"
         buttonDisabled=isAddDisabled
-        buttonTip=isAddDisabledTip
+        buttonTip=addDisabledTip
       }}
     {{else}}
       {{#if multipleFiles}}
@@ -23,6 +23,7 @@
                 queryProperties=queryProperties
                 storages=storages
                 providers=providers
+                viewModel=viewModel
                 getDataUrl=getDataUrl
                 evaluateQosExpression=(action "evaluateQosExpression")
                 removeQosRequirement=(action "removeQosRequirement")
@@ -41,6 +42,7 @@
           providers=providers
           showChartsOfSingleQos=true
           getDataUrl=getDataUrl
+          viewModel=viewModel
           evaluateQosExpression=(action "evaluateQosExpression")
           removeQosRequirement=(action "removeQosRequirement")
           closeModal=(action "close")

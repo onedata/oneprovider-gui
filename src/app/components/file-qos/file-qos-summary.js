@@ -36,6 +36,12 @@ export default Component.extend(...objectMixins, {
 
   /**
    * @virtual
+   * @type {Utils.FileQosViewModel}
+   */
+  viewModel: undefined,
+
+  /**
+   * @virtual
    */
   removeQosRequirement: notImplementedReject,
 

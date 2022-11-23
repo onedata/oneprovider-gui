@@ -63,6 +63,12 @@ export default Component.extend(I18n, {
   valuesBuilder: undefined,
 
   /**
+   * @virtual
+   * @type {Utils.FileQosViewModel}
+   */
+  viewModel: undefined,
+
+  /**
    * @type {models/file}
    */
   file: reads('fileItem.file'),

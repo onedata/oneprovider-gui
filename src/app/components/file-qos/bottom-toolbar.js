@@ -33,7 +33,7 @@ export default Component.extend(...mixins, {
 
   isAddDisabled: reads('viewModel.isAddDisabled'),
 
-  isAddDisabledTip: reads('viewModel.isAddDisabledTip'),
+  addDisabledTip: reads('viewModel.manageQosDisabledTip'),
 
   actions: {
     addQosRequirement() {
