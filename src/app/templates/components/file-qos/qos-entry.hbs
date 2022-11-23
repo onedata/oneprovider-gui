@@ -56,14 +56,14 @@
         icon="browser-delete"
         class=(concat-classes
           "icon-trigger remove-qos-trigger"
-          (if direct "clickable enabled" "disabled")
+          (if isRemoveButtonDisabled "disabled" "clickable enabled")
         )
       }}
-        {{#if inherited}}
-          {{one-tooltip title=(tt this "disabledRemoveHint")}}
+        {{#if removeButtonDisabledTip}}
+          {{one-tooltip title=removeButtonDisabledTip}}
         {{/if}}
       {{/one-icon}}
-      {{#if direct}}
+      {{#unless isRemoveButtonDisabled}}
         {{#one-switchable-popover-modal
           class="qos-remove-question"
           triggersConfiguration=(concat "#" removeTriggerId)
@@ -87,7 +87,7 @@
             {{/one-button}}
           </div>
         {{/one-switchable-popover-modal}}
-      {{/if}}
+      {{/unless}}
     </div>
   </div>
   <div class="qos-expression-text-field">

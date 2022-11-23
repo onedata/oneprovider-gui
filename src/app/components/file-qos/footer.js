@@ -7,7 +7,6 @@
  */
 
 import Component from '@ember/component';
-import { reads } from '@ember/object/computed';
 
 export default Component.extend({
   classNames: ['file-qos-footer'],
@@ -17,14 +16,4 @@ export default Component.extend({
    * @type {Utils.FileQosViewModel}
    */
   viewModel: undefined,
-
-  isAddDisabled: reads('viewModel.isAddDisabled'),
-
-  isAddDisabledTip: reads('viewModel.isAddDisabledTip'),
-
-  actions: {
-    addQosRequirement() {
-      this.viewModel.openQosRequirementCreator();
-    },
-  },
 });
