@@ -14,8 +14,14 @@ import { inject as service } from '@ember/service';
 import {
   normalizeWorkflowStatus,
   workflowEndedStatuses,
+  workflowSuspendedStatuses,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 import { reject } from 'rsvp';
+
+const workflowStatusesAllowingRemoval = [
+  ...workflowSuspendedStatuses,
+  ...workflowEndedStatuses,
+];
 
 export default Action.extend({
   workflowManager: service(),
@@ -45,7 +51,7 @@ export default Action.extend({
    * @override
    */
   disabled: computed('executionStatus', function disabled() {
-    return !workflowEndedStatuses.includes(this.executionStatus);
+    return !workflowStatusesAllowingRemoval.includes(this.executionStatus);
   }),
 
   /**

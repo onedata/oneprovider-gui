@@ -1,6 +1,6 @@
 export default {
   title: 'Remove',
-  disabledTip: 'Only ended workflow executions can be removed.',
+  disabledTip: 'Only ended or suspended workflow executions can be removed.',
   modalHeader: 'Remove workflow execution',
   modalDescription: 'You are about to delete the workflow execution "{{atmWorkflowSchemaName}}".',
   modalYes: 'Remove',
