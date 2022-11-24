@@ -15,6 +15,8 @@ import ArchiveAuditLogEntryModel from 'oneprovider-gui/utils/archive-audit-log-e
 import { promise, conditional, raw } from 'ember-awesome-macros';
 import { htmlSafe } from '@ember/string';
 import _ from 'lodash';
+import DuplicateNameHashMapper from 'onedata-gui-common/utils/duplicate-name-hash-mapper';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default Component.extend(I18n, {
   archiveManager: service(),
@@ -41,6 +43,12 @@ export default Component.extend(I18n, {
    * @type {Models.Space}
    */
   space: undefined,
+
+  /**
+   * Initialized on init.
+   * @type {Utils.DuplicateNameHashMapper}
+   */
+  duplicateNameHashMapper: undefined,
 
   /**
    * @type {ComputedProperty<PromiseObject<Utils.BrowsableDataset>>}
@@ -150,6 +158,11 @@ export default Component.extend(I18n, {
     }
   ),
 
+  init() {
+    this._super(...arguments);
+    this.set('duplicateNameHashMapper', DuplicateNameHashMapper.create());
+  },
+
   /**
    * @param {AuditLogEntry<ArchiveAuditLogEntryContent>} logEntry
    * @returns {Utils.ArchiveAuditLogEntryModel}
@@ -159,6 +172,7 @@ export default Component.extend(I18n, {
       ownerSource: this,
       logEntry,
       browsableDataset: this.browsableDataset,
+      duplicateNameHashMapper: this.duplicateNameHashMapper,
     });
   },
 
@@ -166,9 +180,25 @@ export default Component.extend(I18n, {
     return await get(this.browsableArchive, 'provider');
   },
 
+  /**
+   * @param {Utils.ArchiveAuditLogEntryModel} entryModel
+   */
+  registerLogEntry(entryModel) {
+    this.duplicateNameHashMapper.addPair(
+      entryModel.fileName,
+      entryModel.relativePath
+    );
+  },
+
   actions: {
-    createEntryModel(logEntry) {
-      return this.createEntryModel(logEntry);
+    createEntryModelForRow(logEntry) {
+      const entryModel = this.createEntryModel(logEntry);
+      // MUST NOT be invoked within current render, because it modified template data
+      (async () => {
+        await waitForRender();
+        this.registerLogEntry(entryModel);
+      })();
+      return entryModel;
     },
   },
 });

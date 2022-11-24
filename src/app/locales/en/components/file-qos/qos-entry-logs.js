@@ -16,7 +16,4 @@ export default {
     unknownReason: 'unknown reason',
     failed: 'Failed to reconcile local replica:',
   },
-  cellFile: {
-    fileNotAvailable: 'Not available',
-  },
 };

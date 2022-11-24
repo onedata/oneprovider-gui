@@ -33,9 +33,9 @@ export default Component.extend(...mixins, {
    */
   viewModel: undefined,
 
-  posixViewActive: equal('viewModel.activePermissionsType', raw('posix')),
+  posixViewActive: equal('viewModel.selectedPermissionsType', raw('posix')),
 
-  aclViewActive: equal('viewModel.activePermissionsType', raw('acl')),
+  aclViewActive: equal('viewModel.selectedPermissionsType', raw('acl')),
 
   posixPermissionsCompatible: reads('viewModel.posixPermissionsCompatible'),
 
@@ -71,6 +71,8 @@ export default Component.extend(...mixins, {
 
   owner: reads('viewModel.ownerProxy.content'),
 
+  isPosixActivePermissionsType: equal('viewModel.activePermissionsType', raw('posix')),
+
   ownerLabel: conditional(
     'isMultiFile',
     computedT('allFilesOwner'),
@@ -81,7 +83,7 @@ export default Component.extend(...mixins, {
     not('previewMode'),
     or(
       not('isMultiFile'),
-      'viewModel.filesHaveSameOwners',
+      'viewModel.filesHaveSameOwner',
     )
   ),
 

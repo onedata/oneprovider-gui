@@ -1,6 +1,9 @@
 <div class="btn-group-tabs permissions-type-tabs">
   {{#bs-button-group
-    class="permissions-type-selector with-scroll-shadow"
+    class=(concat-classes
+      "permissions-type-selector with-scroll-shadow flex-aligned"
+      (if isPermissionsTypeSelectorDisabled "disabled")
+    )
     value=activeTab
     type="radio"
     onChange=(action "changeTab") as |bg|
@@ -12,15 +15,57 @@
           "btn-sm"
           "permissions-type-btn"
           (concat "permissions-type-btn-" type)
+          (if isPermissionsTypeSelectorDisabled "disabled")
         )
         value=type
       }}
+        {{#if (eq type activePermissionsType)}}
+          {{one-icon class="tab-icon" icon="checkbox-filled"}}
+        {{/if}}
         <span class="tab-name">
           {{tt this (concat "types." type)}}
         </span>
       {{/bg.button}}
     {{/each}}
   {{/bs-button-group}}
+  {{one-icon
+    icon="sign-question-rounded"
+    class="permissions-header-hint-trigger permissions-hint-trigger hint-trigger clickable"
+  }}
+  {{#one-switchable-popover-modal
+    class="permissions-type-selector-hint"
+    triggersConfiguration=".permissions-hint-trigger"
+    popoverStyle="permissions-hint-info webui-popover-file-info-view-hint over-modals"
+    modalClass="modal-compact-help"
+    layoutType="modal"
+    as |ospm|
+  }}
+    {{#ospm.modal.body}}
+      <p>{{tt this "selectorHint.viewDescription"}}</p>
+      <h1>{{tt this "selectorHint.dataAccessHeader"}}</h1>
+      {{#each (array
+        "Intro"
+        "Shared"
+        "Posix"
+        "Acl"
+      ) as |translationKey|}}
+        <p>{{tt this (concat "selectorHint.dataAccess" translationKey)}}</p>
+      {{/each}}
+      <p>
+        {{one-doc-see-more
+          linkName=(tt this "selectorHint.docLinkName")
+          docPath="using_onedata/file_management[file-permissions].html"
+        }}
+      </p>
+    {{/ospm.modal.body}}
+    {{#ospm.modal.footer}}
+      <div class="btn-toolbar text-right visible-xs-block">
+        {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+          {{tt this "selectorHint.close"}}
+        {{/bs-button}}
+      </div>
+    {{/ospm.modal.footer}}
+  {{/one-switchable-popover-modal}}
   {{#if effectiveReadonly}}
     <div class="box-item editor-disabled-lock-container with-scroll-shadow hidden-xs">
       <div class="editor-disabled-lock-text">{{tt this "editorDisabled"}}</div>

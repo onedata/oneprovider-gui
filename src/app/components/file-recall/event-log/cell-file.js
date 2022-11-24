@@ -13,9 +13,12 @@ import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import filePathViewCreateRelative from 'oneprovider-gui/utils/file-path-view/create-relative';
+import computedFileNameHash from 'oneprovider-gui/utils/computed-file-name-hash';
 
 export default Component.extend({
   tagName: 'td',
+  classNames: ['cell-file'],
 
   parentAppNavigation: service(),
 
@@ -30,6 +33,12 @@ export default Component.extend({
    * @type {string}
    */
   relativePath: undefined,
+
+  /**
+   * @virtual
+   * @type {Utils.DuplicateNameHashMapper}
+   */
+  duplicateNameHashMapper: undefined,
 
   /**
    * Should generate a full source file URL inside archive.
@@ -52,4 +61,20 @@ export default Component.extend({
   }),
 
   fileHref: computedPipe('fileId', 'onGenerateSourceFileUrl'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  fileNameHash: computedFileNameHash('relativePath'),
+
+  /**
+   *  @returns {Array<FilePathItem>}
+   */
+  pathItems: computed('relativePath', function pathItems() {
+    if (!this.relativePath) {
+      return [];
+    }
+    // presenting only relative path, removing leading slash
+    return filePathViewCreateRelative(this.relativePath);
+  }),
 });

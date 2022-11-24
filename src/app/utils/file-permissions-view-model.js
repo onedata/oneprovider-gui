@@ -30,6 +30,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import { translateFileType } from 'onedata-gui-common/utils/file';
 
 const mixins = [
   OwnerInjector,
@@ -48,6 +49,7 @@ export default EmberObject.extend(...mixins, {
   modalManager: service(),
   globalNotify: service(),
   fileManager: service(),
+  currentUser: service(),
 
   /**
    * @override
@@ -83,7 +85,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {FilePermissionsType}
    */
-  activePermissionsType: undefined,
+  selectedPermissionsType: undefined,
 
   /**
    * Array of changed permission types. May contain single type or both of them.
@@ -150,7 +152,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effectiveReadonly: or('readonly', 'metadataIsProtected'),
+  effectiveReadonly: or('readonly', 'metadataIsProtected', 'isPosixAndNonOwner'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -158,20 +160,47 @@ export default EmberObject.extend(...mixins, {
   effectiveReadonlyTip: computed(
     'readonlyTip',
     'metadataIsProtected',
+    'isPosixAndNonOwner',
+    'fileTypeTextConfig',
     function effectiveReadonlyTip() {
-      const {
-        readonlyTip,
-        metadataIsProtected,
-      } = this.getProperties('readonlyTip', 'metadataIsProtected');
-      if (readonlyTip) {
-        return readonlyTip;
-      } else if (metadataIsProtected) {
+      if (this.readonlyTip) {
+        return this.readonlyTip;
+      } else if (this.metadataIsProtected) {
         return this.t('readonlyDueToMetadataIsProtected');
+      } else if (this.isPosixAndNonOwner) {
+        return this.t('readonlyDueToPosixNonOwner', {
+          fileTypeText: this.fileTypeTextConfig.text,
+        });
       } else {
         return '';
       }
     }
   ),
+
+  fileTypeTextConfig: computed('files.@each.type', function fileTypeTextConfig() {
+    let fileType = get(this.files[0], 'type');
+    let form;
+    if (this.files.length === 1) {
+      form = 'singular';
+    } else {
+      form = 'plural';
+      if (!this.files.every(file => get(file, 'type') === fileType)) {
+        fileType = null;
+      }
+    }
+    const text = translateFileType(this.i18n, fileType, { form });
+    return {
+      text,
+      fileType,
+      form,
+    };
+  }),
+
+  posixNotActiveText: computed('fileTypeTextConfig', function posixNotActiveText() {
+    return this.t(`posixNotActive.${this.fileTypeTextConfig.form}`, {
+      fileTypeText: this.fileTypeTextConfig.text,
+    });
+  }),
 
   /**
    * List of system subjects, that represents owner of a file/directory, owning
@@ -218,8 +247,8 @@ export default EmberObject.extend(...mixins, {
   }),
 
   /**
-   * Active permissions type value inferred from files.
-   * @type {Ember.ComputedProperty<string>}
+   * Initial selected permissions type for viewing/editing inferred from files.
+   * @type {Ember.ComputedProperty<FilePermissionsType>}
    */
   initialActivePermissionsType: conditional(
     array.isEvery('files', raw('activePermissionsType'), raw('posix')),
@@ -263,7 +292,7 @@ export default EmberObject.extend(...mixins, {
     raw('posixPermissions')
   ),
 
-  filesHaveSameOwners: computed('files.@each.owner', function filesHaveSameOwners() {
+  filesHaveSameOwner: computed('files.@each.owner', function filesHaveSameOwner() {
     if (this.files.length === 1) {
       return true;
     }
@@ -302,6 +331,30 @@ export default EmberObject.extend(...mixins, {
   ),
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  areActivePermissionsTypeTheSame: computed(
+    'isMultiFile',
+    'files.@each.activePermissionsType',
+    function isActivePermissionsTypeTheSame() {
+      if (!this.isMultiFile || !this.files?.length) {
+        return true;
+      }
+      const firstType = get(this.files[0], 'activePermissionsType');
+      return this.files.every(file => get(file, 'activePermissionsType') === firstType);
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<FilePermissionsType|null>}
+   */
+  activePermissionsType: conditional(
+    'areActivePermissionsTypeTheSame',
+    'files.0.activePermissionsType',
+    raw(null),
+  ),
+
+  /**
    * True if ACLs are not conflicted or conflict was accepted.
    * @type {Ember.ComputedProperty<boolean>}
    */
@@ -314,6 +367,17 @@ export default EmberObject.extend(...mixins, {
    * @type {Ember.ComputedProperty<boolean>}
    */
   isAnyModified: bool('editedPermissionsTypes.length'),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  isCurrentTabModified: computed(
+    'selectedPermissionsType',
+    'editedPermissionsTypes',
+    function isCurrentTabModified() {
+      return this.editedPermissionsTypes.includes(this.selectedPermissionsType);
+    }
+  ),
 
   isDiscardDisabled: not('isAnyModified'),
 
@@ -334,6 +398,34 @@ export default EmberObject.extend(...mixins, {
     raw(null),
   ),
 
+  isPermissionsTypeSelectorDisabled: bool(and(
+    'effectiveReadonly',
+    equal('activePermissionsType', raw('posix')),
+  )),
+
+  isAllFilesOwner: computed('files.@each.owner', function isAllFilesOwner() {
+    const currentUserId = this.currentUser.userId;
+    return this.files?.every(file => file?.relationEntityId('owner') === currentUserId);
+  }),
+
+  isNotFilesOrSpaceOwner: and(
+    not('space.currentUserIsOwner'),
+    not('isAllFilesOwner'),
+  ),
+
+  isPosixAndNonOwner: and(
+    equal('activePermissionsType', raw('posix')),
+    'isNotFilesOrSpaceOwner',
+  ),
+
+  isPosixEditorReadonly: or(
+    'effectiveReadonly',
+    and(
+      equal('activePermissionsType', raw('acl')),
+      'isNotFilesOrSpaceOwner',
+    )
+  ),
+
   init() {
     this._super(...arguments);
     this.clearEditedPermissionsTypes();
@@ -347,7 +439,7 @@ export default EmberObject.extend(...mixins, {
     );
 
     this.setProperties({
-      activePermissionsType: initialActivePermissionsType,
+      selectedPermissionsType: initialActivePermissionsType,
       posixPermissions: initialPosixPermissions,
     });
 
@@ -461,12 +553,28 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
-   * @param {FilePermissionsType} mode
+   * If needed, show unsaved changes prompt with save/restore actions.
+   * @returns {Promise<boolean>} If `true` is returned, the tab can be safely closed.
+   *   If `false` is returned, you should not close the tab due to unsaved changes.
    */
-  onActivePermissionsTypeChange(mode) {
-    this.set('activePermissionsType', mode);
+  async checkCurrentTabClose() {
+    return this.isCurrentTabModified ? await this.handleUnsavedChanges() : true;
+  },
 
-    if (mode === 'acl') {
+  /**
+   * @param {FilePermissionsType} tabId
+   */
+  async changeTab(tabId) {
+    if (
+      this.isPermissionsTypeSelectorDisabled ||
+      tabId === this.selectedPermissionsType ||
+      !(await this.checkCurrentTabClose())
+    ) {
+      return false;
+    }
+
+    this.set('selectedPermissionsType', tabId);
+    if (tabId === 'acl') {
       this.initAclValuesOnProxyLoad();
     }
   },
@@ -563,6 +671,7 @@ export default EmberObject.extend(...mixins, {
     const files = this.files;
     try {
       await this.saveAllPermissions();
+      await this.updateAclsProxy({ replace: true });
       this.globalNotify.success(this.t('permissionsModifySuccess'));
       this.clearEditedPermissionsTypes();
     } catch (errors) {
@@ -584,7 +693,7 @@ export default EmberObject.extend(...mixins, {
   restoreOriginalPermissions() {
     this.setProperties({
       lastResetTime: Date.now(),
-      activePermissionsType: this.initialActivePermissionsType,
+      selectedPermissionsType: this.initialActivePermissionsType,
       posixPermissions: this.initialPosixPermissions,
     });
     this.setAclFromInitial();
@@ -605,7 +714,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
-   * @returns {Promise<boolean>} true if current tab can be closed
+   * @returns {Promise<boolean>} `true` if current tab can be closed.
    */
   async handleUnsavedChanges() {
     return await new Promise(resolve => {
