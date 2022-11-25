@@ -39,6 +39,13 @@
     .truncate {
       max-width: 110px;
     }
+    .has-underline {
+      text-decoration: underline;
+    }
+    .file-owner-username {
+      opacity: 0.6;
+      font-size: 90%;
+    }
   }
 
   @include hide-on-breakpoint(col-hide-1, 1180px);
