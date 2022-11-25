@@ -45,6 +45,7 @@ import fileQos from './components/file-qos';
 import userInfoContent from './components/user-info-content';
 import archiveAuditLog from './components/archive-audit-log';
 import fileCommon from './components/file-common';
+import apiSamples from './components/api-samples';
 
 import uploadManager from './services/upload-manager';
 
@@ -114,6 +115,7 @@ const translations = {
     userInfoContent,
     archiveAuditLog,
     fileCommon,
+    apiSamples,
   },
   services: {
     uploadManager,
