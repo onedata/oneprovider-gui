@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10059 Added 10s data fetch delay in live time series charts
 * VFS-9596 Updated gui common
 * VFS-9162 Added api samples modal for space
 * VFS-9997 Improved showing popover info content for user and provider
