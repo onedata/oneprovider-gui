@@ -7,6 +7,9 @@ CHANGELOG
 ### Latest changes
 
 * VFS-9596 Updated gui common
+* VFS-9162 Added api samples modal for space
+* VFS-9997 Improved showing popover info content for user and provider
+* VFS-9813 Fixed showing lack of privileges in QoS views
 * VFS-10097 Fixed showing error when first archive was created with base archive
 * VFS-9786 Improved UX of file info permissions tab by adding hints and disabling modifications when it is not permitted
 * VFS-9946 Added filename hashes for distinguishing files in audit logs

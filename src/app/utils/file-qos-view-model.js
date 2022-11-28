@@ -169,7 +169,7 @@ export default EmberObject.extend(...mixins, {
    */
   valuesBuilder: computed(() => QueryValueComponentsBuilderQos.create()),
 
-  isAddDisabledTip: computed('editPrivilege', function isAddDisabledTip() {
+  manageQosDisabledTip: computed('editPrivilege', function manageQosDisabledTip() {
     if (!this.editPrivilege) {
       return insufficientPrivilegesMessage({
         i18n: this.get('i18n'),

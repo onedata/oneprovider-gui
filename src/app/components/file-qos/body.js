@@ -63,7 +63,7 @@ export default Component.extend(...mixins, {
 
   isAddDisabled: reads('viewModel.isAddDisabled'),
 
-  isAddDisabledTip: reads('viewModel.isAddDisabledTip'),
+  addDisabledTip: reads('viewModel.manageQosDisabledTip'),
 
   initialDataProxy: reads('viewModel.initialDataProxy'),
 

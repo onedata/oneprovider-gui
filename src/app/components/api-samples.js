@@ -14,6 +14,19 @@ export default ApiSamples.extend({
   appProxy: service(),
 
   /**
+   * @override
+   * @type {String} One of: 'onezone', 'oneprovider'
+   */
+  product: computed('productPerApiSubject', 'apiSubject', function product() {
+    return this.productPerApiSubject[this.apiSubject];
+  }),
+
+  productPerApiSubject: Object.freeze({
+    filePublic: 'onezone',
+    filePrivate: 'oneprovider',
+  }),
+
+  /**
    * @type {String} URL to create access token view
    */
   accessTokenUrl: computed(function accessTokenUrl() {
