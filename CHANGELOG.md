@@ -6,7 +6,8 @@ CHANGELOG
 
 ### Latest changes
 
-* VFS-9310 Removed $.parents() usages, unified chartist plugings
+* VFS-9313 Removed ":hidden" and ":visible" jQuery selectors usages
+* VFS-9310 Removed $.parents() usages, unified chartist plugins
 * VFS-10107 Fixed smooth scroll in Chrome
 * VFS-10059 Added 10s data fetch delay in live time series charts
 * VFS-9596 Updated gui common
