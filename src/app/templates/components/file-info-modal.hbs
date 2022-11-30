@@ -193,9 +193,11 @@
                   centered=false
                   spinnerBlockClass="loading-owner-full-name"
                 }}
-                  {{user-info-with-icon
-                    user=owner
-                  }}
+                  {{#truncated-string}}
+                    {{user-info-with-icon
+                      user=owner
+                    }}
+                  {{/truncated-string}}
                 {{/promise-proxy-container}}
               </td>
             </tr>
