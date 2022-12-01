@@ -35,12 +35,6 @@
     min-width: 120px;
   }
 
-  .transfers-table-cell-userName {
-    .truncate {
-      max-width: 110px;
-    }
-  }
-
   @include hide-on-breakpoint(col-hide-1, 1180px);
   @include hide-on-breakpoint(col-hide-2, 1060px);
   @include hide-on-breakpoint(col-hide-3, 940px);
@@ -121,7 +115,7 @@
       width: 40px;
       position: relative;
     }
-    .transfers-table-cell-path {
+    .transfers-table-cell-path, .transfers-table-cell-userName {
       // thanks to this, cell has a max-width, but in real width is controlled by header
       max-width: 0;
       @media (min-width: 800px) {

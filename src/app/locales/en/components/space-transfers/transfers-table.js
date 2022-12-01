@@ -1,7 +1,7 @@
 export default {
   type: 'Type',
   path: 'File/directory',
-  userName: 'Username',
+  userName: 'User',
   destination: 'Destination',
   scheduledAt: 'Scheduled at',
   startedAt: 'Started at',
