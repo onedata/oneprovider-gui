@@ -33,6 +33,7 @@ import { and, equal, array, collect, raw } from 'ember-awesome-macros';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import decapitalize from 'onedata-gui-common/utils/decapitalize';
+import dom from 'onedata-gui-common/utils/dom';
 
 const allOneprovidersId = '__all__';
 
@@ -945,14 +946,16 @@ export default Component.extend(
       const lowestLineY = parseFloat(verticalGrid.first().attr('y1'));
       const midLineY = (highestLineY + lowestLineY) / 2;
       const halfDescriptionWidth = lowestLineY - midLineY;
-      $element.find('.output-half').css({
+      dom.setStyles(this.element?.querySelector('.output-half'), {
         top: ((lowestLineY + midLineY) / 2) + 'px',
         width: halfDescriptionWidth + 'px',
-      }).show();
-      $element.find('.input-half').css({
+        display: 'block',
+      });
+      dom.setStyles(this.element?.querySelector('.input-half'), {
         top: ((highestLineY + midLineY) / 2) + 'px',
         width: halfDescriptionWidth + 'px',
-      }).show();
+        display: 'block',
+      });
     },
 
     /**
