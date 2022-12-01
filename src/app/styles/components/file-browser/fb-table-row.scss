@@ -56,6 +56,14 @@
         transition-property: opacity;
         transition-duration: .25s;
         transition-timing-function: ease;
+        align-self: center;
+        position: relative;
+
+        .flippable-front {
+          position: absolute;
+          top: 0;
+          transform: translate(-4px, -5px);
+        }
       }
 
       .file-icon-container, .file-item-text {
