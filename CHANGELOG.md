@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10222 Fixed starting multiple files replication/migration/eviction
 * VFS-10046 Added popover with user info in transfers table
 * VFS-10107 Fixed smooth scroll in Chrome
 * VFS-10059 Added 10s data fetch delay in live time series charts
