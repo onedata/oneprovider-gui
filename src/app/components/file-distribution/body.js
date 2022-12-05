@@ -49,14 +49,23 @@ export default Component.extend({
     getTransfersUrl() {
       return this.appProxy.callParent('getTransfersUrl', ...arguments);
     },
-    async replicate(file, destinationOneprovider) {
-      return await this.viewModel.replicate([file], destinationOneprovider);
+    async replicate(files, destinationOneprovider) {
+      return await this.viewModel.replicate(
+        Array.isArray(files) ? files : [files], destinationOneprovider
+      );
     },
-    async migrate(file, sourceProvider, destinationOneprovider) {
-      return await this.viewModel.migrate([file], sourceProvider, destinationOneprovider);
+    async migrate(files, sourceProvider, destinationOneprovider) {
+      return await this.viewModel.migrate(
+        Array.isArray(files) ? files : [files],
+        sourceProvider,
+        destinationOneprovider
+      );
     },
-    async evict(file, sourceOneprovider) {
-      return await this.viewModel.evict([file], sourceOneprovider);
+    async evict(files, sourceOneprovider) {
+      return await this.viewModel.evict(
+        Array.isArray(files) ? files : [files],
+        sourceOneprovider
+      );
     },
     getProvidersUrl(...args) {
       return this.viewModel.getProvidersUrl(...args);
