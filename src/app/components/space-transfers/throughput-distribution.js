@@ -12,17 +12,17 @@
 import _ from 'lodash';
 import moment from 'moment';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
-import stackedLineMask from 'oneprovider-gui/utils/chartist/stacked-line-mask';
+import stackedLineMask from 'onedata-gui-common/utils/chartist/stacked-line-mask';
 import TransferTimeStatUpdater from 'oneprovider-gui/utils/transfer-time-stat-updater';
-import customCss from 'oneprovider-gui/utils/chartist/custom-css';
-import centerXLabels from 'oneprovider-gui/utils/chartist/center-x-labels';
-import axisLabels from 'oneprovider-gui/utils/chartist/axis-labels';
-import eventListener from 'oneprovider-gui/utils/chartist/event-listener';
+import customCss from 'onedata-gui-common/utils/chartist/custom-css';
+import centerXLabels from 'onedata-gui-common/utils/chartist/center-x-labels';
+import axisLabels from 'onedata-gui-common/utils/chartist/axis-labels';
+import eventListener from 'onedata-gui-common/utils/chartist/event-listener';
 import $ from 'jquery';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
-import ChartistValuesLine from 'oneprovider-gui/mixins/components/chartist-values-line';
-import ChartistTooltip from 'oneprovider-gui/mixins/components/chartist-tooltip';
+import ChartistValuesLine from 'onedata-gui-common/mixins/components/chartist-values-line';
+import ChartistTooltip from 'onedata-gui-common/mixins/components/chartist-tooltip';
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
@@ -33,6 +33,7 @@ import { and, equal, array, collect, raw } from 'ember-awesome-macros';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import decapitalize from 'onedata-gui-common/utils/decapitalize';
+import dom from 'onedata-gui-common/utils/dom';
 
 const allOneprovidersId = '__all__';
 
@@ -945,14 +946,16 @@ export default Component.extend(
       const lowestLineY = parseFloat(verticalGrid.first().attr('y1'));
       const midLineY = (highestLineY + lowestLineY) / 2;
       const halfDescriptionWidth = lowestLineY - midLineY;
-      $element.find('.output-half').css({
+      dom.setStyles(this.element?.querySelector('.output-half'), {
         top: ((lowestLineY + midLineY) / 2) + 'px',
         width: halfDescriptionWidth + 'px',
-      }).show();
-      $element.find('.input-half').css({
+        display: 'block',
+      });
+      dom.setStyles(this.element?.querySelector('.input-half'), {
         top: ((highestLineY + midLineY) / 2) + 'px',
         width: halfDescriptionWidth + 'px',
-      }).show();
+        display: 'block',
+      });
     },
 
     /**

@@ -31,6 +31,7 @@ import { A } from '@ember/array';
 import { isEmpty } from '@ember/utils';
 import sleep from 'onedata-gui-common/utils/sleep';
 import animateCss from 'onedata-gui-common/utils/animate-css';
+import dom from 'onedata-gui-common/utils/dom';
 
 const defaultIsItemDisabled = () => false;
 
@@ -1195,9 +1196,9 @@ export default Component.extend(I18n, {
       const tableOffset = $this.offset();
       left = left - tableOffset.left;
       top = top - tableOffset.top;
-      $this.find('.file-actions-trigger').css({
-        top,
-        left,
+      dom.setStyles(element?.querySelector('.file-actions-trigger'), {
+        top: `${top}px`,
+        left: `${left}px`,
       });
       // opening popover in after rendering trigger position change prevents from bad
       // placement

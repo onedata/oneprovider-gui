@@ -23,6 +23,7 @@ import $ from 'jquery';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
+import dom from 'onedata-gui-common/utils/dom';
 
 const defaultIsItemDisabled = () => false;
 
@@ -542,9 +543,9 @@ export default Component.extend(I18n, {
       const tableOffset = $this.offset();
       const left = mouseEvent.clientX - tableOffset.left + element.offsetLeft;
       const top = mouseEvent.clientY - tableOffset.top + element.offsetTop;
-      $this.find('.current-dir-actions-trigger').css({
-        top,
-        left,
+      dom.setStyles(element?.querySelector('.current-dir-actions-trigger'), {
+        top: `${top}px`,
+        left: `${left}px`,
       });
       // cause popover refresh
       if (currentDirActionsOpen) {
