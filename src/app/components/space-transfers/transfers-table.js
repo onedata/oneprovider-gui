@@ -306,7 +306,7 @@ export default Component.extend(I18n, {
 
   userNameColumn: computed(function userNameColumn() {
     return this.createColumn('userName', {
-      component: 'cell-truncated',
+      component: 'cell-user',
       className: 'col-hide-2',
     });
   }),
