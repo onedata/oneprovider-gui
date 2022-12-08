@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10230 Adjusted items-to-process counter in transfers to reflect backend changes
 * VFS-10128 Allowed mapping task result to many targets
 * VFS-9312 Removed $.css() usages
 * VFS-9313 Removed ":hidden" and ":visible" jQuery selectors usages

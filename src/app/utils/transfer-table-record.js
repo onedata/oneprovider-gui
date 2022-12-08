@@ -171,7 +171,8 @@ export default EmberObject.extend(OwnerInjector, {
 
       const dirSizeStats = await this.fileManager.getDirCurrentSizeStats(dataSourceId);
       if (dirSizeStats) {
-        let itemsToProcess = dirSizeStats.regFileAndLinkCount + dirSizeStats.dirCount + 1;
+        // Number of the non-directory items + reference to the directory itself
+        let itemsToProcess = dirSizeStats.regFileAndLinkCount + 1;
         if (type === 'migration') {
           itemsToProcess *= 2;
         }
