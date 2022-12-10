@@ -34,12 +34,12 @@
               iconTag=iconTag
               iconName=icon
               isHovered=isFileNameHovered
-              isTagIcon=true
               iconTip=iconTip
+              iconClass="file-icon"
             }}
           {{else}}
             {{#one-icon-tagged
-              class=(concat-classes "tag-right flippable-front" iconTaggedClass)
+              class=(concat-classes "tag-right" iconTaggedClass)
               icon=icon
               iconClass="file-icon"
               tagIcon=iconTag
