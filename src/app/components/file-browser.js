@@ -527,7 +527,7 @@ export default Component.extend(I18n, {
         'ignoreCurrentDirContextMenuSelector',
       );
 
-      if (!showCurrentDirActions) {
+      if (!showCurrentDirActions || !this.element) {
         return;
       }
 
@@ -539,11 +539,10 @@ export default Component.extend(I18n, {
       }
 
       const element = this.get('element');
-      const $this = $(element);
-      const tableOffset = $this.offset();
-      const left = mouseEvent.clientX - tableOffset.left + element.offsetLeft;
-      const top = mouseEvent.clientY - tableOffset.top + element.offsetTop;
-      dom.setStyles(element?.querySelector('.current-dir-actions-trigger'), {
+      const tableOffset = dom.offset(element);
+      const left = mouseEvent.clientX - tableOffset.left + this.element.offsetLeft;
+      const top = mouseEvent.clientY - tableOffset.top + this.element.offsetTop;
+      dom.setStyles(this.element.querySelector('.current-dir-actions-trigger'), {
         top: `${top}px`,
         left: `${left}px`,
       });

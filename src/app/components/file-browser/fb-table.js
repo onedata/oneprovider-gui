@@ -950,8 +950,8 @@ export default Component.extend(I18n, {
         rowHeight,
         _window,
       } = this.getProperties('rowHeight', '_window');
-      const $firstRow = $('.first-row');
-      const firstRowTop = $firstRow.offset().top;
+      const firstRow = this.element.querySelector('.first-row');
+      const firstRowTop = firstRow ? dom.offset(firstRow).top : 0;
       const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + _window.innerHeight;
       startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
@@ -1184,16 +1184,15 @@ export default Component.extend(I18n, {
       let top;
       const trigger = mouseEvent.currentTarget;
       if (trigger.matches('.one-menu-toggle')) {
-        const $middleDot = $(trigger).find('.icon-dot').eq(1);
-        const middleDotOffset = $middleDot.offset();
+        const middleDot = trigger.querySelectorAll('.icon-dot')[1];
+        const middleDotOffset = dom.offset(middleDot);
         left = middleDotOffset.left + 1;
         top = middleDotOffset.top + 1;
       } else {
         left = mouseEvent.clientX;
         top = mouseEvent.clientY;
       }
-      const $this = $(element);
-      const tableOffset = $this.offset();
+      const tableOffset = dom.offset(element);
       left = left - tableOffset.left;
       top = top - tableOffset.top;
       dom.setStyles(element?.querySelector('.file-actions-trigger'), {

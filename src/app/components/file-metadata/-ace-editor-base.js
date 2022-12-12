@@ -11,6 +11,7 @@ import { emptyValue } from 'oneprovider-gui/utils/file-metadata-view-model';
 import { conditional, eq, raw } from 'ember-awesome-macros';
 import { computed, observer } from '@ember/object';
 import $ from 'jquery';
+import dom from 'onedata-gui-common/utils/dom';
 
 export default Component.extend({
   classNames: ['file-metadata-ace-editor-base'],
@@ -89,7 +90,8 @@ export default Component.extend({
   }),
 
   fixTooltipPosition() {
-    const { left, top } = this.getModalDialog().offset();
+    const modalDialog = this.getModalDialog()[0];
+    const { left, top } = modalDialog ? dom.offset(modalDialog) : { top: 0, left: 0 };
     this.set(
       'styleOverride',
       `#${this.get('elementId')} .ace_tooltip { transform: translate(-${left}px, -${top}px); }`
