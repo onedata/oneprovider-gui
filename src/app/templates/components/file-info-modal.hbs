@@ -187,16 +187,9 @@
             <tr class="file-info-row-owner">
               <td class="property-name">{{tt this "owner"}}</td>
               <td class="property-value">
-                {{#promise-proxy-container
-                  proxy=ownerProxy
-                  sizeClass="xs"
-                  centered=false
-                  spinnerBlockClass="loading-owner-full-name"
+                {{user-info-with-icon
+                  user=owner
                 }}
-                  {{user-info-with-icon
-                    user=owner
-                  }}
-                {{/promise-proxy-container}}
               </td>
             </tr>
           {{/if}}
