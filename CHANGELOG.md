@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7863 Fixed file download in iOS Safari
 * VFS-10012 Fixed hanging file uploads
 * VFS-9926 Redirecting from non-iframed Oneprovider GUI to provider view in Onezone GUI
 * VFS-8482 Added dedicated page for privacy policy content

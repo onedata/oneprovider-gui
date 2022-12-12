@@ -1,7 +1,7 @@
 /**
  * A container with table of files (children of selected dir).
  * Supports infinite scroll.
- * 
+ *
  * @module components/file-browser/fb-table
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -625,7 +625,7 @@ export default Component.extend(I18n, {
 
   /**
    * Get nth file row element that was rendered
-   * @param {Number} index 
+   * @param {Number} index
    * @returns {HTMLElement|null}
    */
   getNthRenderedRow(index) {
@@ -836,24 +836,6 @@ export default Component.extend(I18n, {
     }
   },
 
-  downloadUsingIframe(fileUrl) {
-    const _body = this.get('_body');
-    const iframe = $('<iframe/>').attr({
-      src: fileUrl,
-      style: 'display:none;',
-    }).appendTo(_body);
-    // the time should be long to support some download extensions in Firefox desktop
-    later(() => iframe.remove(), 60000);
-  },
-
-  downloadUsingOpen(fileUrl) {
-    // Apple devices such as iPad tries to open file using its embedded viewer
-    // in any browser, but we cannot say if the file extension is currently supported
-    // so we try to open every file in new tab.
-    const target = this.get('isMobile.apple.device') ? '_blank' : '_self';
-    this.get('_window').open(fileUrl, target);
-  },
-
   openFile(file, confirmModal = false) {
     const isDir = get(file, 'type') === 'dir';
     if (isDir) {
@@ -987,10 +969,9 @@ export default Component.extend(I18n, {
     const {
       fileManager,
       globalNotify,
-      isMobile,
       previewMode,
-    } = this.getProperties('fileManager', 'globalNotify', 'isMobile', 'previewMode');
-    const isMobileBrowser = get(isMobile, 'any');
+      _body,
+    } = this.getProperties('fileManager', 'globalNotify', 'previewMode', '_body');
     return fileManager.getFileDownloadUrl(
         fileEntityId,
         previewMode ? 'public' : 'private'
@@ -998,11 +979,13 @@ export default Component.extend(I18n, {
       .then((data) => {
         const fileUrl = data && get(data, 'fileUrl');
         if (fileUrl) {
-          if (isMobileBrowser) {
-            this.downloadUsingOpen(fileUrl);
-          } else {
-            this.downloadUsingIframe(fileUrl);
-          }
+          const iframe = $('<iframe/>').attr({
+            src: fileUrl,
+            style: 'display:none;',
+          }).appendTo(_body);
+          // the time should be long to support some download extensions in
+          // Firefox desktop
+          later(() => iframe.remove(), 60000);
         } else {
           throw { isOnedataCustomError: true, type: 'empty-file-url' };
         }
@@ -1039,7 +1022,7 @@ export default Component.extend(I18n, {
         top,
         left,
       });
-      // opening popover in after rendering trigger position change prevents from bad 
+      // opening popover in after rendering trigger position change prevents from bad
       // placement
       scheduleOnce('afterRender', () => {
         // cause popover refresh
