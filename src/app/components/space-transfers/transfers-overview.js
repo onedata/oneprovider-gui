@@ -153,10 +153,9 @@ export default Component.extend(I18n, {
   changeStyle() {
     let style;
     if (this.get('stickyOverview')) {
-      const $element = $(this.get('element'));
-      const $rowActiveTransfers = $element.find('.row-active-transfers');
+      const $rowActiveTransfers = $(this.element.querySelector('.row-active-transfers'));
       const height = $rowActiveTransfers.outerHeight();
-      const width = $element.parents('.space-transfers').innerWidth();
+      const width = $(this.element.closest('.space-transfers')).innerWidth();
       style = htmlSafe(`height: ${height}px; width: ${width}px;`);
     } else {
       style = htmlSafe();

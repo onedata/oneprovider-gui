@@ -6,6 +6,12 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10128 Allowed mapping task result to many targets
+* VFS-9312 Removed $.css() usages
+* VFS-9313 Removed ":hidden" and ":visible" jQuery selectors usages
+* VFS-9310 Removed $.parents() usages, unified chartist plugins
+* VFS-8656 Removed jQuery from websocket client
+* VFS-10222 Fixed starting multiple files replication/migration/eviction
 * VFS-10046 Added popover with user info in transfers table
 * VFS-10107 Fixed smooth scroll in Chrome
 * VFS-10059 Added 10s data fetch delay in live time series charts
