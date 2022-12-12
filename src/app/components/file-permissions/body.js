@@ -69,7 +69,7 @@ export default Component.extend(...mixins, {
 
   isMultiFile: reads('viewModel.isMultiFile'),
 
-  owner: reads('viewModel.ownerProxy.content'),
+  ownerProxy: reads('viewModel.ownerProxy'),
 
   isPosixActivePermissionsType: equal('viewModel.activePermissionsType', raw('posix')),
 
