@@ -2,7 +2,8 @@
   <div class="owner-info-line">
     <strong class="owner-info-label">{{tt this "owner"}}:</strong>
     {{user-info-with-icon
-      userProxy=ownerProxy
+      user=owner
+      errorReason=errorReasonForOwnerProxy
     }}
   </div>
 {{/if}}

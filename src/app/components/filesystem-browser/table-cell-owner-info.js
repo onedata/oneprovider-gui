@@ -7,21 +7,21 @@
  */
 
 import Component from '@ember/component';
-import { reads } from '@ember/object/computed';
 
 export default Component.extend({
   classNames: ['table-cell-owner-info'],
 
   /**
    * @virtual
-   * @type {ComputedProperty<PromiseObject<Models.User>>}
-   */
-  ownerProxy: undefined,
-
-  /**
    * @type {Models.User}
    */
-  owner: reads('ownerProxy.content'),
+  owner: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Object}
+   */
+  errorReason: undefined,
 
   /**
    * @type {Boolean}
