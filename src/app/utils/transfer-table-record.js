@@ -79,14 +79,14 @@ export default EmberObject.extend(OwnerInjector, {
    * transfer. It's available only for ongoing transfers.
    * @type {number|null}
    */
-  itemsToProcess: null,
+  filesToProcess: null,
 
   transferId: reads('transfer.entityId'),
   userName: reads('userProxy.content.name'),
   replicatedFiles: reads('transfer.transferProgressProxy.replicatedFiles'),
   replicatedBytes: computedPipe('transfer.transferProgressProxy.replicatedBytes'),
   evictedFiles: reads('transfer.transferProgressProxy.evictedFiles'),
-  processedItems: reads('transfer.transferProgressProxy.processedFiles'),
+  processedFiles: reads('transfer.transferProgressProxy.processedFiles'),
   status: reads('transfer.transferProgressProxy.status'),
   transferProgressError: reads('transfer.transferProgressProxy.reason'),
   type: reads('transfer.type'),
@@ -144,9 +144,9 @@ export default EmberObject.extend(OwnerInjector, {
     }
   ),
 
-  itemsToProcessSetter: observer(
+  filesToProcessSetter: observer(
     'transfer.{type,dataSourceType,dataSourceId,state}',
-    async function itemsToProcessSetter() {
+    async function filesToProcessSetter() {
       const {
         type,
         dataSourceType,
@@ -161,22 +161,21 @@ export default EmberObject.extend(OwnerInjector, {
       );
 
       if (state !== 'ongoing' || dataSourceType !== 'dir') {
-        if (typeof this.itemsToProcess === 'number') {
-          this.set('itemsToProcess', null);
+        if (typeof this.filesToProcess === 'number') {
+          this.set('filesToProcess', null);
         }
         return;
-      } else if (typeof this.itemsToProcess === 'number') {
+      } else if (typeof this.filesToProcess === 'number') {
         return;
       }
 
       const dirSizeStats = await this.fileManager.getDirCurrentSizeStats(dataSourceId);
       if (dirSizeStats) {
-        // Number of the non-directory items + reference to the directory itself
-        let itemsToProcess = dirSizeStats.regFileAndLinkCount + 1;
+        let filesToProcess = dirSizeStats.regFileAndLinkCount;
         if (type === 'migration') {
-          itemsToProcess *= 2;
+          filesToProcess *= 2;
         }
-        this.set('itemsToProcess', itemsToProcess);
+        this.set('filesToProcess', filesToProcess);
       }
     }
   ),
@@ -196,7 +195,7 @@ export default EmberObject.extend(OwnerInjector, {
       // enable observer
       this.get('status');
     }
-    this.itemsToProcessSetter();
+    this.filesToProcessSetter();
   },
 
   reloadRecordIfNeeded(transfer = this.get('transfer')) {
