@@ -41,6 +41,7 @@
               {{#if (gte latestDirSizeStatsValues.physicalSize 1024)}}
                 <span class="extra-info">
                   ({{latestDirSizeStatsValues.physicalSize}} B)
+                  {{physicalSizeOnProvidersDescription}}
                 </span>
               {{/if}}
               {{one-label-tip title=(tt this "currentSize.physicalSizeTip")}}

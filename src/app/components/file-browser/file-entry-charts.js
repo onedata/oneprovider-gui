@@ -94,11 +94,19 @@ export default Component.extend(...mixins, {
   )),
 
   /**
+   * @type {ComputedProperty<PromiseObject<number>>}
+   */
+  providersCountProxy: promise.object(computed('space', async function () {
+    return (await get(this.space, 'providerList')).hasMany('list').ids().length;
+  })),
+
+  /**
    * @type {ComputedProperty<PromiseObject>}
    */
   loadingProxy: promise.object(promise.all(
     'timeSeriesCollectionSchemaProxy',
-    'latestDirSizeStatsValuesProxy'
+    'latestDirSizeStatsValuesProxy',
+    'providersCountProxy'
   )),
 
   /**
@@ -513,6 +521,27 @@ export default Component.extend(...mixins, {
         fileNoun: this.t(`currentSize.elementsCount.file.${filesNounVer}`),
         dirNoun: this.t(`currentSize.elementsCount.dir.${dirNounVer}`),
         elementNoun: this.t(`currentSize.elementsCount.element.${elementNounVer}`),
+      });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  physicalSizeOnProvidersDescription: computed(
+    'latestDirSizeStatsValues.physicalSizePerStorage',
+    'providersCountProxy.content',
+    function physicalSizeOnProvidersDescription() {
+      const providersCount = this.get('providersCountProxy.content');
+      const providersWithStatsCount = Object.keys(
+        this.latestDirSizeStatsValues?.physicalSizePerStorage || {}
+      ).length;
+      if (!(providersCount > 1)) {
+        return '';
+      }
+      return this.t('currentSize.physicalSizeOnProvidersCount', {
+        providersWithStatsCount,
+        providersCount,
       });
     }
   ),
