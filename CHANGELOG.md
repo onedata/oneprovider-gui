@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7863 Fixed file download in iOS Safari
 * VFS-10233 Improved presentation of directory physical size
 * VFS-10245 Added error translation for internal server error with reference
 * VFS-10128 Allowed mapping task result to many targets
