@@ -96,9 +96,12 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<PromiseObject<number>>}
    */
-  providersCountProxy: promise.object(computed('space', async function () {
-    return (await get(this.space, 'providerList')).hasMany('list').ids().length;
-  })),
+  providersCountProxy: promise.object(computed(
+    'space',
+    async function providersCountProxy() {
+      return (await get(this.space, 'providerList')).hasMany('list').ids().length;
+    }
+  )),
 
   /**
    * @type {ComputedProperty<PromiseObject>}
@@ -533,12 +536,14 @@ export default Component.extend(...mixins, {
     'providersCountProxy.content',
     function physicalSizeOnProvidersDescription() {
       const providersCount = this.get('providersCountProxy.content');
+      if (!(providersCount > 1) || !this.latestDirSizeStatsValues) {
+        return '';
+      }
+
       const providersWithStatsCount = Object.keys(
         this.latestDirSizeStatsValues?.physicalSizePerStorage || {}
       ).length;
-      if (!(providersCount > 1)) {
-        return '';
-      }
+
       return this.t('currentSize.physicalSizeOnProvidersCount', {
         providersWithStatsCount,
         providersCount,
