@@ -17,6 +17,14 @@ const dataSpecConfigs = {
     correctValues: ['5', '0', '-100'],
     incorrectValues: ['0.5', 'null', '{}', '[]', '"1"'],
   },
+  boolean: {
+    dataSpec: {
+      type: 'boolean',
+      valueConstraints: {},
+    },
+    correctValues: ['true', 'false'],
+    incorrectValues: ['10', 'null', '[]', '"1"'],
+  },
   string: {
     dataSpec: {
       type: 'string',
