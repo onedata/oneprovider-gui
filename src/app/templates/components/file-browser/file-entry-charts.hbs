@@ -38,10 +38,8 @@
             </span>
             <span class="property-value">
               {{bytes-to-string latestDirSizeStatsValues.physicalSize}}
-              {{#if (gte latestDirSizeStatsValues.physicalSize 1024)}}
-                <span class="extra-info">
-                  ({{latestDirSizeStatsValues.physicalSize}} B)
-                </span>
+              {{#if physicalSizeExtraInfo}}
+                <span class="extra-info">{{physicalSizeExtraInfo}}</span>
               {{/if}}
               {{one-label-tip title=(tt this "currentSize.physicalSizeTip")}}
             </span>
