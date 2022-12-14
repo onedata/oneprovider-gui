@@ -552,6 +552,26 @@ export default Component.extend(...mixins, {
   ),
 
   /**
+   * @type {ComputedProperty<string>}
+   */
+  physicalSizeExtraInfo: computed(
+    'latestDirSizeStatsValues.physicalSize',
+    'physicalSizeOnProvidersDescription',
+    function physicalSizeExtraInfo() {
+      const extraInfo = [];
+
+      if (this.latestDirSizeStatsValues.physicalSize >= 1024) {
+        extraInfo.push(`(${this.latestDirSizeStatsValues.physicalSize} B)`);
+      }
+      if (this.physicalSizeOnProvidersDescription) {
+        extraInfo.push(this.physicalSizeOnProvidersDescription);
+      }
+
+      return extraInfo.join(' ');
+    }
+  ),
+
+  /**
    * @override
    */
   init() {
