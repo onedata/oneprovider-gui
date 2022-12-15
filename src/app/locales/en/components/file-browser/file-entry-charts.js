@@ -20,8 +20,9 @@ export default {
         plural: 'elements',
       },
     },
+    physicalSizeOnProvidersCount: 'at {{providersWithStatsCount}} out of {{providersCount}} providers',
     logicalSizeTip: 'Logical byte size is the total size of file data contained in this directory, i.e. the sum of logical byte sizes of all regular files.',
-    physicalSizeTip: 'Physical byte size is the total storage size used to store the regular file data.',
+    physicalSizeTip: 'Summarized storage size used to store the data. Includes only the sizes reported by online providers with enabled directory size statistics.',
   },
   historicalSize: {
     header: 'Historical size statistics',
