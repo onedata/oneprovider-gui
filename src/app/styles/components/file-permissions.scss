@@ -16,6 +16,12 @@
     }
     .user-info-with-icon {
       max-width: 70%;
+      .truncated-string {
+        align-items: baseline;
+      }
+      .user-info-trigger {
+        align-self: center;
+      }
     }
     .owner-info-username {
       margin-left: 0.5em;
