@@ -16,6 +16,7 @@ import { observer, get } from '@ember/object';
 import $ from 'jquery';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { scheduleOnce } from '@ember/runloop';
+import dom from 'onedata-gui-common/utils/dom';
 
 export default Component.extend(I18n, {
   classNames: ['transfers-overview', 'row', 'row-spacing'],
@@ -123,9 +124,9 @@ export default Component.extend(I18n, {
     scheduleOnce('afterRender', () => {
       this.onResize();
     });
-    const $contentScroll = $('#content-scroll');
-    this.initSticky($contentScroll);
-    $contentScroll.on(
+    const contentScroll = document.querySelector('#content-scroll');
+    this.initSticky(contentScroll);
+    $(contentScroll).on(
       this.eventName('scroll'),
       () => safeExec(this, 'computeSticky')
     );
@@ -152,10 +153,13 @@ export default Component.extend(I18n, {
 
   changeStyle() {
     let style;
-    if (this.get('stickyOverview')) {
-      const $rowActiveTransfers = $(this.element.querySelector('.row-active-transfers'));
-      const height = $rowActiveTransfers.outerHeight();
-      const width = $(this.element.closest('.space-transfers')).innerWidth();
+    const rowActiveTransfers = this.element?.querySelector('.row-active-transfers');
+    if (this.get('stickyOverview') && rowActiveTransfers) {
+      const height = dom.height(rowActiveTransfers);
+      const width = dom.width(
+        this.element.closest('.space-transfers'),
+        dom.LayoutBox.PaddingBox
+      );
       style = htmlSafe(`height: ${height}px; width: ${width}px;`);
     } else {
       style = htmlSafe();
@@ -175,27 +179,26 @@ export default Component.extend(I18n, {
         'overviewExpanded',
         'element'
       );
-      const $element = $(element);
-      const $rowOverview = $element.find('.row-overview');
+      const rowOverview = element.querySelector('.row-overview');
       const top = (overviewExpanded ?
         contentScrollTop :
-        contentScrollTop - $rowOverview.height()
+        contentScrollTop - dom.height(rowOverview)
       );
-      const left = $element.offset().left;
-      const right = window.innerWidth - (left + $element.width());
+      const left = dom.offset(element).left;
+      const right = window.innerWidth - (left + dom.width(element));
       const style = `top: ${top}px; left: ${left}px; right: ${right}px;`;
       stickyOverviewStyle = htmlSafe(style);
     }
     this.set('stickyOverviewStyle', stickyOverviewStyle);
   },
 
-  initSticky($contentScroll) {
-    const $rowExpandHandler = $(this.get('element')).find('.row-expand-handler');
-    if ($rowExpandHandler.length) {
-      this.set('initialHandlerTop', $rowExpandHandler.offset().top);
+  initSticky(contentScroll) {
+    const rowExpandHandler = this.element?.querySelector('.row-expand-handler');
+    if (rowExpandHandler) {
+      this.set('initialHandlerTop', dom.offset(rowExpandHandler).top);
     }
-    if ($contentScroll && $contentScroll.length) {
-      this.set('contentScrollTop', $contentScroll.offset().top);
+    if (contentScroll) {
+      this.set('contentScrollTop', dom.offset(contentScroll).top);
     }
   },
 

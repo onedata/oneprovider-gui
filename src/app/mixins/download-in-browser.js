@@ -17,7 +17,6 @@ import downloadFile from 'onedata-gui-common/utils/download-file';
 export default Mixin.create({
   // required fileManager: Ember.Service
   // required globalNotify: Ember.Service
-  // required isMobile: Ember.Service
   // required loadingIconFileIds: Array<String>
   // optional previewMode: Boolean
 
@@ -66,14 +65,10 @@ export default Mixin.create({
   },
 
   handleFileDownloadUrl(data) {
-    const {
-      isMobile: isMobileService,
-      _window,
-    } = this.getProperties('isMobile', '_window');
     const fileUrl = data && get(data, 'fileUrl');
 
     if (fileUrl) {
-      downloadFile({ fileUrl, isMobileService, _window });
+      downloadFile({ fileUrl, _window: this._window });
     } else {
       throw { isOnedataCustomError: true, type: 'empty-file-url' };
     }
