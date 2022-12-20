@@ -48,7 +48,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   // required by DownloadInBrowser mixin
   fileManager: service(),
-  isMobile: service(),
   globalNotify: service(),
   i18n: service(),
   globalClipboard: service(),

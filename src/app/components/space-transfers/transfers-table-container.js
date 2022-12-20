@@ -21,6 +21,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { isEmpty } from '@ember/utils';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import transferIndex from 'oneprovider-gui/utils/transfer-index';
+import dom from 'onedata-gui-common/utils/dom';
 
 const updateInterval = 5000;
 
@@ -175,8 +176,8 @@ export default Component.extend({
         _window,
         rowHeight,
       } = this.getProperties('_window', 'rowHeight');
-      const $firstRow = $('.first-row');
-      const firstRowTop = $firstRow.offset().top;
+      const firstRow = this.element?.querySelector('.first-row');
+      const firstRowTop = firstRow ? dom.offset(firstRow).top : 0;
       const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + _window.innerHeight;
       startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;

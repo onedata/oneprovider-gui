@@ -42,9 +42,9 @@ import fileMetadata from './components/file-metadata';
 import filePermissions from './components/file-permissions';
 import fileShares from './components/file-shares';
 import fileQos from './components/file-qos';
-import userInfoContent from './components/user-info-content';
 import archiveAuditLog from './components/archive-audit-log';
 import fileCommon from './components/file-common';
+import apiSamples from './components/api-samples';
 
 import uploadManager from './services/upload-manager';
 
@@ -111,9 +111,9 @@ const translations = {
     filePermissions,
     fileShares,
     fileQos,
-    userInfoContent,
     archiveAuditLog,
     fileCommon,
+    apiSamples,
   },
   services: {
     uploadManager,

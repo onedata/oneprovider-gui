@@ -26,7 +26,7 @@ import { htmlSafe } from '@ember/string';
 import { isEmpty } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
-import $ from 'jquery';
+import dom from 'onedata-gui-common/utils/dom';
 
 /**
  * @type {number}
@@ -278,18 +278,16 @@ export default Component.extend(
     },
 
     checkWidth(noAnimation) {
-      const element = this.get('element');
-      const $fileBreadcrumbs = $(element);
-      if (this.get('isDestroyed') || !$fileBreadcrumbs.length) {
+      if (this.isDestroyed || !this.element) {
         return;
       }
-      const itemsCount = this.get('filteredBreadcrumbsItems.length');
-      const $fileBreadcrumbsInner = $fileBreadcrumbs.find('.fb-breadcrumbs-inner');
-      const elementsToShow = this.get('elementsToShow');
-      const innerBreadcrumbsWidth = $fileBreadcrumbsInner.width();
-      const containerWidth = $fileBreadcrumbs.width();
-      if (innerBreadcrumbsWidth > containerWidth && elementsToShow !== 0) {
-        if (elementsToShow > itemsCount) {
+      const itemsCount = this.filteredBreadcrumbsItems?.length;
+      const fileBreadcrumbsInner = this.element.querySelector('.fb-breadcrumbs-inner');
+      const innerBreadcrumbsWidth = fileBreadcrumbsInner ?
+        dom.width(fileBreadcrumbsInner, dom.LayoutBox.ContentBox) : 0;
+      const containerWidth = dom.width(this.element, dom.LayoutBox.ContentBox);
+      if (innerBreadcrumbsWidth > containerWidth && this.elementsToShow !== 0) {
+        if (this.elementsToShow > itemsCount) {
           this.set('elementsToShow', itemsCount);
         } else {
           this.decrementProperty('elementsToShow');
@@ -303,9 +301,9 @@ export default Component.extend(
         }, noAnimation ? 0 : recomputePathAnimationDuration);
       } else {
         const lastItem =
-          $fileBreadcrumbs.find('.fb-breadcrumbs-current-dir-button')[0];
+          this.element.querySelector('.fb-breadcrumbs-current-dir-button');
         const lastItemLeft = lastItem.offsetLeft;
-        const containerWidth = element.offsetWidth;
+        const containerWidth = this.element.offsetWidth;
         const lastItemMaxWidth = containerWidth - lastItemLeft;
         this.setProperties({
           lastItemStyle: htmlSafe(`max-width: ${lastItemMaxWidth}px;`),

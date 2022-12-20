@@ -23,6 +23,7 @@ import $ from 'jquery';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
+import dom from 'onedata-gui-common/utils/dom';
 
 const defaultIsItemDisabled = () => false;
 
@@ -526,7 +527,7 @@ export default Component.extend(I18n, {
         'ignoreCurrentDirContextMenuSelector',
       );
 
-      if (!showCurrentDirActions) {
+      if (!showCurrentDirActions || !this.element) {
         return;
       }
 
@@ -537,14 +538,12 @@ export default Component.extend(I18n, {
         return true;
       }
 
-      const element = this.get('element');
-      const $this = $(element);
-      const tableOffset = $this.offset();
-      const left = mouseEvent.clientX - tableOffset.left + element.offsetLeft;
-      const top = mouseEvent.clientY - tableOffset.top + element.offsetTop;
-      $this.find('.current-dir-actions-trigger').css({
-        top,
-        left,
+      const tableOffset = dom.offset(this.element);
+      const left = mouseEvent.clientX - tableOffset.left + this.element.offsetLeft;
+      const top = mouseEvent.clientY - tableOffset.top + this.element.offsetTop;
+      dom.setStyles(this.element.querySelector('.current-dir-actions-trigger'), {
+        top: `${top}px`,
+        left: `${left}px`,
       });
       // cause popover refresh
       if (currentDirActionsOpen) {
