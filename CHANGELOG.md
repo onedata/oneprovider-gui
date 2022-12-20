@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10136 Added possibility to remove workflow execution
 * VFS-9311 Removed `$.*width()`, `$.*height()`, `$.offset()` and `$.position()` usages
 * VFS-7863 Fixed file download in iOS Safari
 * VFS-10233 Improved presentation of directory physical size
