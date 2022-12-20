@@ -94,11 +94,22 @@ export default Component.extend(...mixins, {
   )),
 
   /**
+   * @type {ComputedProperty<PromiseObject<number>>}
+   */
+  providersCountProxy: promise.object(computed(
+    'space',
+    async function providersCountProxy() {
+      return (await get(this.space, 'providerList')).hasMany('list').ids().length;
+    }
+  )),
+
+  /**
    * @type {ComputedProperty<PromiseObject>}
    */
   loadingProxy: promise.object(promise.all(
     'timeSeriesCollectionSchemaProxy',
-    'latestDirSizeStatsValuesProxy'
+    'latestDirSizeStatsValuesProxy',
+    'providersCountProxy'
   )),
 
   /**
@@ -514,6 +525,49 @@ export default Component.extend(...mixins, {
         dirNoun: this.t(`currentSize.elementsCount.dir.${dirNounVer}`),
         elementNoun: this.t(`currentSize.elementsCount.element.${elementNounVer}`),
       });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  physicalSizeOnProvidersDescription: computed(
+    'latestDirSizeStatsValues.physicalSizePerStorage',
+    'providersCountProxy.content',
+    function physicalSizeOnProvidersDescription() {
+      const providersCount = this.get('providersCountProxy.content');
+      if (!(providersCount > 1) || !this.latestDirSizeStatsValues) {
+        return '';
+      }
+
+      const providersWithStatsCount = Object.keys(
+        this.latestDirSizeStatsValues?.physicalSizePerStorage || {}
+      ).length;
+
+      return this.t('currentSize.physicalSizeOnProvidersCount', {
+        providersWithStatsCount,
+        providersCount,
+      });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  physicalSizeExtraInfo: computed(
+    'latestDirSizeStatsValues.physicalSize',
+    'physicalSizeOnProvidersDescription',
+    function physicalSizeExtraInfo() {
+      const extraInfo = [];
+
+      if (this.latestDirSizeStatsValues.physicalSize >= 1024) {
+        extraInfo.push(`(${this.latestDirSizeStatsValues.physicalSize} B)`);
+      }
+      if (this.physicalSizeOnProvidersDescription) {
+        extraInfo.push(this.physicalSizeOnProvidersDescription);
+      }
+
+      return extraInfo.join(' ');
     }
   ),
 

@@ -6,7 +6,10 @@ CHANGELOG
 
 ### Latest changes
 
-* VFS-9311 Removed $.*width(), $.*height(), $.offset() and $.position() usages
+* VFS-9311 Removed `$.*width()`, `$.*height()`, `$.offset()` and `$.position()` usages
+* VFS-7863 Fixed file download in iOS Safari
+* VFS-10233 Improved presentation of directory physical size
+* VFS-10245 Added error translation for internal server error with reference
 * VFS-10128 Allowed mapping task result to many targets
 * VFS-9312 Removed $.css() usages
 * VFS-9313 Removed ":hidden" and ":visible" jQuery selectors usages
