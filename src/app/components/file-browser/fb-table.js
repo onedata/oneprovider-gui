@@ -950,7 +950,7 @@ export default Component.extend(I18n, {
         rowHeight,
         _window,
       } = this.getProperties('rowHeight', '_window');
-      const firstRow = this.element.querySelector('.first-row');
+      const firstRow = this.element?.querySelector('.first-row');
       const firstRowTop = firstRow ? dom.offset(firstRow).top : 0;
       const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + _window.innerHeight;

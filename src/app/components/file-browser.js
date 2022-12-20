@@ -538,8 +538,7 @@ export default Component.extend(I18n, {
         return true;
       }
 
-      const element = this.get('element');
-      const tableOffset = dom.offset(element);
+      const tableOffset = dom.offset(this.element);
       const left = mouseEvent.clientX - tableOffset.left + this.element.offsetLeft;
       const top = mouseEvent.clientY - tableOffset.top + this.element.offsetTop;
       dom.setStyles(this.element.querySelector('.current-dir-actions-trigger'), {

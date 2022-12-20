@@ -193,7 +193,7 @@ export default Component.extend(I18n, {
   },
 
   initSticky(contentScroll) {
-    const rowExpandHandler = this.element.querySelector('.row-expand-handler');
+    const rowExpandHandler = this.element?.querySelector('.row-expand-handler');
     if (rowExpandHandler) {
       this.set('initialHandlerTop', dom.offset(rowExpandHandler).top);
     }
