@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10000 Added one style for flippable icons
 * VFS-10230 Adjusted items-to-process counter in transfers to reflect backend changes
 * VFS-10136 Added possibility to remove workflow execution
 * VFS-9311 Removed `$.*width()`, `$.*height()`, `$.offset()` and `$.position()` usages
