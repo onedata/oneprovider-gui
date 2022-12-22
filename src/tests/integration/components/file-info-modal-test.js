@@ -124,7 +124,7 @@ describe('Integration | Component | file info modal', function () {
     ).to.contain(file1.name);
   });
 
-  it('renders owner full name', async function () {
+  it('renders owner full name asynchronously', async function () {
     await givenDefaultStubs(this);
     const store = lookupService(this, 'store');
     const defaultUserHelper = new DefaultUser(this);
@@ -146,8 +146,11 @@ describe('Integration | Component | file info modal', function () {
 
     await renderComponent();
 
+    expect(find('.loading-owner-full-name'), 'loading-owner-full-name').to.exist;
     resolveOwner(owner);
     await settled();
+    expect(find('.loading-owner-full-name'), 'loading-owner-full-name')
+      .to.not.exist;
     expect(
       find('.file-info-row-owner .property-value').textContent
     ).to.contain(get(owner, 'fullName'));

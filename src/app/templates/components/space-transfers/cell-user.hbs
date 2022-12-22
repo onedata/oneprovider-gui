@@ -1,4 +1,10 @@
-{{filesystem-browser/table-cell-owner-info
-  owner=record.userProxy.content
-  errorReason=record.userProxy.reason
+{{#loading-container
+  isLoading=record.userProxy.isPending
+  centered=false
+  sizeClass="xs"
 }}
+  {{filesystem-browser/table-cell-owner-info
+    owner=record.userProxy.content
+    errorReason=record.userProxy.reason
+  }}
+{{/loading-container}}
