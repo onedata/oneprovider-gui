@@ -71,6 +71,10 @@ const executionActionsSpec = [{
   label: 'Cancel',
   icon: 'cancelled',
 }, {
+  className: 'remove-atm-workflow-execution-action-trigger',
+  label: 'Remove',
+  icon: 'x',
+}, {
   className: 'copy-record-id-action-trigger',
   label: 'Copy ID',
   icon: 'copy',
