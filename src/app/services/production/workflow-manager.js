@@ -258,6 +258,27 @@ export default Service.extend({
   },
 
   /**
+   * @param {Array<string>} atmWorkflowExecutionIds
+   * @returns {Promise<{ [id: string]: { success: true } | { success: false, error: Object } }>}
+   */
+  async removeAtmWorkflowExecutions(atmWorkflowExecutionIds) {
+    const requestGri = gri({
+      entityType: atmWorkflowExecutionEntityType,
+      entityId: null,
+      aspect: 'batch',
+      scope: 'private',
+    });
+    return await this.get('onedataGraph').request({
+      gri: requestGri,
+      operation: 'delete',
+      subscribe: false,
+      data: {
+        ids: atmWorkflowExecutionIds,
+      },
+    });
+  },
+
+  /**
    * @param {Models.Space} space
    * @param {AtmWorkflowExecutionPhase} phase
    * @param {String} startFromIndex

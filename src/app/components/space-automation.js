@@ -31,7 +31,7 @@ const mixins = [
 const suspendedExecutionsCounterLimit = 50;
 
 /**
- * @typedef {'cancel'|'pause'|'resume'} AtmWorkflowExecutionLifecycleChangingOperation
+ * @typedef {'cancel'|'pause'|'resume'|'remove'} AtmWorkflowExecutionLifecycleChangingOperation
  */
 
 export default Component.extend(...mixins, {
@@ -206,8 +206,10 @@ export default Component.extend(...mixins, {
         'space'
       );
 
-      if (!atmWorkflowExecutionId && normalizedTab === 'preview') {
-        this.get('closePreviewTab')();
+      if (!atmWorkflowExecutionId) {
+        if (normalizedTab === 'preview') {
+          this.get('closePreviewTab')();
+        }
         this.setProperties({
           atmWorkflowExecutionIdInPreview: atmWorkflowExecutionId,
           atmWorkflowExecutionForPreviewProxy: undefined,
@@ -306,15 +308,22 @@ export default Component.extend(...mixins, {
     },
 
     /**
+     * @param {Models.AtmWorkflowExecutionSummary} atmWorkflowExecutionSummary
      * @param {AtmWorkflowExecutionLifecycleChangingOperation} lifecycleChangingOperation
      * @returns {void}
      */
-    workflowLifecycleChanged(lifecycleChangingOperation) {
+    workflowLifecycleChanged(atmWorkflowExecutionSummary, lifecycleChangingOperation) {
       if (
         lifecycleChangingOperation === 'pause' ||
         lifecycleChangingOperation === 'resume'
       ) {
         this.updateSuspendedExecutionsCountInfoProxy({ replace: true });
+      }
+      if (
+        lifecycleChangingOperation === 'remove' &&
+        get(atmWorkflowExecutionSummary, 'entityId') === this.atmWorkflowExecutionIdInPreview
+      ) {
+        this.closePreviewTab();
       }
     },
 
