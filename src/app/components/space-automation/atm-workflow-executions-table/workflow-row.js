@@ -154,6 +154,21 @@ export default Component.extend(I18n, {
   ),
 
   /**
+   * @type {ComputedProperty<Utils.Action>}
+   */
+  removeAction: computed('atmWorkflowExecutionSummary', function removeAction() {
+    const action = this.workflowActions.createRemoveAtmWorkflowExecutionAction({
+      atmWorkflowExecution: this.atmWorkflowExecutionSummary,
+    });
+    action.addExecuteHook((result) => {
+      if (result?.status === 'done') {
+        this.onLifecycleChange?.('remove');
+      }
+    });
+    return action;
+  }),
+
+  /**
    * @type {Ember.ComputedProperty<Action>}
    */
   copyIdAction: computed('atmWorkflowExecutionSummary', function copyIdAction() {
@@ -173,6 +188,7 @@ export default Component.extend(I18n, {
   atmWorkflowExecutionActions: collect(
     'pauseResumeAction',
     'cancelAction',
+    'removeAction',
     'copyIdAction',
   ),
 

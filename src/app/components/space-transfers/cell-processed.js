@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { translateFileCount } from 'onedata-gui-common/utils/file';
+import { translateFileCount, FileType } from 'onedata-gui-common/utils/file';
 
 export default Component.extend({
   tagName: 'span',
@@ -27,20 +27,20 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<number>}
    */
-  processedItems: reads('record.processedItems'),
+  processedFiles: reads('record.processedFiles'),
 
   /**
    * @type {ComputedProperty<number|null>}
    */
-  itemsToProcess: reads('record.itemsToProcess'),
+  filesToProcess: reads('record.filesToProcess'),
 
   /**
    * @type {ComputedProperty<SafeString>}
    */
-  processedItemsStringified: computed(
-    'processedItems',
-    function processedItemsStringified() {
-      return translateFileCount(this.i18n, null, this.processedItems ?? 0);
+  processedFilesStringified: computed(
+    'processedFiles',
+    function processedFilesStringified() {
+      return translateFileCount(this.i18n, FileType.Regular, this.processedFiles ?? 0);
     }
   ),
 
@@ -48,19 +48,19 @@ export default Component.extend({
    * @type {ComputedProperty<number|null>}
    */
   progressPercent: computed(
-    'processedItems',
-    'itemsToProcess',
+    'processedFiles',
+    'filesToProcess',
     function progressPercent() {
       if (
-        !Number.isInteger(this.processedItems) ||
-        !Number.isInteger(this.itemsToProcess) ||
-        this.itemsToProcess <= 0
+        !Number.isInteger(this.processedFiles) ||
+        !Number.isInteger(this.filesToProcess) ||
+        this.filesToProcess <= 0
       ) {
         return null;
       }
 
       return Math.min(
-        Math.floor((this.processedItems / this.itemsToProcess) * 100),
+        Math.floor((this.processedFiles / this.filesToProcess) * 100),
         100
       );
     }
