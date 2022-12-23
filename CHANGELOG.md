@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10129 Added workflow and lane charts dashboard
 * VFS-10000 Added one style for flippable icons
 * VFS-10230 Adjusted items-to-process counter in transfers to reflect backend changes
 * VFS-10136 Added possibility to remove workflow execution
