@@ -759,18 +759,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnDelete: computed(
-    'selectedItems.@each.dataIsProtected',
+    'selectedItems.@each.dataIsProtectedByDataset',
     'selectedItemsContainsRecalling',
     function btnDelete() {
       const actionId = 'delete';
       const tip = this.generateDisabledTip({
         protectionType: 'data',
+        protectionScope: 'dataset',
         blockRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
         id: actionId,
         action: (files) => {
+          window.thefile = files[0];
           const {
             openRemove,
             dir,
@@ -1140,8 +1142,23 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     return this.downloadFilesById(fileIds);
   },
 
+  /**
+   *
+   * @param {Object} options
+   * @param {'data'|'metadata'} [protectionType]
+   * @param {'final'|'dataset'} [protectionScope] `final` - check final effective
+   *   protection of file (concerns datasets and hardlinks inherited protection);
+   *   `dataset` - check only protection inherited from dataset hierarchy.
+   * @param {boolean} checkProtectionForCurrentDir
+   * @param {boolean} checkProtectionForSelected
+   * @param {Array<LegacyFileType>} blockFileTypes
+   * @param {boolean} blockWhenSymlinksOnly
+   * @param {boolean} blockRecalling
+   * @returns
+   */
   generateDisabledTip({
     protectionType,
+    protectionScope = 'final',
     checkProtectionForCurrentDir = false,
     checkProtectionForSelected = true,
     blockFileTypes = [],
@@ -1164,7 +1181,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
     let tip;
     if (!tip && protectionType) {
-      const protectionProperty = `${protectionType}IsProtected`;
+      let protectionProperty = `${protectionType}IsProtected`;
+      if (protectionScope === 'dataset') {
+        protectionProperty += 'ByDataset';
+      }
       const isProtected = checkProtectionForCurrentDir && get(dir, protectionProperty) ||
         checkProtectionForSelected && selectedItems.isAny(protectionProperty);
       tip = isProtected ? this.t('disabledActionReason.writeProtected', {

@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10283 Made available delete action for files that are data-protected only by hardlink protection inheritance
 * VFS-9711 Added option to delete unfinished archive after archivisation cancelling, enabled by default
 * VFS-10129 Added workflow and lane charts dashboard
 * VFS-10082 Fixed owner for file not found
