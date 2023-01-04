@@ -473,7 +473,15 @@ export default Component.extend(...mixins, {
     return await this.fileManager.getFileOwner(this.file);
   })),
 
+  /**
+   * @type {Models.User}
+   */
   owner: reads('ownerProxy.content'),
+
+  /**
+   * @type {Object}
+   */
+  errorReasonForOwnerProxy: reads('ownerProxy.reason'),
 
   filePathProxy: promise.object(
     computed('file.parent', function filePathPromise() {
