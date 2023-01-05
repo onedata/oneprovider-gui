@@ -244,12 +244,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  isAnySelectedCancelling: array.isAny(
-    'selectedItems',
-    raw('state'),
-    raw('cancelling')
+  isAnySelectedCancelling: computed(
+    'selectedItems.@each.state',
+    function isAnySelectedCancelling() {
+      return this.selectedItems.some(archive =>
+        get(archive, 'state')?.startsWith('cancelling')
+      );
+    }
   ),
 
   selectedArchiveHasDip: and(
@@ -708,8 +711,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       yesButtonText: this.t('cancelModal.yes'),
       yesButtonType: 'warning',
       noButtonText: this.t('cancelModal.no'),
-      onSubmit: async () => {
-        const submitResult = await this.cancelMultipleArchivization(archives);
+      checkboxMessage: this.t(
+        `cancelModal.deleteAfterCancel.${isMultiple ? 'multi' : 'single'}`
+      ),
+      isCheckboxBlocking: false,
+      isCheckboxInitiallyChecked: true,
+      onSubmit: async ({ isCheckboxChecked: deleteAfterCancel }) => {
+        const submitResult = await this.cancelMultipleArchivization(
+          archives,
+          deleteAfterCancel
+        );
         const firstRejected = submitResult.findBy('state', 'rejected');
         if (firstRejected) {
           const error = get(firstRejected, 'reason');
@@ -724,10 +735,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }).hiddenPromise;
   },
 
-  async cancelMultipleArchivization(archives) {
+  async cancelMultipleArchivization(archives, deleteAfterCancel) {
     const archiveManager = this.archiveManager;
     return await allSettled(archives.map(archive =>
-      archiveManager.cancelArchivization(archive)
+      archiveManager.cancelArchivization(archive, deleteAfterCancel)
     ));
   },
 });

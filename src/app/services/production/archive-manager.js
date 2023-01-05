@@ -216,9 +216,12 @@ export default Service.extend({
 
   /**
    * @param {Models.Archive} archive
+   * @param {boolean} deleteAfterCancel If true, archive will be deleted deleted after
+   *   cancel execution. If false, archive will retain in `cancelled` state (if cancel
+   *   has been invoked on `building` archive).
    * @returns {Promise}
    */
-  async cancelArchivization(archive) {
+  async cancelArchivization(archive, deleteAfterCancel = false) {
     const onedataGraph = this.get('onedataGraph');
     const deleteResponse = await onedataGraph.request({
       operation: 'create',
@@ -228,6 +231,9 @@ export default Service.extend({
         aspect: 'cancel',
         scope: 'private',
       }),
+      data: {
+        preservationPolicy: deleteAfterCancel ? 'delete' : 'retain',
+      },
       subscribe: false,
     });
 
