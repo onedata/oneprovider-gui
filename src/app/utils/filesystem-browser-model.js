@@ -558,12 +558,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnRename: computed(
-    'selectedItems.@each.dataIsProtected',
+    'dir.dataIsProtected',
     'selectedItemsContainsRecalling',
     function btnRename() {
       const actionId = 'rename';
       const tip = this.generateDisabledTip({
         protectionType: 'data',
+        checkProtectionForSelected: false,
+        checkProtectionForCurrentDir: true,
         blockRecalling: true,
       });
       const disabled = Boolean(tip);
@@ -708,12 +710,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnCut: computed(
     'selectedItemsContainsOnlySymlinks',
-    'selectedItems.@each.dataIsProtected',
+    'dir.dataIsProtected',
     'selectedItemsContainsRecalling',
     function btnCut() {
       const actionId = 'cut';
       const tip = this.generateDisabledTip({
         protectionType: 'data',
+        checkProtectionForSelected: false,
+        checkProtectionForCurrentDir: true,
         blockWhenSymlinksOnly: true,
         blockRecalling: true,
       });
