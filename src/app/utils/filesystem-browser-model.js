@@ -1189,9 +1189,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       if (protectionScope === 'dataset') {
         protectionProperty += 'ByDataset';
       }
-      const isProtected = checkProtectionForCurrentDir && get(dir, protectionProperty) ||
+      const isInProtectedDir =
+        checkProtectionForCurrentDir && get(dir, protectionProperty);
+      const isProtectedFile =
         checkProtectionForSelected && selectedItems.isAny(protectionProperty);
-      tip = isProtected ? this.t('disabledActionReason.writeProtected', {
+      const isProtected = isInProtectedDir || isProtectedFile;
+      let translationKey = 'disabledActionReason.writeProtected';
+      if (
+        checkProtectionForCurrentDir &&
+        !checkProtectionForSelected &&
+        isInProtectedDir
+      ) {
+        translationKey += 'Dir';
+      }
+      tip = isProtected ? this.t(translationKey, {
         protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
       }) : undefined;
     }
