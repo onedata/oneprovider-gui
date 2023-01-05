@@ -25,6 +25,7 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import Looper from 'onedata-gui-common/utils/looper';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
 
 const allButtonNames = Object.freeze([
   'btnArchiveProperties',
@@ -633,7 +634,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       browserModel: this,
       immediate: false,
     });
-    refreshLooper.on('tick', this.refreshList.bind(this));
+    refreshLooper.on('tick', this.refreshArchivesData.bind(this));
     this.set('refreshLooper', refreshLooper);
   },
 
@@ -658,12 +659,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     return item && get(item, 'metaState') === 'destroying';
   },
 
-  refreshList() {
-    const itemsArray = this.get('fbTableApi').getFilesArray();
+  refreshArchivesData() {
+    const fbTableApi = this.fbTableApi;
+    const itemsArray = fbTableApi.getFilesArray();
     if (itemsArray) {
       itemsArray.forEach(item => {
         item.reload()
           .catch(error => {
+            if (isNotFoundError(error) && !fbTableApi.isDestroyed) {
+              fbTableApi.refresh(false);
+            }
             console.warn(
               `util:archive-browser-model#refreshList: reload list item (${item && get(item, 'id')}) failed: ${error}`
             );
