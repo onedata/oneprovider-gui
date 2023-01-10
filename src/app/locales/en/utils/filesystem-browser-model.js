@@ -36,8 +36,9 @@ export default _.merge({}, BaseBrowserModel, {
       data: 'data',
       metadata: 'metadata',
     },
-    writeProtected: 'Not available for files with {{protectionType}} write protection.',
-    writeProtectedDir: 'Not available for files inside directory with {{protectionType}} write protection.',
+    // NOTE: using non breaking hyphens in write-protected texts below
+    writeProtected: 'Not available for {{protectionType}} write&#8209;protected files.',
+    writeProtectedDir: 'Not available inside {{protectionType}} write&#8209;protected directories.',
     blockedFileType: 'Not available for {{fileType}}.',
     recalling: 'Not available for files being recalled from an archive.',
     fileTypesPlural: {
