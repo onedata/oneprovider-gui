@@ -670,7 +670,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
               fbTableApi.refresh(false);
             }
             console.warn(
-              `util:archive-browser-model#refreshList: reload list item (${item && get(item, 'id')}) failed: ${error}`
+              `util:archive-browser-model#refreshList: reload list item (${item && get(item, 'id')}) failed`,
+              error
             );
           });
       });

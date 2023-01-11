@@ -216,7 +216,7 @@ export default Service.extend({
 
   /**
    * @param {Models.Archive} archive
-   * @param {boolean} deleteAfterCancel If true, archive will be deleted deleted after
+   * @param {boolean} deleteAfterCancel If true, archive will be deleted after
    *   cancel execution. If false, archive will retain in `cancelled` state (if cancel
    *   has been invoked on `building` archive).
    * @returns {Promise}
