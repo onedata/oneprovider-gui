@@ -69,6 +69,7 @@ export default Component.extend(I18n, {
   errorExtractor: service(),
   media: service(),
   isMobile: service(),
+  spaceManager: service(),
 
   /**
    * @override
@@ -140,6 +141,10 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   spaceId: undefined,
+
+  space: computed('spaceId', function space() {
+    return this.spaceManager.getSpace(this.spaceId);
+  }),
 
   /**
    * @virtual

@@ -141,6 +141,16 @@ export default Component.extend(
      */
     lastItemStyle: computed(() => htmlSafe('')),
 
+    /**
+     * @type {boolean}
+     */
+    itemInfoOpened: false,
+
+    /**
+     * @type {Boolean}
+     */
+    hasItemInfoHovered: false,
+
     recomputePath: observer('dir', function recomputePath() {
       this.updateDirPathProxy()
         .then(() => this.updateBreadcrumbsItemsProxy())
@@ -339,6 +349,9 @@ export default Component.extend(
           this.get('selectCurrentDir')();
         }
         this.set('dirActionsOpen', _open);
+      },
+      itemInfoHovered(hasHover) {
+        this.set('hasItemInfoHovered', hasHover);
       },
     },
   }

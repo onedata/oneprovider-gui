@@ -7,17 +7,44 @@
         data-dir-guid={{item.file.entityId}}
       >
         {{#if (eq i 0)}}
+          {{#if (eq rootIcon "space")}}
+            <div 
+              class="inline-icon-container root-icon-container"
+              {{action
+                (mut itemInfoOpened)
+                (not itemInfoOpened)
+                bubbles=false
+              }}
+              onmouseover={{action "itemInfoHovered" true}}
+              onmouseleave={{action "itemInfoHovered" false}}
+            >
+              {{flippable-icons
+                iconName=rootIcon
+                iconColor=iconColor
+                isHovered=hasItemInfoHovered
+                suppressFlipping=itemInfoOpened
+              }}
+            </div>
+          {{else}}
+            <div class="inline-icon-container root-icon-container">
+              {{one-icon icon=rootIcon}}
+              {{one-tooltip title=filteredBreadcrumbsItemsProxy.firstObject.file.name}}
+            </div>
+          {{/if}}
+          {{#if (or (eq rootIcon "space") alwaysShowRootName)}}
+            <span 
+              class="dir-name"
+              onmouseover={{if (eq rootIcon "space") (action "itemInfoHovered" true)}}
+              onmouseleave={{if (eq rootIcon "space") (action "itemInfoHovered" false)}}
+            >
+              {{item.name}}
+              {{one-tooltip title=filteredBreadcrumbsItemsProxy.firstObject.file.name}}
+            </span>
+          {{/if}}
+        {{else}}
           <div class="inline-icon-container root-icon-container">
             {{one-icon icon=rootIcon}}
           </div>
-          {{#if alwaysShowRootName}}
-            <span class="dir-name">{{item.name}}</span>
-          {{/if}}
-        {{else}}
-          <span class="dir-name">{{item.name}}</span>
-        {{/if}}
-        {{#if item.isRoot}}
-          {{one-tooltip title=filteredBreadcrumbsItemsProxy.firstObject.file.name}}
         {{/if}}
       </a>
       {{#if item.extraName}}
@@ -33,18 +60,44 @@
   {{/each}}
   {{!-- last element - current dir --}}
   {{#if menuButtons.length}}
-    <a class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button black truncate {{if dirActionsOpen "active"}} {{if areItemsEmpty "fb-breadcrumbs-dir-root"}}"
-      onclick={{disable-bubbling (action "toggleDirActions")}}
+    <a class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button black truncate {{if dirActionsOpen "active"}} {{if areItemsEmpty "fb-breadcrumbs-dir-root"}}"  
       data-dir-guid={{currentItem.file.entityId}}
       style={{lastItemStyle}}
     >
-      <span class="fb-breadcrumbs-dir-name">
-        {{#if areItemsEmpty}}
+      {{#if areItemsEmpty}}
+        {{#if (eq rootIcon "space")}}
+          <div 
+            class="inline-icon-container root-icon-container"
+            onclick={{action
+              (mut itemInfoOpened)
+              (not itemInfoOpened)
+              bubbles=false
+            }}
+            onmouseover={{action "itemInfoHovered" true}}
+            onmouseleave={{action "itemInfoHovered" false}}
+          >
+            {{flippable-icons
+              iconName=rootIcon
+              iconColor=iconColor
+              isHovered=hasItemInfoHovered
+              suppressFlipping=itemInfoOpened
+            }}
+          </div>
+        {{else}}
           <div class="inline-icon-container root-icon-container">
             {{one-icon icon=rootIcon}}
           </div>
         {{/if}}
-        <span class="dir-name">{{currentItem.name}}</span>
+      {{/if}}
+      <span 
+        class="fb-breadcrumbs-dir-name"
+        onclick={{disable-bubbling (action "toggleDirActions")}}
+      >
+        <span 
+          class="dir-name"
+          onmouseover={{if areItemsEmpty (action "itemInfoHovered" true)}}
+          onmouseleave={{if areItemsEmpty (action "itemInfoHovered" false)}}
+        >{{currentItem.name}}</span>
         {{#if currentItem.extraName}}
           {{one-label-tip
             class="extra-name-label-tip"
@@ -108,3 +161,12 @@
     </div>
   {{/if}}
 </div>
+
+{{#record-info-popover
+  isOpened=itemInfoOpened
+  triggerSelector=(concat "#" elementId " .root-icon-container")
+}}
+  {{space-info-content
+    space=space.content
+  }}
+{{/record-info-popover}}

@@ -32,8 +32,20 @@
       }
       &.root-icon-container {
         margin-right: 0.45em;
+        .flippable-icons {
+          --width: 0.9em;
+        }
       }
     }
+    .fb-breadcrumbs-dir-link {
+      &:hover {
+        color: $color-one-mint;
+      }
+      .dir-name:hover {
+        color: darken($color-one-mint, 20%)
+      }
+    }
+      
   }
   .fb-breadcrumbs-separator {
     width: 0.8em;
@@ -53,6 +65,9 @@
     &.truncate {
       max-width: 100%;
     }
+    &:hover {
+      color: inherit;
+    }
     .inline-icon-container.breadcrumbs-current-dir-actions-trigger {
       @include vertical-align-middle;
       right: 0;
@@ -64,6 +79,9 @@
         font-size: 110%;
         font-weight: bold;
       }
+    }
+    .fb-breadcrumbs-dir-name:hover {
+      color: darken($color-one-mint, 20%);
     }
   }
   .extra-name-label-tip {
