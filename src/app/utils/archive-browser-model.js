@@ -25,6 +25,7 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import Looper from 'onedata-gui-common/utils/looper';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
 
 const allButtonNames = Object.freeze([
   'btnArchiveProperties',
@@ -244,12 +245,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  isAnySelectedCancelling: array.isAny(
-    'selectedItems',
-    raw('state'),
-    raw('cancelling')
+  isAnySelectedCancelling: computed(
+    'selectedItems.@each.state',
+    function isAnySelectedCancelling() {
+      return this.selectedItems.some(archive =>
+        get(archive, 'state')?.startsWith('cancelling')
+      );
+    }
   ),
 
   selectedArchiveHasDip: and(
@@ -630,7 +634,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       browserModel: this,
       immediate: false,
     });
-    refreshLooper.on('tick', this.refreshList.bind(this));
+    refreshLooper.on('tick', this.refreshArchivesData.bind(this));
     this.set('refreshLooper', refreshLooper);
   },
 
@@ -655,14 +659,19 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     return item && get(item, 'metaState') === 'destroying';
   },
 
-  refreshList() {
-    const itemsArray = this.get('fbTableApi').getFilesArray();
+  refreshArchivesData() {
+    const fbTableApi = this.fbTableApi;
+    const itemsArray = fbTableApi.getFilesArray();
     if (itemsArray) {
       itemsArray.forEach(item => {
         item.reload()
           .catch(error => {
+            if (isNotFoundError(error) && !fbTableApi.isDestroyed) {
+              fbTableApi.refresh(false);
+            }
             console.warn(
-              `util:archive-browser-model#refreshList: reload list item (${item && get(item, 'id')}) failed: ${error}`
+              `util:archive-browser-model#refreshList: reload list item (${item && get(item, 'id')}) failed`,
+              error
             );
           });
       });
@@ -708,8 +717,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       yesButtonText: this.t('cancelModal.yes'),
       yesButtonType: 'warning',
       noButtonText: this.t('cancelModal.no'),
-      onSubmit: async () => {
-        const submitResult = await this.cancelMultipleArchivization(archives);
+      checkboxMessage: this.t(
+        `cancelModal.deleteAfterCancel.${isMultiple ? 'multi' : 'single'}`
+      ),
+      isCheckboxBlocking: false,
+      isCheckboxInitiallyChecked: true,
+      onSubmit: async ({ isCheckboxChecked: deleteAfterCancel }) => {
+        const submitResult = await this.cancelMultipleArchivization(
+          archives,
+          deleteAfterCancel
+        );
         const firstRejected = submitResult.findBy('state', 'rejected');
         if (firstRejected) {
           const error = get(firstRejected, 'reason');
@@ -724,10 +741,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }).hiddenPromise;
   },
 
-  async cancelMultipleArchivization(archives) {
+  async cancelMultipleArchivization(archives, deleteAfterCancel) {
     const archiveManager = this.archiveManager;
     return await allSettled(archives.map(archive =>
-      archiveManager.cancelArchivization(archive)
+      archiveManager.cancelArchivization(archive, deleteAfterCancel)
     ));
   },
 });
