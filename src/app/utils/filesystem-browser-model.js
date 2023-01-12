@@ -562,12 +562,22 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'selectedItemsContainsRecalling',
     function btnRename() {
       const actionId = 'rename';
-      const tip = this.generateDisabledTip({
+      let tip = this.generateDisabledTip({
         protectionType: 'data',
+        protectionScope: 'final',
         checkProtectionForSelected: false,
         checkProtectionForCurrentDir: true,
         blockRecalling: true,
       });
+      if (!tip) {
+        // also check if file is not protected by dataset - just as in delete operation
+        tip = this.generateDisabledTip({
+          protectionType: 'data',
+          protectionScope: 'dataset',
+          checkProtectionForSelected: true,
+          checkProtectionForCurrentDir: false,
+        });
+      }
       const disabled = Boolean(tip);
       return this.createFileAction({
         id: actionId,
@@ -714,13 +724,23 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'selectedItemsContainsRecalling',
     function btnCut() {
       const actionId = 'cut';
-      const tip = this.generateDisabledTip({
+      let tip = this.generateDisabledTip({
         protectionType: 'data',
+        protectionScope: 'final',
         checkProtectionForSelected: false,
         checkProtectionForCurrentDir: true,
         blockWhenSymlinksOnly: true,
         blockRecalling: true,
       });
+      if (!tip) {
+        // also check if file is not protected by dataset - just as in delete operation
+        tip = this.generateDisabledTip({
+          protectionType: 'data',
+          protectionScope: 'dataset',
+          checkProtectionForSelected: true,
+          checkProtectionForCurrentDir: false,
+        });
+      }
       const disabled = Boolean(tip);
       return this.createFileAction({
         id: actionId,
