@@ -776,7 +776,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       return this.createFileAction({
         id: actionId,
         action: (files) => {
-          window.thefile = files[0];
           const {
             openRemove,
             dir,
