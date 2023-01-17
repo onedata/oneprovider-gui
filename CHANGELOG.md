@@ -6,6 +6,8 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10350 Add rendered chart data as a canvas property
+* VFS-10324 Added close button to automation pods activity modal
 * VFS-10283 Made available delete action for files that are data-protected only by hardlink protection inheritance
 * VFS-9711 Added option to delete unfinished archive after archivisation cancelling, enabled by default
 * VFS-10129 Added workflow and lane charts dashboard
