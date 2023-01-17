@@ -12,7 +12,7 @@ export default SpaceInfoContent.extend({
   /**
    * @override
    */
-  showRestApiModalLink: true,
+  showLinkToRestApiModal: true,
 
   actions: {
     openRestApiModal() {
