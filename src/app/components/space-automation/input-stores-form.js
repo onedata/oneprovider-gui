@@ -717,8 +717,8 @@ function validateStoreElement(element, storeType, dataSpec) {
   }
 
   switch (dataSpec && dataSpec.type) {
-    case 'integer':
-      return Number.isInteger(normalizedElement);
+    case 'number':
+      return Number.isFinite(normalizedElement);
     case 'boolean':
       return typeof normalizedElement === 'boolean';
     case 'string':
