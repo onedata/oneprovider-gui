@@ -9,7 +9,9 @@
 import SpaceInfoContent from 'onedata-gui-common/components/space-info-content';
 
 export default SpaceInfoContent.extend({
-
+  /**
+   * @override
+   */
   showRestApiModalLink: true,
 
   actions: {

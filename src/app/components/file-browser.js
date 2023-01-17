@@ -142,6 +142,9 @@ export default Component.extend(I18n, {
    */
   spaceId: undefined,
 
+  /**
+   * @type {Models.Space}
+   */
   space: computed('spaceId', function space() {
     return this.spaceManager.getSpace(this.spaceId);
   }),

@@ -78,6 +78,9 @@ export default HeaderBaseComponent.extend(I18n, {
    */
   spaceId: reads('share.spaceId'),
 
+  /**
+   * @type {Models.Space}
+   */
   space: computed('spaceId', function space() {
     return this.spaceManager.getSpace(this.spaceId);
   }),
