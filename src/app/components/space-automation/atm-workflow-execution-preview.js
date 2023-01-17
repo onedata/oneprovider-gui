@@ -29,6 +29,12 @@ export default Component.extend({
   atmWorkflowExecutionProxy: undefined,
 
   /**
+   * @virtual
+   * @type {() => void}
+   */
+  onClose: undefined,
+
+  /**
    * @type {ComputedProperty<PromiseObject<Models.AtmWorkflowSchemaSnapshot>>}
    */
   atmWorkflowSchemaSnapshotProxy: promise.object(computed(
@@ -94,7 +100,8 @@ export default Component.extend({
         return getProperties(
           revision,
           'lanes',
-          'stores'
+          'stores',
+          'dashboardSpec'
         );
       }
     }
@@ -175,6 +182,26 @@ export default Component.extend({
         return this.workflowActions.createPauseResumeAtmWorkflowExecutionAction({
           atmWorkflowExecution: this.atmWorkflowExecutionProxy.content,
         });
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Utils.Action>}
+   */
+  removeAction: computed(
+    'atmWorkflowExecutionProxy.isFulfilled',
+    function removeAction() {
+      if (this.atmWorkflowExecutionProxy.isFulfilled) {
+        const action = this.workflowActions.createRemoveAtmWorkflowExecutionAction({
+          atmWorkflowExecution: this.atmWorkflowExecutionProxy.content,
+        });
+        action.addExecuteHook((result) => {
+          if (result?.status === 'done') {
+            this.onClose?.();
+          }
+        });
+        return action;
       }
     }
   ),

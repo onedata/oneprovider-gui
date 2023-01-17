@@ -7,6 +7,18 @@ CHANGELOG
 ### Latest changes
 
 * VFS-10254 Added "Boolean" data type to automation
+* VFS-10350 Add rendered chart data as a canvas property
+* VFS-10324 Added close button to automation pods activity modal
+* VFS-10283 Made available delete action for files that are data-protected only by hardlink protection inheritance
+* VFS-9711 Added option to delete unfinished archive after archivisation cancelling, enabled by default
+* VFS-10129 Added workflow and lane charts dashboard
+* VFS-10082 Fixed owner for file not found
+* VFS-10000 Added one style for flippable icons
+* VFS-10230 Adjusted items-to-process counter in transfers to reflect backend changes
+* VFS-10136 Added possibility to remove workflow execution
+* VFS-9311 Removed `$.*width()`, `$.*height()`, `$.offset()` and `$.position()` usages
+* VFS-7863 Fixed file download in iOS Safari
+* VFS-10233 Improved presentation of directory physical size
 * VFS-10245 Added error translation for internal server error with reference
 * VFS-10128 Allowed mapping task result to many targets
 * VFS-9312 Removed $.css() usages

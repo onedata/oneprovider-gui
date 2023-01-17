@@ -22,31 +22,33 @@
         </div>
       {{else}}
         <div
-          class={{concat-classes 
-            "inline-icon-container inline-icon-container-file" 
-            (if isFileNameHovered "info-icon-container-hovered")
-          }}
+          class="inline-icon-container-file" 
           onclick={{action "handleInfoIconClick"}}
           style={{cursorStyleForIcon}}
           onmouseover={{action "changeFileNameHover" true}}
           onmouseout={{action "changeFileNameHover" false}}
         >
-          {{#one-icon-tagged
-            class=(concat-classes "tag-right flippable-front" iconTaggedClass)
-            icon=icon
-            iconClass="file-icon"
-            tagIcon=iconTag
-            shadowType=(if iconTag "circle" "none")
-          }}
-            {{#if iconTip}}
-              {{one-tooltip title=iconTip}}
-            {{/if}}
-          {{/one-icon-tagged}}
           {{#if infoIconActionName}}
-            {{one-icon 
-              icon="browser-info" 
-              class="flippable-back"
+            {{flippable-icons
+              iconTaggedClass=iconTaggedClass
+              iconTag=iconTag
+              iconName=icon
+              isHovered=isFileNameHovered
+              iconTip=iconTip
+              iconClass="file-icon"
             }}
+          {{else}}
+            {{#one-icon-tagged
+              class=(concat-classes "tag-right" iconTaggedClass)
+              icon=icon
+              iconClass="file-icon"
+              tagIcon=iconTag
+              shadowType=(if iconTag "circle" "none")
+            }}
+              {{#if iconTip}}
+                {{one-tooltip title=iconTip}}
+              {{/if}}
+            {{/one-icon-tagged}}
           {{/if}}
         </div>
       {{/if}}

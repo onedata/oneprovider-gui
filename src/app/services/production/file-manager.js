@@ -39,6 +39,8 @@ import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils
  * @property {number} dirCount
  * @property {number} logicalSize
  * @property {number} physicalSize
+ * @property {Object<string, Object<string, number>>} physicalSizePerStorage
+ *   mapping providerId -> (storageId -> (physical size on storage))
  */
 
 /**
@@ -68,6 +70,7 @@ export default Service.extend({
   apiSamplesManager: service(),
   userManager: service(),
   spaceManager: service(),
+  storageManager: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -563,11 +566,18 @@ export default Service.extend({
           getTimeSeriesMetricNamesWithAggregator(timeSeriesSchema, 'last')[0];
         return acc;
       }, {});
-
     const staticTimeSeries = neededTimeSeriesNameGenerators.slice(0, 3);
-    const perStorageTimeSeries = Object.keys(collectionLayout).filter((tsName) =>
-      tsName.startsWith(dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage)
-    );
+    const perStorageTimeSeriesCandidates = Object.keys(collectionLayout)
+      .filter((tsName) =>
+        tsName.startsWith(dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage)
+      );
+    const perStorageTimeSeries = (await allFulfilled(
+      perStorageTimeSeriesCandidates.map((tsName) => {
+        const storageId = getStorageIdFromSizeOnStorageTSName(tsName);
+        return this.storageManager.getStorageById(storageId, { throughSpaceId: spaceId })
+          .then(() => tsName, () => null);
+      })
+    )).filter(Boolean);
 
     const layout = {};
     staticTimeSeries.forEach((tsName) => layout[tsName] = [neededMetrics[tsName]]);
@@ -594,15 +604,23 @@ export default Service.extend({
         ?.[0]?.value ?? 0;
       return acc;
     }, {});
-    const perStorageTotalSize = perStorageTimeSeries
-      .map((tsName) =>
-        result
+
+    let totalPhysicalSize = 0;
+    const physicalSizePerStorage = {};
+    await allFulfilled(perStorageTimeSeries.map(async (tsName) => {
+      const storageId = getStorageIdFromSizeOnStorageTSName(tsName);
+      const storage = await this.storageManager
+        .getStorageById(storageId, { throughSpaceId: spaceId });
+      const providerId = storage.relationEntityId('provider');
+      const sizeOnStorage = result
         ?.[tsName]
         ?.[neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage]]
-        ?.[0]?.value ?? 0
-      )
-      .filter(Number.isFinite)
-      .reduce((acc, size) => acc + size, 0);
+        ?.[0]?.value ?? 0;
+      const normalizedSizeOnStorage = Number.isFinite(sizeOnStorage) ? sizeOnStorage : 0;
+      totalPhysicalSize += normalizedSizeOnStorage;
+      physicalSizePerStorage[providerId] = physicalSizePerStorage[providerId] || {};
+      physicalSizePerStorage[providerId][storageId] = normalizedSizeOnStorage;
+    }));
 
     const latestStatsValues = {
       regFileAndLinkCount: staticStatsValues[
@@ -610,7 +628,8 @@ export default Service.extend({
       ],
       dirCount: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.dirCount],
       logicalSize: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.totalSize],
-      physicalSize: perStorageTotalSize,
+      physicalSize: totalPhysicalSize,
+      physicalSizePerStorage,
     };
 
     return latestStatsValues;
@@ -804,4 +823,8 @@ function normalizeRecallAuditLogEntryContent(content) {
   }
 
   return normalizedContent;
+}
+
+function getStorageIdFromSizeOnStorageTSName(tsName) {
+  return tsName.slice(dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage.length);
 }

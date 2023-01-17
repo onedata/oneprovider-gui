@@ -21,7 +21,8 @@ export const validArchiveStates = Object.freeze([
   'pending',
   'building',
   'verifying',
-  'cancelling',
+  'cancelling_with_retain',
+  'cancelling_with_delete',
   'preserved',
   'cancelled',
   'verification_failed',
@@ -30,7 +31,7 @@ export const validArchiveStates = Object.freeze([
 ]);
 
 /**
- * @typedef {'pending'|'building'|'verifying'|'cancelling'|'preserved'|'cancelled'|'verification_failed'|'failed'|'deleting'} ArchiveState
+ * @typedef {'pending'|'building'|'verifying'|'cancelling_with_retain'|'cancelling_with_delete'|'preserved'|'cancelled'|'verification_failed'|'failed'|'deleting'} ArchiveState
  */
 
 /**
@@ -142,7 +143,8 @@ export default Model.extend(GraphSingleModelMixin, {
       case 'pending':
       case 'building':
       case 'verifying':
-      case 'cancelling':
+      case 'cancelling_with_retain':
+      case 'cancelling_with_delete':
         return 'creating';
       case 'preserved':
         return 'succeeded';

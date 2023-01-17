@@ -12,6 +12,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { isEmpty } from '@ember/utils';
 import { htmlSafe } from '@ember/string';
 import { AtmWorkflowExecutionPhase } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
+import dom from 'onedata-gui-common/utils/dom';
 
 // TODO: VFS-7803 DRY in infinite scrollable lists
 
@@ -40,7 +41,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {(operation: AtmWorkflowExecutionLifecycleChangingOperation') => void}
+   * @type {(atmWorkflowExecutionSummary: Models.AtmWorkflowExecutionSummary, operation: AtmWorkflowExecutionLifecycleChangingOperation') => void}
    */
   onAtmWorkflowExecutionLifecycleChange: undefined,
 
@@ -234,10 +235,9 @@ export default Component.extend(I18n, {
       const {
         _window,
         rowHeight,
-        element,
-      } = this.getProperties('_window', 'rowHeight', 'element');
-      const $firstRow = $(element).find('.first-row');
-      const firstRowTop = $firstRow.offset().top;
+      } = this.getProperties('_window', 'rowHeight');
+      const firstRow = this.element?.querySelector('.first-row');
+      const firstRowTop = firstRow ? dom.offset(firstRow).top : 0;
       const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + _window.innerHeight;
       startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
@@ -260,12 +260,19 @@ export default Component.extend(I18n, {
 
   actions: {
     /**
+     * @param {Models.atmWorkflowExecutionSummary}
      * @param {AtmWorkflowExecutionLifecycleChangingOperation} lifecycleChangingOperation
      * @returns {void}
      */
-    atmWorkflowExecutionLifecycleChanged(lifecycleChangingOperation) {
+    atmWorkflowExecutionLifecycleChanged(
+      atmWorkflowExecutionSummary,
+      lifecycleChangingOperation
+    ) {
       this.updateAtmWorkflowExecutionSummaries();
-      this.onAtmWorkflowExecutionLifecycleChange?.(lifecycleChangingOperation);
+      this.onAtmWorkflowExecutionLifecycleChange?.(
+        atmWorkflowExecutionSummary,
+        lifecycleChangingOperation
+      );
     },
   },
 });

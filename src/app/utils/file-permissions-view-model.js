@@ -135,12 +135,7 @@ export default EmberObject.extend(...mixins, {
    * @type {ComputedProperty<PromiseObject<Models.User>>}
    */
   ownerProxy: promise.object(computed('singleFile.owner', async function ownerProxy() {
-    try {
-      return await this.fileManager.getFileOwner(this.singleFile);
-    } catch (error) {
-      console.error('could not fetch owner in file permissions view', error);
-      return null;
-    }
+    return await this.fileManager.getFileOwner(this.singleFile);
   })),
 
   /**
