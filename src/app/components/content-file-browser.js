@@ -494,6 +494,10 @@ export default OneEmbeddedComponent.extend(
         return this.callParent('getDatasetsUrl', data);
       },
 
+      openRestApiModal(space) {
+        return this.callParent('openRestApiModal', space);
+      },
+
       /**
        * @param {Object} data
        * @param {String} data.fileId entity id of directory to open

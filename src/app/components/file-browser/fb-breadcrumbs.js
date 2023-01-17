@@ -353,6 +353,9 @@ export default Component.extend(
       itemInfoHovered(hasHover) {
         this.set('hasItemInfoHovered', hasHover);
       },
+      openRestApiModal(space) {
+        return this.get('openRestApiModal')(space);
+      },
     },
   }
 );

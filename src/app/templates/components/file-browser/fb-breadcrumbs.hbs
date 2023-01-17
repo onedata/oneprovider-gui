@@ -9,7 +9,7 @@
         {{#if (eq i 0)}}
           {{#if (eq rootIcon "space")}}
             <div 
-              class="inline-icon-container root-icon-container"
+              class="inline-icon-container root-icon-container icon-info-trigger"
               {{action
                 (mut itemInfoOpened)
                 (not itemInfoOpened)
@@ -37,14 +37,23 @@
               onmouseover={{if (eq rootIcon "space") (action "itemInfoHovered" true)}}
               onmouseleave={{if (eq rootIcon "space") (action "itemInfoHovered" false)}}
             >
-              {{item.name}}
+              {{#truncated-string}}
+                {{item.name}}
+              {{/truncated-string}}
               {{one-tooltip title=filteredBreadcrumbsItemsProxy.firstObject.file.name}}
             </span>
           {{/if}}
+          {{#record-info-popover
+            isOpened=itemInfoOpened
+            triggerSelector=(concat "#" elementId " .icon-info-trigger")
+          }}
+            {{space-info-content
+              space=space.content
+              openRestApiModal=(action "openRestApiModal")
+            }}
+          {{/record-info-popover}}
         {{else}}
-          <div class="inline-icon-container root-icon-container">
-            {{one-icon icon=rootIcon}}
-          </div>
+          <span class="dir-name">{{item.name}}</span>
         {{/if}}
       </a>
       {{#if item.extraName}}
@@ -67,7 +76,7 @@
       {{#if areItemsEmpty}}
         {{#if (eq rootIcon "space")}}
           <div 
-            class="inline-icon-container root-icon-container"
+            class="inline-icon-container root-icon-container icon-info-last-element-trigger"
             onclick={{action
               (mut itemInfoOpened)
               (not itemInfoOpened)
@@ -83,6 +92,15 @@
               suppressFlipping=itemInfoOpened
             }}
           </div>
+          {{#record-info-popover
+            isOpened=itemInfoOpened
+            triggerSelector=(concat "#" elementId " .icon-info-last-element-trigger")
+          }}
+            {{space-info-content
+              space=space.content
+              openRestApiModal=(action "openRestApiModal")
+            }}
+          {{/record-info-popover}}
         {{else}}
           <div class="inline-icon-container root-icon-container">
             {{one-icon icon=rootIcon}}
@@ -161,12 +179,3 @@
     </div>
   {{/if}}
 </div>
-
-{{#record-info-popover
-  isOpened=itemInfoOpened
-  triggerSelector=(concat "#" elementId " .root-icon-container")
-}}
-  {{space-info-content
-    space=space.content
-  }}
-{{/record-info-popover}}

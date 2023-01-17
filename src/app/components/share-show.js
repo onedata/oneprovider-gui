@@ -235,5 +235,8 @@ export default Component.extend(...mixins, {
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
     },
+    openRestApiModal(space) {
+      return this.get('openRestApiModal')(space);
+    },
   },
 });

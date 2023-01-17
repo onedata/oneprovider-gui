@@ -799,5 +799,8 @@ export default Component.extend(I18n, {
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);
     },
+    openRestApiModal(space) {
+      return this.get('openRestApiModal')(space);
+    },
   },
 });

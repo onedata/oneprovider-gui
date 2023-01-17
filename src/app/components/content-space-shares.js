@@ -64,6 +64,9 @@ export default OneEmbeddedComponent.extend(
       onShowShareList() {
         return this.callParent('showShareList');
       },
+      openRestApiModal(space) {
+        return this.callParent('openRestApiModal', space);
+      },
     },
   }
 );

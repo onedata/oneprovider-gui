@@ -957,5 +957,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
         return this.fetchDatasetChildren(...fetchArgs);
       }
     },
+    openRestApiModal(space) {
+      return this.callParent('openRestApiModal', space);
+    },
   },
 });

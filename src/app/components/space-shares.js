@@ -118,5 +118,8 @@ export default Component.extend(createDataProxyMixin('shares'), {
     reloadShareList() {
       return this.updateSharesProxy();
     },
+    openRestApiModal(space) {
+      return this.get('openRestApiModal')(space);
+    },
   },
 });

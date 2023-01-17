@@ -24,6 +24,7 @@ export default HeaderBaseComponent.extend(I18n, {
   ],
 
   filesViewResolver: service(),
+  spaceManager: service(),
 
   /**
    * @override
@@ -76,6 +77,10 @@ export default HeaderBaseComponent.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   spaceId: reads('share.spaceId'),
+
+  space: computed('spaceId', function space() {
+    return this.spaceManager.getSpace(this.spaceId);
+  }),
 
   /**
    * @type {ComputedProperty<Array<Object>>}
@@ -172,6 +177,9 @@ export default HeaderBaseComponent.extend(I18n, {
     toggleActions(open) {
       const _open = (typeof open === 'boolean') ? open : !this.get('actionsOpened');
       this.set('actionsOpened', _open);
+    },
+    openRestApiModal(space) {
+      return this.get('openRestApiModal')(space);
     },
   },
 });

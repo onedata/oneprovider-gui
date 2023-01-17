@@ -44,6 +44,11 @@
       .dir-name:hover {
         color: darken($color-one-mint, 20%)
       }
+      .dir-name {
+        display: inline-flex;
+        max-width: 10em;
+        min-width: 0;
+      }
     }
       
   }
