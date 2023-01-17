@@ -19,11 +19,16 @@ const FileManager = Service.extend(Evented, {
   async getFileOwner() {},
 });
 
+const SpaceManager = Service.extend({
+  getSpace() {},
+});
+
 describe('Integration | Component | items select browser', function () {
   setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'fileManager', FileManager);
+    registerService(this, 'spaceManager', SpaceManager);
   });
 
   it('renders header, body and footer in modal', async function () {

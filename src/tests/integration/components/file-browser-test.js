@@ -39,12 +39,17 @@ const FileManager = Service.extend(Evented, {
   async getFileOwner() {},
 });
 
+const SpaceManager = Service.extend({
+  getSpace() {},
+});
+
 describe('Integration | Component | file browser (main component)', function () {
   setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'uploadManager', UploadManager);
     registerService(this, 'fileManager', FileManager);
+    registerService(this, 'SpaceManager', SpaceManager);
   });
 
   it('renders files on list', async function () {

@@ -35,12 +35,18 @@ const FileManager = Service.extend({
   async getFileOwner() {},
 });
 
+const SpaceManager = Service.extend({
+  getSpace() {},
+  getDirStatsServiceState() {},
+});
+
 describe('Integration | Component | file datasets/archives tab', function () {
   setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'archiveManager', ArchiveManager);
     registerService(this, 'fileManager', FileManager);
+    registerService(this, 'spaceManager', SpaceManager);
   });
 
   it('renders list of archive items', async function () {
