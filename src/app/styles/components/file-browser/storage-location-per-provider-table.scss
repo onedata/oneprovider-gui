@@ -28,10 +28,10 @@
     &.location-cell {
       padding: 0;
       margin-top: 0;
-    }
-  
-    &.empty-location-cell {
-      padding-left: 14px;
+
+      .empty-location-cell {
+        padding-left: 14px;
+      }
     }
   
     .location-cell-clipboard.clipboard-line {
