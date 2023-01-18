@@ -82,7 +82,6 @@
                         spaceId=spaceId
                         locations=currentProviderLocationsProxy.content
                       }}
-                      <tbody class="space-between-provider"><td></td></tbody>
                     {{/if}}
                     {{#if (and
                       storageLocationsPerProviderProxy
@@ -91,11 +90,11 @@
                       {{#if areStorageLocationsExpanded}}
                         {{#each-in storageLocationsPerProviderProxy as |providerId locations|}}
                           {{#if (not-eq providerId currentProviderId)}}
+                            <tbody class="space-between-provider"><td></td></tbody>
                             {{file-browser/storage-location-per-provider-table
                               spaceId=spaceId
                               locations=locations
                             }}
-                            <tbody class="space-between-provider"><td></td></tbody>
                           {{/if}}
                         {{/each-in}}
                       {{/if}}
