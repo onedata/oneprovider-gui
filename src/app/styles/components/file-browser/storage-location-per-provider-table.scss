@@ -1,7 +1,7 @@
 .storage-location-per-provider-table {
   border-radius: $border-radius-base;
   box-shadow: 0 0 0 1px #d6d6d6;
-
+  
   tr.oneprovider-name-thead {
     border-bottom: 1px solid #ddd;
     background-color: #f7f7f7;
@@ -11,39 +11,41 @@
     }
   }
 
-  .storage-name-cell { 
-    padding-top: 6px;
-    padding-bottom: $padding-small-vertical;
-    margin-top: 0;
-    height: 33px;
-
-    @media (min-width: $screen-md-min) {
-      width: 0.1%;
-      white-space: nowrap;
-      padding-top: 4px;
+  tr td {
+    &.storage-name-cell { 
+      padding-top: 6px;
+      padding-bottom: $padding-small-vertical;
+      margin-top: 0;
+      height: 33px;
+  
+      @media (min-width: $screen-md-min) {
+        width: 0.1%;
+        white-space: nowrap;
+        padding-top: 4px;
+      }
     }
-  }
-
-  .location-cell {
-    padding: 0;
-    margin-top: 0;
-  }
-
-  .empty-location-cell {
-    padding-left: 14px;
-  }
-
-  .location-cell-clipboard.clipboard-line {
-    margin-bottom: 0;
-
-    input {
-      border: none;
-      box-shadow: none;
-      @include font-monospace();
+  
+    &.location-cell {
+      padding: 0;
+      margin-top: 0;
     }
-  }
-
-  .clipboard-line {
-    margin-bottom: $table-cell-padding;
+  
+    &.empty-location-cell {
+      padding-left: 14px;
+    }
+  
+    .location-cell-clipboard.clipboard-line {
+      margin-bottom: 0;
+  
+      input {
+        border: none;
+        box-shadow: none;
+        @include font-monospace();
+      }
+    }
+  
+    .clipboard-line {
+      margin-bottom: $table-cell-padding;
+    }
   }
 }
