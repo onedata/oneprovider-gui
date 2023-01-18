@@ -133,11 +133,6 @@
   }
 
   .file-info-row-storage-location {
-    td.property-value {
-      padding-top: 0;
-      padding-bottom: 0;
-    }
-
     td.property-name.with-input-sm {
       padding-top: 20px;
     }
@@ -281,5 +276,17 @@
 
   .fb-no-dir-statistics .content-info-content-container .row {
     text-align: center;
+  }
+
+  .storage-locations-table {
+    width: 100%;
+
+    .space-between-provider {
+      border: none;
+      box-shadow: none;
+      tr {
+        height: 15px;
+      }
+    }
   }
 }

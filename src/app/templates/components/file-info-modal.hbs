@@ -76,35 +76,45 @@
                   centered=false
                   spinnerBlockClass="loading-file-path"
                 }}
-                  {{#if currentProviderLocationsProxy}}
-                    {{file-browser/storage-location-per-provider-table
-                      spaceId=spaceId
-                      locations=currentProviderLocationsProxy.content
-                    }}
-                  {{/if}}
-                  {{#if (and
-                    storageLocationsPerProviderProxy
-                    (gt storageLocationsPerProviderLength 1)
-                  )}}
-                    {{#if areStorageLocationsExpanded}}
-                      {{#each-in storageLocationsPerProviderProxy as |providerId locations|}}
-                        {{#if (not-eq providerId currentProviderId)}}
-                          {{file-browser/storage-location-per-provider-table
-                            spaceId=spaceId
-                            locations=locations
-                          }}
-                        {{/if}}
-                      {{/each-in}}
-                    {{else}}
-                      <div class="storage-locations-expand">
-                        <a
-                          class="toggle-expand"
-                          onClick={{action "toggleStorageLocations"}}
-                        >
-                          {{tt this "showMore"}}
-                        </a>
-                      </div>
+                  <table class="storage-locations-table">
+                    {{#if currentProviderLocationsProxy}}
+                      {{file-browser/storage-location-per-provider-table
+                        spaceId=spaceId
+                        locations=currentProviderLocationsProxy.content
+                      }}
+                      <tbody class="space-between-provider"><td></td></tbody>
                     {{/if}}
+                    {{#if (and
+                      storageLocationsPerProviderProxy
+                      (gt storageLocationsPerProviderLength 1)
+                    )}}
+                      {{#if areStorageLocationsExpanded}}
+                        {{#each-in storageLocationsPerProviderProxy as |providerId locations|}}
+                          {{#if (not-eq providerId currentProviderId)}}
+                            {{file-browser/storage-location-per-provider-table
+                              spaceId=spaceId
+                              locations=locations
+                            }}
+                            <tbody class="space-between-provider"><td></td></tbody>
+                          {{/if}}
+                        {{/each-in}}
+                      {{/if}}
+                    {{/if}}
+                  </table>
+                  {{#if (and 
+                    (and
+                      storageLocationsPerProviderProxy
+                      (gt storageLocationsPerProviderLength 1)) 
+                    (not areStorageLocationsExpanded)
+                  )}}
+                    <div class="storage-locations-expand">
+                      <a
+                        class="toggle-expand"
+                        onClick={{action "toggleStorageLocations"}}
+                      >
+                        {{tt this "showMore"}}
+                      </a>
+                    </div>
                   {{/if}}
                 {{/promise-proxy-container}}
               </td>
