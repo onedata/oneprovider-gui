@@ -18,6 +18,12 @@ export default Component.extend({
   owner: undefined,
 
   /**
+   * @virtual optional
+   * @type {Object}
+   */
+  errorReason: undefined,
+
+  /**
    * @type {Boolean}
    */
   userInfoOpened: false,

@@ -71,6 +71,11 @@ export default Component.extend(...mixins, {
 
   owner: reads('viewModel.ownerProxy.content'),
 
+  /**
+   * @type {Object}
+   */
+  errorReasonForOwnerProxy: reads('viewModel.ownerProxy.reason'),
+
   isPosixActivePermissionsType: equal('viewModel.activePermissionsType', raw('posix')),
 
   ownerLabel: conditional(

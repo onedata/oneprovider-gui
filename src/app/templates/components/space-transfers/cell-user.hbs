@@ -1,5 +1,10 @@
-{{#promise-proxy-container proxy=record.userProxy sizeClass="xs" absoluteCentered=false}}
+{{#loading-container
+  isLoading=record.userProxy.isPending
+  centered=false
+  sizeClass="xs"
+}}
   {{filesystem-browser/table-cell-owner-info
     owner=record.userProxy.content
+    errorReason=record.userProxy.reason
   }}
-{{/promise-proxy-container}}
+{{/loading-container}}
