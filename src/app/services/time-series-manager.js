@@ -115,6 +115,7 @@ export default Service.extend({
       operation: 'get',
       data: {
         mode: 'slice',
+        extendedInfo: true,
         ...queryParams,
       },
       subscribe: false,
