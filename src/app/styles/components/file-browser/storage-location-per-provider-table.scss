@@ -1,27 +1,36 @@
 .storage-location-per-provider-table {
   border-radius: $border-radius-base;
-  box-shadow: 0 0 0 1px #d6d6d6;
+  box-shadow: 0 0 0 1px $main-border-color;
   
-  tr.oneprovider-name-thead {
+  tr.oneprovider-name-row {
     border-bottom: 1px solid #ddd;
     background-color: #f7f7f7;
 
-    td {
+    td.oneprovider-name-cell {
       margin-top: 0;
     }
   }
 
-  tr td {
+  .oneprovider-storage-location-row td {
     &.storage-name-cell { 
       padding-top: 6px;
       padding-bottom: $padding-small-vertical;
       margin-top: 0;
       height: 33px;
-  
+      
+      @media (min-width: $screen-sm-min) {
+        max-width: 20em;
+      }
+
       @media (min-width: $screen-md-min) {
         width: 0.1%;
         white-space: nowrap;
         padding-top: 4px;
+        max-width: 30em;
+      }
+
+      @media (max-width: $screen-xs-max) {
+        border-bottom: 1px solid #ddd;
       }
     }
   

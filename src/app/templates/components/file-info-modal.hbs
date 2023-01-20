@@ -83,27 +83,23 @@
                         locations=currentProviderLocationsProxy.content
                       }}
                     {{/if}}
-                    {{#if (and
-                      storageLocationsPerProviderProxy
-                      (gt storageLocationsPerProviderLength 1)
+                    {{#if (and 
+                      (gt storageLocationsPerProviderLength 1) 
+                      areStorageLocationsExpanded
                     )}}
-                      {{#if areStorageLocationsExpanded}}
-                        {{#each-in storageLocationsPerProviderProxy as |providerId locations|}}
-                          {{#if (not-eq providerId currentProviderId)}}
-                            <tbody class="space-between-provider"><td></td></tbody>
-                            {{file-browser/storage-location-per-provider-table
-                              spaceId=spaceId
-                              locations=locations
-                            }}
-                          {{/if}}
-                        {{/each-in}}
-                      {{/if}}
+                      {{#each-in storageLocationsPerProviderProxy as |providerId locations|}}
+                        {{#if (not-eq providerId currentProviderId)}}
+                          <tbody class="space-between-providers"><tr><td></td></tr></tbody>
+                          {{file-browser/storage-location-per-provider-table
+                            spaceId=spaceId
+                            locations=locations
+                          }}
+                        {{/if}}
+                      {{/each-in}}
                     {{/if}}
                   </table>
                   {{#if (and 
-                    (and
-                      storageLocationsPerProviderProxy
-                      (gt storageLocationsPerProviderLength 1)) 
+                    (gt storageLocationsPerProviderLength 1) 
                     (not areStorageLocationsExpanded)
                   )}}
                     <div class="storage-locations-expand">

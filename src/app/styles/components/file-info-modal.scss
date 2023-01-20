@@ -121,6 +121,17 @@
         padding-left: 0;
       }
     }
+    .file-info-row-storage-location {
+      td.property-name.with-input-sm {
+        padding-top: 20px;
+      }
+      td.property-value {
+        @media (max-width: $screen-xs-max) {
+          padding-left: 1px;
+          padding-right: 1px;
+        }
+      }
+    }
   }
 
   .user-username {
@@ -130,12 +141,6 @@
   .user-fullname {
     // hack for glitching cursor
     opacity: 0.9999;
-  }
-
-  .file-info-row-storage-location {
-    td.property-name.with-input-sm {
-      padding-top: 20px;
-    }
   }
 
   .nav-link {
@@ -281,11 +286,11 @@
   .storage-locations-table {
     width: 100%;
 
-    .space-between-provider {
+    .space-between-providers {
       border: none;
       box-shadow: none;
       tr {
-        height: 15px;
+        padding: 10px;
       }
     }
   }
