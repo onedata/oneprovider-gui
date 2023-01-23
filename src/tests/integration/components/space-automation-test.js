@@ -52,7 +52,7 @@ describe('Integration | Component | space automation', function () {
       space: promiseObject(resolve(space)),
       // let assume, for simplicity, that workflow schema is also its own snapshot
       atmWorkflowSchemaSnapshot: promiseObject(resolve(atmWorkflowSchemas[0])),
-      reload: () => resolve(),
+      reload: async () => atmWorkflowExecution,
       lanes: [],
     };
     set(lookupService(this, 'current-user'), 'userProxy', promiseObject(resolve({
@@ -179,7 +179,8 @@ describe('Integration | Component | space automation', function () {
       });
 
     it('has active "preview" tab with "Cannot load" label when "atmWorkflowExecutionId" param points to an execution from another space',
-      async function (done) {
+      async function () {
+        suppressRejections();
         this.set(
           'atmWorkflowExecution.space',
           promiseObject(resolve({ entityId: 'space2' }))
@@ -191,7 +192,6 @@ describe('Integration | Component | space automation', function () {
         const previewNavItem = find('.nav-item-preview');
         expect(previewNavItem).to.have.class('active');
         expect(previewNavItem).to.have.trimmed.text('Cannot load');
-        done();
       });
 
     it('has active "preview" tab with "Loading..." label when "atmWorkflowExecutionId" param points to a long loading execution',
