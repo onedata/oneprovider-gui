@@ -4,7 +4,7 @@
   {{else}}
     {{name-conflict
       item=(hash name=itemValue.name conflictLabel=(truncate itemValue.entityId 6 false))
-      separator=" #"
+      separator=nameConflictSeparator
     }}
   {{/if}}
 </span>
