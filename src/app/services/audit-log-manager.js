@@ -8,6 +8,7 @@
 
 import Service, { inject as service } from '@ember/service';
 import { normalizeEntriesPage } from 'onedata-gui-common/utils/audit-log';
+import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
 
 export default Service.extend({
   onedataGraph: service(),
@@ -23,12 +24,20 @@ export default Service.extend({
       return { logEntries: [], isLast: false };
     }
 
-    const result = await this.get('onedataGraph').request({
-      gri: auditLogGri,
-      operation: 'get',
-      data: listingParams,
-      subscribe: false,
-    });
-    return normalizeEntriesPage(result, normalizeEntryContent);
+    try {
+      const result = await this.get('onedataGraph').request({
+        gri: auditLogGri,
+        operation: 'get',
+        data: listingParams,
+        subscribe: false,
+      });
+      return normalizeEntriesPage(result, normalizeEntryContent);
+    } catch (error) {
+      if (isNotFoundError(error)) {
+        return { logEntries: [], isLast: true };
+      } else {
+        throw error;
+      }
+    }
   },
 });

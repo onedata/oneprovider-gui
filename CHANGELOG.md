@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10281 Added tip about audit log expiration
 * VFS-10060 Improved time derivative calculation in charts
 * VFS-10350 Add rendered chart data as a canvas property
 * VFS-10324 Added close button to automation pods activity modal
