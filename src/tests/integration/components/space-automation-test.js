@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it, beforeEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find, findAll, click, fillIn, settled } from '@ember/test-helpers';
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import { lookupService } from '../../helpers/stub-service';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
