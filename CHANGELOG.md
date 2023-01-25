@@ -7,6 +7,8 @@ CHANGELOG
 ### Latest changes
 
 * VFS-10254 Added "Boolean" data type to automation, changed "Integer" to "Number" data type
+* VFS-10281 Added tip about audit log expiration
+* VFS-10060 Improved time derivative calculation in charts
 * VFS-10350 Add rendered chart data as a canvas property
 * VFS-10324 Added close button to automation pods activity modal
 * VFS-10283 Made available delete action for files that are data-protected only by hardlink protection inheritance
