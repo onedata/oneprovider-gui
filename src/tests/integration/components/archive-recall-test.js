@@ -14,12 +14,6 @@ import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive'
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { get } from '@ember/object';
 import { generateDirEntityId } from 'oneprovider-gui/services/mock-backend';
-import { registerService } from '../../helpers/stub-service';
-import Service from '@ember/service';
-
-const SpaceManager = Service.extend({
-  getSpace() {},
-});
 
 describe('Integration | Component | archive recall (internal)', function () {
   setupRenderingTest();
@@ -102,7 +96,6 @@ describe('Integration | Component | archive recall (internal)', function () {
       rootDir: null,
       baseArchive: null,
     }).save();
-    registerService(this, 'spaceManager', SpaceManager);
 
     this.setProperties({
       spaceRootDir,

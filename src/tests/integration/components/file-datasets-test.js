@@ -22,11 +22,6 @@ const ArchiveManager = Service.extend({
   getBrowsableArchive() {},
 });
 
-const SpaceManager = Service.extend({
-  getSpace() {},
-  getDirStatsServiceState() {},
-});
-
 describe('Integration | Component | file datasets', function () {
   setupRenderingTest();
 
@@ -39,7 +34,6 @@ describe('Integration | Component | file datasets', function () {
 
   beforeEach(async function () {
     registerService(this, 'archiveManager', ArchiveManager);
-    registerService(this, 'spaceManager', SpaceManager);
     await givenSingleFile(this);
   });
 

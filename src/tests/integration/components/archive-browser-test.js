@@ -18,10 +18,6 @@ const ArchiveManager = Service.extend({
   getBrowsableArchive: notStubbed('getBrowsableArchive'),
 });
 
-const SpaceManager = Service.extend({
-  getSpace() {},
-});
-
 class MockArray {
   constructor(array) {
     if (!array) {
@@ -56,7 +52,6 @@ describe('Integration | Component | archive browser', function () {
 
   beforeEach(function () {
     registerService(this, 'archiveManager', ArchiveManager);
-    registerService(this, 'spaceManager', SpaceManager);
   });
 
   it('renders archives on list', async function () {

@@ -36,10 +36,6 @@ const FileManager = Service.extend(Evented, {
   },
 });
 
-const SpaceManager = Service.extend({
-  getSpace() {},
-});
-
 // TODO: VFS-8878 speed-up animations of overlay-modals in test environment
 describe('Integration | Component | archive recall modal', function () {
   setupRenderingTest();
@@ -47,7 +43,6 @@ describe('Integration | Component | archive recall modal', function () {
   beforeEach(function () {
     registerService(this, 'fileManager', FileManager);
     registerService(this, 'archiveManager', ArchiveManager);
-    registerService(this, 'spaceManager', SpaceManager);
     this.setProperties({
       open: true,
       space: {
