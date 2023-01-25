@@ -1,6 +1,6 @@
 /**
  * Shown when connection test to API fails
- * 
+ *
  * @module components/content-endpoint-error
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -74,7 +74,7 @@ export default OneEmbeddedComponent.extend(
 
     init() {
       this._super(...arguments);
-      const timeUpdater = new Looper({
+      const timeUpdater = Looper.create({
         immediate: false,
         interval: this.get('requestSlowInterval'),
       });

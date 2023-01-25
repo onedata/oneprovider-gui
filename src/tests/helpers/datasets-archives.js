@@ -313,7 +313,7 @@ export function whenOnRemoteProvider(testCase) {
 export function stubEmptyRecallLogs(testCase) {
   const fileManager = lookupService(testCase, 'fileManager');
   sinon.stub(fileManager, 'getRecallLogs').resolves({
-    array: [],
+    logEntries: [],
     isLast: true,
   });
 }

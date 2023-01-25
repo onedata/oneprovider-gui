@@ -1,4 +1,4 @@
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import { find } from '@ember/test-helpers';
 import FileSharesViewModel from 'oneprovider-gui/utils/file-shares-view-model';
 import { lookupService, registerService } from './stub-service';
