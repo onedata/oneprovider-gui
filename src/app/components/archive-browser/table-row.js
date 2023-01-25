@@ -16,6 +16,7 @@ import { promise, bool, or } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 const rowModelMixins = [
   OwnerInjector,
@@ -45,6 +46,16 @@ const RowModel = EmberObject.extend(...rowModelMixins, {
    */
   browserModel: undefined,
 
+  //#region state
+
+  /**
+   * If getting archive.creator fails, the error will be stored here.
+   * @type {any}
+   */
+  creatorProxyError: null,
+
+  //#endregion
+
   /**
    * @override
    */
@@ -57,6 +68,15 @@ const RowModel = EmberObject.extend(...rowModelMixins, {
   includeDip: reads('archive.config.includeDip'),
 
   archiveLayout: reads('archive.config.layout'),
+
+  creatorProxy: computedRelationProxy(
+    'archive',
+    'creator',
+    Object.freeze({
+      reload: false,
+      computedRelationErrorProperty: 'creatorProxyError',
+    })
+  ),
 
   baseArchiveId: computed('archive.baseArchive', function baseArchiveId() {
     const archive = this.get('archive');

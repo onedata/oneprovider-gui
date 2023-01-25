@@ -41,6 +41,8 @@ export const validArchiveStates = Object.freeze([
 export default Model.extend(GraphSingleModelMixin, {
   index: attr('string'),
 
+  creator: belongsTo('user'),
+
   /**
    * @type {ArchiveState}
    */

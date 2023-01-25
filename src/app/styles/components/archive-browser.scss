@@ -5,6 +5,14 @@
   .fb-table-col-state {
     width: 110px;
   }
+  .fb-table-col-creator {
+    text-align: center;
+    width: 240px;
+    // empirical size of content when whole app width is 1365px
+    @media (max-width: 915px) {
+      display: none;
+    }
+  }
   .fb-table-col-incremental {
     width: 14em;
     max-width: 14em;
