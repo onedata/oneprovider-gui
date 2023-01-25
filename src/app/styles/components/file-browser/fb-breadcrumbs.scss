@@ -31,7 +31,8 @@
         font-size: 210%;
       }
       &.root-icon-container {
-        margin-right: 0.45em;
+        // margin-right: 0.45em;
+        margin-left: 0.1em;
         .flippable-icons {
           --width: 0.9em;
         }
@@ -50,7 +51,7 @@
         min-width: 0;
       }
     }
-      
+
   }
   .fb-breadcrumbs-separator {
     width: 0.8em;
@@ -87,6 +88,9 @@
     }
     .fb-breadcrumbs-dir-name:hover {
       color: darken($color-one-mint, 20%);
+    }
+    .fb-breadcrumbs-dir-name {
+      padding-left: 0.45em;
     }
   }
   .extra-name-label-tip {

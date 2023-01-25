@@ -12,8 +12,7 @@
         dir=browsableDataset
         customFetchDirChildren=(action "fetchChildren")
         resolveFileParentFun=(action "resolveItemParent")
-        spaceId=spaceId
-        spacePrivileges=spacePrivileges
+        space=space
         selectedItems=selectedItems
         selectedItemsForJumpProxy=selectedItemsForJumpProxy
         isSpaceOwned=space.currentUserIsOwner
@@ -23,7 +22,6 @@
         changeSelectedItems=(action "changeSelectedItems")
         updateDirEntityId=(action "updateDatasetId")
         onRegisterApi=(action (mut datasetBrowserApi))
-        openRestApiModal=(action "openRestApiModal")
       }}
 
       {{#if (and datasetToShowProtection fileToShowProtection)}}

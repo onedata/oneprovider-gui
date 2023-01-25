@@ -69,7 +69,6 @@ export default Component.extend(I18n, {
   errorExtractor: service(),
   media: service(),
   isMobile: service(),
-  spaceManager: service(),
 
   /**
    * @override
@@ -136,24 +135,10 @@ export default Component.extend(I18n, {
   isSpaceOwned: undefined,
 
   /**
-   * Needed to create symlinks. In read-only views it is optional
-   * @virtual optional
-   * @type {String}
-   */
-  spaceId: undefined,
-
-  /**
+   * @virtual
    * @type {Models.Space}
    */
-  space: computed('spaceId', function space() {
-    return this.spaceManager.getSpace(this.spaceId);
-  }),
-
-  /**
-   * @virtual
-   * @type {SpacePrivileges}
-   */
-  spacePrivileges: Object.freeze({}),
+  space: undefined,
 
   /**
    * @virtual optional
@@ -191,6 +176,16 @@ export default Component.extend(I18n, {
    * @type {(api: FbTableApi) => any}
    */
   onRegisterApi: notImplementedIgnore,
+
+  /**
+   * @type {string}
+   */
+  spaceId: reads('space.entityId'),
+
+  /**
+   * @type {SpacePrivileges}
+   */
+  spacePrivileges: reads('space.privileges'),
 
   /**
    * Initialized in init.
@@ -801,9 +796,6 @@ export default Component.extend(I18n, {
     },
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);
-    },
-    openRestApiModal(space) {
-      return this.get('openRestApiModal')(space);
     },
   },
 });

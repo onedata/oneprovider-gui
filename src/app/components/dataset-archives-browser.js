@@ -897,8 +897,5 @@ export default Component.extend(...mixins, {
     getProvidersUrl(...args) {
       return this.getProvidersUrl(...args);
     },
-    openRestApiModal(space) {
-      return this.callParent('openRestApiModal', space);
-    },
   },
 });

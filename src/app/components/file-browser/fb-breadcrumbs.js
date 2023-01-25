@@ -65,6 +65,12 @@ export default Component.extend(
 
     /**
      * @virtual
+     * @type {Models.Space}
+     */
+    space: undefined,
+
+    /**
+     * @virtual
      * @type {Function}
      */
     resolveFileParentFun: defaultResolveParent,
@@ -144,12 +150,12 @@ export default Component.extend(
     /**
      * @type {boolean}
      */
-    itemInfoOpened: false,
+    rootItemInfoOpened: false,
 
     /**
      * @type {Boolean}
      */
-    hasItemInfoHovered: false,
+    isRootItemInfoHovered: false,
 
     recomputePath: observer('dir', function recomputePath() {
       this.updateDirPathProxy()
@@ -350,11 +356,8 @@ export default Component.extend(
         }
         this.set('dirActionsOpen', _open);
       },
-      itemInfoHovered(hasHover) {
-        this.set('hasItemInfoHovered', hasHover);
-      },
-      openRestApiModal(space) {
-        return this.get('openRestApiModal')(space);
+      rootItemInfoHovered(isHover) {
+        this.set('isRootItemInfoHovered', isHover);
       },
     },
   }

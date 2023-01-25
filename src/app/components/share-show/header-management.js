@@ -181,8 +181,5 @@ export default HeaderBaseComponent.extend(I18n, {
       const _open = (typeof open === 'boolean') ? open : !this.get('actionsOpened');
       this.set('actionsOpened', _open);
     },
-    openRestApiModal(space) {
-      return this.get('openRestApiModal')(space);
-    },
   },
 });

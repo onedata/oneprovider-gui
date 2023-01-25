@@ -31,8 +31,5 @@ export default ContentPublicShare.extend({
     reloadShareList() {
       return this.callParent('reloadShareList');
     },
-    openRestApiModal(space) {
-      return this.callParent('openRestApiModal', space);
-    },
   },
 });
