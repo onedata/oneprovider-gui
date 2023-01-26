@@ -1,23 +1,27 @@
 .storage-location-per-provider-table {
   border-radius: $border-radius-base;
   box-shadow: 0 0 0 1px $main-border-color;
-  
+
   tr.oneprovider-name-row {
     border-bottom: 1px solid #ddd;
     background-color: #f7f7f7;
 
-    td.oneprovider-name-cell {
+    .oneprovider-name-cell {
+      display: table-cell;
       margin-top: 0;
+      border-top-left-radius: $border-radius-base;
+      border-top-right-radius: $border-radius-base;
     }
   }
 
   .oneprovider-storage-location-row td {
-    &.storage-name-cell { 
+    &.storage-name-cell {
+      display: table-cell;
       padding-top: 6px;
       padding-bottom: $padding-small-vertical;
       margin-top: 0;
       height: 33px;
-      
+
       @media (min-width: $screen-sm-min) {
         max-width: 20em;
       }
@@ -28,12 +32,8 @@
         padding-top: 4px;
         max-width: 30em;
       }
-
-      @media (max-width: $screen-xs-max) {
-        border-bottom: 1px solid #ddd;
-      }
     }
-  
+
     &.location-cell {
       padding: 0;
       margin-top: 0;
@@ -41,18 +41,22 @@
       .empty-location-cell {
         padding-left: 14px;
       }
+
+      @media (max-width: $screen-xs-max) {
+        border-top: 1px solid #ddd;
+      }
     }
-  
+
     .location-cell-clipboard.clipboard-line {
       margin-bottom: 0;
-  
+
       input {
         border: none;
         box-shadow: none;
         @include font-monospace();
       }
     }
-  
+
     .clipboard-line {
       margin-bottom: $table-cell-padding;
     }
