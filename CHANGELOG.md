@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-10254 Added "Boolean" data type to automation, changed "Integer" to "Number" data type
+* VFS-10414 Fixed loading record relations using `computedRelationProxy` util
 * VFS-10281 Added tip about audit log expiration
 * VFS-10060 Improved time derivative calculation in charts
 * VFS-10350 Add rendered chart data as a canvas property
