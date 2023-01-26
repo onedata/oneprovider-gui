@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10229 Added adjustments to automation data fetching needed by changed atm value presenters API
 * VFS-10254 Added "Boolean" data type to automation, changed "Integer" to "Number" data type
 * VFS-10414 Fixed loading record relations using `computedRelationProxy` util
 * VFS-10281 Added tip about audit log expiration
