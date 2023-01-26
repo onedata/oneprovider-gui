@@ -24,7 +24,6 @@ export default HeaderBaseComponent.extend(I18n, {
   ],
 
   filesViewResolver: service(),
-  spaceManager: service(),
 
   /**
    * @override
@@ -48,6 +47,12 @@ export default HeaderBaseComponent.extend(I18n, {
    * @type {Boolean}
    */
   shareRootDeleted: false,
+
+  /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
 
   /**
    * @type {Boolean}
@@ -77,13 +82,6 @@ export default HeaderBaseComponent.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   spaceId: reads('share.spaceId'),
-
-  /**
-   * @type {Models.Space}
-   */
-  space: computed('spaceId', function space() {
-    return this.spaceManager.getSpace(this.spaceId);
-  }),
 
   /**
    * @type {ComputedProperty<Array<Object>>}
