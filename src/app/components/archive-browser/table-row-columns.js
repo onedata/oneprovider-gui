@@ -61,7 +61,7 @@ export default FbTableRowColumns.extend({
 
   creator: reads('fileRowModel.creatorProxy.content'),
 
-  creatorProxyError: reads('fileRowModel.creatorProxyError'),
+  creatorProxyError: reads('fileRowModel.creatorProxy.reason'),
 
   stateClassMapping: Object.freeze({
     creating: 'infinite animated pulse-mint',

@@ -28,6 +28,7 @@ const rowModelMixins = [
 const RowModel = EmberObject.extend(...rowModelMixins, {
   i18n: service(),
   archiveManager: service(),
+  userManager: service(),
 
   /**
    * @override
@@ -46,16 +47,6 @@ const RowModel = EmberObject.extend(...rowModelMixins, {
    */
   browserModel: undefined,
 
-  //#region state
-
-  /**
-   * If getting archive.creator fails, the error will be stored here.
-   * @type {any}
-   */
-  creatorProxyError: null,
-
-  //#endregion
-
   /**
    * @override
    */
@@ -69,14 +60,19 @@ const RowModel = EmberObject.extend(...rowModelMixins, {
 
   archiveLayout: reads('archive.config.layout'),
 
-  creatorProxy: computedRelationProxy(
-    'archive',
-    'creator',
-    Object.freeze({
-      reload: false,
-      computedRelationErrorProperty: 'creatorProxyError',
-    })
-  ),
+  creatorProxy: promise.object(computed(
+    'browserModel.spaceId',
+    'archive.creator',
+    async function creatorProxy() {
+      const creatorId = this.archive.relationEntityId?.('creator');
+      if (!creatorId) {
+        return null;
+      }
+      return await this.userManager.getUserById(creatorId, {
+        throughSpaceId: this.browserModel.spaceId,
+      });
+    }
+  )),
 
   baseArchiveId: computed('archive.baseArchive', function baseArchiveId() {
     const archive = this.get('archive');
