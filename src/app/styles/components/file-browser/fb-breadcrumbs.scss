@@ -31,9 +31,9 @@
         font-size: 210%;
       }
       &.root-icon-container {
-        // margin-right: 0.45em;
         margin-left: 0.1em;
         .flippable-icons {
+          margin-top: -0.17em;
           --width: 0.9em;
         }
       }
@@ -51,6 +51,7 @@
         min-width: 0;
         .truncated-string {
           line-height: initial;
+          padding-left: 0.45em;
         }
       }
     }
