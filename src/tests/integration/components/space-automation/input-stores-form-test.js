@@ -9,13 +9,21 @@ import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import { lookupService } from '../../../helpers/stub-service';
 
 const dataSpecConfigs = {
-  integer: {
+  number: {
     dataSpec: {
-      type: 'integer',
+      type: 'number',
       valueConstraints: {},
     },
-    correctValues: ['5', '0', '-100'],
-    incorrectValues: ['0.5', 'null', '{}', '[]', '"1"'],
+    correctValues: ['5', '0', '-100', '0.5'],
+    incorrectValues: ['null', '{}', '[]', '"1"'],
+  },
+  boolean: {
+    dataSpec: {
+      type: 'boolean',
+      valueConstraints: {},
+    },
+    correctValues: ['true', 'false'],
+    incorrectValues: ['10', 'null', '[]', '"1"'],
   },
   string: {
     dataSpec: {
@@ -197,12 +205,12 @@ describe('Integration | Component | space automation/input stores form', functio
           1: {
             stores: [{
               id: 'store1',
-              name: 'singleValueIntegerStore',
-              description: 'single value integer store',
+              name: 'singleValueNumberStore',
+              description: 'single value number store',
               type: 'singleValue',
               config: {
                 itemDataSpec: {
-                  type: 'integer',
+                  type: 'number',
                   valueConstraints: {},
                 },
               },
@@ -254,7 +262,7 @@ describe('Integration | Component | space automation/input stores form', functio
 
     const inputStores = findAll('.inputStore-field');
     expect(inputStores).to.have.length(2);
-    expect(inputStores[0]).to.contain.text('singleValueIntegerStore');
+    expect(inputStores[0]).to.contain.text('singleValueNumberStore');
     expect(inputStores[1]).to.contain.text('listStringStore');
   });
 
@@ -265,7 +273,7 @@ describe('Integration | Component | space automation/input stores form', functio
     const tooltip1Trigger = inputStores[0].querySelector('.one-label-tip .one-icon');
     const tooltip2Trigger = inputStores[1].querySelector('.one-label-tip .one-icon');
     expect(await new OneTooltipHelper(tooltip1Trigger).getText())
-      .to.equal('single value integer store');
+      .to.equal('single value number store');
     expect(await new OneTooltipHelper(tooltip2Trigger).getText())
       .to.equal('list string store');
   });

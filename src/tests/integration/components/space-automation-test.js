@@ -31,7 +31,7 @@ describe('Integration | Component | space automation', function () {
             type: 'singleValue',
             config: {
               itemDataSpec: {
-                type: 'integer',
+                type: 'number',
                 valueConstraints: {},
               },
             },
