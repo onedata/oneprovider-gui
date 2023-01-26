@@ -1360,11 +1360,11 @@ export default Service.extend({
               state: 'stable',
               stores: [{
                 id: 'store1',
-                name: 'list of integers',
+                name: 'list of numbers',
                 type: 'list',
                 config: {
                   itemDataSpec: {
-                    type: 'integer',
+                    type: 'number',
                     valueConstraints: {},
                   },
                 },

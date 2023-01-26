@@ -24,7 +24,7 @@ describe('Integration | Component | space automation/run workflow creator', func
             type: 'singleValue',
             config: {
               itemDataSpec: {
-                type: 'integer',
+                type: 'number',
                 valueConstraints: {},
               },
             },
