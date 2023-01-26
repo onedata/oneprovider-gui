@@ -359,6 +359,9 @@ export default Component.extend(
       rootItemInfoHovered(isHover) {
         this.set('isRootItemInfoHovered', isHover);
       },
+      closeSpaceInfoPopover() {
+        this.set('rootItemInfoOpened', false);
+      },
     },
   }
 );

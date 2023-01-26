@@ -17,9 +17,7 @@ export default SpaceInfoContent.extend({
    */
   showLinkToRestApiModal: true,
 
-  actions: {
-    openRestApiModal() {
-      return this.appProxy.callParent('openRestApiModal', this.space);
-    },
+  onOpenRestApiModal() {
+    return this.appProxy.callParent('openRestApiModal', this.space);
   },
 });

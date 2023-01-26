@@ -49,6 +49,9 @@
         display: inline-flex;
         max-width: 10em;
         min-width: 0;
+        .truncated-string {
+          line-height: initial;
+        }
       }
     }
 
