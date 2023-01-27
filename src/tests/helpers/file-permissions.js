@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import { find } from '@ember/test-helpers';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
 import { lookupService } from './stub-service';

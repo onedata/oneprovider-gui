@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, click, findAll } from '@ember/test-helpers';
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import { get, setProperties } from '@ember/object';
 import { registerService, lookupService } from '../../helpers/stub-service';
