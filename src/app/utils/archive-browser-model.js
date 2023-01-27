@@ -46,6 +46,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   modalManager: service(),
   datasetManager: service(),
   archiveManager: service(),
+  currentUser: service(),
 
   // required by DownloadInBrowser mixin
   fileManager: service(),
@@ -256,6 +257,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
+  areAllSelectedCreatedByCurrentUser: computed(
+    'currentUser.userId',
+    'selectedItems.@each.creatorId',
+    function areAllSelectedCreatedByCurrentUser() {
+      const currentUserId = this.currentUser.userId;
+      return this.selectedItems.every(archive =>
+        get(archive, 'creatorId') === currentUserId
+      );
+    },
+  ),
+
   selectedArchiveHasDip: and(
     equal('selectedItems.length', raw(1)),
     'selectedItems.0.config.includeDip'
@@ -345,9 +357,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnEditDescription: computed(
+    'areAllSelectedCreatedByCurrentUser',
     'spacePrivileges.manageArchives',
     function btnEditDescription() {
-      const hasPrivileges = this.spacePrivileges.manageArchives;
+      const hasPrivileges = this.areAllSelectedCreatedByCurrentUser ||
+        this.spacePrivileges.manageArchives;
       let disabledTip;
       if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({

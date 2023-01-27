@@ -29,6 +29,7 @@ const RowModel = EmberObject.extend(...rowModelMixins, {
   i18n: service(),
   archiveManager: service(),
   userManager: service(),
+  currentUser: service(),
 
   /**
    * @override
@@ -60,15 +61,16 @@ const RowModel = EmberObject.extend(...rowModelMixins, {
 
   archiveLayout: reads('archive.config.layout'),
 
+  creatorId: reads('archive.creatorId'),
+
   creatorProxy: promise.object(computed(
     'browserModel.spaceId',
-    'archive.creator',
+    'creatorId',
     async function creatorProxy() {
-      const creatorId = this.archive.relationEntityId?.('creator');
-      if (!creatorId) {
+      if (!this.creatorId) {
         return null;
       }
-      return await this.userManager.getUserById(creatorId, {
+      return await this.userManager.getUserById(this.creatorId, {
         throughSpaceId: this.browserModel.spaceId,
       });
     }

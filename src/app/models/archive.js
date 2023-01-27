@@ -161,4 +161,8 @@ export default Model.extend(GraphSingleModelMixin, {
         return 'unknown';
     }
   }),
+
+  creatorId: computed('creator', function creatorId() {
+    return this.relationEntityId('creator');
+  }),
 }).reopenClass(StaticGraphModelMixin);

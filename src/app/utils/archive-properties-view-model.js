@@ -33,6 +33,7 @@ export default EmberObject.extend(...mixins, {
   globalNotify: service(),
   archiveManager: service(),
   modalManager: service(),
+  currentUser: service(),
 
   /**
    * @override
@@ -91,8 +92,17 @@ export default EmberObject.extend(...mixins, {
    */
   canSubmit: reads('hasEditPrivileges', 'isValid'),
 
-  hasEditPrivileges: and(
+  hasEditPrivileges: or(
+    'isArchiveCreatedByCurrentUser',
     'space.privileges.manageArchives',
+  ),
+
+  isArchiveCreatedByCurrentUser: computed(
+    'currentUser.userId',
+    'browsableArchive.creatorId',
+    function isArchiveCreatedByCurrentUser() {
+      return get(this.browsableArchive, 'creatorId') === this.currentUser.userId;
+    }
   ),
 
   isEditable: reads('hasEditPrivileges'),
