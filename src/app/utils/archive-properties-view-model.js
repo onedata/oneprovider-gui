@@ -92,8 +92,7 @@ export default EmberObject.extend(...mixins, {
   canSubmit: reads('hasEditPrivileges', 'isValid'),
 
   hasEditPrivileges: and(
-    'space.privileges.manageDatasets',
-    'space.privileges.createArchives'
+    'space.privileges.manageArchives',
   ),
 
   isEditable: reads('hasEditPrivileges'),

@@ -345,15 +345,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnEditDescription: computed(
-    'spacePrivileges.createArchives',
+    'spacePrivileges.manageArchives',
     function btnEditDescription() {
-      const hasPrivileges = this.spacePrivileges.createArchives;
+      const hasPrivileges = this.spacePrivileges.manageArchives;
       let disabledTip;
       if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n: this.i18n,
           modelName: 'space',
-          privilegeFlag: ['space_create_archives'],
+          privilegeFlag: ['space_manage_archives'],
         });
       }
       return this.createFileAction({
