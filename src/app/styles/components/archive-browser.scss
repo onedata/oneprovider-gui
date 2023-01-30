@@ -6,9 +6,14 @@
     width: 110px;
   }
   .fb-table-col-creator {
+    --fixed-width: 240px;
     text-align: center;
-    width: 240px;
-    max-width: 240px;
+    width: var(--fixed-width);
+    max-width: var(--fixed-width);
+    // empirical size - prevent shortening archive creation dates
+    @media (max-width: 1000px) {
+      --fixed-width: 180px;
+    }
     // empirical size of content when whole app width is 1365px
     @media (max-width: 915px) {
       display: none;
