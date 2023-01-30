@@ -600,26 +600,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnCancel: computed(
+    'spacePrivileges.manageArchives',
+    'areAllSelectedCreatedByCurrentUser',
     'isAnySelectedCancelling',
     function btnCancel() {
-      const {
-        i18n,
-        spacePrivileges,
-        isAnySelectedCancelling,
-      } = this.getProperties(
-        'i18n',
-        'spacePrivileges',
-        'isAnySelectedCancelling',
-      );
       let disabledTip;
-      const hasPrivileges = spacePrivileges.createArchives;
-      if (isAnySelectedCancelling) {
+      const hasPrivileges = this.areAllSelectedCreatedByCurrentUser ||
+        this.spacePrivileges.createArchives;
+      if (this.isAnySelectedCancelling) {
         disabledTip = this.t('alreadyCancelling');
       } else if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
-          i18n,
+          i18n: this.i18n,
           modelName: 'space',
-          privilegeFlag: ['space_create_archives'],
+          privilegeFlag: ['space_manage_archives'],
         });
       }
       return this.createFileAction({
