@@ -508,7 +508,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'spacePrivileges.recallArchives',
     'isAnySelectedCreating',
     'isAnySelectedEndedIncomplete',
-    function btnDelete() {
+    function btnRecall() {
       const {
         isAnySelectedCreating,
         isAnySelectedEndedIncomplete,
