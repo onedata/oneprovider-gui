@@ -409,7 +409,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnCreateArchive: computed(
     'dataset',
-    'spacePrivileges.{manageDatasets,createArchives}',
+    'spacePrivileges.createArchives',
     function btnCreateArchive() {
       const {
         spacePrivileges,
@@ -418,14 +418,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         'spacePrivileges',
         'i18n',
       );
-      const hasPrivileges = spacePrivileges.manageDatasets &&
-        spacePrivileges.createArchives;
+      const hasPrivileges = spacePrivileges.createArchives;
       let disabledTip;
       if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
-          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+          privilegeFlag: ['space_create_archives'],
         });
       }
       return this.createFileAction({
@@ -449,7 +448,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnCreateIncrementalArchive: computed(
     'dataset',
     'attachmentState',
-    'spacePrivileges.{manageDatasets,createArchives}',
+    'spacePrivileges.createArchives',
     'isAnySelectedCreating',
     'isAnySelected',
     'isAnySelectedEndedIncomplete',
@@ -475,13 +474,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       } else if (attachmentState === 'detached') {
         disabledTip = this.t('notAvailableForDetached');
       } else {
-        const hasPrivileges = spacePrivileges.manageDatasets &&
-          spacePrivileges.createArchives;
+        const hasPrivileges = spacePrivileges.createArchives;
         if (!hasPrivileges) {
           disabledTip = insufficientPrivilegesMessage({
             i18n,
             modelName: 'space',
-            privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+            privilegeFlag: ['space_create_archives'],
           });
         }
       }
