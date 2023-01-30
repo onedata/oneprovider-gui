@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find, findAll, click, fillIn } from '@ember/test-helpers';
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import { createFile, mockRootFiles } from '../../helpers/files';
 import { lookupService } from '../../helpers/stub-service';
 import DefaultUser from '../../helpers/default-user';
