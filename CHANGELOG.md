@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-10087 Fixed width in storage location table in file details
+* VFS-9129 Updated EmberJS to v3.8.3
 * VFS-10254 Added "Boolean" data type to automation, changed "Integer" to "Number" data type
 * VFS-10414 Fixed loading record relations using `computedRelationProxy` util
 * VFS-10281 Added tip about audit log expiration
