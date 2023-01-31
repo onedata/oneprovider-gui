@@ -16,7 +16,6 @@ import { promise, bool, or } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 const rowModelMixins = [
   OwnerInjector,

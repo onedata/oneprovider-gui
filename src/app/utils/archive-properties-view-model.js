@@ -13,7 +13,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ArchiveFormEditModel from 'oneprovider-gui/utils/archive-form/edit-model';
 import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model';
-import { and, or } from 'ember-awesome-macros';
+import { or } from 'ember-awesome-macros';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { Promise } from 'rsvp';
 import sleep from 'onedata-gui-common/utils/sleep';
