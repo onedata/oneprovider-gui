@@ -286,6 +286,10 @@
   .storage-locations-table {
     width: 100%;
 
+    @media (max-width: $screen-xs-max) {
+      display: block;
+    }
+
     .space-between-providers {
       border: none;
       box-shadow: none;

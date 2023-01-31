@@ -1,12 +1,16 @@
 <tr class="oneprovider-name-row">
   <td colspan="2" class="oneprovider-name-cell">
-    {{oneproviderName}}
+    {{#truncated-string}}
+      {{oneproviderName}}
+    {{/truncated-string}}
   </td>
 </tr>
 {{#each locations as |location|}}
   <tr class="oneprovider-storage-location-row">
     <td class="storage-name-cell">
-      {{location.storageName}}
+      {{#truncated-string}}
+        {{location.storageName}}
+      {{/truncated-string}}
     </td>
     <td class="location-cell">
       {{#if location.path}}
