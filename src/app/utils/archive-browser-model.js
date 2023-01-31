@@ -368,6 +368,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           i18n: this.i18n,
           modelName: 'space',
           privilegeFlag: ['space_manage_archives'],
+          endingTextInParentheses: this.t('forNonOwnedArchives'),
         });
       }
       return this.createFileAction({
@@ -612,6 +613,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           i18n: this.i18n,
           modelName: 'space',
           privilegeFlag: ['space_manage_archives'],
+          endingTextInParentheses: this.t('forNonOwnedArchives'),
         });
       }
       return this.createFileAction({
