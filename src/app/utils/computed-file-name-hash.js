@@ -11,6 +11,9 @@
  */
 
 import { computed } from '@ember/object';
+import {
+  defaultSeparator as nameConflictSeparator,
+} from 'onedata-gui-common/components/name-conflict';
 
 /**
  * @param {string} fileUniqueProperty Name of property that is unique for files set.
@@ -27,7 +30,7 @@ export default function computedFileNameHash(fileUniqueProperty) {
         return '';
       }
       const hash = hashMapping[this[fileUniqueProperty]];
-      return hash ? ('#' + hash) : '';
+      return hash ? (nameConflictSeparator + hash) : '';
     }
   );
 }
