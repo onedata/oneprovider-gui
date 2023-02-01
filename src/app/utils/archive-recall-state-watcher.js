@@ -83,7 +83,7 @@ export default EmberObject.extend(OwnerInjector, {
     if (this.get('looper')) {
       return;
     }
-    const looper = new Looper({
+    const looper = Looper.create({
       immediate: true,
       interval: this.get('interval'),
     });

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it, before, beforeEach, afterEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find, findAll, click } from '@ember/test-helpers';
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import moment from 'moment';
 import OneTooltipHelper from '../../../../helpers/one-tooltip';
 import sinon from 'sinon';
