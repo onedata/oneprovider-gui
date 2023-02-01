@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10087 Fixed width in storage location table in file details
 * VFS-10312 Changed name conflict and disambiguation separator from "#" to "@"
 * VFS-9129 Updated EmberJS to v3.8.3
 * VFS-10254 Added "Boolean" data type to automation, changed "Integer" to "Number" data type
