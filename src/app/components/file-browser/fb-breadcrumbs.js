@@ -23,7 +23,7 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-res
 import { inject as service } from '@ember/service';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { htmlSafe } from '@ember/string';
-import { isEmpty } from 'ember-awesome-macros';
+import { isEmpty, and, eq, raw } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
 import dom from 'onedata-gui-common/utils/dom';
@@ -65,12 +65,6 @@ export default Component.extend(
 
     /**
      * @virtual
-     * @type {Models.Space}
-     */
-    space: undefined,
-
-    /**
-     * @virtual
      * @type {Function}
      */
     resolveFileParentFun: defaultResolveParent,
@@ -99,6 +93,12 @@ export default Component.extend(
      * @type {Array<Object>}
      */
     menuButtons: undefined,
+
+    /**
+     * @virtual optional
+     * @type {Models.Space}
+     */
+    space: undefined,
 
     /**
      * @virtual optional
@@ -150,7 +150,7 @@ export default Component.extend(
     /**
      * @type {boolean}
      */
-    rootItemInfoOpened: false,
+    isRootItemInfoOpened: false,
 
     /**
      * @type {Boolean}
@@ -191,6 +191,11 @@ export default Component.extend(
     }),
 
     currentItem: reads('breadcrumbsItems.lastObject'),
+
+    /**
+     * @type {boolean}
+     */
+    isFlippableSpaceRootIcon: and(eq('rootIcon', raw('space')), 'space'),
 
     init() {
       this._super(...arguments);
@@ -360,7 +365,7 @@ export default Component.extend(
         this.set('isRootItemInfoHovered', isHover);
       },
       closeSpaceInfoPopover() {
-        this.set('rootItemInfoOpened', false);
+        this.set('isRootItemInfoOpened', false);
       },
     },
   }

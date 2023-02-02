@@ -7,12 +7,12 @@
         data-dir-guid={{item.file.entityId}}
       >
         {{#if (eq i 0)}}
-          {{#if (eq rootIcon "space")}}
+          {{#if isFlippableSpaceRootIcon}}
             <div
               class="inline-icon-container root-icon-container icon-info-trigger"
               {{action
-                (mut rootItemInfoOpened)
-                (not rootItemInfoOpened)
+                (mut isRootItemInfoOpened)
+                (not isRootItemInfoOpened)
                 bubbles=false
               }}
               onmouseover={{action "rootItemInfoHovered" true}}
@@ -21,16 +21,27 @@
               {{flippable-icons
                 iconName=rootIcon
                 isHovered=isRootItemInfoHovered
-                suppressFlipping=rootItemInfoOpened
+                suppressFlipping=isRootItemInfoOpened
               }}
             </div>
+            {{#record-info-popover
+              isOpened=isRootItemInfoOpened
+              triggerSelector=(concat "#" elementId " .icon-info-trigger")
+            }}
+              {{space-info-content
+                space=space
+                closeSpaceInfoPopover=(action "closeSpaceInfoPopover")
+              }}
+            {{/record-info-popover}}
           {{else}}
             <div class="inline-icon-container root-icon-container">
               {{one-icon icon=rootIcon}}
-              {{one-tooltip title=filteredBreadcrumbsItemsProxy.firstObject.file.name}}
+              {{#if item.isRoot}}
+                {{one-tooltip title=filteredBreadcrumbsItemsProxy.firstObject.file.name}}
+              {{/if}}
             </div>
           {{/if}}
-          {{#if (or (eq rootIcon "space") alwaysShowRootName)}}
+          {{#if (or isFlippableSpaceRootIcon alwaysShowRootName)}}
             <span
               class="dir-name"
               onmouseover={{if (eq rootIcon "space") (action "rootItemInfoHovered" true)}}
@@ -41,15 +52,6 @@
               {{/truncated-string}}
             </span>
           {{/if}}
-          {{#record-info-popover
-            isOpened=rootItemInfoOpened
-            triggerSelector=(concat "#" elementId " .icon-info-trigger")
-          }}
-            {{space-info-content
-              space=space
-              closeSpaceInfoPopover=(action "closeSpaceInfoPopover")
-            }}
-          {{/record-info-popover}}
         {{else}}
           <span class="dir-name">{{item.name}}</span>
         {{/if}}
@@ -72,12 +74,12 @@
       style={{lastItemStyle}}
     >
       {{#if areItemsEmpty}}
-        {{#if (eq rootIcon "space")}}
+        {{#if isFlippableSpaceRootIcon}}
           <div
             class="inline-icon-container root-icon-container icon-info-last-element-trigger"
             onclick={{action
-              (mut rootItemInfoOpened)
-              (not rootItemInfoOpened)
+              (mut isRootItemInfoOpened)
+              (not isRootItemInfoOpened)
               bubbles=false
             }}
             onmouseover={{action "rootItemInfoHovered" true}}
@@ -86,11 +88,11 @@
             {{flippable-icons
               iconName=rootIcon
               isHovered=isRootItemInfoHovered
-              suppressFlipping=rootItemInfoOpened
+              suppressFlipping=isRootItemInfoOpened
             }}
           </div>
           {{#record-info-popover
-            isOpened=rootItemInfoOpened
+            isOpened=isRootItemInfoOpened
             triggerSelector=(concat "#" elementId " .icon-info-last-element-trigger")
           }}
             {{space-info-content

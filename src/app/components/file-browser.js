@@ -135,20 +135,6 @@ export default Component.extend(I18n, {
   isSpaceOwned: undefined,
 
   /**
-   * Needed to create symlinks. In read-only views it is optional
-   * @virtual optional
-   * @type {String}
-   */
-  spaceId: undefined,
-
-  /**
-   * @virtual
-   * @type {SpacePrivileges}
-   * @type {Models.Space}
-   */
-  spacePrivileges: Object.freeze({}),
-
-  /**
    * @virtual optional
    * @type {Models.Space}
    */
@@ -190,6 +176,19 @@ export default Component.extend(I18n, {
    * @type {(api: FbTableApi) => any}
    */
   onRegisterApi: notImplementedIgnore,
+
+  /**
+   * @type {String}
+   */
+  spaceId: reads('space?.entityId'),
+
+  /**
+   * @type {SpacePrivileges}
+   */
+  spacePrivileges: or(
+    'space.privileges',
+    Object.freeze({}),
+  ),
 
   /**
    * Initialized in init.
