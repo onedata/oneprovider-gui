@@ -41,6 +41,8 @@ export const validArchiveStates = Object.freeze([
 export default Model.extend(GraphSingleModelMixin, {
   index: attr('string'),
 
+  creator: belongsTo('user'),
+
   /**
    * @type {ArchiveState}
    */
@@ -158,5 +160,9 @@ export default Model.extend(GraphSingleModelMixin, {
       default:
         return 'unknown';
     }
+  }),
+
+  creatorId: computed('creator', function creatorId() {
+    return this.relationEntityId('creator');
   }),
 }).reopenClass(StaticGraphModelMixin);

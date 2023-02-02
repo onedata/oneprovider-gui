@@ -46,6 +46,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   modalManager: service(),
   datasetManager: service(),
   archiveManager: service(),
+  currentUser: service(),
 
   // required by DownloadInBrowser mixin
   fileManager: service(),
@@ -256,6 +257,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
+  areAllSelectedCreatedByCurrentUser: computed(
+    'currentUser.userId',
+    'selectedItems.@each.creatorId',
+    function areAllSelectedCreatedByCurrentUser() {
+      const currentUserId = this.currentUser.userId;
+      return this.selectedItems.every(archive =>
+        get(archive, 'creatorId') === currentUserId
+      );
+    },
+  ),
+
   selectedArchiveHasDip: and(
     equal('selectedItems.length', raw(1)),
     'selectedItems.0.config.includeDip'
@@ -345,15 +357,18 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnEditDescription: computed(
-    'spacePrivileges.createArchives',
+    'areAllSelectedCreatedByCurrentUser',
+    'spacePrivileges.manageArchives',
     function btnEditDescription() {
-      const hasPrivileges = this.spacePrivileges.createArchives;
+      const hasPrivileges = this.areAllSelectedCreatedByCurrentUser ||
+        this.spacePrivileges.manageArchives;
       let disabledTip;
       if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n: this.i18n,
           modelName: 'space',
-          privilegeFlag: ['space_create_archives'],
+          privilegeFlag: ['space_manage_archives'],
+          endingTextInParentheses: this.t('forNonOwnedArchives'),
         });
       }
       return this.createFileAction({
@@ -395,7 +410,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnCreateArchive: computed(
     'dataset',
-    'spacePrivileges.{manageDatasets,createArchives}',
+    'spacePrivileges.createArchives',
     function btnCreateArchive() {
       const {
         spacePrivileges,
@@ -404,14 +419,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         'spacePrivileges',
         'i18n',
       );
-      const hasPrivileges = spacePrivileges.manageDatasets &&
-        spacePrivileges.createArchives;
+      const hasPrivileges = spacePrivileges.createArchives;
       let disabledTip;
       if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
-          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+          privilegeFlag: ['space_create_archives'],
         });
       }
       return this.createFileAction({
@@ -435,7 +449,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnCreateIncrementalArchive: computed(
     'dataset',
     'attachmentState',
-    'spacePrivileges.{manageDatasets,createArchives}',
+    'spacePrivileges.createArchives',
     'isAnySelectedCreating',
     'isAnySelected',
     'isAnySelectedEndedIncomplete',
@@ -461,13 +475,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       } else if (attachmentState === 'detached') {
         disabledTip = this.t('notAvailableForDetached');
       } else {
-        const hasPrivileges = spacePrivileges.manageDatasets &&
-          spacePrivileges.createArchives;
+        const hasPrivileges = spacePrivileges.createArchives;
         if (!hasPrivileges) {
           disabledTip = insufficientPrivilegesMessage({
             i18n,
             modelName: 'space',
-            privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+            privilegeFlag: ['space_create_archives'],
           });
         }
       }
@@ -494,7 +507,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'spacePrivileges.recallArchives',
     'isAnySelectedCreating',
     'isAnySelectedEndedIncomplete',
-    function btnDelete() {
+    function btnRecall() {
       const {
         isAnySelectedCreating,
         isAnySelectedEndedIncomplete,
@@ -586,26 +599,21 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnCancel: computed(
+    'spacePrivileges.manageArchives',
+    'areAllSelectedCreatedByCurrentUser',
     'isAnySelectedCancelling',
     function btnCancel() {
-      const {
-        i18n,
-        spacePrivileges,
-        isAnySelectedCancelling,
-      } = this.getProperties(
-        'i18n',
-        'spacePrivileges',
-        'isAnySelectedCancelling',
-      );
       let disabledTip;
-      const hasPrivileges = spacePrivileges.createArchives;
-      if (isAnySelectedCancelling) {
+      const hasPrivileges = this.areAllSelectedCreatedByCurrentUser ||
+        this.spacePrivileges.createArchives;
+      if (this.isAnySelectedCancelling) {
         disabledTip = this.t('alreadyCancelling');
       } else if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
-          i18n,
+          i18n: this.i18n,
           modelName: 'space',
-          privilegeFlag: ['space_create_archives'],
+          privilegeFlag: ['space_manage_archives'],
+          endingTextInParentheses: this.t('forNonOwnedArchives'),
         });
       }
       return this.createFileAction({

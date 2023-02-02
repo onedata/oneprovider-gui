@@ -6,6 +6,11 @@
     .bs-modal-body-scroll {
       padding-top: $modal-inner-padding;
     }
+    // Creator field is lower than inputs, so it looks better if has some margin when
+    // its the first field.
+    .creator-field:first-of-type {
+      margin-top: 0.75em;
+    }
     .archive-audit-log {
       height: 100%;
     }
