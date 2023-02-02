@@ -12,6 +12,8 @@ import { reads } from '@ember/object/computed';
 import { collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 
+// TODO: VFS-10430 fix or remove this dummy component
+
 export default Component.extend({
   mockBackend: service(),
 
