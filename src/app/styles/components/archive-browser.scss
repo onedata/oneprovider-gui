@@ -5,6 +5,20 @@
   .fb-table-col-state {
     width: 110px;
   }
+  .fb-table-col-creator {
+    --col-creator-fixed-width: 240px;
+    text-align: center;
+    width: var(--col-creator-fixed-width);
+    max-width: var(--col-creator-fixed-width);
+    // empirical size - prevent shortening archive creation dates
+    @media (max-width: 1000px) {
+      --col-creator-fixed-width: 180px;
+    }
+    // empirical size of content when whole app width is 1365px
+    @media (max-width: 915px) {
+      display: none;
+    }
+  }
   .fb-table-col-incremental {
     width: 14em;
     max-width: 14em;

@@ -29,6 +29,8 @@ export default FbDirLoadError.extend(I18n, {
    */
   i18nPrefix: 'components.archiveBrowser.emptyDir',
 
+  canCreateArchive: reads('browserModel.spacePrivileges.createArchives'),
+
   actions: {
     openCreateArchiveModal() {
       const {

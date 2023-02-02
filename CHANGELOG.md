@@ -7,6 +7,8 @@ CHANGELOG
 ### Latest changes
 
 * VFS-10229 Added adjustments to automation data fetching needed by changed atm value presenters API
+* VFS-10357 Added support for "manage archives" privilege and "creator" information in archives
+* VFS-10442 Added eslint rule detecting wrong usage of hyphen in translations
 * VFS-10087 Fixed width in storage location table in file details
 * VFS-10312 Changed name conflict and disambiguation separator from "#" to "@"
 * VFS-9129 Updated EmberJS to v3.8.3

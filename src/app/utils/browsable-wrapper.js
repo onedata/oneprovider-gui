@@ -19,6 +19,7 @@ export default ObjectProxy.extend({
   save: proxyMethod('save'),
   reload: proxyMethod('reload'),
   destroyRecord: proxyMethod('destroyRecord'),
+  rollbackAttributes: proxyMethod('rollbackAttributes'),
 
   unloadRecord() {
     proxyMethod('unloadRecord').bind(this)();
