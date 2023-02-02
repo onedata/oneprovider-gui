@@ -63,7 +63,7 @@ export default BaseAction.extend({
    * @type {ComputedProperty<SafeString>}
    */
   disabledTip: computed(
-    'spacePrivileges.{manageDatasets,createArchives}',
+    'spacePrivileges.createArchives',
     function disabled() {
       const {
         spacePrivileges,
@@ -77,13 +77,12 @@ export default BaseAction.extend({
       if (isDetached) {
         return this.t('tip.notAvailableForDetached');
       }
-      const hasPrivileges = spacePrivileges.manageDatasets &&
-        spacePrivileges.createArchives;
+      const hasPrivileges = spacePrivileges.createArchives;
       if (!hasPrivileges) {
         return insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
-          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+          privilegeFlag: ['space_create_archives'],
         });
       }
     }

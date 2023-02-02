@@ -6,7 +6,7 @@ import sinon from 'sinon';
 import { assert } from '@ember/debug';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
 
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 
 describe('Integration | Component | file-common/submit-buttons', function () {
   setupRenderingTest();

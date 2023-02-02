@@ -165,7 +165,20 @@ export default Service.extend({
    */
   async modifyArchive(archive, data) {
     archive.setProperties(data);
-    await archive.save();
+    try {
+      await archive.save();
+    } catch (saveError) {
+      archive.rollbackAttributes();
+      try {
+        await archive.reload();
+      } catch (reloadError) {
+        console.error(
+          'modifyArchive: error reloading archive after save failure',
+          reloadError
+        );
+      }
+      throw saveError;
+    }
     try {
       await archive.belongsTo('dataset').reload();
     } catch (error) {
@@ -216,9 +229,12 @@ export default Service.extend({
 
   /**
    * @param {Models.Archive} archive
+   * @param {boolean} deleteAfterCancel If true, archive will be deleted after
+   *   cancel execution. If false, archive will retain in `cancelled` state (if cancel
+   *   has been invoked on `building` archive).
    * @returns {Promise}
    */
-  async cancelArchivization(archive) {
+  async cancelArchivization(archive, deleteAfterCancel = false) {
     const onedataGraph = this.get('onedataGraph');
     const deleteResponse = await onedataGraph.request({
       operation: 'create',
@@ -228,6 +244,9 @@ export default Service.extend({
         aspect: 'cancel',
         scope: 'private',
       }),
+      data: {
+        preservationPolicy: deleteAfterCancel ? 'delete' : 'retain',
+      },
       subscribe: false,
     });
 

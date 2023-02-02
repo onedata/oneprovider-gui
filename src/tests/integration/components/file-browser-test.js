@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, findAll, find, doubleClick, click, settled } from '@ember/test-helpers';
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import Service from '@ember/service';
 import sinon from 'sinon';

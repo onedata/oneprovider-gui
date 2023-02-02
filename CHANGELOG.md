@@ -6,6 +6,22 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10357 Added support for "manage archives" privilege and "creator" information in archives
+* VFS-10442 Added eslint rule detecting wrong usage of hyphen in translations
+* VFS-10087 Fixed width in storage location table in file details
+* VFS-10312 Changed name conflict and disambiguation separator from "#" to "@"
+* VFS-9129 Updated EmberJS to v3.8.3
+* VFS-10254 Added "Boolean" data type to automation, changed "Integer" to "Number" data type
+* VFS-10414 Fixed loading record relations using `computedRelationProxy` util
+* VFS-10281 Added tip about audit log expiration
+* VFS-10060 Improved time derivative calculation in charts
+* VFS-10350 Add rendered chart data as a canvas property
+* VFS-10324 Added close button to automation pods activity modal
+* VFS-10283 Made available delete action for files that are data-protected only by hardlink protection inheritance
+* VFS-9711 Added option to delete unfinished archive after archivisation cancelling, enabled by default
+* VFS-10129 Added workflow and lane charts dashboard
+* VFS-10082 Fixed owner for file not found
+* VFS-10000 Added one style for flippable icons
 * VFS-10230 Adjusted items-to-process counter in transfers to reflect backend changes
 * VFS-10136 Added possibility to remove workflow execution
 * VFS-9311 Removed `$.*width()`, `$.*height()`, `$.offset()` and `$.position()` usages

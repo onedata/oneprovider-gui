@@ -57,7 +57,7 @@ export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {
   rootFile: belongsTo('file'),
 
   /**
-   * Possible values: 'metadata_protection', 'data_protection'
+   * @type {ComputedProperty<Array<ProtectionFlag>>}
    */
   protectionFlags: attr('array'),
 
@@ -71,7 +71,7 @@ export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {
    * This property differs for effective flags for file and file dataset summary
    * because files' version concerns protection flags on hardlinks datasets.
    *
-   * Possible values: 'metadata_protection', 'data_protection'
+   * @type {ComputedProperty<Array<ProtectionFlag>>}
    */
   effProtectionFlags: attr('array'),
 

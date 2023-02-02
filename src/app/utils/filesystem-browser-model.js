@@ -558,14 +558,26 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnRename: computed(
-    'selectedItems.@each.dataIsProtected',
+    'dir.dataIsProtected',
     'selectedItemsContainsRecalling',
     function btnRename() {
       const actionId = 'rename';
-      const tip = this.generateDisabledTip({
+      let tip = this.generateDisabledTip({
         protectionType: 'data',
+        protectionScope: 'final',
+        checkProtectionForSelected: false,
+        checkProtectionForCurrentDir: true,
         blockRecalling: true,
       });
+      if (!tip) {
+        // also check if file is not protected by dataset - just as in delete operation
+        tip = this.generateDisabledTip({
+          protectionType: 'data',
+          protectionScope: 'dataset',
+          checkProtectionForSelected: true,
+          checkProtectionForCurrentDir: false,
+        });
+      }
       const disabled = Boolean(tip);
       return this.createFileAction({
         id: actionId,
@@ -708,15 +720,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnCut: computed(
     'selectedItemsContainsOnlySymlinks',
-    'selectedItems.@each.dataIsProtected',
+    'dir.dataIsProtected',
     'selectedItemsContainsRecalling',
     function btnCut() {
       const actionId = 'cut';
-      const tip = this.generateDisabledTip({
+      let tip = this.generateDisabledTip({
         protectionType: 'data',
+        protectionScope: 'final',
+        checkProtectionForSelected: false,
+        checkProtectionForCurrentDir: true,
         blockWhenSymlinksOnly: true,
         blockRecalling: true,
       });
+      if (!tip) {
+        // also check if file is not protected by dataset - just as in delete operation
+        tip = this.generateDisabledTip({
+          protectionType: 'data',
+          protectionScope: 'dataset',
+          checkProtectionForSelected: true,
+          checkProtectionForCurrentDir: false,
+        });
+      }
       const disabled = Boolean(tip);
       return this.createFileAction({
         id: actionId,
@@ -759,12 +783,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnDelete: computed(
-    'selectedItems.@each.dataIsProtected',
+    'selectedItems.@each.dataIsProtectedByDataset',
     'selectedItemsContainsRecalling',
     function btnDelete() {
       const actionId = 'delete';
       const tip = this.generateDisabledTip({
         protectionType: 'data',
+        protectionScope: 'dataset',
         blockRecalling: true,
       });
       const disabled = Boolean(tip);
@@ -1140,8 +1165,23 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     return this.downloadFilesById(fileIds);
   },
 
+  /**
+   *
+   * @param {Object} options
+   * @param {'data'|'metadata'} [protectionType]
+   * @param {'final'|'dataset'} [protectionScope] `final` - check final effective
+   *   protection of file (concerns datasets and hardlinks inherited protection);
+   *   `dataset` - check only protection inherited from dataset hierarchy.
+   * @param {boolean} checkProtectionForCurrentDir
+   * @param {boolean} checkProtectionForSelected
+   * @param {Array<LegacyFileType>} blockFileTypes
+   * @param {boolean} blockWhenSymlinksOnly
+   * @param {boolean} blockRecalling
+   * @returns
+   */
   generateDisabledTip({
     protectionType,
+    protectionScope = 'final',
     checkProtectionForCurrentDir = false,
     checkProtectionForSelected = true,
     blockFileTypes = [],
@@ -1164,10 +1204,24 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
     let tip;
     if (!tip && protectionType) {
-      const protectionProperty = `${protectionType}IsProtected`;
-      const isProtected = checkProtectionForCurrentDir && get(dir, protectionProperty) ||
+      let protectionProperty = `${protectionType}IsProtected`;
+      if (protectionScope === 'dataset') {
+        protectionProperty += 'ByDataset';
+      }
+      const isInProtectedDir =
+        checkProtectionForCurrentDir && get(dir, protectionProperty);
+      const isProtectedFile =
         checkProtectionForSelected && selectedItems.isAny(protectionProperty);
-      tip = isProtected ? this.t('disabledActionReason.writeProtected', {
+      const isProtected = isInProtectedDir || isProtectedFile;
+      let translationKey = 'disabledActionReason.writeProtected';
+      if (
+        checkProtectionForCurrentDir &&
+        !checkProtectionForSelected &&
+        isInProtectedDir
+      ) {
+        translationKey += 'Dir';
+      }
+      tip = isProtected ? this.t(translationKey, {
         protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
       }) : undefined;
     }

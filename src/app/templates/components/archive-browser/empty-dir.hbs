@@ -1,7 +1,7 @@
 <h1 class="empty-dir-text dir-box-text">
   {{tt this "noArchives"}}
 </h1>
-{{#unless datasetIsDetached}}
+{{#if (and canCreateArchive (not datasetIsDetached))}}
   <h2 class="empty-dir-text dir-box-text">
     <a class="empty-archives-create-action" {{action "openCreateArchiveModal"}}>
       <div class="inline-icon-container bind-right-text">
@@ -9,4 +9,4 @@
       </div>&nbsp;{{tt this "createArchive"}}
     </a>
   </h2>
-{{/unless}}
+{{/if}}
