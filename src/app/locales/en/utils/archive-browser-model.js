@@ -11,6 +11,8 @@ export default _.merge({}, BaseBrowserModel, {
   notAvailableForCreating: 'Not available for archives that are not built yet.',
   notAvailableForIncomplete: 'Not available for archives that are not built successfully.',
   notAvailableForDetached: 'Not available in detached dataset.',
+  // using non-breaking hyphen char (&#8209;)
+  forNonOwnedArchives: 'for non‑owned archives',
   fileActions: {
     archiveProperties: 'Properties',
     editDescription: 'Edit description',

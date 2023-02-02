@@ -13,7 +13,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ArchiveFormEditModel from 'oneprovider-gui/utils/archive-form/edit-model';
 import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model';
-import { and, or } from 'ember-awesome-macros';
+import { or } from 'ember-awesome-macros';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { Promise } from 'rsvp';
 import sleep from 'onedata-gui-common/utils/sleep';
@@ -33,6 +33,7 @@ export default EmberObject.extend(...mixins, {
   globalNotify: service(),
   archiveManager: service(),
   modalManager: service(),
+  currentUser: service(),
 
   /**
    * @override
@@ -91,9 +92,17 @@ export default EmberObject.extend(...mixins, {
    */
   canSubmit: reads('hasEditPrivileges', 'isValid'),
 
-  hasEditPrivileges: and(
-    'space.privileges.manageDatasets',
-    'space.privileges.createArchives'
+  hasEditPrivileges: or(
+    'isArchiveCreatedByCurrentUser',
+    'space.privileges.manageArchives',
+  ),
+
+  isArchiveCreatedByCurrentUser: computed(
+    'currentUser.userId',
+    'browsableArchive.creatorId',
+    function isArchiveCreatedByCurrentUser() {
+      return get(this.browsableArchive, 'creatorId') === this.currentUser.userId;
+    }
   ),
 
   isEditable: reads('hasEditPrivileges'),
