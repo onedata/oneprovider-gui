@@ -32,6 +32,10 @@
       }
       &.root-icon-container {
         margin-left: 0.1em;
+
+        &.icon-not-flippable {
+          margin-right: 0.45em;
+        }
         .flippable-icons {
           margin-top: -0.17em;
           --width: 0.9em;
@@ -93,7 +97,7 @@
     .fb-breadcrumbs-dir-name:hover {
       color: darken($color-one-mint, 20%);
     }
-    .dir-name {
+    .space-name {
       padding-left: 0.45em;
     }
   }
