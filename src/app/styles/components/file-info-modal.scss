@@ -121,22 +121,22 @@
         padding-left: 0;
       }
     }
+    .file-info-row-storage-location {
+      td.property-name.with-input-sm {
+        padding-top: 20px;
+      }
+      td.property-value {
+        @media (max-width: $screen-xs-max) {
+          padding-left: 1px;
+          padding-right: 1px;
+        }
+      }
+    }
   }
 
   .user-fullname {
     // hack for glitching cursor
     opacity: 0.9999;
-  }
-
-  .file-info-row-storage-location {
-    td.property-value {
-      padding-top: 0;
-      padding-bottom: 0;
-    }
-
-    td.property-name.with-input-sm {
-      padding-top: 20px;
-    }
   }
 
   .nav-link {
@@ -272,10 +272,26 @@
   }
 
   .storage-locations-expand {
-    padding-bottom: 10px;
+    padding-top: 10px;
   }
 
   .fb-no-dir-statistics .content-info-content-container .row {
     text-align: center;
+  }
+
+  .storage-locations-table {
+    width: 100%;
+
+    @media (max-width: $screen-xs-max) {
+      display: block;
+    }
+
+    .space-between-providers {
+      border: none;
+      box-shadow: none;
+      tr {
+        padding: 10px;
+      }
+    }
   }
 }

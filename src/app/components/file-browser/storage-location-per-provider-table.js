@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 
 export default Component.extend({
-  tagName: 'div',
+  tagName: 'tbody',
   classNames: ['storage-location-per-provider-table'],
 
   /**
