@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10339 Added class-based implementation of a chart point
 * VFS-10229 Added adjustments to automation data fetching needed by changed atm value presenters API
 * VFS-10357 Added support for "manage archives" privilege and "creator" information in archives
 * VFS-10442 Added eslint rule detecting wrong usage of hyphen in translations
