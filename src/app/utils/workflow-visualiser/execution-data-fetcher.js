@@ -166,7 +166,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       getFileDetailsById: this.getFileDetailsById.bind(this),
       getDatasetUrlById: this.getDatasetUrlById.bind(this),
       getDatasetDetailsById: this.getDatasetDetailsById.bind(this),
-      linkTarget: this.parentAppNavigation.navigateTarget,
+      // Using `_blank` to open file/dataset URLs in a new tab
+      linkTarget: '_blank',
     };
   },
 
