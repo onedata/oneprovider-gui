@@ -10,6 +10,7 @@ import { get, computed, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import ClipboardField from 'onedata-gui-common/utils/form-component/clipboard-field';
+import StaticUserField from 'onedata-gui-common/utils/form-component/static-user-field';
 import ArchiveFormBaseModel from 'oneprovider-gui/utils/archive-form/-base-model';
 import _ from 'lodash';
 import { promise, bool } from 'ember-awesome-macros';
@@ -60,6 +61,7 @@ export default ArchiveFormBaseModel.extend({
    */
   rootFieldGroup: computed('rootFieldGroupClass', function rootFieldGroup() {
     const {
+      creatorField,
       rootFormGroupClass,
       archiveIdField,
       descriptionField,
@@ -67,6 +69,7 @@ export default ArchiveFormBaseModel.extend({
       preservedCallbackField,
       deletedCallbackField,
     } = this.getProperties(
+      'creatorField',
       'rootFormGroupClass',
       'archiveIdField',
       'descriptionField',
@@ -78,6 +81,7 @@ export default ArchiveFormBaseModel.extend({
     const fieldGroup = rootFormGroupClass
       .create({
         fields: [
+          creatorField,
           archiveIdField,
           descriptionField,
           configField,
@@ -150,10 +154,17 @@ export default ArchiveFormBaseModel.extend({
     }
   )),
 
+  creatorField: computed(function creatorField() {
+    return StaticUserField.create({
+      name: 'creator',
+    });
+  }),
+
   valuesSource: computed('archive', function valuesSource() {
     const archive = this.get('archive');
     const {
       description,
+      creator,
       config: archiveConfig,
       entityId: archiveId,
       preservedCallback,
@@ -161,6 +172,7 @@ export default ArchiveFormBaseModel.extend({
     } = getProperties(
       archive,
       'description',
+      'creator',
       'config',
       'entityId',
       'preservedCallback',
@@ -177,6 +189,7 @@ export default ArchiveFormBaseModel.extend({
     return {
       archiveId,
       description,
+      creator,
       config: formConfig,
       preservedCallback,
       deletedCallback,

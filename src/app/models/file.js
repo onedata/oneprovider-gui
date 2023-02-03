@@ -24,6 +24,10 @@ import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/mo
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 
+/**
+ * @typedef {'data_protection'|'metadata_protection'} ProtectionFlag
+ */
+
 export const entityType = 'file';
 
 // file entity id holds few values: <guid_type>#<internal_file_id>#<space_id>#<share_id>
@@ -129,6 +133,9 @@ export const RuntimeProperties = Mixin.create({
 
   dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
   metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
+
+  dataIsProtectedByDataset: hasProtectionFlag('effDatasetProtectionFlags', 'data'),
+  metadataIsProtectedByDataset: hasProtectionFlag('effDatasetProtectionFlags', 'metadata'),
 
   isShared: bool('sharesCount'),
 
@@ -327,9 +334,15 @@ export default Model.extend(
     effDatasetMembership: attr('string', { defaultValue: 'none' }),
 
     /**
-     * Available values in array: 'data_protection', 'metadata_protection'
-     * Effective protection flags - concerning attached ancestor dataset flags.
-     * @type {ComputedProperty<Array>}
+     * Effective protection flags inherited from attached ancestor dataset flags.
+     * @type {ComputedProperty<Array<ProtectionFlag>>}
+     */
+    effDatasetProtectionFlags: attr('array'),
+
+    /**
+     * Effective protection flags - concerning attached ancestor dataset flags and
+     * flags inherited from hardlinks.
+     * @type {ComputedProperty<Array<ProtectionFlag>>}
      */
     effProtectionFlags: attr('array'),
 

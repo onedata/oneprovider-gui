@@ -7,6 +7,9 @@ export default _.merge(_.cloneDeep(BaseModel), {
   archiveId: {
     label: 'Archive ID',
   },
+  creator: {
+    label: 'Creator',
+  },
   config: {
     label: 'Initial configuration',
     tip: 'Configuration that was provided during creation of this archive.',

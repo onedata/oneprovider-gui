@@ -70,7 +70,15 @@ export default FbTableRowColumns.extend(I18n, {
     return await this.fileManager.getFileOwner(this.file);
   })),
 
+  /**
+   * @type {Models.User}
+   */
   owner: reads('ownerProxy.content'),
+
+  /**
+   * @type {Object}
+   */
+  errorReasonForOwnerProxy: reads('ownerProxy.reason'),
 
   actions: {
     invokeFileAction(file, btnId, ...args) {

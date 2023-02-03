@@ -25,6 +25,7 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import Looper from 'onedata-gui-common/utils/looper';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
 
 const allButtonNames = Object.freeze([
   'btnArchiveProperties',
@@ -45,6 +46,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   modalManager: service(),
   datasetManager: service(),
   archiveManager: service(),
+  currentUser: service(),
 
   // required by DownloadInBrowser mixin
   fileManager: service(),
@@ -244,12 +246,26 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  isAnySelectedCancelling: array.isAny(
-    'selectedItems',
-    raw('state'),
-    raw('cancelling')
+  isAnySelectedCancelling: computed(
+    'selectedItems.@each.state',
+    function isAnySelectedCancelling() {
+      return this.selectedItems.some(archive =>
+        get(archive, 'state')?.startsWith('cancelling')
+      );
+    }
+  ),
+
+  areAllSelectedCreatedByCurrentUser: computed(
+    'currentUser.userId',
+    'selectedItems.@each.creatorId',
+    function areAllSelectedCreatedByCurrentUser() {
+      const currentUserId = this.currentUser.userId;
+      return this.selectedItems.every(archive =>
+        get(archive, 'creatorId') === currentUserId
+      );
+    },
   ),
 
   selectedArchiveHasDip: and(
@@ -341,15 +357,18 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnEditDescription: computed(
-    'spacePrivileges.createArchives',
+    'areAllSelectedCreatedByCurrentUser',
+    'spacePrivileges.manageArchives',
     function btnEditDescription() {
-      const hasPrivileges = this.spacePrivileges.createArchives;
+      const hasPrivileges = this.areAllSelectedCreatedByCurrentUser ||
+        this.spacePrivileges.manageArchives;
       let disabledTip;
       if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n: this.i18n,
           modelName: 'space',
-          privilegeFlag: ['space_create_archives'],
+          privilegeFlag: ['space_manage_archives'],
+          endingTextInParentheses: this.t('forNonOwnedArchives'),
         });
       }
       return this.createFileAction({
@@ -391,7 +410,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnCreateArchive: computed(
     'dataset',
-    'spacePrivileges.{manageDatasets,createArchives}',
+    'spacePrivileges.createArchives',
     function btnCreateArchive() {
       const {
         spacePrivileges,
@@ -400,14 +419,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         'spacePrivileges',
         'i18n',
       );
-      const hasPrivileges = spacePrivileges.manageDatasets &&
-        spacePrivileges.createArchives;
+      const hasPrivileges = spacePrivileges.createArchives;
       let disabledTip;
       if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
-          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+          privilegeFlag: ['space_create_archives'],
         });
       }
       return this.createFileAction({
@@ -431,7 +449,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnCreateIncrementalArchive: computed(
     'dataset',
     'attachmentState',
-    'spacePrivileges.{manageDatasets,createArchives}',
+    'spacePrivileges.createArchives',
     'isAnySelectedCreating',
     'isAnySelected',
     'isAnySelectedEndedIncomplete',
@@ -457,13 +475,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       } else if (attachmentState === 'detached') {
         disabledTip = this.t('notAvailableForDetached');
       } else {
-        const hasPrivileges = spacePrivileges.manageDatasets &&
-          spacePrivileges.createArchives;
+        const hasPrivileges = spacePrivileges.createArchives;
         if (!hasPrivileges) {
           disabledTip = insufficientPrivilegesMessage({
             i18n,
             modelName: 'space',
-            privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+            privilegeFlag: ['space_create_archives'],
           });
         }
       }
@@ -490,7 +507,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'spacePrivileges.recallArchives',
     'isAnySelectedCreating',
     'isAnySelectedEndedIncomplete',
-    function btnDelete() {
+    function btnRecall() {
       const {
         isAnySelectedCreating,
         isAnySelectedEndedIncomplete,
@@ -582,26 +599,21 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnCancel: computed(
+    'spacePrivileges.manageArchives',
+    'areAllSelectedCreatedByCurrentUser',
     'isAnySelectedCancelling',
     function btnCancel() {
-      const {
-        i18n,
-        spacePrivileges,
-        isAnySelectedCancelling,
-      } = this.getProperties(
-        'i18n',
-        'spacePrivileges',
-        'isAnySelectedCancelling',
-      );
       let disabledTip;
-      const hasPrivileges = spacePrivileges.createArchives;
-      if (isAnySelectedCancelling) {
+      const hasPrivileges = this.areAllSelectedCreatedByCurrentUser ||
+        this.spacePrivileges.createArchives;
+      if (this.isAnySelectedCancelling) {
         disabledTip = this.t('alreadyCancelling');
       } else if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
-          i18n,
+          i18n: this.i18n,
           modelName: 'space',
-          privilegeFlag: ['space_create_archives'],
+          privilegeFlag: ['space_manage_archives'],
+          endingTextInParentheses: this.t('forNonOwnedArchives'),
         });
       }
       return this.createFileAction({
@@ -630,7 +642,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       browserModel: this,
       immediate: false,
     });
-    refreshLooper.on('tick', this.refreshList.bind(this));
+    refreshLooper.on('tick', this.refreshArchivesData.bind(this));
     this.set('refreshLooper', refreshLooper);
   },
 
@@ -655,14 +667,19 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     return item && get(item, 'metaState') === 'destroying';
   },
 
-  refreshList() {
-    const itemsArray = this.get('fbTableApi').getFilesArray();
+  refreshArchivesData() {
+    const fbTableApi = this.fbTableApi;
+    const itemsArray = fbTableApi.getFilesArray();
     if (itemsArray) {
       itemsArray.forEach(item => {
         item.reload()
           .catch(error => {
+            if (isNotFoundError(error) && !fbTableApi.isDestroyed) {
+              fbTableApi.refresh(false);
+            }
             console.warn(
-              `util:archive-browser-model#refreshList: reload list item (${item && get(item, 'id')}) failed: ${error}`
+              `util:archive-browser-model#refreshList: reload list item (${item && get(item, 'id')}) failed`,
+              error
             );
           });
       });
@@ -708,8 +725,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       yesButtonText: this.t('cancelModal.yes'),
       yesButtonType: 'warning',
       noButtonText: this.t('cancelModal.no'),
-      onSubmit: async () => {
-        const submitResult = await this.cancelMultipleArchivization(archives);
+      checkboxMessage: this.t(
+        `cancelModal.deleteAfterCancel.${isMultiple ? 'multi' : 'single'}`
+      ),
+      isCheckboxBlocking: false,
+      isCheckboxInitiallyChecked: true,
+      onSubmit: async ({ isCheckboxChecked: deleteAfterCancel }) => {
+        const submitResult = await this.cancelMultipleArchivization(
+          archives,
+          deleteAfterCancel
+        );
         const firstRejected = submitResult.findBy('state', 'rejected');
         if (firstRejected) {
           const error = get(firstRejected, 'reason');
@@ -724,10 +749,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }).hiddenPromise;
   },
 
-  async cancelMultipleArchivization(archives) {
+  async cancelMultipleArchivization(archives, deleteAfterCancel) {
     const archiveManager = this.archiveManager;
     return await allSettled(archives.map(archive =>
-      archiveManager.cancelArchivization(archive)
+      archiveManager.cancelArchivization(archive, deleteAfterCancel)
     ));
   },
 });

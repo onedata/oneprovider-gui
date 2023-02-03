@@ -100,7 +100,8 @@ export default Component.extend({
         return getProperties(
           revision,
           'lanes',
-          'stores'
+          'stores',
+          'dashboardSpec'
         );
       }
     }
