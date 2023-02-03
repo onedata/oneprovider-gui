@@ -1,61 +1,76 @@
 .storage-location-per-provider-table {
-  padding-bottom: 10px;
-  padding-top: 10px;
+  border-radius: $border-radius-base;
+  box-shadow: 0 0 0 1px $main-border-color;
 
-  .storage-locations-oneprovider {
-    border: 1px solid #d6d6d6;
-    border-radius: $border-radius-base;
+  @media (max-width: $screen-xs-max) {
+    display: block;
+  }
 
-    .storage-locations-table {
-      width: 100%;
-  
-      > tbody > tr > td {
+  tr.oneprovider-name-row {
+    border-bottom: 1px solid #ddd;
+    background-color: #f7f7f7;
+
+    .oneprovider-name-cell {
+      display: table-cell;
+      margin-top: 0;
+      border-top-left-radius: $border-radius-base;
+      border-top-right-radius: $border-radius-base;
+
+      @media (max-width: $screen-xs-max) {
+        display: block;
+      }
+    }
+  }
+
+  .oneprovider-storage-location-row td {
+    &.storage-name-cell {
+      display: table-cell;
+      padding-top: 6px;
+      padding-bottom: $padding-small-vertical;
+      margin-top: 0;
+      height: 33px;
+
+      @media (max-width: $screen-xs-max) {
+        display: block;
+      }
+
+      @media (min-width: $screen-sm-min) {
+        max-width: 20em;
+      }
+
+      @media (min-width: $screen-md-min) {
+        width: 0.1%;
+        white-space: nowrap;
+        padding-top: 4px;
+        max-width: 30em;
+      }
+    }
+
+    &.location-cell {
+      padding: 0;
+      margin-top: 0;
+
+      .empty-location-cell {
+        padding-left: 14px;
+      }
+
+      @media (max-width: $screen-xs-max) {
         border-top: 1px solid #ddd;
-
-        &.storage-name-cell { 
-          padding-top: 6px;
-          padding-bottom: $padding-small-vertical;
-          margin-top: 0;
-          height: 33px;
-
-          @media (min-width: $screen-md-min) {
-            width: 0.1%;
-            white-space: nowrap;
-            padding-top: 4px;
-          }
-        }
-
-        &.location-cell {
-          padding: 0;
-          margin-top: 0;
-        }
-
-        .empty-location-cell {
-          padding-left: 14px;
-        }
-
-        .location-cell-clipboard.clipboard-line {
-          margin-bottom: 0;
-      
-          input {
-            border: none;
-            box-shadow: none;
-            @include font-monospace();
-          }
-        }
-
-        .clipboard-line {
-          margin-bottom: $table-cell-padding;
-        }
       }
+    }
 
-      .oneprovider-name-thead {
-        background-color: #f7f7f7;
-    
-        tr td {
-          margin-top: 0;
-        }
+    .location-cell-clipboard.clipboard-line {
+      margin-bottom: 0;
+
+      input {
+        border: none;
+        box-shadow: none;
+        @include font-monospace();
       }
+    }
+
+    .clipboard-line {
+      margin-bottom: $table-cell-padding;
     }
   }
 }

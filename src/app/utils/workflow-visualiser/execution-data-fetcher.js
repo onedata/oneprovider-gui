@@ -30,7 +30,8 @@ import _ from 'lodash';
 import { inAdvanceRunNumber } from 'onedata-gui-common/utils/workflow-visualiser/run-utils';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
-import { serializedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
+import { convertFromLegacyFileTypeIfNeeded, isFileType } from 'onedata-gui-common/utils/file';
+import guidToCdmiObjectId from 'onedata-gui-common/utils/guid-to-cdmi-object-id';
 
 const notFoundError = { id: 'notFound' };
 const unavailableTaskInstanceIdPrefix = '__unavailableTaskInstanceId';
@@ -45,6 +46,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   i18n: service(),
   parentAppNavigation: service(),
   fileManager: service(),
+  datasetManager: service(),
   filesViewResolver: service(),
   appProxy: service(),
 
@@ -86,7 +88,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         symbolicLinkTargetById: {},
         filePathById: {},
         fileUrlById: {},
+        fileDetailsById: {},
         datasetUrlById: {},
+        datasetDetailsById: {},
       },
     });
   },
@@ -159,8 +163,11 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       getSymbolicLinkTargetById: this.getSymbolicLinkTargetById.bind(this),
       getFilePathById: this.getFilePathById.bind(this),
       getFileUrlById: this.getFileUrlById.bind(this),
+      getFileDetailsById: this.getFileDetailsById.bind(this),
       getDatasetUrlById: this.getDatasetUrlById.bind(this),
-      linkTarget: this.parentAppNavigation.navigateTarget,
+      getDatasetDetailsById: this.getDatasetDetailsById.bind(this),
+      // Using `_blank` to open file/dataset URLs in a new tab
+      linkTarget: '_blank',
     };
   },
 
@@ -653,7 +660,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     } = getProperties(target, 'cdmiObjectId', 'type', 'name', 'size');
     const result = {
       file_id: targetCdmiObjectId,
-      type: serializedFileTypes[targetType],
+      type: convertFromLegacyFileTypeIfNeeded(targetType),
       name: targetName,
       size: targetSize,
     };
@@ -700,6 +707,35 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   },
 
   /**
+   * @param {string} cdmiObjectId
+   * @returns {Promise<AtmFile|null>}
+   */
+  async getFileDetailsById(cdmiObjectId) {
+    const fileId = cdmiObjectId && cdmiObjectIdToGuid(cdmiObjectId);
+    if (!fileId) {
+      return null;
+    }
+    const cache = this.atmStoreContentPresentersCache;
+    if (fileId in cache.fileDetailsById) {
+      return cache.fileDetailsById[fileId];
+    }
+
+    const file = await this.fileManager.getFileById(fileId);
+    const result = {
+      file_id: cdmiObjectId,
+      name: get(file, 'name'),
+      size: get(file, 'size') ?? null,
+    };
+    const fileType = convertFromLegacyFileTypeIfNeeded(get(file, 'type'));
+    if (isFileType(fileType)) {
+      result.type = fileType;
+    }
+
+    cache.fileDetailsById[fileId] = result;
+    return result;
+  },
+
+  /**
    * @param {string} datasetId
    * @returns {Promise<string|null>}
    */
@@ -715,6 +751,31 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       selectedDatasets: [datasetId],
     }) || null;
     cache.datasetUrlById[datasetId] = result;
+    return result;
+  },
+
+  /**
+   * @param {string} datasetId
+   * @returns {Promise<AtmDataset|null>}
+   */
+  async getDatasetDetailsById(datasetId) {
+    if (!datasetId) {
+      return null;
+    }
+    const cache = this.atmStoreContentPresentersCache;
+    if (datasetId in cache.datasetDetailsById) {
+      return cache.datasetDetailsById[datasetId];
+    }
+
+    const dataset = await this.datasetManager.getDataset(datasetId);
+    const result = {
+      datasetId,
+      rootFileId: guidToCdmiObjectId(dataset.relationEntityId('rootFile')),
+      rootFilePath: get(dataset, 'rootFilePath'),
+      rootFileType: convertFromLegacyFileTypeIfNeeded(get(dataset, 'rootFileType')),
+    };
+
+    cache.datasetDetailsById[datasetId] = result;
     return result;
   },
 });

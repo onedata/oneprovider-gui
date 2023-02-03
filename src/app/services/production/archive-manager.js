@@ -165,7 +165,20 @@ export default Service.extend({
    */
   async modifyArchive(archive, data) {
     archive.setProperties(data);
-    await archive.save();
+    try {
+      await archive.save();
+    } catch (saveError) {
+      archive.rollbackAttributes();
+      try {
+        await archive.reload();
+      } catch (reloadError) {
+        console.error(
+          'modifyArchive: error reloading archive after save failure',
+          reloadError
+        );
+      }
+      throw saveError;
+    }
     try {
       await archive.belongsTo('dataset').reload();
     } catch (error) {
