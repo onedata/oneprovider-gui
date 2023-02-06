@@ -178,12 +178,12 @@ export default Component.extend(I18n, {
   onRegisterApi: notImplementedIgnore,
 
   /**
-   * @type {String}
+   * @type {ComputedProperty<string>}
    */
-  spaceId: reads('space?.entityId'),
+  spaceId: reads('space.entityId'),
 
   /**
-   * @type {SpacePrivileges}
+   * @type {ComputedProperty<SpacePrivileges>}
    */
   spacePrivileges: or(
     'space.privileges',

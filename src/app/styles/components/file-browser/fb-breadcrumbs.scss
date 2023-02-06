@@ -27,14 +27,16 @@
   }
   .fb-breadcrumbs-dir-root {
     .inline-icon-container {
+      margin-right: 0.45em;
+
       .one-icon {
         font-size: 210%;
       }
       &.root-icon-container {
         margin-left: 0.1em;
 
-        &.icon-not-flippable {
-          margin-right: 0.45em;
+        &.icon-info-trigger, &.icon-info-last-element-trigger {
+          margin-right: 0;
         }
         .flippable-icons {
           margin-top: -0.17em;

@@ -34,7 +34,7 @@
               }}
             {{/record-info-popover}}
           {{else}}
-            <div class="inline-icon-container root-icon-container icon-not-flippable">
+            <div class="inline-icon-container root-icon-container">
               {{one-icon icon=rootIcon}}
               {{#if item.isRoot}}
                 {{one-tooltip title=filteredBreadcrumbsItemsProxy.firstObject.file.name}}
@@ -104,7 +104,7 @@
             }}
           {{/record-info-popover}}
         {{else}}
-          <div class="inline-icon-container root-icon-container icon-not-flippable">
+          <div class="inline-icon-container root-icon-container">
             {{one-icon icon=rootIcon}}
           </div>
         {{/if}}
@@ -164,7 +164,7 @@
         {{action "changeDir" currentItem.file}}
       >
         {{#if areItemsEmpty}}
-          <div class="inline-icon-container root-icon-container icon-not-flippable">
+          <div class="inline-icon-container root-icon-container">
             {{one-icon icon=rootIcon}}
           </div>
         {{/if}}
