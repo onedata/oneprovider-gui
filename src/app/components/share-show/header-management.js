@@ -49,6 +49,12 @@ export default HeaderBaseComponent.extend(I18n, {
   shareRootDeleted: false,
 
   /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
    * @type {Boolean}
    */
   removeShareOpened: false,

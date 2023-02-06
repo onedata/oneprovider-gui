@@ -1,6 +1,6 @@
 /**
  * List and show share browsers that belong to some space
- * 
+ *
  * @module components/space-shares
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH

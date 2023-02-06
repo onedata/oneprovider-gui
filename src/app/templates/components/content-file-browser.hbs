@@ -2,15 +2,14 @@
   {{file-browser
     browserModel=browserModel
     dir=dir
-    spaceId=spaceEntityId
-    spacePrivileges=spacePrivileges
+    space=spaceProxy.content
     selectedItems=selectedItems
     selectedItemsForJumpProxy=selectedItemsForJumpProxy
     isSpaceOwned=spaceProxy.currentUserIsOwner
+    dirStatsServiceState=dirStatsServiceStateProxy.content
     getItemByIdFun=(action getItemById)
     changeSelectedItems=(action "changeSelectedItems")
     updateDirEntityId=(action "updateDirEntityId")
-    dirStatsServiceState=dirStatsServiceStateProxy.content
   }}
   <div class="upload-drop-zone {{if effUploadDisabled "upload-disabled"}}">
     <div class="upload-info">

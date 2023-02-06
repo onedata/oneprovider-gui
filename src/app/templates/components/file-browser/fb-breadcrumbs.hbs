@@ -7,17 +7,56 @@
         data-dir-guid={{item.file.entityId}}
       >
         {{#if (eq i 0)}}
-          <div class="inline-icon-container root-icon-container">
-            {{one-icon icon=rootIcon}}
-          </div>
-          {{#if alwaysShowRootName}}
-            <span class="dir-name">{{item.name}}</span>
+          {{#if isFlippableSpaceRootIcon}}
+            <div
+              class="inline-icon-container root-icon-container icon-info-trigger"
+              {{action
+                (mut isRootItemInfoOpened)
+                (not isRootItemInfoOpened)
+                bubbles=false
+              }}
+              onmouseover={{action "rootItemInfoHovered" true}}
+              onmouseleave={{action "rootItemInfoHovered" false}}
+            >
+              {{flippable-icons
+                iconName=rootIcon
+                isHovered=isRootItemInfoHovered
+                suppressFlipping=isRootItemInfoOpened
+              }}
+            </div>
+            {{#record-info-popover
+              isOpened=isRootItemInfoOpened
+              triggerSelector=(concat "#" elementId " .icon-info-trigger")
+            }}
+              {{space-info-content
+                space=space
+                closeSpaceInfoPopover=(action "closeSpaceInfoPopover")
+              }}
+            {{/record-info-popover}}
+          {{else}}
+            <div class="inline-icon-container root-icon-container">
+              {{one-icon icon=rootIcon}}
+              {{#if item.isRoot}}
+                {{one-tooltip title=filteredBreadcrumbsItemsProxy.firstObject.file.name}}
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if (or isFlippableSpaceRootIcon alwaysShowRootName)}}
+            <span
+              class={{concat-classes
+                "dir-name"
+                (if (eq rootIcon "space") "space-name")
+              }}
+              onmouseover={{if (eq rootIcon "space") (action "rootItemInfoHovered" true)}}
+              onmouseleave={{if (eq rootIcon "space") (action "rootItemInfoHovered" false)}}
+            >
+              {{#truncated-string}}
+                {{item.name}}
+              {{/truncated-string}}
+            </span>
           {{/if}}
         {{else}}
           <span class="dir-name">{{item.name}}</span>
-        {{/if}}
-        {{#if item.isRoot}}
-          {{one-tooltip title=filteredBreadcrumbsItemsProxy.firstObject.file.name}}
         {{/if}}
       </a>
       {{#if item.extraName}}
@@ -34,17 +73,54 @@
   {{!-- last element - current dir --}}
   {{#if menuButtons.length}}
     <a class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button black truncate {{if dirActionsOpen "active"}} {{if areItemsEmpty "fb-breadcrumbs-dir-root"}}"
-      onclick={{disable-bubbling (action "toggleDirActions")}}
       data-dir-guid={{currentItem.file.entityId}}
       style={{lastItemStyle}}
     >
-      <span class="fb-breadcrumbs-dir-name">
-        {{#if areItemsEmpty}}
+      {{#if areItemsEmpty}}
+        {{#if isFlippableSpaceRootIcon}}
+          <div
+            class="inline-icon-container root-icon-container icon-info-last-element-trigger"
+            onclick={{action
+              (mut isRootItemInfoOpened)
+              (not isRootItemInfoOpened)
+              bubbles=false
+            }}
+            onmouseover={{action "rootItemInfoHovered" true}}
+            onmouseleave={{action "rootItemInfoHovered" false}}
+          >
+            {{flippable-icons
+              iconName=rootIcon
+              isHovered=isRootItemInfoHovered
+              suppressFlipping=isRootItemInfoOpened
+            }}
+          </div>
+          {{#record-info-popover
+            isOpened=isRootItemInfoOpened
+            triggerSelector=(concat "#" elementId " .icon-info-last-element-trigger")
+          }}
+            {{space-info-content
+              space=space
+              closeSpaceInfoPopover=(action "closeSpaceInfoPopover")
+            }}
+          {{/record-info-popover}}
+        {{else}}
           <div class="inline-icon-container root-icon-container">
             {{one-icon icon=rootIcon}}
           </div>
         {{/if}}
-        <span class="dir-name">{{currentItem.name}}</span>
+      {{/if}}
+      <span
+        class="fb-breadcrumbs-dir-name"
+        onclick={{disable-bubbling (action "toggleDirActions")}}
+      >
+        <span
+          class={{concat-classes
+            "dir-name"
+            (if (and (eq rootIcon "space") areItemsEmpty) "space-name")
+          }}
+          onmouseover={{if areItemsEmpty (action "rootItemInfoHovered" true)}}
+          onmouseleave={{if areItemsEmpty (action "rootItemInfoHovered" false)}}
+        >{{currentItem.name}}</span>
         {{#if currentItem.extraName}}
           {{one-label-tip
             class="extra-name-label-tip"
