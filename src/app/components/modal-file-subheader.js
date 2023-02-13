@@ -72,13 +72,13 @@ export default Component.extend(I18n, {
     'multi',
     computed('files.@each.name', function tuncatedTextTip() {
       return htmlSafe(
-        '<div class="multi-item-list">' +
+        '<ul class="tags-input">' +
         this.files.map(file =>
-          `<span class="item">${file.name}</span>`
+          `<li class="tag-item">${file.name}</li>`
           // NOTE: span list MUST be separated by spaces, because otherwise it will not
           // wrap elements in Firefox
         ).join(' ') +
-        '</div>'
+        '</ul>'
       );
     }),
     raw(undefined),
@@ -90,7 +90,7 @@ export default Component.extend(I18n, {
     function truncatedTextTooltipClass() {
       const resultClasses = [];
       if (this.multi) {
-        resultClasses.push('tooltip-modal-file-subheader-multi');
+        resultClasses.push('tooltip-modal-file-subheader-multi', 'tooltip-with-tags');
         if (this.isHugeMultiText) {
           resultClasses.push('huge-content');
         }
