@@ -4,6 +4,8 @@ import _ from 'lodash';
 import { resolve } from 'rsvp';
 import { get, computed } from '@ember/object';
 import { collect } from '@ember/object/computed';
+import { reads } from '@ember/object/computed';
+import { inject as service } from '@ember/service';
 
 const rootDir = {
   id: 'file.root.instance:private',
@@ -35,6 +37,8 @@ const lastDir = dirs[dirsCount - 1] || rootDir;
 lastDir.name += ' with very long name';
 
 export default Component.extend({
+  mockBackend: service(),
+
   classNames: ['dummy-fb-breadcrumbs', 'dummy-component'],
 
   dirFive: lastDir,
@@ -42,6 +46,8 @@ export default Component.extend({
   dirThree: dirs[dirsCount - 3],
   dirTwo: dirs[dirsCount - 4],
   dirOne: rootDir,
+
+  space: reads('mockBackend.entityRecords.space.0'),
 
   allButtonsArray: collect('btnDummyCurrentDir', 'btnDummySpaceRootDir'),
 

@@ -47,6 +47,12 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual optional
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
+   * @virtual optional
    * @type {String}
    */
   dirId: undefined,
