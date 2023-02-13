@@ -1,22 +1,20 @@
-{{#promise-proxy-container proxy=defaultFormValuesProxy}}
-  {{#if (gt inputStoresFieldsCollectionGroup.useSelectionPossibilitesCount 1)}}
-    <div class="alert alert-info text-center cannot-guess-store-warning">
-      {{tt this "cannotGuessStoreForSelection"}}
-    </div>
-  {{/if}}
-  <form class="form form-horizontal form-component">
-    {{form-component/field-renderer field=fields}}
-  </form>
-  {{#items-select-browser-modal
-    open=filesSelectionProcess.isActive
-    selectorModel=filesSelectionProcess.filesSelectorModel
-    onHide=(action "filesSelectorClose")
-    onSubmit=(action "filesSelected")
-    onCancel=(action "filesSelectorClose")
-  }}
-    <h2 class="normal-case">
-      {{tt this "filesSelectorSubheader" storeName=filesSelectionProcess.storeName}}
-    </h2>
-  {{/items-select-browser-modal}}
-{{/promise-proxy-container}}
+{{#if (gt inputStoresFieldsCollectionGroup.useSelectionPossibilitesCount 1)}}
+  <div class="alert alert-info text-center cannot-guess-store-warning">
+    {{tt this "cannotGuessStoreForSelection"}}
+  </div>
+{{/if}}
+<form class="form form-horizontal form-component">
+  {{form-component/field-renderer field=fields}}
+</form>
+{{#items-select-browser-modal
+  open=itemsSelectionProcess
+  selectorModel=itemsSelectionProcess.selectorModel
+  onHide=(action "itemsSelectorClose")
+  onSubmit=(action "itemsSelected")
+  onCancel=(action "itemsSelectorClose")
+}}
+  <h2 class="normal-case">
+    {{tt this "itemsSelectorSubheader" storeName=itemsSelectionProcess.atmStore.name}}
+  </h2>
+{{/items-select-browser-modal}}
 {{yield}}

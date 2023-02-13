@@ -1,9 +1,8 @@
 /**
  * Gathers user input to fill in workflow input stores.
  *
- * @module components/space-automation/input-stores-form
  * @author Michał Borzęcki
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,83 +11,34 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
 import FormFieldsCollectionGroup from 'onedata-gui-common/utils/form-component/form-fields-collection-group';
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
-import JsonField from 'onedata-gui-common/utils/form-component/json-field';
-import TagsField from 'onedata-gui-common/utils/form-component/tags-field';
-import { tag, not, getBy, eq, raw, promise, conditional, array } from 'ember-awesome-macros';
-import EmberObject, { computed, observer, get, getProperties, set } from '@ember/object';
+import HiddenField from 'onedata-gui-common/utils/form-component/hidden-field';
+import { tag, not, getBy, raw, conditional, array } from 'ember-awesome-macros';
+import { computed, observer, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { validator } from 'ember-cp-validations';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { scheduleOnce } from '@ember/runloop';
-import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
-import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
-import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
-import { resolve, all as allFulfilled } from 'rsvp';
 import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
 import DatasetModel from 'oneprovider-gui/utils/items-select-browser/dataset-model';
 import { normalizedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
-import { getStoreWriteDataSpec } from 'onedata-gui-common/utils/workflow-visualiser/data-spec-converters';
-import { doesDataSpecFitToStoreWrite } from 'onedata-gui-common/utils/atm-workflow/store-config';
+import { getDataSpecForStoreDefaultValue } from 'onedata-gui-common/utils/atm-workflow/store-config';
+import {
+  ValueEditorField as AtmValueEditorField,
+  rawValueToFormValue as atmRawValueToFormValue,
+  formValueToRawValue as atmFormValueToRawValue,
+} from 'onedata-gui-common/utils/atm-workflow/value-editors';
+import _ from 'lodash';
+import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/execution-data-fetcher';
+import { isAtmDataSpecMatchingFilters } from 'onedata-gui-common/utils/atm-workflow/data-spec/filters';
+import { AtmDataSpecType } from 'onedata-gui-common/utils/atm-workflow/data-spec/types';
 
 export const executeWorkflowDataLocalStorageKey = 'executeWorkflowInputData';
-
-const FileTag = EmberObject.extend(I18n, OwnerInjector, {
-  i18n: service(),
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.spaceAutomation.inputStoresForm.fileTag',
-
-  /**
-   * @type {Models.File|Models.Dataset}
-   */
-  value: undefined,
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  label: computed('value.{name,creationTime}', function label() {
-    // TODO: VFS-7816 uncomment or remove future code
-    // if (this.get('value.constructor.modelName') === 'archive') {
-    //   return dateFormat([this.get('value.creationTime')], { format: 'dateWithMinutes' });
-    // }
-    const name = this.get('value.name');
-    if (!name) {
-      return String(this.t('unknownName'));
-    }
-    return name;
-  }),
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  tip: computed('value.{modelName,entityId}', function tip() {
-    const {
-      modelName,
-      entityId,
-    } = getProperties(this.get('value') || {}, 'modelName', 'entityId');
-
-    if (!modelName || !entityId) {
-      return;
-    }
-
-    return this.t('idTooltip', {
-      id: modelName === 'file' ? guidToCdmiObjectId(entityId) : entityId,
-    });
-  }),
-});
 
 export default Component.extend(I18n, {
   classNames: ['input-stores-form'],
   classNameBindings: ['isDisabled:form-disabled:form-enabled'],
 
   i18n: service(),
-  fileManager: service(),
-  datasetManager: service(),
-  // TODO: VFS-7816 uncomment or remove future code
-  // archiveManager: service(),
 
   /**
    * @override
@@ -141,17 +91,16 @@ export default Component.extend(I18n, {
   /**
    * ```
    * {
-   *   isActive: Boolean,
-   *   filesSelectorModel: Utils.ItemsSelectBrowser.FilesystemModel|Utils.ItemsSelectBrowser.DatasetModel,
-   *   storeName: String,
-   *   onTagsAddedCallback: Function, // callback received from tags-field
-   *   onEndTagCreationCallback: Function, // callback received from tags-field
+   *   selectorModel: Utils.ItemsSelectBrowser.FilesystemModel|Utils.ItemsSelectBrowser.DatasetModel,
+   *   atmStore: Object,
+   *   onSelected: Function,
+   *   onCancelled: Function,
    * }
    * ```
    * Is undefined if there is not active files selection process.
-   * @type {Object|undefined}
+   * @type {Object|null}
    */
-  filesSelectionProcess: undefined,
+  itemsSelectionProcess: null,
 
   /**
    * @type {Storage}
@@ -188,45 +137,38 @@ export default Component.extend(I18n, {
    * Set by `updateDefaultFormValues`
    * @type {Object}
    */
-  defaultFormValuesProxy: promise.object(computed(
+  defaultFormValues: computed(
     'inputStores.[]',
     'localStorageData',
-    async function defaultFormValuesProxy() {
+    function defaultFormValues() {
       const {
         inputStores,
         localStorageData,
       } = this.getProperties('inputStores', 'localStorageData');
 
-      return await inputStoresToFormData(
+      return inputStoresToFormData(
         inputStores,
-        (...args) => this.getFileRecord(...args),
         localStorageData
       );
     }
-  )),
+  ),
 
   /**
    * @type {ComputedProperty<Utils.FormComponent.FormFieldsRootGroup>}
    */
   fields: computed(function fields() {
-    const {
-      inputStoresFieldsCollectionGroup,
-    } = this.getProperties(
-      'inputStoresFieldsCollectionGroup'
-    );
-
     return FormFieldsRootGroup.extend({
       i18nPrefix: tag `${'component.i18nPrefix'}.fields`,
       ownerSource: reads('component'),
       isEnabled: not('component.isDisabled'),
       onValueChange() {
         this._super(...arguments);
-        scheduleOnce('afterRender', this.get('component'), 'notifyAboutChange');
+        scheduleOnce('afterRender', this.component, 'notifyAboutChange');
       },
     }).create({
       component: this,
       fields: [
-        inputStoresFieldsCollectionGroup,
+        this.inputStoresFieldsCollectionGroup,
       ],
     });
   }),
@@ -237,144 +179,76 @@ export default Component.extend(I18n, {
   inputStoresFieldsCollectionGroup: computed(function inputStoresFieldsCollectionGroup() {
     const component = this;
     return FormFieldsCollectionGroup.extend({
-      defaultValue: getBy('component', tag `defaultFormValuesProxy.content.${'path'}`),
+      defaultValue: getBy('component', tag `defaultFormValues.${'path'}`),
       useSelectionPossibilitesCount: array.length(
-        array.filterBy('fields', raw('storeHasUseSelectionInputMethod'))
+        array.filterBy('fields', raw('storeUseSelectionData'))
       ),
       fieldFactoryMethod(uniqueFieldValueName) {
         return FormFieldsGroup.extend({
-          label: reads('value.storeName'),
-          tip: reads('value.storeDescription'),
-          activeEditor: computed(
-            'value.{storeType,storeDataSpec}',
-            function activeEditor() {
-              const {
-                storeType,
-                storeDataSpec,
-              } = getProperties(this.get('value') || {}, 'storeType', 'storeDataSpec');
-              return getValueEditorForStoreType(storeType, storeDataSpec);
-            }
-          ),
-          activeEditorField: array.findBy('fields', raw('name'), 'activeEditor'),
+          context: reads('value.context'),
+          label: reads('context.atmStore.name'),
+          tip: reads('context.atmStore.description'),
           afterComponentName: conditional(
-            'storeHasUseSelectionInputMethod',
+            'storeUseSelectionData',
             raw('space-automation/input-stores-form/use-selection-button'),
             raw(undefined)
           ),
-          storeHasUseSelectionInputMethod: reads('value.storeHasUseSelectionInputMethod'),
-          storeUseSelectionData: reads('value.storeUseSelectionData'),
-          hasValueEqualToValueFromSelection: computed(
-            'storeHasUseSelectionInputMethod',
+          storeValueField: computed('fields.[]', function storeValueField() {
+            return this.fields.find(({ name }) => name === 'storeValue') ?? null;
+          }),
+          storeUseSelectionData: reads('context.storeUseSelectionData'),
+          storeUseSelectionDataCount: computed(
             'storeUseSelectionData',
-            'activeEditorField.value',
-            function hasValueEqualToValueFromSelection() {
-              const {
-                storeHasUseSelectionInputMethod,
-                storeUseSelectionData,
-                activeEditorField,
-              } = this.getProperties(
-                'storeHasUseSelectionInputMethod',
-                'storeUseSelectionData',
-                'activeEditorField'
-              );
-              if (!storeHasUseSelectionInputMethod) {
-                return false;
-              }
-              const {
-                name,
-                value,
-              } = getProperties(activeEditorField, 'name', 'value');
-              if (name === 'filesValue') {
-                return Array.isArray(value) &&
-                  storeUseSelectionData.length === value.length &&
-                  storeUseSelectionData.every((elem, idx) =>
-                    get(elem, 'entityId') === (get(value[idx], 'entityId'))
-                  );
+            function storeUseSelectionDataCount() {
+              if (!this.storeUseSelectionData) {
+                return 0;
+              } else if (!Array.isArray(this.storeUseSelectionData)) {
+                return 1;
               } else {
-                return storeUseSelectionData === value;
+                return this.storeUseSelectionData.length;
               }
             }
           ),
+          hasValueEqualToValueFromSelection: computed(
+            'storeUseSelectionData',
+            'value.storeValue',
+            function hasValueEqualToValueFromSelection() {
+              if (!this.storeUseSelectionData) {
+                return false;
+              }
+              return _.isEqual(
+                this.value?.storeValue,
+                atmRawValueToFormValue(this.storeUseSelectionData)
+              );
+            }
+          ),
           useValueFromSelection() {
-            const {
-              activeEditorField,
-              storeHasUseSelectionInputMethod,
-              storeUseSelectionData,
-            } = this.getProperties(
-              'activeEditorField',
-              'storeHasUseSelectionInputMethod',
-              'storeUseSelectionData'
-            );
-            if (storeHasUseSelectionInputMethod) {
-              activeEditorField.valueChanged(storeUseSelectionData);
+            if (this.context?.storeUseSelectionData) {
+              this.storeValueField?.valueChanged(
+                atmRawValueToFormValue(this.context.storeUseSelectionData)
+              );
             }
           },
         }).create({
           name: 'inputStore',
           valueName: uniqueFieldValueName,
-          component,
           fields: [
-            JsonField.extend({
-              isVisible: eq('parent.activeEditor', raw('rawValue')),
-            }).create({
-              name: 'rawValue',
-              customValidators: [
-                validator(function (value, options, model) {
-                  let parsedValue;
-                  try {
-                    parsedValue = JSON.parse(value);
-                  } catch (e) {
-                    // If JSON is not valid, then return true. Invalid JSON format
-                    // will cause error in default JSON field validator.
-                    return true;
-                  }
-                  const field = get(model, 'field');
-                  const storeType = get(field, 'parent.value.storeType');
-                  const storeDataSpec = get(field, 'parent.value.storeDataSpec');
-                  const isValid =
-                    validateStoreInitialContent(parsedValue, storeType, storeDataSpec);
-                  return isValid ||
-                    String(field.t(`${get(field, 'path')}.errors.badValue`));
-                }, {
-                  dependentKeys: [
-                    'model.field.parent.value.storeType',
-                    'model.field.parent.value.storeDataSpec',
-                  ],
-                }),
-              ],
-            }),
-            TagsField.extend({
-              isVisible: eq('parent.activeEditor', raw('filesValue')),
-              tagEditorSettings: computed(
-                'parent.value.{storeDataSpec,storeName}',
-                function tagEditorSettings() {
-                  const storeDataSpec = this.get('parent.value.storeDataSpec');
-                  const storeName = this.get('parent.value.storeName');
-                  return {
-                    startTagCreationCallback: (...args) =>
-                      component.startFilesSelection(storeName, storeDataSpec, ...args),
-                    endTagCreationCallback: () => component.endFilesSelection(),
-                  };
+            HiddenField.create({ name: 'context' }),
+            AtmValueEditorField.extend({
+              atmDataSpec: computed('parent.context.atmStore', function atmDataSpec() {
+                const atmStore = this.parent?.context?.atmStore;
+                return atmStore ? getDataSpecForStoreDefaultValue(atmStore) : null;
+              }),
+              editorContext: computed(
+                'parent.context.atmStore',
+                function editorContext() {
+                  const atmStore = this.parent?.context?.atmStore;
+                  return atmStore ?
+                    component.createAtmValueEditorContext(atmStore) : null;
                 }
               ),
-              tagsLimit: conditional(
-                eq('parent.value.storeType', raw('singleValue')),
-                raw(1),
-                raw(undefined)
-              ),
             }).create({
-              name: 'filesValue',
-              tagEditorComponentName: 'tags-input/external-editor',
-              isClearButtonVisible: true,
-              valueToTags(value) {
-                return (value || []).map(val => FileTag.create({
-                  ownerSource: this,
-                  value: val,
-                }));
-              },
-              tagsToValue(tags) {
-                return tags.mapBy('value').uniqBy('entityId');
-              },
+              name: 'storeValue',
             }),
           ],
         });
@@ -389,38 +263,26 @@ export default Component.extend(I18n, {
     });
   }),
 
-  defaultFormValuesProxyObserver: observer(
-    'defaultFormValuesProxy.isFulfilled',
-    function defaultFormValuesProxyObserver() {
-      if (this.get('defaultFormValuesProxy.isFulfilled')) {
-        this.get('fields').reset();
-      }
+  defaultFormValuesObserver: observer(
+    'defaultFormValues',
+    function defaultFormValuesObserver() {
+      this.fields.reset();
     }
   ),
 
   init() {
     this._super(...arguments);
     this.loadDataFromLocalStorage();
-    this.defaultFormValuesProxyObserver();
+    this.defaultFormValuesObserver();
   },
 
   loadDataFromLocalStorage() {
-    const {
-      _localStorage,
-      atmWorkflowSchema,
-      atmWorkflowSchemaRevisionNumber,
-      loadValuesFromLocalStorage,
-    } = this.getProperties(
-      '_localStorage',
-      'atmWorkflowSchema',
-      'atmWorkflowSchemaRevisionNumber',
-      'loadValuesFromLocalStorage'
-    );
-    const atmWorkflowSchemaId = get(atmWorkflowSchema, 'entityId');
+    const atmWorkflowSchemaId = this.get('atmWorkflowSchema.entityId');
 
     let data = null;
-    if (atmWorkflowSchemaId && loadValuesFromLocalStorage) {
-      const localStorageData = _localStorage.getItem(executeWorkflowDataLocalStorageKey);
+    if (atmWorkflowSchemaId && this.loadValuesFromLocalStorage) {
+      const localStorageData =
+        this._localStorage.getItem(executeWorkflowDataLocalStorageKey);
       if (localStorageData) {
         try {
           data = JSON.parse(localStorageData);
@@ -433,142 +295,146 @@ export default Component.extend(I18n, {
 
         if (data && (
             data.atmWorkflowSchemaId !== atmWorkflowSchemaId ||
-            data.atmWorkflowSchemaRevisionNumber !== atmWorkflowSchemaRevisionNumber
+            data.atmWorkflowSchemaRevisionNumber !== this.atmWorkflowSchemaRevisionNumber
           )) {
           data = null;
         }
       }
     }
 
-    _localStorage.removeItem(executeWorkflowDataLocalStorageKey);
+    this._localStorage.removeItem(executeWorkflowDataLocalStorageKey);
     this.set('localStorageData', data);
   },
 
   notifyAboutChange() {
-    const {
-      onChange,
-      fields,
-    } = this.getProperties('onChange', 'fields');
-
-    const stores = this.get('atmWorkflowSchemaRevision.stores') || [];
-
-    onChange({
-      data: formDataToInputStoresValues(fields.dumpValue(), stores),
-      isValid: get(fields, 'isValid'),
+    this.onChange?.({
+      data: formDataToInputStoresValues(this.fields.dumpValue()),
+      isValid: this.fields.isValid,
     });
   },
 
-  async getFileRecord(modelName, id) {
-    const {
-      fileManager,
-      datasetManager,
-    } = this.getProperties('fileManager', 'datasetManager');
-    switch (modelName) {
-      case 'file': {
-        const entityId = cdmiObjectIdToGuid(id);
-        return fileManager.getFileById(cdmiObjectIdToGuid(id))
-          .catch(() => ({ entityId }));
-      }
-      case 'dataset':
-        return datasetManager.getDataset(id).catch(() => ({ entityId: id }));
-        // TODO: VFS-7816 uncomment or remove future code
-        // case 'archive':
-        //   return archiveManager.getArchive(id).catch(() => ({ entityId: id }));
-      default:
-        return resolve(null);
-    }
-  },
-
-  startFilesSelection(storeName, storeDataSpec, {
-    onTagsAddedCallback,
-    onEndTagCreationCallback,
-    tagsLimit,
-  }) {
-    const space = this.get('space');
-    if (this.get('filesSelectionProcess.isActive')) {
-      this.endFilesSelection();
-      onEndTagCreationCallback && onEndTagCreationCallback();
-      return;
-    }
-
-    const type = storeDataSpec && storeDataSpec.type;
-    // TODO: VFS-7816 uncomment or remove future code
-    // if (!['file', 'dataset', 'archive'].includes(type)) {
-    if (!['file', 'dataset'].includes(type)) {
-      return;
-    }
-
-    const constraintSpec = {
-      maxItems: tagsLimit,
+  /**
+   * @param {Object} atmStore
+   * @returns {AtmValueEditorContext}
+   */
+  createAtmValueEditorContext(atmStore) {
+    const editorContext = ExecutionDataFetcher.create({ ownerSource: this })
+      .getStoreContentPresenterContext();
+    editorContext.selectFiles = (selectorConfig) => {
+      this.startFilesSelection(atmStore, selectorConfig);
     };
-
-    let filesSelectorModel;
-    switch (type) {
-      case 'file': {
-        const fileType = get(storeDataSpec, 'valueConstraints.fileType');
-        if (fileType in normalizedFileTypes) {
-          constraintSpec.allowedFileTypes = [normalizedFileTypes[fileType]];
-        }
-        filesSelectorModel = FilesystemModel.create({
-          ownerSource: this,
-          constraintSpec,
-          space,
-        });
-        break;
-      }
-      case 'dataset':
-        filesSelectorModel = DatasetModel.create({
-          ownerSource: this,
-          constraintSpec,
-          space,
-        });
-        break;
-      default:
-        return;
-    }
-
-    this.set('filesSelectionProcess', {
-      isActive: true,
-      filesSelectorModel,
-      storeName,
-      onTagsAddedCallback,
-      onEndTagCreationCallback,
-    });
+    editorContext.selectDatasets = (selectorConfig) => {
+      this.startDatasetsSelection(atmStore, selectorConfig);
+    };
+    return editorContext;
   },
 
-  endFilesSelection() {
-    const filesSelectionProcess = this.get('filesSelectionProcess');
-    if (!filesSelectionProcess) {
+  startFilesSelection(atmStore, {
+    atmFileType,
+    allowMany,
+    onSelected,
+    onCancelled,
+  }) {
+    const constraintSpec = {};
+    if (!allowMany) {
+      constraintSpec.maxItems = 1;
+    }
+    if (atmFileType in normalizedFileTypes) {
+      constraintSpec.allowedFileTypes = [normalizedFileTypes[atmFileType]];
+    }
+
+    const selectorModel = FilesystemModel.create({
+      ownerSource: this,
+      constraintSpec,
+      space: this.space,
+    });
+
+    this.startItemsSelection({ atmStore, selectorModel, onSelected, onCancelled });
+  },
+
+  startDatasetsSelection(atmStore, {
+    allowMany,
+    onSelected,
+    onCancelled,
+  }) {
+    const constraintSpec = {};
+    if (!allowMany) {
+      constraintSpec.maxItems = 1;
+    }
+
+    const selectorModel = DatasetModel.create({
+      ownerSource: this,
+      constraintSpec,
+      space: this.space,
+    });
+
+    this.startItemsSelection({ atmStore, selectorModel, onSelected, onCancelled });
+  },
+
+  startItemsSelection({ atmStore, selectorModel, onSelected, onCancelled }) {
+    if (this.itemsSelectionProcess) {
+      this.cancelItemsSelection();
       return;
     }
 
-    set(filesSelectionProcess, 'isActive', false);
-    const onEndTagCreationCallback =
-      get(filesSelectionProcess, 'onEndTagCreationCallback');
-    onEndTagCreationCallback && onEndTagCreationCallback();
+    this.set('itemsSelectionProcess', {
+      atmStore,
+      selectorModel,
+      onSelected,
+      onCancelled,
+    });
+  },
+
+  cancelItemsSelection() {
+    if (!this.itemsSelectionProcess) {
+      return;
+    }
+
+    this.itemsSelectionProcess?.onCancelled();
+    this.set('itemsSelectionProcess', null);
+  },
+
+  /**
+   * @param {Array<Models.File|Models.Dataset>} items
+   * @returns {Array<AtmFile|AtmDataset>}
+   */
+  convertFilesAndDatasetsToAtmValues(items) {
+    return items.map((item) => {
+      const record = item?.content ?? item;
+      switch (record?.constructor?.modelName) {
+        case 'file':
+          return {
+            file_id: record.cdmiObjectId,
+          };
+        case 'dataset':
+          return {
+            datasetId: record.entityId,
+          };
+        default:
+          return null;
+      }
+    }).filter(Boolean);
   },
 
   actions: {
-    filesSelected(files) {
-      const onTagsAddedCallback =
-        this.get('filesSelectionProcess.onTagsAddedCallback');
-
-      if (!onTagsAddedCallback || !files || !files.length) {
+    itemsSelected(items) {
+      const onSelected = this.itemsSelectionProcess?.onSelected;
+      if (!onSelected || !items?.length) {
         return;
       }
 
-      onTagsAddedCallback(files.map(file => FileTag.create({
-        ownerSource: this,
-        value: file,
-      })));
+      onSelected(this.convertFilesAndDatasetsToAtmValues(items));
+      this.set('itemsSelectionProcess', null);
     },
-    filesSelectorClose() {
-      this.endFilesSelection();
+    itemsSelectorClose() {
+      if (this.itemsSelectionProcess) {
+        this.cancelItemsSelection();
+      }
     },
   },
 });
 
-async function inputStoresToFormData(inputStores, getFileRecord, localStorageData) {
+function inputStoresToFormData(inputStores, localStorageData) {
   const inputStoresFormValues = {
     __fieldsValueNames: [],
   };
@@ -583,276 +449,76 @@ async function inputStoresToFormData(inputStores, getFileRecord, localStorageDat
   const inputStoresForSelection = inputStores
     .filter(inputStore => hasUseSelectionInputMethod(inputStore, localStorageData));
 
-  const storePromises = inputStores.map(async inputStore => {
+  inputStores.forEach((inputStore) => {
     if (!inputStore) {
       return;
     }
 
-    const {
-      id,
-      name,
-      description,
-      type,
-      defaultInitialContent,
-    } = getProperties(
-      inputStore,
-      'id',
-      'name',
-      'description',
-      'type',
-      'defaultInitialContent',
-    );
-
-    const valueName = `inputStore${id}`;
+    const valueName = `inputStore${inputStore.id}`;
     inputStoresFormValues.__fieldsValueNames.push(valueName);
 
-    const writeDataSpec = getStoreWriteDataSpec(inputStore);
-    const editor = getValueEditorForStoreType(type, writeDataSpec);
-    const { data: editorValue } = await storeValueToFormValue(
-      type,
-      writeDataSpec,
-      defaultInitialContent,
-      getFileRecord
-    );
-    const storeHasUseSelectionInputMethod =
-      inputStoresForSelection.includes(inputStore);
     let storeUseSelectionData;
-    let storeUseSelectionDataCount;
-    if (storeHasUseSelectionInputMethod) {
+    if (inputStoresForSelection.includes(inputStore)) {
       const rawUseSelectionData = get(localStorageData || {}, 'inputStoresData.data');
       if (rawUseSelectionData) {
-        const {
-          data,
-          count,
-        } = await storeValueToFormValue(
-          type,
-          writeDataSpec,
-          rawUseSelectionData,
-          getFileRecord
-        );
-        storeUseSelectionData = data;
-        storeUseSelectionDataCount = count;
+        storeUseSelectionData =
+          getDataSpecForStoreDefaultValue(inputStore)?.type !== 'array' &&
+          Array.isArray(rawUseSelectionData) ?
+          rawUseSelectionData[0] : rawUseSelectionData;
       }
     }
     const isOnlyStoreForSelection = storeUseSelectionData &&
       inputStoresForSelection.length === 1;
 
     const inputStoreFormValues = {
-      storeId: id,
-      storeName: name,
-      storeDescription: description,
-      storeType: type,
-      storeDataSpec: writeDataSpec,
-      storeHasUseSelectionInputMethod,
-      storeUseSelectionData,
-      storeUseSelectionDataCount,
-      [editor]: isOnlyStoreForSelection ?
-        storeUseSelectionData : editorValue,
+      context: {
+        atmStore: inputStore,
+        storeUseSelectionData,
+      },
+      storeValue: atmRawValueToFormValue(
+        isOnlyStoreForSelection ?
+        storeUseSelectionData : inputStore.defaultInitialContent,
+        false,
+      ),
     };
     inputStoresFormValues[valueName] = inputStoreFormValues;
   });
 
-  await allFulfilled(storePromises);
   return formValues;
 }
 
-function getValueEditorForStoreType(type, dataSpec) {
-  const dataSpecType = dataSpec && dataSpec.type;
-  switch (type) {
-    case 'singleValue':
-    case 'list':
-      // TODO: VFS-7816 uncomment or remove future code
-      // return ['file', 'dataset', 'archive'].includes(dataSpecType) ?
-      //   'filesValue' : 'rawValue';
-      return ['file', 'dataset'].includes(dataSpecType) ?
-        'filesValue' : 'rawValue';
-    case 'treeForest':
-      return 'filesValue';
-    case 'auditLog':
-    default:
-      return 'rawValue';
-  }
-}
-
-function validateStoreInitialContent(initialContent, type, dataSpec) {
-  if (getValueEditorForStoreType(type, dataSpec) !== 'rawValue') {
-    // Only raw JSONs entered by user are validated
-    return true;
-  }
-
-  switch (type) {
-    case 'singleValue':
-      return validateStoreElement(initialContent, type, dataSpec);
-    case 'list':
-    case 'auditLog':
-      // TODO: VFS-7816 uncomment or remove future code
-      // case 'histogram':
-      return Array.isArray(initialContent) &&
-        initialContent.every(element => validateStoreElement(element, type, dataSpec));
-      // TODO: VFS-7816 uncomment or remove future code
-      // case 'map':
-      //   return typeof initialContent === 'object' &&
-      //     initialContent !== null &&
-      //     !Array.isArray(initialContent) &&
-      //     Object.values(initialContent)
-      //     .every(element => validateStoreElement(element, dataSpec));
-    default:
-      return true;
-  }
-}
-
-function validateStoreElement(element, storeType, dataSpec) {
-  let normalizedElement = element;
-  if (storeType === 'auditLog') {
-    if (typeof element === 'object') {
-      if (!element) {
-        return false;
-      } else if ('entry' in element) {
-        normalizedElement = element.entry;
-      } else {
-        // element can have field `severity`, but it should not break further validations
-        normalizedElement = element;
-      }
+function formDataToInputStoresValues(formData) {
+  const atmStoreValues = {};
+  formData?.inputStores?.__fieldsValueNames?.forEach((fieldValueName) => {
+    const formGroupValue = formData.inputStores[fieldValueName];
+    const atmStoreSchemaId = formGroupValue?.context?.atmStore?.id;
+    if (atmStoreSchemaId) {
+      atmStoreValues[atmStoreSchemaId] =
+        atmFormValueToRawValue(formGroupValue.storeValue);
     }
-  }
-
-  switch (dataSpec && dataSpec.type) {
-    case 'number':
-      return Number.isFinite(normalizedElement);
-    case 'boolean':
-      return typeof normalizedElement === 'boolean';
-    case 'string':
-      return typeof normalizedElement === 'string';
-    case 'object':
-      return typeof normalizedElement === 'object' &&
-        normalizedElement !== null &&
-        !Array.isArray(normalizedElement);
-    case 'histogram':
-      // Format of histograms is not known yet. For now both arrays and objects are valid.
-      return typeof normalizedElement === 'object' && normalizedElement !== null;
-      // TODO: VFS-7816 uncomment or remove future code
-      // case 'archive':
-    case 'file':
-    case 'dataset': {
-      const idValue = normalizedElement &&
-        normalizedElement[getIdFieldNameForDataSpec(dataSpec)];
-      return idValue && typeof idValue === 'string';
-    }
-    default:
-      return true;
-  }
-}
-
-function formDataToInputStoresValues(formData, stores) {
-  const inputStores = get(formData, 'inputStores') || {};
-  const inputStoresSpecs = (stores || []).filterBy('requiresInitialContent');
-  const storeValues = {};
-  (get(inputStores, '__fieldsValueNames') || []).forEach((valueName, idx) => {
-    const inputStore = get(inputStores, valueName);
-    const storeSpec = inputStoresSpecs[idx];
-    if (!inputStore || !storeSpec) {
-      return;
-    }
-
-    const {
-      id,
-      type,
-    } = getProperties(storeSpec, 'id', 'type');
-    const writeDataSpec = getStoreWriteDataSpec(storeSpec);
-
-    const editor = getValueEditorForStoreType(type, writeDataSpec);
-    let initialContent;
-    if (editor === 'rawValue') {
-      try {
-        initialContent = JSON.parse(get(inputStore, editor));
-      } catch (e) {
-        return;
-      }
-    } else {
-      const idFieldName = getIdFieldNameForDataSpec(writeDataSpec);
-      const transformId = writeDataSpec && writeDataSpec.type === 'file' ?
-        (id => guidToCdmiObjectId(id)) : (id => id);
-      initialContent = (get(inputStore, editor) || []).map(item => ({
-        [idFieldName]: transformId(get(item, 'entityId')),
-      }));
-      if (type === 'singleValue') {
-        initialContent = initialContent[0];
-      }
-    }
-
-    storeValues[id] = initialContent;
   });
 
-  return storeValues;
-}
-
-function getIdFieldNameForDataSpec(dataSpec) {
-  switch (dataSpec && dataSpec.type) {
-    case 'file':
-      return 'file_id';
-    case 'dataset':
-      return 'datasetId';
-      // TODO: VFS-7816 uncomment or remove future code
-      // case 'archive':
-      //   return 'archiveId';
-  }
-}
-
-async function storeValueToFormValue(storeType, dataSpec, value, getFileRecord) {
-  const editor = getValueEditorForStoreType(storeType, dataSpec);
-  let editorValue = value;
-  let valuesCount;
-  if (editor === 'rawValue') {
-    const valueIsNone = editorValue === null || editorValue === undefined;
-    if ((storeType === 'singleValue' || storeType === 'range') && Array.isArray(value)) {
-      editorValue = value[0];
-    } else if (
-      storeType !== 'singleValue' &&
-      storeType !== 'range' &&
-      !Array.isArray(value) &&
-      !valueIsNone
-    ) {
-      editorValue = [value];
-    }
-    valuesCount = Array.isArray(editorValue) ? editorValue.length : 1;
-    editorValue = valueIsNone ?
-      '' : JSON.stringify(editorValue, null, 2);
-  } else if (editor === 'filesValue') {
-    const modelName = dataSpec && dataSpec.type;
-    // TODO: VFS-7816 uncomment or remove future code
-    // if (editorValue && ['file', 'dataset', 'archive'].includes(modelName)) {
-    if (editorValue && ['file', 'dataset'].includes(modelName)) {
-      const idFieldName = getIdFieldNameForDataSpec(dataSpec);
-      editorValue = (await allFulfilled(
-        editorValue.mapBy(idFieldName).compact().map(id =>
-          getFileRecord(modelName, id)
-        )
-      )).compact();
-    } else {
-      editorValue = [];
-    }
-    valuesCount = editorValue.length;
-  }
-  return {
-    data: editorValue,
-    count: valuesCount,
-  };
+  return atmStoreValues;
 }
 
 function hasUseSelectionInputMethod(inputStore, localStorageData) {
-  if (!inputStore || !localStorageData) {
+  const dataSpec = localStorageData?.inputStoresData?.dataSpec;
+  const data = localStorageData?.inputStoresData?.data;
+  if (!inputStore || !dataSpec || !data?.length) {
     return false;
   }
-  const {
-    dataSpec,
-    data,
-  } = getProperties(
-    get(localStorageData, 'inputStoresData') || {},
-    'dataSpec',
-    'data'
-  );
-  if (!dataSpec || !data || !data.length) {
-    return false;
-  }
-  return doesDataSpecFitToStoreWrite(dataSpec, inputStore);
+
+  const dataSpecInArray = {
+    type: AtmDataSpecType.Array,
+    valueConstraints: {
+      itemDataSpec: dataSpec,
+    },
+  };
+
+  const defaultValueAtmDataSpecFilters = [{
+    filterType: 'typeOrSubtype',
+    types: [getDataSpecForStoreDefaultValue(inputStore)],
+  }];
+  return isAtmDataSpecMatchingFilters(dataSpec, defaultValueAtmDataSpecFilters) ||
+    isAtmDataSpecMatchingFilters(dataSpecInArray, defaultValueAtmDataSpecFilters);
 }
