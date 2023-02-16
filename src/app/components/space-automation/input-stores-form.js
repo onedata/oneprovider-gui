@@ -198,7 +198,7 @@ export default Component.extend(I18n, {
           }),
           storeUseSelectionData: reads('context.storeUseSelectionData'),
           storeUseSelectionDataCount: computed(
-            'storeUseSelectionData',
+            'storeUseSelectionData.length',
             function storeUseSelectionDataCount() {
               if (!this.storeUseSelectionData) {
                 return 0;
