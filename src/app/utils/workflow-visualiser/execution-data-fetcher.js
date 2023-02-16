@@ -768,9 +768,10 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     }
 
     const dataset = await this.datasetManager.getDataset(datasetId);
+    const rootFileId = dataset.relationEntityId('rootFile');
     const result = {
       datasetId,
-      rootFileId: guidToCdmiObjectId(dataset.relationEntityId('rootFile')),
+      rootFileId: rootFileId ? guidToCdmiObjectId(rootFileId) : null,
       rootFilePath: get(dataset, 'rootFilePath'),
       rootFileType: convertFromLegacyFileTypeIfNeeded(get(dataset, 'rootFileType')),
     };

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach, context } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find, findAll, fillIn } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
@@ -7,193 +7,10 @@ import OneTooltipHelper from '../../../helpers/one-tooltip';
 import sinon from 'sinon';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import { lookupService } from '../../../helpers/stub-service';
-
-const dataSpecConfigs = {
-  number: {
-    dataSpec: {
-      type: 'number',
-      valueConstraints: {},
-    },
-    correctValues: ['5', '0', '-100', '0.5'],
-    incorrectValues: ['null', '{}', '[]', '"1"'],
-  },
-  boolean: {
-    dataSpec: {
-      type: 'boolean',
-      valueConstraints: {},
-    },
-    correctValues: ['true', 'false'],
-    incorrectValues: ['10', 'null', '[]', '"1"'],
-  },
-  string: {
-    dataSpec: {
-      type: 'string',
-      valueConstraints: {},
-    },
-    correctValues: ['""', '"123"'],
-    incorrectValues: ['10', 'null', '{}', '[]'],
-  },
-  object: {
-    dataSpec: {
-      type: 'object',
-      valueConstraints: {},
-    },
-    correctValues: ['{}', '{"a": 123, "b": {}}'],
-    incorrectValues: ['10', 'null', '[]', '"1"'],
-  },
-  // TODO: VFS-7816 uncomment or remove future code
-  // histogram: {
-  //   dataSpec: {
-  //     type: 'histogram',
-  //     valueConstraints: {},
-  //   },
-  //   correctValues: ['{"a": 123}'],
-  //   incorrectValues: ['10', 'null', '"1"'],
-  // },
-  anyFile: {
-    dataSpec: {
-      type: 'file',
-      valueConstraints: {
-        fileType: 'ANY',
-      },
-    },
-    correctValues: ['{"file_id": "123"}'],
-    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-  },
-  regularFile: {
-    dataSpec: {
-      type: 'file',
-      valueConstraints: {
-        fileType: 'REG',
-      },
-    },
-    correctValues: ['{"file_id": "123"}'],
-    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-  },
-  directory: {
-    dataSpec: {
-      type: 'file',
-      valueConstraints: {
-        fileType: 'DIR',
-      },
-    },
-    correctValues: ['{"file_id": "123"}'],
-    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-  },
-  symlink: {
-    dataSpec: {
-      type: 'file',
-      valueConstraints: {
-        fileType: 'SYMLNK',
-      },
-    },
-    correctValues: ['{"file_id": "123"}'],
-    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-  },
-  dataset: {
-    dataSpec: {
-      type: 'dataset',
-      valueConstraints: {},
-    },
-    correctValues: ['{"datasetId": "123"}'],
-    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-  },
-  // TODO: VFS-7816 uncomment or remove future code
-  // archive: {
-  //   dataSpec: {
-  //     type: 'archive',
-  //     valueConstraints: {},
-  //   },
-  //   correctValues: ['{"archiveId": "123"}'],
-  //   incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-  // },
-};
-
-const dataSpecConfigsArray = [];
-Object.keys(dataSpecConfigs).forEach(dataSpecConfigName => {
-  const dataSpecConfig = dataSpecConfigs[dataSpecConfigName];
-  dataSpecConfig.name = dataSpecConfigName;
-  dataSpecConfigsArray.push(dataSpecConfig);
-});
-const allEditors = ['filesValue', 'rawValue'];
-
-const dataSpecSpecificEditors = {
-  anyFile: 'filesValue',
-  regularFile: 'filesValue',
-  directory: 'filesValue',
-  symlink: 'filesValue',
-  dataset: 'filesValue',
-  // TODO: VFS-7816 uncomment or remove future code
-  // archive: 'filesValue',
-  default: 'rawValue',
-};
-
-const arrayLikeValuesGenerator = elements =>
-  elements.map(elements => `[${elements}]`)
-  .concat(elements.length > 1 ? [`[${elements.join(',')}]`] : []);
-const storeTypes = {
-  list: {
-    allowedDataSpecConfigs: dataSpecConfigsArray,
-    dataSpecConfigKey: 'itemDataSpec',
-    editors: dataSpecSpecificEditors,
-    complexContentsGenerator: arrayLikeValuesGenerator,
-  },
-  // TODO: VFS-7816 uncomment or remove future code
-  // map: {
-  //   allowedDataSpecConfigs: dataSpecConfigsArray,
-  //   editors: {
-  //     default: 'rawValue',
-  //   },
-  //   complexContentsGenerator: simpleValues =>
-  //     simpleValues.map(simpleValue => `{"k0":${simpleValue}}`)
-  //     .concat(simpleValues.length > 1 ? [
-  //       `{${simpleValues.map((simpleValue, i) => `"k${i}":${simpleValue}`).join(',')}}`,
-  //     ] : []),
-  // },
-  treeForest: {
-    allowedDataSpecConfigs: [
-      dataSpecConfigs.anyFile,
-      dataSpecConfigs.regularFile,
-      dataSpecConfigs.directory,
-      dataSpecConfigs.symlink,
-      dataSpecConfigs.dataset,
-    ],
-    dataSpecConfigKey: 'itemDataSpec',
-    editors: {
-      default: 'filesValue',
-    },
-    complexContentsGenerator: () => [],
-  },
-  singleValue: {
-    allowedDataSpecConfigs: dataSpecConfigsArray,
-    dataSpecConfigKey: 'itemDataSpec',
-    editors: dataSpecSpecificEditors,
-    complexContentsGenerator: simpleValues => simpleValues,
-    filesLimit: 1,
-  },
-  // TODO: VFS-7816 uncomment or remove future code
-  // histogram: {
-  //   allowedDataSpecConfigs: [
-  //     dataSpecConfigs.histogram,
-  //   ],
-  //   editors: {
-  //     default: 'rawValue',
-  //   },
-  //   complexContentsGenerator: arrayLikeValuesGenerator,
-  // },
-  // auditLog: {
-  //   allowedDataSpecConfigs: dataSpecConfigsArray,
-  //   editors: dataSpecSpecificEditors,
-  //   complexContentsGenerator: arrayLikeValuesGenerator,
-  // },
-};
-
-const storeTypesArray = [];
-Object.keys(storeTypes).forEach(storeTypeName => {
-  const storeType = storeTypes[storeTypeName];
-  storeType.name = storeTypeName;
-  storeTypesArray.push(storeType);
-});
+import { AtmDataSpecType } from 'onedata-gui-common/utils/atm-workflow/data-spec/types';
+import gri from 'onedata-gui-websocket-client/utils/gri';
+import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
+import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 
 describe('Integration | Component | space automation/input stores form', function () {
   setupRenderingTest();
@@ -287,122 +104,96 @@ describe('Integration | Component | space automation/input stores form', functio
       expect(find('.one-label-tip')).to.not.exist;
     });
 
-  storeTypesArray.forEach(({
-    name: storeTypeName,
-    allowedDataSpecConfigs,
-    dataSpecConfigKey,
-    editors,
-    complexContentsGenerator,
-  }) => {
-    allowedDataSpecConfigs.forEach(({
-      name: dataSpecName,
-      dataSpec,
-      correctValues,
-      incorrectValues,
-    }) => {
-      context(`when store is of type ${storeTypeName} with ${dataSpecName} elements`, function () {
-        beforeEach(function () {
-          setStores(this, [{
-            id: 's1',
-            name: 'store1',
-            type: storeTypeName,
-            config: {
-              [dataSpecConfigKey]: dataSpec,
-            },
-            requiresInitialContent: true,
-          }]);
-        });
+  it('fills initial store value based on "store.defaultInitialContent"', async function () {
+    await renderComponent();
 
-        const editor = editors[dataSpecName] || editors.default;
-        const incorrectEditors = allEditors.without(editor);
-        it(`shows ${editor} value editor`, async function () {
-          await renderComponent();
+    expect(find('.number-editor .form-control')).to.have.value('10');
+  });
 
-          expect(find(`.${editor}-field`)).to.exist;
-          incorrectEditors.forEach(incorrectEditor =>
-            expect(find(`.${incorrectEditor}-field`)).to.not.exist
-          );
-        });
+  it('notifies about current state (valid values scenario)', async function () {
+    await renderComponent();
 
-        if (editor === 'rawValue') {
-          const correctInitialContents = complexContentsGenerator(correctValues);
-          const incorrectInitialContents = complexContentsGenerator(incorrectValues);
+    await fillIn('.number-editor .form-control', '123');
 
-          correctInitialContents.forEach(initialContent => {
-            it(`recognizes ${initialContent} value as valid`, async function () {
-              const changeSpy = this.get('changeSpy');
-              await renderComponent();
-
-              await fillIn(`.${editor}-field .form-control`, initialContent);
-
-              expect(find(`.${editor}-field`)).to.not.have.class('.has-error');
-              expect(changeSpy).to.be.calledWith({
-                data: {
-                  s1: JSON.parse(initialContent),
-                },
-                isValid: true,
-              });
-            });
-          });
-
-          incorrectInitialContents.forEach(initialContent => {
-            it(`recognizes ${initialContent} value as invalid`, async function () {
-              const changeSpy = this.get('changeSpy');
-              await renderComponent();
-
-              await fillIn(`.${editor}-field .form-control`, initialContent);
-
-              expect(find(`.${editor}-field`)).to.have.class('has-error');
-              expect(changeSpy).to.be.calledWith({
-                data: {
-                  s1: JSON.parse(initialContent),
-                },
-                isValid: false,
-              });
-            });
-          });
-
-          it('fills initial value with JSON', async function () {
-            const rawValue = JSON.parse(correctInitialContents[0]);
-            getStores(this)[0].defaultInitialContent = rawValue;
-
-            await renderComponent();
-
-            expect(find(`.${editor}-field .form-control`))
-              .to.have.value(JSON.stringify(rawValue, null, 2));
-          });
-        }
-
-        if (editor === 'filesValue') {
-          it('fills initial value with an element with known name', async function () {
-            getStores(this)[0].defaultInitialContent = [{
-              [getFileIdFieldName(dataSpec)]: getStoreFileId(dataSpec, 0),
-            }];
-            const isArchive = dataSpec.type === 'archive';
-            const fileData = isArchive ? { creationTime: 1623318692 } : { name: 'someName' };
-            mockFileRecord(this, dataSpec, 0, fileData);
-
-            await renderComponent();
-
-            expect(find(`.${editor}-field .form-control`))
-              .to.contain.text(isArchive ? '2021' : 'someName');
-          });
-
-          it('fills initial value with an element, that cannot be loaded',
-            async function () {
-              getStores(this)[0].defaultInitialContent = [{
-                [getFileIdFieldName(dataSpec)]: getStoreFileId(dataSpec, 0),
-              }];
-              mockFileRecord(this, dataSpec, 0, null);
-
-              await renderComponent();
-
-              expect(find(`.${editor}-field .form-control`))
-                .to.contain.text('Unknown');
-            });
-        }
-      });
+    expect(this.changeSpy).to.be.calledWith({
+      data: {
+        store1: 123,
+        store2: [],
+      },
+      isValid: true,
     });
+  });
+
+  it('notifies about current state (invalid values scenario)', async function () {
+    await renderComponent();
+
+    await fillIn('.number-editor .form-control', '');
+
+    expect(this.changeSpy).to.be.calledWith({
+      data: {
+        store1: NaN,
+        store2: [],
+      },
+      isValid: false,
+    });
+  });
+
+  it('shows selected file name', async function () {
+    setStores(this, [{
+      id: 'store1',
+      name: 'store1',
+      type: 'singleValue',
+      config: {
+        itemDataSpec: {
+          type: AtmDataSpecType.File,
+        },
+      },
+      defaultInitialContent: { file_id: guidToCdmiObjectId('id0') },
+      requiresInitialContent: true,
+    }]);
+    const dataStore = lookupService(this, 'store');
+    sinon.stub(lookupService(this, 'file-manager'), 'getFileById')
+      .withArgs('id0').resolves(dataStore.createRecord('file', {
+        id: gri({
+          entityType: fileEntityType,
+          entityId: 'id0',
+          aspect: 'instance',
+          scope: 'auto',
+        }),
+        name: 'file1',
+      }).save());
+    await renderComponent();
+
+    expect(find('.file-editor')).to.contain.text('file1');
+  });
+
+  it('shows selected dataset name', async function () {
+    setStores(this, [{
+      id: 'store1',
+      name: 'store1',
+      type: 'singleValue',
+      config: {
+        itemDataSpec: {
+          type: AtmDataSpecType.Dataset,
+        },
+      },
+      defaultInitialContent: { datasetId: 'id0' },
+      requiresInitialContent: true,
+    }]);
+    const dataStore = lookupService(this, 'store');
+    sinon.stub(lookupService(this, 'dataset-manager'), 'getDataset')
+      .withArgs('id0').resolves(dataStore.createRecord('dataset', {
+        id: gri({
+          entityType: datasetEntityType,
+          entityId: 'id0',
+          aspect: 'instance',
+          scope: 'auto',
+        }),
+        rootFilePath: 'a/b/file1',
+      }).save());
+    await renderComponent();
+
+    expect(find('.dataset-editor')).to.contain.text('file1');
   });
 
   it('has all fields enabled by default', async function () {
@@ -441,48 +232,4 @@ function getStores(testCase) {
 
 function setStores(testCase, stores) {
   return testCase.set('atmWorkflowSchema.revisionRegistry.1.stores', stores);
-}
-
-function getFileIdFieldName(dataSpec) {
-  return dataSpec.type === 'file' ? 'file_id' : `${dataSpec.type}Id`;
-}
-
-function getFileId(idx) {
-  return `id${idx}`;
-}
-
-function getStoreFileId(dataSpec, idx) {
-  const id = getFileId(idx);
-  if (dataSpec.type === 'file') {
-    return guidToCdmiObjectId(id);
-  }
-  return id;
-}
-
-function mockFileRecord(testCase, dataSpec, idx, data) {
-  const entityId = getFileId(idx);
-  const fileData = data ? Object.assign({
-    entityId,
-    constructor: { modelName: dataSpec.type },
-  }, data) : null;
-  let stub;
-  switch (dataSpec.type) {
-    case 'file':
-      stub = sinon.stub(lookupService(testCase, 'file-manager'), 'getFileById')
-        .withArgs(entityId).resolves(fileData);
-      break;
-    case 'dataset':
-      stub = sinon.stub(lookupService(testCase, 'dataset-manager'), 'getDataset')
-        .withArgs(entityId).resolves(fileData);
-      break;
-    case 'archive':
-      stub = sinon.stub(lookupService(testCase, 'archive-manager'), 'getArchive')
-        .withArgs(entityId).resolves(fileData);
-      break;
-  }
-  if (fileData) {
-    stub.resolves(fileData);
-  } else {
-    stub.rejects();
-  }
 }
