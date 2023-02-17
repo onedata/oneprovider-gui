@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10103 Changed showing clipboard in popovers info
 * VFS-10367 Improved editor of input stores content in workflow execution wizard
 * VFS-10365 Improved editor of automation store default value
 * VFS-9999 Added detailed space details popovers with space information in various views
