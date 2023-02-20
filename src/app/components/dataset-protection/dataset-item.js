@@ -60,7 +60,7 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {String}
    */
-  togglesReadonlyMessage: 'Test 9',
+  togglesReadonlyMessage: '',
 
   /**
    * @virtual
