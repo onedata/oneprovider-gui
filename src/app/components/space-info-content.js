@@ -18,6 +18,6 @@ export default SpaceInfoContent.extend({
   showLinkToRestApiModal: true,
 
   onOpenRestApiModal() {
-    return this.appProxy.callParent('openRestApiModal', this.space);
+    return this.appProxy.callParent('openRestApiModal', this.record);
   },
 });
