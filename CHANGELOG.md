@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9305 Refactored one-tab-bar to not use jQuery
 * VFS-8987 Fixed Oneprovider circle broadcast animation in Safari
 * VFS-10103 Changed showing clipboard in popovers info
 * VFS-10367 Improved editor of input stores content in workflow execution wizard
