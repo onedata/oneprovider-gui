@@ -6,4 +6,5 @@ export default {
     metadata: headerMetadata,
   },
   changingWriteProtectionSettings: 'changing write protection settings',
+  metadataLockedDataDisabled: 'Metadata write protection requires data write protection',
 };
