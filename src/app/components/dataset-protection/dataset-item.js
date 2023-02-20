@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import EmberObject, { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { and, conditional, raw, not, or } from 'ember-awesome-macros';
+import { and, not, or } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
