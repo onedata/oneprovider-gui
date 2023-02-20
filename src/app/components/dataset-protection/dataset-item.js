@@ -110,33 +110,33 @@ export default Component.extend(I18n, {
 
   actions: {
     async toggleDatasetProtectionFlag(flag, state) {
-      const {
-        globalNotify,
-        dataset,
-        datasetManager,
-        updateOpenedFileData,
-      } = this.getProperties(
-        'globalNotify',
-        'dataset',
-        'datasetManager',
-        'updateOpenedFileData'
-      );
+      const setProtectionFlags = [];
+      const unsetProtectionFlags = [];
+      // illegal operation - cannot set metadata protection when data is not protected
+      if (flag === 'metadata_protection' && state && !this.dataIsProtected) {
+        return;
+      }
+      (state ? setProtectionFlags : unsetProtectionFlags).push(flag);
+      // auto turn off metadata protection when data protection is set to off
+      if (flag === 'data_protection' && !state) {
+        unsetProtectionFlags.push('metadata_protection');
+      }
       try {
-        await datasetManager.toggleDatasetProtectionFlag(
-          dataset,
-          flag,
-          state
+        await this.datasetManager.changeMultipleDatasetProtectionFlags(
+          this.dataset,
+          setProtectionFlags,
+          unsetProtectionFlags,
         );
       } catch (error) {
-        globalNotify.backendError(this.t('changingWriteProtectionSettings'), error);
+        this.globalNotify.backendError(this.t('changingWriteProtectionSettings'), error);
         throw error;
       } finally {
         // do not wait for resolve - it's only a side effect
         if (typeof updateOpenedFileData === 'function') {
-          const rootFileProxy = get(dataset, 'rootFile');
+          const rootFileProxy = get(this.dataset, 'rootFile');
           if (rootFileProxy) {
             rootFileProxy.then(file => {
-              updateOpenedFileData({ fileInvokingUpdate: file });
+              this.updateOpenedFileData({ fileInvokingUpdate: file });
             });
           }
         }
