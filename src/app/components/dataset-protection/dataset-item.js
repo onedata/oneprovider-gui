@@ -3,18 +3,19 @@
  *
  * @module components/dataset-protection/dataset-item
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { and } from 'ember-awesome-macros';
+import { and, conditional, raw, not, or } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import protectionIcons from 'oneprovider-gui/utils/dataset-protection/protection-icons';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -71,6 +72,20 @@ export default Component.extend(I18n, {
    * @type {Object}
    */
   protectionIcons,
+
+  /**
+   * @type {ComputedProeprty<string>}
+   */
+  metadataEffToggleReadonlyMessage: or(
+    'metadataToggleReadonlyMessage',
+    and(not('dataIsProtected'), computedT('metadataLockedDataDisabled')),
+  ),
+
+  dataEffToggleReadonlyMessage: reads('dataToggleReadonlyMessage'),
+
+  dataReadonly: or('readonly', 'dataEffToggleReadonlyMessage'),
+
+  metadataReadonly: or('readonly', 'metadataEffToggleReadonlyMessage'),
 
   /**
    * @type {ComputedProperty<Boolean>}

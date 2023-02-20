@@ -2,33 +2,47 @@
   {{yield}}
 </td>
 {{#each (array "data" "metadata") as |protectionType|}}
-  <td class="col-dataset-protection col-dataset-protection-{{protectionType}}">
-    <div class="dataset-protection-control">
-      {{#if (media "isMobile")}}
-        <label for={{concat elementId "-" protectionType "-flag-toggle"}}>
-          {{tt this (concat "toggleLabels." protectionType)}}
-        </label>
-      {{/if}}
-      <div class="toggle-container">
-        {{one-way-toggle
-          inputId=(concat elementId "-" protectionType "-flag-toggle")
-          class=(concat-classes
-            "flag-toggle"
-            (concat protectionType "-flag-toggle")
-          )
-          checked=(get this (concat protectionType "IsProtected"))
-          spinnerSide=(if (media "isMobile") "left" "right")
-          isReadOnly=readonly
-          lockHint=(if readonly
-            (or
-              (get this (concat protectionType "ToggleReadonlyMessage"))
-              togglesReadonlyMessage
-            )
-          )
-          icon=(get protectionIcons protectionType)
-          update=(action "toggleDatasetProtectionFlag" (concat protectionType "_protection"))
-        }}
+  {{#let (hash
+    flagToggleId=(concat elementId "-" protectionType "-flag-toggle")
+    protectionTypeText=(tt this (concat "toggleLabels." protectionType))
+    flagToggleClass=(concat-classes
+      "flag-toggle"
+      (concat protectionType "-flag-toggle")
+    )
+    isChecked=(get this (concat protectionType "IsProtected"))
+    isReadOnly=(get this (concat protectionType "Readonly"))
+    lockHint=(if (get this (concat protectionType "Readonly"))
+      (or
+        (get this (concat protectionType "EffToggleReadonlyMessage"))
+        togglesReadonlyMessage
+      )
+    )
+    icon=(get protectionIcons protectionType)
+    updateAction=(action
+      "toggleDatasetProtectionFlag"
+      (concat protectionType "_protection")
+    )
+  ) as |options|}}
+    <td class="col-dataset-protection col-dataset-protection-{{protectionType}}">
+      <div class="dataset-protection-control">
+        {{#if (media "isMobile")}}
+          <label for={{options.flagToggleId}}>
+            {{options.protectionTypeText}}
+          </label>
+        {{/if}}
+        <div class="toggle-container">
+          {{one-way-toggle
+            inputId=options.flagToggleId
+            class=options.flagToggleClass
+            checked=options.isChecked
+            spinnerSide=(if (media "isMobile") "left" "right")
+            isReadOnly=options.isReadOnly
+            lockHint=options.lockHint
+            icon=options.icon
+            update=options.updateAction
+          }}
+        </div>
       </div>
-    </div>
-  </td>
+    </td>
+  {{/let}}
 {{/each}}
