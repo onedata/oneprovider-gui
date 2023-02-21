@@ -2,18 +2,25 @@
  * Configuration of archive form for creating new archive.
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import { get, computed } from '@ember/object';
+import { get, set, setProperties, computed } from '@ember/object';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { inject as service } from '@ember/service';
 import ArchiveFormBaseModel from 'oneprovider-gui/utils/archive-form/-base-model';
 import { promise } from 'ember-awesome-macros';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default ArchiveFormBaseModel.extend({
+export default ArchiveFormBaseModel.extend(I18n, {
   archiveManager: service(),
+  i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.archiveForm.createModel',
 
   /**
    * @virtual
@@ -79,7 +86,11 @@ export default ArchiveFormBaseModel.extend({
       })
       .create({
         defaultValue: isBaseArchiveProvided,
-        isEnabled: !isBaseArchiveProvided,
+        // Incremental toggle is disabled on start, because 1) if base archive is
+        // provided, it should be always disabled and 2) otherwise it should be only
+        // unlocked when the last valid archive is found (see invocations of
+        // `enableIncrementalField`),
+        isEnabled: false,
       });
   }),
 
@@ -89,28 +100,16 @@ export default ArchiveFormBaseModel.extend({
   baseArchiveTextProxy: promise.object(computed(
     'baseArchiveProxy',
     async function baseArchiveTextProxy() {
-      try {
-        const baseArchive = await this.get('baseArchiveProxy');
-        return baseArchive && get(baseArchive, 'name') || '–';
-      } catch (error) {
-        if (
-          error &&
-          error.isCustomOnedataError &&
-          error.type === 'cannot-fetch-latest-archive'
-        ) {
-          return this.t('latestArchive');
-        } else {
-          throw error;
-        }
-      }
+      const baseArchive = await this.get('baseArchiveProxy');
+      return baseArchive && get(baseArchive, 'name') || '–';
     }
   )),
 
   init() {
     this._super(...arguments);
-    if (this.get('options.baseArchive')) {
-      this.updateBaseArchiveProxy();
-    }
+    // Base archive is updated always on init, because we want to resolve state
+    // of configIncrementalField.
+    this.updateBaseArchiveProxy();
   },
 
   async updateBaseArchiveProxy() {
@@ -128,36 +127,53 @@ export default ArchiveFormBaseModel.extend({
         console.debug(
           `getBaseArchive: error getting baseArchive: ${error}`
         );
-        throw {
-          isCustomOnedataError: true,
-          type: 'cannot-fetch-latest-archive',
-          reason: error,
-        };
       }
     }
   },
 
   async fetchLatestArchive() {
-    const {
-      archiveManager,
-      dataset,
-    } = this.getProperties('archiveManager', 'dataset');
-    const archivesData = await archiveManager.fetchDatasetArchives({
-      datasetId: get(dataset, 'entityId'),
-      limit: 1,
-      offset: 0,
-    });
-    const archiveRecord = get(archivesData, 'childrenRecords.0');
-    if (archiveRecord) {
-      return archiveManager.getBrowsableArchive(archiveRecord);
-    } else {
-      if (!archivesData.isLast) {
-        throw new Error(
-          'fetchLatestArchive: invalid archive listing data'
-        );
+    const datasetId = get(this.dataset, 'entityId');
+    let archiveRecord = null;
+    let isEndReached = false;
+    let currentIndex = null;
+    // searching using non-single chunks because there could be some failed archives
+    const chunkSize = 5;
+    while (!archiveRecord && !isEndReached) {
+      const archivesData = await this.archiveManager.fetchDatasetArchives({
+        datasetId,
+        limit: chunkSize,
+        offset: 0,
+        index: currentIndex,
+      });
+      const archives = archivesData.childrenRecords;
+      archiveRecord = archives.find(archive =>
+        get(archive, 'metaState') === 'succeeded'
+      );
+      if (archiveRecord) {
+        this.enableIncrementalField();
+        return this.archiveManager.getBrowsableArchive(archiveRecord);
+      } else {
+        const lastArchive = archives.at(-1);
+        if (!lastArchive || archivesData.isLast) {
+          isEndReached = true;
+        } else {
+          currentIndex = get(lastArchive, 'index');
+        }
       }
-      // there is no latest archive, because there are no archives
-      return null;
     }
+    if (!archiveRecord) {
+      this.setNoArchivesToIncrement();
+    }
+  },
+
+  enableIncrementalField() {
+    set(this.configIncrementalField, 'isEnabled', true);
+  },
+
+  setNoArchivesToIncrement() {
+    setProperties(this.configIncrementalField, {
+      isEnabled: false,
+      disabledControlTip: this.t('noValidToIncrement'),
+    });
   },
 });
