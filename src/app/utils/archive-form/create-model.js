@@ -175,5 +175,6 @@ export default ArchiveFormBaseModel.extend(I18n, {
       isEnabled: false,
       disabledControlTip: this.t('noValidToIncrement'),
     });
+    this.configIncrementalField.valueChanged(false);
   },
 });
