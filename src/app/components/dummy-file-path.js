@@ -2,6 +2,7 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { set, get, computed } from '@ember/object';
 import sleep from 'onedata-gui-common/utils/sleep';
+import _ from 'lodash';
 
 export default Component.extend({
   classNames: ['dummy-file-path'],
@@ -9,7 +10,7 @@ export default Component.extend({
   mockBackend: service(),
 
   file: computed('mockBackend.entityRecords.chainDir', function file() {
-    return this.mockBackend.entityRecords.chainDir.at(-1);
+    return _.last(this.mockBackend.entityRecords.chainDir);
   }),
 
   /**

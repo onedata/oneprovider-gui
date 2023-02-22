@@ -353,6 +353,16 @@ const datasetHandlers = {
     if (operation !== 'get') {
       return messageNotSupported;
     }
+    if (_.isEmpty(this.mockBackend?.entityRecords)) {
+      return {
+        success: false,
+        error: {
+          id: 'internalServerError',
+          message: 'Mock backend not initialized or not available',
+        },
+        data: {},
+      };
+    }
     const childrenArchivesData = this.get('mockBackend.entityRecords.archive')
       .map(arch => archiveRecordToChildData(arch))
       .filter(arch => {

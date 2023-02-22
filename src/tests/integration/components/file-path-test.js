@@ -408,7 +408,7 @@ describe('Integration | Component | file path', function () {
   it('renders path shortened by more than 10 items without crash', async function () {
     const names = _.times(100, i => `file_name_${i}`);
     const filesChain = createFilesChain(names);
-    this.set('file', filesChain.at(-1));
+    this.set('file', _.last(filesChain));
 
     await renderInSmallContainer();
   });

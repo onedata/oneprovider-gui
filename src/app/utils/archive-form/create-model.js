@@ -6,12 +6,13 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import { get, set, setProperties, computed } from '@ember/object';
+import { get, setProperties, computed } from '@ember/object';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { inject as service } from '@ember/service';
 import ArchiveFormBaseModel from 'oneprovider-gui/utils/archive-form/-base-model';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import _ from 'lodash';
 
 export default ArchiveFormBaseModel.extend(I18n, {
   archiveManager: service(),
@@ -153,7 +154,7 @@ export default ArchiveFormBaseModel.extend(I18n, {
         this.enableIncrementalField();
         return this.archiveManager.getBrowsableArchive(archiveRecord);
       } else {
-        const lastArchive = archives.at(-1);
+        const lastArchive = _.last(archives);
         if (!lastArchive || archivesData.isLast) {
           isEndReached = true;
         } else {
@@ -167,7 +168,10 @@ export default ArchiveFormBaseModel.extend(I18n, {
   },
 
   enableIncrementalField() {
-    set(this.configIncrementalField, 'isEnabled', true);
+    setProperties(this.configIncrementalField, {
+      isEnabled: true,
+      disabledControlTip: null,
+    });
   },
 
   setNoArchivesToIncrement() {
