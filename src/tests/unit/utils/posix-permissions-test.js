@@ -31,7 +31,7 @@ function dumpBooleanValues(posixPermissions) {
   return _.flatten(entityBooleans);
 }
 
-describe('Unit | Utility | posix permissions', function () {
+describe('Unit | Utility | posix-permissions', function () {
   [
     'user',
     'group',

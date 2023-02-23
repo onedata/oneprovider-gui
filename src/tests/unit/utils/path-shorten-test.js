@@ -6,7 +6,7 @@ const ellipsis = 'ellipsis';
 
 const shortSource = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-describe('Unit | Utility | path shorten', function () {
+describe('Unit | Utility | path-shorten', function () {
   it('returns [] for length 0', function () {
     const result = pathShorten(shortSource, ellipsis, 0);
 

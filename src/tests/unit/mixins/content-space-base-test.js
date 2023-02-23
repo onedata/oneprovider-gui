@@ -10,7 +10,7 @@ const Store = Service.extend({
   findRecord() {},
 });
 
-describe('Unit | Mixin | content space base', function () {
+describe('Unit | Mixin | content-space-base', function () {
   it('resolves spaceProxy using spaceEntityId', function () {
     const ContentSpaceBaseObject = EmberObject.extend(ContentSpaceBaseMixin);
     const store = Store.create();

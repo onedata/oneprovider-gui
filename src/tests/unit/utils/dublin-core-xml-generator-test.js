@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import dublinCoreXmlGenerator from 'oneprovider-gui/utils/dublin-core-xml-generator';
 import { get, getProperties } from '@ember/object';
 
-describe('Unit | Utility | dublin core xml generator', function () {
+describe('Unit | Utility | dublin-core-xml-generator', function () {
   it('generates XML using specified grouped entries', function () {
     const generator = dublinCoreXmlGenerator.create({
       groupedEntries: [

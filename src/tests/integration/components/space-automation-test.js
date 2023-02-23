@@ -13,7 +13,7 @@ import sinon from 'sinon';
 import { suppressRejections } from '../../helpers/suppress-rejections';
 import { schedule } from '@ember/runloop';
 
-describe('Integration | Component | space automation', function () {
+describe('Integration | Component | space-automation', function () {
   setupRenderingTest();
 
   beforeEach(function () {

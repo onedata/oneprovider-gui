@@ -39,7 +39,7 @@ const FileManager = Service.extend(Evented, {
   async getFileOwner() {},
 });
 
-describe('Integration | Component | file browser (main component)', function () {
+describe('Integration | Component | file-browser (main component)', function () {
   setupRenderingTest();
 
   beforeEach(function () {
@@ -338,7 +338,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
   // NOTE: use "done" callback for async tests because of bug in ember test framework
   describe('selects using injected file ids', function () {
-    it('visible file on list', async function (done) {
+    it('visible file on list', async function () {
       const entityId = 'deid';
       const name = 'Test directory';
       const dir = {
@@ -389,10 +389,9 @@ describe('Integration | Component | file browser (main component)', function () 
       const fileSelected = findAll('.file-selected');
       expect(fileSelected, 'selected file row').to.have.lengthOf(1);
       expect(fileSelected[0]).to.have.attr('data-row-id', selectedFile.id);
-      done();
     });
 
-    it('file that is out of initial list range', async function (done) {
+    it('file that is out of initial list range', async function () {
       const entityId = 'deid';
       const name = 'Test directory';
       const dir = {
@@ -455,7 +454,6 @@ describe('Integration | Component | file browser (main component)', function () 
       const fileSelected = find('.file-selected');
       expect(fileSelected, 'selected file row').to.exist;
       expect(fileSelected).to.have.attr('data-row-id', selectedFile.id);
-      done();
     });
   });
 
@@ -500,7 +498,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
         ['ancestor', 'direct', 'directAndAncestor'].forEach(effQosMembership => {
           it(`displays functional qos tag in table header if current dir has "${effQosMembership}" qos`,
-            async function (done) {
+            async function () {
               this.set('dir.effQosMembership', effQosMembership);
               this.set('spacePrivileges', { view: true, viewQos: true });
               const openInfo = sinon.spy();
@@ -525,13 +523,12 @@ describe('Integration | Component | file browser (main component)', function () 
               await settled();
               expect(openInfo).to.have.been.calledOnce;
               expect(openInfo).to.have.been.calledWith([this.get('dir')], 'qos');
-              done();
             }
           );
         });
 
         it('does not display qos tag in table header if current dir has none qos membership',
-          async function (done) {
+          async function () {
             this.set('dir.effQosMembership', 'none');
 
             await renderComponent(this);
@@ -540,12 +537,11 @@ describe('Integration | Component | file browser (main component)', function () 
             const qosTag = headStatusBar[0].querySelector('.file-status-qos');
             expect(headStatusBar, 'head status bar').to.have.length(1);
             expect(qosTag, 'qos tag').to.not.exist;
-            done();
           }
         );
 
         it('displays functional dataset tag in table header if current dir has direct dataset',
-          async function (done) {
+          async function () {
             this.set('dir.effDatasetMembership', 'direct');
             const openDatasets = sinon.spy();
             this.set('openDatasets', openDatasets);
@@ -561,12 +557,11 @@ describe('Integration | Component | file browser (main component)', function () 
             await click(datasetTag[0]);
             await settled();
             expect(openDatasets).to.have.been.calledOnce;
-            done();
           }
         );
 
         it('does not display functional dataset tag in table header if current dir has "none" dataset membership',
-          async function (done) {
+          async function () {
             this.set('dir.effDatasetMembership', 'none');
             const openDatasets = sinon.spy();
             this.set('openDatasets', openDatasets);
@@ -578,19 +573,16 @@ describe('Integration | Component | file browser (main component)', function () 
             const datasetTag = headStatusBar[0].querySelector('.file-status-dataset');
             expect(headStatusBar, 'head status bar').to.have.length(1);
             expect(datasetTag, 'dataset tag').to.not.exist;
-            done();
           }
         );
 
-        it('has enabled datasets item in context menu', async function (done) {
+        it('has enabled datasets item in context menu', async function () {
           await renderComponent(this);
           const menu = await openFileContextMenu({ entityId: 'i1' });
           expect(
             menu.querySelector('li:not(.disabled) .file-action-datasets'),
             'non-disabled datasets action'
           ).to.exist;
-
-          done();
         });
 
         testOpenDatasetsModal('dataset tag is clicked', async function () {
@@ -613,12 +605,10 @@ describe('Integration | Component | file browser (main component)', function () 
           this.set('spacePrivileges', { view: false });
         });
 
-        it('has disabled datasets item in context menu', async function (done) {
+        it('has disabled datasets item in context menu', async function () {
           await renderComponent(this);
           const menu = await openFileContextMenu({ entityId: 'i1' });
           expect(menu.querySelector('li.disabled .file-action-datasets')).to.exist;
-
-          done();
         });
       });
     });
@@ -701,7 +691,7 @@ async function mockFilesTree(testCase, treeSpec) {
 }
 
 function testOpenDatasetsModal(openDescription, openFunction) {
-  it(`invokes datasets modal opening when ${openDescription}`, async function (done) {
+  it(`invokes datasets modal opening when ${openDescription}`, async function () {
     const openDatasets = sinon.spy();
     this.set('openDatasets', openDatasets);
     this.set('item1.effDatasetMembership', 'direct');
@@ -717,8 +707,6 @@ function testOpenDatasetsModal(openDescription, openFunction) {
           selected[0] === this.get('item1');
       })
     );
-
-    done();
   });
 }
 
@@ -745,23 +733,22 @@ function testOpenFileInfo({ openDescription, tabName, openFunction }) {
 function testDownloadFromContextMenu() {
   const description =
     'shows spinner and starts download after using download context menu item';
-  it(description, async function (done) {
+  it(description, async function () {
     const btnId = this.get('item1.type') === 'dir' ? 'downloadTar' : 'download';
-    testDownload(
+    await testDownload(
       this,
-      done,
       (fileId) => chooseFileContextMenuAction({ entityId: fileId }, btnId)
     );
   });
 }
 
 function testDownloadUsingDoubleClick() {
-  it('shows spinner and starts download after double click', async function (done) {
-    testDownload(this, done, (fileId) => doubleClickFile({ entityId: fileId }));
+  it('shows spinner and starts download after double click', async function () {
+    await testDownload(this, (fileId) => doubleClickFile({ entityId: fileId }));
   });
 }
 
-async function testDownload(testCase, done, invokeDownloadFunction) {
+async function testDownload(testCase, invokeDownloadFunction) {
   const clock = useFakeClock(testCase);
   const {
     fileId,
@@ -781,8 +768,6 @@ async function testDownload(testCase, done, invokeDownloadFunction) {
   await sleeper;
   await settled();
   expect(row.querySelector('.on-icon-loading-spinner'), 'spinner').to.not.exist;
-
-  done();
 }
 
 function itHasWorkingClipboardFunction({
@@ -792,7 +777,7 @@ function itHasWorkingClipboardFunction({
   expectedToolbarActionId,
   finalExpect,
 }) {
-  it(description, async function (done) {
+  it(description, async function () {
     await mockFilesTree(this, {
       f1: null,
       f2: {
@@ -815,7 +800,6 @@ function itHasWorkingClipboardFunction({
     await click(`.file-action-${expectedToolbarActionId}`);
 
     finalExpect(this);
-    done();
   });
 }
 

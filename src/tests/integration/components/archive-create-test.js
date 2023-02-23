@@ -6,7 +6,7 @@ import { hbs } from 'ember-cli-htmlbars';
 import { getBrowsableDatasetName, createDataset } from '../../helpers/datasets-archives';
 import sinon from 'sinon';
 
-describe('Integration | Component | archive create', function () {
+describe('Integration | Component | archive-create', function () {
   setupRenderingTest();
 
   beforeEach(async function () {

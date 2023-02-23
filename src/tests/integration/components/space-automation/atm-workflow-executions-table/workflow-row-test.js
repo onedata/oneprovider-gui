@@ -86,7 +86,7 @@ const finishTime = moment().add(2, 'h');
 const suspendTime = moment().add(3, 'h');
 const timeFormat = 'D MMM YYYY H:mm:ss';
 
-describe('Integration | Component | space automation/atm workflow executions table/workflow row', function () {
+describe('Integration | Component | space-automation/atm-workflow-executions-table/workflow-row', function () {
   setupRenderingTest();
 
   before(function () {

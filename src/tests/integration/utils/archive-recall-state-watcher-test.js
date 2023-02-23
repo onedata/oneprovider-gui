@@ -11,7 +11,7 @@ import {
   whenOnRemoteProvider,
 } from '../../helpers/datasets-archives';
 
-describe('Integration | Utility | archive recall state watcher', function () {
+describe('Integration | Utility | archive-recall-state-watcher', function () {
   const { afterEach } = setupRenderingTest();
 
   beforeEach(async function () {

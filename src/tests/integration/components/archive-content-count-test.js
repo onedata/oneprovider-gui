@@ -5,7 +5,7 @@ import { render, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { lookupService } from '../../helpers/stub-service';
 
-describe('Integration | Component | archive content count', function () {
+describe('Integration | Component | archive-content-count', function () {
   setupRenderingTest();
 
   it('renders "unknown number of files" text, when files count is not provided', async function () {

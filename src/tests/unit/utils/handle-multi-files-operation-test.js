@@ -12,7 +12,7 @@ const files = _.range(0, filesCount).map((i) => Object.freeze({
   name: `File ${i}`,
 }));
 
-describe('Unit | Utility | handle multi files operation', function () {
+describe('Unit | Utility | handle-multi-files-operation', function () {
   beforeEach(function () {
     this.globalNotify = {
       backendError() {},

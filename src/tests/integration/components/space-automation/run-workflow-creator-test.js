@@ -9,7 +9,7 @@ import { resolve, Promise } from 'rsvp';
 import sinon from 'sinon';
 import { isSlideActive, getSlide } from '../../../helpers/one-carousel';
 
-describe('Integration | Component | space automation/run workflow creator', function () {
+describe('Integration | Component | space-automation/run-workflow-creator', function () {
   setupRenderingTest();
 
   beforeEach(function () {

@@ -13,7 +13,7 @@ import {
   createShareRootDir,
 } from '../../helpers/files';
 
-describe('Integration | Utility | files view context', function () {
+describe('Integration | Utility | files-view-context', function () {
   setupRenderingTest();
 
   beforeEach(function () {
