@@ -73,7 +73,7 @@ const xmlWithUnknownTypes = `<?xml version="1.0" encoding="UTF-8"?>
 
 const xmlWithoutNamespace = '<dc:title>hello</dc:title>';
 
-describe('Unit | Utility | dublin core xml parser', function () {
+describe('Unit | Utility | dublin-core-xml-parser', function () {
   it('parses example XML metadata used in Onedata real-life scenario', function () {
     const parser = DcXmlParser.create({ xmlSource: xmlFromOnedataExample });
     const entries = get(parser, 'entries');

@@ -4,7 +4,7 @@ import { setupRenderingTest } from 'ember-mocha';
 import { render, find, findAll } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
-describe('Integration | Component | modal file subheader', function () {
+describe('Integration | Component | modal-file-subheader', function () {
   setupRenderingTest();
 
   it('renders file name for single file', async function () {

@@ -5,7 +5,7 @@ import { render, find, findAll, click, fillIn, triggerKeyEvent } from '@ember/te
 import { hbs } from 'ember-cli-htmlbars';
 import sinon from 'sinon';
 
-describe('Integration | Component | posix permissions editor', function () {
+describe('Integration | Component | posix-permissions-editor', function () {
   setupRenderingTest();
 
   it('show initial posix value', async function () {

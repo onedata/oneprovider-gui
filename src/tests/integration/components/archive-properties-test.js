@@ -10,7 +10,7 @@ import {
 import { run } from '@ember/runloop';
 import ArchivePropertiesViewModel from 'oneprovider-gui/utils/archive-properties-view-model';
 
-describe('Integration | Component | archive properties', function () {
+describe('Integration | Component | archive-properties', function () {
   setupRenderingTest();
 
   beforeEach(async function () {

@@ -16,7 +16,7 @@ import sinon from 'sinon';
 import { createMockFileDatasetSummary } from '../../helpers/datasets-archives';
 import { closeModalUsingBackground } from '../../helpers/modal';
 
-describe('Integration | Component | datasets modal', function () {
+describe('Integration | Component | datasets-modal', function () {
   setupRenderingTest();
 
   it('renders file-datasets with file name and invokes onHide on close', async function () {

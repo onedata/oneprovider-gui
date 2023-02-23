@@ -37,7 +37,7 @@ const share = {
 
 const defaultUrlType = 'share';
 
-describe('Integration | Component | share show/public url viewer', function () {
+describe('Integration | Component | share-show/public-url-viewer', function () {
   setupRenderingTest();
 
   beforeEach(function () {

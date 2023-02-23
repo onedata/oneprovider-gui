@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, context, it } from 'mocha';
 import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
 
-describe('Unit | Utility | qos expression converters', function () {
+describe('Unit | Utility | qos-expression-converters', function () {
   context('convert RPN to infix', function () {
     it('without parenthesis from left to right', function () {
       const result = qosRpnToInfix([

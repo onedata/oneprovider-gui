@@ -39,7 +39,7 @@ const FileManager = Service.extend(Evented, {
   async getFileOwner() {},
 });
 
-describe('Integration | Component | file browser (main component)', function () {
+describe('Integration | Component | file-browser (main component)', function () {
   setupRenderingTest();
 
   beforeEach(function () {

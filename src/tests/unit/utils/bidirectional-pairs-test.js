@@ -4,7 +4,7 @@ import bidirectionalPairs from 'oneprovider-gui/utils/bidirectional-pairs';
 
 import _ from 'lodash';
 
-describe('Unit | Utility | bidirectional pairs', function () {
+describe('Unit | Utility | bidirectional-pairs', function () {
   it('generates an array of undirected connections', function () {
     const mapping = {
       p1: ['p0'],

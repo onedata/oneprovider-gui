@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import transferIndex from 'oneprovider-gui/utils/transfer-index';
 
-describe('Unit | Utility | transfer index', function () {
+describe('Unit | Utility | transfer-index', function () {
   it('computes proper index for ended transfer', function () {
     const transfer = {
       entityId: '98a0e211bd67f171c6c6f1a63d199e87ch7323',

@@ -18,7 +18,7 @@ const FileManager = Service.extend({
   async getFileOwner() {},
 });
 
-describe('Unit | Service | files view resolver', function () {
+describe('Unit | Service | files-view-resolver', function () {
   setupTest();
 
   beforeEach(function () {

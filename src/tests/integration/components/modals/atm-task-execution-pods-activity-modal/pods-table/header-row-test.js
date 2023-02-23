@@ -5,7 +5,7 @@ import { render, find, findAll, click, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import sinon from 'sinon';
 
-describe('Integration | Component | modals/atm task execution pods activity modal/pods table/header row', function () {
+describe('Integration | Component | modals/atm-task-execution-pods-activity-modal/pods-table/header-row', function () {
   setupRenderingTest();
 
   beforeEach(function () {

@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import { get } from '@ember/object';
 import qosRpnToQueryBlock from 'oneprovider-gui/utils/qos-rpn-to-query-block';
 
-describe('Unit | Utility | qos rpn to query block', function () {
+describe('Unit | Utility | qos-rpn-to-query-block', function () {
   it('generates root query block with "and" operator and condition blocks', function () {
     const rpnData = [
       'a',

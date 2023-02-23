@@ -37,7 +37,7 @@ const FileManager = Service.extend(Evented, {
 });
 
 // TODO: VFS-8878 speed-up animations of overlay-modals in test environment
-describe('Integration | Component | archive recall modal', function () {
+describe('Integration | Component | archive-recall-modal', function () {
   setupRenderingTest();
 
   beforeEach(function () {
