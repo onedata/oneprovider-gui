@@ -47,7 +47,7 @@ class MockArray {
   }
 }
 
-describe('Integration | Component | archive browser', function () {
+describe('Integration | Component | archive-browser', function () {
   setupRenderingTest();
 
   beforeEach(function () {

@@ -39,7 +39,7 @@ const ArchiveManager = Service.extend({
   },
 });
 
-describe('Integration | Component | space transfers/transfer row', function () {
+describe('Integration | Component | space-transfers/transfer-row', function () {
   setupRenderingTest();
 
   beforeEach(function () {

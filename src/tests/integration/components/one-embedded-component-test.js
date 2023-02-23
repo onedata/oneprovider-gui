@@ -8,7 +8,7 @@ import { next } from '@ember/runloop';
 import { lookupService } from '../../helpers/stub-service';
 import { set } from '@ember/object';
 
-describe('Integration | Component | one embedded component', function () {
+describe('Integration | Component | one-embedded-component', function () {
   setupRenderingTest();
 
   it('exposes updated injected properties', async function () {

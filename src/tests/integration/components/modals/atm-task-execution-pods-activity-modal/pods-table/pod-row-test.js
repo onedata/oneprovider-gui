@@ -6,7 +6,7 @@ import { hbs } from 'ember-cli-htmlbars';
 import sinon from 'sinon';
 import moment from 'moment';
 
-describe('Integration | Component | modals/atm task execution pods activity modal/pods table/pod row', function () {
+describe('Integration | Component | modals/atm-task-execution-pods-activity-modal/pods-table/pod-row', function () {
   setupRenderingTest();
 
   beforeEach(function () {

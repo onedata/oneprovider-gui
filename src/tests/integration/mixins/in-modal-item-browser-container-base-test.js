@@ -11,7 +11,7 @@ const DummyComponent = Component.extend(InModalBrowserContainerBase, {
   layout: hbs `{{yield contentScroll}}`,
 });
 
-describe('Integration | Mixin | in modal item browser container base', function () {
+describe('Integration | Mixin | in-modal-item-browser-container-base', function () {
   setupRenderingTest();
 
   beforeEach(function () {

@@ -7,7 +7,7 @@ import I18nStub from '../../../helpers/i18n-stub';
 import { registerService } from '../../../helpers/stub-service';
 import sinon from 'sinon';
 
-describe('Integration | Component | share show/markdown editor', function () {
+describe('Integration | Component | share-show/markdown-editor', function () {
   setupRenderingTest();
 
   beforeEach(function () {

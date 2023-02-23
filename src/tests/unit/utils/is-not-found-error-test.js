@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
 
-describe('Unit | Utility | is not found error', function () {
+describe('Unit | Utility | is-not-found-error', function () {
   it('returns false if error is nullish', function () {
     const error = null;
 

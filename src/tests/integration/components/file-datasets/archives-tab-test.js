@@ -35,7 +35,7 @@ const FileManager = Service.extend({
   async getFileOwner() {},
 });
 
-describe('Integration | Component | file datasets/archives tab', function () {
+describe('Integration | Component | file-datasets/archives-tab', function () {
   setupRenderingTest();
 
   beforeEach(function () {

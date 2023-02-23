@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { resolve } from 'rsvp';
 
-describe('Unit | Utility | resolve file path', function () {
+describe('Unit | Utility | resolve-file-path', function () {
   it('resolves array with file parents', function () {
     const fileParentRoot = {
       name: 'My space',

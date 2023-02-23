@@ -33,7 +33,7 @@ const ErrorExtractor = Service.extend({
   }),
 });
 
-describe('Integration | Component | space transfers', function () {
+describe('Integration | Component | space-transfers', function () {
   setupRenderingTest();
 
   beforeEach(function () {

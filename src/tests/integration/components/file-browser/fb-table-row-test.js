@@ -19,7 +19,7 @@ const currentUser = Service.extend({
 
 const FileMock = EmberObject.extend(FileRuntimeProperties);
 
-describe('Integration | Component | file browser/fb table row', function () {
+describe('Integration | Component | file-browser/fb-table-row', function () {
   setupRenderingTest();
 
   beforeEach(function () {
