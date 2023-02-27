@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10573 Migrated to a new time series API in directory size stats
 * VFS-10148 Removed redundant done() from tests
 * VFS-10333 Unified naming of test suites
 * VFS-9688 Removed arrow placement from one-tooltip
