@@ -8,7 +8,7 @@ import { lookupService } from '../../../helpers/stub-service';
 import { setupRenderingTest } from 'ember-mocha';
 import { get } from '@ember/object';
 
-describe('Integration | Utility | items select browser/base model', function () {
+describe('Integration | Utility | items-select-browser/base-model', function () {
   setupRenderingTest();
 
   beforeEach(function () {

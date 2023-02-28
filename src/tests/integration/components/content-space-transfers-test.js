@@ -25,7 +25,7 @@ const FilesViewResolver = Service.extend({
   async generateUrlById() { return 'https://dummy_url'; },
 });
 
-describe('Integration | Component | content space transfers', function () {
+describe('Integration | Component | content-space-transfers', function () {
   setupRenderingTest();
 
   beforeEach(function beforeEach() {

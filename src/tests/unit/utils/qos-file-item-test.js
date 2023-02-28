@@ -7,7 +7,7 @@ import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
 
-describe('Unit | Utility | qos file item', function () {
+describe('Unit | Utility | qos-file-item', function () {
   it('has status empty when qos items load and are empty', async function () {
     const fetchFileQosSummary = sinon.stub().resolves({
       fulfilled: true,

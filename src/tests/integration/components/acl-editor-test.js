@@ -7,7 +7,7 @@ import { resolve } from 'rsvp';
 import { selectChoose } from 'ember-power-select/test-support/helpers';
 import sinon from 'sinon';
 
-describe('Integration | Component | acl editor', function () {
+describe('Integration | Component | acl-editor', function () {
   setupRenderingTest();
 
   beforeEach(function () {

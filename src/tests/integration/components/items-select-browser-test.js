@@ -19,7 +19,7 @@ const FileManager = Service.extend(Evented, {
   async getFileOwner() {},
 });
 
-describe('Integration | Component | items select browser', function () {
+describe('Integration | Component | items-select-browser', function () {
   setupRenderingTest();
 
   beforeEach(function () {

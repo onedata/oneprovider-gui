@@ -7,7 +7,7 @@ import { getBrowsableDatasetName, createDataset } from '../../helpers/datasets-a
 import sinon from 'sinon';
 import { lookupService } from '../../helpers/stub-service';
 
-describe('Integration | Component | archive create', function () {
+describe('Integration | Component | archive-create', function () {
   setupRenderingTest();
 
   beforeEach(async function () {

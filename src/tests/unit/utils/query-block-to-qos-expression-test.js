@@ -7,7 +7,7 @@ import ExceptOperatorQueryBlock from 'onedata-gui-common/utils/query-builder/exc
 import ConditionQueryBlock from 'onedata-gui-common/utils/query-builder/condition-query-block';
 import queryBlockToQosExpression from 'oneprovider-gui/utils/query-block-to-qos-expression';
 
-describe('Unit | Utility | query block to qos expression', function () {
+describe('Unit | Utility | query-block-to-qos-expression', function () {
   itGeneratesString('from linear AND-only query block',
 
     AndOperatorQueryBlock.create({

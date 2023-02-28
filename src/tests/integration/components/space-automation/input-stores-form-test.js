@@ -12,7 +12,7 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 
-describe('Integration | Component | space automation/input stores form', function () {
+describe('Integration | Component | space-automation/input-stores-form', function () {
   setupRenderingTest();
 
   beforeEach(function () {

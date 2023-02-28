@@ -28,7 +28,7 @@ const ArchiveManager = Service.extend({
   },
 });
 
-describe('Integration | Component | file path', function () {
+describe('Integration | Component | file-path', function () {
   setupRenderingTest();
 
   beforeEach(function () {
