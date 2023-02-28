@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import isPosixError from 'oneprovider-gui/utils/is-posix-error';
 
-describe('Unit | Utility | is posix error', function () {
+describe('Unit | Utility | is-posix-error', function () {
   it('returns false if error is not POSIX at all', function () {
     const error = {
       id: 'notFound',

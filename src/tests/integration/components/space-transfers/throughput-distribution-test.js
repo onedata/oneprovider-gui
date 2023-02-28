@@ -12,7 +12,7 @@ const TransferManager = Service.extend({
   getSpaceTransfersThroughputCharts() {},
 });
 
-describe('Integration | Component | space transfers/throughput distribution', function () {
+describe('Integration | Component | space-transfers/throughput-distribution', function () {
   setupRenderingTest();
 
   beforeEach(function () {

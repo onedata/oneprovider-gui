@@ -5,7 +5,7 @@ import EmberObject, { get, computed } from '@ember/object';
 import sinon from 'sinon';
 import { promise, raw } from 'ember-awesome-macros';
 
-describe('Unit | Utility | computed archive recall state proxy', function () {
+describe('Unit | Utility | computed-archive-recall-state-proxy', function () {
   it('rejects with custom error when using remote provider', async function () {
     const stateFetchSpy = sinon.spy();
     const testObject = EmberObject.extend({

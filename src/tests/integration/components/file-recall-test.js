@@ -17,7 +17,7 @@ import { findByText } from '../../helpers/find';
 
 const errorLogTabName = 'Error log';
 
-describe('Integration | Component | file recall', function () {
+describe('Integration | Component | file-recall', function () {
   setupRenderingTest();
 
   beforeEach(async function () {

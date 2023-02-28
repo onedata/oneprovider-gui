@@ -11,7 +11,7 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import sinon from 'sinon';
 
-describe('Integration | Component | file datasets/direct dataset control', function () {
+describe('Integration | Component | file-datasets/direct-dataset-control', function () {
   setupRenderingTest();
 
   beforeEach(async function () {

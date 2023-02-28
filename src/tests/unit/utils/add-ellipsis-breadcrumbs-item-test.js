@@ -6,7 +6,7 @@ import {
 import addEllipsisBreadcrumbsItem from 'oneprovider-gui/utils/add-ellipsis-breadcrumbs-item';
 import generateBreadcrumbsItems from 'oneprovider-gui/tests/helpers/generate-breadcrumbs-items';
 
-describe('Unit | Utility | add ellipsis breadcrumbs item', function () {
+describe('Unit | Utility | add-ellipsis-breadcrumbs-item', function () {
   it('adds ellipsis item whose file point to parent of its right neighbour',
     function () {
       const numberOfFiles = 10;

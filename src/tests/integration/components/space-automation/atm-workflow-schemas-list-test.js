@@ -8,7 +8,7 @@ import { resolve } from 'rsvp';
 import sinon from 'sinon';
 import { lookupService } from '../../../helpers/stub-service';
 
-describe('Integration | Component | space automation/atm workflow schemas list', function () {
+describe('Integration | Component | space-automation/atm-workflow-schemas-list', function () {
   setupRenderingTest();
 
   beforeEach(function () {

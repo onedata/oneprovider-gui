@@ -22,7 +22,7 @@ const ArchiveManager = Service.extend({
   getBrowsableArchive() {},
 });
 
-describe('Integration | Component | file datasets', function () {
+describe('Integration | Component | file-datasets', function () {
   setupRenderingTest();
 
   before(async function () {

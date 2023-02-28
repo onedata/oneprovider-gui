@@ -10,7 +10,7 @@ class WatcherMock {
   addToAutoRefresh() {}
 }
 
-describe('Unit | service | archive recall state manager', function () {
+describe('Unit | service | archive-recall-state-manager', function () {
   setupTest();
 
   beforeEach(function () {
