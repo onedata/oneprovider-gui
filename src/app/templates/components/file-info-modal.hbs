@@ -83,8 +83,8 @@
                         locations=currentProviderLocationsProxy.content
                       }}
                     {{/if}}
-                    {{#if (and 
-                      (gt storageLocationsPerProviderLength 1) 
+                    {{#if (and
+                      (gt storageLocationsPerProviderLength 1)
                       areStorageLocationsExpanded
                     )}}
                       {{#each-in storageLocationsPerProviderProxy as |providerId locations|}}
@@ -98,8 +98,8 @@
                       {{/each-in}}
                     {{/if}}
                   </table>
-                  {{#if (and 
-                    (gt storageLocationsPerProviderLength 1) 
+                  {{#if (and
+                    (gt storageLocationsPerProviderLength 1)
                     (not areStorageLocationsExpanded)
                   )}}
                     <div class="storage-locations-expand">
@@ -198,8 +198,8 @@
                   sizeClass="xs"
                   spinnerBlockClass="loading-owner-full-name"
                 }}
-                  {{user-info-with-icon
-                    user=owner
+                  {{record-info-with-icon
+                    record=owner
                     errorReason=errorReasonForOwnerProxy
                   }}
                 {{/loading-container}}
