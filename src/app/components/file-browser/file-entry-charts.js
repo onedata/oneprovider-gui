@@ -716,17 +716,12 @@ export default Component.extend(...mixins, {
         showSum: true,
       };
     });
-    const allProvidersGroups = [...knownProvidersGroups, {
-      id: 'provider_unknown',
-      name: this.t('historicalSize.unknownProvider'),
-      showSum: true,
-    }];
 
     // There is only one dynamic series group - total physical size. So we don't
     // have to define all its properties here. Instead, these are placed in
     // chart configuration.
     return [{
-      subgroups: allProvidersGroups,
+      subgroups: knownProvidersGroups,
     }];
   },
 
