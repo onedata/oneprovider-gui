@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10289 Added info popover about group
 * VFS-10377 Added incremental archive toggle lock when there is no last known finished archive
 * VFS-10148 Removed redundant done() from tests
 * VFS-10333 Unified naming of test suites
