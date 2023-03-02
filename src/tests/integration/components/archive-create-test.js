@@ -5,6 +5,7 @@ import { render, find, click, fillIn } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { getBrowsableDatasetName, createDataset } from '../../helpers/datasets-archives';
 import sinon from 'sinon';
+import { lookupService } from '../../helpers/stub-service';
 
 describe('Integration | Component | archive-create', function () {
   setupRenderingTest();
@@ -75,6 +76,11 @@ describe('Integration | Component | archive-create', function () {
     const myDescription = 'my description';
     const onSubmit = sinon.spy();
     this.set('onSubmit', onSubmit);
+    const archiveManager = lookupService(this, 'archiveManager');
+    sinon.stub(archiveManager, 'fetchDatasetArchives').resolves({
+      childrenRecords: [],
+      isLast: true,
+    });
     await renderComponent(this);
 
     await fillIn('.description-field textarea', myDescription);
