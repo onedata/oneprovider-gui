@@ -6,6 +6,8 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10531 Added allowedValues constraint to atm number and atm string
+* VFS-10452 Added integersOnly constraint to atm number
 * VFS-10573 Migrated to a new time series API in directory size stats
 * VFS-10289 Added info popover about group
 * VFS-10377 Added incremental archive toggle lock when there is no last known finished archive
