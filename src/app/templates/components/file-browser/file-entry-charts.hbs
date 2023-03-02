@@ -23,10 +23,10 @@
               {{tt this "currentSize.logicalSizeLabel"}}:
             </span>
             <span class="property-value">
-              {{bytes-to-string latestDirSizeStatsValues.logicalSize}}
-              {{#if (gte latestDirSizeStatsValues.logicalSize 1024)}}
+              {{bytes-to-string currentProviderLatestDirSizeStats.logicalSize}}
+              {{#if (gte currentProviderLatestDirSizeStats.logicalSize 1024)}}
                 <span class="extra-info">
-                  ({{latestDirSizeStatsValues.logicalSize}} B)
+                  ({{currentProviderLatestDirSizeStats.logicalSize}} B)
                 </span>
               {{/if}}
               {{one-label-tip title=(tt this "currentSize.logicalSizeTip")}}
@@ -37,7 +37,7 @@
               {{tt this "currentSize.physicalSizeLabel"}}:
             </span>
             <span class="property-value">
-              {{bytes-to-string latestDirSizeStatsValues.physicalSize}}
+              {{bytes-to-string physicalSize}}
               {{#if physicalSizeExtraInfo}}
                 <span class="extra-info">{{physicalSizeExtraInfo}}</span>
               {{/if}}

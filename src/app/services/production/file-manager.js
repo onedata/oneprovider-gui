@@ -8,7 +8,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { resolve, allSettled, all as allFulfilled } from 'rsvp';
+import { resolve, allSettled, all as allFulfilled, hash as hashFulfilled, hashSettled } from 'rsvp';
 import { get, set, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -34,13 +34,29 @@ import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils
  */
 
 /**
- * @typedef {Object} DirCurrentSizeStats
+ * @typedef {Object<string, DirCurrentSizeStatsForProvider>} DirCurrentSizeStats
+ * Mapping providerId -> dir current size stats for that provider.
+ */
+
+/**
+ * @typedef {DirCurrentSizeStatsResultForProvider | DirCurrentSizeStatsErrorForProvider} DirCurrentSizeStatsForProvider
+ */
+
+/**
+ * @typedef {Object} DirCurrentSizeStatsResultForProvider
+ * @property {'result'} type
  * @property {number} regFileAndLinkCount
  * @property {number} dirCount
  * @property {number} logicalSize
  * @property {number} physicalSize
  * @property {Object<string, Object<string, number>>} physicalSizePerStorage
- *   mapping providerId -> (storageId -> (physical size on storage))
+ *   mapping storageId -> (physical size on storage)
+ */
+
+/**
+ * @typedef {Object} DirCurrentSizeStatsErrorForProvider
+ * @property {'error'} type
+ * @property {Object} error
  */
 
 /**
@@ -71,6 +87,7 @@ export default Service.extend({
   userManager: service(),
   spaceManager: service(),
   storageManager: service(),
+  providerManager: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -515,21 +532,26 @@ export default Service.extend({
 
   /**
    * @param {string} fileId
+   * @param {string} providerId
    * @param {{reload: boolean}} [options]
    * @returns {Promise<TimeSeriesCollectionLayout>}
    */
-  async getDirSizeStatsTimeSeriesCollectionLayout(fileId, { reload = false } = {}) {
-    const requestGri = dirSizeStatsGri(fileId);
+  async getDirSizeStatsTimeSeriesCollectionLayout(
+    fileId,
+    providerId, { reload = false } = {}
+  ) {
+    const requestGri = dirSizeStatsGri(fileId, providerId);
     return this.timeSeriesManager.getTimeSeriesCollectionLayout(requestGri, { reload });
   },
 
   /**
    * @param {string} fileId
+   * @param {string} providerId
    * @param {TimeSeriesCollectionSliceQueryParams} queryParams
    * @returns {Promise<TimeSeriesCollectionSlice>}
    */
-  async getDirSizeStatsTimeSeriesCollectionSlice(fileId, queryParams) {
-    const requestGri = dirSizeStatsGri(fileId);
+  async getDirSizeStatsTimeSeriesCollectionSlice(fileId, providerId, queryParams) {
+    const requestGri = dirSizeStatsGri(fileId, providerId);
     return this.timeSeriesManager.getTimeSeriesCollectionSlice(requestGri, queryParams);
   },
 
@@ -545,9 +567,17 @@ export default Service.extend({
       return null;
     }
 
-    const [collectionSchema, collectionLayout] = await allFulfilled([
+    const space = await this.spaceManager.getSpace(spaceId);
+    const providerIds = (await get(space, 'providerList')).hasMany('list').ids()
+      .map((providerGri) => parseGri(providerGri).entityId);
+
+    const [collectionSchema, perProviderCollectionLayout] = await allFulfilled([
       this.getDirSizeStatsTimeSeriesCollectionSchema(),
-      this.getDirSizeStatsTimeSeriesCollectionLayout(fileId),
+      hashSettled(providerIds.reduce((acc, providerId) => {
+        acc[providerId] =
+          this.getDirSizeStatsTimeSeriesCollectionLayout(fileId, providerId);
+        return acc;
+      }, {})),
     ]);
 
     const neededTimeSeriesNameGenerators = [
@@ -566,73 +596,103 @@ export default Service.extend({
           getTimeSeriesMetricNamesWithAggregator(timeSeriesSchema, 'last')[0];
         return acc;
       }, {});
-    const staticTimeSeries = neededTimeSeriesNameGenerators.slice(0, 3);
-    const perStorageTimeSeriesCandidates = Object.keys(collectionLayout)
-      .filter((tsName) =>
-        tsName.startsWith(dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage)
-      );
-    const perStorageTimeSeries = (await allFulfilled(
-      perStorageTimeSeriesCandidates.map((tsName) => {
-        const storageId = getStorageIdFromSizeOnStorageTSName(tsName);
-        return this.storageManager.getStorageById(storageId, { throughSpaceId: spaceId })
-          .then(() => tsName, () => null);
-      })
-    )).filter(Boolean);
 
-    const layout = {};
-    staticTimeSeries.forEach((tsName) => layout[tsName] = [neededMetrics[tsName]]);
-    perStorageTimeSeries.forEach((tsName) =>
-      layout[tsName] = [
-        neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage],
-      ]
-    );
+    const perProviderStatsPromises = {};
 
-    const queryParams = {
-      layout,
-      windowLimit: 1,
-    };
+    providerIds.forEach((providerId) => {
+      const statsPromise = (async () => {
+        if (perProviderCollectionLayout[providerId].state === 'rejected') {
+          throw perProviderCollectionLayout[providerId].reason;
+        }
+        const collectionLayout = perProviderCollectionLayout[providerId].value;
+        const staticTimeSeries = neededTimeSeriesNameGenerators.slice(0, 3);
+        const perStorageTimeSeriesCandidates = Object.keys(collectionLayout)
+          .filter((tsName) =>
+            tsName.startsWith(dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage)
+          );
+        const perStorageTimeSeries = (await allFulfilled(
+          perStorageTimeSeriesCandidates.map((tsName) => {
+            const storageId = getStorageIdFromSizeOnStorageTSName(tsName);
+            return this.storageManager
+              .getStorageById(storageId, { throughSpaceId: spaceId })
+              .then(() => tsName, () => null);
+          })
+        )).filter(Boolean);
 
-    const result = await this.getDirSizeStatsTimeSeriesCollectionSlice(
-      fileId,
-      queryParams,
-    );
+        const layout = {};
+        staticTimeSeries.forEach((tsName) => layout[tsName] = [neededMetrics[tsName]]);
+        perStorageTimeSeries.forEach((tsName) =>
+          layout[tsName] = [
+            neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage],
+          ]
+        );
 
-    const staticStatsValues = staticTimeSeries.reduce((acc, tsName) => {
-      acc[tsName] = result
-        ?.[tsName]
-        ?.[neededMetrics[tsName]]
-        ?.[0]?.value ?? 0;
-      return acc;
-    }, {});
+        const queryParams = {
+          layout,
+          windowLimit: 1,
+        };
 
-    let totalPhysicalSize = 0;
-    const physicalSizePerStorage = {};
-    await allFulfilled(perStorageTimeSeries.map(async (tsName) => {
-      const storageId = getStorageIdFromSizeOnStorageTSName(tsName);
-      const storage = await this.storageManager
-        .getStorageById(storageId, { throughSpaceId: spaceId });
-      const providerId = storage.relationEntityId('provider');
-      const sizeOnStorage = result
-        ?.[tsName]
-        ?.[neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage]]
-        ?.[0]?.value ?? 0;
-      const normalizedSizeOnStorage = Number.isFinite(sizeOnStorage) ? sizeOnStorage : 0;
-      totalPhysicalSize += normalizedSizeOnStorage;
-      physicalSizePerStorage[providerId] = physicalSizePerStorage[providerId] || {};
-      physicalSizePerStorage[providerId][storageId] = normalizedSizeOnStorage;
-    }));
+        const result = await this.getDirSizeStatsTimeSeriesCollectionSlice(
+          fileId,
+          providerId,
+          queryParams,
+        );
 
-    const latestStatsValues = {
-      regFileAndLinkCount: staticStatsValues[
-        dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount
-      ],
-      dirCount: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.dirCount],
-      logicalSize: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.totalSize],
-      physicalSize: totalPhysicalSize,
-      physicalSizePerStorage,
-    };
+        const staticStatsValues = staticTimeSeries.reduce((acc, tsName) => {
+          acc[tsName] = result
+            ?.[tsName]
+            ?.[neededMetrics[tsName]]
+            ?.[0]?.value ?? 0;
+          return acc;
+        }, {});
 
-    return latestStatsValues;
+        let totalPhysicalSize = 0;
+        const physicalSizePerStorage = {};
+        perStorageTimeSeries.forEach((tsName) => {
+          const storageId = getStorageIdFromSizeOnStorageTSName(tsName);
+          const sizeOnStorage = result
+            ?.[tsName]
+            ?.[neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage]]
+            ?.[0]?.value ?? 0;
+          const normalizedSizeOnStorage = Number.isFinite(sizeOnStorage) ?
+            sizeOnStorage : 0;
+          totalPhysicalSize += normalizedSizeOnStorage;
+          physicalSizePerStorage[storageId] = normalizedSizeOnStorage;
+        });
+
+        return {
+          regFileAndLinkCount: staticStatsValues[
+            dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount
+          ],
+          dirCount: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.dirCount],
+          logicalSize: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.totalSize],
+          physicalSize: totalPhysicalSize,
+          physicalSizePerStorage,
+        };
+      })();
+
+      perProviderStatsPromises[providerId] = (async () => {
+        try {
+          return {
+            type: 'result',
+            ...(await statsPromise),
+          };
+        } catch (error) {
+          return {
+            type: 'error',
+            error,
+          };
+        }
+      })();
+    });
+
+    const result = await hashFulfilled(perProviderStatsPromises);
+    const currentProviderId = this.providerManager.getCurrentProviderId();
+    if (result[currentProviderId].type === 'error') {
+      throw result[currentProviderId].error;
+    } else {
+      return result;
+    }
   },
 
   /**
@@ -797,13 +857,15 @@ export default Service.extend({
 
 /**
  * @param {string} fileId
+ * @param {string} [providerId]
  * @returns {string}
  */
-export function dirSizeStatsGri(fileId) {
+export function dirSizeStatsGri(fileId, providerId = undefined) {
   return gri({
     entityId: fileId,
     entityType: fileEntityType,
     aspect: 'dir_size_stats_collection',
+    aspectId: providerId,
     scope: 'private',
   });
 }
