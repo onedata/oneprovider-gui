@@ -2,7 +2,6 @@
  * Summarizes and allows to change dataset protection settings and protection of its
  * ancestors.
  *
- * @module components/dataset-protection
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

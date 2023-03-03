@@ -1,9 +1,8 @@
 /**
  * A footer of layout for `items-select-browser`.
- * 
+ *
  * Shows summary of selection with optional constraint validation and action buttons.
  *
- * @module components/items-select-browser/header
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

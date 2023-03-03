@@ -1,7 +1,6 @@
 /**
  * Provides model functions related to providers.
  *
- * @module services/provider-manager
  * @author Jakub Liput, Michał Borzęcki
  * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

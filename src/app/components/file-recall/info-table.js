@@ -2,7 +2,6 @@
  * Shows information about file in recalling or recalled archive - basic info and live
  * statistics (all data provided by parent component).
  *
- * @module components/file-recall/info-table
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

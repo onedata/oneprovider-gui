@@ -1,7 +1,6 @@
 /**
  * Header for archive properties editor component
  *
- * @module components/archive-create/header
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -2,7 +2,6 @@
  * Component for creating archives.
  * Needs modal-like for layout rendering.
  *
- * @module components/archive-create
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

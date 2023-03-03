@@ -1,7 +1,6 @@
 /**
  * Tests only if file-datasets component is integrated with modal and modal features.
  *
- * @module tests/integration/components/datasets-modal-test
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

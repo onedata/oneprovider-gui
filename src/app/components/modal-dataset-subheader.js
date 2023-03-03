@@ -2,7 +2,6 @@
  * Subheader for dataset-operation modals with dataset(s) name.
  * It's a special version of `modal-file-subheader` aimed for datasets.
  *
- * @module components/modal-dataset-subheader
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

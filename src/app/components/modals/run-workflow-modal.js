@@ -5,7 +5,6 @@
  *   If not specified, then passed data will be ignored.
  * - atmWorkflowInputData - (optional) data to pass to the new workflow run.
  *
- * @module components/modals/run-workflow-modal
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

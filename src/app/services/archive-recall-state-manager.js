@@ -14,7 +14,6 @@
  * only when the polling is needed (recall is not finished) and handle errors.
  * See `util:archive-recall-state-watcher` for details.
  *
- * @module services/archive-recall-state-manager
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

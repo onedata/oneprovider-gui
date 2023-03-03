@@ -1,7 +1,6 @@
 /**
  * Shown when connection test to API fails
  *
- * @module components/content-endpoint-error
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

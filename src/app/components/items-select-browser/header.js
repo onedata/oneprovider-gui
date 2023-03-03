@@ -1,9 +1,8 @@
 /**
  * A head of layout for `items-select-browser`.
- * 
+ *
  * Shows description what kind of items can be selected in selector.
  *
- * @module components/items-select-browser/header
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

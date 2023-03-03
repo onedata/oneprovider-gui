@@ -8,7 +8,6 @@
  * This file contains the Ember class that is the comparable (see `isEqual`) describing
  * the context and a factory (in named export) for producing context objects.
  *
- * @module utils/files-view-context
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

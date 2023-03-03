@@ -1,6 +1,6 @@
 /**
  * Exports a real archive-manager service or its mock.
- * @module services/archive-manager
+ *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

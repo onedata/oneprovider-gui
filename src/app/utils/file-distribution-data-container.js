@@ -2,7 +2,6 @@
  * Class that allows to retrieve distribution-related data for specified file including
  * distribution per Oneprovider and active transfers.
  *
- * @module utils/file-distribution-data-container
  * @author Michał Borzęcki
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,13 +1,12 @@
 /**
  * Generate QoS expression string from query block object.
- * 
+ *
  * Maps standard query builder operators to RUCIO operators
  * (https://rucio.readthedocs.io/en/latest/rse_expressions.html#operators)
  * - or -> union
  * - and -> intersect
  * - except -> complement
- * 
- * @module utils/query-block-to-qos-expression
+ *
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

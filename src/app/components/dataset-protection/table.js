@@ -4,7 +4,6 @@
  * - file: suitable for filesystem browser
  * - dataset: suitable for dataset browser
  *
- * @module components/dataset-protection/table
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

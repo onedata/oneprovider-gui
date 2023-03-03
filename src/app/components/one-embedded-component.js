@@ -4,7 +4,6 @@
  * object with it's parent window via iframe element's `appProxy` property.
  * Only one `one-embedded-component` can be used in and iframe at the same time!
  *
- * @module components/one-embedded-component
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

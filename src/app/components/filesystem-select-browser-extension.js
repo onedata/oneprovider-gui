@@ -2,7 +2,6 @@
  * Provides additional components used by filesystem browser used as selector-like
  * (eg. action modals, see what is in template).
  *
- * @module components/filesystem-select-browser-extension
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

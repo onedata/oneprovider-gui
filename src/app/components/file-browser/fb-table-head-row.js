@@ -1,7 +1,6 @@
 /**
  * Row of file browser table header (thead)
  *
- * @module components/file-browser/fb-table-head-row
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

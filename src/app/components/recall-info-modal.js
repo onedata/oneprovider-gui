@@ -2,7 +2,6 @@
  * Modal container for recall info (information about file in recalling or recalled
  * archive).
  *
- * @module components/recall-info-modal
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

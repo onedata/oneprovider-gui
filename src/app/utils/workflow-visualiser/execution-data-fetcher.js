@@ -1,7 +1,6 @@
 /**
  * Real implementation of workflow execution data fetcher.
  *
- * @module utils/workflow-visualiser/execution-data-fetcher
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

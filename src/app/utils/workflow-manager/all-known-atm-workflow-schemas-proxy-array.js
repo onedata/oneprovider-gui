@@ -2,7 +2,6 @@
  * Proxies access to all known workflow schemas, which are aggregated from all
  * user automation inventories.
  *
- * @module utils/workflow-manager/all-known-atm-workflow-schemas-proxy-array
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Adds methods for downloading files in browsers components.
  *
- * @module mixins/download-in-browser
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

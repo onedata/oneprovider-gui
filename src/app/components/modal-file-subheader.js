@@ -1,7 +1,6 @@
 /**
  * Subheader for file-operation modals with file name
  *
- * @module components/modal-file-subheader
  * @author Jakub Liput
  * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Mock of Onedata Websocket WebSocket API - Graph level service for Oneprovider
  *
- * @module services/mocks/onedata-graph
  * @author Jakub Liput
  * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

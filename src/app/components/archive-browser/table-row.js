@@ -2,7 +2,6 @@
  * Implementation of table-row for archive browser - represents a archive established
  * on file or directory.
  *
- * @module components/archive-browser/table-row
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

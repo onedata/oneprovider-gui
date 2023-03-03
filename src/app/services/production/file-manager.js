@@ -1,7 +1,6 @@
 /**
  * Provides model functions related to files and directories.
  *
- * @module services/production/file-manager
  * @author Michał Borzęcki, Jakub Liput
  * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

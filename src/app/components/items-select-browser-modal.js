@@ -2,7 +2,6 @@
  * A modal that renders `items-select-browser`.
  * See `components/dummy-items-select-browser` for usage examples.
  *
- * @module components/items-select-browser-modal
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

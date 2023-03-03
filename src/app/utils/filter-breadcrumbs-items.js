@@ -1,6 +1,6 @@
 /**
  * A function for reducing number of breadcrumbs items (for long paths).
- * @module utils/filter-breadcrumbs-items
+ *
  * @author Jakub Liput
  * @copyright (C) 2016-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -32,16 +32,16 @@ function addEllipsisForLastItem(
 /**
  * Filters elements of given breadcrumbs items array to get array with reduced
  * number of breadcrumbs items WITHOUT last element.
- *  
+ *
  * Also an "ellispis item" presented as "..." is added, which is a link to
  * a parent on its right.
- * 
+ *
  * Example: we got items: `root > a > b > c > d > e > f > current_dir`.
  * Invoking `filterBreadcrumbsItems(items, 5)` will give us:
  * `root > a > ... > e > f` where "..." is "ellipsis item" (a link to "d").
- * 
+ *
  * See tests for more examples.
- * 
+ *
  * @param {Ember.A<FileBreadcrumbsItem>} items
  * @param {Number} count max. desired number of entries in result array
  *  NOTE: 0, 1, 2 will give result for 2

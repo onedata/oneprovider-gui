@@ -1,7 +1,6 @@
 /**
  * Adds a DIP switch to standard readonly empty dir screen.
  *
- * @module components/archive-filesystem-browser/empty-dir
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

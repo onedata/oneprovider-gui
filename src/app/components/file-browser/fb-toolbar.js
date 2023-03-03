@@ -2,7 +2,6 @@
  * Icon buttons with some operations on the currenlty opened directory.
  * Currently there are only operations of creating/uploading new files.
  *
- * @module components/file-browser/fb-toolbar
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Functions and regexp for parsing/visualizing QoS expression
- * 
- * @module utils/qos-expression-converters
+ *
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

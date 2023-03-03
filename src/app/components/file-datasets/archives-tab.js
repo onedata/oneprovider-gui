@@ -1,7 +1,6 @@
 /**
  * A container for archives browser embedded into file-datasets panel.
  *
- * @module components/file-datasets/archives-tab
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

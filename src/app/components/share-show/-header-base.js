@@ -1,8 +1,7 @@
 /**
  * Base component for single share view headers that provides information and view
  * switches.
- * 
- * @module components/share-show/-header-base
+ *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

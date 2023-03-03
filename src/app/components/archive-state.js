@@ -1,7 +1,6 @@
 /**
  * Renders simple info about archive state including basic statistics.
  *
- * @module components/archive-state
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

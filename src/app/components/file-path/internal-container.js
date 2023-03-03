@@ -1,7 +1,6 @@
 /**
  * A direct container for path elements, created to have flexible tag names.
  *
- * @module components/file-path/internal-container
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

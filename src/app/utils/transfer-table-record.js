@@ -1,7 +1,6 @@
 /**
  * Transfer record wrapper for transfers table/list item
  *
- * @module utils/transfer-table-record
  * @author Jakub Liput
  * @copyright (C) 2018-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

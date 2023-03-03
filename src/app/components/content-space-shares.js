@@ -2,7 +2,6 @@
  * Container for signed-in user shares list and file browser to use in an iframe with
  * injected properties.
  *
- * @module component/content-space-share
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

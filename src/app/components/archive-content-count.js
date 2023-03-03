@@ -1,7 +1,6 @@
 /**
  * Simple text info about number of files and size of archived data of archive.
  *
- * @module components/archive-content-count
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

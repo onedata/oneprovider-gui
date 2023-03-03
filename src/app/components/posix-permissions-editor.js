@@ -2,7 +2,6 @@
  * Posix permissions editor, that includes permissions rwx-rwx-rwx
  * representation, octal format and detailed checkboxes overview.
  *
- * @module components/posix-permissions-editor
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

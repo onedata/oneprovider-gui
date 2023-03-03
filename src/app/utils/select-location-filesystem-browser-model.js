@@ -2,7 +2,6 @@
  * Implementation of browser-model (logic and co-related data) of filesystem-browser
  * for selecting location (navigate to single directory where something should be done).
  *
- * @module utils/select-location-filesystem-browser-model
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
