@@ -2,7 +2,6 @@
  * Table body with list of ancestor datasets.
  * The list is collapsible and have a summary on the collapse header.
  *
- * @module componensts/dataset-protection/ancestor-datasets
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

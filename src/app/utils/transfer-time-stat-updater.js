@@ -1,7 +1,6 @@
 /**
  * Updates single transfer chosen time stat data (by polling)
  *
- * @module utils/transfer-time-stat-updater
  * @author Jakub Liput
  * @copyright (C) 2017 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

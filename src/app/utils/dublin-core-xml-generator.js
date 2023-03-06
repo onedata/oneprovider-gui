@@ -1,10 +1,9 @@
 /**
  * Generates Dublin Core Metadata in XML/RDF format and exposes metadata in convenient
  * formats.
- * 
+ *
  * Supports only Dublin Core version 1.1.
- * 
- * @module utils/dublin-core-xml-parser
+ *
  * @author Jakub Liput
  * @copyright (C) 2020-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -23,7 +22,7 @@ export default EmberObject.extend({
    * There should be one array element for one type.
    * There can be one or multiple values for each type.
    * Empty values make no sense but are accepted.
-   * 
+   *
    * Example:
    * ```
    * [
@@ -31,7 +30,7 @@ export default EmberObject.extend({
    *   { type: 'creator', values: ['John Smith'] }
    * ]
    * ```
-   * 
+   *
    * @virtual
    * @type {Array<{ type: String, values: Array<String>}>}
    */

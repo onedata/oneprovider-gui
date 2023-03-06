@@ -2,7 +2,6 @@
  * A mocked version of workflow manager to bypass normalization/serialization in adapter.
  * For properties description see non-mocked `services/production/workflow-manager`
  *
- * @module services/mocks/workflow-manager
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

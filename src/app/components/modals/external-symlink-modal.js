@@ -2,7 +2,6 @@
  * Show information about symlink of file or directory that targets outside browsed
  * context, especially from archive to regular space.
  *
- * @module components/modals/external-symlink-modal
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

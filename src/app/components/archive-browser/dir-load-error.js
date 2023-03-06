@@ -1,7 +1,6 @@
 /**
  * Handles no permissions to view (posix eperm) error or shows generic error view.
  *
- * @module components/archive-browser/dir-load-error
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

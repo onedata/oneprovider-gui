@@ -1,7 +1,6 @@
 /**
  * Pill-button for changing display/edit mode in open-data components
  *
- * @module components/share-show/open-data-mode-switch
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Polls for archive recall info and state for specified `targetFile`.
  *
- * @module utils/archive-recall-state-watcher
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,15 +1,14 @@
 /**
  * A base settings, logic and state for `items-select-browser` component.
- * 
+ *
  * Some virtual properties should be set at creation time and some are intended to be
  * implemented by subclasses - see properties JSDocs for details.
- * 
+ *
  * Note, that this is model for selector component, that is parent of file-browser.
  * Browser component should be returned by the selector model. Typically browser models
  * for selectors are specially prepared (eg. see `selector-filesystem-browser-model`)
  * to have behaviour and actions different from regular browsers.
  *
- * @module utils/items-select-browser/base-model
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

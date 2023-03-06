@@ -1,8 +1,7 @@
 /**
  * A cell component with transfer representation used by `transfers-table` component.
  *
- * @module components/space-transfers/cell-status
- * @author Michal Borzecki
+ * @author Michał Borzęcki
  * @copyright (C) 2017 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */

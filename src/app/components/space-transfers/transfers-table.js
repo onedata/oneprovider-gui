@@ -6,7 +6,6 @@
  *
  * To get infinite scroll support, see `space-transfers/transfers-table-container`
  *
- * @module components/space-transfers/transfers-table
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

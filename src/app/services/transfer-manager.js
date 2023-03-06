@@ -1,7 +1,6 @@
 /**
  * Provides model functions related to transfers.
  *
- * @module services/transfer-manager
  * @author Michał Borzęcki
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

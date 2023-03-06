@@ -1,7 +1,6 @@
 /**
  * Shows info about QoS expression evaluation: storages matching or parse error
  *
- * @module components/qos-evaluation-info
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

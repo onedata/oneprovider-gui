@@ -2,7 +2,6 @@
  * Implementation of browser-model (logic and co-related data) for filesystem-browser
  * of shared files.
  *
- * @module utils/share-filesystem-browser-model
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

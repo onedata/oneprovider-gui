@@ -2,8 +2,7 @@
  * Reduce directional graph data to create bidirectional array of pairs.
  * Originally implemented for Oneprovider active channels manipulation
  *
- * @module utils/bidirectional-pairs
- * @author Jakub Liput, Michal Borzecki
+ * @author Jakub Liput, Michał Borzęcki
  * @copyright (C) 2017-2018 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */

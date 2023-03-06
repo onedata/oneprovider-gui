@@ -2,7 +2,6 @@
  * Class for creating objects providing info about file membership in archive and
  * dataset. Info is currently obtained in a hacky way, because backend lacks API.
  *
- * @module utils/file-archive-info
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Entry with information about an effective dataset for file/directory.
  *
- * @module components/dataset-protection/dataset-item
  * @author Jakub Liput
  * @copyright (C) 2021-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -2,7 +2,6 @@
  * Basic information about datasets in context of selected file, eg. file name and
  * effective write protections flags. In practice, this is a modal header.
  *
- * @module components/file-datasets/summary-header
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

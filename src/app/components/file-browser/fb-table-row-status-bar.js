@@ -1,7 +1,6 @@
 /**
  * Status bar section with tags for item row
  *
- * @module components/file-browser/fb-table-row-status-bar
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

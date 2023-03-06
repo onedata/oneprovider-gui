@@ -2,7 +2,6 @@
  * An ACE editor. Includes tree editor and the whole collapsible-list
  * item content.
  *
- * @module components/acl-editor/ace-editor
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

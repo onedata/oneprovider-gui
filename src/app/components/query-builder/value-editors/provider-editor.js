@@ -1,7 +1,6 @@
 /**
  * A dropdown with options of available Oneproviders.
- * 
- * @module components/query-builder/value-editors/provider-editor
+ *
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Visually test space-automation component with mocked backend
  *
- * @module components/dummy-space-automation
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

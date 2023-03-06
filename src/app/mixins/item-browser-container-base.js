@@ -2,7 +2,6 @@
  * Adds render-friendly browser items selection and auto jump-to-item handling
  * by observing `selectedItemsForJumpProxy`.
  *
- * @module mixins/item-browser-container-base
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

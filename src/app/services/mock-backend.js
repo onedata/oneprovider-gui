@@ -1,7 +1,6 @@
 /**
  * Creates and shares a state of mocked data model
  *
- * @module services/mock-backend
  * @author Jakub Liput
  * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -2,7 +2,6 @@
  * Conditionally display "Recalled" file tag for files that recall from archive
  * have been finished (successfully or not).
  *
- * @module components/filesystem-browser/tag-recalled
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

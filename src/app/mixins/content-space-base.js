@@ -1,7 +1,6 @@
 /**
  * Base for components that have space entity injected and use space as model
- *  
- * @module mixins/content-space-base
+ *
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

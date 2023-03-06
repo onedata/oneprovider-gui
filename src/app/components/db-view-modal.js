@@ -1,7 +1,6 @@
 /**
  * Modal for showing information and source of functions od Database View (aka Index)
  *
- * @module components/db-view-modal
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

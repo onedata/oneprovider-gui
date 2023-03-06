@@ -1,7 +1,6 @@
 /**
  * Compute record index for transfer model, concerning externally injected state
  *
- * @module utils/transfer-index
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

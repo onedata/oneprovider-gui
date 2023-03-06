@@ -1,7 +1,6 @@
 /**
  * Cell with file name for transfer row.
  *
- * @module components/space-transfers/cell-data-name
  * @author Jakub Liput
  * @copyright (C) 2017 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

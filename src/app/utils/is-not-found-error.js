@@ -1,7 +1,6 @@
 /**
  * Check if error indicates that some resource has been deleted or cannot be fetched.
  *
- * @module utils/is-not-found-error
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

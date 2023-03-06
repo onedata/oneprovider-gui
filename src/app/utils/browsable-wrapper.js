@@ -1,7 +1,6 @@
 /**
  * Base wrapper for various modesl that adds API for browser components.
  *
- * @module utils/browsable-wrapper
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

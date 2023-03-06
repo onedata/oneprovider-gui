@@ -2,7 +2,6 @@
  * Wrapper for archive model that adds API for browser components.
  * An archive can be treated then as a file-like object.
  *
- * @module utils/browsable-archive
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Provides model functions related to storages.
  *
- * @module services/storage-manager
  * @author Michał Borzęcki
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

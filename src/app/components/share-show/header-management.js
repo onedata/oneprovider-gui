@@ -1,7 +1,6 @@
 /**
  * Header for single share view for signed-in user that allows to modify the share.
  *
- * @module components/share-show/header-management
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

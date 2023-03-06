@@ -1,7 +1,6 @@
 /**
  * Modal for setting name for new file/directory
- * 
- * @module components/file-browser/fb-create-item-modal
+ *
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
