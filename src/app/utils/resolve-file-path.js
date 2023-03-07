@@ -1,7 +1,6 @@
 /**
  * Create an array with directories in path from root dir for file (or directory).
  *
- * @module utils/resolve-file-path
  * @author Jakub Liput
  * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

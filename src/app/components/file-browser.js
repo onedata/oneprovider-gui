@@ -2,7 +2,6 @@
  * A complete file browser with infinite-scrolled file list, directory
  * breadcrumbs and toolkit for selected files.
  *
- * @module components/file-browser
  * @author Jakub Liput
  * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

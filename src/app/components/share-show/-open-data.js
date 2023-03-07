@@ -2,7 +2,6 @@
  * Base (abstract) component for handling Dublin Core Metadata.
  * See components that inherit for specific usage.
  *
- * @module components/share-show/-open-data
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Detect if error is POSIX-type with optional POSIX error type checking.
  *
- * @module utils/is-posix-error
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

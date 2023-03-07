@@ -1,7 +1,6 @@
 /**
  * Container for space transfers view to use in an iframe with injected properties.
- * 
- * @module component/content-space-transfers
+ *
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

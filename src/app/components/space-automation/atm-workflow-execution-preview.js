@@ -1,7 +1,6 @@
 /**
  * Shows workflow execution progress using full workflow visualiser.
  *
- * @module components/space-automation/atm-workflow-execution-preview
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

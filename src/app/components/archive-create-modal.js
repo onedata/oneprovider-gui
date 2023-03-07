@@ -1,7 +1,6 @@
 /**
  * Standalone component for creating archive using archive settings editor
  *
- * @module components/archive-create-modal
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Header for single share view for anonymous user only for browsing the share.
- * 
- * @module components/share-show/header-public
+ *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -4,7 +4,6 @@
  *
  * Features are handled in `component:archive-filesystem-browser/file-features-extension`.
  *
- * @module utils/file-in-archive
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

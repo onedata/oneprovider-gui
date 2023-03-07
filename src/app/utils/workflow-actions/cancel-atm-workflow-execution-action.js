@@ -1,7 +1,6 @@
 /**
  * Cancels workflow execution.
  *
- * @module utils/workflow-actions/cancel-atm-workflow-execution-action
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

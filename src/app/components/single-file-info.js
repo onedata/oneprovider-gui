@@ -1,7 +1,6 @@
 /**
  * A large file/directory icon with basic file information for use mainly in modals
  *
- * @module components/single-file-info
  * @author Jakub Liput
  * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

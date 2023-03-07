@@ -1,7 +1,6 @@
 /**
  * Error message shown when the WebSocket connection is lost
- * 
- * @module components/websocket-connection-modal
+ *
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

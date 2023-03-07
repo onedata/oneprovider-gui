@@ -1,7 +1,6 @@
 /**
  * Provides data for rendering list of dataset-items with ancestor datasets.
  *
- * @module components/dataset-protection/datasets-list-container
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

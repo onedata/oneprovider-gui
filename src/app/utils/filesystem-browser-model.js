@@ -2,7 +2,6 @@
  * Implementation of browser-model (logic and co-related data) for filesystem-browser
  * (a browser for mananging files and directories).
  *
- * @module utils/filesystem-browser-model
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

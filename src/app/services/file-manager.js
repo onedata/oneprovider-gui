@@ -1,6 +1,6 @@
 /**
  * Exports a real dataset-manager service or its mock.
- * @module services/dataset-manager
+ *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

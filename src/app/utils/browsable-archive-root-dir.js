@@ -1,7 +1,6 @@
 /**
  * Wrapper for archive root dir to change it's name in browser to user-friendly.
  *
- * @module utils/browsable-archive-root-dir
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Shows pods table data row.
  *
- * @module components/modals/atm-task-execution-pods-activity-modal/pods-table/pod-row
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

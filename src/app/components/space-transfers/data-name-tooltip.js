@@ -1,7 +1,6 @@
 /**
  * A detailed information about transferred object (eg. file) rendered in tooltip.
  *
- * @module space-transfers/data-name-tooltip
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

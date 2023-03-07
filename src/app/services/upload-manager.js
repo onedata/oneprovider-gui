@@ -2,7 +2,6 @@
  * Manages uploading files using resumable.js and external state of upload
  * received from Onezone.
  *
- * @module services/upload-manager
  * @author Michał Borzęcki
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

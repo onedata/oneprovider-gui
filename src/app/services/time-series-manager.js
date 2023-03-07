@@ -1,7 +1,6 @@
 /**
  * Executes backend operations related to time series.
  *
- * @module services/time-series-manager
  * @author Michał Borzęcki
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

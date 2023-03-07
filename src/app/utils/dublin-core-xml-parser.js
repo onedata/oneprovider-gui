@@ -1,8 +1,7 @@
 /**
  * Parses Dublin Core Metadata in XML/RDF format and exposes metadata in convenient
  * formats.
- * 
- * @module utils/dublin-core-xml-parser
+ *
  * @author Jakub Liput
  * @copyright (C) 2020-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -121,7 +120,7 @@ export default EmberObject.extend({
   },
 
   /**
-   * @param {Node} node 
+   * @param {Node} node
    * @returns {String}
    */
   getTextFromNode(node) {

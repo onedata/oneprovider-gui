@@ -1,7 +1,6 @@
 /**
  * Shows effective write protection info (final summary of protection).
  *
- * @module components/dataset-protection/effective-info
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

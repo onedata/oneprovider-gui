@@ -2,7 +2,6 @@
  * Reduces length of the array by replacing multiple items from the middle by single
  * `ellipsisItem`. See `tests/unit/utils/path-shorten-test` for examples of input/output.
  *
- * @module utils/path-shorten
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

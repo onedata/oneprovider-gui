@@ -2,7 +2,6 @@
  * Compute record index for atm-workflow-execution-summary model,
  * concerning externally injected state
  *
- * @module utils/atm-workflow-execution-summary-index
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

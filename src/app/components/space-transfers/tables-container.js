@@ -1,7 +1,6 @@
 /**
  * Container for all transfer tables in space transfers view
- * 
- * @module components/space-transfers/tables-container
+ *
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

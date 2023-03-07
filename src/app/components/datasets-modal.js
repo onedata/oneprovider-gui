@@ -1,7 +1,6 @@
 /**
  * Modal for viewing and editing dataset settings for file/directory
  *
- * @module components/datasets-modal
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

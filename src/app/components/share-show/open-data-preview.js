@@ -2,7 +2,6 @@
  * Open Data viewer with visual (Dublin Core Metadata values render) and XML (raw text)
  * modes.
  *
- * @module components/share-show/open-data-preview
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

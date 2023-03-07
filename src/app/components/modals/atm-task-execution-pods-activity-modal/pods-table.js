@@ -1,7 +1,6 @@
 /**
  * Shows pods statuses related to task execution.
  *
- * @module components/modals/atm-task-execution-pods-activity-modal/pods-table
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

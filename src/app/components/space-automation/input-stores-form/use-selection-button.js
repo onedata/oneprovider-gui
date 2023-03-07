@@ -1,7 +1,6 @@
 /**
  * Shows "use selection" button.
  *
- * @module components/space-automation/input-stores-form/use-selection-button
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

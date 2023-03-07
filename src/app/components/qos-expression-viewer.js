@@ -1,7 +1,6 @@
 /**
  * A contaniner for creating tokenized and stylized view of QoS logical expression
- * 
- * @module components/qos-expression-viewer
+ *
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

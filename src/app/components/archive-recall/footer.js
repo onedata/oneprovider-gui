@@ -1,7 +1,6 @@
 /**
  * A footer part of archive recall component with some settings, summary and submit button
  *
- * @module components/archive-recall/footer
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

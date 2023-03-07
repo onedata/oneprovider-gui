@@ -1,7 +1,6 @@
 /**
  * Backend operations on file metadata
  *
- * @module services/metadata-manager
  * @author Jakub Liput
  * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

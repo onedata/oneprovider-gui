@@ -2,7 +2,6 @@
  * A mocked version of archive manager to bypass normalization/serialization in adapter.
  * For properties description see non-mocked `services/production/archive-manager`
  *
- * @module services/mocks/archive-manager
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

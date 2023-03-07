@@ -1,8 +1,7 @@
 /**
  * A service that provides method to extract oneprovider-specific error messages
  * from passed backend errors.
- * 
- * @module services/error-extractor
+ *
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -19,7 +18,7 @@ export default ErrorExtractor.extend({
 
   /**
    * @param {*} error
-   * @returns {string} 
+   * @returns {string}
    */
   getType(error) {
     const errorId = (error || {}).id;

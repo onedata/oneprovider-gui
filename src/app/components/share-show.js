@@ -5,7 +5,6 @@
  * In public mode, styles are designed to fit unified GUI's public view without any
  * menus and sidebars.
  *
- * @module component/content-share-show
  * @author Jakub Liput
  * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

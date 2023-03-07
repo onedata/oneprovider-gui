@@ -1,7 +1,6 @@
 /**
  * An auto-collapsible path to selected dir.
  *
- * @module components/file-browser/fb-breadcrumbs
  * @author Jakub Liput
  * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

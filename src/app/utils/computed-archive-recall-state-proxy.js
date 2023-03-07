@@ -2,7 +2,6 @@
  * Exposes ArchiveRecallState proxy only if it is known that current user has
  * privilege to fetch it.
  *
- * @module utils/computed-archive-recall-state-proxy
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

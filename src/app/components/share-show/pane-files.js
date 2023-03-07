@@ -1,7 +1,6 @@
 /**
  * Content for "files" tab for single share
  *
- * @module components/share-show/pane-files
  * @author Jakub Liput
  * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

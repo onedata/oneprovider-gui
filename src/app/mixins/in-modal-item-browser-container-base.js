@@ -1,7 +1,6 @@
 /**
  * Improves modals support in browser containers that are rendered in modals.
  *
- * @module mixins/in-modal-item-browser-container-base
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
