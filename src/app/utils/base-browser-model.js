@@ -22,6 +22,7 @@ import {
   actionContext,
 } from 'oneprovider-gui/components/file-browser';
 import { typeOf } from '@ember/utils';
+import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
   i18n: service(),
@@ -167,6 +168,8 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    */
   infoIconActionName: undefined,
 
+  isListPollingEnabled: true,
+
   getCurrentDirMenuButtons(availableActions) {
     return availableActions;
   },
@@ -206,6 +209,15 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
   fileClipboardMode: reads('browserInstance.fileClipboardMode'),
   fileClipboardFiles: reads('browserInstance.fileClipboardFiles'),
+
+  //#endregion
+
+  //#region browser model state
+
+  /**
+   * @type {Utils.BrowserListPoller}
+   */
+  browserListPoller: null,
 
   //#endregion
 
@@ -273,6 +285,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   init() {
     this._super(...arguments);
     this.generateAllButtonsArray();
+    this.initBrowserListPoller();
+  },
+
+  initBrowserListPoller() {
+    const browserListPoller = BrowserListPoller.create({
+      browserModel: this,
+    });
+    this.set('browserListPoller', browserListPoller);
   },
 
   /**
@@ -288,19 +308,23 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     return await updateBrowserDir(dir);
   },
 
-  refresh() {
+  refresh({ silent = false } = {}) {
     const {
       globalNotify,
       fbTableApi,
       element,
     } = this.getProperties('globalNotify', 'fbTableApi', 'element');
-    animateCss(
-      element.querySelector('.fb-toolbar-button.file-action-refresh'),
-      'pulse-mint'
-    );
-    return fbTableApi.refresh()
+    if (!silent) {
+      animateCss(
+        element.querySelector('.fb-toolbar-button.file-action-refresh'),
+        'pulse-mint'
+      );
+    }
+    return fbTableApi.refresh(!silent)
       .catch(error => {
-        globalNotify.backendError(this.t('refreshing'), error);
+        if (!silent) {
+          globalNotify.backendError(this.t('refreshing'), error);
+        }
         throw error;
       });
   },

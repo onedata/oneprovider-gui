@@ -472,6 +472,8 @@ export default OneEmbeddedComponent.extend(
       return this.changeSelectedItems([]);
     },
 
+    // FIXME: destroy browserModel (and ensure looper is destroyed)
+
     actions: {
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);

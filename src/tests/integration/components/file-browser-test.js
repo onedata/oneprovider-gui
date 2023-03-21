@@ -848,6 +848,7 @@ async function renderComponent(testCase) {
       notStubbed('openCreateNewDirectory'),
     openDatasets: openDatasets || notStubbed('openDatasets'),
     openInfo: openInfo || notStubbed('openInfo'),
+    isListPollingEnabled: false,
   }));
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.set('changeSelectedItemsImmediately', function (selectedItems) {
