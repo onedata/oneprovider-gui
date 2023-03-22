@@ -8,17 +8,16 @@
  */
 
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
-import { bool, array, raw } from 'ember-awesome-macros';
+import { bool, array, raw, eq } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
-import { get, set, observer } from '@ember/object';
+import { get } from '@ember/object';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import FileInArchive from 'oneprovider-gui/utils/file-in-archive';
-import Looper from 'onedata-gui-common/utils/looper';
 import { allSettled } from 'rsvp';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import ArchiveFilesystemBrowserListPoller from 'oneprovider-gui/utils/archive-filesystem-browser-list-poller';
 
 export default FilesystemBrowserModel.extend({
   modalManager: service(),
@@ -115,16 +114,15 @@ export default FilesystemBrowserModel.extend({
   ]),
 
   /**
+   * If archive is not being created, the filesystem of archive should not change.
+   * @override
+   */
+  isListPollingEnabled: eq('archive.metaState', raw('creating')),
+
+  /**
    * @type {Utils.ModalManager.ModalInstance}
    */
   externalSymlinkModal: null,
-
-  /**
-   * Managed by `autoConfigureRefreshLooper`.
-   * Initialized in `startRefreshLooper`.
-   * @type {Utils.Looper}
-   */
-  refreshLooper: null,
 
   /**
    * Used only when `renderArchiveDipSwitch` is true.
@@ -133,13 +131,13 @@ export default FilesystemBrowserModel.extend({
    */
   isArchiveDipAvailable: bool('archive.config.includeDip'),
 
-  metaStateObserver: observer('archive.metaState', function metaStateObserver() {
-    this.autoConfigureRefreshLooper();
-  }),
-
-  init() {
-    this._super(...arguments);
-    this.autoConfigureRefreshLooper();
+  /**
+   * @override
+   */
+  createBrowserListPoller() {
+    return ArchiveFilesystemBrowserListPoller.create({
+      browserModel: this,
+    });
   },
 
   /**
@@ -151,14 +149,6 @@ export default FilesystemBrowserModel.extend({
     } catch (error) {
       console.error(
         'util:archive-filesystem-browser-model#destroy: closeExternalSymlinkModal failed',
-        error
-      );
-    }
-    try {
-      this.destroyRefreshLooper();
-    } catch (error) {
-      console.error(
-        'util:archive-filesystem-browser-model#destroy: destroyRefreshLooper failed',
         error
       );
     }
@@ -208,40 +198,6 @@ export default FilesystemBrowserModel.extend({
       file: item,
       archive,
     });
-  },
-
-  autoConfigureRefreshLooper() {
-    const archiveMetaState = this.get('archive.metaState');
-    if (archiveMetaState === 'creating') {
-      safeExec(this, () => {
-        this.startRefreshLooper();
-      });
-    } else {
-      this.destroyRefreshLooper();
-    }
-  },
-
-  startRefreshLooper() {
-    const interval = 2000;
-    let refreshLooper = this.get('refreshLooper');
-    if (!refreshLooper) {
-      refreshLooper = this.set('refreshLooper', Looper.create({
-        immediate: false,
-      }));
-      refreshLooper.on('tick', () => this.refreshData());
-    }
-    if (get(refreshLooper, 'inverval') !== interval) {
-      set(refreshLooper, 'interval', interval);
-    }
-  },
-
-  destroyRefreshLooper() {
-    const refreshLooper = this.get('refreshLooper');
-    if (refreshLooper) {
-      refreshLooper.trigger('tick');
-      refreshLooper.destroy();
-      this.set('refreshLooper', null);
-    }
   },
 
   /**

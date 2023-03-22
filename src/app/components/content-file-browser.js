@@ -287,6 +287,17 @@ export default OneEmbeddedComponent.extend(
       this.set('browserModel', this.createBrowserModel());
     },
 
+    /**
+     * @override
+     */
+    willDestroyElement() {
+      try {
+        this.browserModel?.destroy?.();
+      } finally {
+        this._super(...arguments);
+      }
+    },
+
     getItemById(itemId) {
       return this.get('fileManager').getFileById(itemId, { scope: 'private' });
     },
@@ -471,8 +482,6 @@ export default OneEmbeddedComponent.extend(
     clearFilesSelection() {
       return this.changeSelectedItems([]);
     },
-
-    // FIXME: destroy browserModel (and ensure looper is destroyed)
 
     actions: {
       containerScrollTop() {

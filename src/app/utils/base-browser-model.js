@@ -168,6 +168,10 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    */
   infoIconActionName: undefined,
 
+  /**
+   * Used by `browserListPoller` to enable/disable polling.
+   * @type {boolean}
+   */
   isListPollingEnabled: true,
 
   getCurrentDirMenuButtons(availableActions) {
@@ -288,11 +292,18 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     this.initBrowserListPoller();
   },
 
+  destroy() {
+    this.browserListPoller?.destroy();
+  },
+
   initBrowserListPoller() {
-    const browserListPoller = BrowserListPoller.create({
+    this.set('browserListPoller', this.createBrowserListPoller());
+  },
+
+  createBrowserListPoller() {
+    return BrowserListPoller.create({
       browserModel: this,
     });
-    this.set('browserListPoller', browserListPoller);
   },
 
   /**
