@@ -23,7 +23,7 @@ import {
   equal,
   not,
 } from 'ember-awesome-macros';
-import EmberObject, { computed, get, set, getProperties } from '@ember/object';
+import EmberObject, { computed, get, set, getProperties, observer } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
@@ -749,6 +749,10 @@ export default Component.extend(...mixins, {
       return `${this.modalClass || ''} ${additionalClassName}`;
     }
   ),
+
+  autoUpdateHardlinks: observer('file.hardlinksCount', function autoUpdateHardlinks() {
+    return this.updateFileHardlinksProxy();
+  }),
 
   init() {
     this._super(...arguments);
