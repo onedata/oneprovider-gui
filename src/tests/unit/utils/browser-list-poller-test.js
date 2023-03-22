@@ -15,13 +15,13 @@ describe('Unit | Utility | browser-list-poller', function () {
 
   afterEach(function () {
     this.fakeClock.restore();
-    this.browserListWatcher?.destroy();
+    this.browserListPoller?.destroy();
   });
 
   it('invokes reloadList in intervals if browserModel has polling enabled', async function () {
     const poll = sinon.spy();
     const pollInterval = 1000;
-    this.browserListWatcher = BrowserListPoller
+    this.browserListPoller = BrowserListPoller
       .create({
         poll,
         pollInterval,
@@ -39,13 +39,13 @@ describe('Unit | Utility | browser-list-poller', function () {
   it('does not invoke reloadList if browserModel has polling disabled', async function () {
     const poll = sinon.spy();
     const pollInterval = 1000;
-    const browserListWatcher = BrowserListPoller
+    const browserListPoller = BrowserListPoller
       .create({
         poll,
         pollInterval,
         browserModel: createBrowserModel({ isListPollingEnabled: false }),
       });
-    this.browserListWatcher = browserListWatcher;
+    this.browserListPoller = browserListPoller;
 
     this.fakeClock.tick(pollInterval + 1);
     expect(poll).to.have.been.not.called;
@@ -58,16 +58,16 @@ describe('Unit | Utility | browser-list-poller', function () {
   it('does not invoke reloadList in interval after destroy', async function () {
     const poll = sinon.spy();
     const pollInterval = 1000;
-    const browserListWatcher = BrowserListPoller
+    const browserListPoller = BrowserListPoller
       .create({
         poll,
         pollInterval,
         browserModel: createBrowserModel({ isListPollingEnabled: true }),
       });
-    this.browserListWatcher = browserListWatcher;
+    this.browserListPoller = browserListPoller;
 
     this.fakeClock.tick(pollInterval + 1);
-    browserListWatcher.destroy();
+    browserListPoller.destroy();
 
     expect(poll).to.have.been.calledOnce;
     this.fakeClock.tick(pollInterval + 1);
@@ -82,7 +82,7 @@ describe('Unit | Utility | browser-list-poller', function () {
       isListPollingEnabled: true,
       refresh: sinon.spy(),
     };
-    this.browserListWatcher = BrowserListPoller
+    this.browserListPoller = BrowserListPoller
       .create({
         pollInterval,
         browserModel: browserModelMock,
