@@ -483,12 +483,13 @@ export default Component.extend(...mixins, {
    */
   errorReasonForOwnerProxy: reads('ownerProxy.reason'),
 
-  filePathProxy: promise.object(
-    computed('file.parent', function filePathPromise() {
-      return resolveFilePath(this.get('file'))
+  filePathProxy: promise.object(computed(
+    'file.{parent.name,name}',
+    function filePathPromise() {
+      return resolveFilePath(this.file)
         .then(path => stringifyFilePath(path));
-    })
-  ),
+    }
+  )),
 
   filePath: reads('filePathProxy.content'),
 
@@ -750,7 +751,7 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  autoUpdateHardlinks: observer('file.hardlinksCount', function autoUpdateHardlinks() {
+  hardlinksAutoUpdater: observer('file.hardlinksCount', function autoUpdateHardlinks() {
     return this.updateFileHardlinksProxy();
   }),
 
