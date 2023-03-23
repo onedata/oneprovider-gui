@@ -295,7 +295,7 @@ export default Component.extend(...mixins, {
    * @type {PromiseObject<Ember.Array<Object>|null>}
    */
   storageLocationsPerProviderProxy: promise.object(computed(
-    'storageLocationsProxy',
+    'storageLocationsProxy.locationsPerProvider',
     'storageManager',
     'spaceId',
     async function storageLocationsPerProviderProxy() {
@@ -308,9 +308,8 @@ export default Component.extend(...mixins, {
       );
 
       const locationsPerProviderWithStorageName = {};
-      const storageLocationsProxy = await this.get('storageLocationsProxy');
-
-      const locationsPerProvider = get(storageLocationsProxy, 'locationsPerProvider');
+      const storageLocations = await this.get('storageLocationsProxy');
+      const locationsPerProvider = get(storageLocations, 'locationsPerProvider');
 
       for (const providerId in locationsPerProvider) {
         const locationsPerStorage = locationsPerProvider[providerId].locationsPerStorage;
@@ -751,9 +750,16 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  hardlinksAutoUpdater: observer('file.hardlinksCount', function autoUpdateHardlinks() {
-    return this.updateFileHardlinksProxy();
+  hardlinksAutoUpdater: observer('file.hardlinksCount', function hardlinksAutoUpdater() {
+    this.updateFileHardlinksProxy();
   }),
+
+  storageLocationsAutoUpdater: observer(
+    'file.{parent.name,name}',
+    async function storageLocationsAutoUpdater() {
+      this.file.belongsTo('storageLocationInfo').reload();
+    }
+  ),
 
   init() {
     this._super(...arguments);
