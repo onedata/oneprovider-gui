@@ -1,7 +1,7 @@
 /**
  * Implementation of polling for filesystem in archive.
  *
- * As in base polling implemnetation, polling is enabled or disabled by browser model
+ * As in base polling implementation, polling is enabled or disabled by browser model
  * property.
  *
  * @author Jakub Liput
@@ -10,10 +10,10 @@
  */
 
 import { all as allFulfilled } from 'rsvp';
-import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
+import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 import { reads } from '@ember/object/computed';
 
-export default BrowserListPoller.extend({
+export default FilesystemBrowserListPoller.extend({
   /**
    * @type {ComputedProperty<Models.Archive>}
    */

@@ -25,6 +25,7 @@ import { array, raw, and, not } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
+import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 
 export const commonActionIcons = Object.freeze({
   info: 'browser-info',
@@ -1043,6 +1044,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }
     }
   ),
+
+  /**
+   * @override
+   */
+  createBrowserListPoller() {
+    return FilesystemBrowserListPoller.create({
+      browserModel: this,
+    });
+  },
 
   /**
    * @override

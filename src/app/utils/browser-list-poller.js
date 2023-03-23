@@ -12,6 +12,8 @@ import { reads } from '@ember/object/computed';
 import Looper from 'onedata-gui-common/utils/looper';
 import { conditional, raw } from 'ember-awesome-macros';
 
+export const defaultPollInterval = 10000;
+
 export default EmberObject.extend({
   /**
    * @virtual
@@ -19,7 +21,7 @@ export default EmberObject.extend({
    */
   browserModel: undefined,
 
-  pollInterval: 10000,
+  pollInterval: defaultPollInterval,
 
   //#region state
 

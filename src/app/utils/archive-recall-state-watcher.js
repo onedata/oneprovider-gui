@@ -35,13 +35,6 @@ export default EmberObject.extend(OwnerInjector, {
    */
   looper: null,
 
-  /**
-   * Stores entity IDs of directories to be auto-refreshed on update.
-   * Created on init.
-   * @type {Set<String>}
-   */
-  refreshedDirsIdSet: null,
-
   lastInfoError: null,
 
   lastStateError: null,
@@ -61,11 +54,6 @@ export default EmberObject.extend(OwnerInjector, {
    * @type {'state'|'info'|'all'}
    */
   pollingMode: 'state',
-
-  init() {
-    this._super(...arguments);
-    this.set('refreshedDirsIdSet', new Set());
-  },
 
   /**
    * @override
@@ -166,37 +154,22 @@ export default EmberObject.extend(OwnerInjector, {
         return;
       }
     }
-    this.updateFileBrowsers();
+    this.tryUpdateFile();
     if (isFinished) {
       this.stop();
     }
   },
 
-  addToAutoRefresh(file) {
-    const refreshedDirsIdSet = this.get('refreshedDirsIdSet');
-    const dirToRefreshId = this.getDirIdToRefresh(file);
-    refreshedDirsIdSet.add(dirToRefreshId);
-  },
-
-  /**
-   * @param {Models.File} file
-   * @returns {String}
-   */
-  getDirIdToRefresh(file) {
-    return get(file, 'type') === 'dir' ?
-      get(file, 'entityId') : file.relationEntityId('parent');
-  },
-
-  async updateFileBrowsers() {
-    const {
-      refreshedDirsIdSet,
-      fileManager,
-    } = this.getProperties('refreshedDirsIdSet', 'fileManager');
-    if (refreshedDirsIdSet.size) {
-      await allFulfilled([...refreshedDirsIdSet].map(dirId =>
-        fileManager.dirChildrenRefresh(dirId)
-      ));
+  async tryUpdateFile() {
+    const isTargetFileOpenedAsDir = this.fileManager.fileTableComponents.some(fbTable =>
+      fbTable.dir === this.targetFile
+    );
+    // If the target file is opened as a parent dir in file browser, then its update is
+    // managed by some BrowserListPoller.
+    if (isTargetFileOpenedAsDir) {
+      return;
     }
+    return this.targetFile.reload();
   },
 
   /**
