@@ -25,6 +25,7 @@ import {
   ChangeStateAction,
   RemoveAction,
 } from 'oneprovider-gui/utils/dataset/actions';
+import { spaceDatasetsRootId } from 'oneprovider-gui/components/content-space-datasets';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -251,6 +252,23 @@ export default BaseBrowserModel.extend(I18n, {
   }),
 
   //#endregion
+
+  /**
+   * @override
+   */
+  async checkItemExistsInParent(parentDatasetId, dataset) {
+    const datasetId = get(dataset, 'entityId');
+    try {
+      const datasetRecord = await this.datasetManager
+        .getDataset(datasetId, { reload: true });
+      const datasetRecordId = datasetRecord.relationEntityId('parent');
+      return datasetRecordId ?
+        datasetRecordId === parentDatasetId :
+        parentDatasetId === spaceDatasetsRootId;
+    } catch {
+      return false;
+    }
+  },
 
   /**
    * @override

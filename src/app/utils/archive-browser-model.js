@@ -624,6 +624,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
+  async checkItemExistsInParent(datasetId, archive) {
+    const archiveId = get(archive, 'entityId');
+    try {
+      const archiveRecord = await this.archiveManager
+        .getArchive(archiveId, { reload: true });
+      return archiveRecord.relationEntityId('dataset') === datasetId;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
+   * @override
+   */
   createBrowserListPoller() {
     return ArchiveBrowserListPoller.create({
       browserModel: this,

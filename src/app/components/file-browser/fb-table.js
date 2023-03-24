@@ -21,7 +21,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, allSettled } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -857,14 +857,14 @@ export default Component.extend(I18n, {
       promises.push(dir.reload());
     }
     const filesArrayReload = filesArray.scheduleReload()
-      .finally(() => {
+      .finally(async () => {
         const {
           selectedItems,
           changeSelectedItems,
         } = this.getProperties('selectedItems', 'changeSelectedItems');
         const sourceArray = get(filesArray, 'sourceArray');
-        const updatedSelectedItems = selectedItems.filter(selectedFile =>
-          sourceArray.includes(selectedFile)
+        const updatedSelectedItems = await this.filterCurrentDirAvailableItems(
+          selectedItems
         );
         if (
           !isEmpty(selectedItems) &&
@@ -910,6 +910,41 @@ export default Component.extend(I18n, {
       promises.push(browserModelRefreshPromise);
     }
     await allFulfilled(promises);
+  },
+
+  /**
+   * Returns subset of provided items that are available in current dir.
+   * Used when there are selected items, but list is refreshed and we want to check
+   * if these items are still available in the current dir.
+   * @param {Array<any>} items Browsable items, eg. files.
+   * @returns {Array<any>}
+   */
+  async filterCurrentDirAvailableItems(items = []) {
+    const itemsToCheck = items.filter(item =>
+      !this.filesArray.sourceArray.includes(item)
+    );
+    if (_.isEmpty(itemsToCheck)) {
+      return items;
+    }
+
+    const dirId = this.get('dir.entityId');
+    if (!dirId) {
+      return _.difference(items, itemsToCheck);
+    }
+    /** @type {Array[any, PromiseState<boolean>]} */
+    const existenceCheckArray = _.zip(
+      itemsToCheck,
+      await allSettled(itemsToCheck.map(item =>
+        this.browserModel.checkItemExistsInParent(dirId, item)
+      ))
+    );
+    const nonExistingItems = existenceCheckArray
+      .filter(([item, { state, value: isAvailable }]) =>
+        state === 'rejected' || !isAvailable || !item
+      )
+      .map(([item]) => item);
+
+    return _.difference(items, nonExistingItems);
   },
 
   onTableScroll(items, headerVisible) {

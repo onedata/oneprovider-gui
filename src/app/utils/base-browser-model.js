@@ -296,6 +296,18 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     this.browserListPoller?.destroy();
   },
 
+  /**
+   * Dummy implementation vritual method.
+   * Should be implemented to asynchronically check if an item (eg. file) exists in parent
+   * container (in this example - directory). If so, it should resolve true;
+   * @param {string} parentId Entity ID of browsable parent of item, eg. directory.
+   * @param {any} item A browsable item, eg. file.
+   * @returns {Promise<boolean>}
+   */
+  async checkItemExistsInParent( /* parentId, item */ ) {
+    return false;
+  },
+
   initBrowserListPoller() {
     this.set('browserListPoller', this.createBrowserListPoller());
   },

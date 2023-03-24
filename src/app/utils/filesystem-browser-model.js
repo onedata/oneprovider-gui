@@ -1048,6 +1048,18 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
+  async checkItemExistsInParent(parentDirId, file) {
+    const fileName = get(file, 'name');
+    if (!fileName) {
+      return false;
+    }
+    const scope = this.previewMode ? 'public' : 'private';
+    return this.fileManager.checkFileNameExists(parentDirId, fileName, scope);
+  },
+
+  /**
+   * @override
+   */
   createBrowserListPoller() {
     return FilesystemBrowserListPoller.create({
       browserModel: this,
