@@ -162,6 +162,17 @@ export default BaseModel.extend(I18n, {
   /**
    * @override
    */
+  willDestroyElement() {
+    try {
+      this.browserModel?.destroy?.();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  /**
+   * @override
+   */
   async fetchChildren(dirId, startIndex, size, offset) {
     const fileManager = this.get('fileManager');
     return fileManager

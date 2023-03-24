@@ -206,6 +206,17 @@ export default Component.extend(...mixins, {
     this.set('browserModel', this.createBrowserModel());
   },
 
+  /**
+   * @override
+   */
+  willDestroyElement() {
+    try {
+      this.browserModel?.destroy?.();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
   async getItemById(itemId) {
     if (itemId === shareRootId) {
       return this.get('rootDir');
