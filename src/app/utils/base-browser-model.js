@@ -59,7 +59,8 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   onOpenFile: notImplementedIgnore,
 
   /**
-   * Invoked when items list is refreshed.
+   * Callback invoked parallely with list refresh methods (eg. reloading children list)
+   * when items list is refreshed.
    * Items table will wait until it is resolved before ending refresh procedure.
    * @virtual
    * @type {() => Promise}
@@ -331,7 +332,32 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     return await updateBrowserDir(dir);
   },
 
-  refresh({ silent = false } = {}) {
+  /**
+   * Items table (fb-table component) refresh can be invoked from anywhere using
+   * FbTableApi. This method will be invoked right before refresh start, including
+   * optional reloading indicator animation.
+   */
+  onTableWillRefresh() {
+    if (!this.browserListPoller) {
+      return;
+    }
+    // If table is going to refresh and the poller is polling now, it is likely
+    // that the refresh has been invoked by the poller, so don't restart interval.
+    // Otherwise, the refresh was caused by user or by some event (eg. uploading a file),
+    // so next auto-refresh should be postponed to prevent too much refreshes.
+    if (!this.browserListPoller.isPollingNow) {
+      this.browserListPoller.restartInterval();
+    }
+  },
+
+  /**
+   * Refreshes current items view by reloading current list view data.
+   * @param {Object} options
+   * @param {boolean} options.silent If true, there will be no animation on action button,
+   *   no reloading indicators and errors will not be presented in GUI.
+   * @returns {Promise} Resolves when items list is refreshed.
+   */
+  async refresh({ silent = false } = {}) {
     const {
       globalNotify,
       fbTableApi,
@@ -343,13 +369,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
         'pulse-mint'
       );
     }
-    return fbTableApi.refresh(!silent)
-      .catch(error => {
-        if (!silent) {
-          globalNotify.backendError(this.t('refreshing'), error);
-        }
-        throw error;
-      });
+    try {
+      return fbTableApi.refresh(!silent);
+    } catch (error) {
+      if (!silent) {
+        globalNotify.backendError(this.t('refreshing'), error);
+      }
+      throw error;
+    }
   },
 
   /**

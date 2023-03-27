@@ -25,7 +25,16 @@ export default EmberObject.extend({
 
   //#region state
 
+  /**
+   * @type {Utils.Looper}
+   */
   looper: null,
+
+  /**
+   * State indicating, that the poll method started but not settled yet.
+   * @type {boolean}
+   */
+  isPollingNow: false,
 
   //#region
 
@@ -59,7 +68,19 @@ export default EmberObject.extend({
    * @param {Utils.BaseBrowserModel} browserModel
    */
   async poll(browserModel) {
-    return browserModel.refresh({ silent: true });
+    if (this.isPollingNow) {
+      return;
+    }
+    this.set('isPollingNow', true);
+    try {
+      return browserModel.refresh({ silent: true });
+    } finally {
+      this.set('isPollingNow', false);
+    }
+  },
+
+  restartInterval() {
+    this.looper?.restartInterval();
   },
 
   destroy() {

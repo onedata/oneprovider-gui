@@ -480,33 +480,7 @@ export default Component.extend(I18n, {
    */
   api: computed(function api() {
     return {
-      refresh: async (animated = true) => {
-        const refreshStarted = this.get('refreshStarted');
-        // should be the same as $refresh-transition-duration in fb-table.scss
-        const fadeTime = 300;
-        if (refreshStarted) {
-          return;
-        }
-        if (!animated) {
-          return this.refreshFileList();
-        }
-        this.set('renderRefreshSpinner', true);
-        // wait for refresh spinner to render because it needs parent class to transition
-        scheduleOnce('afterRender', async () => {
-          safeExec(this, 'set', 'refreshStarted', true);
-          try {
-            await sleep(fadeTime);
-            return await this.refreshFileList();
-          } finally {
-            safeExec(this, 'set', 'refreshStarted', false);
-            later(() => {
-              if (!this.get('refreshStarted')) {
-                safeExec(this, 'set', 'renderRefreshSpinner', false);
-              }
-            }, fadeTime);
-          }
-        });
-      },
+      refresh: this.refresh.bind(this),
       getFilesArray: () => {
         return this.get('filesArray');
       },
@@ -830,10 +804,52 @@ export default Component.extend(I18n, {
 
   async onDirChildrenRefresh(parentDirEntityId) {
     if (get(this.dir, 'entityId') === parentDirEntityId) {
-      return this.refreshFileList();
+      return this.refresh(false);
     }
   },
 
+  /**
+   * Refreshes current view of file table - effectively refreshing current files list
+   * view with optional loading indicator.
+   * This method is a part of File Browser Table API implemenetation.
+   * @param {boolean} [animated]
+   * @returns {Promise}
+   */
+  async refresh(animated = true) {
+    // should be the same as $refresh-transition-duration in fb-table.scss
+    const fadeTime = 300;
+    if (this.refreshStarted) {
+      return;
+    }
+    this.browserModel.onTableWillRefresh();
+    if (!animated) {
+      return this.refreshFileList();
+    }
+    this.set('renderRefreshSpinner', true);
+    // wait for refresh spinner to render because it needs parent class to transition
+    scheduleOnce('afterRender', async () => {
+      safeExec(this, 'set', 'refreshStarted', true);
+      try {
+        await sleep(fadeTime);
+        return await this.refreshFileList();
+      } finally {
+        safeExec(this, 'set', 'refreshStarted', false);
+        later(() => {
+          if (!this.refreshStarted) {
+            safeExec(this, 'set', 'renderRefreshSpinner', false);
+          }
+        }, fadeTime);
+      }
+    });
+  },
+
+  /**
+   * Reloads data needed to display current list view.
+   * Takes care of valid state of items array after reload and selected items.
+   * This method is used internally - please use `refresh` to invoke items table refresh
+   * from outside this component.
+   * @return {Promise}
+   */
   async refreshFileList() {
     const {
       dir,

@@ -361,7 +361,6 @@ export default Service.extend({
     const getFileAttempts = 1000;
     const getFileInterval = 500;
 
-    // FIXME: jeśli request kopiowania/move się wywali to to będzie robiło aż to limitu attempts
     this.pollForFileAfterOperation(
       getFileAttempts,
       getFileInterval,
@@ -381,6 +380,7 @@ export default Service.extend({
         const limit = 1;
         const offset = 0;
         // FIXME: wygląda jak kopia z pollForFileAfterOperation
+        // FIXME: refactor na użycie checkFileNameExists
         this.fetchDirChildren(parentDirEntityId, scope, name, limit, offset)
           .then(fetchedFiles => {
             if (
@@ -785,6 +785,7 @@ export default Service.extend({
     const pollSizeInterval = 1000;
 
     if (attempts > 0) {
+      // FIXME: refactor na użycie checkFileNameExists
       this.fetchDirChildren(parentDirEntityId, scope, name, limit, offset)
         .then(fetchedFiles => {
           if (
