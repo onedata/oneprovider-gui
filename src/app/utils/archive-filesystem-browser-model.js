@@ -134,6 +134,18 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
+  async checkItemExistsInParent(parentDirId, file) {
+    // assuming that files in finished archives could not be deleted or moved
+    if (['succeeded', 'cancelled'].includes(get(this.archive, 'metaState'))) {
+      return file.relationEntityId('parent') === parentDirId;
+    } else {
+      return this._super(...arguments);
+    }
+  },
+
+  /**
+   * @override
+   */
   createBrowserListPoller() {
     return ArchiveFilesystemBrowserListPoller.create({
       browserModel: this,

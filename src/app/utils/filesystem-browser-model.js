@@ -1049,12 +1049,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   async checkItemExistsInParent(parentDirId, file) {
-    const fileName = get(file, 'name');
-    if (!fileName) {
+    try {
+      await file.reload();
+    } catch {
       return false;
     }
-    const scope = this.previewMode ? 'public' : 'private';
-    return this.fileManager.checkFileNameExists(parentDirId, fileName, scope);
+    return file.relationEntityId('parent') === parentDirId;
   },
 
   /**
