@@ -11,7 +11,6 @@ import { bool } from 'ember-awesome-macros';
 import Looper from 'onedata-gui-common/utils/looper';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import { all as allFulfilled } from 'rsvp';
 
 export default EmberObject.extend(OwnerInjector, {
   fileManager: service(),
