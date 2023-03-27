@@ -891,34 +891,33 @@ export default Component.extend(I18n, {
           changeSelectedItems(updatedSelectedItems);
         }
 
-        scheduleOnce('afterRender', () => {
-          if (this.get('isDestroyed')) {
-            return;
-          }
+        await waitForRender();
+        if (this.isDestroyed) {
+          return;
+        }
 
-          const $dataRows = $(this.get('element')).find('.data-row');
-          const anyRowVisible = $dataRows.toArray()
-            .some(row => viewTester.isInView(row));
+        const dataRows = this.element.querySelectorAll('.data-row');
+        const anyRowVisible = Array.from(dataRows).some(row => viewTester.isInView(row));
 
-          if (!anyRowVisible) {
-            const fullLengthAfterReload = get(sourceArray, 'length');
-            setProperties(filesArray, {
-              startIndex: Math.max(
-                0,
-                fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
-              ),
-              endIndex: fullLengthAfterReload || 50,
-            });
-            next(() => {
-              const firstRenderedRow = document.querySelector('.data-row[data-row-id]');
-              if (firstRenderedRow) {
-                firstRenderedRow.scrollIntoView();
-              } else {
-                containerScrollTop(0);
-              }
-            });
-          }
-        });
+        if (!anyRowVisible) {
+          const fullLengthAfterReload = get(sourceArray, 'length');
+          setProperties(filesArray, {
+            startIndex: Math.max(
+              0,
+              fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
+            ),
+            endIndex: fullLengthAfterReload || 50,
+          });
+          next(() => {
+            const firstRenderedRow = this.element
+              .querySelector('.data-row[data-row-id]');
+            if (firstRenderedRow) {
+              firstRenderedRow.scrollIntoView();
+            } else {
+              containerScrollTop(0);
+            }
+          });
+        }
       });
     promises.push(filesArrayReload);
     const browserModelRefreshPromise = this.browserModel.onListRefresh?.();
