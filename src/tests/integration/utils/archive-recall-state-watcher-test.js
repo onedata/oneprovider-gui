@@ -15,11 +15,11 @@ describe('Integration | Utility | archive-recall-state-watcher', function () {
   const { afterEach } = setupRenderingTest();
 
   beforeEach(async function () {
-    this.clock = sinon.useFakeTimers({
-      now: Date.now(),
-    });
     await createArchiveRecallData(this);
     whenOnLocalProvider(this);
+    this.clock = sinon.useFakeTimers({
+      shouldAdvanceTime: true,
+    });
   });
 
   afterEach(function () {
