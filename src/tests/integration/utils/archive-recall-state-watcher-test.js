@@ -5,7 +5,7 @@ import { settled } from '@ember/test-helpers';
 import ArchiveRecallStateWatcher from 'oneprovider-gui/utils/archive-recall-state-watcher';
 import { get } from '@ember/object';
 import sinon from 'sinon';
-import lolex from 'lolex';
+import FakeTimers from '@sinonjs/fake-timers';
 import {
   createArchiveRecallData,
   whenOnLocalProvider,
@@ -18,7 +18,7 @@ describe('Integration | Utility | archive-recall-state-watcher', function () {
   beforeEach(async function () {
     await createArchiveRecallData(this);
     whenOnLocalProvider(this);
-    this.clock = lolex.install();
+    this.clock = FakeTimers.install();
   });
 
   afterEach(function () {
