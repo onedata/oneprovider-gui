@@ -153,8 +153,8 @@ export default EmberObject.extend(OwnerInjector, {
         return;
       }
     }
-    // FIXME: debugging tests
-    // this.tryUpdateFile();
+    // side effect - do not wait for fulfillment or rejection
+    this.tryUpdateFile();
     if (isFinished) {
       this.stop();
     }
