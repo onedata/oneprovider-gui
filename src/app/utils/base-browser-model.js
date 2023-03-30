@@ -23,6 +23,9 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
+import { scheduleOnce } from '@ember/runloop';
+import { tag } from 'ember-awesome-macros';
+import moment from 'moment';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
   i18n: service(),
@@ -203,6 +206,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   //#region file-browser state
 
   dir: reads('browserInstance.dir'),
+  itemsArray: reads('fbTableApi.itemsArray'),
   selectedItems: reads('browserInstance.selectedItems'),
   selectedItemsForJumpProxy: reads('browserInstance.selectedItemsForJumpProxy'),
   selectionContext: reads('browserInstance.selectionContext'),
@@ -223,6 +227,19 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @type {Utils.BrowserListPoller}
    */
   browserListPoller: null,
+
+  /**
+   * State of `selectedItemsOutOfScope` property that is updated only once for single
+   * render to aviod "double render" errors. The value is controlled by an observer.
+   * @type {boolean}
+   */
+  renderableSelectedItemsOutOfScope: false,
+
+  /**
+   * Time in milliseconds from Date.now.
+   * @type {number}
+   */
+  lastRefreshTime: undefined,
 
   //#endregion
 
@@ -254,23 +271,118 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     ].includes(selectionContext);
   }),
 
-  btnRefresh: computed(function btnRefresh() {
-    return this.createFileAction({
+  refreshBtnClass: computed(
+    'renderableSelectedItemsOutOfScope',
+    function refreshBtnClass() {
+      return this.renderableSelectedItemsOutOfScope ?
+        'refresh-selection-warning' : '';
+    }
+  ),
+
+  refreshBtnTip: computed(
+    'renderableSelectedItemsOutOfScope',
+    'browserListPoller.pollInterval',
+    'lastRefreshTime',
+    function refreshBtnClass() {
+      if (this.renderableSelectedItemsOutOfScope) {
+        let lastRefreshTimeText;
+        const nowMoment = moment.unix(Math.floor(Date.now() / 1000));
+        const lastRefreshMoment = moment.unix(Math.floor(this.lastRefreshTime / 1000));
+        const isToday =
+          moment(lastRefreshMoment).startOf('day').toString() ===
+          moment(nowMoment).startOf('day').toString();
+        if (isToday) {
+          lastRefreshTimeText = lastRefreshMoment.format('H:mm');
+        } else {
+          lastRefreshTimeText = lastRefreshMoment.format('D MMM');
+        }
+        return this.t('refreshTip.selectedDisabled', {
+          lastRefreshTime: lastRefreshTimeText,
+        });
+      } else {
+        const pollingIntervalSecs =
+          Math.floor(this.browserListPoller?.pollInterval / 1000);
+        return this.t('refreshTip.enabled', {
+          pollingIntervalSecs: pollingIntervalSecs,
+        });
+      }
+    }
+  ),
+
+  btnRefresh: computed('renderableSelectedItemsOutOfScope', function btnRefresh() {
+    return this.createFileAction(EmberObject.extend({
       id: 'refresh',
+      title: this.t('fileActions.refresh'),
+      disabled: false,
       icon: 'refresh',
       action: () => {
         return this.refresh();
       },
-      showIn: [
+      showIn: Object.freeze([
         actionContext.inDir,
         actionContext.inDirPreview,
         actionContext.currentDir,
         actionContext.currentDirPreview,
         actionContext.spaceRootDir,
         actionContext.spaceRootDirPreview,
-      ],
-    });
+      ]),
+
+      tip: reads('context.refreshBtnTip'),
+      class: tag`file-action-refresh ${'context.refreshBtnClass'}`,
+
+      init() {
+        this._super(...arguments);
+        console.log('DEBUG');
+      },
+
+    }));
   }),
+
+  /**
+   * True if there are selected items that surely be gone from the replacing chunks array
+   * visible window after refresh. This state can be used to show warning for refreshing
+   * the list, which will cause some selected items to be deselected and to disable
+   * auto-refresh.
+   */
+  selectedItemsOutOfScope: computed(
+    'itemsArray.[]',
+    'selectedItems.[]',
+    'dir',
+    function selectedItemsOutOfScope() {
+      const selectedItems = this.selectedItems;
+      if (
+        !selectedItems ||
+        selectedItems.length === 1 && this.selectedItems[0] === this.dir
+      ) {
+        return false;
+      }
+      return this.selectedItems.some(item => !this.itemsArray?.includes(item));
+    }
+  ),
+
+  /**
+   * Controls value of `renderableSelectedItemsOutOfScope` to be synchronized with
+   * `selectedItemsOutOfScope` most often once a render.
+   */
+  selectedItemsOutOfScopeObserver: observer(
+    'selectedItemsOutOfScope',
+    function selectedItemsOutOfScopeObserver() {
+      scheduleOnce('afterRender', this.updateRenderableSelectedItemsOutOfScope);
+    }
+  ),
+
+  /**
+   * Create function that synchronizes value of `renderableSelectedItemsOutOfScope`
+   * property. Needed because that value changes should be throttled.
+   * @type {ComputedProperty<() => void>}
+   */
+  updateRenderableSelectedItemsOutOfScope: computed(
+    function updateRenderableSelectedItemsOutOfScope() {
+      return () => {
+        this.set('renderableSelectedItemsOutOfScope', this.selectedItemsOutOfScope);
+      };
+    }
+  ),
 
   generateAllButtonsArray: observer(
     'buttonNames.[]',
@@ -291,6 +403,11 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     this._super(...arguments);
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
+
+    this.set('lastRefreshTime', Date.now());
+
+    // activate observers
+    this.selectedItemsOutOfScope;
   },
 
   destroy() {
@@ -338,14 +455,13 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * optional reloading indicator animation.
    */
   onTableWillRefresh() {
-    if (!this.browserListPoller) {
-      return;
-    }
+    this.set('lastRefreshTime', Date.now());
+
     // If table is going to refresh and the poller is polling now, it is likely
     // that the refresh has been invoked by the poller, so don't restart interval.
     // Otherwise, the refresh was caused by user or by some event (eg. uploading a file),
     // so next auto-refresh should be postponed to prevent too much refreshes.
-    if (!this.browserListPoller.isPollingNow) {
+    if (this.browserListPoller && !this.browserListPoller.isPollingNow) {
       this.browserListPoller.restartInterval();
     }
   },

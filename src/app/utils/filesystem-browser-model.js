@@ -1132,8 +1132,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   async onListRefresh() {
-    const files = this.fbTableApi.getFilesArray();
-    const filesRefreshPromises = files.map(async file => {
+    const filesRefreshPromises = this.itemsArray.map(async file => {
       if (get(file, 'isShared')) {
         const shares = await get(file, 'shareRecords');
         await allSettled(shares.invoke('reload'));

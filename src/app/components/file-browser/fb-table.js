@@ -9,7 +9,13 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { get, computed, observer, setProperties, getProperties } from '@ember/object';
+import EmberObject, {
+  get,
+  computed,
+  observer,
+  setProperties,
+  getProperties,
+} from '@ember/object';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -32,6 +38,12 @@ import sleep from 'onedata-gui-common/utils/sleep';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+
+/**
+ * API object exposed by `fb-table` component, be used to control the component and read
+ * data that should be publicly available for other items browser components.
+ * @typedef {EmberObject} FbTableApi
+ */
 
 const defaultIsItemDisabled = () => false;
 
@@ -127,7 +139,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {(api: { refresh: Function, getFilesArray: Function }) => undefined}
+   * @type {(api: FbTableApi) => undefined}
    */
   registerApi: notImplementedIgnore,
 
@@ -475,27 +487,31 @@ export default Component.extend(I18n, {
   visibleFiles: reads('filesArray'),
 
   /**
-   * Functions exposed by fb-table
-   * @type {ComputedProperty<Object>}
+   * Live data and functions exposed by fb-table
+   * @type {ComputedProperty<FbTablApi>}
    */
   api: computed(function api() {
-    return {
-      refresh: this.refresh.bind(this),
-      getFilesArray: () => {
-        return this.get('filesArray');
-      },
-      forceSelectAndJump: async (items) => {
-        await this.get('changeSelectedItems')(items);
-        return this.jumpToSelection();
-      },
-      jump: (item) => {
-        return this.jump(item);
-      },
-      recomputeTableItems: async () => {
-        await sleep(0);
-        this.get('listWatcher').scrollHandler();
-      },
-    };
+    return EmberObject
+      .extend({
+        itemsArray: reads('__fbTable__.filesArray'),
+      })
+      .create({
+        __fbTable__: this,
+
+        refresh: this.refresh.bind(this),
+
+        forceSelectAndJump: async (items) => {
+          await this.get('changeSelectedItems')(items);
+          return this.jumpToSelection();
+        },
+        jump: (item) => {
+          return this.jump(item);
+        },
+        recomputeTableItems: async () => {
+          await sleep(0);
+          this.get('listWatcher').scrollHandler();
+        },
+      });
   }),
 
   contextMenuButtons: computed(

@@ -28,10 +28,11 @@ export default BrowserListPoller.extend({
   },
 
   reconfigurePollInterval() {
+    // FIXME: już należy to poprawić
     // TODO: VFS-7643 due to legacy code, archives list are get using manual call of
     // "getFilesArray" using fbTable API; it will be better to observe items array as
     // property to automatically reconfigure on changes
-    const archives = this.browserModel.fbTableApi?.getFilesArray()?.toArray();
+    const archives = this.browserModel.itemsArray?.toArray();
     if (!archives) {
       return;
     }

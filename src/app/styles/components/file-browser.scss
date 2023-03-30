@@ -109,6 +109,29 @@
       line-height: $file-browser-header-height;
     }
   }
+
+  .file-action-refresh {
+    > .one-icon {
+      position: relative;
+      &::after {
+        position: absolute;
+        content: '';
+        right: 0;
+        bottom: 0;
+        border-radius: 100%;
+        background-color: $color-one-success;
+        height: 10px;
+        width: 10px;
+      }
+    }
+    &.refresh-selection-warning {
+      > .one-icon {
+        &::after {
+          background-color: $color-one-warning;
+        }
+      }
+    }
+  }
 }
 
 .fb-breadcrumbs-container {

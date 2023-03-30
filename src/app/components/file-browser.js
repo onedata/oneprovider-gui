@@ -202,7 +202,6 @@ export default Component.extend(I18n, {
    */
   fbTableApi: Object.freeze({
     refresh: notImplementedThrow,
-    getFilesArray: notImplementedThrow,
     forceSelectAndJump: notImplementedThrow,
     recomputeTableItems: notImplementedThrow,
   }),
