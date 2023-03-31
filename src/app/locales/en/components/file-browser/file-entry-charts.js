@@ -6,7 +6,8 @@ export default {
     logicalSizeLabel: 'Logical size',
     physicalSizeLabel: 'Physical size',
     elementsCount: {
-      template: '{{fileCount}} {{fileNoun}}, {{dirCount}} {{dirNoun}} <span class="extra-info">({{totalCount}} {{elementNoun}} in total)</span>',
+      template: '{{fileCount}} {{fileNoun}}, {{dirCount}} {{dirNoun}}',
+      templateExtraInfo: ' ({{totalCount}} {{elementNoun}} in total)',
       file: {
         singular: 'file',
         plural: 'files',
@@ -20,10 +21,15 @@ export default {
         plural: 'elements',
       },
     },
-    physicalSizeOnProvidersCount: 'at {{providersWithStatsCount}} out of {{providersCount}} providers',
+    currentSizeOnProvidersCount: 'collected from {{providersWithStatsCount}} out of {{providersCount}} providers',
     logicalSizeTip: 'Logical byte size is the total size of file data contained in this directory, i.e. the sum of logical byte sizes of all regular files.',
     physicalSizeTip: 'Summarized storage size used to store the data. Includes only the sizes reported by online providers with enabled directory size statistics.',
   },
+  showMoreStats: 'Show size statistics per provider',
+  hideMoreStats: 'Hide size statistics per provider',
+  disableStatistics: 'Directory statistics are disabled.',
+  disableStatisticsTip: 'Click to open directory statistics settings',
+  unknownError: 'Unknown error',
   historicalSize: {
     header: 'Historical size statistics',
     headerTooltip: 'Below charts present changes in time of the directory size statistics, calculated for all items in this directory and all its subdirectories. The file count and logical byte size statistics are synchronized among all Oneproviders, while the physical byte size statistics are collected and viewable independently (use the switch in the top menu of the Data view to display physical size statistics for corresponding Oneprovider).',

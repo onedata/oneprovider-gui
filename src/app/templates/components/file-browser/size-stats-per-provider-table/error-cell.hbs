@@ -1,0 +1,14 @@
+{{#if (eq sizeStats.error.id "dirStatsDisabledForSpace")}}
+  <a
+    href={{providersUrl}}
+    class="dir-statistics-settings-url navy"
+    target={{navigateProvidersTarget}}
+  >
+    {{one-icon icon="overview" class="inline-icon-container dir-stats-icon"}}
+    {{tt this "disableStatistics"}}
+    {{one-tooltip title=(tt this "disableStatisticsTip")}}
+  </a>
+{{else}}
+  {{one-icon icon="sign-warning-rounded" class="inline-icon-container"}}
+  {{errorMessage}}
+{{/if}}

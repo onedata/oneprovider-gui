@@ -7,7 +7,10 @@
 {{else}}
   {{#promise-proxy-container proxy=loadingProxy}}
     <div class="current-size-section">
-      <h2 class="current-size-header">{{tt this "currentSize.header"}}</h2>
+      <h2 class="current-size-header">
+        {{tt this "currentSize.header"}}
+        <span class="extra-info">({{currentSizeExtraInfo}})</span>
+      </h2>
       <p class="latest-dir-stats-values">
         <ul class="details-property-list">
           <li class="property-row property-contains">
@@ -16,6 +19,9 @@
             </span>
             <span class="property-value">
               {{stringifiedLatestElementsCount}}
+              <span class="extra-info">
+                {{stringifiedLatestElementsCountExtraInfo}}
+              </span>
             </span>
           </li>
           <li class="property-row property-logical-size">
@@ -23,11 +29,10 @@
               {{tt this "currentSize.logicalSizeLabel"}}:
             </span>
             <span class="property-value">
-              {{bytes-to-string currentProviderLatestDirSizeStats.logicalSize}}
-              {{#if (gte currentProviderLatestDirSizeStats.logicalSize 1024)}}
-                <span class="extra-info">
-                  ({{currentProviderLatestDirSizeStats.logicalSize}} B)
-                </span>
+              {{bytes-to-string minLogicalSize}}
+              {{#if (not-eq minLogicalSize maxLogicalSize)}} – {{bytes-to-string maxLogicalSize}}{{/if}}
+              {{#if logicalSizeExtraInfo}}
+                <span class="extra-info">({{logicalSizeExtraInfo}} B)</span>
               {{/if}}
               {{one-label-tip title=(tt this "currentSize.logicalSizeTip")}}
             </span>
@@ -39,7 +44,7 @@
             <span class="property-value">
               {{bytes-to-string physicalSize}}
               {{#if physicalSizeExtraInfo}}
-                <span class="extra-info">{{physicalSizeExtraInfo}}</span>
+                <span class="extra-info">({{physicalSizeExtraInfo}} B)</span>
               {{/if}}
               {{one-label-tip title=(tt this "currentSize.physicalSizeTip")}}
             </span>
@@ -47,6 +52,27 @@
         </ul>
       </p>
     </div>
+    {{#if (gt latestDirSizeStatsValuesLength 1)}}
+      <div class="size-stats-expand">
+        <a
+          class="toggle-expand"
+          onClick={{action "toggleSizeStats"}}
+        >
+          {{#if (not areSizeStatsExpanded)}}
+            {{tt this "showMoreStats"}}
+            {{one-icon icon="arrow-down"}}
+          {{else}}
+            {{tt this "hideMoreStats"}}
+            {{one-icon icon="arrow-up"}}
+          {{/if}}
+        </a>
+      </div>
+      {{#if areSizeStatsExpanded}}
+        {{file-browser/size-stats-per-provider-table
+          dirSizeStatsValues=latestDirSizeStatsValues
+        }}
+      {{/if}}
+    {{/if}}
     {{one-time-series-charts-section
       class="historical-size-section"
       sectionSpec=dashboardSpec.rootSection
