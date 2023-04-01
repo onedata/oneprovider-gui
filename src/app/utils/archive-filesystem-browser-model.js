@@ -77,6 +77,10 @@ export default FilesystemBrowserModel.extend({
    */
   readonlyFilesystem: true,
 
+  // FIXME: property isLive czy coś takiego
+
+  refreshBtnIsVisible: eq('archive.metaState', raw('creating')),
+
   /**
    * @override
    */

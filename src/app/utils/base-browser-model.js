@@ -24,7 +24,7 @@ import {
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
 import { scheduleOnce } from '@ember/runloop';
-import { tag } from 'ember-awesome-macros';
+import { tag, raw, conditional } from 'ember-awesome-macros';
 import moment from 'moment';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
@@ -221,6 +221,12 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   //#endregion
 
+  //#region browser model configuration
+
+  refreshBtnIsVisible: true,
+
+  //#region
+
   //#region browser model state
 
   /**
@@ -318,17 +324,21 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       action: () => {
         return this.refresh();
       },
-      showIn: Object.freeze([
-        actionContext.inDir,
-        actionContext.inDirPreview,
-        actionContext.currentDir,
-        actionContext.currentDirPreview,
-        actionContext.spaceRootDir,
-        actionContext.spaceRootDirPreview,
-      ]),
 
       tip: reads('context.refreshBtnTip'),
       class: tag`file-action-refresh ${'context.refreshBtnClass'}`,
+      showIn: conditional(
+        'context.refreshBtnIsVisible',
+        raw([
+          actionContext.inDir,
+          actionContext.inDirPreview,
+          actionContext.currentDir,
+          actionContext.currentDirPreview,
+          actionContext.spaceRootDir,
+          actionContext.spaceRootDirPreview,
+        ]),
+        raw([]),
+      ),
 
       init() {
         this._super(...arguments);
