@@ -122,6 +122,17 @@
         font-weight: normal;
         font-family: $one-font-family-regular;
       }
+
+      .header-info-warning {
+        vertical-align: middle;
+        font-size: 1em;
+        color: $color-one-light-gray;
+        margin-left: 0.3em;
+        color: $color-one-warning;
+      }
+      .providers-count-warning {
+        @include font-semibold;
+      }
     }
 
     .one-label-tip {
@@ -251,6 +262,10 @@
         font-size: 1.8em;
         margin-right: -0.3em;
         margin-left: 0.2em;
+        &.oneicon-sign-warning-rounded {
+          font-size: 1.2em;
+          margin-left: 0.5em;
+        }
       }
       .tab-status-icon {
         color: var(--tab-status-icon-color, 'inherit');

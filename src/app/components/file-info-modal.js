@@ -436,6 +436,36 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isProvidersOffline: computed('providers', function isProvidersOffline() {
+    if (this.providers) {
+      const offlineProviders = this.providers.filter(provider => !provider.online);
+      if (offlineProviders.length > 0) {
+        return true;
+      }
+    } else {
+      return false;
+    }
+  }),
+
+  /**
+   * @type {ComputedProperty<Provider>}
+   */
+  providers: reads('providersProxy.content'),
+
+  /**
+   * List of providers that support this space.
+   * @type {ComputedProperty<Ember.Array<Provider>>}
+   */
+  providersProxy: promise.array(
+    computed('space', function providersProxy() {
+      return this.get('space').getRelation('providerList')
+        .then(providerList => get(providerList, 'list'));
+    })
+  ),
+
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
@@ -642,11 +672,22 @@ export default Component.extend(...mixins, {
     'hardlinksLimitExceeded',
     'hardlinksLimit',
     'hardlinksCount',
+    'isProvidersOffline',
     function builtInTabItems() {
       const hardlinksCount = this.hardlinksLimitExceeded ?
         `${this.hardlinksLimit}+` :
         this.hardlinksCount;
-      const areStatsDisabled = this.isSizeStatsDisabled;
+      let tabClass = '';
+      let statusIcon = null;
+
+      if (this.isProvidersOffline) {
+        tabClass = 'tab-status-warning';
+        statusIcon = 'sign-warning-rounded';
+      } else if (!this.isSizeStatsDisabled) {
+        tabClass = 'tab-status-success';
+        statusIcon = 'checkbox-filled';
+      }
+
       return {
         /** @type {FileInfoTabItem} */
         general: {
@@ -665,8 +706,8 @@ export default Component.extend(...mixins, {
         size: {
           id: 'size',
           name: this.t('tabs.size.tabTitle'),
-          tabClass: areStatsDisabled ? '' : 'tab-status-success',
-          statusIcon: areStatsDisabled ? null : 'checkbox-filled',
+          tabClass: tabClass,
+          statusIcon: statusIcon,
         },
 
         /** @type {FileInfoTabItem} */

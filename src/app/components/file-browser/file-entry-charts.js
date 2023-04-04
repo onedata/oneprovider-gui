@@ -21,7 +21,6 @@ import {
 } from 'oneprovider-gui/models/file';
 import { hashSettled, hash as hashFulfilled, all as allFulfilled } from 'rsvp';
 import { formatNumber } from 'onedata-gui-common/helpers/format-number';
-import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 
 const mixins = [
   I18n,
@@ -535,11 +534,37 @@ export default Component.extend(...mixins, {
           this.latestDirSizeStatsValues[providerId].type === 'result'
         )
         .length;
+      let classProvidersCount = 'providers-count';
+      if (providersWithStatsCount !== this.latestDirSizeStatsValuesLength) {
+        classProvidersCount = 'providers-count-warning';
+      }
 
       return this.t('currentSize.currentSizeOnProvidersCount', {
         providersWithStatsCount,
         providersCount: this.latestDirSizeStatsValuesLength,
+        classProvidersCount,
       });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isShowHeaderWarningIcon: computed(
+    'latestDirSizeStatsValues',
+    'latestDirSizeStatsValuesLength',
+    function isShowHeaderWarningIcon() {
+      if (!this.latestDirSizeStatsValues) {
+        return false;
+      }
+
+      const providersWithStatsCount = Object.keys(this.latestDirSizeStatsValues)
+        .filter((providerId) =>
+          this.latestDirSizeStatsValues[providerId].type === 'result'
+        )
+        .length;
+
+      return providersWithStatsCount !== this.latestDirSizeStatsValuesLength;
     }
   ),
 

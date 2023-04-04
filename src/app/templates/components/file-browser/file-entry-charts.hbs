@@ -10,6 +10,11 @@
       <h2 class="current-size-header">
         {{tt this "currentSize.header"}}
         <span class="extra-info">({{currentSizeExtraInfo}})</span>
+        {{#if isShowHeaderWarningIcon}}
+          {{#one-icon icon="sign-warning-rounded" class="header-info-warning"}}
+            {{one-tooltip title=(tt this "currentSize.currentSizeTip")}}
+          {{/one-icon}}
+        {{/if}}
       </h2>
       <p class="latest-dir-stats-values">
         <ul class="details-property-list">
