@@ -582,14 +582,14 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<number>}
    */
   minLogicalSize: computed('latestLogicalSizeValues', function minLogicalSize() {
-    return Math.min(this.latestLogicalSizeValues);
+    return Math.min(...this.latestLogicalSizeValues);
   }),
 
   /**
    * @type {ComputedProperty<number>}
    */
   maxLogicalSize: computed('latestLogicalSizeValues', function maxLogicalSize() {
-    return Math.max(this.latestLogicalSizeValues);
+    return Math.max(...this.latestLogicalSizeValues);
   }),
 
   /**
@@ -606,14 +606,14 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<number>}
    */
   minFiles: computed('latestFilesCountValues', function minFiles() {
-    return Math.min(this.latestFilesCountValues);
+    return Math.min(...this.latestFilesCountValues);
   }),
 
   /**
    * @type {ComputedProperty<number>}
    */
   maxFiles: computed('latestFilesCountValues', function minFiles() {
-    return Math.max(this.latestFilesCountValues);
+    return Math.max(...this.latestFilesCountValues);
   }),
 
   /**
@@ -630,21 +630,21 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<number>}
    */
   minDirs: computed('latestDirsCountValues', function minDirs() {
-    return Math.min(this.latestDirsCountValues);
+    return Math.min(...this.latestDirsCountValues);
   }),
 
   /**
    * @type {ComputedProperty<number>}
    */
   maxDirs: computed('latestDirsCountValues', function minDirs() {
-    return Math.max(this.latestDirsCountValues);
+    return Math.max(...this.latestDirsCountValues);
   }),
 
   /**
    * @type {ComputedProperty<string>}
    */
   stringifiedLatestElementsCount: computed(
-    'minFiles',
+    'minFiles', 'minDirs', 'maxFiles', 'maxDirs',
     function stringifiedLatestElementsCount() {
       let fileCount = this.minFiles;
       let dirCount = this.minDirs;
@@ -671,7 +671,7 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<string>}
    */
   stringifiedLatestElementsCountExtraInfo: computed(
-    'minFiles',
+    'minFiles', 'minDirs', 'maxFiles', 'maxDirs',
     function stringifiedLatestElementsCount() {
       let totalCount = this.minFiles + this.minDirs;
 

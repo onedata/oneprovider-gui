@@ -30,11 +30,6 @@
     margin-left: 0.5em;
   }
 
-  .size-per-provider-mobile {
-    border: 1px solid $table-border-color;
-    border-radius: $border-radius-base;
-  }
-
   .no-statistics {
     background-image: url($root-url + "/images/empty-directory.svg");
     background-repeat: no-repeat;
@@ -69,6 +64,13 @@
     table {
       width: 100%;
       margin-bottom: 0;
+      thead, tbody .header {
+        background-color: $block-background-color;
+        @include font-semibold;
+        // Using background-clip to fix border hiding under background in Firefox.
+        // See more: https://bugzilla.mozilla.org/show_bug.cgi?id=688556
+        background-clip: padding-box;
+      }
       &.normal-size {
         text-align: center;
       }
@@ -104,11 +106,6 @@
         text-align: left;
       }
     }
-
-    thead, tbody .header {
-      background-color: $block-background-color;
-      @include font-semibold;
-    }
   }
 
   .current-size-section {
@@ -124,7 +121,7 @@
       }
 
       .header-info-warning {
-        vertical-align: middle;
+        vertical-align: bottom;
         font-size: 1em;
         color: $color-one-light-gray;
         margin-left: 0.3em;
