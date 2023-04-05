@@ -461,8 +461,13 @@ export default Component.extend(...mixins, {
    */
   providersProxy: promise.array(
     computed('space', function providersProxy() {
-      return this.get('space').getRelation('providerList')
-        .then(providerList => get(providerList, 'list'));
+      if (this.space) {
+        return this.space.getRelation('providerList')
+          .then(providerList => get(providerList, 'list'));
+      } else {
+        resolve([]);
+      }
+
     })
   ),
 
