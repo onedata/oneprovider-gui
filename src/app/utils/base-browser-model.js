@@ -315,7 +315,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     }
   ),
 
-  btnRefresh: computed('renderableSelectedItemsOutOfScope', function btnRefresh() {
+  btnRefresh: computed(function btnRefresh() {
     return this.createFileAction(EmberObject.extend({
       id: 'refresh',
       title: this.t('fileActions.refresh'),
@@ -339,12 +339,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
         ]),
         raw([]),
       ),
-
-      init() {
-        this._super(...arguments);
-        console.log('DEBUG');
-      },
-
     }));
   }),
 
