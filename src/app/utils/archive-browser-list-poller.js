@@ -6,18 +6,30 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
-import { get } from '@ember/object';
+import BrowserListPoller, { defaultPollInterval } from 'oneprovider-gui/utils/browser-list-poller';
+import { reads } from '@ember/object/computed';
+import { get, observer } from '@ember/object';
 
-const slowPollInterval = 5000;
+const slowPollInterval = defaultPollInterval;
 
 const fastPollInterval = 2000;
 
 export default BrowserListPoller.extend({
-  /**
-   * @override
-   */
-  pollInterval: slowPollInterval,
+  archives: reads('browserModel.itemsArray'),
+
+  // Using observer to change interval instead of computed property to suppress set
+  // of interval property when it does not change (this would invoke).
+  archivesObserver: observer('archives.@each.metaState', function archivesObserver() {
+    if (!this.archives) {
+      return;
+    }
+    this.reconfigurePollInterval();
+  }),
+
+  init() {
+    this._super(...arguments);
+    this.archivesObserver();
+  },
 
   /**
    * @override
@@ -28,15 +40,10 @@ export default BrowserListPoller.extend({
   },
 
   reconfigurePollInterval() {
-    // FIXME: już należy to poprawić
-    // TODO: VFS-7643 due to legacy code, archives list are get using manual call of
-    // "getFilesArray" using fbTable API; it will be better to observe items array as
-    // property to automatically reconfigure on changes
-    const archives = this.browserModel.itemsArray?.toArray();
-    if (!archives) {
+    if (!this.archives) {
       return;
     }
-    const isAnyArchiveInProgress = archives.some(archive => {
+    const isAnyArchiveInProgress = this.archives.toArray().some(archive => {
       return ['creating', 'destroying'].includes(get(archive, 'metaState'));
     });
     if (isAnyArchiveInProgress && this.pollInterval !== fastPollInterval) {
