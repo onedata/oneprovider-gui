@@ -8,11 +8,12 @@
  */
 
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
-import { bool, array, raw, eq } from 'ember-awesome-macros';
+import { bool, array, raw } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import { get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import FileInArchive from 'oneprovider-gui/utils/file-in-archive';
@@ -77,9 +78,16 @@ export default FilesystemBrowserModel.extend({
    */
   readonlyFilesystem: true,
 
-  // FIXME: property isLive czy coś takiego
+  /**
+   * @override
+   */
+  refreshBtnIsVisible: reads('isFilesystemLive'),
 
-  refreshBtnIsVisible: eq('archive.metaState', raw('creating')),
+  /**
+   * If archive is not being created, the filesystem of archive should not change.
+   * @override
+   */
+  isListPollingEnabled: reads('isFilesystemLive'),
 
   /**
    * @override
@@ -118,15 +126,16 @@ export default FilesystemBrowserModel.extend({
   ]),
 
   /**
-   * If archive is not being created, the filesystem of archive should not change.
-   * @override
-   */
-  isListPollingEnabled: eq('archive.metaState', raw('creating')),
-
-  /**
    * @type {Utils.ModalManager.ModalInstance}
    */
   externalSymlinkModal: null,
+
+  /**
+   * True if filesystem of archive might change - eg. when archive is being created
+   * and files are added and their size grows.
+   * @type {ComputedProperty<boolean>}
+   */
+  isFilesystemLive: array.includes(raw(['creating', 'destroying']), 'archive.metaState'),
 
   /**
    * Used only when `renderArchiveDipSwitch` is true.
