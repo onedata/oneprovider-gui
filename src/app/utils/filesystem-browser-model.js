@@ -1045,6 +1045,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
+  // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
+  // items select implementation
   /**
    * @override
    */

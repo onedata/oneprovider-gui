@@ -895,8 +895,8 @@ export default Component.extend(I18n, {
           changeSelectedItems,
         } = this.getProperties('selectedItems', 'changeSelectedItems');
         const sourceArray = get(filesArray, 'sourceArray');
-        const updatedSelectedItems = await this.filterCurrentDirAvailableItems(
-          selectedItems
+        const updatedSelectedItems = selectedItems.filter(selectedFile =>
+          sourceArray.includes(selectedFile)
         );
         if (
           !isEmpty(selectedItems) &&
@@ -943,9 +943,11 @@ export default Component.extend(I18n, {
     await allFulfilled(promises);
   },
 
+  // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
+  // items select implementation
   /**
    * Returns subset of provided items that are available in current dir.
-   * Used when there are selected items, but list is refreshed and we want to check
+   * Can be used when there are selected items, but list is refreshed and we want to check
    * if these items are still available in the current dir.
    * @param {Array<any>} items Browsable items, eg. files.
    * @returns {Array<any>}

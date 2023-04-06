@@ -418,8 +418,10 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     this.browserListPoller?.destroy();
   },
 
+  // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
+  // items select implementation
   /**
-   * Dummy implementation vritual method.
+   * Dummy implementation virtual method.
    * Should be implemented to asynchronically check if an item (eg. file) exists in parent
    * container (in this example - directory). If so, it should resolve true;
    * @param {string} parentId Entity ID of browsable parent of item, eg. directory.
