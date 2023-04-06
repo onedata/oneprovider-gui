@@ -6,6 +6,9 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10697 Fixed invalid state of automation store content editor during initalization
+* VFS-10285 Added info popovers to membership
+* VFS-9309 Removed usages of `:contains` jQuery selector
 * VFS-8701 Removed ember-one-way-controls
 * VFS-9196 Removed @module jsdoc
 * VFS-10531 Added allowedValues constraint to atm number and atm string
