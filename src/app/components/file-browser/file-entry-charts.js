@@ -21,6 +21,8 @@ import {
 } from 'oneprovider-gui/models/file';
 import { hashSettled, hash as hashFulfilled, all as allFulfilled } from 'rsvp';
 import { formatNumber } from 'onedata-gui-common/helpers/format-number';
+import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
+import { htmlSafe } from '@ember/string';
 
 const mixins = [
   I18n,
@@ -83,6 +85,11 @@ export default Component.extend(...mixins, {
    * @type {Looper}
    */
   latestDirSizeStatsValuesUpdater: undefined,
+
+  /**
+   * @type {DirCurrentSizeStats}
+   */
+  latestDirSizeStatsValues: computedLastProxyContent('latestDirSizeStatsValuesProxy'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -512,151 +519,113 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<number>}
    */
-  latestDirSizeStatsValuesLength: computed('latestDirSizeStatsValues',
-    function latestDirSizeStatsValuesLength() {
-      return Object.keys(this.latestDirSizeStatsValues).length;
-    }
-  ),
+  providersCount: computed('latestDirSizeStatsValues', function providersCount() {
+    return Object.keys(this.latestDirSizeStatsValues).length;
+  }),
+
+  /**
+   * @type {ComputedProperty<Array<DirCurrentSizeStatsResultForProvider>>}
+   */
+  providersWithStats: computed('latestDirSizeStatsValues', function providersWithStats() {
+    return Object.values(this.latestDirSizeStatsValues).filter(dirStats =>
+      dirStats.type === 'result'
+    );
+  }),
 
   /**
    * @type {ComputedProperty<string>}
    */
   currentSizeExtraInfo: computed(
-    'latestDirSizeStatsValues',
-    'latestDirSizeStatsValuesLength',
+    'providersCount',
+    'providersWithStats.length',
     function currentSizeExtraInfo() {
       if (!this.latestDirSizeStatsValues) {
         return '';
+      } else {
+        return this.t('currentSize.currentSizeOnProvidersCount', {
+          providersWithStatsCount: this.providersWithStats.length,
+          providersCount: this.providersCount,
+        });
       }
-
-      const providersWithStatsCount = Object.keys(this.latestDirSizeStatsValues)
-        .filter((providerId) =>
-          this.latestDirSizeStatsValues[providerId].type === 'result'
-        )
-        .length;
-      let classProvidersCount = 'providers-count';
-      if (providersWithStatsCount !== this.latestDirSizeStatsValuesLength) {
-        classProvidersCount = 'providers-count-warning';
-      }
-
-      return this.t('currentSize.currentSizeOnProvidersCount', {
-        providersWithStatsCount,
-        providersCount: this.latestDirSizeStatsValuesLength,
-        classProvidersCount,
-      });
     }
   ),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<string>}
    */
-  isShowHeaderWarningIcon: computed(
+  classProvidersCount: computed(
+    'providersCount',
+    'providersWithStats.length',
+    function classProvidersCount() {
+      if (this.providersWithStats.length !== this.providersCount) {
+        return 'providers-count-warning';
+      } else {
+        return 'providers-count';
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isHeaderWarningIconVisible: computed(
     'latestDirSizeStatsValues',
-    'latestDirSizeStatsValuesLength',
-    function isShowHeaderWarningIcon() {
+    'providersCount',
+    'providersWithStats',
+    function isHeaderWarningIconVisible() {
       if (!this.latestDirSizeStatsValues) {
         return false;
+      } else {
+        return this.providersWithStats.length !== this.providersCount;
       }
-
-      const providersWithStatsCount = Object.keys(this.latestDirSizeStatsValues)
-        .filter((providerId) =>
-          this.latestDirSizeStatsValues[providerId].type === 'result'
-        )
-        .length;
-
-      return providersWithStatsCount !== this.latestDirSizeStatsValuesLength;
     }
   ),
 
-  /**
-   * @type {ComputedProperty<Array<number>>}
-   */
-  latestLogicalSizeValues: computed('latestDirSizeStatsValues',
-    function latestLogicalSizeValues() {
-      return Object.values(this.latestDirSizeStatsValues).filter(
-        dirStats => !dirStats.error).map(dirStats => dirStats.logicalSize);
+  latestDirSizeStatsValueRanges: computed(
+    'providersWithStats',
+    function latestDirSizeStatsValueRanges() {
+
+      const logicalSizeArray = this.providersWithStats.map(
+        dirStats => dirStats.logicalSize
+      );
+      const filesCountArray = this.providersWithStats.map(
+        dirStats => dirStats.regFileAndLinkCount
+      );
+      const dirsCountArray = this.providersWithStats.map(dirStats => dirStats.dirCount);
+
+      return {
+        minLogicalSize: Math.min(...logicalSizeArray),
+        maxLogicalSize: Math.max(...logicalSizeArray),
+        minFilesCount: Math.min(...filesCountArray),
+        maxFilesCount: Math.max(...filesCountArray),
+        minDirsCount: Math.min(...dirsCountArray),
+        maxDirsCount: Math.max(...dirsCountArray),
+      };
     }
   ),
-
-  /**
-   * @type {ComputedProperty<number>}
-   */
-  minLogicalSize: computed('latestLogicalSizeValues', function minLogicalSize() {
-    return Math.min(...this.latestLogicalSizeValues);
-  }),
-
-  /**
-   * @type {ComputedProperty<number>}
-   */
-  maxLogicalSize: computed('latestLogicalSizeValues', function maxLogicalSize() {
-    return Math.max(...this.latestLogicalSizeValues);
-  }),
-
-  /**
-   * @type {ComputedProperty<Array<number>>}
-   */
-  latestFilesCountValues: computed('latestDirSizeStatsValues',
-    function latestFilesCountValues() {
-      return Object.values(this.latestDirSizeStatsValues).filter(
-        dirStats => !dirStats.error).map(dirStats => dirStats.regFileAndLinkCount);
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<number>}
-   */
-  minFiles: computed('latestFilesCountValues', function minFiles() {
-    return Math.min(...this.latestFilesCountValues);
-  }),
-
-  /**
-   * @type {ComputedProperty<number>}
-   */
-  maxFiles: computed('latestFilesCountValues', function minFiles() {
-    return Math.max(...this.latestFilesCountValues);
-  }),
-
-  /**
-   * @type {ComputedProperty<Array<number>>}
-   */
-  latestDirsCountValues: computed('latestDirSizeStatsValues',
-    function latestDirsCountValues() {
-      return Object.values(this.latestDirSizeStatsValues).filter(
-        dirStats => !dirStats.error).map(dirStats => dirStats.dirCount);
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<number>}
-   */
-  minDirs: computed('latestDirsCountValues', function minDirs() {
-    return Math.min(...this.latestDirsCountValues);
-  }),
-
-  /**
-   * @type {ComputedProperty<number>}
-   */
-  maxDirs: computed('latestDirsCountValues', function minDirs() {
-    return Math.max(...this.latestDirsCountValues);
-  }),
 
   /**
    * @type {ComputedProperty<string>}
    */
   stringifiedLatestElementsCount: computed(
-    'minFiles', 'minDirs', 'maxFiles', 'maxDirs',
+    'latestDirSizeStatsValueRanges',
     function stringifiedLatestElementsCount() {
-      let fileCount = this.minFiles;
-      let dirCount = this.minDirs;
-      if (this.minFiles !== this.maxFiles) {
-        fileCount = ' – ' + this.maxFiles;
+      const minFilesCount = this.latestDirSizeStatsValueRanges.minFilesCount;
+      const maxFilesCount = this.latestDirSizeStatsValueRanges.maxFilesCount;
+      const minDirsCount = this.latestDirSizeStatsValueRanges.minDirsCount;
+      const maxDirsCount = this.latestDirSizeStatsValueRanges.maxDirsCount;
+      let fileCount = minFilesCount;
+      let dirCount = minDirsCount;
+
+      if (minFilesCount !== maxFilesCount) {
+        fileCount += ' – ' + maxFilesCount;
       }
-      if (this.minDirs !== this.maxDirs) {
-        dirCount += ' – ' + this.maxDirs;
+      if (minDirsCount !== maxDirsCount) {
+        dirCount += ' – ' + maxDirsCount;
       }
 
-      const filesNounVer = this.maxFiles === 1 ? 'singular' : 'plural';
-      const dirNounVer = this.maxDirs === 1 ? 'singular' : 'plural';
+      const filesNounVer = maxFilesCount === 1 ? 'singular' : 'plural';
+      const dirNounVer = maxDirsCount === 1 ? 'singular' : 'plural';
 
       return this.t('currentSize.elementsCount.template', {
         fileCount,
@@ -671,16 +640,21 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<string>}
    */
   stringifiedLatestElementsCountExtraInfo: computed(
-    'minFiles', 'minDirs', 'maxFiles', 'maxDirs',
+    'latestDirSizeStatsValueRanges',
     function stringifiedLatestElementsCount() {
-      let totalCount = this.minFiles + this.minDirs;
+      const minFilesCount = this.latestDirSizeStatsValueRanges.minFilesCount;
+      const maxFilesCount = this.latestDirSizeStatsValueRanges.maxFilesCount;
+      const minDirsCount = this.latestDirSizeStatsValueRanges.minDirsCount;
+      const maxDirsCount = this.latestDirSizeStatsValueRanges.maxDirsCount;
 
-      if ((this.minFiles !== this.maxFiles) || (this.minDirs !== this.maxDirs)) {
-        const maxTotalCount = this.maxFiles + this.maxDirs;
+      let totalCount = minFilesCount + minDirsCount;
+
+      if ((minFilesCount !== maxFilesCount) || (minDirsCount !== maxDirsCount)) {
+        const maxTotalCount = maxFilesCount + maxDirsCount;
         totalCount += ' – ' + maxTotalCount;
       }
 
-      const elementNounVer = (this.maxFiles + this.maxDirs) === 1 ? 'singular' : 'plural';
+      const elementNounVer = (maxFilesCount + maxDirsCount) === 1 ? 'singular' : 'plural';
       return this.t('currentSize.elementsCount.templateExtraInfo', {
         totalCount,
         elementNoun: this.t(`currentSize.elementsCount.element.${elementNounVer}`),
@@ -691,17 +665,23 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<string>}
    */
-  logicalSizeExtraInfo: computed('', function logicalSizeExtraInfo() {
-    if (this.maxLogicalSize >= 1024) {
-      let logicalSize = formatNumber(this.minLogicalSize);
-      if (this.minLogicalSize !== this.maxLogicalSize) {
-        logicalSize += ' – ' + this.maxLogicalSize;
+  logicalSizeExtraInfo: computed(
+    'latestDirSizeStatsValueRanges.{minLogicalSize,maxLogicalSize}',
+    function logicalSizeExtraInfo() {
+      const minLogicalSize = this.latestDirSizeStatsValueRanges.minLogicalSize;
+      const maxLogicalSize = this.latestDirSizeStatsValueRanges.maxLogicalSize;
+
+      if (maxLogicalSize >= 1024) {
+        let logicalSize = formatNumber(minLogicalSize);
+        if (minLogicalSize !== maxLogicalSize) {
+          logicalSize += ' – ' + formatNumber(maxLogicalSize);
+        }
+        return htmlSafe(logicalSize);
+      } else {
+        return '';
       }
-      return logicalSize;
-    } else {
-      return '';
     }
-  }),
+  ),
 
   /**
    * @type {ComputedProperty<number>}

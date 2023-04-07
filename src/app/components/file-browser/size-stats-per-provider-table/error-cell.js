@@ -19,11 +19,12 @@ export default Component.extend(I18n, {
   i18n: service(),
   appProxy: service(),
   errorExtractor: service(),
+  parentAppNavigation: service(),
 
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.fileEntryCharts',
+  i18nPrefix: 'components.fileBrowser.sizeStatsPerProviderTable.errorCell',
 
   /**
    * @virtual
@@ -35,7 +36,7 @@ export default Component.extend(I18n, {
    * Frame name, where Onezone providers link should be opened
    * @type {String}
    */
-  navigateProvidersTarget: '_top',
+  navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   /**
    * @type {ComputedProperty<string>}
@@ -54,7 +55,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  providersUrl: computed('providerId', function providersUrl() {
+  providerUrl: computed('providerId', function providerUrl() {
     const providerId = this.get('providerId');
     return this.get('appProxy').callParent('getProvidersUrl', {
       oneproviderId: providerId,

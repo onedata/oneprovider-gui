@@ -1,5 +1,5 @@
 {{#if (media "isMobile")}}
-  {{#each sortedDirSizeStatsValues as |sizeStats|}}
+  {{#each sortedDirSizeStatsValues key="provider" as |sizeStats|}}
     <div class="current-size-table-container">
       <table class="current-size-table table table-info">
         <thead>
@@ -21,25 +21,25 @@
   {{/each}}
 {{else}}
   <div class="current-size-table-container">
-    <table class="current-size-table table table-info normal-size">
+    <table class="current-size-table table table-info centered-text">
       <thead>
         <tr>
           <td class="empty-cell-header"></td>
           <td>
-            {{tt this "currentSize.containsLabel"}}
-            {{one-label-tip title=(tt this "currentSize.logicalSizeTip")}}
+            {{tt this "containsLabel"}}
+            {{one-label-tip title=(tt this "containsTip")}}
           </td>
           <td>
-            {{tt this "currentSize.logicalSizeLabel"}}
-            {{one-label-tip title=(tt this "currentSize.physicalSizeTip")}}
+            {{tt this "logicalSizeLabel"}}
+            {{one-label-tip title=(tt this "logicalSizeTip")}}
           </td>
           <td>
-            {{tt this "currentSize.physicalSizeLabel"}}
+            {{tt this "physicalSizeLabel"}}
           </td>
         </tr>
       </thead>
       <tbody>
-        {{#each sortedDirSizeStatsValues as |sizeStats|}}
+        {{#each sortedDirSizeStatsValues key="provider" as |sizeStats|}}
           {{file-browser/size-stats-per-provider-table/provider-row
             sizeStats=sizeStats
           }}

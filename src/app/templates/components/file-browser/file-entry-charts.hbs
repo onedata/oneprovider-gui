@@ -9,8 +9,11 @@
     <div class="current-size-section">
       <h2 class="current-size-header">
         {{tt this "currentSize.header"}}
-        <span class="extra-info">({{currentSizeExtraInfo}})</span>
-        {{#if isShowHeaderWarningIcon}}
+        <span class={{concat-classes
+          "extra-info"
+          classProvidersCount
+        }}>({{currentSizeExtraInfo}})</span>
+        {{#if isHeaderWarningIconVisible}}
           {{#one-icon icon="sign-warning-rounded" class="header-info-warning"}}
             {{one-tooltip title=(tt this "currentSize.currentSizeTip")}}
           {{/one-icon}}
@@ -34,10 +37,17 @@
               {{tt this "currentSize.logicalSizeLabel"}}:
             </span>
             <span class="property-value">
-              {{bytes-to-string minLogicalSize}}
-              {{#if (not-eq minLogicalSize maxLogicalSize)}} – {{bytes-to-string maxLogicalSize}}{{/if}}
+              {{bytes-to-string latestDirSizeStatsValueRanges.minLogicalSize}}
+              {{#if (not-eq
+                latestDirSizeStatsValueRanges.minLogicalSize
+                latestDirSizeStatsValueRanges.maxLogicalSize
+              )}}
+                 – {{bytes-to-string latestDirSizeStatsValueRanges.maxLogicalSize}}
+              {{/if}}
               {{#if logicalSizeExtraInfo}}
-                <span class="extra-info">({{logicalSizeExtraInfo}} B)</span>
+                <span class="extra-info">
+                  ({{logicalSizeExtraInfo}} B)
+                </span>
               {{/if}}
               {{one-label-tip title=(tt this "currentSize.logicalSizeTip")}}
             </span>
@@ -57,7 +67,7 @@
         </ul>
       </p>
     </div>
-    {{#if (gt latestDirSizeStatsValuesLength 1)}}
+    {{#if (gt providersCount 1)}}
       <div class="size-stats-expand">
         <a
           class="toggle-expand"

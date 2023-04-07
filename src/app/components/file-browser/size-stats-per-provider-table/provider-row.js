@@ -8,7 +8,6 @@
 
 import Component from '@ember/component';
 import { computed } from '@ember/object';
-import { formatNumber } from 'onedata-gui-common/helpers/format-number';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
@@ -21,27 +20,13 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.fileEntryCharts',
+  i18nPrefix: 'components.fileBrowser.sizeStatsPerProviderTable.providerRow',
 
   /**
    * @virtual
-   * @type {Object}
+   * @type {DirCurrentSizeStatsForProvider}
    */
   sizeStats: undefined,
-
-  /**
-   * @type {ComputedProperty<SafeString>}
-   */
-  logicalSize: computed('sizeStats.logicalSize', function logicalSize() {
-    return formatNumber(this.sizeStats.logicalSize);
-  }),
-
-  /**
-   * @type {ComputedProperty<SafeString>}
-   */
-  physicalSize: computed('sizeStats.physicalSize', function physicalSize() {
-    return formatNumber(this.sizeStats.physicalSize);
-  }),
 
   /**
    * @type {ComputedProperty<string>}
@@ -55,11 +40,11 @@ export default Component.extend(I18n, {
       const filesNounVer = fileCount === 1 ? 'singular' : 'plural';
       const dirNounVer = dirCount === 1 ? 'singular' : 'plural';
 
-      return this.t('currentSize.elementsCount.template', {
+      return this.t('elementsCount.template', {
         fileCount,
         dirCount,
-        fileNoun: this.t(`currentSize.elementsCount.file.${filesNounVer}`),
-        dirNoun: this.t(`currentSize.elementsCount.dir.${dirNounVer}`),
+        fileNoun: this.t(`elementsCount.file.${filesNounVer}`),
+        dirNoun: this.t(`elementsCount.dir.${dirNounVer}`),
       });
     }
   ),

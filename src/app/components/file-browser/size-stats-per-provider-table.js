@@ -14,7 +14,6 @@ import { all as allFulfilled } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  tagName: 'div',
   classNames: ['size-stats-per-provider-table'],
 
   i18n: service(),
@@ -23,18 +22,19 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.fileEntryCharts',
+  i18nPrefix: 'components.fileBrowser.sizeStatsPerProviderTable',
 
   /**
    * @virtual
-   * @type {Object}
+   * @type {DirCurrentSizeStats}
    */
   dirSizeStatsValues: undefined,
 
   /**
-   * @type {PromiseObject}
+   * @type {PromiseObject<Array<DirCurrentSizeStatsForProvider & { provider: Models.Provider }>>}
    */
-  dirSizeStatsValuesWithProviderProxy: promise.object(computed('dirSizeStatsValues',
+  dirSizeStatsValuesWithProviderProxy: promise.object(computed(
+    'dirSizeStatsValues',
     async function dirSizeStatsValuesWithProviderProxy() {
       const dirSizeStatsWithProviderPromises = [];
 
@@ -42,12 +42,12 @@ export default Component.extend(I18n, {
         .forEach(providerId => {
           dirSizeStatsWithProviderPromises.push((async () => {
             const provider = await this.providerManager.getProviderById(providerId);
-            this.dirSizeStatsValues[providerId].provider = provider;
-            return this.dirSizeStatsValues[providerId];
+            return { ...this.dirSizeStatsValues[providerId], provider };
           })());
         });
       return await allFulfilled(dirSizeStatsWithProviderPromises);
-    })),
+    }
+  )),
 
   sortedDirSizeStatsValues: array.sort(
     'dirSizeStatsValuesWithProviderProxy.content',

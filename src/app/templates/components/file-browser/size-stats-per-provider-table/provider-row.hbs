@@ -7,7 +7,7 @@
     {{else}}
       <div>
         <span class="contains-label">
-          {{tt this "currentSize.containsLabel"}}:
+          {{tt this "containsLabel"}}:
         </span>
         <span class="contains-value">
           {{stringifiedLatestElementsCount}}
@@ -15,26 +15,26 @@
       </div>
       <div>
         <span class="logical-size-label">
-          {{tt this "currentSize.logicalSizeLabel"}}:
+          {{tt this "logicalSizeLabel"}}:
         </span>
         <span class="logical-size-value">
           {{bytes-to-string sizeStats.logicalSize}}
           {{#if (gte sizeStats.logicalSize 1024)}}
             <span class="extra-info">
-              ({{logicalSize}} B)
+              ({{format-number sizeStats.logicalSize}}&nbsp;B)
             </span>
           {{/if}}
         </span>
       </div>
       <div>
         <span class="physical-size-label">
-          {{tt this "currentSize.physicalSizeLabel"}}:
+          {{tt this "physicalSizeLabel"}}:
         </span>
         <span class="physical-size-value">
           {{bytes-to-string sizeStats.physicalSize}}
           {{#if (gte sizeStats.physicalSize 1024)}}
             <span class="extra-info">
-              ({{physicalSize}} B)
+              ({{format-number sizeStats.physicalSize}}&nbsp;B)
             </span>
           {{/if}}
         </span>
@@ -61,7 +61,7 @@
       {{bytes-to-string sizeStats.logicalSize}}
       {{#if (gte sizeStats.logicalSize 1024)}}
         <span class="extra-info">
-          ({{logicalSize}} B)
+          ({{format-number sizeStats.logicalSize}}&nbsp;B)
         </span>
       {{/if}}
     </td>
@@ -69,7 +69,7 @@
       {{bytes-to-string sizeStats.physicalSize}}
       {{#if (gte sizeStats.physicalSize 1024)}}
         <span class="extra-info">
-          ({{physicalSize}} B)
+          ({{format-number sizeStats.physicalSize}}&nbsp;B)
         </span>
       {{/if}}
     </td>

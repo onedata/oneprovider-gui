@@ -439,19 +439,12 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isProvidersOffline: computed('providers', function isProvidersOffline() {
-    if (this.providers) {
-      const offlineProviders = this.providers.filter(provider => !provider.online);
-      if (offlineProviders.length > 0) {
-        return true;
-      }
-    } else {
-      return false;
-    }
+  areSomeProvidersOffline: computed('providers', function areSomeProvidersOffline() {
+    return Boolean(this.providers?.find((p) => !p.online));
   }),
 
   /**
-   * @type {ComputedProperty<Provider>}
+   * @type {ComputedProperty<Array<Models.Provider>>}
    */
   providers: reads('providersProxy.content'),
 
@@ -467,7 +460,6 @@ export default Component.extend(...mixins, {
       } else {
         resolve([]);
       }
-
     })
   ),
 
@@ -677,19 +669,19 @@ export default Component.extend(...mixins, {
     'hardlinksLimitExceeded',
     'hardlinksLimit',
     'hardlinksCount',
-    'isProvidersOffline',
+    'areSomeProvidersOffline',
     function builtInTabItems() {
       const hardlinksCount = this.hardlinksLimitExceeded ?
         `${this.hardlinksLimit}+` :
         this.hardlinksCount;
-      let tabClass = '';
+      let sizeStatsTabClass = '';
       let statusIcon = null;
 
-      if (this.isProvidersOffline) {
-        tabClass = 'tab-status-warning';
+      if (this.areSomeProvidersOffline) {
+        sizeStatsTabClass = 'tab-status-warning';
         statusIcon = 'sign-warning-rounded';
       } else if (!this.isSizeStatsDisabled) {
-        tabClass = 'tab-status-success';
+        sizeStatsTabClass = 'tab-status-success';
         statusIcon = 'checkbox-filled';
       }
 
@@ -711,7 +703,7 @@ export default Component.extend(...mixins, {
         size: {
           id: 'size',
           name: this.t('tabs.size.tabTitle'),
-          tabClass: tabClass,
+          tabClass: sizeStatsTabClass,
           statusIcon: statusIcon,
         },
 
