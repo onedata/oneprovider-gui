@@ -84,6 +84,11 @@ export default Component.extend(...mixins, {
   latestDirSizeStatsValuesUpdater: undefined,
 
   /**
+   * @type {Boolean}
+   */
+  dirStatsNotReady: false,
+
+  /**
    * @type {ComputedProperty<string>}
    */
   currentProviderId: computed(function currentProviderId() {
@@ -750,7 +755,16 @@ export default Component.extend(...mixins, {
    * @returns {Promise<DirCurrentSizeStats>}
    */
   async fetchLatestDirSizeStatsValues() {
-    return this.fileManager.getDirCurrentSizeStats(this.fileId);
+    try {
+      this.set('dirStatsNotReady', false);
+      return await this.fileManager.getDirCurrentSizeStats(this.fileId);
+    } catch (error) {
+      if (error.id === 'dirStatsNotReady') {
+        this.set('dirStatsNotReady', true);
+      } else {
+        throw error;
+      }
+    }
   },
 
   actions: {
