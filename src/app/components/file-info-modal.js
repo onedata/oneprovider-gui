@@ -675,14 +675,14 @@ export default Component.extend(...mixins, {
         `${this.hardlinksLimit}+` :
         this.hardlinksCount;
       let sizeStatsTabClass = '';
-      let statusIcon = null;
+      let sizeStatsStatusIcon = null;
 
       if (this.areSomeProvidersOffline) {
         sizeStatsTabClass = 'tab-status-warning';
-        statusIcon = 'sign-warning-rounded';
+        sizeStatsStatusIcon = 'sign-warning-rounded';
       } else if (!this.isSizeStatsDisabled) {
         sizeStatsTabClass = 'tab-status-success';
-        statusIcon = 'checkbox-filled';
+        sizeStatsStatusIcon = 'checkbox-filled';
       }
 
       return {
@@ -704,7 +704,7 @@ export default Component.extend(...mixins, {
           id: 'size',
           name: this.t('tabs.size.tabTitle'),
           tabClass: sizeStatsTabClass,
-          statusIcon: statusIcon,
+          statusIcon: sizeStatsStatusIcon,
         },
 
         /** @type {FileInfoTabItem} */

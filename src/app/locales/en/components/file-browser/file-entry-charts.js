@@ -1,28 +1,12 @@
+import sizeStatsPerProviderTable from './size-stats-per-provider-table';
+
 export default {
   noStatistics: 'Requested directory statistics are not ready yet – calculation is in progress.',
   currentSize: {
     header: 'Current size',
-    containsLabel: 'Contains',
-    logicalSizeLabel: 'Logical size',
-    physicalSizeLabel: 'Physical size',
-    elementsCount: {
-      template: '{{fileCount}} {{fileNoun}}, {{dirCount}} {{dirNoun}}',
-      templateExtraInfo: ' ({{totalCount}} {{elementNoun}} in total)',
-      file: {
-        singular: 'file',
-        plural: 'files',
-      },
-      dir: {
-        singular: 'directory',
-        plural: 'directories',
-      },
-      element: {
-        singular: 'element',
-        plural: 'elements',
-      },
-    },
+    fileCounters: sizeStatsPerProviderTable.fileCounters,
     currentSizeOnProvidersCount: 'collected from <span>{{providersWithStatsCount}} out of {{providersCount}}</span> providers',
-    currentSizeTip: 'Current size information includes only data reported by online providers with enabled directory size statistics.',
+    currentSizeTip: 'Presented information is partial since it was collected only from online providers with enabled directory size statistics. From the global point of view, the actual size of the space may differ.',
     logicalSizeTip: 'Logical byte size is the total size of file data contained in this directory, i.e. the sum of logical byte sizes of all regular files.',
     physicalSizeTip: 'Summarized storage size used to store the data. Includes only the sizes reported by online providers with enabled directory size statistics.',
   },

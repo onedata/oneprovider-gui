@@ -23,7 +23,7 @@
         <ul class="details-property-list">
           <li class="property-row property-contains">
             <span class="property-label">
-              {{tt this "currentSize.containsLabel"}}:
+              {{tt this "currentSize.fileCounters.containsLabel"}}:
             </span>
             <span class="property-value">
               {{stringifiedLatestElementsCount}}
@@ -34,7 +34,7 @@
           </li>
           <li class="property-row property-logical-size">
             <span class="property-label">
-              {{tt this "currentSize.logicalSizeLabel"}}:
+              {{tt this "currentSize.fileCounters.logicalSizeLabel"}}:
             </span>
             <span class="property-value">
               {{bytes-to-string latestDirSizeStatsValueRanges.minLogicalSize}}
@@ -46,7 +46,7 @@
               {{/if}}
               {{#if logicalSizeExtraInfo}}
                 <span class="extra-info">
-                  ({{logicalSizeExtraInfo}} B)
+                  ({{logicalSizeExtraInfo}}&nbsp;B)
                 </span>
               {{/if}}
               {{one-label-tip title=(tt this "currentSize.logicalSizeTip")}}
@@ -54,12 +54,12 @@
           </li>
           <li class="property-row property-physical-size">
             <span class="property-label">
-              {{tt this "currentSize.physicalSizeLabel"}}:
+              {{tt this "currentSize.fileCounters.physicalSizeLabel"}}:
             </span>
             <span class="property-value">
               {{bytes-to-string physicalSize}}
               {{#if physicalSizeExtraInfo}}
-                <span class="extra-info">({{physicalSizeExtraInfo}} B)</span>
+                <span class="extra-info">({{physicalSizeExtraInfo}}&nbsp;B)</span>
               {{/if}}
               {{one-label-tip title=(tt this "currentSize.physicalSizeTip")}}
             </span>

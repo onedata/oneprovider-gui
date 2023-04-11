@@ -24,6 +24,7 @@ import { formatNumber } from 'onedata-gui-common/helpers/format-number';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { htmlSafe } from '@ember/string';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { or, raw } from 'ember-awesome-macros';
 
 const mixins = [
   I18n,
@@ -532,24 +533,33 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<Array<DirCurrentSizeStatsResultForProvider>>}
    */
-  providersWithStats: computed('latestDirSizeStatsValues', function providersWithStats() {
-    return Object.values(this.latestDirSizeStatsValues).filter(dirStats =>
-      dirStats.type === 'result'
-    );
-  }),
+  availableDirSizeStatsValues: computed(
+    'latestDirSizeStatsValues',
+    function availableDirSizeStatsValues() {
+      return Object.values(this.latestDirSizeStatsValues).filter(dirStats =>
+        dirStats.type === 'result'
+      );
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  providersWithStatsCount: or('availableDirSizeStatsValues.length', raw(0)),
 
   /**
    * @type {ComputedProperty<string>}
    */
   currentSizeExtraInfo: computed(
+    'latestDirSizeStatsValues',
     'providersCount',
-    'providersWithStats.length',
+    'providersWithStatsCount',
     function currentSizeExtraInfo() {
       if (!this.latestDirSizeStatsValues) {
         return '';
       } else {
         return this.t('currentSize.currentSizeOnProvidersCount', {
-          providersWithStatsCount: this.providersWithStats.length,
+          providersWithStatsCount: this.providersWithStatsCount,
           providersCount: this.providersCount,
         });
       }
@@ -561,9 +571,9 @@ export default Component.extend(...mixins, {
    */
   classProvidersCount: computed(
     'providersCount',
-    'providersWithStats.length',
+    'providersWithStatsCount',
     function classProvidersCount() {
-      if (this.providersWithStats.length !== this.providersCount) {
+      if (this.providersWithStatsCount !== this.providersCount) {
         return 'providers-count-warning';
       } else {
         return 'providers-count';
@@ -577,27 +587,29 @@ export default Component.extend(...mixins, {
   isHeaderWarningIconVisible: computed(
     'latestDirSizeStatsValues',
     'providersCount',
-    'providersWithStats',
+    'providersWithStatsCount',
     function isHeaderWarningIconVisible() {
       if (!this.latestDirSizeStatsValues) {
         return false;
       } else {
-        return this.providersWithStats.length !== this.providersCount;
+        return this.providersWithStatsCount !== this.providersCount;
       }
     }
   ),
 
   latestDirSizeStatsValueRanges: computed(
-    'providersWithStats',
+    'availableDirSizeStatsValues',
     function latestDirSizeStatsValueRanges() {
 
-      const logicalSizeArray = this.providersWithStats.map(
+      const logicalSizeArray = this.availableDirSizeStatsValues.map(
         dirStats => dirStats.logicalSize
       );
-      const filesCountArray = this.providersWithStats.map(
+      const filesCountArray = this.availableDirSizeStatsValues.map(
         dirStats => dirStats.regFileAndLinkCount
       );
-      const dirsCountArray = this.providersWithStats.map(dirStats => dirStats.dirCount);
+      const dirsCountArray = this.availableDirSizeStatsValues.map(
+        dirStats => dirStats.dirCount
+      );
 
       return {
         minLogicalSize: Math.min(...logicalSizeArray),
@@ -620,24 +632,24 @@ export default Component.extend(...mixins, {
       const maxFilesCount = this.latestDirSizeStatsValueRanges.maxFilesCount;
       const minDirsCount = this.latestDirSizeStatsValueRanges.minDirsCount;
       const maxDirsCount = this.latestDirSizeStatsValueRanges.maxDirsCount;
-      let fileCount = minFilesCount;
-      let dirCount = minDirsCount;
+      let fileCount = formatNumber(minFilesCount);
+      let dirCount = formatNumber(minDirsCount);
 
       if (minFilesCount !== maxFilesCount) {
-        fileCount += ' – ' + maxFilesCount;
+        fileCount += ' – ' + formatNumber(maxFilesCount);
       }
       if (minDirsCount !== maxDirsCount) {
-        dirCount += ' – ' + maxDirsCount;
+        dirCount += ' – ' + formatNumber(maxDirsCount);
       }
 
       const filesNounVer = maxFilesCount === 1 ? 'singular' : 'plural';
       const dirNounVer = maxDirsCount === 1 ? 'singular' : 'plural';
 
-      return this.t('currentSize.elementsCount.template', {
+      return this.t('currentSize.fileCounters.elementsCount.template', {
         fileCount,
         dirCount,
-        fileNoun: this.t(`currentSize.elementsCount.file.${filesNounVer}`),
-        dirNoun: this.t(`currentSize.elementsCount.dir.${dirNounVer}`),
+        fileNoun: this.t(`currentSize.fileCounters.elementsCount.file.${filesNounVer}`),
+        dirNoun: this.t(`currentSize.fileCounters.elementsCount.dir.${dirNounVer}`),
       });
     }
   ),
@@ -653,17 +665,17 @@ export default Component.extend(...mixins, {
       const minDirsCount = this.latestDirSizeStatsValueRanges.minDirsCount;
       const maxDirsCount = this.latestDirSizeStatsValueRanges.maxDirsCount;
 
-      let totalCount = minFilesCount + minDirsCount;
+      let totalCount = formatNumber(minFilesCount + minDirsCount);
 
       if ((minFilesCount !== maxFilesCount) || (minDirsCount !== maxDirsCount)) {
         const maxTotalCount = maxFilesCount + maxDirsCount;
-        totalCount += ' – ' + maxTotalCount;
+        totalCount += ' – ' + formatNumber(maxTotalCount);
       }
 
       const elementNounVer = (maxFilesCount + maxDirsCount) === 1 ? 'singular' : 'plural';
-      return this.t('currentSize.elementsCount.templateExtraInfo', {
+      return this.t('currentSize.fileCounters.elementsCount.templateExtraInfo', {
         totalCount,
-        elementNoun: this.t(`currentSize.elementsCount.element.${elementNounVer}`),
+        elementNoun: this.t(`currentSize.fileCounters.elementsCount.element.${elementNounVer}`),
       });
     }
   ),
@@ -672,7 +684,7 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<string>}
    */
   logicalSizeExtraInfo: computed(
-    'latestDirSizeStatsValueRanges.{minLogicalSize,maxLogicalSize}',
+    'latestDirSizeStatsValueRanges',
     function logicalSizeExtraInfo() {
       const minLogicalSize = this.latestDirSizeStatsValueRanges.minLogicalSize;
       const maxLogicalSize = this.latestDirSizeStatsValueRanges.maxLogicalSize;

@@ -10,6 +10,7 @@ import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { formatNumber } from 'onedata-gui-common/helpers/format-number';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -34,17 +35,17 @@ export default Component.extend(I18n, {
   stringifiedLatestElementsCount: computed(
     'sizeStats.{regFileAndLinkCount,dirCount}',
     function stringifiedLatestElementsCount() {
-      const fileCount = this.sizeStats.regFileAndLinkCount;
-      const dirCount = this.sizeStats.dirCount;
+      const fileCount = formatNumber(this.sizeStats.regFileAndLinkCount);
+      const dirCount = formatNumber(this.sizeStats.dirCount);
 
       const filesNounVer = fileCount === 1 ? 'singular' : 'plural';
       const dirNounVer = dirCount === 1 ? 'singular' : 'plural';
 
-      return this.t('elementsCount.template', {
+      return this.t('fileCounters.elementsCount.template', {
         fileCount,
         dirCount,
-        fileNoun: this.t(`elementsCount.file.${filesNounVer}`),
-        dirNoun: this.t(`elementsCount.dir.${dirNounVer}`),
+        fileNoun: this.t(`fileCounters.elementsCount.file.${filesNounVer}`),
+        dirNoun: this.t(`fileCounters.elementsCount.dir.${dirNounVer}`),
       });
     }
   ),
