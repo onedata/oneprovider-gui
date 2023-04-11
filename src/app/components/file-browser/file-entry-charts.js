@@ -20,6 +20,7 @@ import {
   dirSizeStatsTimeSeriesNameGenerators as timeSeriesNameGenerators,
 } from 'oneprovider-gui/models/file';
 import { hashSettled, hash as hashFulfilled, all as allFulfilled } from 'rsvp';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const mixins = [
   I18n,
@@ -756,12 +757,13 @@ export default Component.extend(...mixins, {
    */
   async fetchLatestDirSizeStatsValues() {
     try {
-      this.set('dirStatsNotReady', false);
-      return await this.fileManager.getDirCurrentSizeStats(this.fileId);
+      const result = await this.fileManager.getDirCurrentSizeStats(this.fileId);
+      safeExec(this, () => this.set('dirStatsNotReady', false));
+      return result;
     } catch (error) {
-      if (error.id === 'dirStatsNotReady') {
-        this.set('dirStatsNotReady', true);
-      } else {
+      const dirStatsNotReady = error?.id === 'dirStatsNotReady';
+      safeExec(this, () => this.set('dirStatsNotReady', dirStatsNotReady));
+      if (!dirStatsNotReady) {
         throw error;
       }
     }
