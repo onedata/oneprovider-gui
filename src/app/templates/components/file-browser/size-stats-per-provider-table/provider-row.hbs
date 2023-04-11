@@ -7,7 +7,7 @@
     {{else}}
       <div>
         <span class="contains-label">
-          {{tt this "containsLabel"}}:
+          {{tt this "fileCounters.containsLabel"}}:
         </span>
         <span class="contains-value">
           {{stringifiedLatestElementsCount}}
@@ -15,7 +15,7 @@
       </div>
       <div>
         <span class="logical-size-label">
-          {{tt this "logicalSizeLabel"}}:
+          {{tt this "fileCounters.logicalSizeLabel"}}:
         </span>
         <span class="logical-size-value">
           {{bytes-to-string sizeStats.logicalSize}}
@@ -28,7 +28,7 @@
       </div>
       <div>
         <span class="physical-size-label">
-          {{tt this "physicalSizeLabel"}}:
+          {{tt this "fileCounters.physicalSizeLabel"}}:
         </span>
         <span class="physical-size-value">
           {{bytes-to-string sizeStats.physicalSize}}
