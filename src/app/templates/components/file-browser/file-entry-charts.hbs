@@ -1,4 +1,4 @@
-{{#if (eq dirStatsServiceState.status "initializing")}}
+{{#if (or (eq dirStatsServiceState.status "initializing") dirStatsNotReady)}}
   <div class="no-statistics">
     <div class="no-statistics-message">
       {{tt this "noStatistics"}}

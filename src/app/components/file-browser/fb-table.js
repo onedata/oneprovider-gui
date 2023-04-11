@@ -31,6 +31,7 @@ import { isEmpty } from '@ember/utils';
 import sleep from 'onedata-gui-common/utils/sleep';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 const defaultIsItemDisabled = () => false;
 
@@ -578,13 +579,9 @@ export default Component.extend(I18n, {
    */
   sourceArrayLengthObserver: observer(
     'filesArray.sourceArray.length',
-    function sourceArrayLengthObserver() {
-      scheduleOnce('afterRender', () => {
-        const listWatcher = this.get('listWatcher');
-        if (listWatcher) {
-          listWatcher.scrollHandler();
-        }
-      });
+    async function sourceArrayLengthObserver() {
+      await waitForRender();
+      this.listWatcher?.scrollHandler();
     }
   ),
 

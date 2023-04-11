@@ -23,6 +23,7 @@ import { hashSettled, hash as hashFulfilled, all as allFulfilled } from 'rsvp';
 import { formatNumber } from 'onedata-gui-common/helpers/format-number';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { htmlSafe } from '@ember/string';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const mixins = [
   I18n,
@@ -95,6 +96,11 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<Boolean>}
    */
   areSizeStatsExpanded: false,
+
+  /**
+   * @type {Boolean}
+   */
+  dirStatsNotReady: false,
 
   /**
    * @type {ComputedProperty<string>}
@@ -860,7 +866,17 @@ export default Component.extend(...mixins, {
    * @returns {Promise<DirCurrentSizeStats>}
    */
   async fetchLatestDirSizeStatsValues() {
-    return this.fileManager.getDirCurrentSizeStats(this.fileId);
+    try {
+      const result = await this.fileManager.getDirCurrentSizeStats(this.fileId);
+      safeExec(this, () => this.set('dirStatsNotReady', false));
+      return result;
+    } catch (error) {
+      const dirStatsNotReady = error?.id === 'dirStatsNotReady';
+      safeExec(this, () => this.set('dirStatsNotReady', dirStatsNotReady));
+      if (!dirStatsNotReady) {
+        throw error;
+      }
+    }
   },
 
   actions: {
