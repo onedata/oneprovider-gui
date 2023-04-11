@@ -21,7 +21,6 @@ import {
 } from 'oneprovider-gui/models/file';
 import { hashSettled, hash as hashFulfilled, all as allFulfilled } from 'rsvp';
 import { formatNumber } from 'onedata-gui-common/helpers/format-number';
-import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { htmlSafe } from '@ember/string';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { or, raw } from 'ember-awesome-macros';
@@ -87,11 +86,6 @@ export default Component.extend(...mixins, {
    * @type {Looper}
    */
   latestDirSizeStatsValuesUpdater: undefined,
-
-  /**
-   * @type {DirCurrentSizeStats}
-   */
-  latestDirSizeStatsValues: computedLastProxyContent('latestDirSizeStatsValuesProxy'),
 
   /**
    * @type {ComputedProperty<Boolean>}

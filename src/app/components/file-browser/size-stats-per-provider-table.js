@@ -12,6 +12,7 @@ import { inject as service } from '@ember/service';
 import { array, promise } from 'ember-awesome-macros';
 import { all as allFulfilled } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 
 export default Component.extend(I18n, {
   classNames: ['size-stats-per-provider-table'],
@@ -49,8 +50,15 @@ export default Component.extend(I18n, {
     }
   )),
 
+  /**
+   * @type {ComputedProperty<Array<DirCurrentSizeStatsForProvider & { provider: Models.Provider }>>}
+   */
+  dirSizeStatsValuesWithProvider: computedLastProxyContent(
+    'dirSizeStatsValuesWithProviderProxy'
+  ),
+
   sortedDirSizeStatsValues: array.sort(
-    'dirSizeStatsValuesWithProviderProxy.content',
+    'dirSizeStatsValuesWithProvider',
     ['provider.name']
   ),
 });
