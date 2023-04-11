@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10755 Added handling not ready error in dir stats
 * VFS-10749 Fixed showing percent progress in transfers
 * VFS-10697 Fixed invalid state of automation store content editor during initalization
 * VFS-10285 Added info popovers to membership
