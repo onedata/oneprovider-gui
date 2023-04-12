@@ -630,10 +630,10 @@ export default Component.extend(...mixins, {
       let dirCount = formatNumber(minDirsCount);
 
       if (minFilesCount !== maxFilesCount) {
-        fileCount += ' – ' + formatNumber(maxFilesCount);
+        fileCount = htmlSafe(fileCount + ' – ' + formatNumber(maxFilesCount));
       }
       if (minDirsCount !== maxDirsCount) {
-        dirCount += ' – ' + formatNumber(maxDirsCount);
+        dirCount = htmlSafe(dirCount + ' – ' + formatNumber(maxDirsCount));
       }
 
       const filesNounVer = maxFilesCount === 1 ? 'singular' : 'plural';
@@ -663,7 +663,7 @@ export default Component.extend(...mixins, {
 
       if ((minFilesCount !== maxFilesCount) || (minDirsCount !== maxDirsCount)) {
         const maxTotalCount = maxFilesCount + maxDirsCount;
-        totalCount += ' – ' + formatNumber(maxTotalCount);
+        totalCount = htmlSafe(totalCount + ' – ' + formatNumber(maxTotalCount));
       }
 
       const elementNounVer = (maxFilesCount + maxDirsCount) === 1 ? 'singular' : 'plural';
