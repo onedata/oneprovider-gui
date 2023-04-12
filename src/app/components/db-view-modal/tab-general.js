@@ -1,7 +1,6 @@
 /**
  * Content of db-view-modal for showing general info of Database View (Index)
- * 
- * @module components/db-view-modal/tab-function
+ *
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

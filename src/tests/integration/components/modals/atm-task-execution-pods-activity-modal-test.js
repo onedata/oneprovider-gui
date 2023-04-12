@@ -12,7 +12,7 @@ import {
 import sinon from 'sinon';
 import { Promise } from 'rsvp';
 
-describe('Integration | Component | modals/atm task execution pods activity modal', function () {
+describe('Integration | Component | modals/atm-task-execution-pods-activity-modal', function () {
   setupRenderingTest();
 
   beforeEach(function () {

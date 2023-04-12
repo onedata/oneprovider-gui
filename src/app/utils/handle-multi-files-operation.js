@@ -1,8 +1,7 @@
 /**
  * Invoke multiple files operations and then show message if there were at least
  * one error.
- * 
- * @module utils/handle-multi-files-operation
+ *
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

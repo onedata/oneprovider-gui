@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import { get, setProperties } from '@ember/object';
 
-describe('Unit | Utility | file name parser', function () {
+describe('Unit | Utility | file-name-parser', function () {
   it('returns no suffix if there is no conflicingName', function () {
     const file = {
       name: 'hello',

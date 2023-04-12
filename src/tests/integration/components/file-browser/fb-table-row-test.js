@@ -19,7 +19,7 @@ const currentUser = Service.extend({
 
 const FileMock = EmberObject.extend(FileRuntimeProperties);
 
-describe('Integration | Component | file browser/fb table row', function () {
+describe('Integration | Component | file-browser/fb-table-row', function () {
   setupRenderingTest();
 
   beforeEach(function () {
@@ -244,7 +244,7 @@ function testProtectedFlag(flagTypes) {
   const pluralText = flagTypes.length > 1 ? 's' : '';
   const description =
     `renders only ${flagsText} protected icon${pluralText} inside dataset tag group if file has ${fileFlagsText} flag${pluralText}`;
-  it(description, async function (done) {
+  it(description, async function () {
     this.set(
       'file',
       createFile({ effProtectionFlags, effDatasetMembership: 'ancestor' })
@@ -259,13 +259,11 @@ function testProtectedFlag(flagTypes) {
         `.dataset-file-status-tag-group .file-status-protected .file-${type}-protected-icon`
       )).to.have.length(1);
     });
-
-    done();
   });
 }
 
 function testShowsTooltip(elementDescription, text, selector, contextData) {
-  it(`shows tooltip containing "${text}" when hovering ${elementDescription}`, async function (done) {
+  it(`shows tooltip containing "${text}" when hovering ${elementDescription}`, async function () {
     this.setProperties(contextData);
 
     await renderComponent(this);
@@ -275,8 +273,6 @@ function testShowsTooltip(elementDescription, text, selector, contextData) {
     const tooltip = document.querySelectorAll('.tooltip.in');
     expect(tooltip, 'opened tooltip').to.have.length(1);
     expect(tooltip[0]).to.contain.text(text);
-
-    done();
   });
 }
 

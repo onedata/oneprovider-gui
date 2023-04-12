@@ -1,7 +1,6 @@
 /**
  * Tests only if archive-recall component is integrated with modal and modal features.
  *
- * @module tests/integration/components/archive-recall-modal-test
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -37,7 +36,7 @@ const FileManager = Service.extend(Evented, {
 });
 
 // TODO: VFS-8878 speed-up animations of overlay-modals in test environment
-describe('Integration | Component | archive recall modal', function () {
+describe('Integration | Component | archive-recall-modal', function () {
   setupRenderingTest();
 
   beforeEach(function () {

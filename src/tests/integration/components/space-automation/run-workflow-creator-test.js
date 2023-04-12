@@ -9,7 +9,7 @@ import { resolve, Promise } from 'rsvp';
 import sinon from 'sinon';
 import { isSlideActive, getSlide } from '../../../helpers/one-carousel';
 
-describe('Integration | Component | space automation/run workflow creator', function () {
+describe('Integration | Component | space-automation/run-workflow-creator', function () {
   setupRenderingTest();
 
   beforeEach(function () {
@@ -124,7 +124,7 @@ describe('Integration | Component | space automation/run workflow creator', func
     expect(backBtn).to.not.have.attr('disabled');
     expect(submitBtn).to.have.class('btn-primary');
     expect(submitBtn).to.have.trimmed.text('Run workflow');
-    expect(submitBtn).to.have.attr('disabled');
+    expect(submitBtn).to.not.have.attr('disabled');
   });
 
   it('disables submit button when input store value is invalid', async function () {

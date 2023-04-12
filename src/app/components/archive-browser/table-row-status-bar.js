@@ -1,7 +1,6 @@
 /**
  * Implementation of status part of table row part for archive-browser.
  *
- * @module components/archive-browser/table-row-status-bar
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

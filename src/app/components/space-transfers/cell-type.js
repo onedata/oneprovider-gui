@@ -1,7 +1,6 @@
 /**
  * A cell component with type of transfer used by `space-transfers` component.
  *
- * @module components/space-transfers/cell-type
  * @author Jakub Liput
  * @copyright (C) 2018 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

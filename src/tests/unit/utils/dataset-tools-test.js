@@ -4,7 +4,7 @@ import EmberObject, { get } from '@ember/object';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import { A } from '@ember/array';
 
-describe('Unit | Utility | dataset tools', function () {
+describe('Unit | Utility | dataset-tools', function () {
   describe('include hasProtectionFlag computed property util which', function () {
     testHasProtectionFlag('data', false);
     testHasProtectionFlag('data', true);

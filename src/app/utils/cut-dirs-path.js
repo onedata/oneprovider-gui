@@ -1,9 +1,8 @@
 /**
  * Changes root in dirPath array to the passed rootDir by rejecting all dir
- * element from the beginning up to the rootDir. The result will be a shortened 
+ * element from the beginning up to the rootDir. The result will be a shortened
  * version of passed array (without some elements from the beginning).
- * 
- * @module utils/cut-dirs-path
+ *
  * @author Jakub Liput
  * @copyright (C) 2016-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

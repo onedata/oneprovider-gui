@@ -1,7 +1,6 @@
 /**
  * Mock of Onedata Websocket WebSocket API - Graph level service for Oneprovider
  *
- * @module services/mocks/onedata-graph
  * @author Jakub Liput
  * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -352,6 +351,16 @@ const datasetHandlers = {
   archives_details(operation, entityId, { index, limit, offset }) {
     if (operation !== 'get') {
       return messageNotSupported;
+    }
+    if (_.isEmpty(this.mockBackend?.entityRecords)) {
+      return {
+        success: false,
+        error: {
+          id: 'internalServerError',
+          message: 'Mock backend not initialized or not available',
+        },
+        data: {},
+      };
     }
     const childrenArchivesData = this.get('mockBackend.entityRecords.archive')
       .map(arch => archiveRecordToChildData(arch))

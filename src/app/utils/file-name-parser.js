@@ -1,7 +1,6 @@
 /**
  * Splits file name and suffix if there is a file name conflict
  *
- * @module utils/file-name-parser
  * @author Jakub Liput
  * @copyright (C) 2020-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

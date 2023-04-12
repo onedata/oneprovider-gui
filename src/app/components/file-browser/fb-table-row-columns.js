@@ -1,7 +1,6 @@
 /**
  * Columns other than "name" for desktop mode browser
  *
- * @module components/file-browser/fb-table-row-columns
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,8 +1,7 @@
 /**
  * Functions, that allows to convert ACE permissions between number and object
  * representations.
- * 
- * @module utils/acl-permissions-converter
+ *
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -23,7 +22,7 @@ const aclPermissionsMasks = aclSpecificationList.reduce((map, permission) => {
 
 /**
  * Converts number to object representation of ACE permissions.
- * @param {number} permissions 
+ * @param {number} permissions
  * @param {string} context one of `file`, `dir`
  * @returns {Object} mapping: groupName -> { permissionName -> boolean }
  */

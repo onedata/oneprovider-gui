@@ -1,7 +1,6 @@
 /**
  * Information about "share" type of URL for share
  *
- * @module components/share-show/url-info-share
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

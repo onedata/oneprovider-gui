@@ -69,5 +69,4 @@ export default {
         <p><strong>Note</strong>, that symbolic links pointing to files inside the dataset are always preserved, regardless of this setting. Their target paths are reconstructed to point to the corresponding files in the resulting archive.</p>`,
     },
   },
-  latestArchive: '<em>latest</em>',
 };

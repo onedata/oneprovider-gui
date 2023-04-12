@@ -7,6 +7,30 @@ CHANGELOG
 ### Latest changes
 
 * VFS-10126 Using common addons from Marketplace branch
+* VFS-10389 Added dir stats per provider table
+* VFS-10754 Fixed file list crash after jumping to the end and deleting last file
+* VFS-10755 Added handling not ready error in dir stats
+* VFS-10749 Fixed showing percent progress in transfers
+* VFS-10697 Fixed invalid state of automation store content editor during initalization
+* VFS-10285 Added info popovers to membership
+* VFS-9309 Removed usages of `:contains` jQuery selector
+* VFS-8701 Removed ember-one-way-controls
+* VFS-9196 Removed @module jsdoc
+* VFS-10531 Added allowedValues constraint to atm number and atm string
+* VFS-10452 Added integersOnly constraint to atm number
+* VFS-10573 Migrated to a new time series API in directory size stats
+* VFS-10289 Added info popover about group
+* VFS-10377 Added incremental archive toggle lock when there is no last known finished archive
+* VFS-10148 Removed redundant done() from tests
+* VFS-10333 Unified naming of test suites
+* VFS-9688 Removed arrow placement from one-tooltip
+* VFS-10118 Updated commons
+* VFS-10388 Added metadata protection lock when data protection is not enabled
+* VFS-9305 Refactored one-tab-bar to not use jQuery
+* VFS-8987 Fixed Oneprovider circle broadcast animation in Safari
+* VFS-10103 Changed showing clipboard in popovers info
+* VFS-10367 Improved editor of input stores content in workflow execution wizard
+* VFS-10365 Improved editor of automation store default value
 * VFS-9999 Added detailed space details popovers with space information in various views
 * VFS-10486 Removed custom zoom in tests rendering
 * VFS-10339 Added class-based implementation of a chart point

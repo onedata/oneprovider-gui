@@ -3,13 +3,12 @@
  * For example, if we got breadcrumbs: `a > b > c > d > e`,
  * and we invoke function for child `c`, the items will be altered to:
  * `a > b > parent_of_c > c > d > e`.
- * 
+ *
  * This function should be used for incomplete paths, where `b`
  * is not a parent of `c`.
- * 
+ *
  * NOTE: it changes `items` contents.
- * 
- * @module utils/add-ellipsis-breadcrumbs-item
+ *
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

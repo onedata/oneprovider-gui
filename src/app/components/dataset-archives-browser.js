@@ -1,7 +1,6 @@
 /**
  * Container with browser of archives and their filesystem for single dataset.
  *
- * @module components/dataset-archives-browser
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

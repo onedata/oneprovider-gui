@@ -1,7 +1,6 @@
 /**
  * Real implementation of workflow execution data fetcher.
  *
- * @module utils/workflow-visualiser/execution-data-fetcher
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -768,9 +767,10 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     }
 
     const dataset = await this.datasetManager.getDataset(datasetId);
+    const rootFileId = dataset.relationEntityId('rootFile');
     const result = {
       datasetId,
-      rootFileId: guidToCdmiObjectId(dataset.relationEntityId('rootFile')),
+      rootFileId: rootFileId ? guidToCdmiObjectId(rootFileId) : null,
       rootFilePath: get(dataset, 'rootFilePath'),
       rootFileType: convertFromLegacyFileTypeIfNeeded(get(dataset, 'rootFileType')),
     };

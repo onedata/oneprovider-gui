@@ -7,7 +7,7 @@ import filterBreadcrumbsItems from 'oneprovider-gui/utils/filter-breadcrumbs-ite
 import generateBreadcrumbsItems from '../../helpers/generate-breadcrumbs-items';
 import { get } from '@ember/object';
 
-describe('Unit | Utility | filter breadcrumbs items', function () {
+describe('Unit | Utility | filter-breadcrumbs-items', function () {
   it('should return empty array, if there is only one element',
     function () {
       const numberOfFiles = 1;

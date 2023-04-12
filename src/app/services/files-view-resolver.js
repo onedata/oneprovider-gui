@@ -6,7 +6,6 @@
  * URL), so resolve may lead to redirect to another file browser view (eg. trying to open
  * directory placed in some archive should lead to redirect to proper archive browser).
  *
- * @module services/files-view-resolver
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,7 +1,6 @@
 /**
  * Complete view needing layout (eg. modal) for deleting selected archives.
  *
- * @module components/archives-delete
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

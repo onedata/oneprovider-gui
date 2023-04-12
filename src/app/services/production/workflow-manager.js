@@ -1,7 +1,6 @@
 /**
  * Provides backend functions related to workflows and inventories.
  *
- * @module services/workflow-manager
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

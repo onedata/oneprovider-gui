@@ -1,5 +1,4 @@
 /**
- * @module models/acl
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -9,7 +8,7 @@
  * @typedef {Object} Ace
  * @property {string} aceType 'ALLOW' | 'DENY'
  * @property {string} identifier subject id or 'OWNER@' | 'GROUP@' | 'EVERYONE@'
- * @property {number} aceFlags bitwise union of ACE related flags. Description 
+ * @property {number} aceFlags bitwise union of ACE related flags. Description
  *   and definition of possible flags is located in
  *   utils/acl-permissions-specification.
  * @property {number} aceMask union of ACE permissions. Available flags are

@@ -1,4 +1,4 @@
-{{#if (eq dirStatsServiceState.status "initializing")}}
+{{#if (or (eq dirStatsServiceState.status "initializing") dirStatsNotReady)}}
   <div class="no-statistics">
     <div class="no-statistics-message">
       {{tt this "noStatistics"}}
@@ -7,26 +7,46 @@
 {{else}}
   {{#promise-proxy-container proxy=loadingProxy}}
     <div class="current-size-section">
-      <h2 class="current-size-header">{{tt this "currentSize.header"}}</h2>
+      <h2 class="current-size-header">
+        {{tt this "currentSize.header"}}
+        <span class={{concat-classes
+          "extra-info"
+          classProvidersCount
+        }}>({{currentSizeExtraInfo}})</span>
+        {{#if isHeaderWarningIconVisible}}
+          {{#one-icon icon="sign-warning-rounded" class="header-info-warning"}}
+            {{one-tooltip title=(tt this "currentSize.currentSizeTip")}}
+          {{/one-icon}}
+        {{/if}}
+      </h2>
       <p class="latest-dir-stats-values">
         <ul class="details-property-list">
           <li class="property-row property-contains">
             <span class="property-label">
-              {{tt this "currentSize.containsLabel"}}:
+              {{tt this "currentSize.fileCounters.containsLabel"}}:
             </span>
             <span class="property-value">
               {{stringifiedLatestElementsCount}}
+              <span class="extra-info">
+                {{stringifiedLatestElementsCountExtraInfo}}
+              </span>
             </span>
           </li>
           <li class="property-row property-logical-size">
             <span class="property-label">
-              {{tt this "currentSize.logicalSizeLabel"}}:
+              {{tt this "currentSize.fileCounters.logicalSizeLabel"}}:
             </span>
             <span class="property-value">
-              {{bytes-to-string latestDirSizeStatsValues.logicalSize}}
-              {{#if (gte latestDirSizeStatsValues.logicalSize 1024)}}
+              {{bytes-to-string latestDirSizeStatsValueRanges.minLogicalSize}}
+              {{#if (not-eq
+                latestDirSizeStatsValueRanges.minLogicalSize
+                latestDirSizeStatsValueRanges.maxLogicalSize
+              )}}
+                 – {{bytes-to-string latestDirSizeStatsValueRanges.maxLogicalSize}}
+              {{/if}}
+              {{#if logicalSizeExtraInfo}}
                 <span class="extra-info">
-                  ({{latestDirSizeStatsValues.logicalSize}} B)
+                  ({{logicalSizeExtraInfo}}&nbsp;B)
                 </span>
               {{/if}}
               {{one-label-tip title=(tt this "currentSize.logicalSizeTip")}}
@@ -34,12 +54,12 @@
           </li>
           <li class="property-row property-physical-size">
             <span class="property-label">
-              {{tt this "currentSize.physicalSizeLabel"}}:
+              {{tt this "currentSize.fileCounters.physicalSizeLabel"}}:
             </span>
             <span class="property-value">
-              {{bytes-to-string latestDirSizeStatsValues.physicalSize}}
+              {{bytes-to-string physicalSize}}
               {{#if physicalSizeExtraInfo}}
-                <span class="extra-info">{{physicalSizeExtraInfo}}</span>
+                <span class="extra-info">({{physicalSizeExtraInfo}}&nbsp;B)</span>
               {{/if}}
               {{one-label-tip title=(tt this "currentSize.physicalSizeTip")}}
             </span>
@@ -47,6 +67,27 @@
         </ul>
       </p>
     </div>
+    {{#if (gt providersCount 1)}}
+      <div class="size-stats-expand">
+        <a
+          class="toggle-expand"
+          onClick={{action "toggleSizeStats"}}
+        >
+          {{#if (not areSizeStatsExpanded)}}
+            {{tt this "showMoreStats"}}
+            {{one-icon icon="arrow-down"}}
+          {{else}}
+            {{tt this "hideMoreStats"}}
+            {{one-icon icon="arrow-up"}}
+          {{/if}}
+        </a>
+      </div>
+      {{#if areSizeStatsExpanded}}
+        {{file-browser/size-stats-per-provider-table
+          dirSizeStatsValues=latestDirSizeStatsValues
+        }}
+      {{/if}}
+    {{/if}}
     {{one-time-series-charts-section
       class="historical-size-section"
       sectionSpec=dashboardSpec.rootSection

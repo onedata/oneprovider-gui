@@ -3,7 +3,6 @@
  * The path is shortened if its too long to fit into container - to achieve it,
  * this is a block element, so it is recommended to render it in a flex container.
  *
- * @module components/file-path
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

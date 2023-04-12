@@ -2,7 +2,6 @@
  * Wrapper for dataset model that adds API for browser components.
  * A dataset can be treated then as a file-like object.
  *
- * @module utils/browsable-dataset
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

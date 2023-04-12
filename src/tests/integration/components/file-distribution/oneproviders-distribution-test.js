@@ -91,7 +91,7 @@ const oneproviderParis = Object.freeze({
   name: 'paris',
 });
 
-describe('Integration | Component | file distribution modal/oneproviders distribution',
+describe('Integration | Component | file-distribution-modal/oneproviders-distribution',
   function () {
     setupRenderingTest();
 

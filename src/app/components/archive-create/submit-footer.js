@@ -1,7 +1,6 @@
 /**
  * A part of archive properties editor that allows to take submit actions
  *
- * @module components/archive-create/submit-footer
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

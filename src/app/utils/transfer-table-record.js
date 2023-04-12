@@ -1,7 +1,6 @@
 /**
  * Transfer record wrapper for transfers table/list item
  *
- * @module utils/transfer-table-record
  * @author Jakub Liput
  * @copyright (C) 2018-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -47,6 +46,7 @@ const statusGroups = {
 
 export default EmberObject.extend(OwnerInjector, {
   fileManager: service(),
+  providerManager: service(),
 
   /**
    * @virtual
@@ -169,13 +169,20 @@ export default EmberObject.extend(OwnerInjector, {
         return;
       }
 
-      const dirSizeStats = await this.fileManager.getDirCurrentSizeStats(dataSourceId);
-      if (dirSizeStats) {
-        let filesToProcess = dirSizeStats.regFileAndLinkCount;
-        if (type === 'migration') {
-          filesToProcess *= 2;
+      try {
+        const dirSizeStats = await this.fileManager.getDirCurrentSizeStats(dataSourceId);
+        const currentProviderId = this.providerManager.getCurrentProviderId();
+        const currentProviderDirSizeStats = dirSizeStats?.[currentProviderId];
+        if (currentProviderDirSizeStats?.type === 'result') {
+          let filesToProcess = currentProviderDirSizeStats.regFileAndLinkCount;
+          if (type === 'migration') {
+            filesToProcess *= 2;
+          }
+          this.set('filesToProcess', filesToProcess);
         }
-        this.set('filesToProcess', filesToProcess);
+      } catch (error) {
+        // Logging on "warning" level as lack of stats is a rather minor issue
+        console.warn('Could not load dir size stats due to error', error);
       }
     }
   ),

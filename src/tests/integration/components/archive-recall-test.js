@@ -15,7 +15,7 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { get } from '@ember/object';
 import { generateDirEntityId } from 'oneprovider-gui/services/mock-backend';
 
-describe('Integration | Component | archive recall (internal)', function () {
+describe('Integration | Component | archive-recall (internal)', function () {
   setupRenderingTest();
 
   beforeEach(async function () {

@@ -1,7 +1,6 @@
 /**
  * Shows charts with size statistics for directory.
  *
- * @module components/file-browser/file-entry-charts
  * @author Agnieszka Warchoł
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -11,7 +10,6 @@ import Component from '@ember/component';
 import { get, computed, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { all as allFulfilled } from 'rsvp';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
@@ -21,6 +19,11 @@ import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils
 import {
   dirSizeStatsTimeSeriesNameGenerators as timeSeriesNameGenerators,
 } from 'oneprovider-gui/models/file';
+import { hashSettled, hash as hashFulfilled, all as allFulfilled } from 'rsvp';
+import { formatNumber } from 'onedata-gui-common/helpers/format-number';
+import { htmlSafe } from '@ember/string';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { or, raw } from 'ember-awesome-macros';
 
 const mixins = [
   I18n,
@@ -85,6 +88,23 @@ export default Component.extend(...mixins, {
   latestDirSizeStatsValuesUpdater: undefined,
 
   /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  areSizeStatsExpanded: false,
+
+  /**
+   * @type {Boolean}
+   */
+  dirStatsNotReady: false,
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  currentProviderId: computed(function currentProviderId() {
+    return this.providerManager.getCurrentProviderId();
+  }),
+
+  /**
    * @type {ComputedProperty<PromiseObject<TimeSeriesCollectionSchema>>}
    */
   timeSeriesCollectionSchemaProxy: promise.object(computed(
@@ -94,22 +114,11 @@ export default Component.extend(...mixins, {
   )),
 
   /**
-   * @type {ComputedProperty<PromiseObject<number>>}
-   */
-  providersCountProxy: promise.object(computed(
-    'space',
-    async function providersCountProxy() {
-      return (await get(this.space, 'providerList')).hasMany('list').ids().length;
-    }
-  )),
-
-  /**
    * @type {ComputedProperty<PromiseObject>}
    */
   loadingProxy: promise.object(promise.all(
     'timeSeriesCollectionSchemaProxy',
     'latestDirSizeStatsValuesProxy',
-    'providersCountProxy'
   )),
 
   /**
@@ -158,6 +167,7 @@ export default Component.extend(...mixins, {
   fileCountChartSpec: computed(
     'seriesColorsConfig',
     'metricNamesForTimeSeries',
+    'currentProviderId',
     function fileCountChartSpec() {
       return {
         title: {
@@ -200,6 +210,7 @@ export default Component.extend(...mixins, {
                       data: {
                         externalSourceName: 'chartData',
                         externalSourceParameters: {
+                          collectionRef: this.currentProviderId,
                           timeSeriesNameGenerator: timeSeriesNameGenerators.dirCount,
                           timeSeriesName: timeSeriesNameGenerators.dirCount,
                           metricNames: this.metricNamesForTimeSeries
@@ -251,6 +262,7 @@ export default Component.extend(...mixins, {
                       data: {
                         externalSourceName: 'chartData',
                         externalSourceParameters: {
+                          collectionRef: this.currentProviderId,
                           timeSeriesNameGenerator: timeSeriesNameGenerators
                             .regFileAndLinkCount,
                           timeSeriesName: timeSeriesNameGenerators
@@ -295,6 +307,7 @@ export default Component.extend(...mixins, {
   sizeChartSpec: computed(
     'seriesColorsConfig',
     'metricNamesForTimeSeries',
+    'currentProviderId',
     function sizeChartSpec() {
       return {
         title: {
@@ -369,6 +382,7 @@ export default Component.extend(...mixins, {
                       data: {
                         externalSourceName: 'chartData',
                         externalSourceParameters: {
+                          collectionRef: this.currentProviderId,
                           timeSeriesNameGenerator: timeSeriesNameGenerators.totalSize,
                           timeSeriesName: timeSeriesNameGenerators.totalSize,
                           metricNames: this.metricNamesForTimeSeries
@@ -504,26 +518,132 @@ export default Component.extend(...mixins, {
   }),
 
   /**
+   * @type {ComputedProperty<number>}
+   */
+  providersCount: computed('latestDirSizeStatsValues', function providersCount() {
+    return Object.keys(this.latestDirSizeStatsValues).length;
+  }),
+
+  /**
+   * @type {ComputedProperty<Array<DirCurrentSizeStatsResultForProvider>>}
+   */
+  availableDirSizeStatsValues: computed(
+    'latestDirSizeStatsValues',
+    function availableDirSizeStatsValues() {
+      return Object.values(this.latestDirSizeStatsValues).filter(dirStats =>
+        dirStats.type === 'result'
+      );
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  providersWithStatsCount: or('availableDirSizeStatsValues.length', raw(0)),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  currentSizeExtraInfo: computed(
+    'latestDirSizeStatsValues',
+    'providersCount',
+    'providersWithStatsCount',
+    function currentSizeExtraInfo() {
+      if (!this.latestDirSizeStatsValues) {
+        return '';
+      } else {
+        return this.t('currentSize.currentSizeOnProvidersCount', {
+          providersWithStatsCount: this.providersWithStatsCount,
+          providersCount: this.providersCount,
+        });
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  classProvidersCount: computed(
+    'providersCount',
+    'providersWithStatsCount',
+    function classProvidersCount() {
+      if (this.providersWithStatsCount !== this.providersCount) {
+        return 'providers-count-warning';
+      } else {
+        return 'providers-count';
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isHeaderWarningIconVisible: computed(
+    'latestDirSizeStatsValues',
+    'providersCount',
+    'providersWithStatsCount',
+    function isHeaderWarningIconVisible() {
+      if (!this.latestDirSizeStatsValues) {
+        return false;
+      } else {
+        return this.providersWithStatsCount !== this.providersCount;
+      }
+    }
+  ),
+
+  latestDirSizeStatsValueRanges: computed(
+    'availableDirSizeStatsValues',
+    function latestDirSizeStatsValueRanges() {
+
+      const logicalSizeArray = this.availableDirSizeStatsValues.map(
+        dirStats => dirStats.logicalSize
+      );
+      const filesCountArray = this.availableDirSizeStatsValues.map(
+        dirStats => dirStats.regFileAndLinkCount
+      );
+      const dirsCountArray = this.availableDirSizeStatsValues.map(
+        dirStats => dirStats.dirCount
+      );
+
+      return {
+        minLogicalSize: Math.min(...logicalSizeArray),
+        maxLogicalSize: Math.max(...logicalSizeArray),
+        minFilesCount: Math.min(...filesCountArray),
+        maxFilesCount: Math.max(...filesCountArray),
+        minDirsCount: Math.min(...dirsCountArray),
+        maxDirsCount: Math.max(...dirsCountArray),
+      };
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<string>}
    */
   stringifiedLatestElementsCount: computed(
-    'latestDirSizeStatsValues.{regFileAndLinkCount,dirCount}',
+    'latestDirSizeStatsValueRanges',
     function stringifiedLatestElementsCount() {
-      const fileCount = this.latestDirSizeStatsValues.regFileAndLinkCount ?? 0;
-      const dirCount = this.latestDirSizeStatsValues.dirCount ?? 0;
-      const totalCount = fileCount + dirCount;
+      const minFilesCount = this.latestDirSizeStatsValueRanges.minFilesCount;
+      const maxFilesCount = this.latestDirSizeStatsValueRanges.maxFilesCount;
+      const minDirsCount = this.latestDirSizeStatsValueRanges.minDirsCount;
+      const maxDirsCount = this.latestDirSizeStatsValueRanges.maxDirsCount;
+      let fileCount = formatNumber(minFilesCount);
+      let dirCount = formatNumber(minDirsCount);
 
-      const filesNounVer = fileCount === 1 ? 'singular' : 'plural';
-      const dirNounVer = dirCount === 1 ? 'singular' : 'plural';
-      const elementNounVer = totalCount === 1 ? 'singular' : 'plural';
+      if (minFilesCount !== maxFilesCount) {
+        fileCount = htmlSafe(fileCount + ' – ' + formatNumber(maxFilesCount));
+      }
+      if (minDirsCount !== maxDirsCount) {
+        dirCount = htmlSafe(dirCount + ' – ' + formatNumber(maxDirsCount));
+      }
 
-      return this.t('currentSize.elementsCount.template', {
+      const filesNounVer = maxFilesCount === 1 ? 'singular' : 'plural';
+      const dirNounVer = maxDirsCount === 1 ? 'singular' : 'plural';
+
+      return this.t('currentSize.fileCounters.elementsCount.template', {
         fileCount,
         dirCount,
-        totalCount,
-        fileNoun: this.t(`currentSize.elementsCount.file.${filesNounVer}`),
-        dirNoun: this.t(`currentSize.elementsCount.dir.${dirNounVer}`),
-        elementNoun: this.t(`currentSize.elementsCount.element.${elementNounVer}`),
+        fileNoun: this.t(`currentSize.fileCounters.elementsCount.file.${filesNounVer}`),
+        dirNoun: this.t(`currentSize.fileCounters.elementsCount.dir.${dirNounVer}`),
       });
     }
   ),
@@ -531,45 +651,69 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<string>}
    */
-  physicalSizeOnProvidersDescription: computed(
-    'latestDirSizeStatsValues.physicalSizePerStorage',
-    'providersCountProxy.content',
-    function physicalSizeOnProvidersDescription() {
-      const providersCount = this.get('providersCountProxy.content');
-      if (!(providersCount > 1) || !this.latestDirSizeStatsValues) {
+  stringifiedLatestElementsCountExtraInfo: computed(
+    'latestDirSizeStatsValueRanges',
+    function stringifiedLatestElementsCount() {
+      const minFilesCount = this.latestDirSizeStatsValueRanges.minFilesCount;
+      const maxFilesCount = this.latestDirSizeStatsValueRanges.maxFilesCount;
+      const minDirsCount = this.latestDirSizeStatsValueRanges.minDirsCount;
+      const maxDirsCount = this.latestDirSizeStatsValueRanges.maxDirsCount;
+
+      let totalCount = formatNumber(minFilesCount + minDirsCount);
+
+      if ((minFilesCount !== maxFilesCount) || (minDirsCount !== maxDirsCount)) {
+        const maxTotalCount = maxFilesCount + maxDirsCount;
+        totalCount = htmlSafe(totalCount + ' – ' + formatNumber(maxTotalCount));
+      }
+
+      const elementNounVer = (maxFilesCount + maxDirsCount) === 1 ? 'singular' : 'plural';
+      return this.t('currentSize.fileCounters.elementsCount.templateExtraInfo', {
+        totalCount,
+        elementNoun: this.t(`currentSize.fileCounters.elementsCount.element.${elementNounVer}`),
+      });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  logicalSizeExtraInfo: computed(
+    'latestDirSizeStatsValueRanges',
+    function logicalSizeExtraInfo() {
+      const minLogicalSize = this.latestDirSizeStatsValueRanges.minLogicalSize;
+      const maxLogicalSize = this.latestDirSizeStatsValueRanges.maxLogicalSize;
+
+      if (maxLogicalSize >= 1024) {
+        let logicalSize = formatNumber(minLogicalSize);
+        if (minLogicalSize !== maxLogicalSize) {
+          logicalSize += ' – ' + formatNumber(maxLogicalSize);
+        }
+        return htmlSafe(logicalSize);
+      } else {
         return '';
       }
-
-      const providersWithStatsCount = Object.keys(
-        this.latestDirSizeStatsValues?.physicalSizePerStorage || {}
-      ).length;
-
-      return this.t('currentSize.physicalSizeOnProvidersCount', {
-        providersWithStatsCount,
-        providersCount,
-      });
     }
   ),
 
   /**
+   * @type {ComputedProperty<number>}
+   */
+  physicalSize: computed('latestDirSizeStatsValues', function physicalSize() {
+    return Object.values(this.latestDirSizeStatsValues || {}).reduce((acc, stats) => {
+      return acc + (stats.physicalSize ?? 0);
+    }, 0);
+  }),
+
+  /**
    * @type {ComputedProperty<string>}
    */
-  physicalSizeExtraInfo: computed(
-    'latestDirSizeStatsValues.physicalSize',
-    'physicalSizeOnProvidersDescription',
-    function physicalSizeExtraInfo() {
-      const extraInfo = [];
-
-      if (this.latestDirSizeStatsValues.physicalSize >= 1024) {
-        extraInfo.push(`(${this.latestDirSizeStatsValues.physicalSize} B)`);
-      }
-      if (this.physicalSizeOnProvidersDescription) {
-        extraInfo.push(this.physicalSizeOnProvidersDescription);
-      }
-
-      return extraInfo.join(' ');
+  physicalSizeExtraInfo: computed('physicalSize', function physicalSizeExtraInfo() {
+    if (this.physicalSize >= 1024) {
+      return formatNumber(this.physicalSize);
+    } else {
+      return '';
     }
-  ),
+  }),
 
   /**
    * @override
@@ -618,55 +762,61 @@ export default Component.extend(...mixins, {
     metricNames,
   }) {
     const spaceId = get(this.space, 'entityId');
-    const timeSeriesNames = Object.keys(await this.getTimeSeriesCollectionLayout());
-    const dynamicSeries = await allFulfilled(
-      timeSeriesNames
-      .filter((timeSeriesName) => timeSeriesName.startsWith(timeSeriesNameGenerator))
-      .map(async (timeSeriesName) => {
-        const storageId = timeSeriesName.replace(timeSeriesNameGenerator, '');
-        let storageName = '';
-        let providerName = '';
-        let groupId;
-        try {
-          const storage = await this.storageManager.getStorageById(storageId, {
-            throughSpaceId: spaceId,
-            backgroundReload: false,
-          });
-          storageName = get(storage, 'name');
-          // Fetching provider record instead of just taking `entityId` from
-          // model relation to ensure, that provider is fetchable (and so
-          // calculated group_id will exist).
-          const provider = await get(storage, 'provider');
-          groupId = `provider_${get(provider, 'entityId')}`;
-          providerName = get(provider, 'name');
-        } catch (error) {
-          console.error(
-            `component:file-browser/file-entry-charts#fetchDynamicSeriesConfigs: cannot load storage with ID "${storageId}"`,
-            error
-          );
-          groupId = 'provider_unknown';
-        }
-        return {
-          id: storageId,
-          name: storageName || String(this.t('historicalSize.unknownStorage', {
-            id: storageId.slice(0, 6),
-          })),
-          groupId,
-          color: this.colorGenerator.generateColorForKey(storageId),
-          pointsSource: {
-            externalSourceName: 'chartData',
-            externalSourceParameters: {
-              timeSeriesNameGenerator,
-              timeSeriesName,
-              metricNames,
+    const dynamicSeriesPromises = [];
+    const collectionLayouts = await this.getTimeSeriesCollectionLayouts();
+    const providerIds = Object.keys(collectionLayouts);
+    const providers = await hashFulfilled(providerIds.reduce((acc, providerId) => {
+      acc[providerId] = this.providerManager.getProviderById(providerId, {
+        throughSpaceId: spaceId,
+      });
+      return acc;
+    }, {}));
+    providerIds.forEach((providerId) => {
+      const provider = providers[providerId];
+      const providerCollectionLayout = collectionLayouts[providerId];
+      const dynamicTimeSeriesNames = Object.keys(providerCollectionLayout)
+        .filter((timeSeriesName) => timeSeriesName.startsWith(timeSeriesNameGenerator));
+      dynamicTimeSeriesNames.forEach((timeSeriesName) => {
+        dynamicSeriesPromises.push((async () => {
+          const storageId = timeSeriesName.replace(timeSeriesNameGenerator, '');
+          let storageName = '';
+          const providerName = get(provider, 'name');
+          try {
+            const storage = await this.storageManager.getStorageById(storageId, {
+              throughSpaceId: spaceId,
+              backgroundReload: false,
+            });
+            storageName = get(storage, 'name');
+          } catch (error) {
+            console.error(
+              `component:file-browser/file-entry-charts#fetchDynamicSeriesConfigs: cannot load storage with ID "${storageId}"`,
+              error
+            );
+          }
+          return {
+            id: storageId,
+            name: storageName || String(this.t('historicalSize.unknownStorage', {
+              id: storageId.slice(0, 6),
+            })),
+            groupId: `provider_${providerId}`,
+            color: this.colorGenerator.generateColorForKey(storageId),
+            pointsSource: {
+              externalSourceName: 'chartData',
+              externalSourceParameters: {
+                collectionRef: providerId,
+                timeSeriesNameGenerator,
+                timeSeriesName,
+                metricNames,
+              },
             },
-          },
-          // Preparing sorting key in a way, that will move unknown providers at the end
-          // of series list and unknown storages at the end of provider series.
-          sortKey: `${providerName ? '\t' + providerName : '\n'}${storageName ? '\t' + storageName : '\n'}`,
-        };
-      })
-    );
+            // Preparing sorting key in a way, that will move unknown storages
+            // at the end of provider series.
+            sortKey: `${providerName}${storageName ? '\t' + storageName : '\n'}`,
+          };
+        })());
+      });
+    });
+    const dynamicSeries = await allFulfilled(dynamicSeriesPromises);
     return dynamicSeries.sortBy('sortKey');
   },
 
@@ -687,25 +837,34 @@ export default Component.extend(...mixins, {
         showSum: true,
       };
     });
-    const allProvidersGroups = [...knownProvidersGroups, {
-      id: 'provider_unknown',
-      name: this.t('historicalSize.unknownProvider'),
-      showSum: true,
-    }];
 
     // There is only one dynamic series group - total physical size. So we don't
     // have to define all its properties here. Instead, these are placed in
     // chart configuration.
     return [{
-      subgroups: allProvidersGroups,
+      subgroups: knownProvidersGroups,
     }];
   },
 
   /**
-   * @returns {Promise<TimeSeriesCollectionLayout>}
+   * @returns {Promise<Object<string, TimeSeriesCollectionLayout>>}
+   *   map providerId -> TS collection layout for that provider
    */
-  async getTimeSeriesCollectionLayout() {
-    return this.fileManager.getDirSizeStatsTimeSeriesCollectionLayout(this.fileId);
+  async getTimeSeriesCollectionLayouts() {
+    const providerList = await get(this.space, 'providerList');
+    const providers = await get(providerList, 'list');
+    const allProvidersLayouts = await hashSettled(providers.reduce((acc, provider) => {
+      const providerId = get(provider, 'entityId');
+      acc[providerId] = this.fileManager
+        .getDirSizeStatsTimeSeriesCollectionLayout(this.fileId, providerId);
+      return acc;
+    }, {}));
+    return Object.keys(allProvidersLayouts).reduce((acc, providerId) => {
+      if (allProvidersLayouts[providerId].state === 'fulfilled') {
+        acc[providerId] = allProvidersLayouts[providerId].value;
+      }
+      return acc;
+    }, {});
   },
 
   /**
@@ -713,7 +872,17 @@ export default Component.extend(...mixins, {
    * @returns {Promise<DirCurrentSizeStats>}
    */
   async fetchLatestDirSizeStatsValues() {
-    return this.fileManager.getDirCurrentSizeStats(this.fileId);
+    try {
+      const result = await this.fileManager.getDirCurrentSizeStats(this.fileId);
+      safeExec(this, () => this.set('dirStatsNotReady', false));
+      return result;
+    } catch (error) {
+      const dirStatsNotReady = error?.id === 'dirStatsNotReady';
+      safeExec(this, () => this.set('dirStatsNotReady', dirStatsNotReady));
+      if (!dirStatsNotReady) {
+        throw error;
+      }
+    }
   },
 
   actions: {
@@ -737,6 +906,7 @@ export default Component.extend(...mixins, {
 
       const slice = await this.fileManager.getDirSizeStatsTimeSeriesCollectionSlice(
         this.fileId,
+        batchedQuery.collectionRef,
         queryParams
       );
 
@@ -761,6 +931,9 @@ export default Component.extend(...mixins, {
       });
 
       return slice;
+    },
+    toggleSizeStats() {
+      this.toggleProperty('areSizeStatsExpanded');
     },
   },
 });

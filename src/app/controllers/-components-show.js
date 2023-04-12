@@ -1,7 +1,6 @@
 /**
  * Allows to notify about scroll events
- * 
- * @module controllers/onedata/components/show
+ *
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -23,7 +22,7 @@ export default Controller.extend({
 
   actions: {
     /**
-     * @param {Event} scrollEvent 
+     * @param {Event} scrollEvent
      * @returns {undefined}
      */
     scrollOccurred(scrollEvent) {

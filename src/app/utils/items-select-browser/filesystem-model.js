@@ -1,7 +1,6 @@
 /**
  * Implementation of settings, logic and state for selectors browsing filesystem tree.
  *
- * @module utils/items-select-browser/filesystem-model
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

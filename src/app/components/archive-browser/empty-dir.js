@@ -1,7 +1,6 @@
 /**
  * View for dir-based dataset that have no children.
  *
- * @module components/archive-browser/empty-dir
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

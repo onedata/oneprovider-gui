@@ -5,7 +5,6 @@
  *
  * Extend this class to implement specific browsers like filesystem-browser.
  *
- * @module utils/base-browser-model
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

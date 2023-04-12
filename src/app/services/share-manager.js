@@ -1,7 +1,6 @@
 /**
  * Backend operations for shares
- * 
- * @module services/share-manager
+ *
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -17,8 +16,8 @@ export default Service.extend({
   onedataGraph: service(),
 
   /**
-   * @param {Models.File} file 
-   * @param {String} name 
+   * @param {Models.File} file
+   * @param {String} name
    * @returns {Models.Share} share
    */
   createShare(file, name) {

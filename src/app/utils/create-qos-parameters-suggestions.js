@@ -1,8 +1,7 @@
 /**
  * Convert object with availiable QoS parameters for space to array of available QoS
  * parameters objects..
- * 
- * @module utils/create-qos-parameters-suggestions
+ *
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

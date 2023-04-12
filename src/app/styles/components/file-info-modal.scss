@@ -47,11 +47,88 @@
     }
   }
 
+  .size-stats-expand {
+    .one-icon {
+      font-size: 1.2em;
+      vertical-align: middle;
+    }
+  }
+
+  .current-size-table-container {
+    margin-top: 1.3em;
+    border: 1px solid $table-border-color;
+    border-radius: $border-radius-base;
+
+    table {
+      width: 100%;
+      margin-bottom: 0;
+      &.centered-text {
+        text-align: center;
+      }
+
+      thead, tbody .header {
+        background-color: $block-background-color;
+        @include font-semibold;
+        // Using background-clip to fix border hiding under background in Firefox.
+        // See more: https://bugzilla.mozilla.org/show_bug.cgi?id=688556
+        background-clip: padding-box;
+      }
+      tbody tr {
+        border-top: 1px solid $table-border-color;
+      }
+      tbody td:not(:first-of-type), thead td:not(:first-of-type) {
+        border-left: 1px solid $table-border-color;
+      }
+      .error-cell {
+        position: relative;
+        text-align: center;
+      }
+      .oneicon-sign-warning-rounded {
+        font-size: 120%;
+        color: $color-one-yellow;
+        vertical-align: middle;
+        width: 1.2em;
+      }
+      .dir-stats-icon {
+        vertical-align: middle;
+        font-size: 160%;
+        width: auto;
+        transform: translateY(-1px);
+      }
+      .extra-info {
+        opacity: $disabled-opacity;
+        margin-left: 0.5em;
+      }
+      .one-label-tip {
+        margin-left: 0.5em;
+        line-height: 1;
+      }
+      .header {
+        text-align: left;
+      }
+    }
+  }
+
   .current-size-section {
     .current-size-header {
       @include font-semibold();
       font-size: 100%;
       margin-top: 0;
+
+      .extra-info {
+        text-transform: lowercase;
+        @include font-regular();
+      }
+
+      .header-info-warning {
+        vertical-align: middle;
+        font-size: 1em;
+        margin-left: 0.3em;
+        color: $color-one-warning;
+      }
+      .providers-count-warning span {
+        @include font-semibold;
+      }
     }
 
     .one-label-tip {
@@ -181,6 +258,10 @@
         font-size: 1.8em;
         margin-right: -0.3em;
         margin-left: 0.2em;
+        &.oneicon-sign-warning-rounded {
+          font-size: 1.2em;
+          margin-left: 0.5em;
+        }
       }
       .tab-status-icon {
         color: var(--tab-status-icon-color, 'inherit');

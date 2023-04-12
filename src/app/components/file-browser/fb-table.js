@@ -2,7 +2,6 @@
  * A container with table of files (children of selected dir).
  * Supports infinite scroll.
  *
- * @module components/file-browser/fb-table
  * @author Jakub Liput
  * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -32,6 +31,7 @@ import { isEmpty } from '@ember/utils';
 import sleep from 'onedata-gui-common/utils/sleep';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 const defaultIsItemDisabled = () => false;
 
@@ -579,13 +579,9 @@ export default Component.extend(I18n, {
    */
   sourceArrayLengthObserver: observer(
     'filesArray.sourceArray.length',
-    function sourceArrayLengthObserver() {
-      scheduleOnce('afterRender', () => {
-        const listWatcher = this.get('listWatcher');
-        if (listWatcher) {
-          listWatcher.scrollHandler();
-        }
-      });
+    async function sourceArrayLengthObserver() {
+      await waitForRender();
+      this.listWatcher?.scrollHandler();
     }
   ),
 

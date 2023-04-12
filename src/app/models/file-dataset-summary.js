@@ -1,8 +1,7 @@
 /**
  * Information about datasets for file. Similar to `file-qos-summary`.
  * This model is correlated to file - see `serializer:file` for method of fetching.
- * 
- * @module models/file-dataset-summary
+ *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

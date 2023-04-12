@@ -1,7 +1,6 @@
 /**
  * Base component of modal for setting new name of file list item
- * 
- * @module components/file-browser/fb-set-name-modal
+ *
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

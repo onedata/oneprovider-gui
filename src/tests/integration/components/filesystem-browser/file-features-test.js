@@ -13,7 +13,7 @@ import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem
 import { set } from '@ember/object';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
 
-describe('Integration | Component | filesystem browser/file features', function () {
+describe('Integration | Component | filesystem-browser/file-features', function () {
   const { afterEach } = setupRenderingTest();
 
   beforeEach(function () {

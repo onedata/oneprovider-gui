@@ -2,7 +2,6 @@
  * A modal for single item in dataset browser showing protection settings of dataset
  * hierarchy.
  *
- * @module components/dataset-protection-modal
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
