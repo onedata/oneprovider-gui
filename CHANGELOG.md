@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10126 Using common addons from Marketplace branch
 * VFS-9999 Added detailed space details popovers with space information in various views
 * VFS-10486 Removed custom zoom in tests rendering
 * VFS-10339 Added class-based implementation of a chart point
