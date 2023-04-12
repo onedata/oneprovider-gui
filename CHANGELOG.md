@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10597 Added thousands separator in charts
 * VFS-10754 Fixed file list crash after jumping to the end and deleting last file
 * VFS-10755 Added handling not ready error in dir stats
 * VFS-10749 Fixed showing percent progress in transfers
