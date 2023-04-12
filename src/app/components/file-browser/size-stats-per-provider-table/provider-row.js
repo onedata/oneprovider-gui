@@ -35,15 +35,15 @@ export default Component.extend(I18n, {
   stringifiedLatestElementsCount: computed(
     'sizeStats.{regFileAndLinkCount,dirCount}',
     function stringifiedLatestElementsCount() {
-      const fileCount = formatNumber(this.sizeStats.regFileAndLinkCount);
-      const dirCount = formatNumber(this.sizeStats.dirCount);
+      const fileCount = this.sizeStats.regFileAndLinkCount;
+      const dirCount = this.sizeStats.dirCount;
 
       const filesNounVer = fileCount === 1 ? 'singular' : 'plural';
       const dirNounVer = dirCount === 1 ? 'singular' : 'plural';
 
       return this.t('fileCounters.elementsCount.template', {
-        fileCount,
-        dirCount,
+        fileCount: formatNumber(fileCount),
+        dirCount: formatNumber(dirCount),
         fileNoun: this.t(`fileCounters.elementsCount.file.${filesNounVer}`),
         dirNoun: this.t(`fileCounters.elementsCount.dir.${dirNounVer}`),
       });

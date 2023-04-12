@@ -93,6 +93,7 @@
         vertical-align: middle;
         font-size: 160%;
         width: auto;
+        transform: translateY(-1px);
       }
       .extra-info {
         opacity: $disabled-opacity;
