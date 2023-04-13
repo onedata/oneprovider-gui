@@ -236,7 +236,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   /**
    * State of `selectedItemsOutOfScope` property that is updated only once for single
-   * render to aviod "double render" errors. The value is controlled by an observer.
+   * render to avoid "double render" errors. The value is controlled by an observer.
    * @type {boolean}
    */
   renderableSelectedItemsOutOfScope: false,
@@ -356,11 +356,11 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       const selectedItems = this.selectedItems;
       if (
         !selectedItems ||
-        selectedItems.length === 1 && this.selectedItems[0] === this.dir
+        selectedItems.length === 1 && selectedItems[0] === this.dir
       ) {
         return false;
       }
-      return this.selectedItems.some(item => !this.itemsArray?.includes(item));
+      return selectedItems.some(item => !this.itemsArray?.includes(item));
     }
   ),
 

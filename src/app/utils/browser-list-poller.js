@@ -69,16 +69,13 @@ export default EmberObject.extend({
     this.set('looper', looper);
   },
 
-  /**
-   * @param {Utils.BaseBrowserModel} browserModel
-   */
-  async poll(browserModel) {
+  async poll() {
     if (this.isPollingNow) {
       return;
     }
     this.set('isPollingNow', true);
     try {
-      return browserModel.refresh({ silent: true });
+      return await this.browserModel.refresh({ silent: true });
     } finally {
       this.set('isPollingNow', false);
     }
@@ -88,7 +85,10 @@ export default EmberObject.extend({
     this.looper?.restartInterval();
   },
 
-  destroy() {
+  /**
+   * @override
+   */
+  willDestroy() {
     this.looper?.destroy();
     this.set('looper', null);
   },

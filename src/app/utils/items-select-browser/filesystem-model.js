@@ -162,7 +162,7 @@ export default BaseModel.extend(I18n, {
   /**
    * @override
    */
-  willDestroyElement() {
+  willDestroy() {
     try {
       this.browserModel?.destroy?.();
     } finally {

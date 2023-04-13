@@ -263,9 +263,9 @@ export default BaseBrowserModel.extend(I18n, {
     try {
       const datasetRecord = await this.datasetManager
         .getDataset(datasetId, { reload: true });
-      const datasetRecordId = datasetRecord.relationEntityId('parent');
-      return datasetRecordId ?
-        datasetRecordId === parentDatasetId :
+      const datasetRecordParentId = datasetRecord.relationEntityId('parent');
+      return datasetRecordParentId ?
+        datasetRecordParentId === parentDatasetId :
         parentDatasetId === spaceDatasetsRootId;
     } catch {
       return false;
