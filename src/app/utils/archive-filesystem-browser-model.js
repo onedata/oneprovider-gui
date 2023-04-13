@@ -12,7 +12,7 @@ import { bool, array, raw } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -79,11 +79,6 @@ export default FilesystemBrowserModel.extend({
   readonlyFilesystem: true,
 
   /**
-   * @override
-   */
-  refreshBtnIsVisible: reads('isFilesystemLive'),
-
-  /**
    * If archive is not being created, the filesystem of archive should not change.
    * @override
    */
@@ -124,6 +119,35 @@ export default FilesystemBrowserModel.extend({
     Object.freeze({ key: 'archiveCancelled', noticeLevel: 'warning' }),
     Object.freeze({ key: 'archiveFailed', noticeLevel: 'danger' }),
   ]),
+
+  /**
+   * @override
+   */
+  refreshBtnClass: computed(
+    'renderableSelectedItemsOutOfScope',
+    'isFilesystemLive',
+    function refreshBtnClass() {
+      if (this.isFilesystemLive) {
+        return this.renderableSelectedItemsOutOfScope ? 'refresh-selection-warning' : '';
+      } else {
+        return 'refresh-selection-info';
+      }
+    }
+  ),
+
+  /**
+   * @override
+   */
+  refreshBtnTip: computed(
+    'isFilesystemLive',
+    function refreshBtnTip() {
+      if (this.isFilesystemLive) {
+        return this._super(...arguments);
+      } else {
+        return this.t('refreshNonLive');
+      }
+    }
+  ),
 
   /**
    * @type {Utils.ModalManager.ModalInstance}

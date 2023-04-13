@@ -131,6 +131,13 @@
         }
       }
     }
+    &.refresh-selection-info {
+      > .one-icon {
+        &::after {
+          background-color: $color-one-azure;
+        }
+      }
+    }
   }
 }
 
