@@ -1,0 +1,35 @@
+{{#render-later triggerRender=isOpened}}
+  {{#record-info-popover
+    isOpened=isOpened
+    triggerSelector=triggerSelector
+  }}
+    <ul class="columns-list">
+      {{#each-in browserModel.columns as |columnName values|}}
+        <li class="column">
+          {{one-checkbox
+            inputId=(concat elementId columnName "Checkbox")
+            checked=values.isEnabled
+            update=(action "checkboxChanged" columnName)
+            isReadOnly=false
+            class="filter-column-checkbox"
+          }}
+          <label for={{concat elementId columnName "Checkbox"}}>
+            <span
+              class={{concat-classes
+                "one-label checkbox-label"
+                (if (or values.isVisible (not values.isEnabled)) "end-line-space")
+              }}
+            >
+              {{tt this columnName}}
+            </span>
+          </label>
+          {{#if (and (not values.isVisible) values.isEnabled)}}
+            {{#one-icon icon="no-view"}}
+              {{one-tooltip title=(tt this "noViewTip")}}
+            {{/one-icon}}
+          {{/if}}
+         </li>
+      {{/each-in}}
+    </ul>
+  {{/record-info-popover}}
+{{/render-later}}

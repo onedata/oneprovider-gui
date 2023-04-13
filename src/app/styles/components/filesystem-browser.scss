@@ -1,14 +1,59 @@
 .filesystem-browser {
+  --width: 100px;
   // special adjustments because of jump-control presence
   .filesystem-table-head-row {
     height: 63px;
     th {
       padding-bottom: 10px;
     }
+    .fb-table-col-actions-menu {
+      font-size: 200%;
+      padding-left: 0;
+      padding-bottom: 2px;
+
+      .fb-toolbar-button.column-modification-button {
+        margin-left: -8px;
+      }
+
+      .hidden-columns-number-container {
+        position: absolute;
+        display: flex;
+        height: 15px;
+        border: 1px solid #ffac30;
+        font-size: 0.4em;
+        color: white;
+        border-radius: 7.5px;
+        bottom: 15px;
+        right: 5px;
+        transform: translateX(50%) translateY(50%);
+        background-color: #ffac30;
+        padding: 0 0.3em;
+        align-items: center;
+      }
+      .oneicon-columns {
+        .one-icon-tag-icon {
+          font-size: 60% !important;
+          right: -1px;
+          bottom: -2px;
+        }
+
+        .one-icon-tag-circle {
+          width: 0.6em;
+          height: 0.6em;
+          right: -3px;
+          bottom: -2px;
+        }
+      }
+
+      .hidden-columns-number {
+        line-height: 0;
+        @include font-semibold();
+      }
+    }
   }
   .fb-table-col-size {
     position: relative;
-    width: 150px;
+    width: var(--width);
     text-align: center;
 
     .dir-size-container.active:hover {
@@ -36,20 +81,15 @@
     }
   }
   .fb-table-col-modification {
-    width: 200px;
+    width: var(--width);
     text-align: center;
   }
   .fb-table-col-owner {
-    $width: 200px;
-    width: $width + 2 * $table-cell-padding;
+    width: calc(var(--width) + 2 * $table-cell-padding);
     text-align: center;
-    // approx. width of provider iframe when resultion is Full HD with desktop sidebar
-    @media (max-width: 1350px) {
-      display: none;
-    }
     .file-owner-line {
-      width: $width;
-      max-width: $width;
+      width: var(--width);
+      max-width: var(--width);
     }
     .file-owner-username {
       opacity: $disabled-opacity;

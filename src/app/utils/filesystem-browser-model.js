@@ -25,6 +25,7 @@ import { array, raw, and, not } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
+import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 
 export const commonActionIcons = Object.freeze({
   info: 'browser-info',
@@ -63,7 +64,12 @@ const buttonNames = Object.freeze([
   'btnDelete',
 ]);
 
-export default BaseBrowserModel.extend(DownloadInBrowser, {
+const mixins = [
+  DownloadInBrowser,
+  WindowResizeHandler,
+];
+
+export default BaseBrowserModel.extend(...mixins, {
   errorExtractor: service(),
   fileManager: service(),
   globalNotify: service(),
@@ -224,6 +230,26 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   infoIconActionName: 'info',
+
+  /**
+   * @type {Storage}
+   */
+  _localStorage: localStorage,
+
+  /**
+   * @type {Window}
+   */
+  _window: window,
+
+  /**
+   * @type {number}
+   */
+  widthFirstColumn: 800,
+
+  /**
+   * @type {number}
+   */
+  hiddenColumnsCount: 0,
 
   /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
@@ -921,7 +947,26 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   // #endregion
 
-  isOwnerVisible: not('previewMode'),
+  /**
+   * @type {EmberObject}
+   */
+  columns: Object.freeze({
+    owner: {
+      isVisible: true,
+      isEnabled: not('previewMode'),
+      width: 200,
+    },
+    size: {
+      isVisible: true,
+      isEnabled: true,
+      width: 150,
+    },
+    modification: {
+      isVisible: true,
+      isEnabled: true,
+      width: 200,
+    },
+  }),
 
   /**
    * @type {ComputedProperty<Array<String>>}
@@ -1140,6 +1185,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       actions = actions.rejectBy('id', 'paste');
     }
     return actions;
+  },
+
+  /**
+   * @override
+   */
+  onWindowResize() {
+    return this.checkColumnsVisibility();
   },
 
   /**
@@ -1403,6 +1455,40 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   },
 
   /**
+   * @param {string} column
+   * @param {boolean} isEnabled
+   * @returns {void}
+   */
+  changeColumnVisibility(column, isEnabled) {
+    this.set(`columns.${column}.isEnabled`, isEnabled);
+    if (!isEnabled) {
+      this.set(`columns.${column}.isVisible`, false);
+    }
+    this.checkColumnsVisibility();
+    this._localStorage.setItem(`columns.${column}`, isEnabled);
+  },
+
+  checkColumnsVisibility() {
+    let remainingWidth = window.innerWidth - this.widthFirstColumn;
+    let hiddenColumnsCount = 0;
+
+    for (const column in this.columns) {
+      if (this.columns[column].isEnabled) {
+        if (remainingWidth >= this.columns[column].width) {
+          remainingWidth -= this.columns[column].width;
+          this.set(`columns.${column}.isVisible`, true);
+        } else {
+          this.set(`columns.${column}.isVisible`, false);
+          hiddenColumnsCount += 1;
+        }
+      } else {
+        this.set(`columns.${column}.isVisible`, false);
+      }
+    }
+    this.set('hiddenColumnsCount', hiddenColumnsCount);
+  },
+
+  /**
    * @param {Models.File} file
    */
   async openFileShare(file) {
@@ -1415,6 +1501,21 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           this.openInfo([file], 'shares');
         },
       }).hiddenPromise;
+    }
+  },
+
+  columnsStyle() {
+    const styles = {};
+    for (const column in this.columns) {
+      styles[column] = `--width: ${this.columns[column].width}px;`;
+    }
+    return styles;
+  },
+
+  getEnabledColumnsFromLocalStorage() {
+    for (const column in this.columns) {
+      const isEnabled = this._localStorage.getItem(`columns.${column}`);
+      this.set(`columns.${column}.isEnabled`, isEnabled === 'true');
     }
   },
 });

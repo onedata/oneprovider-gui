@@ -17,14 +17,51 @@
     <div class="table-header-status-bar">{{yield}}</div>
   </div>
 </th>
-{{#if browserModel.isOwnerVisible}}
-  <th class="fb-table-col-owner fb-table-secondary-col">
+{{#if browserModel.columns.owner.isVisible}}
+  <th class="fb-table-col-owner fb-table-secondary-col" style={{columnsStyle.owner}}>
     {{tt this "owner"}}
   </th>
 {{/if}}
-<th class="fb-table-col-size fb-table-secondary-col hidden-xs">{{tt this "size"}}</th>
-<th class="fb-table-col-modification fb-table-secondary-col hidden-xs">
-  {{tt this "modification"}}
-</th>
+{{#if browserModel.columns.size.isVisible}}
+  <th class="fb-table-col-size fb-table-secondary-col hidden-xs" style={{columnsStyle.size}}>
+    {{tt this "size"}}
+  </th>
+{{/if}}
+{{#if browserModel.columns.modification.isVisible}}
+  <th class="fb-table-col-modification fb-table-secondary-col hidden-xs" style={{columnsStyle.modification}}>
+    {{tt this "modification"}}
+  </th>
+{{/if}}
 {{!-- hide actions th to make space for jump-control (see also colspan in first th) --}}
-<th class="fb-table-col-actions-menu hidden-xs"></th>
+{{#if (media "isMobile")}}
+  <th class="fb-table-col-actions-menu hidden-xs"></th>
+{{else}}
+  <th class="fb-table-col-actions-menu">
+    <div
+      class="fb-toolbar-button column-modification-button"
+      {{action
+        (mut columnModificationOpened)
+        (not columnModificationOpened)
+        bubbles=false
+      }}
+    >
+      {{#one-icon-tagged
+        icon="columns"
+        tagIcon=(if (not browserModel.isSomeColumnsHidden) "settings")
+        class="tag-right"
+      }}
+        {{one-tooltip title="Modify columns"}}
+      {{/one-icon-tagged}}
+      {{#if browserModel.isSomeColumnsHidden}}
+        <div class="hidden-columns-number-container">
+          <span class="hidden-columns-number">{{browserModel.hiddenColumnsCount}}</span>
+        </div>
+      {{/if}}
+    </div>
+    {{filesystem-browser/column-modification-popover
+      isOpened=columnModificationOpened
+      triggerSelector=(concat "#" elementId " .column-modification-button")
+      browserModel=browserModel
+    }}
+  </th>
+{{/if}}

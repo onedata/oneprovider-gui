@@ -13,6 +13,7 @@ import { observer } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { or } from 'ember-awesome-macros';
+import { computed } from '@ember/object';
 
 const mixins = [
   WindowResizeHandler,
@@ -54,11 +55,20 @@ export default FbTableHeadRow.extend(...mixins, {
     });
   }),
 
+  /**
+   * @type {Object}
+   */
+  columnsStyle: computed('browserModel', function columnsStyle() {
+    return this.browserModel.columnsStyle();
+  }),
+
   init() {
     this._super(...arguments);
     // activate dir observer
     this.get('browserModel.dir');
     this.dirObserver();
+    this.browserModel.getEnabledColumnsFromLocalStorage();
+    this.browserModel.checkColumnsVisibility();
   },
 
   /**
@@ -67,6 +77,7 @@ export default FbTableHeadRow.extend(...mixins, {
    */
   onWindowResize( /** event */ ) {
     this.autoSetHideJumpControl();
+    this.browserModel.checkColumnsVisibility();
   },
 
   autoSetHideJumpControl() {

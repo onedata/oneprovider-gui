@@ -79,6 +79,13 @@ export default FbTableRowColumns.extend(I18n, {
    */
   errorReasonForOwnerProxy: reads('ownerProxy.reason'),
 
+  /**
+   * @type {Object}
+   */
+  columnsStyle: computed('browserModel', function columnsStyle() {
+    return this.browserModel.columnsStyle();
+  }),
+
   actions: {
     invokeFileAction(file, btnId, ...args) {
       this.get('invokeFileAction')(file, btnId, ...args);
