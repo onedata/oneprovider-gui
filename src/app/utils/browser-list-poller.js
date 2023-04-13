@@ -36,6 +36,11 @@ export default EmberObject.extend({
    */
   isPollingNow: false,
 
+  /**
+   * @type {Promise}
+   */
+  lastPollingPromise: null,
+
   //#endregion
 
   selectedItemsOutOfScope: reads('browserModel.selectedItemsOutOfScope'),
@@ -65,17 +70,29 @@ export default EmberObject.extend({
       .create({
         browserListPoller: this,
       });
-    looper.on('tick', () => this.poll(this.browserModel));
+    looper.on('tick', () => this.executePoll());
     this.set('looper', looper);
   },
 
   async poll() {
+    await this.browserModel.refresh({ silent: true });
+  },
+
+  /**
+   * Wrapper for the custom procedure of polling (which is encouraged to be overriden).
+   * Does not allow to be invoked while other async poll is in progress and sets
+   * `isPollingNow` state of the poller.
+   * @returns
+   */
+  async executePoll() {
     if (this.isPollingNow) {
-      return;
+      return this.lastPollingPromise;
     }
     this.set('isPollingNow', true);
     try {
-      return await this.browserModel.refresh({ silent: true });
+      const pollingPromise = this.poll();
+      this.set('lastPollingPromise', pollingPromise);
+      await pollingPromise;
     } finally {
       this.set('isPollingNow', false);
     }
