@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10767 Fixed fog covering modal opened above panel-modal
 * VFS-10126 Using common addons from Marketplace branch
 * VFS-10389 Added dir stats per provider table
 * VFS-10754 Fixed file list crash after jumping to the end and deleting last file
