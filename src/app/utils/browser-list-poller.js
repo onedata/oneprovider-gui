@@ -13,8 +13,7 @@ import Looper from 'onedata-gui-common/utils/looper';
 import { conditional, raw, and, not } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
-// FIXME: revert to 10s
-export const defaultPollInterval = 1000;
+export const defaultPollInterval = 10000;
 
 export default EmberObject.extend({
   /**
@@ -77,6 +76,7 @@ export default EmberObject.extend({
   },
 
   async poll() {
+    console.log('executed standard poll');
     await this.browserModel.refresh({ silent: true });
   },
 
