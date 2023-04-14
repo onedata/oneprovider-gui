@@ -22,6 +22,10 @@ import {
   actionContext,
 } from 'oneprovider-gui/components/file-browser';
 import { typeOf } from '@ember/utils';
+import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
+import { scheduleOnce } from '@ember/runloop';
+import { tag, raw, conditional } from 'ember-awesome-macros';
+import moment from 'moment';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
   i18n: service(),
@@ -58,7 +62,8 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   onOpenFile: notImplementedIgnore,
 
   /**
-   * Invoked when items list is refreshed.
+   * Callback invoked parallely with list refresh methods (eg. reloading children list)
+   * when items list is refreshed.
    * Items table will wait until it is resolved before ending refresh procedure.
    * @virtual
    * @type {() => Promise}
@@ -167,6 +172,12 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    */
   infoIconActionName: undefined,
 
+  /**
+   * Used by `browserListPoller` to enable/disable polling.
+   * @type {boolean}
+   */
+  isListPollingEnabled: true,
+
   getCurrentDirMenuButtons(availableActions) {
     return availableActions;
   },
@@ -195,6 +206,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   //#region file-browser state
 
   dir: reads('browserInstance.dir'),
+  itemsArray: reads('fbTableApi.itemsArray'),
   selectedItems: reads('browserInstance.selectedItems'),
   selectedItemsForJumpProxy: reads('browserInstance.selectedItemsForJumpProxy'),
   selectionContext: reads('browserInstance.selectionContext'),
@@ -206,6 +218,34 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
   fileClipboardMode: reads('browserInstance.fileClipboardMode'),
   fileClipboardFiles: reads('browserInstance.fileClipboardFiles'),
+
+  //#endregion
+
+  //#region browser model configuration
+
+  refreshBtnIsVisible: true,
+
+  //#region
+
+  //#region browser model state
+
+  /**
+   * @type {Utils.BrowserListPoller}
+   */
+  browserListPoller: null,
+
+  /**
+   * State of `selectedItemsOutOfScope` property that is updated only once for single
+   * render to avoid "double render" errors. The value is controlled by an observer.
+   * @type {boolean}
+   */
+  renderableSelectedItemsOutOfScope: false,
+
+  /**
+   * Time in milliseconds from Date.now.
+   * @type {number}
+   */
+  lastRefreshTime: undefined,
 
   //#endregion
 
@@ -237,23 +277,116 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     ].includes(selectionContext);
   }),
 
+  refreshBtnClass: computed(
+    'renderableSelectedItemsOutOfScope',
+    function refreshBtnClass() {
+      return this.renderableSelectedItemsOutOfScope ?
+        'refresh-selection-warning' : '';
+    }
+  ),
+
+  refreshBtnTip: computed(
+    'renderableSelectedItemsOutOfScope',
+    'browserListPoller.pollInterval',
+    'lastRefreshTime',
+    function refreshBtnClass() {
+      if (this.renderableSelectedItemsOutOfScope) {
+        let lastRefreshTimeText;
+        const nowMoment = moment.unix(Math.floor(Date.now() / 1000));
+        const lastRefreshMoment = moment.unix(Math.floor(this.lastRefreshTime / 1000));
+        const isToday =
+          moment(lastRefreshMoment).startOf('day').toString() ===
+          moment(nowMoment).startOf('day').toString();
+        if (isToday) {
+          lastRefreshTimeText = lastRefreshMoment.format('H:mm');
+        } else {
+          lastRefreshTimeText = lastRefreshMoment.format('D MMM');
+        }
+        return this.t('refreshTip.selectedDisabled', {
+          lastRefreshTime: lastRefreshTimeText,
+        });
+      } else {
+        const pollingIntervalSecs =
+          Math.floor(this.browserListPoller?.pollInterval / 1000);
+        return this.t('refreshTip.enabled', {
+          pollingIntervalSecs: pollingIntervalSecs,
+        });
+      }
+    }
+  ),
+
   btnRefresh: computed(function btnRefresh() {
-    return this.createFileAction({
+    return this.createFileAction(EmberObject.extend({
       id: 'refresh',
+      title: this.t('fileActions.refresh'),
+      disabled: false,
       icon: 'refresh',
       action: () => {
         return this.refresh();
       },
-      showIn: [
-        actionContext.inDir,
-        actionContext.inDirPreview,
-        actionContext.currentDir,
-        actionContext.currentDirPreview,
-        actionContext.spaceRootDir,
-        actionContext.spaceRootDirPreview,
-      ],
-    });
+
+      tip: reads('context.refreshBtnTip'),
+      class: tag`file-action-refresh ${'context.refreshBtnClass'}`,
+      showIn: conditional(
+        'context.refreshBtnIsVisible',
+        raw([
+          actionContext.inDir,
+          actionContext.inDirPreview,
+          actionContext.currentDir,
+          actionContext.currentDirPreview,
+          actionContext.spaceRootDir,
+          actionContext.spaceRootDirPreview,
+        ]),
+        raw([]),
+      ),
+    }));
   }),
+
+  /**
+   * True if there are selected items that surely be gone from the replacing chunks array
+   * visible window after refresh. This state can be used to show warning for refreshing
+   * the list, which will cause some selected items to be deselected and to disable
+   * auto-refresh.
+   */
+  selectedItemsOutOfScope: computed(
+    'itemsArray.[]',
+    'selectedItems.[]',
+    'dir',
+    function selectedItemsOutOfScope() {
+      const selectedItems = this.selectedItems;
+      if (
+        !selectedItems ||
+        selectedItems.length === 1 && selectedItems[0] === this.dir
+      ) {
+        return false;
+      }
+      return selectedItems.some(item => !this.itemsArray?.includes(item));
+    }
+  ),
+
+  /**
+   * Controls value of `renderableSelectedItemsOutOfScope` to be synchronized with
+   * `selectedItemsOutOfScope` most often once a render.
+   */
+  selectedItemsOutOfScopeObserver: observer(
+    'selectedItemsOutOfScope',
+    function selectedItemsOutOfScopeObserver() {
+      scheduleOnce('afterRender', this.updateRenderableSelectedItemsOutOfScope);
+    }
+  ),
+
+  /**
+   * Create function that synchronizes value of `renderableSelectedItemsOutOfScope`
+   * property. Needed because that value changes should be throttled.
+   * @type {ComputedProperty<() => void>}
+   */
+  updateRenderableSelectedItemsOutOfScope: computed(
+    function updateRenderableSelectedItemsOutOfScope() {
+      return () => {
+        this.set('renderableSelectedItemsOutOfScope', this.selectedItemsOutOfScope);
+      };
+    }
+  ),
 
   generateAllButtonsArray: observer(
     'buttonNames.[]',
@@ -273,6 +406,40 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   init() {
     this._super(...arguments);
     this.generateAllButtonsArray();
+    this.initBrowserListPoller();
+
+    this.set('lastRefreshTime', Date.now());
+
+    // activate observers
+    this.selectedItemsOutOfScope;
+  },
+
+  destroy() {
+    this.browserListPoller?.destroy();
+  },
+
+  // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
+  // items select implementation
+  /**
+   * Dummy implementation virtual method.
+   * Should be implemented to asynchronically check if an item (eg. file) exists in parent
+   * container (in this example - directory). If so, it should resolve true;
+   * @param {string} parentId Entity ID of browsable parent of item, eg. directory.
+   * @param {any} item A browsable item, eg. file.
+   * @returns {Promise<boolean>}
+   */
+  async checkItemExistsInParent( /* parentId, item */ ) {
+    return false;
+  },
+
+  initBrowserListPoller() {
+    this.set('browserListPoller', this.createBrowserListPoller());
+  },
+
+  createBrowserListPoller() {
+    return BrowserListPoller.create({
+      browserModel: this,
+    });
   },
 
   /**
@@ -288,21 +455,50 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     return await updateBrowserDir(dir);
   },
 
-  refresh() {
+  /**
+   * Items table (fb-table component) refresh can be invoked from anywhere using
+   * FbTableApi. This method will be invoked right before refresh start, including
+   * optional reloading indicator animation.
+   */
+  onTableWillRefresh() {
+    this.set('lastRefreshTime', Date.now());
+
+    // If table is going to refresh and the poller is polling now, it is likely
+    // that the refresh has been invoked by the poller, so don't restart interval.
+    // Otherwise, the refresh was caused by user or by some event (eg. uploading a file),
+    // so next auto-refresh should be postponed to prevent too much refreshes.
+    if (this.browserListPoller && !this.browserListPoller.isPollingNow) {
+      this.browserListPoller.restartInterval();
+    }
+  },
+
+  /**
+   * Refreshes current items view by reloading current list view data.
+   * @param {Object} options
+   * @param {boolean} options.silent If true, there will be no animation on action button,
+   *   no reloading indicators and errors will not be presented in GUI.
+   * @returns {Promise} Resolves when items list is refreshed.
+   */
+  async refresh({ silent = false } = {}) {
     const {
       globalNotify,
       fbTableApi,
       element,
     } = this.getProperties('globalNotify', 'fbTableApi', 'element');
-    animateCss(
-      element.querySelector('.fb-toolbar-button.file-action-refresh'),
-      'pulse-mint'
-    );
-    return fbTableApi.refresh()
-      .catch(error => {
+    if (!silent) {
+      animateCss(
+        element.querySelector('.fb-toolbar-button.file-action-refresh'),
+        'pulse-mint'
+      );
+    }
+    try {
+      return fbTableApi.refresh(!silent);
+    } catch (error) {
+      if (!silent) {
         globalNotify.backendError(this.t('refreshing'), error);
-        throw error;
-      });
+      }
+      throw error;
+    }
   },
 
   /**

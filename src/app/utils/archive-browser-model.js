@@ -21,10 +21,9 @@ import { all as allFulfilled, allSettled } from 'rsvp';
 import { conditional, equal, raw, array, and, or } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
-import Looper from 'onedata-gui-common/utils/looper';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
+import ArchiveBrowserListPoller from 'oneprovider-gui/utils/archive-browser-list-poller';
 
 const allButtonNames = Object.freeze([
   'btnArchiveProperties',
@@ -106,12 +105,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {(archives: Array<Utils.BrowsableArchive>, options: Object) => any}
    */
   openArchiveDetailsModal: notImplementedThrow,
-
-  /**
-   * @virtual optional
-   * @type {Number}
-   */
-  refreshInterval: 5 * 1000,
 
   /**
    * Function argument: data for getDataUrl Onezone function
@@ -208,11 +201,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       return visibleButtons;
     }
   ),
-
-  /**
-   * @type {Looper}
-   */
-  refreshLooper: undefined,
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -633,30 +621,29 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   //#endregion
 
-  init() {
-    this._super(...arguments);
-    const refreshInterval = this.get('refreshInterval');
-    const refreshLooper = Looper.create({
-      interval: refreshInterval,
-      browserModel: this,
-      immediate: false,
-    });
-    refreshLooper.on('tick', this.refreshArchivesData.bind(this));
-    this.set('refreshLooper', refreshLooper);
+  // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
+  // items select implementation
+  /**
+   * @override
+   */
+  async checkItemExistsInParent(datasetId, archive) {
+    const archiveId = get(archive, 'entityId');
+    try {
+      const archiveRecord = await this.archiveManager
+        .getArchive(archiveId, { reload: true });
+      return archiveRecord.relationEntityId('dataset') === datasetId;
+    } catch {
+      return false;
+    }
   },
 
   /**
    * @override
    */
-  destroy() {
-    try {
-      const refreshLooper = this.get('refreshLooper');
-      if (refreshLooper) {
-        refreshLooper.destroy();
-      }
-    } finally {
-      this._super(...arguments);
-    }
+  createBrowserListPoller() {
+    return ArchiveBrowserListPoller.create({
+      browserModel: this,
+    });
   },
 
   /**
@@ -664,25 +651,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   isItemDisabled(item) {
     return item && get(item, 'metaState') === 'destroying';
-  },
-
-  refreshArchivesData() {
-    const fbTableApi = this.fbTableApi;
-    const itemsArray = fbTableApi.getFilesArray();
-    if (itemsArray) {
-      itemsArray.forEach(item => {
-        item.reload()
-          .catch(error => {
-            if (isNotFoundError(error) && !fbTableApi.isDestroyed) {
-              fbTableApi.refresh(false);
-            }
-            console.warn(
-              `util:archive-browser-model#refreshList: reload list item (${item && get(item, 'id')}) failed`,
-              error
-            );
-          });
-      });
-    }
   },
 
   async downloadArchives(archives) {

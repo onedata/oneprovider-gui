@@ -1,0 +1,77 @@
+{{#if (media "isMobile")}}
+  <td>
+    {{#if sizeStats.error}}
+      {{file-browser/size-stats-per-provider-table/error-cell
+        sizeStats=sizeStats
+      }}
+    {{else}}
+      <div>
+        <span class="contains-label">
+          {{tt this "fileCounters.containsLabel"}}:
+        </span>
+        <span class="contains-value">
+          {{stringifiedLatestElementsCount}}
+        </span>
+      </div>
+      <div>
+        <span class="logical-size-label">
+          {{tt this "fileCounters.logicalSizeLabel"}}:
+        </span>
+        <span class="logical-size-value">
+          {{bytes-to-string sizeStats.logicalSize}}
+          {{#if (gte sizeStats.logicalSize 1024)}}
+            <span class="extra-info">
+              ({{format-number sizeStats.logicalSize}}&nbsp;B)
+            </span>
+          {{/if}}
+        </span>
+      </div>
+      <div>
+        <span class="physical-size-label">
+          {{tt this "fileCounters.physicalSizeLabel"}}:
+        </span>
+        <span class="physical-size-value">
+          {{bytes-to-string sizeStats.physicalSize}}
+          {{#if (gte sizeStats.physicalSize 1024)}}
+            <span class="extra-info">
+              ({{format-number sizeStats.physicalSize}}&nbsp;B)
+            </span>
+          {{/if}}
+        </span>
+      </div>
+    {{/if}}
+  </td>
+{{else}}
+  <td class="header">
+    {{record-info-with-icon
+      record=sizeStats.provider
+    }}
+  </td>
+  {{#if sizeStats.error}}
+    <td colspan="3">
+      {{file-browser/size-stats-per-provider-table/error-cell
+        sizeStats=sizeStats
+      }}
+    </td>
+  {{else}}
+    <td class="contains-value">
+      {{stringifiedLatestElementsCount}}
+    </td>
+    <td class="logical-size-value">
+      {{bytes-to-string sizeStats.logicalSize}}
+      {{#if (gte sizeStats.logicalSize 1024)}}
+        <span class="extra-info">
+          ({{format-number sizeStats.logicalSize}}&nbsp;B)
+        </span>
+      {{/if}}
+    </td>
+    <td class="physical-size-value">
+      {{bytes-to-string sizeStats.physicalSize}}
+      {{#if (gte sizeStats.physicalSize 1024)}}
+        <span class="extra-info">
+          ({{format-number sizeStats.physicalSize}}&nbsp;B)
+        </span>
+      {{/if}}
+    </td>
+  {{/if}}
+{{/if}}

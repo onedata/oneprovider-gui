@@ -1,0 +1,51 @@
+{{#if (media "isMobile")}}
+  {{#each sortedDirSizeStatsValues key="provider" as |sizeStats|}}
+    <div class="current-size-table-container">
+      <table class="current-size-table table table-info">
+        <thead>
+          <tr>
+            <td>
+              {{record-info-with-icon
+                record=sizeStats.provider
+              }}
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          {{file-browser/size-stats-per-provider-table/provider-row
+            sizeStats=sizeStats
+          }}
+        </tbody>
+      </table>
+    </div>
+  {{/each}}
+{{else}}
+  <div class="current-size-table-container">
+    <table class="current-size-table table table-info centered-text">
+      <thead>
+        <tr>
+          <td class="empty-cell-header"></td>
+          <td>
+            {{tt this "fileCounters.containsLabel"}}
+            {{one-label-tip title=(tt this "delaySynchronizationTip")}}
+          </td>
+          <td>
+            {{tt this "fileCounters.logicalSizeLabel"}}
+            {{one-label-tip title=(tt this "delaySynchronizationTip")}}
+          </td>
+          <td>
+            {{tt this "fileCounters.physicalSizeLabel"}}
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each sortedDirSizeStatsValues key="provider" as |sizeStats|}}
+          {{file-browser/size-stats-per-provider-table/provider-row
+            sizeStats=sizeStats
+          }}
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+{{/if}}
+

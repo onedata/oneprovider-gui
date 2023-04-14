@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach, afterEach, context } from 'mocha';
+import { describe, it, beforeEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, findAll, find, doubleClick, click, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
@@ -40,11 +40,15 @@ const FileManager = Service.extend(Evented, {
 });
 
 describe('Integration | Component | file-browser (main component)', function () {
-  setupRenderingTest();
+  const { afterEach } = setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'uploadManager', UploadManager);
     registerService(this, 'fileManager', FileManager);
+  });
+
+  afterEach(function () {
+    this.get('browserModel')?.destroy?.();
   });
 
   it('renders files on list', async function () {
@@ -848,6 +852,7 @@ async function renderComponent(testCase) {
       notStubbed('openCreateNewDirectory'),
     openDatasets: openDatasets || notStubbed('openDatasets'),
     openInfo: openInfo || notStubbed('openInfo'),
+    isListPollingEnabled: false,
   }));
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.set('changeSelectedItemsImmediately', function (selectedItems) {

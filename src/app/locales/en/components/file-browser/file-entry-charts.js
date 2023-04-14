@@ -1,29 +1,17 @@
+import sizeStatsPerProviderTable from './size-stats-per-provider-table';
+
 export default {
   noStatistics: 'Requested directory statistics are not ready yet – calculation is in progress.',
   currentSize: {
     header: 'Current size',
-    containsLabel: 'Contains',
-    logicalSizeLabel: 'Logical size',
-    physicalSizeLabel: 'Physical size',
-    elementsCount: {
-      template: '{{fileCount}} {{fileNoun}}, {{dirCount}} {{dirNoun}} <span class="extra-info">({{totalCount}} {{elementNoun}} in total)</span>',
-      file: {
-        singular: 'file',
-        plural: 'files',
-      },
-      dir: {
-        singular: 'directory',
-        plural: 'directories',
-      },
-      element: {
-        singular: 'element',
-        plural: 'elements',
-      },
-    },
-    physicalSizeOnProvidersCount: 'at {{providersWithStatsCount}} out of {{providersCount}} providers',
+    fileCounters: sizeStatsPerProviderTable.fileCounters,
+    currentSizeOnProvidersCount: 'collected from <span>{{providersWithStatsCount}} out of {{providersCount}}</span> providers',
+    currentSizeTip: 'Presented information is partial since it was collected only from online providers with enabled directory size statistics. From the global point of view, the actual size of the space may differ.',
     logicalSizeTip: 'Logical byte size is the total size of file data contained in this directory, i.e. the sum of logical byte sizes of all regular files.',
     physicalSizeTip: 'Summarized storage size used to store the data. Includes only the sizes reported by online providers with enabled directory size statistics.',
   },
+  showMoreStats: 'Show size statistics per provider',
+  hideMoreStats: 'Hide size statistics per provider',
   historicalSize: {
     header: 'Historical size statistics',
     headerTooltip: 'Below charts present changes in time of the directory size statistics, calculated for all items in this directory and all its subdirectories. The file count and logical byte size statistics are synchronized among all Oneproviders, while the physical byte size statistics are collected and viewable independently (use the switch in the top menu of the Data view to display physical size statistics for corresponding Oneprovider).',

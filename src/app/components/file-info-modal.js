@@ -23,7 +23,7 @@ import {
   equal,
   not,
 } from 'ember-awesome-macros';
-import EmberObject, { computed, get, set, getProperties } from '@ember/object';
+import EmberObject, { computed, get, set, getProperties, observer } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
@@ -295,7 +295,7 @@ export default Component.extend(...mixins, {
    * @type {PromiseObject<Ember.Array<Object>|null>}
    */
   storageLocationsPerProviderProxy: promise.object(computed(
-    'storageLocationsProxy',
+    'storageLocationsProxy.locationsPerProvider',
     'storageManager',
     'spaceId',
     async function storageLocationsPerProviderProxy() {
@@ -308,9 +308,8 @@ export default Component.extend(...mixins, {
       );
 
       const locationsPerProviderWithStorageName = {};
-      const storageLocationsProxy = await this.get('storageLocationsProxy');
-
-      const locationsPerProvider = get(storageLocationsProxy, 'locationsPerProvider');
+      const storageLocations = await this.get('storageLocationsProxy');
+      const locationsPerProvider = get(storageLocations, 'locationsPerProvider');
 
       for (const providerId in locationsPerProvider) {
         const locationsPerStorage = locationsPerProvider[providerId].locationsPerStorage;
@@ -436,6 +435,33 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  areSomeProvidersOffline: computed('providers', function areSomeProvidersOffline() {
+    return Boolean(this.providers?.find((p) => !p.online));
+  }),
+
+  /**
+   * @type {ComputedProperty<Array<Models.Provider>>}
+   */
+  providers: reads('providersProxy.content'),
+
+  /**
+   * List of providers that support this space.
+   * @type {ComputedProperty<Ember.Array<Provider>>}
+   */
+  providersProxy: promise.array(
+    computed('space', function providersProxy() {
+      if (this.space) {
+        return this.space.getRelation('providerList')
+          .then(providerList => get(providerList, 'list'));
+      } else {
+        resolve([]);
+      }
+    })
+  ),
+
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
@@ -483,12 +509,13 @@ export default Component.extend(...mixins, {
    */
   errorReasonForOwnerProxy: reads('ownerProxy.reason'),
 
-  filePathProxy: promise.object(
-    computed('file.parent', function filePathPromise() {
-      return resolveFilePath(this.get('file'))
+  filePathProxy: promise.object(computed(
+    'file.{parent.name,name}',
+    function filePathPromise() {
+      return resolveFilePath(this.file)
         .then(path => stringifyFilePath(path));
-    })
-  ),
+    }
+  )),
 
   filePath: reads('filePathProxy.content'),
 
@@ -642,11 +669,22 @@ export default Component.extend(...mixins, {
     'hardlinksLimitExceeded',
     'hardlinksLimit',
     'hardlinksCount',
+    'areSomeProvidersOffline',
     function builtInTabItems() {
       const hardlinksCount = this.hardlinksLimitExceeded ?
         `${this.hardlinksLimit}+` :
         this.hardlinksCount;
-      const areStatsDisabled = this.isSizeStatsDisabled;
+      let sizeStatsTabClass = '';
+      let sizeStatsStatusIcon = null;
+
+      if (this.areSomeProvidersOffline) {
+        sizeStatsTabClass = 'tab-status-warning';
+        sizeStatsStatusIcon = 'sign-warning-rounded';
+      } else if (!this.isSizeStatsDisabled) {
+        sizeStatsTabClass = 'tab-status-success';
+        sizeStatsStatusIcon = 'checkbox-filled';
+      }
+
       return {
         /** @type {FileInfoTabItem} */
         general: {
@@ -665,8 +703,8 @@ export default Component.extend(...mixins, {
         size: {
           id: 'size',
           name: this.t('tabs.size.tabTitle'),
-          tabClass: areStatsDisabled ? '' : 'tab-status-success',
-          statusIcon: areStatsDisabled ? null : 'checkbox-filled',
+          tabClass: sizeStatsTabClass,
+          statusIcon: sizeStatsStatusIcon,
         },
 
         /** @type {FileInfoTabItem} */
@@ -747,6 +785,17 @@ export default Component.extend(...mixins, {
       const additionalClassName = this.activeTabModel ?
         (this.activeTabModel.modalClass || '') : 'without-footer';
       return `${this.modalClass || ''} ${additionalClassName}`;
+    }
+  ),
+
+  hardlinksAutoUpdater: observer('file.hardlinksCount', function hardlinksAutoUpdater() {
+    this.updateFileHardlinksProxy();
+  }),
+
+  storageLocationsAutoUpdater: observer(
+    'file.{parent.name,name}',
+    async function storageLocationsAutoUpdater() {
+      this.file.belongsTo('storageLocationInfo').reload();
     }
   ),
 

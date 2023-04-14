@@ -20,7 +20,7 @@ const currentUser = Service.extend({
 const FileMock = EmberObject.extend(FileRuntimeProperties);
 
 describe('Integration | Component | file-browser/fb-table-row', function () {
-  setupRenderingTest();
+  const { afterEach } = setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'currentUser', currentUser);
@@ -33,6 +33,10 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
       },
     }));
     this.set('spacePrivileges', { view: true });
+  });
+
+  afterEach(function () {
+    this.get('browserModel')?.destroy?.();
   });
 
   it('renders modification date', async function () {

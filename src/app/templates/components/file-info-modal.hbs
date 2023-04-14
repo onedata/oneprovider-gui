@@ -49,7 +49,9 @@
             </td>
           </tr>
           <tr class="file-info-row-path">
-            <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "path" type=typeTranslation}}</td>
+            <td class="property-name with-input{{if smallContent "-sm"}}">
+              {{tt this "path" type=typeTranslation}}
+            </td>
             <td class="property-value">
               {{#promise-proxy-container
                 proxy=filePathProxy
