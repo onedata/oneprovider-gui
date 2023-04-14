@@ -7,6 +7,13 @@ CHANGELOG
 ### Latest changes
 
 * VFS-10461 Added file/archive/dataset list polling
+* VFS-10698 Fixed ember ace resizing mechanism
+* VFS-10767 Fixed fog covering modal opened above panel-modal
+* VFS-10126 Using common addons from Marketplace branch
+* VFS-10389 Added dir stats per provider table
+* VFS-10754 Fixed file list crash after jumping to the end and deleting last file
+* VFS-10755 Added handling not ready error in dir stats
+* VFS-10749 Fixed showing percent progress in transfers
 * VFS-10697 Fixed invalid state of automation store content editor during initalization
 * VFS-10285 Added info popovers to membership
 * VFS-9309 Removed usages of `:contains` jQuery selector

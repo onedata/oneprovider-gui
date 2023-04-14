@@ -46,9 +46,6 @@
     z-index: $zindex-modal-secondary-backdrop;
   }
 }
-.modal ~ .modal {
-  z-index: $zindex-modal-secondary;
-}
 
 @media (max-width: $screen-xs-max) {
   .modal .btn {
