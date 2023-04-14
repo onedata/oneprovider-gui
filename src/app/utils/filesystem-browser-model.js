@@ -953,7 +953,7 @@ export default BaseBrowserModel.extend(...mixins, {
   columns: Object.freeze({
     owner: {
       isVisible: true,
-      isEnabled: not('previewMode'),
+      isEnabled: true,
       width: 200,
     },
     size: {
