@@ -1514,6 +1514,7 @@ export default BaseBrowserModel.extend(...mixins, {
       }
     }
     this.set('hiddenColumnsCount', hiddenColumnsCount);
+    this.set('isSomeColumnsHidden', hiddenColumnsCount > 0);
   },
 
   /**
