@@ -11,8 +11,10 @@ import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
 import Looper from 'onedata-gui-common/utils/looper';
 import { conditional, raw, and, not } from 'ember-awesome-macros';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
-export const defaultPollInterval = 10000;
+// FIXME: revert to 10s
+export const defaultPollInterval = 1000;
 
 export default EmberObject.extend({
   /**
@@ -94,7 +96,7 @@ export default EmberObject.extend({
       this.set('lastPollingPromise', pollingPromise);
       await pollingPromise;
     } finally {
-      this.set('isPollingNow', false);
+      safeExec(this, 'set', 'isPollingNow', false);
     }
   },
 
