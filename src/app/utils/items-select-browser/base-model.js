@@ -199,6 +199,17 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     }
   },
 
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.browserModel?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
   getValidationError() {
     const maxItems = this.get('maxItems');
     if (maxItems && this.get('selectorSelectedItems.length') > maxItems) {

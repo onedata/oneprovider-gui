@@ -105,6 +105,14 @@ export default Component.extend(...mixins, {
    */
   fileToRename: null,
 
+  willDestroyElement() {
+    try {
+      this.browserModel?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
   openCreateNewDirectory(parentDir) {
     this.set('createItemParentDir', parentDir);
   },

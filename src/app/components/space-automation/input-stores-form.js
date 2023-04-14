@@ -391,7 +391,7 @@ export default Component.extend(I18n, {
     }
 
     this.itemsSelectionProcess?.onCancelled();
-    this.set('itemsSelectionProcess', null);
+    this.terminateItemsSelectionProcess();
   },
 
   /**
@@ -416,6 +416,11 @@ export default Component.extend(I18n, {
     }).filter(Boolean);
   },
 
+  terminateItemsSelectionProcess() {
+    this.itemsSelectionProcess?.selectorModel?.destroy();
+    this.set('itemsSelectionProcess', null);
+  },
+
   actions: {
     itemsSelected(items) {
       const onSelected = this.itemsSelectionProcess?.onSelected;
@@ -424,7 +429,7 @@ export default Component.extend(I18n, {
       }
 
       onSelected(this.convertFilesAndDatasetsToAtmValues(items));
-      this.set('itemsSelectionProcess', null);
+      this.terminateItemsSelectionProcess();
     },
     itemsSelectorClose() {
       if (this.itemsSelectionProcess) {

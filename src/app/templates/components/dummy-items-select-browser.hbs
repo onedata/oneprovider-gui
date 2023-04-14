@@ -10,7 +10,7 @@
       {{#each dummySelected as |item|}}
         <li>
           {{item.name}}, {{item.type}}
-        </li>  
+        </li>
       {{/each}}
     </ul>
   {{/if}}
@@ -19,7 +19,7 @@
   open=open
   space=space
   selectorModel=selectorModel
-  onHide=(action (mut open) false)
+  onHide=(action "onHide")
   onSubmit=(action (mut dummySelected))
   onCancel=(action (mut dummySelected) null)
 }}

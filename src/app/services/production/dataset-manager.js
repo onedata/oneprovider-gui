@@ -37,17 +37,17 @@ export default Service.extend({
 
   /**
    * @param {String} datasetId entityId of dataset
-   * @param {String} scope currently only 'private' is supported
+   * @param {Object} requestOptions `store.findRecord` options
    * @returns {Promise<Models.Dataset>}
    */
-  async getDataset(datasetId, scope = 'private') {
+  async getDataset(datasetId, requestOptions) {
     const requestGri = gri({
       entityType: datasetEntityType,
       entityId: datasetId,
       aspect: 'instance',
-      scope,
+      scope: 'private',
     });
-    return this.get('store').findRecord('dataset', requestGri);
+    return this.store.findRecord('dataset', requestGri, requestOptions);
   },
 
   /**

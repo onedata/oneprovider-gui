@@ -146,14 +146,13 @@ export default Component.extend(I18n, {
         !fileData.name.startsWith(inputValue);
       if (isLastJumpFailed) {
         notFoundTipType = 'next';
-        const fbTableApi = this.get('browserModel.fbTableApi');
-        const filesArray = fbTableApi.getFilesArray();
+        const filesArray = this.browserModel.itemsArray;
         // when the file is loaded in current list, but in fact it is already deleted
         // on backend - we should refresh list to show current state
         const prefixIsOnCurrentList =
           filesArray.find(f => get(f, 'name').startsWith(inputValue));
         if (prefixIsOnCurrentList) {
-          await fbTableApi.refresh();
+          await this.browserModel.fbTableApi.refresh();
         }
       }
       if (!fileData) {

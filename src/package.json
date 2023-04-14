@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@babel/runtime": "7.20.7",
+    "@sinonjs/fake-timers": "10.0.2",
     "babel-plugin-ember-modules-api-polyfill": "3.5.0",
     "basictable": "git+https://github.com/kliput/basictable.git#b00a7e52512e43a526e8f5b0ae8b3063efbe0bf5",
     "color": "4.2.3",

@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10461 Added file/archive/dataset list polling
 * VFS-10698 Fixed ember ace resizing mechanism
 * VFS-10767 Fixed fog covering modal opened above panel-modal
 * VFS-10126 Using common addons from Marketplace branch

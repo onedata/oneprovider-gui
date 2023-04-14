@@ -23,7 +23,7 @@ import {
   equal,
   not,
 } from 'ember-awesome-macros';
-import EmberObject, { computed, get, set, getProperties } from '@ember/object';
+import EmberObject, { computed, get, set, getProperties, observer } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
@@ -295,7 +295,7 @@ export default Component.extend(...mixins, {
    * @type {PromiseObject<Ember.Array<Object>|null>}
    */
   storageLocationsPerProviderProxy: promise.object(computed(
-    'storageLocationsProxy',
+    'storageLocationsProxy.locationsPerProvider',
     'storageManager',
     'spaceId',
     async function storageLocationsPerProviderProxy() {
@@ -308,9 +308,8 @@ export default Component.extend(...mixins, {
       );
 
       const locationsPerProviderWithStorageName = {};
-      const storageLocationsProxy = await this.get('storageLocationsProxy');
-
-      const locationsPerProvider = get(storageLocationsProxy, 'locationsPerProvider');
+      const storageLocations = await this.get('storageLocationsProxy');
+      const locationsPerProvider = get(storageLocations, 'locationsPerProvider');
 
       for (const providerId in locationsPerProvider) {
         const locationsPerStorage = locationsPerProvider[providerId].locationsPerStorage;
@@ -510,12 +509,13 @@ export default Component.extend(...mixins, {
    */
   errorReasonForOwnerProxy: reads('ownerProxy.reason'),
 
-  filePathProxy: promise.object(
-    computed('file.parent', function filePathPromise() {
-      return resolveFilePath(this.get('file'))
+  filePathProxy: promise.object(computed(
+    'file.{parent.name,name}',
+    function filePathPromise() {
+      return resolveFilePath(this.file)
         .then(path => stringifyFilePath(path));
-    })
-  ),
+    }
+  )),
 
   filePath: reads('filePathProxy.content'),
 
@@ -785,6 +785,17 @@ export default Component.extend(...mixins, {
       const additionalClassName = this.activeTabModel ?
         (this.activeTabModel.modalClass || '') : 'without-footer';
       return `${this.modalClass || ''} ${additionalClassName}`;
+    }
+  ),
+
+  hardlinksAutoUpdater: observer('file.hardlinksCount', function hardlinksAutoUpdater() {
+    this.updateFileHardlinksProxy();
+  }),
+
+  storageLocationsAutoUpdater: observer(
+    'file.{parent.name,name}',
+    async function storageLocationsAutoUpdater() {
+      this.file.belongsTo('storageLocationInfo').reload();
     }
   ),
 

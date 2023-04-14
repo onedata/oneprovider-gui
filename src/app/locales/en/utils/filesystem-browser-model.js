@@ -41,6 +41,7 @@ export default _.merge({}, BaseBrowserModel, {
     writeProtectedDir: 'Not available inside {{protectionType}} write&#8209;protected directories.',
     blockedFileType: 'Not available for {{fileType}}.',
     recalling: 'Not available for files being recalled from an archive.',
+    inRecallingDir: 'Not available inside directory being recalled from an archive.',
     fileTypesPlural: {
       file: 'files',
       dir: 'directories',

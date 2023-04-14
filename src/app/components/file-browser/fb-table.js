@@ -9,7 +9,13 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { get, computed, observer, setProperties, getProperties } from '@ember/object';
+import EmberObject, {
+  get,
+  computed,
+  observer,
+  setProperties,
+  getProperties,
+} from '@ember/object';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -21,7 +27,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, allSettled } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -32,6 +38,12 @@ import sleep from 'onedata-gui-common/utils/sleep';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+
+/**
+ * API object exposed by `fb-table` component, be used to control the component and read
+ * data that should be publicly available for other items browser components.
+ * @typedef {EmberObject} FbTableApi
+ */
 
 const defaultIsItemDisabled = () => false;
 
@@ -127,7 +139,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {(api: { refresh: Function, getFilesArray: Function }) => undefined}
+   * @type {(api: FbTableApi) => undefined}
    */
   registerApi: notImplementedIgnore,
 
@@ -475,53 +487,31 @@ export default Component.extend(I18n, {
   visibleFiles: reads('filesArray'),
 
   /**
-   * Functions exposed by fb-table
-   * @type {ComputedProperty<Object>}
+   * Live data and functions exposed by fb-table
+   * @type {ComputedProperty<FbTablApi>}
    */
   api: computed(function api() {
-    return {
-      refresh: async (animated = true) => {
-        const refreshStarted = this.get('refreshStarted');
-        // should be the same as $refresh-transition-duration in fb-table.scss
-        const fadeTime = 300;
-        if (refreshStarted) {
-          return;
-        }
-        if (!animated) {
-          return this.refreshFileList();
-        }
-        this.set('renderRefreshSpinner', true);
-        // wait for refresh spinner to render because it needs parent class to transition
-        scheduleOnce('afterRender', async () => {
-          safeExec(this, 'set', 'refreshStarted', true);
-          try {
-            await sleep(fadeTime);
-            return await this.refreshFileList();
-          } finally {
-            safeExec(this, 'set', 'refreshStarted', false);
-            later(() => {
-              if (!this.get('refreshStarted')) {
-                safeExec(this, 'set', 'renderRefreshSpinner', false);
-              }
-            }, fadeTime);
-          }
-        });
-      },
-      getFilesArray: () => {
-        return this.get('filesArray');
-      },
-      forceSelectAndJump: async (items) => {
-        await this.get('changeSelectedItems')(items);
-        return this.jumpToSelection();
-      },
-      jump: (item) => {
-        return this.jump(item);
-      },
-      recomputeTableItems: async () => {
-        await sleep(0);
-        this.get('listWatcher').scrollHandler();
-      },
-    };
+    return EmberObject
+      .extend({
+        itemsArray: reads('__fbTable__.filesArray'),
+      })
+      .create({
+        __fbTable__: this,
+
+        refresh: this.refresh.bind(this),
+
+        forceSelectAndJump: async (items) => {
+          await this.get('changeSelectedItems')(items);
+          return this.jumpToSelection();
+        },
+        jump: (item) => {
+          return this.jump(item);
+        },
+        recomputeTableItems: async () => {
+          await sleep(0);
+          this.get('listWatcher').scrollHandler();
+        },
+      });
   }),
 
   contextMenuButtons: computed(
@@ -830,10 +820,52 @@ export default Component.extend(I18n, {
 
   async onDirChildrenRefresh(parentDirEntityId) {
     if (get(this.dir, 'entityId') === parentDirEntityId) {
-      return this.refreshFileList();
+      return this.refresh(false);
     }
   },
 
+  /**
+   * Refreshes current view of file table - effectively refreshing current files list
+   * view with optional loading indicator.
+   * This method is a part of File Browser Table API implemenetation.
+   * @param {boolean} [animated]
+   * @returns {Promise}
+   */
+  async refresh(animated = true) {
+    // should be the same as $refresh-transition-duration in fb-table.scss
+    const fadeTime = 300;
+    if (this.refreshStarted) {
+      return;
+    }
+    this.browserModel.onTableWillRefresh();
+    if (!animated) {
+      return this.refreshFileList();
+    }
+    this.set('renderRefreshSpinner', true);
+    // wait for refresh spinner to render because it needs parent class to transition
+    scheduleOnce('afterRender', async () => {
+      safeExec(this, 'set', 'refreshStarted', true);
+      try {
+        await sleep(fadeTime);
+        return await this.refreshFileList();
+      } finally {
+        safeExec(this, 'set', 'refreshStarted', false);
+        later(() => {
+          if (!this.refreshStarted) {
+            safeExec(this, 'set', 'renderRefreshSpinner', false);
+          }
+        }, fadeTime);
+      }
+    });
+  },
+
+  /**
+   * Reloads data needed to display current list view.
+   * Takes care of valid state of items array after reload and selected items.
+   * This method is used internally - please use `refresh` to invoke items table refresh
+   * from outside this component.
+   * @return {Promise}
+   */
   async refreshFileList() {
     const {
       dir,
@@ -857,7 +889,7 @@ export default Component.extend(I18n, {
       promises.push(dir.reload());
     }
     const filesArrayReload = filesArray.scheduleReload()
-      .finally(() => {
+      .finally(async () => {
         const {
           selectedItems,
           changeSelectedItems,
@@ -875,34 +907,33 @@ export default Component.extend(I18n, {
           changeSelectedItems(updatedSelectedItems);
         }
 
-        scheduleOnce('afterRender', () => {
-          if (this.get('isDestroyed')) {
-            return;
-          }
+        await waitForRender();
+        if (this.isDestroyed) {
+          return;
+        }
 
-          const $dataRows = $(this.get('element')).find('.data-row');
-          const anyRowVisible = $dataRows.toArray()
-            .some(row => viewTester.isInView(row));
+        const dataRows = this.element.querySelectorAll('.data-row');
+        const anyRowVisible = Array.from(dataRows).some(row => viewTester.isInView(row));
 
-          if (!anyRowVisible) {
-            const fullLengthAfterReload = get(sourceArray, 'length');
-            setProperties(filesArray, {
-              startIndex: Math.max(
-                0,
-                fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
-              ),
-              endIndex: fullLengthAfterReload || 50,
-            });
-            next(() => {
-              const firstRenderedRow = document.querySelector('.data-row[data-row-id]');
-              if (firstRenderedRow) {
-                firstRenderedRow.scrollIntoView();
-              } else {
-                containerScrollTop(0);
-              }
-            });
-          }
-        });
+        if (!anyRowVisible) {
+          const fullLengthAfterReload = get(sourceArray, 'length');
+          setProperties(filesArray, {
+            startIndex: Math.max(
+              0,
+              fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
+            ),
+            endIndex: fullLengthAfterReload || 50,
+          });
+          next(() => {
+            const firstRenderedRow = this.element
+              .querySelector('.data-row[data-row-id]');
+            if (firstRenderedRow) {
+              firstRenderedRow.scrollIntoView();
+            } else {
+              containerScrollTop(0);
+            }
+          });
+        }
       });
     promises.push(filesArrayReload);
     const browserModelRefreshPromise = this.browserModel.onListRefresh?.();
@@ -910,6 +941,43 @@ export default Component.extend(I18n, {
       promises.push(browserModelRefreshPromise);
     }
     await allFulfilled(promises);
+  },
+
+  // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
+  // items select implementation
+  /**
+   * Returns subset of provided items that are available in current dir.
+   * Can be used when there are selected items, but list is refreshed and we want to check
+   * if these items are still available in the current dir.
+   * @param {Array<any>} items Browsable items, eg. files.
+   * @returns {Array<any>}
+   */
+  async filterCurrentDirAvailableItems(items = []) {
+    const itemsToCheck = items.filter(item =>
+      !this.filesArray.sourceArray.includes(item)
+    );
+    if (_.isEmpty(itemsToCheck)) {
+      return items;
+    }
+
+    const dirId = this.get('dir.entityId');
+    if (!dirId) {
+      return _.difference(items, itemsToCheck);
+    }
+    /** @type {Array[any, PromiseState<boolean>]} */
+    const existenceCheckArray = _.zip(
+      itemsToCheck,
+      await allSettled(itemsToCheck.map(item =>
+        this.browserModel.checkItemExistsInParent(dirId, item)
+      ))
+    );
+    const nonExistingItems = existenceCheckArray
+      .filter(([item, { state, value: isAvailable }]) =>
+        state === 'rejected' || !isAvailable || !item
+      )
+      .map(([item]) => item);
+
+    return _.difference(items, nonExistingItems);
   },
 
   onTableScroll(items, headerVisible) {
@@ -959,7 +1027,21 @@ export default Component.extend(I18n, {
       startIndex = filesArrayIds.indexOf(firstId);
       endIndex = filesArrayIds.indexOf(lastId, startIndex);
     }
-    filesArray.setProperties({ startIndex, endIndex });
+    if (startIndex <= endIndex) {
+      const {
+        startIndex: oldStartIndex,
+        endIndex: oldEndIndex,
+      } = getProperties(filesArray, 'startIndex', 'endIndex');
+      if (oldStartIndex !== startIndex || oldEndIndex !== endIndex) {
+        setProperties(filesArray, { startIndex, endIndex });
+      }
+    } else {
+      console.error(
+        'fb-table: tried to set endIndex lower than startIndex, which is illegal:',
+        startIndex,
+        endIndex
+      );
+    }
     safeExec(this, 'set', 'headerVisible', headerVisible);
   },
 

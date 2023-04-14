@@ -125,6 +125,21 @@ export default Service.extend({
     return file;
   },
 
+  async getFileByName(parentDirId, fileName, scope = 'private') {
+    const data = await this.fetchDirChildren(
+      parentDirId,
+      scope,
+      fileName,
+      1,
+    );
+    const file = data.childrenRecords[0];
+    if (file && file.name === fileName) {
+      return file;
+    } else {
+      return null;
+    }
+  },
+
   /**
    * Creates child element in given directory.
    * @param {Models.File} directory
@@ -354,7 +369,7 @@ export default Service.extend({
     return this.copyOrMoveFile(file, parentDirEntityId, 'move');
   },
 
-  copyOrMoveFile(file, parentDirEntityId, operation) {
+  async copyOrMoveFile(file, parentDirEntityId, operation) {
     const name = get(file, 'name') || 'unknown';
     const entityId = get(file, 'entityId');
     const size = get(file, 'size');
@@ -369,28 +384,20 @@ export default Service.extend({
       size,
       operation
     );
-    return this.get('onedataRpc')
-      .request(`${operation}File`, {
+
+    try {
+      await this.onedataRpc.request(`${operation}File`, {
         guid: entityId,
         targetParentGuid: parentDirEntityId,
         targetName: name,
-      })
-      .finally(() => {
-        const scope = 'private';
-        const limit = 1;
-        const offset = 0;
-        this.fetchDirChildren(parentDirEntityId, scope, name, limit, offset)
-          .then(fetchedFiles => {
-            if (
-              fetchedFiles.childrenRecords.length > 0 &&
-              get(fetchedFiles.childrenRecords[0], 'name') === name
-            ) {
-              this.dirChildrenRefresh(parentDirEntityId);
-              const file = fetchedFiles.childrenRecords[0];
-              file.set('isCopyingMovingStop', true);
-            }
-          });
       });
+    } finally {
+      const file = await this.getFileByName(parentDirEntityId, name);
+      if (file) {
+        this.dirChildrenRefresh(parentDirEntityId);
+        set(file, 'isCopyingMovingStop', true);
+      }
+    }
   },
 
   getFileDownloadUrl(fileIds, scope = 'private') {
@@ -769,7 +776,7 @@ export default Service.extend({
 
   //#region browser component utils
 
-  pollForFileAfterOperation(
+  async pollForFileAfterOperation(
     attempts,
     interval,
     parentDirEntityId,
@@ -777,36 +784,26 @@ export default Service.extend({
     targetSize,
     operation
   ) {
-    const scope = 'private';
-    const limit = 1;
-    const offset = 0;
     const pollSizeInterval = 1000;
-
     if (attempts > 0) {
-      this.fetchDirChildren(parentDirEntityId, scope, name, limit, offset)
-        .then(fetchedFiles => {
-          if (
-            fetchedFiles.childrenRecords.length > 0 &&
-            get(fetchedFiles.childrenRecords[0], 'name') === name
-          ) {
-            this.throttledDirChildrenRefresh(parentDirEntityId);
-            const file = fetchedFiles.childrenRecords[0];
-            file.set('currentOperation', operation);
-            file.pollSize(pollSizeInterval, targetSize);
-          } else {
-            later(
-              this,
-              'pollForFileAfterOperation',
-              attempts - 1,
-              interval,
-              parentDirEntityId,
-              name,
-              targetSize,
-              operation,
-              interval
-            );
-          }
-        });
+      const file = await this.getFileByName(parentDirEntityId, name);
+      if (file) {
+        this.throttledDirChildrenRefresh(parentDirEntityId);
+        set(file, 'currentOperation', operation);
+        file.pollSize(pollSizeInterval, targetSize);
+      } else {
+        later(
+          this,
+          'pollForFileAfterOperation',
+          attempts - 1,
+          interval,
+          parentDirEntityId,
+          name,
+          targetSize,
+          operation,
+          interval
+        );
+      }
     }
   },
 
