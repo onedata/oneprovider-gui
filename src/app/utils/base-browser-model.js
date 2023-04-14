@@ -414,7 +414,8 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     this.selectedItemsOutOfScope;
   },
 
-  destroy() {
+  willDestroy() {
+    this._super(...arguments);
     this.browserListPoller?.destroy();
   },
 
@@ -480,6 +481,10 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @returns {Promise} Resolves when items list is refreshed.
    */
   async refresh({ silent = false } = {}) {
+    if (this.isDestroyed) {
+      return;
+    }
+
     const {
       globalNotify,
       fbTableApi,

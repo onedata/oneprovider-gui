@@ -31,6 +31,7 @@ import _ from 'lodash';
 import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/execution-data-fetcher';
 import { isAtmDataSpecMatchingFilters } from 'onedata-gui-common/utils/atm-workflow/data-spec/filters';
 import { AtmDataSpecType } from 'onedata-gui-common/utils/atm-workflow/data-spec/types';
+import globals from 'onedata-gui-common/utils/globals';
 
 export const executeWorkflowDataLocalStorageKey = 'executeWorkflowInputData';
 
@@ -101,11 +102,6 @@ export default Component.extend(I18n, {
    * @type {Object|null}
    */
   itemsSelectionProcess: null,
-
-  /**
-   * @type {Storage}
-   */
-  _localStorage: localStorage,
 
   /**
    * @type {any}
@@ -282,7 +278,7 @@ export default Component.extend(I18n, {
     let data = null;
     if (atmWorkflowSchemaId && this.loadValuesFromLocalStorage) {
       const localStorageData =
-        this._localStorage.getItem(executeWorkflowDataLocalStorageKey);
+        globals.localStorage.getItem(executeWorkflowDataLocalStorageKey);
       if (localStorageData) {
         try {
           data = JSON.parse(localStorageData);
@@ -302,7 +298,7 @@ export default Component.extend(I18n, {
       }
     }
 
-    this._localStorage.removeItem(executeWorkflowDataLocalStorageKey);
+    globals.localStorage.removeItem(executeWorkflowDataLocalStorageKey);
     this.set('localStorageData', data);
   },
 

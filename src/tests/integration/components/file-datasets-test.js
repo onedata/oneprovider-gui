@@ -12,6 +12,7 @@ import { setProperties } from '@ember/object';
 import Service from '@ember/service';
 import { lookupService, registerService } from '../../helpers/stub-service';
 import sinon from 'sinon';
+import globals from 'onedata-gui-common/utils/globals';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -42,7 +43,7 @@ describe('Integration | Component | file-datasets', function () {
 
     await renderComponent(this);
 
-    expect(document.querySelector('.modal-file-subheader .file-name'))
+    expect(globals.document.querySelector('.modal-file-subheader .file-name'))
       .to.contain.text('hello world');
   });
 

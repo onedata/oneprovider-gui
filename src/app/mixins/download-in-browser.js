@@ -19,12 +19,6 @@ export default Mixin.create({
   // required loadingIconFileIds: Array<String>
   // optional previewMode: Boolean
 
-  /**
-   * Reference to Window object - can be stubbed for testing purposes.
-   * @type {Window}
-   */
-  _window: window,
-
   downloadScope: conditional('previewMode', raw('public'), raw('private')),
 
   /**
@@ -67,7 +61,7 @@ export default Mixin.create({
     const fileUrl = data && get(data, 'fileUrl');
 
     if (fileUrl) {
-      downloadFile({ fileUrl, _window: this._window });
+      downloadFile({ fileUrl });
     } else {
       throw { isOnedataCustomError: true, type: 'empty-file-url' };
     }

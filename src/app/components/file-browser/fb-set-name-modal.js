@@ -13,6 +13,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { computed } from '@ember/object';
 import layout from 'oneprovider-gui/templates/components/file-browser/fb-set-name-modal';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend(I18n, {
   layout,
@@ -77,7 +78,7 @@ export default Component.extend(I18n, {
   }),
 
   getInputElement() {
-    return document.getElementById(this.get('inputId'));
+    return globals.document.getElementById(this.get('inputId'));
   },
 
   onShow() {

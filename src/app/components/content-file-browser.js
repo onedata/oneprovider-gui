@@ -24,6 +24,7 @@ import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import { isEmpty } from '@ember/utils';
 import sortRevisionNumbers from 'onedata-gui-common/utils/revisions/sort-revision-numbers';
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -90,13 +91,6 @@ export default OneEmbeddedComponent.extend(
       'dirEntityId',
       'selected',
     ]),
-
-    /**
-     * @type {Storage}
-     */
-    _localStorage: localStorage,
-
-    _window: window,
 
     /**
      * Set on init.
@@ -324,10 +318,9 @@ export default OneEmbeddedComponent.extend(
       inputStoresData,
     }) {
       const {
-        _localStorage,
         globalNotify,
         parentAppNavigation,
-      } = this.getProperties('_localStorage', 'globalNotify', 'parentAppNavigation');
+      } = this.getProperties('globalNotify', 'parentAppNavigation');
       if (!atmWorkflowSchemaId || !atmWorkflowSchemaRevisionNumber) {
         return;
       }
@@ -338,7 +331,7 @@ export default OneEmbeddedComponent.extend(
           inputStoresData,
         };
         try {
-          _localStorage.setItem(
+          globals.localStorage.setItem(
             executeWorkflowDataLocalStorageKey,
             JSON.stringify(executeWorkflowData)
           );

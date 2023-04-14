@@ -20,6 +20,7 @@ import {
   chooseFileContextMenuAction,
   openFileContextMenu,
 } from '../../helpers/item-browser';
+import globals from 'onedata-gui-common/utils/globals';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -798,7 +799,8 @@ function itHasWorkingClipboardFunction({
 
     await chooseFileContextMenuAction({ name: 'f1 name' }, contextMenuActionId);
 
-    expect(document.querySelector(`.file-action-${expectedToolbarActionId}`)).to.exist;
+    expect(globals.document.querySelector(`.file-action-${expectedToolbarActionId}`))
+      .to.exist;
 
     await doubleClickFile({ name: 'f2 name' });
     await click(`.file-action-${expectedToolbarActionId}`);

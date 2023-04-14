@@ -15,6 +15,7 @@ import HeaderBaseComponent from './-header-base';
 import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 import { inject as service } from '@ember/service';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default HeaderBaseComponent.extend(I18n, {
   classNames: [
@@ -57,11 +58,6 @@ export default HeaderBaseComponent.extend(I18n, {
    * @type {Boolean}
    */
   removeShareOpened: false,
-
-  /**
-   * @type {Window}
-   */
-  _window: window,
 
   navigateDirTarget: '_top',
 
@@ -155,12 +151,10 @@ export default HeaderBaseComponent.extend(I18n, {
     async openSpaceDir(dir) {
       const {
         spaceId,
-        _window,
         navigateDirTarget,
         filesViewResolver,
       } = this.getProperties(
         'spaceId',
-        '_window',
         'navigateDirTarget',
         'filesViewResolver'
       );
@@ -171,7 +165,7 @@ export default HeaderBaseComponent.extend(I18n, {
       const dataUrl = filesViewResolver.generateUrl(filesViewContext, 'open', { spaceId });
 
       return new Promise(() => {
-        _window.open(dataUrl, navigateDirTarget);
+        globals.window.open(dataUrl, navigateDirTarget);
       });
     },
     toggleActions(open) {

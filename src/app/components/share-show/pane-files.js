@@ -24,6 +24,7 @@ import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-pro
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
+import globals from 'onedata-gui-common/utils/globals';
 
 const shareRootId = 'shareRoot';
 
@@ -84,8 +85,6 @@ export default Component.extend(...mixins, {
    */
   shareRootDeletedProxy: undefined,
 
-  _window: window,
-
   //#region browser items for various modals
 
   /**
@@ -127,7 +126,6 @@ export default Component.extend(...mixins, {
         dirId,
         filesViewResolver,
         rootDir,
-        _window,
       } = this.getProperties(
         'share',
         'spaceId',
@@ -135,7 +133,6 @@ export default Component.extend(...mixins, {
         'dirId',
         'filesViewResolver',
         'rootDir',
-        '_window',
       );
 
       // special case - virtual share root, not supported by resolver (not a real dir)
@@ -166,7 +163,7 @@ export default Component.extend(...mixins, {
       } else {
         // TODO: VFS-8342 common util for replacing master URL
         if (resolverResult.result === 'redirect' && resolverResult.url) {
-          _window.top.location.replace(resolverResult.url);
+          globals.window.top.location.replace(resolverResult.url);
         }
         return rootDir;
       }

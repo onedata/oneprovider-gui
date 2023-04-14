@@ -9,6 +9,7 @@ import sinon from 'sinon';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import CopyRecordIdAction from 'onedata-gui-common/utils/clipboard-actions/copy-record-id-action';
+import globals from 'onedata-gui-common/utils/globals';
 
 const columns = [{
   name: 'name',
@@ -213,7 +214,7 @@ describe('Integration | Component | space-automation/atm-workflow-executions-tab
     await click(actionsTrigger);
 
     const actions =
-      document.querySelectorAll('.webui-popover.in .actions-popover-content a');
+      globals.document.querySelectorAll('.webui-popover.in .actions-popover-content a');
     expect(actions).to.have.length(executionActionsSpec.length);
     executionActionsSpec.forEach(({ className, label, icon }, index) => {
       const action = actions[index];
@@ -237,7 +238,7 @@ describe('Integration | Component | space-automation/atm-workflow-executions-tab
     await renderComponent();
     await click('.atm-workflow-execution-actions-trigger');
     await click(
-      document.querySelector('.webui-popover.in .copy-record-id-action-trigger')
+      globals.document.querySelector('.webui-popover.in .copy-record-id-action-trigger')
     );
 
     expect(executeStub).to.be.calledOnce;

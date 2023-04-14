@@ -12,6 +12,7 @@ import { conditional, eq, raw } from 'ember-awesome-macros';
 import { computed, observer } from '@ember/object';
 import $ from 'jquery';
 import dom from 'onedata-gui-common/utils/dom';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend({
   classNames: ['file-metadata-ace-editor-base'],
@@ -62,11 +63,6 @@ export default Component.extend({
    * @type {jQuery}
    */
   $modalDialog: null,
-
-  /**
-   * @type {Window}
-   */
-  _window: window,
 
   /**
    * An additional stylesheet for elements in this element
@@ -124,8 +120,7 @@ export default Component.extend({
     const {
       resizeAceFun,
       fixTooltipPositionFun,
-      _window,
-    } = this.getProperties('resizeAceFun', 'fixTooltipPositionFun', '_window');
+    } = this.getProperties('resizeAceFun', 'fixTooltipPositionFun');
     if (enable) {
       this.resizeAce();
       this.fixTooltipPosition();
@@ -135,7 +130,7 @@ export default Component.extend({
       'transitionend',
       resizeAceFun
     );
-    _window[enable ? 'addEventListener' : 'removeEventListener'](
+    globals.window[enable ? 'addEventListener' : 'removeEventListener'](
       'resize',
       fixTooltipPositionFun
     );
