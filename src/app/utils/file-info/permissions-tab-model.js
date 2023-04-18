@@ -7,7 +7,7 @@
  */
 
 import BaseTabModel from './base-tab-model';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
 import { conditional, raw, array } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
@@ -73,7 +73,7 @@ export default BaseTabModel.extend({
       return false;
     }
     const isSupportedFileType = this.files.every(file =>
-      file.type === 'file' || file.type === 'dir'
+      get(file, 'type') === 'file' || get(file, 'type') === 'dir'
     );
     return isSupportedFileType;
   }),

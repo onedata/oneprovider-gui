@@ -7,7 +7,7 @@
  */
 
 import BaseTabModel from './base-tab-model';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import FileDistributionViewModel from 'oneprovider-gui/utils/file-distribution-view-model';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -78,7 +78,7 @@ export default BaseTabModel.extend(...mixins, {
         return false;
       }
       const isSupportedFileType = this.files.every(file =>
-        file.type === 'file' || file.type === 'dir'
+        get(file, 'type') === 'file' || get(file, 'type') === 'dir'
       );
       return isSupportedFileType;
     }

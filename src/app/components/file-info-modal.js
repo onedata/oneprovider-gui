@@ -191,7 +191,7 @@ export default Component.extend(...mixins, {
     if (!this.space) {
       return false;
     }
-    return this.file.entityId === this.space.relationEntityId('rootDir');
+    return get(this.file, 'entityId') === this.space.relationEntityId('rootDir');
   }),
 
   itemType: reads('file.type'),
@@ -550,7 +550,7 @@ export default Component.extend(...mixins, {
     'file.effFile.type',
     'itemType',
     function isSizeTabVisible() {
-      const effItemType = this.file.effFile?.type || 'file';
+      const effItemType = get(this.file, 'effFile.type') || 'file';
       return !this.previewMode && !this.isMultiFile && effItemType !== 'file' &&
         this.itemType !== 'symlink';
     }

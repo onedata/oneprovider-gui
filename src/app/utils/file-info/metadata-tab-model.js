@@ -8,7 +8,7 @@
 
 import BaseTabModel from './base-tab-model';
 import { conditional, raw } from 'ember-awesome-macros';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { reads, equal } from '@ember/object/computed';
 import FileMetadataViewModel from 'oneprovider-gui/utils/file-metadata-view-model';
 import computedT from 'onedata-gui-common/utils/computed-t';
@@ -105,7 +105,7 @@ export default BaseTabModel.extend({
     if (!this._super(...arguments)) {
       return false;
     }
-    return this.file.type === 'file' || this.file.type === 'dir';
+    return get(this.file, 'type') === 'file' || get(this.file, 'type') === 'dir';
   }),
 
   /**

@@ -39,7 +39,7 @@ export default Component.extend(...mixins, {
   shares: reads('sharesProxy.content'),
 
   fileTypeText: computed('file.type', function fileTypeText() {
-    const fileType = this.file.type;
+    const fileType = this.get('file.type');
     return this.t(`fileType.${fileType || 'file'}`);
   }),
 
