@@ -68,6 +68,7 @@ export default Component.extend(I18n, {
   errorExtractor: service(),
   media: service(),
   isMobile: service(),
+  workflowManager: service(),
 
   /**
    * @override
@@ -466,6 +467,54 @@ export default Component.extend(I18n, {
       } else {
         return [];
       }
+    }
+  ),
+
+  toolbarButtons: computed(
+    'allButtonsArray',
+    'fileClipboardMode',
+    'workflowManager.isBagitUploaderAvailable',
+    function toolbarButtons() {
+      const {
+        allButtonsArray,
+        fileClipboardMode,
+        previewMode,
+      } = this.getProperties(
+        'allButtonsArray',
+        'fileClipboardMode',
+        'previewMode'
+      );
+      const isBagitUploaderAvailable =
+        this.get('workflowManager.isBagitUploaderAvailable');
+      let actions = getButtonActions(
+        allButtonsArray,
+        previewMode ? 'inDirPreview' : 'inDir'
+      );
+      if (fileClipboardMode !== 'symlink') {
+        actions = actions.rejectBy('id', 'placeSymlink');
+      }
+      if (fileClipboardMode !== 'hardlink') {
+        actions = actions.rejectBy('id', 'placeHardlink');
+      }
+      if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'move') {
+        actions = actions.rejectBy('id', 'paste');
+      }
+      if (!isBagitUploaderAvailable) {
+        actions = actions.rejectBy('id', 'bagitUpload');
+      }
+      return actions;
+    }
+  ),
+
+  blankAreaContextMenuButtons: computed(
+    'toolbarButtons',
+    function blankAreaContextMenuButtons() {
+      return [{
+          separator: true,
+          title: this.browserModel.currentDirTranslation || this.t('menuCurrentDir'),
+        },
+        ...this.toolbarButtons,
+      ];
     }
   ),
 

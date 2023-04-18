@@ -28,6 +28,7 @@
       {{/if}}
       {{file-browser/fb-toolbar
         dir=dir
+        buttons=toolbarButtons
         previewMode=previewMode
         isInModal=isInModal
         fileClipboardMode=fileClipboardMode
@@ -82,7 +83,7 @@
   {{#click-outside onClickOutside=(action "toggleCurrentDirActions" false)}}
     {{#popover-content-limit opened=popover.visible}}
       {{actions-popover-content
-        actionsArray=currentDirMenuButtons
+        actionsArray=blankAreaContextMenuButtons
         actionClicked=(action "toggleCurrentDirActions" false)
         class="current-dir-actions ps--focus"
       }}

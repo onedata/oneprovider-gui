@@ -10,7 +10,6 @@
 import Component from '@ember/component';
 import { get, computed, observer } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { cancel, later, schedule } from '@ember/runloop';
 import { inject as service } from '@ember/service';
@@ -60,6 +59,12 @@ export default Component.extend(I18n, {
   fileClipboardFiles: undefined,
 
   /**
+   * @virtual
+   * @type {Array<Object|EmberObject>}
+   */
+  buttons: undefined,
+
+  /**
    * @virtual optional
    * @type {boolean}
    */
@@ -97,49 +102,13 @@ export default Component.extend(I18n, {
     }
   ),
 
-  toolbarButtons: computed(
-    'allButtonsArray',
-    'fileClipboardMode',
-    'workflowManager.isBagitUploaderAvailable',
-    function toolbarButtons() {
-      const {
-        allButtonsArray,
-        fileClipboardMode,
-        previewMode,
-      } = this.getProperties(
-        'allButtonsArray',
-        'fileClipboardMode',
-        'previewMode'
-      );
-      const isBagitUploaderAvailable =
-        this.get('workflowManager.isBagitUploaderAvailable');
-      let actions = getButtonActions(
-        allButtonsArray,
-        previewMode ? 'inDirPreview' : 'inDir'
-      );
-      if (fileClipboardMode !== 'symlink') {
-        actions = actions.rejectBy('id', 'placeSymlink');
-      }
-      if (fileClipboardMode !== 'hardlink') {
-        actions = actions.rejectBy('id', 'placeHardlink');
-      }
-      if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'move') {
-        actions = actions.rejectBy('id', 'paste');
-      }
-      if (!isBagitUploaderAvailable) {
-        actions = actions.rejectBy('id', 'bagitUpload');
-      }
-      return actions;
-    }
-  ),
-
   highlightedToolbarButtons: array.filter(
-    'toolbarButtons',
+    'buttons',
     btn => ['paste', 'placeSymlink', 'placeHardlink'].includes(get(btn, 'id'))
   ),
 
-  toolbarButtonIds: computed('toolbarButtons.@each.id', function toolbarButtonIds() {
-    return this.get('toolbarButtons').mapBy('id');
+  toolbarButtonIds: computed('buttons.@each.id', function toolbarButtonIds() {
+    return this.get('buttons').mapBy('id');
   }),
 
   fileClipboardModeObserver: observer(
