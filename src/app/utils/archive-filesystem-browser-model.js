@@ -12,13 +12,13 @@ import { bool, array, raw } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
-import { get, set, observer } from '@ember/object';
+import { get, computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import FileInArchive from 'oneprovider-gui/utils/file-in-archive';
-import Looper from 'onedata-gui-common/utils/looper';
 import { allSettled } from 'rsvp';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import ArchiveFilesystemBrowserListPoller from 'oneprovider-gui/utils/archive-filesystem-browser-list-poller';
 
 export default FilesystemBrowserModel.extend({
   modalManager: service(),
@@ -79,6 +79,12 @@ export default FilesystemBrowserModel.extend({
   readonlyFilesystem: true,
 
   /**
+   * If archive is not being created, the filesystem of archive should not change.
+   * @override
+   */
+  isListPollingEnabled: reads('isFilesystemLive'),
+
+  /**
    * @override
    */
   browserClass: array.join(
@@ -115,16 +121,45 @@ export default FilesystemBrowserModel.extend({
   ]),
 
   /**
+   * @override
+   */
+  refreshBtnClass: computed(
+    'renderableSelectedItemsOutOfScope',
+    'isFilesystemLive',
+    function refreshBtnClass() {
+      if (this.isFilesystemLive) {
+        return this.renderableSelectedItemsOutOfScope ? 'refresh-selection-warning' : '';
+      } else {
+        return 'refresh-selection-info';
+      }
+    }
+  ),
+
+  /**
+   * @override
+   */
+  refreshBtnTip: computed(
+    'isFilesystemLive',
+    function refreshBtnTip() {
+      if (this.isFilesystemLive) {
+        return this._super(...arguments);
+      } else {
+        return this.t('refreshNonLive');
+      }
+    }
+  ),
+
+  /**
    * @type {Utils.ModalManager.ModalInstance}
    */
   externalSymlinkModal: null,
 
   /**
-   * Managed by `autoConfigureRefreshLooper`.
-   * Initialized in `startRefreshLooper`.
-   * @type {Utils.Looper}
+   * True if filesystem of archive might change - eg. when archive is being created
+   * and files are added and their size grows.
+   * @type {ComputedProperty<boolean>}
    */
-  refreshLooper: null,
+  isFilesystemLive: array.includes(raw(['creating', 'destroying']), 'archive.metaState'),
 
   /**
    * Used only when `renderArchiveDipSwitch` is true.
@@ -133,13 +168,27 @@ export default FilesystemBrowserModel.extend({
    */
   isArchiveDipAvailable: bool('archive.config.includeDip'),
 
-  metaStateObserver: observer('archive.metaState', function metaStateObserver() {
-    this.autoConfigureRefreshLooper();
-  }),
+  // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
+  // items select implementation
+  /**
+   * @override
+   */
+  async checkItemExistsInParent(parentDirId, file) {
+    // assuming that files in finished archives could not be deleted or moved
+    if (['succeeded', 'cancelled'].includes(get(this.archive, 'metaState'))) {
+      return file.relationEntityId('parent') === parentDirId;
+    } else {
+      return this._super(...arguments);
+    }
+  },
 
-  init() {
-    this._super(...arguments);
-    this.autoConfigureRefreshLooper();
+  /**
+   * @override
+   */
+  createBrowserListPoller() {
+    return ArchiveFilesystemBrowserListPoller.create({
+      browserModel: this,
+    });
   },
 
   /**
@@ -151,14 +200,6 @@ export default FilesystemBrowserModel.extend({
     } catch (error) {
       console.error(
         'util:archive-filesystem-browser-model#destroy: closeExternalSymlinkModal failed',
-        error
-      );
-    }
-    try {
-      this.destroyRefreshLooper();
-    } catch (error) {
-      console.error(
-        'util:archive-filesystem-browser-model#destroy: destroyRefreshLooper failed',
         error
       );
     }
@@ -208,40 +249,6 @@ export default FilesystemBrowserModel.extend({
       file: item,
       archive,
     });
-  },
-
-  autoConfigureRefreshLooper() {
-    const archiveMetaState = this.get('archive.metaState');
-    if (archiveMetaState === 'creating') {
-      safeExec(this, () => {
-        this.startRefreshLooper();
-      });
-    } else {
-      this.destroyRefreshLooper();
-    }
-  },
-
-  startRefreshLooper() {
-    const interval = 2000;
-    let refreshLooper = this.get('refreshLooper');
-    if (!refreshLooper) {
-      refreshLooper = this.set('refreshLooper', Looper.create({
-        immediate: false,
-      }));
-      refreshLooper.on('tick', () => this.refreshData());
-    }
-    if (get(refreshLooper, 'inverval') !== interval) {
-      set(refreshLooper, 'interval', interval);
-    }
-  },
-
-  destroyRefreshLooper() {
-    const refreshLooper = this.get('refreshLooper');
-    if (refreshLooper) {
-      refreshLooper.trigger('tick');
-      refreshLooper.destroy();
-      this.set('refreshLooper', null);
-    }
   },
 
   /**

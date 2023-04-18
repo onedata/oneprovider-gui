@@ -20,10 +20,14 @@ const FileManager = Service.extend(Evented, {
 });
 
 describe('Integration | Component | items-select-browser', function () {
-  setupRenderingTest();
+  const { afterEach } = setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'fileManager', FileManager);
+  });
+
+  afterEach(function () {
+    this.get('selectorModel')?.destroy();
   });
 
   it('renders header, body and footer in modal', async function () {

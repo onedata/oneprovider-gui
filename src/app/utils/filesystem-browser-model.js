@@ -25,6 +25,7 @@ import { array, raw, and, not } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
+import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 
 export const commonActionIcons = Object.freeze({
   info: 'browser-info',
@@ -299,7 +300,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnUpload: computed(
-    'dir.dataIsProtected',
+    'dir.{dataIsProtected,isRecalling}',
     function btnUpload() {
       const uploadManager = this.get('uploadManager');
       const actionId = 'upload';
@@ -307,7 +308,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
-        blockRecalling: true,
+        blockCurrentDirRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -326,14 +327,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnNewDirectory: computed(
-    'dir.dataIsProtected',
+    'dir.{dataIsProtected,isRecalling}',
     function btnNewDirectory() {
       const actionId = 'newDirectory';
       const tip = this.generateDisabledTip({
         protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
-        blockRecalling: true,
+        blockCurrentDirRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -566,7 +567,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         protectionScope: 'final',
         checkProtectionForSelected: false,
         checkProtectionForCurrentDir: true,
-        blockRecalling: true,
+        blockSelectedRecalling: true,
       });
       if (!tip) {
         // also check if file is not protected by dataset - just as in delete operation
@@ -729,7 +730,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         checkProtectionForSelected: false,
         checkProtectionForCurrentDir: true,
         blockWhenSymlinksOnly: true,
-        blockRecalling: true,
+        blockSelectedRecalling: true,
       });
       if (!tip) {
         // also check if file is not protected by dataset - just as in delete operation
@@ -764,7 +765,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
-        blockRecalling: true,
+        blockSelectedRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -789,7 +790,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       const tip = this.generateDisabledTip({
         protectionType: 'data',
         protectionScope: 'dataset',
-        blockRecalling: true,
+        blockSelectedRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -1044,6 +1045,29 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
+  // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
+  // items select implementation
+  /**
+   * @override
+   */
+  async checkItemExistsInParent(parentDirId, file) {
+    try {
+      await file.reload();
+    } catch {
+      return false;
+    }
+    return file.relationEntityId('parent') === parentDirId;
+  },
+
+  /**
+   * @override
+   */
+  createBrowserListPoller() {
+    return FilesystemBrowserListPoller.create({
+      browserModel: this,
+    });
+  },
+
   /**
    * @override
    */
@@ -1110,8 +1134,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   async onListRefresh() {
-    const files = this.fbTableApi.getFilesArray();
-    const filesRefreshPromises = files.map(async file => {
+    const filesRefreshPromises = this.itemsArray.map(async file => {
       if (get(file, 'isShared')) {
         const shares = await get(file, 'shareRecords');
         await allSettled(shares.invoke('reload'));
@@ -1175,7 +1198,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @param {boolean} checkProtectionForSelected
    * @param {Array<LegacyFileType>} blockFileTypes
    * @param {boolean} blockWhenSymlinksOnly
-   * @param {boolean} blockRecalling
+   * @param {boolean} blockSelectedRecalling
+   * @param {boolean} blockCurrentDirRecalling
    * @returns
    */
   generateDisabledTip({
@@ -1185,7 +1209,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     checkProtectionForSelected = true,
     blockFileTypes = [],
     blockWhenSymlinksOnly = false,
-    blockRecalling = false,
+    blockSelectedRecalling = false,
+    blockCurrentDirRecalling = false,
   }) {
     const {
       dir,
@@ -1238,7 +1263,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         fileType: this.t('disabledActionReason.fileTypesPlural.symlink'),
       });
     }
-    if (!tip && blockRecalling && selectedItemsContainsRecalling) {
+    if (!tip && blockCurrentDirRecalling && dir.isRecalling) {
+      tip = this.t('disabledActionReason.inRecallingDir');
+    }
+    if (!tip && blockSelectedRecalling && selectedItemsContainsRecalling) {
       tip = this.t('disabledActionReason.recalling');
     }
     return tip;

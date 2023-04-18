@@ -80,6 +80,17 @@ export default Component.extend({
     // }, 3000);
   },
 
+  /**
+   * @override
+   */
+  willDestroyElement() {
+    try {
+      this.browserModel?.destroy?.();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
   scrollTopInfinite() {
     document.getElementById('content-scroll').scrollTop = document.getElementById('content-scroll').scrollTop - 20;
     setTimeout(() => {

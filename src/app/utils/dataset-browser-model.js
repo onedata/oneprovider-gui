@@ -25,6 +25,7 @@ import {
   ChangeStateAction,
   RemoveAction,
 } from 'oneprovider-gui/utils/dataset/actions';
+import { spaceDatasetsRootId } from 'oneprovider-gui/components/content-space-datasets';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -251,6 +252,25 @@ export default BaseBrowserModel.extend(I18n, {
   }),
 
   //#endregion
+
+  // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
+  // items select implementation
+  /**
+   * @override
+   */
+  async checkItemExistsInParent(parentDatasetId, dataset) {
+    const datasetId = get(dataset, 'entityId');
+    try {
+      const datasetRecord = await this.datasetManager
+        .getDataset(datasetId, { reload: true });
+      const datasetRecordParentId = datasetRecord.relationEntityId('parent');
+      return datasetRecordParentId ?
+        datasetRecordParentId === parentDatasetId :
+        parentDatasetId === spaceDatasetsRootId;
+    } catch {
+      return false;
+    }
+  },
 
   /**
    * @override

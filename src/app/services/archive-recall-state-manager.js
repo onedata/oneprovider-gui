@@ -68,7 +68,6 @@ export default Service.extend({
       entry.watcher.start();
     }
     watcher = watcher || watchersRegistry.get(recallRootId).watcher;
-    watcher.addToAutoRefresh(file);
     const token = uuid();
     entry.tokens.add(token);
     return token;

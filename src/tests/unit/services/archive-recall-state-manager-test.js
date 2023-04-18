@@ -7,7 +7,6 @@ import { get } from '@ember/object';
 class WatcherMock {
   start() {}
   destroy() {}
-  addToAutoRefresh() {}
 }
 
 describe('Unit | service | archive-recall-state-manager', function () {

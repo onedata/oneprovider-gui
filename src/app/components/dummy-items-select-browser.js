@@ -17,6 +17,7 @@ export default Component.extend({
   },
 
   openModal(type) {
+    this.selectorModel?.destroy();
     const space = this.get('space');
     const constraintSpec = {
       maxItems: 3,
@@ -45,12 +46,21 @@ export default Component.extend({
     });
   },
 
+  willDestroyElement() {
+    this.selectorModel?.destroy();
+  },
+
   actions: {
     submit(selectedItems) {
       this.set('sel', selectedItems);
     },
     openModal(type) {
       this.openModal(type);
+    },
+    onHide() {
+      this.set('open', false);
+      this.selectorModel?.destroy();
+      this.set('selectorModel', undefined);
     },
   },
 });
