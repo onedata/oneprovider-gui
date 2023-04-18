@@ -140,6 +140,10 @@ export default FilesystemBrowserModel.extend({
    */
   refreshBtnTip: computed(
     'isFilesystemLive',
+    // inherited dependencies
+    'renderableSelectedItemsOutOfScope',
+    'browserListPoller.pollInterval',
+    'lastRefreshTime',
     function refreshBtnTip() {
       if (this.isFilesystemLive) {
         return this._super(...arguments);
