@@ -42,8 +42,6 @@ export const actionContext = {
   multiMixedPreview: 'multiMixedPreview',
   currentDir: 'currentDir',
   currentDirPreview: 'currentDirPreview',
-  spaceRootDir: 'spaceRootDir',
-  spaceRootDirPreview: 'spaceRootDirPreview',
 };
 
 export const anySelectedContexts = [
@@ -55,8 +53,13 @@ export const anySelectedContexts = [
 ];
 
 export function getButtonActions(buttonsArray, context) {
-  return buttonsArray
-    .filter(b => get(b, 'showIn').includes(context) && !get(b, 'hidden'));
+  if (Array.isArray(context)) {
+    return buttonsArray
+      .filter(button => context.some(c => button.showIn.includes(c)) && !button.hidden);
+  } else {
+    return buttonsArray
+      .filter(button => button.showIn.includes(context) && !button.hidden);
+  }
 }
 
 export default Component.extend(I18n, {
@@ -435,26 +438,25 @@ export default Component.extend(I18n, {
 
   currentDirMenuButtons: computed(
     'allButtonsArray',
-    'isRootDir',
     'fileClipboardMode',
     'previewMode',
     function menuButtons() {
       const {
         allButtonsArray,
-        isRootDir,
         previewMode,
         browserModel,
       } = this.getProperties(
         'allButtonsArray',
-        'isRootDir',
         'previewMode',
         'browserModel',
       );
-      const context = (isRootDir ? 'spaceRootDir' : 'currentDir') +
-        (previewMode ? 'Preview' : '');
+      const singleDirContext = previewMode ?
+        actionContext.singleDirPreview : actionContext.singleDir;
+      const inDirContext = previewMode ?
+        actionContext.inDirPreview : actionContext.inDir;
       let buttonActions = getButtonActions(
         allButtonsArray,
-        context
+        [singleDirContext, inDirContext]
       );
       buttonActions = browserModel.getCurrentDirMenuButtons(buttonActions);
       if (get(buttonActions, 'length')) {
@@ -530,19 +532,7 @@ export default Component.extend(I18n, {
     };
   }),
 
-  isOnlyCurrentDirSelected: computed(
-    'selectedItems.[]',
-    'dir',
-    function isCurrentDirSelected() {
-      const {
-        selectedItems,
-        dir,
-      } = this.getProperties('selectedItems', 'dir');
-      return selectedItems &&
-        get(selectedItems, 'length') === 1 &&
-        selectedItems.includes(dir);
-    }
-  ),
+  isOnlyCurrentDirSelected: reads('browserModel.isOnlyCurrentDirSelected'),
 
   contentScroll: computed(function contentScroll() {
     return document.getElementById('content-scroll');

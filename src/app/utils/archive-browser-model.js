@@ -427,7 +427,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.inDir,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
         ],
       });
     }

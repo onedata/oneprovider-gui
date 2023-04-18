@@ -272,8 +272,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   // #region Action buttons
 
   btnBagitUpload: computed(
+    'isOnlyCurrentDirSelected',
     'spacePrivileges.scheduleAtmWorkflowExecutions',
     function btnBagitUpload() {
+      if (this.isOnlyCurrentDirSelected) {
+        return {
+          hidden: true,
+          showIn: [],
+        };
+      }
       const i18n = this.get('i18n');
       const canScheduleAtmWorkflowExecutions =
         this.get('spacePrivileges.scheduleAtmWorkflowExecutions');
@@ -320,7 +327,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.inDir,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
         ],
       });
     }
@@ -351,7 +357,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.inDir,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
         ],
       });
     }
@@ -404,7 +409,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleFile,
           actionContext.singleDir,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
         ],
       });
     }
@@ -443,7 +447,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleDir,
           actionContext.singleFile,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
         ],
       });
     }
@@ -465,7 +468,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         actionContext.singleDir,
         actionContext.singleFile,
         actionContext.currentDir,
-        actionContext.spaceRootDir,
       ],
     });
   }),
@@ -478,11 +480,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         return this.get('openInfo')(files, activeTab);
       },
       showIn: [
-        actionContext.spaceRootDir,
         actionContext.singleDir,
         actionContext.singleFile,
         actionContext.currentDir,
-        actionContext.spaceRootDirPreview,
         actionContext.singleDirPreview,
         actionContext.singleFilePreview,
         actionContext.currentDirPreview,
@@ -502,7 +502,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         },
         hidden,
         showIn: [
-          actionContext.spaceRootDir,
           actionContext.singleDir,
           actionContext.singleFile,
           actionContext.currentDir,
@@ -540,8 +539,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           return this.downloadFiles(files);
         },
         showIn: [
-          actionContext.spaceRootDir,
-          actionContext.spaceRootDirPreview,
           actionContext.currentDir,
           actionContext.currentDirPreview,
           actionContext.singleDir,
@@ -558,11 +555,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnRename: computed(
+    'isOnlyRootDirSelected',
     'dir.dataIsProtected',
     'selectedItemsContainsRecalling',
     function btnRename() {
       const actionId = 'rename';
       let tip = this.generateDisabledTip({
+        disabledForRootDir: true,
         protectionType: 'data',
         protectionScope: 'final',
         checkProtectionForSelected: false,
@@ -679,7 +678,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       action: () => this.placeSymlinks(),
       showIn: [
         actionContext.currentDir,
-        actionContext.spaceRootDir,
         actionContext.inDir,
       ],
     });
@@ -694,7 +692,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         action: () => this.placeHardlinks(),
         showIn: [
           actionContext.currentDir,
-          actionContext.spaceRootDir,
           actionContext.inDir,
         ],
       });
@@ -719,12 +716,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   }),
 
   btnCut: computed(
+    'isOnlyRootDirSelected',
     'selectedItemsContainsOnlySymlinks',
     'dir.dataIsProtected',
     'selectedItemsContainsRecalling',
     function btnCut() {
       const actionId = 'cut';
       let tip = this.generateDisabledTip({
+        disabledForRootDir: true,
         protectionType: 'data',
         protectionScope: 'final',
         checkProtectionForSelected: false,
@@ -775,7 +774,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         tip,
         showIn: [
           actionContext.currentDir,
-          actionContext.spaceRootDir,
           actionContext.inDir,
         ],
       });
@@ -783,11 +781,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnDelete: computed(
+    'isOnlyRootDirSelected',
     'selectedItems.@each.dataIsProtectedByDataset',
     'selectedItemsContainsRecalling',
     function btnDelete() {
       const actionId = 'delete';
       const tip = this.generateDisabledTip({
+        disabledForRootDir: true,
         protectionType: 'data',
         protectionScope: 'dataset',
         blockSelectedRecalling: true,
@@ -823,7 +823,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
         ],
         action: (files) => {
           return this.get('openInfo')(files.rejectBy('type', 'symlink'), 'distribution');
@@ -863,7 +862,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
         ],
         disabled: Boolean(disabledTip),
         tip: disabledTip,
@@ -905,7 +903,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
         ],
         disabled: Boolean(disabledTip),
         tip: disabledTip,
@@ -1190,6 +1187,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    *
    * @param {Object} options
+   * @param {boolean} [disabledForRootDir]
    * @param {'data'|'metadata'} [protectionType]
    * @param {'final'|'dataset'} [protectionScope] `final` - check final effective
    *   protection of file (concerns datasets and hardlinks inherited protection);
@@ -1203,6 +1201,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @returns
    */
   generateDisabledTip({
+    disabledForRootDir,
     protectionType,
     protectionScope = 'final',
     checkProtectionForCurrentDir = false,
@@ -1227,6 +1226,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       return;
     }
     let tip;
+    if (disabledForRootDir && this.isOnlyRootDirSelected) {
+      return this.t('disabledActionReason.notAvailableForRootDir');
+    }
     if (!tip && protectionType) {
       let protectionProperty = `${protectionType}IsProtected`;
       if (protectionScope === 'dataset') {

@@ -72,8 +72,6 @@ export default FilesystemBrowserModel.extend({
       showIn: [
         actionContext.currentDir,
         actionContext.currentDirPreview,
-        actionContext.spaceRootDir,
-        actionContext.spaceRootDirPreview,
       ],
     });
   }),

@@ -72,7 +72,6 @@ export default Component.extend({
       title: 'Root action',
       showIn: [
         'currentDir',
-        'spaceRootDir',
       ],
       action: () => console.log('dummy root dir action'),
     };

@@ -24,7 +24,7 @@ import {
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
 import { scheduleOnce } from '@ember/runloop';
-import { tag, raw, conditional } from 'ember-awesome-macros';
+import { tag, raw, conditional, eq, and, not } from 'ember-awesome-macros';
 import moment from 'moment';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
@@ -334,13 +334,21 @@ export default EmberObject.extend(OwnerInjector, I18n, {
           actionContext.inDirPreview,
           actionContext.currentDir,
           actionContext.currentDirPreview,
-          actionContext.spaceRootDir,
-          actionContext.spaceRootDirPreview,
         ]),
         raw([]),
       ),
     }));
   }),
+
+  isOnlyCurrentDirSelected: and(
+    eq('selectedItems.length', raw(1)),
+    eq('selectedItems.0', 'dir'),
+  ),
+
+  isOnlyRootDirSelected: and(
+    'isOnlyCurrentDirSelected',
+    not('dir.hasParent')
+  ),
 
   /**
    * True if there are selected items that surely be gone from the replacing chunks array
