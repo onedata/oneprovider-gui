@@ -415,10 +415,11 @@ export default OneEmbeddedComponent.extend(
         createItemType: null,
       });
     },
-    openRemoveModal(files, parentDir) {
+    openRemoveModal(files, parentDir, onRemoved) {
       this.setProperties({
         filesToRemove: [...files],
         removeParentDir: parentDir,
+        onFilesRemoved: onRemoved,
       });
     },
     closeRemoveModal(removeInvoked, results) {
@@ -439,6 +440,7 @@ export default OneEmbeddedComponent.extend(
       this.setProperties({
         filesToRemove: null,
         removeParentDir: null,
+        onFilesRemoved: null,
       });
     },
     openRenameModal(file) {

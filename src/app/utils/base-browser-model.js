@@ -435,8 +435,19 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     this.selectedItemsOutOfScope;
   },
 
-  destroy() {
-    this.browserListPoller?.destroy();
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.browserListPoller?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  changeDir(dir) {
+    return this.browserInstance.changeDir(dir);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known

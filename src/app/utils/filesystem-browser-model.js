@@ -820,12 +820,30 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       const disabled = Boolean(tip);
       return this.createFileAction({
         id: actionId,
-        action: (files) => {
-          const {
-            openRemove,
-            dir,
-          } = this.getProperties('openRemove', 'dir');
-          return openRemove(files, dir);
+        action: async (files) => {
+          const currentDir = this.dir;
+          const isRemovingCurrentDir = files.length === 1 && files[0] === currentDir;
+          let currentDirParent;
+          let onRemoved;
+          if (isRemovingCurrentDir) {
+            currentDirParent = await this.resolveFileParentFun(currentDir);
+            onRemoved = async (removedFiles) => {
+              // check if the dir is still opened as current dir
+              if (
+                removedFiles[0] === currentDir &&
+                currentDir &&
+                this.dir === currentDir &&
+                currentDirParent
+              ) {
+                this.changeDir(currentDirParent);
+              }
+            };
+          }
+          return this.openRemove(
+            files,
+            isRemovingCurrentDir ? currentDirParent : this.dir,
+            onRemoved
+          );
         },
         disabled,
         tip,
