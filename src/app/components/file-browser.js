@@ -42,6 +42,8 @@ export const actionContext = {
   multiMixedPreview: 'multiMixedPreview',
   currentDir: 'currentDir',
   currentDirPreview: 'currentDirPreview',
+  rootDir: 'rootDir',
+  rootDirPreview: 'rootDirPreview',
 };
 
 export const anySelectedContexts = [
@@ -284,7 +286,7 @@ export default Component.extend(I18n, {
    */
   rootIcon: reads('browserModel.rootIcon'),
 
-  isRootDir: not('dir.hasParent'),
+  isRootDir: reads('browserModel.isRootDir'),
 
   showCurrentDirActions: notEmpty('currentDirMenuButtons'),
 
@@ -437,26 +439,27 @@ export default Component.extend(I18n, {
   }),
 
   currentDirMenuButtons: computed(
+    'isRootDir',
     'allButtonsArray',
     'fileClipboardMode',
     'previewMode',
     function menuButtons() {
       const {
+        isRootDir,
         allButtonsArray,
         previewMode,
         browserModel,
       } = this.getProperties(
+        'isRootDir',
         'allButtonsArray',
         'previewMode',
         'browserModel',
       );
-      const singleDirContext = previewMode ?
-        actionContext.singleDirPreview : actionContext.singleDir;
-      const inDirContext = previewMode ?
-        actionContext.inDirPreview : actionContext.inDir;
+      const context = (isRootDir ? 'rootDir' : 'currentDir') +
+        (previewMode ? 'Preview' : '');
       let buttonActions = getButtonActions(
         allButtonsArray,
-        [singleDirContext, inDirContext]
+        context
       );
       buttonActions = browserModel.getCurrentDirMenuButtons(buttonActions);
       if (get(buttonActions, 'length')) {

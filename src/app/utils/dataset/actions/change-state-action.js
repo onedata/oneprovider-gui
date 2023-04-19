@@ -9,6 +9,7 @@
 import BaseAction from './-base';
 import {
   anySelectedContexts,
+  actionContext,
 } from 'oneprovider-gui/components/file-browser';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -56,6 +57,7 @@ export default BaseAction.extend({
    */
   showIn: Object.freeze([
     ...anySelectedContexts,
+    actionContext.currentDir,
   ]),
 
   /**

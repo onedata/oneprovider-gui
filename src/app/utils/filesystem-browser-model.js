@@ -275,12 +275,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'isOnlyCurrentDirSelected',
     'spacePrivileges.scheduleAtmWorkflowExecutions',
     function btnBagitUpload() {
-      if (this.isOnlyCurrentDirSelected) {
-        return {
-          hidden: true,
-          showIn: [],
-        };
-      }
       const i18n = this.get('i18n');
       const canScheduleAtmWorkflowExecutions =
         this.get('spacePrivileges.scheduleAtmWorkflowExecutions');
@@ -327,6 +321,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.inDir,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -357,6 +352,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.inDir,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -409,6 +405,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleFile,
           actionContext.singleDir,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -447,6 +444,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleDir,
           actionContext.singleFile,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -468,6 +466,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         actionContext.singleDir,
         actionContext.singleFile,
         actionContext.currentDir,
+        actionContext.rootDir,
       ],
     });
   }),
@@ -483,9 +482,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         actionContext.singleDir,
         actionContext.singleFile,
         actionContext.currentDir,
+        actionContext.rootDir,
         actionContext.singleDirPreview,
         actionContext.singleFilePreview,
         actionContext.currentDirPreview,
+        actionContext.rootDirPreview,
       ],
     });
   }),
@@ -505,6 +506,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleDir,
           actionContext.singleFile,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -541,6 +543,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.currentDir,
           actionContext.currentDirPreview,
+          actionContext.rootDir,
+          actionContext.rootDirPreview,
           actionContext.singleDir,
           actionContext.singleDirPreview,
           actionContext.multiFile,
@@ -593,6 +597,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleDir,
           actionContext.singleFile,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -615,6 +620,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -633,7 +639,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         browserInstance.setFileClipboardFiles(files.slice());
         browserInstance.setFileClipboardMode('symlink');
       },
-      showIn: anySelectedContexts,
+      showIn: [
+        ...anySelectedContexts,
+        actionContext.currentDir,
+        actionContext.rootDir,
+      ],
     });
   }),
 
@@ -666,7 +676,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           browserInstance.setFileClipboardFiles(files);
           browserInstance.setFileClipboardMode('hardlink');
         },
-        showIn: anySelectedContexts,
+        showIn: [
+          ...anySelectedContexts,
+          actionContext.currentDir,
+          actionContext.rootDir,
+        ],
       });
     }
   ),
@@ -677,8 +691,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       icon: 'shortcut',
       action: () => this.placeSymlinks(),
       showIn: [
-        actionContext.currentDir,
         actionContext.inDir,
+        actionContext.currentDir,
+        actionContext.rootDir,
       ],
     });
   }),
@@ -691,8 +706,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         icon: commonActionIcons.hardlinks,
         action: () => this.placeHardlinks(),
         showIn: [
-          actionContext.currentDir,
           actionContext.inDir,
+          actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -711,7 +727,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         browserInstance.setFileClipboardFiles(files.rejectBy('type', 'symlink'));
         browserInstance.setFileClipboardMode('copy');
       },
-      showIn: anySelectedContexts,
+      showIn: [
+        ...anySelectedContexts,
+        actionContext.currentDir,
+        actionContext.rootDir,
+      ],
     });
   }),
 
@@ -750,7 +770,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         },
         disabled,
         tip,
-        showIn: anySelectedContexts,
+        showIn: [
+          ...anySelectedContexts,
+          actionContext.currentDir,
+          actionContext.rootDir,
+        ],
       });
     }
   ),
@@ -773,8 +797,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         disabled,
         tip,
         showIn: [
-          actionContext.currentDir,
           actionContext.inDir,
+          actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -804,7 +829,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         },
         disabled,
         tip,
-        showIn: anySelectedContexts,
+        showIn: [
+          ...anySelectedContexts,
+          actionContext.currentDir,
+          actionContext.rootDir,
+        ],
       });
     }
   ),
@@ -823,6 +852,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
         action: (files) => {
           return this.get('openInfo')(files.rejectBy('type', 'symlink'), 'distribution');
@@ -862,6 +892,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
         disabled: Boolean(disabledTip),
         tip: disabledTip,
@@ -903,6 +934,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
         disabled: Boolean(disabledTip),
         tip: disabledTip,

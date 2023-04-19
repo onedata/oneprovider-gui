@@ -59,6 +59,7 @@ export default Component.extend({
       title: 'Current action',
       showIn: [
         'currentDir',
+        'rootDir',
       ],
       action: () => console.log('dummy current dir action'),
     };
@@ -72,6 +73,7 @@ export default Component.extend({
       title: 'Root action',
       showIn: [
         'currentDir',
+        'rootDir',
       ],
       action: () => console.log('dummy root dir action'),
     };

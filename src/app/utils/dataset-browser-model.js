@@ -182,7 +182,6 @@ export default BaseBrowserModel.extend(I18n, {
       showIn: [
         actionContext.singleDir,
         actionContext.singleFile,
-        actionContext.currentDir,
       ],
     });
   }),
