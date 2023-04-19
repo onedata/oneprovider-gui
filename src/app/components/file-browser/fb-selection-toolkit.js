@@ -81,7 +81,7 @@ export default Component.extend(I18n, {
     }
   ),
 
-  opened: gt('itemsCount', 0),
+  opened: gt('itemsCount', 1),
 
   init() {
     this._super(...arguments);
