@@ -8,7 +8,7 @@
  */
 
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
-import { bool, array, raw, conditional } from 'ember-awesome-macros';
+import { bool, array, raw, conditional, and } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
@@ -167,6 +167,11 @@ export default FilesystemBrowserModel.extend({
    * @type {Utils.ModalManager.ModalInstance}
    */
   externalSymlinkModal: null,
+
+  isOnlyArchiveRootSelected: and(
+    'isOnlyCurrentDirSelected',
+    'dir.isArchiveRootDir',
+  ),
 
   /**
    * True if filesystem of archive might change - eg. when archive is being created
