@@ -5,6 +5,7 @@ export default {
   anonymousSystemSubject: 'anonymous',
   readonlyDueToMetadataIsProtected: 'At least one selected element metadata is write protected.',
   readonlyDueToPosixNonOwner: 'You have insufficient permissions to edit POSIX permissions or ACL on selected {{fileTypeText}}.',
+  readonlyDueToBeingRootDir: 'Space root directory permissions cannot be changed.',
   modifyingPermissions: 'modifying permissions',
   permissionsModifySuccess: 'Permissions has been modified successfully',
   posixNotActive: {

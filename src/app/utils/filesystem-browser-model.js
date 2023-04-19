@@ -604,9 +604,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnPermissions: computed(
+    'isOnlyRootDirSelected',
     'selectedItemsContainsOnlySymlinks',
     function btnPermissions() {
       const disabledTip = this.generateDisabledTip({
+        disabledForRootDir: true,
         blockWhenSymlinksOnly: true,
       });
       return this.createFileAction({
