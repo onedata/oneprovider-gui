@@ -8,7 +8,7 @@
  */
 
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
-import { bool, array, raw } from 'ember-awesome-macros';
+import { bool, array, raw, conditional } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
@@ -19,6 +19,22 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import FileInArchive from 'oneprovider-gui/utils/file-in-archive';
 import { allSettled } from 'rsvp';
 import ArchiveFilesystemBrowserListPoller from 'oneprovider-gui/utils/archive-filesystem-browser-list-poller';
+
+const allButtonNames = Object.freeze([
+  'btnRefresh',
+  'btnInfo',
+  'btnDownload',
+  'btnDownloadTar',
+  'btnShare',
+  'btnMetadata',
+  'btnPermissions',
+  'btnDistribution',
+  'btnQos',
+]);
+
+const archiveRootButtonNames = Object.freeze([
+  'btnRefresh',
+]);
 
 export default FilesystemBrowserModel.extend({
   modalManager: service(),
@@ -61,17 +77,11 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  buttonNames: Object.freeze([
-    'btnRefresh',
-    'btnInfo',
-    'btnDownload',
-    'btnDownloadTar',
-    'btnShare',
-    'btnMetadata',
-    'btnPermissions',
-    'btnDistribution',
-    'btnQos',
-  ]),
+  buttonNames: conditional(
+    'isOnlyArchiveRootSelected',
+    raw(archiveRootButtonNames),
+    raw(allButtonNames),
+  ),
 
   /**
    * @override
