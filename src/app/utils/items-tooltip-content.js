@@ -31,8 +31,8 @@ export default EmberObject.extend({
   tooltipContent: computed('items.@each.name', function tooltipContent() {
     return htmlSafe(
       '<ul class="tags-input">' +
-      this.items?.map(file =>
-        `<li class="tag-item">${file.name}</li>`
+      this.items?.map(item =>
+        `<li class="tag-item">${get(item, 'name')}</li>`
         // NOTE: span list MUST be separated by spaces, because otherwise it will not
         // wrap elements in Firefox
       ).join(' ') +
