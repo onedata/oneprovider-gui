@@ -27,12 +27,11 @@
   }
   .fb-breadcrumbs-dir-root {
     .inline-icon-container {
-      margin-right: 0.45em;
-
       .one-icon {
         font-size: 210%;
       }
       &.root-icon-container {
+        margin-right: 0.45em;
         margin-left: 0.1em;
 
         &.icon-info-trigger, &.icon-info-last-element-trigger {
