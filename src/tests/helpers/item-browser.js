@@ -2,6 +2,7 @@ import { click, findAll, settled } from '@ember/test-helpers';
 import { expect } from 'chai';
 import sleep from 'onedata-gui-common/utils/sleep';
 import { findAllByText } from './find';
+import globals from 'onedata-gui-common/utils/globals';
 
 export function getFileRow({ entityId, name }) {
   let row;
@@ -25,7 +26,7 @@ export async function openFileContextMenu(file) {
   const row = getFileRow(file);
   row.dispatchEvent(new Event('contextmenu'));
   await settled();
-  const fileActions = document.querySelectorAll('.file-actions');
+  const fileActions = globals.document.querySelectorAll('.file-actions');
   expect(fileActions, 'file-actions').to.have.length(1);
   return fileActions[0];
 }

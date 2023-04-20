@@ -2,6 +2,7 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { collect } from 'ember-awesome-macros';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend({
   mockBackend: service(),
@@ -28,7 +29,7 @@ export default Component.extend({
       this.set('files', null);
     },
     getDataUrl() {
-      return window.location.toString();
+      return globals.location.toString();
     },
   },
 });

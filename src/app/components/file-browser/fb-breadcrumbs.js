@@ -131,8 +131,6 @@ export default Component.extend(
      */
     dirActionsOpen: undefined,
 
-    _window: window,
-
     extraNameIcon: 'sign-info-rounded',
 
     extraNameTooltipClass: 'tooltip-lg tooltip-text-left',

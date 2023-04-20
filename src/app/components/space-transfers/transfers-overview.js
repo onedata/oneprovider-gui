@@ -11,11 +11,12 @@
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import Component from '@ember/component';
 import { htmlSafe } from '@ember/string';
-import { observer, get } from '@ember/object';
+import { observer } from '@ember/object';
 import $ from 'jquery';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { scheduleOnce } from '@ember/runloop';
 import dom from 'onedata-gui-common/utils/dom';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend(I18n, {
   classNames: ['transfers-overview', 'row', 'row-spacing'],
@@ -89,8 +90,6 @@ export default Component.extend(I18n, {
    */
   throughputTransferType: 'all',
 
-  _window: window,
-
   /**
    * Set in `updateMobileMode`
    * @type {Boolean}
@@ -123,13 +122,13 @@ export default Component.extend(I18n, {
     scheduleOnce('afterRender', () => {
       this.onResize();
     });
-    const contentScroll = document.querySelector('#content-scroll');
+    const contentScroll = globals.document.querySelector('#content-scroll');
     this.initSticky(contentScroll);
     $(contentScroll).on(
       this.eventName('scroll'),
       () => safeExec(this, 'computeSticky')
     );
-    $(window).on(
+    $(globals.window).on(
       this.eventName('resize'),
       () => safeExec(this, () => {
         this.onResize();
@@ -140,7 +139,7 @@ export default Component.extend(I18n, {
   willDestroyElement() {
     this._super(...arguments);
     $('#content-scroll').off(this.eventName('scroll'));
-    $(window).off(this.eventName('resize'));
+    $(globals.window).off(this.eventName('resize'));
   },
 
   onResize() {
@@ -184,7 +183,7 @@ export default Component.extend(I18n, {
         contentScrollTop - dom.height(rowOverview)
       );
       const left = dom.offset(element).left;
-      const right = window.innerWidth - (left + dom.width(element));
+      const right = globals.window.innerWidth - (left + dom.width(element));
       const style = `top: ${top}px; left: ${left}px; right: ${right}px;`;
       stickyOverviewStyle = htmlSafe(style);
     }
@@ -222,7 +221,7 @@ export default Component.extend(I18n, {
     if (_mobileMode) {
       sticky = false;
     } else {
-      const contentScroll = document.getElementById('content-scroll');
+      const contentScroll = globals.document.getElementById('content-scroll');
       if (contentScroll) {
         sticky = this.get('overviewExpanded') ?
           (contentScroll.scrollTop !== 0) :
@@ -249,9 +248,8 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<Function>}
    */
   updateMobileMode() {
-    const _window = this.get('_window');
-    const innerWidth = get(_window, 'innerWidth');
-    const innerHeight = get(_window, 'innerHeight');
+    const innerWidth = globals.window.innerWidth;
+    const innerHeight = globals.window.innerHeight;
     this.set('_mobileMode', innerWidth < 1320 || innerHeight < 580);
   },
 

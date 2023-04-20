@@ -10,10 +10,11 @@
  */
 
 import Component from '@ember/component';
-import { defineProperty } from '@ember/object';
+import { defineProperty, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend({
   classNames: ['one-embedded-component'],
@@ -29,7 +30,7 @@ export default Component.extend({
   /**
    * @type {Element}
    */
-  frameElement: reads('_window.frameElement'),
+  frameElement: computed(() => globals.window.frameElement),
 
   /**
    * Properties:
@@ -47,11 +48,6 @@ export default Component.extend({
    * @type {Function}
    */
   callParent: undefined,
-
-  /**
-   * @type {Window}
-   */
-  _window: window,
 
   init() {
     this._super(...arguments);

@@ -70,8 +70,6 @@ export default Component.extend(...mixins, {
    */
   contentScrollSelector: undefined,
 
-  _document: document,
-
   /**
    * Alias of property for ItemBrowserContainerBase - please do not use it directly
    * in code. Use: `browserSelectedItems` or `selectorSelectedItems` instead.

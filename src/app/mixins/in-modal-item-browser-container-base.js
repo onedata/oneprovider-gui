@@ -8,10 +8,9 @@
 
 import Mixin from '@ember/object/mixin';
 import { computed } from '@ember/object';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Mixin.create({
-  _document: window.document,
-
   isRendered: false,
 
   contentScroll: computed(
@@ -20,12 +19,10 @@ export default Mixin.create({
     'contentScrollSelector',
     function contentScroll() {
       const {
-        _document,
         isRendered,
         modalBodyId,
         contentScrollSelector,
       } = this.getProperties(
-        '_document',
         'isRendered',
         'modalBodyId',
         'contentScrollSelector'
@@ -36,7 +33,7 @@ export default Mixin.create({
         );
       }
       if (contentScrollSelector) {
-        const customScrollElement = _document.querySelector(contentScrollSelector);
+        const customScrollElement = globals.document.querySelector(contentScrollSelector);
         if (!customScrollElement) {
           console.error(
             'mixin:in-modal-item-browser-container-base#contentScroll: no #{contentScrollSelector} element found, infinite scroll may be broken'
@@ -44,12 +41,12 @@ export default Mixin.create({
         }
         return customScrollElement;
       }
-      let scrollElement = _document.querySelector(`#${modalBodyId} .bs-modal-body-scroll`);
+      let scrollElement = globals.document.querySelector(`#${modalBodyId} .bs-modal-body-scroll`);
       if (!scrollElement) {
         console.error(
           'mixin:in-modal-item-browser-container-base#contentScroll: no .bs-modal-body-scroll body element found, infinite scroll may be broken'
         );
-        scrollElement = _document.body;
+        scrollElement = globals.document.body;
       }
       return scrollElement;
     }

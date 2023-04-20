@@ -7,7 +7,7 @@ import sinon from 'sinon';
 import Service from '@ember/service';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import { resolve } from 'rsvp';
-import { set } from '@ember/object';
+import globals from 'onedata-gui-common/utils/globals';
 
 const Store = Service.extend({
   findRecord() {},
@@ -39,9 +39,8 @@ describe('Integration | Component | content-space-transfers', function () {
     beforeEach(function () {
       const spaceEntityId = 'seid';
       this.set('spaceEntityId', spaceEntityId);
-      const appProxy = lookupService(this, 'app-proxy');
       const callParent = sinon.spy();
-      const _window = {
+      globals.mock('window', {
         frameElement: {
           appProxy: {
             callParent,
@@ -52,9 +51,7 @@ describe('Integration | Component | content-space-transfers', function () {
             },
           },
         },
-      };
-      set(appProxy, '_window', _window);
-      this.set('_window', _window);
+      });
     });
 
     it('with internal components and transfer row', async function () {
@@ -122,7 +119,7 @@ describe('Integration | Component | content-space-transfers', function () {
       guiContext.clusterId = provider1.entityId;
       await render(hbs `
         <div id="content-scroll">
-          {{content-space-transfers _window=_window}}
+          {{content-space-transfers}}
         </div>
       `);
 
@@ -172,7 +169,7 @@ describe('Integration | Component | content-space-transfers', function () {
       guiContext.clusterId = provider1.entityId;
       await render(hbs `
         <div id="content-scroll">
-          {{content-space-transfers _window=_window}}
+          {{content-space-transfers}}
         </div>
       `);
 

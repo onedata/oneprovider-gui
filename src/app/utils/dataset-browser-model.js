@@ -26,6 +26,7 @@ import {
   RemoveAction,
 } from 'oneprovider-gui/utils/dataset/actions';
 import { spaceDatasetsRootId } from 'oneprovider-gui/components/content-space-datasets';
+import globals from 'onedata-gui-common/utils/globals';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -151,8 +152,6 @@ export default BaseBrowserModel.extend(I18n, {
       return [...allButtonNames];
     }
   }),
-
-  _window: window,
 
   navigateDataTarget: '_top',
 
@@ -281,12 +280,11 @@ export default BaseBrowserModel.extend(I18n, {
 
   showRootFile(dataset) {
     const {
-      _window,
       getDataUrl,
       navigateDataTarget,
-    } = this.getProperties('_window', 'getDataUrl', 'navigateDataTarget');
+    } = this.getProperties('getDataUrl', 'navigateDataTarget');
     const fileId = dataset.relationEntityId('rootFile');
     const url = getDataUrl({ fileId: null, selected: [fileId] });
-    return _window.open(url, navigateDataTarget);
+    return globals.window.open(url, navigateDataTarget);
   },
 });

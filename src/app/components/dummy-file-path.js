@@ -3,6 +3,7 @@ import { inject as service } from '@ember/service';
 import { set, get, computed } from '@ember/object';
 import sleep from 'onedata-gui-common/utils/sleep';
 import _ from 'lodash';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend({
   classNames: ['dummy-file-path'],
@@ -41,12 +42,12 @@ export default Component.extend({
 
   async testResizeUpdate() {
     // test resize updates (it caused too-short-path rendering problem formerly)
-    window.dispatchEvent(new Event('resize'));
+    globals.window.dispatchEvent(new Event('resize'));
   },
 
   async testTransitionDetection() {
     // test transition detection
-    document.querySelectorAll('.transitionable').forEach(element => {
+    globals.document.querySelectorAll('.transitionable').forEach(element => {
       element.classList.add('transitioned');
     });
   },

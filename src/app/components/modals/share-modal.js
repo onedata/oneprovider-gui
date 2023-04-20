@@ -29,6 +29,7 @@ import backendifyName, {
 } from 'onedata-gui-common/utils/backendify-name';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import globals from 'onedata-gui-common/utils/globals';
 
 /**
  * @typedef {Object} ShareModalOptions
@@ -164,7 +165,7 @@ export default Component.extend(I18n, {
   },
 
   getInputElement() {
-    return document.getElementById(this.inputId);
+    return globals.document.getElementById(this.inputId);
   },
 
   setInitialShareName() {

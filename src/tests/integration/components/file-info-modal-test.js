@@ -16,6 +16,7 @@ import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import FileDistributionHelper from '../../helpers/file-distribution';
 import createSpace from '../../helpers/create-space';
 import DefaultUser from '../../helpers/default-user';
+import globals from 'onedata-gui-common/utils/globals';
 
 const storageLocations = {
   locationsPerProvider: {
@@ -737,7 +738,7 @@ async function createFile(testCase, data) {
 }
 
 async function givenFileModel(testCase, data) {
-  const entityId = window.btoa('guid#space_id#file_id');
+  const entityId = globals.window.btoa('guid#space_id#file_id');
   const file = await createFile(testCase, {
     id: gri({
       entityId,
@@ -759,7 +760,7 @@ async function givenFileModel(testCase, data) {
 async function givenMultipleFileModels(testCase, filesData) {
   const files = [];
   for (let i = 0; i < filesData.length; ++i) {
-    const entityId = window.btoa(`guid#space_id#file_id_${i}`);
+    const entityId = globals.window.btoa(`guid#space_id#file_id_${i}`);
     const file = await createFile(testCase, {
       id: gri({
         entityId,

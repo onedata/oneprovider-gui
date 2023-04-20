@@ -15,6 +15,7 @@ import ErrorCheckViewMixin from 'onedata-gui-common/mixins/error-check-view';
 import { Promise, resolve } from 'rsvp';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import Looper from 'onedata-gui-common/utils/looper';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -26,8 +27,6 @@ export default OneEmbeddedComponent.extend(
     i18n: service(),
     guiContext: service(),
     onedataWebsocket: service(),
-
-    _location: location,
 
     iframeInjectedProperties: Object.freeze([]),
 
@@ -127,7 +126,7 @@ export default OneEmbeddedComponent.extend(
             oneproviderUrl: `https://${this.get('guiContext.apiOrigin')}`,
           });
       } finally {
-        this.get('_location').reload();
+        globals.location.reload();
       }
     },
 

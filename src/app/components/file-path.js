@@ -24,6 +24,7 @@ import { datasetSeparator, directorySeparator, ellipsisString } from 'oneprovide
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import sleep from 'onedata-gui-common/utils/sleep';
 import { race } from 'rsvp';
+import globals from 'onedata-gui-common/utils/globals';
 
 const mixins = [
   I18n,
@@ -137,9 +138,9 @@ export default Component.extend(...mixins, {
     if (!this.element) {
       await waitForRender();
     }
-    const styleDeclaration = window.getComputedStyle(this.element);
+    const styleDeclaration = globals.window.getComputedStyle(this.element);
     const font = styleDeclaration.font;
-    const fontLoadPromise = document.fonts.load(font);
+    const fontLoadPromise = globals.document.fonts.load(font);
     const timeoutPromise = sleep(3000);
     // Wait either for font load settled (no matter if it fulfilled or rejected)
     // or timeout occured. Ignore font load error with catch.
@@ -331,7 +332,7 @@ export default Component.extend(...mixins, {
   didInsertElement() {
     this._super(...arguments);
     const windowResizeHandler = this.get('windowResizeHandler');
-    document.querySelector('body').addEventListener(
+    globals.document.querySelector('body').addEventListener(
       'transitionend',
       windowResizeHandler
     );
@@ -349,7 +350,7 @@ export default Component.extend(...mixins, {
   willDestroyElement() {
     this._super(...arguments);
     const windowResizeHandler = this.get('windowResizeHandler');
-    document.querySelector('body').removeEventListener(
+    globals.document.querySelector('body').removeEventListener(
       'transitionend',
       windowResizeHandler
     );
