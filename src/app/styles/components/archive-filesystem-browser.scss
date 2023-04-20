@@ -22,4 +22,12 @@
       flex-grow: 1;
     }
   }
+  .fb-breadcrumbs {
+    .fb-breadcrumbs-dir-root + .fb-breadcrumbs-separator {
+      margin-top: -0.15em;
+      &::before {
+        content: '›';
+      }
+    }
+  }
 }

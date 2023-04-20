@@ -63,13 +63,12 @@
 
   }
   .fb-breadcrumbs-separator {
+    position: relative;
     width: 0.8em;
     &::before {
       content: '/';
       font-size: 1.2em;
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%) translateX(0.1em);
+      padding-left: 0.15em;
     }
   }
   .fb-breadcrumbs-current-dir-button {
