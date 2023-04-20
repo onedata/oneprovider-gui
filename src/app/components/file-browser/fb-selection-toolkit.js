@@ -9,10 +9,11 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { observer, computed } from '@ember/object';
-import { gt } from '@ember/object/computed';
+import { reads, gt } from '@ember/object/computed';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { inject as service } from '@ember/service';
 import { conditional, raw } from 'ember-awesome-macros';
+import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
 
 export default Component.extend(I18n, {
   classNames: ['fb-selection-toolkit'],
@@ -24,6 +25,12 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbSelectionToolkit',
+
+  /**
+   * Array of browsable items, eg. files.
+   * @type {Array<any>}
+   */
+  items: undefined,
 
   /**
    * @virtual
@@ -47,8 +54,6 @@ export default Component.extend(I18n, {
    */
   mobileMode: false,
 
-  itemsCount: 0,
-
   lastPositiveItemsCount: 0,
 
   fileActionsOpen: false,
@@ -62,6 +67,8 @@ export default Component.extend(I18n, {
       }
     }
   ),
+
+  itemsCount: reads('items.length'),
 
   popoverClass: conditional(
     'isInModal',
@@ -86,6 +93,12 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this.rememberLastPositiveCount();
+    const itemsTooltipContent = ItemsTooltipContent.extend({
+      items: reads('component.items'),
+    }).create({
+      component: this,
+    });
+    this.set('itemsTooltipContent', itemsTooltipContent);
   },
 
   actions: {

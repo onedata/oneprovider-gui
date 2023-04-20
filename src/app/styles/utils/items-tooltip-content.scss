@@ -1,0 +1,20 @@
+.tooltip-items {
+  &.huge-content {
+    .tooltip-inner {
+      max-width: calc(100vw - 60px);
+    }
+  }
+  .tooltip-inner {
+    // flexible panel width on desktop
+    @media (max-width: 1250px) {
+      max-width: calc(100vw - 200px);
+    }
+    @media (max-width: $screen-xs-max) {
+      // empirical value to fit space from bottom of subheader to the bottom of page
+      max-height: 87vh;
+    }
+
+    // empirical value to fit space from bottom of subheader to the bottom of page
+    max-height: 85vh;
+  }
+}

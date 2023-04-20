@@ -6,6 +6,12 @@
 }}
   <div class="selection-count-text">
     {{tt this "itemsSelected"}}
-    <span class="selection-count-number">(<span class="number">{{lastPositiveItemsCount}}</span>)</span>
+    <span class="selection-count-number">
+      (<span class="number">{{lastPositiveItemsCount}}</span>)
+      {{one-tooltip
+        title=itemsTooltipContent.tooltipContent
+        class=itemsTooltipContent.tooltipClass
+      }}
+    </span>
   </div>
 {{/one-pill-button}}

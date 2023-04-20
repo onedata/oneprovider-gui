@@ -20,7 +20,7 @@
     <div class="text-right fb-toolbar-container hidden-xs">
       {{#if renderSelectionToolkitDesktop}}
         {{file-browser/fb-selection-toolkit
-          itemsCount=(if isOnlyCurrentDirSelected 0 selectedItems.length)
+          items=selectionToolkitItems
           selectionContext=selectionContext
           allButtonsArray=allButtonsArray
           isInModal=isInModal
@@ -95,7 +95,7 @@
 {{#if renderSelectionToolkitMobile}}
   {{file-browser/fb-selection-toolkit
     mobileMode=true
-    itemsCount=(if isOnlyCurrentDirSelected 0 selectedItems.length)
+    items=selectionToolkitItems
     selectionContext=selectionContext
     allButtonsArray=allButtonsArray
     isInModal=isInModal

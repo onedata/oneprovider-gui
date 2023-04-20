@@ -7,12 +7,10 @@
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { gt, conditional, raw, or, and, eq } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { htmlSafe } from '@ember/string';
-import _ from 'lodash';
+import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
 
 export default Component.extend(I18n, {
   tagName: 'h2',
@@ -69,39 +67,23 @@ export default Component.extend(I18n, {
 
   truncatedTextTip: conditional(
     'multi',
-    computed('files.@each.name', function tuncatedTextTip() {
-      return htmlSafe(
-        '<ul class="tags-input">' +
-        this.files.map(file =>
-          `<li class="tag-item">${file.name}</li>`
-          // NOTE: span list MUST be separated by spaces, because otherwise it will not
-          // wrap elements in Firefox
-        ).join(' ') +
-        '</ul>'
-      );
-    }),
+    'itemsTooltipContent.tooltipContent',
     raw(undefined),
   ),
 
-  truncatedTextTooltipClass: computed(
+  truncatedTextTooltipClass: conditional(
     'multi',
-    'isHugeMultiText',
-    function truncatedTextTooltipClass() {
-      const resultClasses = [];
-      if (this.multi) {
-        resultClasses.push('tooltip-modal-file-subheader-multi', 'tooltip-with-tags');
-        if (this.isHugeMultiText) {
-          resultClasses.push('huge-content');
-        }
-      }
-      return resultClasses.join(' ');
-    }
+    'itemsTooltipContent.tooltipClass',
+    raw(undefined),
   ),
 
-  isHugeMultiText: computed('files.@each.name', function isHugeMultiText() {
-    if (this.files.length === 1) {
-      return false;
-    }
-    return _.sum(this.files.map(file => get(file, 'name').length)) > 2750;
-  }),
+  init() {
+    this._super(...arguments);
+    const itemsTooltipContent = ItemsTooltipContent.extend({
+      items: reads('modalFileSubheader.files'),
+    }).create({
+      modalFileSubheader: this,
+    });
+    this.set('itemsTooltipContent', itemsTooltipContent);
+  },
 });
