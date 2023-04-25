@@ -21,6 +21,7 @@ import { v4 as uuid } from 'ember-uuid';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Service.extend(I18n, {
   appProxy: service(),
@@ -539,7 +540,7 @@ export default Service.extend(I18n, {
       return;
     }
 
-    const input = document.createElement('input');
+    const input = globals.document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('multiple', 'multiple');
     input.style.display = 'none';

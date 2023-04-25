@@ -414,7 +414,8 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     this.selectedItemsOutOfScope;
   },
 
-  destroy() {
+  willDestroy() {
+    this._super(...arguments);
     this.browserListPoller?.destroy();
   },
 

@@ -265,12 +265,6 @@ export default BaseBrowserModel.extend(...mixins, {
   ignoreCurrentDirContextMenuSelector: '.jump-bar-form-group',
 
   /**
-   * Reference to Document object - can be stubbed for testing purposes.
-   * @type {Document}
-   */
-  _document: document,
-
-  /**
    * Used to inform various parts of component that files and directories data
    * and metadata cannot be modified (eg. upload, delete).
    * @type {Boolean}
@@ -1091,14 +1085,14 @@ export default BaseBrowserModel.extend(...mixins, {
       );
       if (highlightAnimationTimeoutId) {
         this.set('highlightAnimationTimeoutId', null);
-        window.clearTimeout(highlightAnimationTimeoutId);
+        clearTimeout(highlightAnimationTimeoutId);
       }
       if (!hoveredHeaderTag) {
         this.set(
           'highlightAnimationTimeoutId',
           // timeout time is slightly longer than defined transition time in
           // file-status-bar.scss
-          window.setTimeout(() => {
+          setTimeout(() => {
             this.set('highlightAnimationTimeoutId', null);
           }, 101)
         );

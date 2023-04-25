@@ -6,6 +6,7 @@ import { hbs } from 'ember-cli-htmlbars';
 import { resolve } from 'rsvp';
 import { selectChoose } from 'ember-power-select/test-support/helpers';
 import sinon from 'sinon';
+import globals from 'onedata-gui-common/utils/globals';
 
 describe('Integration | Component | acl-editor', function () {
   setupRenderingTest();
@@ -160,7 +161,7 @@ describe('Integration | Component | acl-editor', function () {
     const targetAcl = [acl[1]];
 
     return click('.one-collapsible-list-item:first-child .btn-menu-toggle')
-      .then(() => click(document.querySelector('.webui-popover .remove-action')))
+      .then(() => click(globals.document.querySelector('.webui-popover .remove-action')))
       .then(() => {
         expect(findAll('.ace')).to.have.length(1);
         expect(changeSpy).to.be.calledWith(targetAcl);
@@ -184,7 +185,7 @@ describe('Integration | Component | acl-editor', function () {
     const targetAcl = [acl[1], acl[0]];
 
     return click('.one-collapsible-list-item:nth-child(2) .btn-menu-toggle')
-      .then(() => click(document.querySelector('.webui-popover .move-up-action')))
+      .then(() => click(globals.document.querySelector('.webui-popover .move-up-action')))
       .then(() => {
         expect(find('.ace:first-child .subject-name')).to.contain.text('Group 1');
         expect(changeSpy).to.be.calledWith(targetAcl);
@@ -208,7 +209,7 @@ describe('Integration | Component | acl-editor', function () {
     const targetAcl = [acl[1], acl[0]];
 
     return click('.one-collapsible-list-item:first-child .btn-menu-toggle')
-      .then(() => click(document.querySelector('.webui-popover .move-down-action')))
+      .then(() => click(globals.document.querySelector('.webui-popover .move-down-action')))
       .then(() => {
         expect(find('.ace:nth-child(2) .subject-name')).to.contain.text('User 1');
         expect(changeSpy).to.be.calledWith(targetAcl);

@@ -15,6 +15,7 @@ import sleep from 'onedata-gui-common/utils/sleep';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { resolve } from 'rsvp';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend({
   currentUser: service(),
@@ -92,7 +93,8 @@ export default Component.extend({
   },
 
   scrollTopInfinite() {
-    document.getElementById('content-scroll').scrollTop = document.getElementById('content-scroll').scrollTop - 20;
+    globals.document.getElementById('content-scroll').scrollTop =
+      globals.document.getElementById('content-scroll').scrollTop - 20;
     setTimeout(() => {
       this.scrollTopInfinite();
     }, 10);

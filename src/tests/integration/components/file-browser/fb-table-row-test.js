@@ -9,6 +9,7 @@ import { registerService } from '../../../helpers/stub-service';
 import { RuntimeProperties as FileRuntimeProperties } from 'oneprovider-gui/models/file';
 import EmberObject, { set } from '@ember/object';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import globals from 'onedata-gui-common/utils/globals';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -279,7 +280,7 @@ function testShowsTooltip(elementDescription, text, selector, contextData) {
     await expandInheritanceTag();
     await triggerEvent(selector, 'mouseenter');
 
-    const tooltip = document.querySelectorAll('.tooltip.in');
+    const tooltip = globals.document.querySelectorAll('.tooltip.in');
     expect(tooltip, 'opened tooltip').to.have.length(1);
     expect(tooltip[0]).to.contain.text(text);
   });

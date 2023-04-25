@@ -46,6 +46,7 @@ import {
   AtmWorkflowExecutionPhase,
   atmWorkflowExecutionPhases,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
+import globals from 'onedata-gui-common/utils/globals';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -386,8 +387,8 @@ export default Service.extend({
     const shares = ['private', 'public'].map(scope => {
       return [0, 1].map(num => {
         const entityId = generateShareEntityId(get(space, 'entityId'), num);
-        const publicUrl = location.origin + '/shares/' + entityId;
-        const publicRestUrl = location.origin + '/api/v3/shares/' + entityId + '/public';
+        const publicUrl = globals.location.origin + '/shares/' + entityId;
+        const publicRestUrl = globals.location.origin + '/api/v3/shares/' + entityId + '/public';
         return store.createRecord('share', {
           id: gri({
             entityType: shareEntityType,
@@ -895,7 +896,7 @@ export default Service.extend({
       // In real backend, the index is completely transparent for frontend.
       // This index is created as some kind of "random" string that should never
       // be interpreted.
-      index: window.btoa(name),
+      index: globals.window.btoa(name),
       type: 'dir',
       mtime: timestamp,
       posixPermissions: '777',
@@ -1068,7 +1069,7 @@ export default Service.extend({
       `service:mock-backend: recall state changed (${get(archiveRecallState, 'entityId')})`
     );
     if (!finished) {
-      window.setTimeout(() => this.updateRecallState(), 2000);
+      setTimeout(() => this.updateRecallState(), 2000);
     }
   },
 

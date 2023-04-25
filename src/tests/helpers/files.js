@@ -3,6 +3,7 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { get } from '@ember/object';
 import { lookupService } from './stub-service';
 import _ from 'lodash';
+import globals from 'onedata-gui-common/utils/globals';
 
 export const defaultSpaceId = 'space_default_id';
 
@@ -198,9 +199,9 @@ export function createFilesChain(filesDataArray) {
 }
 
 export function createEntityId(guid, spaceId = defaultSpaceId) {
-  return window.btoa(`guid#${guid}#${spaceId}`);
+  return globals.window.btoa(`guid#${guid}#${spaceId}`);
 }
 
 export function createPublicEntityId(guid, shareId, spaceId = defaultSpaceId) {
-  return window.btoa(`shareGuid#${guid}#${spaceId}#${shareId}`);
+  return globals.window.btoa(`shareGuid#${guid}#${spaceId}#${shareId}`);
 }

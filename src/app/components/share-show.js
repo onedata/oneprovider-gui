@@ -93,11 +93,6 @@ export default Component.extend(...mixins, {
   navigateDirTarget: '_top',
 
   /**
-   * @type {Window}
-   */
-  _window: window,
-
-  /**
    * One of: opendata, description, files
    * @type {String}
    */

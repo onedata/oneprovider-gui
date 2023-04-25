@@ -38,6 +38,7 @@ import sleep from 'onedata-gui-common/utils/sleep';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import globals from 'onedata-gui-common/utils/globals';
 
 /**
  * API object exposed by `fb-table` component, be used to control the component and read
@@ -205,13 +206,6 @@ export default Component.extend(I18n, {
   renderRefreshSpinner: false,
 
   changeDir: undefined,
-
-  _window: window,
-
-  /**
-   * @type {HTMLElement}
-   */
-  _body: document.body,
 
   /**
    * @type {Array<String>}
@@ -410,7 +404,7 @@ export default Component.extend(I18n, {
 
   async scrollTopAfterFrameRender(value = 0, isDelta = false) {
     scheduleOnce('afterRender', this, () => {
-      window.requestAnimationFrame(() => {
+      globals.window.requestAnimationFrame(() => {
         safeExec(this, () => {
           this.get('containerScrollTop')(value, isDelta);
         });
@@ -1010,16 +1004,12 @@ export default Component.extend(I18n, {
     let startIndex;
     let endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
-      const {
-        rowHeight,
-        _window,
-      } = this.getProperties('rowHeight', '_window');
       const firstRow = this.element?.querySelector('.first-row');
       const firstRowTop = firstRow ? dom.offset(firstRow).top : 0;
       const blankStart = firstRowTop * -1;
-      const blankEnd = blankStart + _window.innerHeight;
-      startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
-      endIndex = Math.floor(blankEnd / rowHeight);
+      const blankEnd = blankStart + globals.window.innerHeight;
+      startIndex = firstRowTop < 0 ? Math.floor(blankStart / this.rowHeight) : 0;
+      endIndex = Math.floor(blankEnd / this.rowHeight);
       if (endIndex < 0) {
         endIndex = 50;
       }

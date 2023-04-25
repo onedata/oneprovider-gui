@@ -18,6 +18,7 @@ import sinon from 'sinon';
 import { mockRootFiles } from '../../helpers/files';
 import { resolve } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import globals from 'onedata-gui-common/utils/globals';
 
 const ArchiveManager = Service.extend({
   async recallArchive() {},
@@ -94,7 +95,7 @@ describe('Integration | Component | archive-recall-modal', function () {
 
     await renderComponent();
 
-    const modal = document.querySelector('.archive-recall-modal.in');
+    const modal = globals.document.querySelector('.archive-recall-modal.in');
     expect(modal, 'opened modal').to.exist;
     expect(modal.querySelector('.archive-recall-modal-header'), 'header').to.exist;
     expect(modal.querySelector('.archive-recall-header .header-text'))

@@ -162,8 +162,6 @@ export default Component.extend(...mixins, {
    */
   attachmentState: reads('browsableDataset.state'),
 
-  _window: window,
-
   //#region action modals state
 
   // Below properties are used to configure items action modals embedded into template.

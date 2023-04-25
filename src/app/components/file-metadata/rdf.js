@@ -11,6 +11,7 @@ import AceEditorBase from 'oneprovider-gui/components/file-metadata/-ace-editor-
 import { conditional, eq, raw } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
 import { emptyValue } from 'oneprovider-gui/utils/file-metadata-view-model';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default AceEditorBase.extend(I18n, {
   classNames: ['file-metadata-rdf'],
@@ -30,7 +31,7 @@ export default AceEditorBase.extend(I18n, {
       const metadata = this.get('metadata');
       if (metadata && typeof metadata === 'object') {
         if (metadata.onedata_base64) {
-          return window.atob(metadata.onedata_base64);
+          return globals.window.atob(metadata.onedata_base64);
         } else {
           return '';
         }

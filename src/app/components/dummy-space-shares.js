@@ -1,6 +1,7 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend({
   mockBackend: service(),
@@ -14,7 +15,7 @@ export default Component.extend({
 
   actions: {
     getShareUrl( /* { shareId } */ ) {
-      return location.toString();
+      return globals.location.toString();
     },
     updateDirId(dirId) {
       this.set('dirId', dirId);

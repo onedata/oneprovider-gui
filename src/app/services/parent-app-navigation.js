@@ -8,21 +8,16 @@
  */
 
 import Service from '@ember/service';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Service.extend({
-  _window: window,
-
   navigateTarget: '_top',
 
   openUrl(url, replace = false) {
-    const {
-      _window,
-      navigateTarget,
-    } = this.getProperties('_window', 'navigateTarget');
     if (replace) {
-      _window.top.location.replace(url);
+      globals.window.top.location.replace(url);
     } else {
-      _window.open(url, navigateTarget);
+      globals.window.open(url, this.navigateTarget);
     }
   },
 });
