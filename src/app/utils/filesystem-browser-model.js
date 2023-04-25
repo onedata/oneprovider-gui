@@ -258,6 +258,16 @@ export default BaseBrowserModel.extend(...mixins, {
   isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
 
   /**
+   * @type {string}
+   */
+  browserName: 'filesystemBrowser',
+
+  /**
+   * @type {number}
+   */
+  defaultWidthFileBrowser: 1000,
+
+  /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
    * context menu.
    * @type {string}
@@ -950,23 +960,7 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @type {Object}
    */
-  columns: Object.freeze({
-    owner: EmberObject.create({
-      isVisible: true,
-      isEnabled: true,
-      width: 200,
-    }),
-    size: EmberObject.create({
-      isVisible: true,
-      isEnabled: true,
-      width: 150,
-    }),
-    modification: EmberObject.create({
-      isVisible: true,
-      isEnabled: true,
-      width: 200,
-    }),
-  }),
+  columns: undefined,
 
   /**
    * @type {Object}
@@ -1500,11 +1494,25 @@ export default BaseBrowserModel.extend(...mixins, {
   changeColumnVisibility(column, isEnabled) {
     this.set(`columns.${column}.isEnabled`, isEnabled);
     this.checkColumnsVisibility();
-    this._localStorage.setItem(`columns.${column}`, isEnabled);
+    const enabledColumns = [];
+    for (const column in this.columns) {
+      if (this.columns[column].isEnabled) {
+        enabledColumns.push(column);
+      }
+    }
+    this._localStorage.setItem(
+      `${this.browserName}.enabledColumns`,
+      enabledColumns.join()
+    );
   },
 
   checkColumnsVisibility() {
-    let remainingWidth = window.innerWidth - this.firstColumnWidth;
+    const element = this.get('element');
+    let width = this.defaultWidthFileBrowser;
+    if (element) {
+      width = element.querySelector('.fb-table-thead')?.offsetWidth;
+    }
+    let remainingWidth = width - this.firstColumnWidth;
     let hiddenColumnsCount = 0;
 
     for (const column in this.columns) {
@@ -1546,11 +1554,36 @@ export default BaseBrowserModel.extend(...mixins, {
   },
 
   getEnabledColumnsFromLocalStorage() {
+    const enabledColumns = this._localStorage.getItem(
+      `${this.browserName}.enabledColumns`
+    );
     for (const column in this.columns) {
-      if (this._localStorage.getItem(`columns.${column}`) !== null) {
-        const isEnabled = this._localStorage.getItem(`columns.${column}`);
-        this.set(`columns.${column}.isEnabled`, isEnabled === 'true');
+      if (enabledColumns.split(',').includes(column)) {
+        this.set(`columns.${column}.isEnabled`, true);
+      } else {
+        this.set(`columns.${column}.isEnabled`, false);
       }
     }
+  },
+
+  init() {
+    this._super(...arguments);
+    this.set('columns', {
+      owner: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }),
+      size: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 180,
+      }),
+      modification: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }),
+    });
   },
 });

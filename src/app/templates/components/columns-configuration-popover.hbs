@@ -13,13 +13,16 @@
         {{#each-in browserModel.columns as |columnName columnSpec|}}
           <li class="column">
             {{one-checkbox
-              inputId=(concat elementId columnName "Checkbox")
+              inputId=(concat elementId "-" columnName "Checkbox")
               checked=columnSpec.isEnabled
               update=(action "checkboxChanged" columnName)
               isReadOnly=false
-              class="filter-column-checkbox"
+              class=(concat-classes
+                "filter-column-checkbox"
+                (concat columnName "-checkbox")
+              )
             }}
-            <label for={{concat elementId columnName "Checkbox"}}>
+            <label for={{concat elementId "-" columnName "Checkbox"}}>
               <span
                 class={{concat-classes
                   "one-label checkbox-label"

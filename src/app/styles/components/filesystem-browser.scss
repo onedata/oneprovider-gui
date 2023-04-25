@@ -22,13 +22,14 @@
         border: 1px solid $color-one-orange;
         font-size: 0.4em;
         color: white;
-        border-radius: 7.5px;
+        border-radius: 50%;
         bottom: 8px;
         right: 10px;
         transform: translateX(-50%) translateY(-50%);
         background-color: $color-one-orange;
-        padding: 0 0.3em;
+        padding: 0 0.2em;
         align-items: center;
+        min-width: 15px;
       }
       .oneicon-columns {
         .one-icon-tag-icon {
@@ -48,6 +49,7 @@
       .hidden-columns-number {
         line-height: 0;
         @include font-semibold();
+        width: 100%;
       }
     }
   }
@@ -85,11 +87,11 @@
     text-align: center;
   }
   .fb-table-col-owner {
-    width: calc(var(--column-width) + 2 * $table-cell-padding);
+    width: var(--column-width);
     text-align: center;
     .file-owner-line {
-      width: var(--column-width);
-      max-width: var(--column-width);
+      width: calc(var(--column-width) - 2 * $table-cell-padding);
+      max-width: calc(var(--column-width) - 2 * $table-cell-padding);
     }
     .file-owner-username {
       opacity: $disabled-opacity;
