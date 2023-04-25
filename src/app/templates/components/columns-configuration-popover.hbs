@@ -1,6 +1,6 @@
 {{#render-later triggerRender=isOpened}}
   {{#one-webui-popover
-    popoverStyle="column-modification"
+    popoverStyle="columns-configuration"
     open=isOpened
     triggerSelector=triggerSelector
     as |popover|
@@ -10,11 +10,11 @@
       exceptSelector=triggerSelector
     }}
       <ul class="columns-list">
-        {{#each-in browserModel.columns as |columnName values|}}
+        {{#each-in browserModel.columns as |columnName columnSpec|}}
           <li class="column">
             {{one-checkbox
               inputId=(concat elementId columnName "Checkbox")
-              checked=values.isEnabled
+              checked=columnSpec.isEnabled
               update=(action "checkboxChanged" columnName)
               isReadOnly=false
               class="filter-column-checkbox"
@@ -23,13 +23,13 @@
               <span
                 class={{concat-classes
                   "one-label checkbox-label"
-                  (if (or values.isVisible (not values.isEnabled)) "end-line-space")
+                  (if (or columnSpec.isVisible (not columnSpec.isEnabled)) "end-line-space")
                 }}
               >
                 {{tt this columnName}}
               </span>
             </label>
-            {{#if (and (not values.isVisible) values.isEnabled)}}
+            {{#if (and (not columnSpec.isVisible) columnSpec.isEnabled)}}
               {{#one-icon icon="no-view"}}
                 {{one-tooltip title=(tt this "noViewTip")}}
               {{/one-icon}}

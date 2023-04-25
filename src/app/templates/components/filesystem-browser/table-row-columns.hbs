@@ -1,5 +1,5 @@
 {{#if browserModel.columns.owner.isVisible}}
-  <td class="fb-table-col-owner multiline" style={{columnsStyle.owner}}>
+  <td class="fb-table-col-owner multiline" style={{browserModel.columnsStyle.owner}}>
     <span class="file-item-text">
       {{filesystem-browser/table-cell-owner-info
         owner=owner
@@ -14,7 +14,7 @@
       "fb-table-col-size hidden-xs "
       (if file.effFile.isShowProgress "multiline")
     }}
-    style={{columnsStyle.size}}
+    style={{browserModel.columnsStyle.size}}
   >
     <span class="file-item-text">
       {{#if (eq file.effFile.type "file")}}
@@ -67,7 +67,10 @@
   </td>
 {{/if}}
 {{#if browserModel.columns.modification.isVisible}}
-  <td class="fb-table-col-modification hidden-xs" style={{columnsStyle.modification}}>
+  <td
+    class="fb-table-col-modification hidden-xs"
+    style={{browserModel.columnsStyle.modification}}
+  >
     <span class="file-item-text">
       {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
     </span>

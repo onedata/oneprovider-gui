@@ -12,7 +12,7 @@ import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { computed, get, observer } from '@ember/object';
+import EmberObject, { computed, get, observer } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import {
@@ -21,7 +21,7 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
-import { array, raw, and } from 'ember-awesome-macros';
+import { array, raw, and, gt } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
@@ -245,12 +245,17 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @type {number}
    */
-  widthFirstColumn: 800,
+  firstColumnWidth: 600,
 
   /**
    * @type {number}
    */
   hiddenColumnsCount: 0,
+
+  /**
+   * @type {boolean}
+   */
+  isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
 
   /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
@@ -949,24 +954,35 @@ export default BaseBrowserModel.extend(...mixins, {
   // #endregion
 
   /**
-   * @type {EmberObject}
+   * @type {Object}
    */
   columns: Object.freeze({
-    owner: {
+    owner: EmberObject.create({
       isVisible: true,
       isEnabled: true,
       width: 200,
-    },
-    size: {
+    }),
+    size: EmberObject.create({
       isVisible: true,
       isEnabled: true,
       width: 150,
-    },
-    modification: {
+    }),
+    modification: EmberObject.create({
       isVisible: true,
       isEnabled: true,
       width: 200,
-    },
+    }),
+  }),
+
+  /**
+   * @type {Object}
+   */
+  columnsStyle: computed('columns', function columnsStyle() {
+    const styles = {};
+    for (const column in this.columns) {
+      styles[column] = `--column-width: ${this.columns[column].width}px;`;
+    }
+    return styles;
   }),
 
   /**
@@ -1489,15 +1505,12 @@ export default BaseBrowserModel.extend(...mixins, {
    */
   changeColumnVisibility(column, isEnabled) {
     this.set(`columns.${column}.isEnabled`, isEnabled);
-    if (!isEnabled) {
-      this.set(`columns.${column}.isVisible`, false);
-    }
     this.checkColumnsVisibility();
     this._localStorage.setItem(`columns.${column}`, isEnabled);
   },
 
   checkColumnsVisibility() {
-    let remainingWidth = window.innerWidth - this.widthFirstColumn;
+    let remainingWidth = window.innerWidth - this.firstColumnWidth;
     let hiddenColumnsCount = 0;
 
     for (const column in this.columns) {
@@ -1508,13 +1521,18 @@ export default BaseBrowserModel.extend(...mixins, {
         } else {
           this.set(`columns.${column}.isVisible`, false);
           hiddenColumnsCount += 1;
+          remainingWidth = 0;
         }
       } else {
         this.set(`columns.${column}.isVisible`, false);
       }
     }
-    this.set('hiddenColumnsCount', hiddenColumnsCount);
-    this.set('isSomeColumnsHidden', hiddenColumnsCount > 0);
+    if (this.hiddenColumnsCount !== hiddenColumnsCount) {
+      this.set('hiddenColumnsCount', hiddenColumnsCount);
+      if (this.isAnyColumnHidden !== (hiddenColumnsCount > 0)) {
+        this.set('isAnyColumnHidden', hiddenColumnsCount > 0);
+      }
+    }
   },
 
   /**
@@ -1533,18 +1551,12 @@ export default BaseBrowserModel.extend(...mixins, {
     }
   },
 
-  columnsStyle() {
-    const styles = {};
-    for (const column in this.columns) {
-      styles[column] = `--width: ${this.columns[column].width}px;`;
-    }
-    return styles;
-  },
-
   getEnabledColumnsFromLocalStorage() {
     for (const column in this.columns) {
-      const isEnabled = this._localStorage.getItem(`columns.${column}`);
-      this.set(`columns.${column}.isEnabled`, isEnabled === 'true');
+      if (this._localStorage.getItem(`columns.${column}`) !== null) {
+        const isEnabled = this._localStorage.getItem(`columns.${column}`);
+        this.set(`columns.${column}.isEnabled`, isEnabled === 'true');
+      }
     }
   },
 });

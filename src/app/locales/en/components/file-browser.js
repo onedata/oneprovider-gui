@@ -10,7 +10,6 @@ import itemFeaturesContainer from './file-browser/item-features-container';
 import jumpControl from './file-browser/jump-control';
 import fileEntryCharts from './file-browser/file-entry-charts';
 import fbNoDirStatistics from './file-browser/fb-no-dir-statistics';
-import columnModificationPopover from './file-browser/column-modification-popover';
 import sizeStatsPerProviderTable from './file-browser/size-stats-per-provider-table';
 
 export default {
@@ -27,6 +26,5 @@ export default {
   jumpControl,
   fileEntryCharts,
   fbNoDirStatistics,
-  columnModificationPopover,
   sizeStatsPerProviderTable,
 };

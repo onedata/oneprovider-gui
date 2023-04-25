@@ -1,5 +1,5 @@
 .filesystem-browser {
-  --width: 100px;
+  --column-width: 100px;
   // special adjustments because of jump-control presence
   .filesystem-table-head-row {
     height: 63px;
@@ -19,14 +19,14 @@
         position: absolute;
         display: flex;
         height: 15px;
-        border: 1px solid #ffac30;
+        border: 1px solid $color-one-orange;
         font-size: 0.4em;
         color: white;
         border-radius: 7.5px;
         bottom: 8px;
         right: 10px;
         transform: translateX(-50%) translateY(-50%);
-        background-color: #ffac30;
+        background-color: $color-one-orange;
         padding: 0 0.3em;
         align-items: center;
       }
@@ -53,7 +53,7 @@
   }
   .fb-table-col-size {
     position: relative;
-    width: var(--width);
+    width: var(--column-width);
     text-align: center;
 
     .dir-size-container.active:hover {
@@ -81,15 +81,15 @@
     }
   }
   .fb-table-col-modification {
-    width: var(--width);
+    width: var(--column-width);
     text-align: center;
   }
   .fb-table-col-owner {
-    width: calc(var(--width) + 2 * $table-cell-padding);
+    width: calc(var(--column-width) + 2 * $table-cell-padding);
     text-align: center;
     .file-owner-line {
-      width: var(--width);
-      max-width: var(--width);
+      width: var(--column-width);
+      max-width: var(--column-width);
     }
     .file-owner-username {
       opacity: $disabled-opacity;

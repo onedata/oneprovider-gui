@@ -18,17 +18,26 @@
   </div>
 </th>
 {{#if browserModel.columns.owner.isVisible}}
-  <th class="fb-table-col-owner fb-table-secondary-col" style={{columnsStyle.owner}}>
+  <th
+    class="fb-table-col-owner fb-table-secondary-col"
+    style={{browserModel.columnsStyle.owner}}
+  >
     {{tt this "owner"}}
   </th>
 {{/if}}
 {{#if browserModel.columns.size.isVisible}}
-  <th class="fb-table-col-size fb-table-secondary-col hidden-xs" style={{columnsStyle.size}}>
+  <th
+    class="fb-table-col-size fb-table-secondary-col hidden-xs"
+    style={{browserModel.columnsStyle.size}}
+  >
     {{tt this "size"}}
   </th>
 {{/if}}
 {{#if browserModel.columns.modification.isVisible}}
-  <th class="fb-table-col-modification fb-table-secondary-col hidden-xs" style={{columnsStyle.modification}}>
+  <th
+    class="fb-table-col-modification fb-table-secondary-col hidden-xs"
+    style={{browserModel.columnsStyle.modification}}
+  >
     {{tt this "modification"}}
   </th>
 {{/if}}
@@ -47,18 +56,18 @@
     >
       {{#one-icon-tagged
         icon="columns"
-        tagIcon=(if (not browserModel.isSomeColumnsHidden) "settings")
+        tagIcon=(if (not browserModel.isAnyColumnHidden) "settings")
         class="tag-right"
       }}
-        {{one-tooltip title="Modify columns"}}
+        {{one-tooltip title=(tt this "modifyColumns")}}
       {{/one-icon-tagged}}
-      {{#if browserModel.isSomeColumnsHidden}}
+      {{#if browserModel.isAnyColumnHidden}}
         <div class="hidden-columns-number-container">
           <span class="hidden-columns-number">{{browserModel.hiddenColumnsCount}}</span>
         </div>
       {{/if}}
     </div>
-    {{filesystem-browser/column-modification-popover
+    {{columns-configuration-popover
       isOpened=columnModificationOpened
       triggerSelector=(concat "#" elementId " .column-modification-button")
       browserModel=browserModel

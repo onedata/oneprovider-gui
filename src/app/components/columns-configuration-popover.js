@@ -1,5 +1,5 @@
 /**
- * Renders column modification popover.
+ * Renders columns configuration popover.
  *
  * @author Agnieszka Warchoł
  * @copyright (C) 2023 ACK CYFRONET AGH
@@ -12,14 +12,14 @@ import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   tagName: '',
-  classNames: ['column-modification-popover'],
+  classNames: ['columns-configuration-popover'],
 
   i18n: service(),
 
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.columnModificationPopover',
+  i18nPrefix: 'components.columnsConfigurationPopover',
 
   /**
    * @virtual

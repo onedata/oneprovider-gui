@@ -45,6 +45,7 @@ import fileQos from './components/file-qos';
 import archiveAuditLog from './components/archive-audit-log';
 import fileCommon from './components/file-common';
 import apiSamples from './components/api-samples';
+import columnsConfigurationPopover from './components/columns-configuration-popover';
 
 import uploadManager from './services/upload-manager';
 
@@ -115,6 +116,7 @@ const translations = {
     archiveAuditLog,
     fileCommon,
     apiSamples,
+    columnsConfigurationPopover,
   },
   services: {
     uploadManager,

@@ -55,13 +55,6 @@ export default FbTableHeadRow.extend(...mixins, {
     });
   }),
 
-  /**
-   * @type {Object}
-   */
-  columnsStyle: computed('browserModel', function columnsStyle() {
-    return this.browserModel.columnsStyle();
-  }),
-
   init() {
     this._super(...arguments);
     // activate dir observer
