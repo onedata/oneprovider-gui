@@ -646,7 +646,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     let hiddenColumnsCount = 0;
 
     for (const column in this.columns) {
-      console.log(column);
       if (this.columns[column].isEnabled) {
         if (remainingWidth >= this.columns[column].width) {
           remainingWidth -= this.columns[column].width;
@@ -673,7 +672,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       `${this.browserName}.enabledColumns`
     );
     for (const column in this.columns) {
-      if (enabledColumns.split(',').includes(column)) {
+      if (enabledColumns?.split(',').includes(column)) {
         this.set(`columns.${column}.isEnabled`, true);
       } else {
         this.set(`columns.${column}.isEnabled`, false);
