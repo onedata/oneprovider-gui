@@ -291,6 +291,7 @@ async function renderComponent(testCase) {
       notStubbed('openArchiveDetailsModal'),
     openCancelModal: openCancelModal ||
       notStubbed('openCancelModal'),
+    firstColumnWidth: 0,
   }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   await render(hbs `<div id="content-scroll">{{file-browser

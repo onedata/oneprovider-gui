@@ -674,8 +674,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     for (const column in this.columns) {
       if (enabledColumns?.split(',').includes(column)) {
         this.set(`columns.${column}.isEnabled`, true);
-      } else {
-        this.set(`columns.${column}.isEnabled`, false);
       }
     }
   },
