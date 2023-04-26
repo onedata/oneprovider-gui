@@ -11,7 +11,7 @@ import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import {
   actionContext,
 } from 'oneprovider-gui/components/file-browser';
-import { get, computed } from '@ember/object';
+import EmberObject, { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -153,6 +153,11 @@ export default BaseBrowserModel.extend(I18n, {
     }
   }),
 
+  /**
+   * @override
+   */
+  browserName: 'datasetBrowser',
+
   navigateDataTarget: '_top',
 
   /**
@@ -251,6 +256,22 @@ export default BaseBrowserModel.extend(I18n, {
   }),
 
   //#endregion
+
+  init() {
+    this._super(...arguments);
+    this.set('columns', {
+      archives: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 150,
+      }),
+      created: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }),
+    });
+  },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
   // items select implementation

@@ -1,0 +1,30 @@
+{{#if (not (media "isMobile"))}}
+  <div
+    class="fb-toolbar-button column-modification-button"
+    {{action
+      (mut columnModificationOpened)
+      (not columnModificationOpened)
+      bubbles=false
+    }}
+  >
+    {{one-icon-tagged
+      icon="columns"
+      tagIcon=(if (not browserModel.isAnyColumnHidden) "settings")
+      class="tag-right"
+    }}
+    {{#if browserModel.isAnyColumnHidden}}
+      <div class="hidden-columns-number-container">
+        <span class="hidden-columns-number">{{browserModel.hiddenColumnsCount}}</span>
+      </div>
+    {{/if}}
+    {{one-tooltip title=(if browserModel.isAnyColumnHidden
+      (tt this "hiddenColumns")
+      (tt this "configureColumns")
+    )}}
+  </div>
+  {{columns-configuration-popover
+    isOpened=columnModificationOpened
+    triggerSelector=(concat "#" elementId " .column-modification-button")
+    browserModel=browserModel
+  }}
+{{/if}}

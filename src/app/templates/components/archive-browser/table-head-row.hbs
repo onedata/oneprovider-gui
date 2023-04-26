@@ -1,9 +1,17 @@
 <th class="fb-table-col-archives">{{tt this "archives"}}</th>
-<th class="fb-table-col-creator">{{tt this "creator"}}</th>
-<th class="fb-table-col-state fb-table-secondary-col hidden-xs">
-  {{tt this "state"}}
-</th>
-<th class="fb-table-col-incremental fb-table-secondary-col hidden-xs">
-  {{tt this "incremental"}}
-</th>
-<th class="fb-table-col-actions-menu"></th>
+{{#if browserModel.columns.creator.isVisible}}
+  <th class="fb-table-col-creator">{{tt this "creator"}}</th>
+{{/if}}
+{{#if browserModel.columns.state.isVisible}}
+  <th class="fb-table-col-state fb-table-secondary-col hidden-xs">
+    {{tt this "state"}}
+  </th>
+{{/if}}
+{{#if browserModel.columns.incremental.isVisible}}
+  <th class="fb-table-col-incremental fb-table-secondary-col hidden-xs">
+    {{tt this "incremental"}}
+  </th>
+{{/if}}
+{{file-browser/fb-configuration-columns-cell
+  browserModel=browserModel
+}}

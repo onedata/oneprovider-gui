@@ -233,39 +233,9 @@ export default BaseBrowserModel.extend(...mixins, {
   infoIconActionName: 'info',
 
   /**
-   * @type {Storage}
-   */
-  _localStorage: localStorage,
-
-  /**
-   * @type {Window}
-   */
-  _window: window,
-
-  /**
-   * @type {number}
-   */
-  firstColumnWidth: 600,
-
-  /**
-   * @type {number}
-   */
-  hiddenColumnsCount: 0,
-
-  /**
-   * @type {boolean}
-   */
-  isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
-
-  /**
-   * @type {string}
+   * @override
    */
   browserName: 'filesystemBrowser',
-
-  /**
-   * @type {number}
-   */
-  defaultWidthFileBrowser: 1000,
 
   /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
@@ -958,22 +928,6 @@ export default BaseBrowserModel.extend(...mixins, {
   // #endregion
 
   /**
-   * @type {Object}
-   */
-  columns: undefined,
-
-  /**
-   * @type {Object}
-   */
-  columnsStyle: computed('columns', function columnsStyle() {
-    const styles = {};
-    for (const column in this.columns) {
-      styles[column] = `--column-width: ${this.columns[column].width}px;`;
-    }
-    return styles;
-  }),
-
-  /**
    * @type {ComputedProperty<Array<String>>}
    */
   customClassNames: computed(
@@ -1212,13 +1166,6 @@ export default BaseBrowserModel.extend(...mixins, {
       actions = actions.rejectBy('id', 'paste');
     }
     return actions;
-  },
-
-  /**
-   * @override
-   */
-  onWindowResize() {
-    return this.checkColumnsVisibility();
   },
 
   /**
@@ -1487,57 +1434,6 @@ export default BaseBrowserModel.extend(...mixins, {
   },
 
   /**
-   * @param {string} column
-   * @param {boolean} isEnabled
-   * @returns {void}
-   */
-  changeColumnVisibility(column, isEnabled) {
-    this.set(`columns.${column}.isEnabled`, isEnabled);
-    this.checkColumnsVisibility();
-    const enabledColumns = [];
-    for (const column in this.columns) {
-      if (this.columns[column].isEnabled) {
-        enabledColumns.push(column);
-      }
-    }
-    this._localStorage.setItem(
-      `${this.browserName}.enabledColumns`,
-      enabledColumns.join()
-    );
-  },
-
-  checkColumnsVisibility() {
-    const element = this.get('element');
-    let width = this.defaultWidthFileBrowser;
-    if (element) {
-      width = element.querySelector('.fb-table-thead')?.offsetWidth;
-    }
-    let remainingWidth = width - this.firstColumnWidth;
-    let hiddenColumnsCount = 0;
-
-    for (const column in this.columns) {
-      if (this.columns[column].isEnabled) {
-        if (remainingWidth >= this.columns[column].width) {
-          remainingWidth -= this.columns[column].width;
-          this.set(`columns.${column}.isVisible`, true);
-        } else {
-          this.set(`columns.${column}.isVisible`, false);
-          hiddenColumnsCount += 1;
-          remainingWidth = 0;
-        }
-      } else {
-        this.set(`columns.${column}.isVisible`, false);
-      }
-    }
-    if (this.hiddenColumnsCount !== hiddenColumnsCount) {
-      this.set('hiddenColumnsCount', hiddenColumnsCount);
-      if (this.isAnyColumnHidden !== (hiddenColumnsCount > 0)) {
-        this.set('isAnyColumnHidden', hiddenColumnsCount > 0);
-      }
-    }
-  },
-
-  /**
    * @param {Models.File} file
    */
   async openFileShare(file) {
@@ -1550,19 +1446,6 @@ export default BaseBrowserModel.extend(...mixins, {
           this.openInfo([file], 'shares');
         },
       }).hiddenPromise;
-    }
-  },
-
-  getEnabledColumnsFromLocalStorage() {
-    const enabledColumns = this._localStorage.getItem(
-      `${this.browserName}.enabledColumns`
-    );
-    for (const column in this.columns) {
-      if (enabledColumns.split(',').includes(column)) {
-        this.set(`columns.${column}.isEnabled`, true);
-      } else {
-        this.set(`columns.${column}.isEnabled`, false);
-      }
     }
   },
 

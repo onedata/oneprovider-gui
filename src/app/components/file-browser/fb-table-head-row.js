@@ -8,8 +8,14 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  WindowResizeHandler,
+];
+
+export default Component.extend(...mixins, {
   tagName: 'tr',
   classNames: ['fb-table-head-row'],
 
@@ -18,4 +24,17 @@ export default Component.extend(I18n, {
    * @type {Utils.BaseBrowserModel}
    */
   browserModel: undefined,
+
+  init() {
+    this._super(...arguments);
+    this.browserModel.getEnabledColumnsFromLocalStorage();
+    this.browserModel.checkColumnsVisibility();
+  },
+
+  /**
+   * @param {TransitionEvent|UIEvent} event
+   */
+  onWindowResize( /** event */ ) {
+    this.browserModel.checkColumnsVisibility();
+  },
 });

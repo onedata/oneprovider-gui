@@ -1,0 +1,45 @@
+.fb-table-col-actions-menu {
+  font-size: 200%;
+  padding-left: 0;
+  padding-bottom: 2px;
+  .fb-toolbar-button.column-modification-button {
+    position: relative;
+    margin-left: -8px;
+  }
+  .hidden-columns-number-container {
+    position: absolute;
+    display: flex;
+    height: 15px;
+    border: 1px solid $color-one-orange;
+    font-size: 0.4em;
+    color: white;
+    border-radius: 50%;
+    bottom: -5px;
+    right: -10px;
+    transform: translateX(-50%) translateY(-50%);
+    background-color: $color-one-orange;
+    padding: 0 0.2em;
+    align-items: center;
+    min-width: 15px;
+  }
+  .oneicon-columns {
+    vertical-align: middle;
+    .one-icon-tag-icon {
+      font-size: 60% !important;
+      right: -1px;
+      bottom: -2px;
+    }
+    .one-icon-tag-circle {
+      width: 0.6em;
+      height: 0.6em;
+      right: -3px;
+      bottom: -2px;
+    }
+  }
+  .hidden-columns-number {
+    line-height: 0;
+    @include font-semibold();
+    width: 100%;
+  }
+}
+

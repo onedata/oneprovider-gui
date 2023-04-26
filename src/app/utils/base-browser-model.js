@@ -24,7 +24,7 @@ import {
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
 import { scheduleOnce } from '@ember/runloop';
-import { tag, raw, conditional } from 'ember-awesome-macros';
+import { tag, raw, conditional, gt } from 'ember-awesome-macros';
 import moment from 'moment';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
@@ -199,6 +199,52 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       hash[get(button, 'id')] = button;
       return hash;
     }, {});
+  }),
+
+  /**
+   * @type {Storage}
+   */
+  _localStorage: localStorage,
+
+  /**
+   * @type {number}
+   */
+  firstColumnWidth: 600,
+
+  /**
+   * @type {number}
+   */
+  hiddenColumnsCount: 0,
+
+  /**
+   * @type {boolean}
+   */
+  isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
+
+  /**
+   * @type {string}
+   */
+  browserName: '',
+
+  /**
+   * @type {number}
+   */
+  defaultWidthFileBrowser: 1000,
+
+  /**
+   * @type {Object}
+   */
+  columns: undefined,
+
+  /**
+   * @type {Object}
+   */
+  columnsStyle: computed('columns', function columnsStyle() {
+    const styles = {};
+    for (const column in this.columns) {
+      styles[column] = `--column-width: ${this.columns[column].width}px;`;
+    }
+    return styles;
   }),
 
   //#endregion
@@ -403,6 +449,13 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     }
   ),
 
+  /**
+   * @override
+   */
+  onWindowResize() {
+    return this.checkColumnsVisibility();
+  },
+
   init() {
     this._super(...arguments);
     this.generateAllButtonsArray();
@@ -560,6 +613,71 @@ export default EmberObject.extend(OwnerInjector, I18n, {
         }, options);
       default:
         throw new Error(`createFileAction: not supported spec type: ${specType}`);
+    }
+  },
+
+  /**
+   * @param {string} column
+   * @param {boolean} isEnabled
+   * @returns {void}
+   */
+  changeColumnVisibility(column, isEnabled) {
+    this.set(`columns.${column}.isEnabled`, isEnabled);
+    this.checkColumnsVisibility();
+    const enabledColumns = [];
+    for (const column in this.columns) {
+      if (this.columns[column].isEnabled) {
+        enabledColumns.push(column);
+      }
+    }
+    this._localStorage.setItem(
+      `${this.browserName}.enabledColumns`,
+      enabledColumns.join()
+    );
+  },
+
+  checkColumnsVisibility() {
+    const element = this.get('element');
+    let width = this.defaultWidthFileBrowser;
+    if (element) {
+      width = element.querySelector('.fb-table-thead')?.offsetWidth;
+    }
+    let remainingWidth = width - this.firstColumnWidth;
+    let hiddenColumnsCount = 0;
+
+    for (const column in this.columns) {
+      console.log(column);
+      if (this.columns[column].isEnabled) {
+        if (remainingWidth >= this.columns[column].width) {
+          remainingWidth -= this.columns[column].width;
+          this.set(`columns.${column}.isVisible`, true);
+        } else {
+          this.set(`columns.${column}.isVisible`, false);
+          hiddenColumnsCount += 1;
+          remainingWidth = 0;
+        }
+      } else {
+        this.set(`columns.${column}.isVisible`, false);
+      }
+    }
+    if (this.hiddenColumnsCount !== hiddenColumnsCount) {
+      this.set('hiddenColumnsCount', hiddenColumnsCount);
+      if (this.isAnyColumnHidden !== (hiddenColumnsCount > 0)) {
+        this.set('isAnyColumnHidden', hiddenColumnsCount > 0);
+      }
+    }
+  },
+
+  getEnabledColumnsFromLocalStorage() {
+    const enabledColumns = this._localStorage.getItem(
+      `${this.browserName}.enabledColumns`
+    );
+    for (const column in this.columns) {
+      if (enabledColumns.split(',').includes(column)) {
+        this.set(`columns.${column}.isEnabled`, true);
+      } else {
+        this.set(`columns.${column}.isEnabled`, false);
+      }
     }
   },
 });

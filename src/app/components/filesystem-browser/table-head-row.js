@@ -60,8 +60,6 @@ export default FbTableHeadRow.extend(...mixins, {
     // activate dir observer
     this.get('browserModel.dir');
     this.dirObserver();
-    this.browserModel.getEnabledColumnsFromLocalStorage();
-    this.browserModel.checkColumnsVisibility();
   },
 
   /**

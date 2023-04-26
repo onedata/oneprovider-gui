@@ -1,8 +1,14 @@
 <th class="fb-table-col-datasets">{{tt this "datasets"}}</th>
-<th class="fb-table-col-archives fb-table-secondary-col hidden-xs">
-  {{tt this "archives"}}
-</th>
-<th class="fb-table-col-created fb-table-secondary-col hidden-xs">
-  {{tt this "created"}}
-</th>
-<th class="fb-table-col-actions-menu"></th>
+{{#if browserModel.columns.archives.isVisible}}
+  <th class="fb-table-col-archives fb-table-secondary-col hidden-xs">
+    {{tt this "archives"}}
+  </th>
+{{/if}}
+{{#if browserModel.columns.created.isVisible}}
+  <th class="fb-table-col-created fb-table-secondary-col hidden-xs">
+    {{tt this "created"}}
+  </th>
+{{/if}}
+{{file-browser/fb-configuration-columns-cell
+  browserModel=browserModel
+}}

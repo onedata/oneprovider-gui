@@ -12,7 +12,7 @@ import {
   anySelectedContexts,
   actionContext,
 } from 'oneprovider-gui/components/file-browser';
-import { computed, get } from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
@@ -201,6 +201,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       return visibleButtons;
     }
   ),
+
+  /**
+   * @override
+   */
+  browserName: 'archiveBrowser',
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -620,6 +625,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   //#endregion
+
+  init() {
+    this._super(...arguments);
+    this.set('columns', {
+      creator: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 240,
+      }),
+      state: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 130,
+      }),
+      incremental: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }),
+    });
+  },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
   // items select implementation
