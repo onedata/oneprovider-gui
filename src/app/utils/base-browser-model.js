@@ -26,6 +26,7 @@ import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
 import { scheduleOnce } from '@ember/runloop';
 import { tag, raw, conditional, gt } from 'ember-awesome-macros';
 import moment from 'moment';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
   i18n: service(),
@@ -200,11 +201,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       return hash;
     }, {});
   }),
-
-  /**
-   * @type {Storage}
-   */
-  _localStorage: localStorage,
 
   /**
    * @type {number}
@@ -630,7 +626,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
         enabledColumns.push(column);
       }
     }
-    this._localStorage.setItem(
+    globals.localStorage.setItem(
       `${this.browserName}.enabledColumns`,
       enabledColumns.join()
     );
@@ -668,7 +664,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   },
 
   getEnabledColumnsFromLocalStorage() {
-    const enabledColumns = this._localStorage.getItem(
+    const enabledColumns = globals.localStorage.getItem(
       `${this.browserName}.enabledColumns`
     );
     for (const column in this.columns) {

@@ -1,10 +1,9 @@
 .fb-table-col-actions-menu {
   font-size: 200%;
   padding-left: 0;
-  padding-bottom: 2px;
   .fb-toolbar-button.column-modification-button {
     position: relative;
-    margin-left: -8px;
+    margin-left: -0.3em;
   }
   .hidden-columns-number-container {
     position: absolute;
@@ -14,8 +13,8 @@
     font-size: 0.4em;
     color: white;
     border-radius: 50%;
-    bottom: -5px;
-    right: -10px;
+    bottom: -0.5em;
+    right: -0.9em;
     transform: translateX(-50%) translateY(-50%);
     background-color: $color-one-orange;
     padding: 0 0.2em;
@@ -26,14 +25,14 @@
     vertical-align: middle;
     .one-icon-tag-icon {
       font-size: 60% !important;
-      right: -1px;
-      bottom: -2px;
+      right: -0.06em;
+      bottom: -0.07em;
     }
     .one-icon-tag-circle {
       width: 0.6em;
       height: 0.6em;
-      right: -3px;
-      bottom: -2px;
+      right: -0.1em;
+      bottom: -0.07em;
     }
   }
   .hidden-columns-number {
