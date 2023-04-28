@@ -41,6 +41,6 @@ export default EmberObject.extend({
   }),
 
   isHugeMultiText: computed('items.@each.name', function isHugeMultiText() {
-    return _.sum(this.items?.map(item => get(item, 'name').length)) > 2750;
+    return _.sum(this.items?.map(item => item && get(item, 'name')?.length || 0)) > 2750;
   }),
 });

@@ -201,24 +201,19 @@ export default BaseAction.extend({
   },
 
   async toggleDatasetsAttachment(datasets, attach) {
-    const {
-      datasetManager,
-      onStateChanged,
-    } = this.getProperties(
-      'datasetManager',
-      'onStateChanged',
-    );
-    const result = await allSettled(datasets.map(dataset =>
-      datasetManager.toggleDatasetAttachment(dataset, attach)
-    ));
+    const results = await allSettled(datasets.map(async (dataset) => {
+      await this.datasetManager.toggleDatasetAttachment(dataset, attach);
+      return dataset;
+    }));
+    const toggledDatasets = results.map(result => get(result, 'value')).filter(Boolean);
     try {
-      await onStateChanged();
+      await this.onStateChanged(toggledDatasets);
     } catch (error) {
       console.error(
         'toggleDatasetsAttachment: post-processing after toggling attachment failed:',
         error
       );
     }
-    return result;
+    return results;
   },
 });
