@@ -11,7 +11,7 @@ import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import {
   actionContext,
 } from 'oneprovider-gui/components/file-browser';
-import { set, get, computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -22,7 +22,7 @@ import { conditional } from 'ember-awesome-macros';
 import {
   CopyDatasetIdAction,
   CreateArchiveAction,
-  ChangeStateAction,
+  BrowserChangeStateAction,
   RemoveAction,
 } from 'oneprovider-gui/utils/dataset/actions';
 import { spaceDatasetsRootId } from 'oneprovider-gui/components/content-space-datasets';
@@ -196,44 +196,13 @@ export default BaseBrowserModel.extend(I18n, {
 
   btnChangeState: computed(
     'attachmentState',
+    'spacePrivileges.{manageDatasets,createArchives}',
     function btnChangeState() {
-      const {
-        // use attachmentState from this component to prevent unnecessary action recompute
-        attachmentState,
-        spacePrivileges,
-      } = this.getProperties(
-        'attachmentState',
-        'spacePrivileges',
-      );
-      /**
-       * @type {ChangeStateAction}
-       * @property {Models.Dataset} [currentDirParent] Additional property for base action
-       *   used only if modifying current dir, contains parent of current dir to be
-       *   redirected to after change.
-       */
-      const actionButton = this.createFileAction(ChangeStateAction, {
-        attachmentState,
-        spacePrivileges,
-        onStateChanged: async (changedDatasets) => {
-          if (changedDatasets?.includes(this.dir) && actionButton.currentDirParent) {
-            await this.changeDir(actionButton.currentDirParent);
-          } else {
-            await this.refresh();
-          }
-        },
+      return this.createFileAction(BrowserChangeStateAction, {
+        attachmentState: this.attachmentState,
+        spacePrivileges: this.spacePrivileges,
+        browserModel: this,
       });
-
-      // override general toggle action to make additional operations for browser
-      const originalAction = actionButton.action;
-      set(actionButton, 'action', async (datasets) => {
-        const currentDir = this.dir;
-        const isChangingCurrentDirState = datasets.includes(currentDir);
-        if (isChangingCurrentDirState) {
-          actionButton.currentDirParent = await this.resolveFileParentFun(currentDir);
-        }
-        return originalAction(datasets);
-      });
-      return actionButton;
     }
   ),
 

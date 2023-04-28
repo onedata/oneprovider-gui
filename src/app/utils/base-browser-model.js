@@ -553,27 +553,27 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @returns {EmberObject}
    */
   createFileAction(fileActionSpec, options = {}) {
-    const {
-      id,
-      icon,
-      title,
-      disabled,
-      class: elementClass,
-      showIn,
-      action,
-    } = getProperties(
-      fileActionSpec,
-      'id',
-      'icon',
-      'title',
-      'disabled',
-      'class',
-      'showIn',
-      'action',
-    );
     const specType = typeOf(fileActionSpec);
     switch (specType) {
-      case 'object':
+      case 'object': {
+        const {
+          id,
+          icon,
+          title,
+          disabled,
+          class: elementClass,
+          showIn,
+          action,
+        } = getProperties(
+          fileActionSpec,
+          'id',
+          'icon',
+          'title',
+          'disabled',
+          'class',
+          'showIn',
+          'action',
+        );
         return Object.assign({}, fileActionSpec, {
           icon: icon || `browser-${dasherize(id)}`,
           title: title || this.t(`fileActions.${id}`),
@@ -584,6 +584,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
             return action(files || this.get('selectedItems'), ...args);
           },
         }, options);
+      }
       case 'class':
         return fileActionSpec.create({
           ownerSource: this,

@@ -9,11 +9,13 @@
 import CopyDatasetIdAction from 'oneprovider-gui/utils/dataset/actions/copy-dataset-id-action';
 import CreateArchiveAction from 'oneprovider-gui/utils/dataset/actions/create-archive-action';
 import ChangeStateAction from 'oneprovider-gui/utils/dataset/actions/change-state-action';
+import BrowserChangeStateAction from 'oneprovider-gui/utils/dataset/actions/browser-change-state-action';
 import RemoveAction from 'oneprovider-gui/utils/dataset/actions/remove-action';
 
 export {
   CopyDatasetIdAction,
   CreateArchiveAction,
   ChangeStateAction,
+  BrowserChangeStateAction,
   RemoveAction,
 };
