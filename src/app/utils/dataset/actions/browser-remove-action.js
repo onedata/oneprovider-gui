@@ -1,5 +1,5 @@
 /**
- * Adds dataset-browser-specific implementation for change-state action.
+ * Adds dataset-browser-specific implementation for remove action.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
@@ -7,6 +7,6 @@
  */
 
 import CurrentDirDisappearing from 'oneprovider-gui/mixins/dataset/actions/current-dir-disappearing';
-import ChangeStateAction from './change-state-action';
+import RemoveAction from './remove-action';
 
-export default ChangeStateAction.extend(CurrentDirDisappearing);
+export default RemoveAction.extend(CurrentDirDisappearing);

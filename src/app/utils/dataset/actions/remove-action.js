@@ -30,7 +30,7 @@ export default BaseAction.extend({
    * @virtual optional
    * @type {Function}
    */
-  onRemoved: notImplementedIgnore,
+  onExecutionCompleted: notImplementedIgnore,
 
   /**
    * @override
@@ -148,24 +148,19 @@ export default BaseAction.extend({
   },
 
   async removeDatasets(datasets) {
-    const {
-      datasetManager,
-      onRemoved,
-    } = this.getProperties(
-      'datasetManager',
-      'onRemoved',
-    );
-    const result = await allSettled(datasets.map(dataset =>
-      datasetManager.destroyDataset(dataset)
-    ));
+    const results = await allSettled(datasets.map(async (dataset) => {
+      await this.datasetManager.destroyDataset(dataset);
+      return dataset;
+    }));
+    const changedDatasets = results.map(result => get(result, 'value')).filter(Boolean);
     try {
-      await onRemoved();
+      await this.onExecutionCompleted(changedDatasets);
     } catch (error) {
       console.error(
-        'removeDatasets: refreshing browser after removing datasets failed:',
+        'removeDatasets: post-processiing after removing datasets failed:',
         error
       );
     }
-    return result;
+    return results;
   },
 });

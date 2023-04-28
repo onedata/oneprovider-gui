@@ -23,7 +23,7 @@ import {
   CopyDatasetIdAction,
   CreateArchiveAction,
   BrowserChangeStateAction,
-  RemoveAction,
+  BrowserRemoveAction,
 } from 'oneprovider-gui/utils/dataset/actions';
 import { spaceDatasetsRootId } from 'oneprovider-gui/components/content-space-datasets';
 
@@ -206,11 +206,10 @@ export default BaseBrowserModel.extend(I18n, {
     }
   ),
 
-  btnRemove: computed(function btnRemove() {
-    const spacePrivileges = this.get('spacePrivileges');
-    return this.createFileAction(RemoveAction, {
-      spacePrivileges,
-      onRemoved: this.refresh.bind(this),
+  btnRemove: computed('spacePrivileges', function btnRemove() {
+    return this.createFileAction(BrowserRemoveAction, {
+      browserModel: this,
+      spacePrivileges: this.spacePrivileges,
     });
   }),
 

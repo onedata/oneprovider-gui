@@ -36,7 +36,7 @@ export default BaseAction.extend({
    * @virtual optional
    * @type {Function}
    */
-  onStateChanged: notImplementedIgnore,
+  onExecutionCompleted: notImplementedIgnore,
 
   /**
    * @override
@@ -205,9 +205,9 @@ export default BaseAction.extend({
       await this.datasetManager.toggleDatasetAttachment(dataset, attach);
       return dataset;
     }));
-    const toggledDatasets = results.map(result => get(result, 'value')).filter(Boolean);
+    const changedDatasets = results.map(result => get(result, 'value')).filter(Boolean);
     try {
-      await this.onStateChanged(toggledDatasets);
+      await this.onExecutionCompleted(changedDatasets);
     } catch (error) {
       console.error(
         'toggleDatasetsAttachment: post-processing after toggling attachment failed:',
