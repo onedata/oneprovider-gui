@@ -26,25 +26,41 @@ import dom from 'onedata-gui-common/utils/dom';
 
 const defaultIsItemDisabled = () => false;
 
-export const actionContext = {
+export const actionContext = Object.freeze({
+  // -- Selection context - context menu for selected items on the list --
+  // special selection context returned when nothing is selected
   none: 'none',
-  inDir: 'inDir',
-  inDirPreview: 'inDirPreview',
+  // single item is selected - with dir or single-item type (file), in normal or preview
+  // browser mode
   singleDir: 'singleDir',
   singleDirPreview: 'singleDirPreview',
   singleFile: 'singleFile',
   singleFilePreview: 'singleFilePreview',
+  // more than one item is selected, additional type is "Mixed" meaning that there are
+  // at least two items with different types
   multiDir: 'multiDir',
   mutliDirPreview: 'mutliDirPreview',
   multiFile: 'multiFile',
   multiFilePreview: 'multiFilePreview',
   multiMixed: 'multiMixed',
   multiMixedPreview: 'multiMixedPreview',
+
+  // -- Non-selection contexts --
+  // always-visible buttons in toolbar for current directory or when clicked on empty
+  // browser area
+  inDir: 'inDir',
+  inDirPreview: 'inDirPreview',
+  // context menu shown for current dir in breadcrumbs - in typical scenarios actions for
+  // `singleDir*` should have also this context enabled, but there is a need to make
+  // it distinct
   currentDir: 'currentDir',
   currentDirPreview: 'currentDirPreview',
+  // context menu shown for first dir in breadcrumbs - in typical scenarios actions for
+  // `currentDir*` should have also this context enabled, but there is a need to make it
+  // distinct
   rootDir: 'rootDir',
   rootDirPreview: 'rootDirPreview',
-};
+});
 
 export const anySelectedContexts = [
   actionContext.singleDir,
@@ -309,7 +325,7 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * One of values from `actionContext` enum object
+   * One of values from `actionContext` enum object marked as "selection context" in doc
    * @type {ComputedProperty<string>}
    */
   selectionContext: computed(

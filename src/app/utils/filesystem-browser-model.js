@@ -272,7 +272,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   // #region Action buttons
 
   btnBagitUpload: computed(
-    'isOnlyCurrentDirSelected',
     'spacePrivileges.scheduleAtmWorkflowExecutions',
     function btnBagitUpload() {
       const i18n = this.get('i18n');
