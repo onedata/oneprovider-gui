@@ -63,7 +63,7 @@ export default FilesystemBrowserModel.extend({
   },
 
   btnChooseCurrentDir: computed(function btnChooseCurrentDir() {
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'chooseCurrentDir',
       icon: 'checked',
       action: ([currentDir]) => {

@@ -327,7 +327,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   ),
 
   btnRefresh: computed(function btnRefresh() {
-    return this.createFileAction(EmberObject.extend({
+    return this.createItemBrowserAction(EmberObject.extend({
       id: 'refresh',
       title: this.t('fileActions.refresh'),
       disabled: false,
@@ -552,7 +552,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @param {Object} options additional options for object create
    * @returns {EmberObject}
    */
-  createFileAction(fileActionSpec, options = {}) {
+  createItemBrowserAction(fileActionSpec, options = {}) {
     const specType = typeOf(fileActionSpec);
     switch (specType) {
       case 'object': {
@@ -591,7 +591,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
           context: this,
         }, options);
       default:
-        throw new Error(`createFileAction: not supported spec type: ${specType}`);
+        throw new Error(`createItemBrowserAction: not supported spec type: ${specType}`);
     }
   },
 });

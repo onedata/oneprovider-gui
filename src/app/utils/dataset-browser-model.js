@@ -166,12 +166,12 @@ export default BaseBrowserModel.extend(I18n, {
   //#region Action buttons
 
   btnCopyId: computed(function btnCopyId() {
-    return this.createFileAction(CopyDatasetIdAction);
+    return this.createItemBrowserAction(CopyDatasetIdAction);
   }),
 
   btnShowFile: computed('selectionContext', function btnShowFile() {
     const selectionContext = this.get('selectionContext');
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'showFile',
       icon: 'browser-' +
         (selectionContext === actionContext.singleFile ? 'file' : 'directory'),
@@ -188,7 +188,7 @@ export default BaseBrowserModel.extend(I18n, {
 
   btnCreateArchive: computed('spacePrivileges', function btnCreateArchive() {
     const spacePrivileges = this.get('spacePrivileges');
-    return this.createFileAction(CreateArchiveAction, {
+    return this.createItemBrowserAction(CreateArchiveAction, {
       onOpenCreateArchive: this.openCreateArchiveModal.bind(this),
       spacePrivileges,
     });
@@ -198,7 +198,7 @@ export default BaseBrowserModel.extend(I18n, {
     'attachmentState',
     'spacePrivileges.{manageDatasets,createArchives}',
     function btnChangeState() {
-      return this.createFileAction(BrowserChangeStateAction, {
+      return this.createItemBrowserAction(BrowserChangeStateAction, {
         attachmentState: this.attachmentState,
         spacePrivileges: this.spacePrivileges,
         browserModel: this,
@@ -207,14 +207,14 @@ export default BaseBrowserModel.extend(I18n, {
   ),
 
   btnRemove: computed('spacePrivileges', function btnRemove() {
-    return this.createFileAction(BrowserRemoveAction, {
+    return this.createItemBrowserAction(BrowserRemoveAction, {
       browserModel: this,
       spacePrivileges: this.spacePrivileges,
     });
   }),
 
   btnProtection: computed(function btnProtection() {
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'protection',
       icon: 'browser-permissions',
       action: async (datasets) => {
