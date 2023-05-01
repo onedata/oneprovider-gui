@@ -196,7 +196,7 @@ export default BaseBrowserModel.extend(I18n, {
 
   btnChangeState: computed(
     'attachmentState',
-    'spacePrivileges.{manageDatasets,createArchives}',
+    'spacePrivileges.manageDatasets',
     function btnChangeState() {
       return this.createItemBrowserAction(BrowserChangeStateAction, {
         attachmentState: this.attachmentState,
@@ -206,12 +206,15 @@ export default BaseBrowserModel.extend(I18n, {
     }
   ),
 
-  btnRemove: computed('spacePrivileges', function btnRemove() {
-    return this.createItemBrowserAction(BrowserRemoveAction, {
-      browserModel: this,
-      spacePrivileges: this.spacePrivileges,
-    });
-  }),
+  btnRemove: computed(
+    'spacePrivileges.manageDatasets',
+    function btnRemove() {
+      return this.createItemBrowserAction(BrowserRemoveAction, {
+        browserModel: this,
+        spacePrivileges: this.spacePrivileges,
+      });
+    }
+  ),
 
   btnProtection: computed(function btnProtection() {
     return this.createItemBrowserAction({

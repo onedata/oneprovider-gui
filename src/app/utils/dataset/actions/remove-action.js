@@ -64,7 +64,7 @@ export default BaseAction.extend({
     'selectedDatasetsHaveArchives',
     computedT('tip.notAvailableHaveArchives'),
     computed(
-      'spacePrivileges.{manageDatasets,createArchives}',
+      'spacePrivileges.manageDatasets',
       function disabledTip() {
         const {
           spacePrivileges,

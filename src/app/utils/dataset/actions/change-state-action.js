@@ -83,7 +83,7 @@ export default BaseAction.extend({
     'isAnySelectedRootDeleted',
     computedT('tip.cannotReattachDeleted'),
     computed(
-      'spacePrivileges.{manageDatasets,createArchives}',
+      'spacePrivileges.manageDatasets',
       function disabledTip() {
         const {
           spacePrivileges,
