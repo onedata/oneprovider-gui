@@ -21,6 +21,7 @@ import { isEmpty } from '@ember/utils';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import transferIndex from 'oneprovider-gui/utils/transfer-index';
 import dom from 'onedata-gui-common/utils/dom';
+import globals from 'onedata-gui-common/utils/globals';
 
 const updateInterval = 5000;
 
@@ -72,8 +73,6 @@ export default Component.extend({
   tableTopVisible: true,
 
   rowHeight: 73,
-
-  _window: window,
 
   spaceId: reads('space.entityId'),
 
@@ -171,16 +170,12 @@ export default Component.extend({
     let startIndex;
     let endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
-      const {
-        _window,
-        rowHeight,
-      } = this.getProperties('_window', 'rowHeight');
       const firstRow = this.element?.querySelector('.first-row');
       const firstRowTop = firstRow ? dom.offset(firstRow).top : 0;
       const blankStart = firstRowTop * -1;
-      const blankEnd = blankStart + _window.innerHeight;
-      startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
-      endIndex = Math.max(Math.floor(blankEnd / rowHeight), 0);
+      const blankEnd = blankStart + globals.window.innerHeight;
+      startIndex = firstRowTop < 0 ? Math.floor(blankStart / this.rowHeight) : 0;
+      endIndex = Math.max(Math.floor(blankEnd / this.rowHeight), 0);
     } else {
       startIndex = transfersArrayIds.indexOf(firstId);
       endIndex = transfersArrayIds.indexOf(lastId, startIndex);

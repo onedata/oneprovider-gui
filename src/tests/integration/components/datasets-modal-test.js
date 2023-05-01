@@ -14,6 +14,7 @@ import { hbs } from 'ember-cli-htmlbars';
 import sinon from 'sinon';
 import { createMockFileDatasetSummary } from '../../helpers/datasets-archives';
 import { closeModalUsingBackground } from '../../helpers/modal';
+import globals from 'onedata-gui-common/utils/globals';
 
 describe('Integration | Component | datasets-modal', function () {
   setupRenderingTest();
@@ -34,7 +35,7 @@ describe('Integration | Component | datasets-modal', function () {
     });
     await render(hbs `{{datasets-modal open=open files=files onHide=onHide}}`);
 
-    const modal = document.querySelector('.datasets-modal.in');
+    const modal = globals.document.querySelector('.datasets-modal.in');
     expect(modal).to.exist;
     expect(modal.querySelector('.file-datasets-modal-header')).to.exist;
     expect(modal.querySelector('.modal-file-subheader .file-name'))

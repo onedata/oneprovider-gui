@@ -9,6 +9,7 @@ import { Promise } from 'rsvp';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { findByText } from '../../../helpers/find';
 import { lookupService } from '../../../helpers/stub-service';
+import globals from 'onedata-gui-common/utils/globals';
 
 /**
  * @param {Object} distributionParams
@@ -560,7 +561,7 @@ describe('Integration | Component | file-distribution-modal/oneproviders-distrib
 
         return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
           .then(() => click(
-            document.querySelector('.webui-popover .replicate-here-action-trigger')
+            globals.document.querySelector('.webui-popover .replicate-here-action-trigger')
           ))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
@@ -592,7 +593,7 @@ describe('Integration | Component | file-distribution-modal/oneproviders-distrib
 
         return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
           .then(() => click(
-            document.querySelector('.webui-popover .migrate-action-trigger')
+            globals.document.querySelector('.webui-popover .migrate-action-trigger')
           ))
           .then(() => click('.start-migration'))
           .then(() => {
@@ -628,7 +629,7 @@ describe('Integration | Component | file-distribution-modal/oneproviders-distrib
 
         return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
           .then(() => click(
-            document.querySelector('.webui-popover .evict-action-trigger')
+            globals.document.querySelector('.webui-popover .evict-action-trigger')
           ))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
@@ -659,7 +660,7 @@ describe('Integration | Component | file-distribution-modal/oneproviders-distrib
 
           return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
             .then(() => click(
-              document.querySelector('.webui-popover .replicate-here-action-trigger')
+              globals.document.querySelector('.webui-popover .replicate-here-action-trigger')
             ))
             .then(() => {
               expect(startActionStub).to.have.not.been.called;
@@ -687,7 +688,7 @@ describe('Integration | Component | file-distribution-modal/oneproviders-distrib
 
           return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
             .then(() => click(
-              document.querySelector('.webui-popover .evict-action-trigger')
+              globals.document.querySelector('.webui-popover .evict-action-trigger')
             ))
             .then(() => {
               expect(startActionStub).to.have.not.been.called;
@@ -716,12 +717,12 @@ describe('Integration | Component | file-distribution-modal/oneproviders-distrib
             return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
               .then(() => {
                 const trigger =
-                  document.querySelector('.webui-popover .migrate-action-trigger');
+                  globals.document.querySelector('.webui-popover .migrate-action-trigger');
                 expect(trigger.parentElement).to.have.class('disabled');
                 return click(trigger);
               })
               .then(() => expect(
-                document.querySelector('.destination-oneprovider-selector')
+                globals.document.querySelector('.destination-oneprovider-selector')
               ).to.not.exist);
           }
         );

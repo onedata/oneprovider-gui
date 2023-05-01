@@ -202,8 +202,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   splitGrid: undefined,
 
-  _window: window,
-
   /**
    * Set to true in `updateContainersClasses` if panel with datasets browser is lower
    * than some breakpoint. Causes adding special styles for low-height panels.

@@ -48,10 +48,14 @@ class MockArray {
 }
 
 describe('Integration | Component | archive-browser', function () {
-  setupRenderingTest();
+  const { afterEach } = setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'archiveManager', ArchiveManager);
+  });
+
+  afterEach(function () {
+    this.get('browserModel')?.destroy();
   });
 
   it('renders archives on list', async function () {

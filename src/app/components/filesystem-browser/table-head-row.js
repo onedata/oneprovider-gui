@@ -13,6 +13,7 @@ import { observer } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { or } from 'ember-awesome-macros';
+import globals from 'onedata-gui-common/utils/globals';
 
 const mixins = [
   WindowResizeHandler,
@@ -48,7 +49,7 @@ export default FbTableHeadRow.extend(...mixins, {
   dirObserver: observer('browserModel.dir', async function dirObserver() {
     // let header display feature tags for new dir
     scheduleOnce('afterRender', this, () => {
-      window.requestAnimationFrame(() => {
+      globals.window.requestAnimationFrame(() => {
         safeExec(this, 'autoSetHideJumpControl');
       });
     });

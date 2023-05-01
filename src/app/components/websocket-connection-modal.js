@@ -12,6 +12,7 @@ import { notEmpty } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { Promise } from 'rsvp';
+import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend(I18n, {
   onedataWebsocketErrorHandler: service(),
@@ -21,17 +22,14 @@ export default Component.extend(I18n, {
    */
   i18nPrefix: 'components.websocketConnectionModal',
 
-  _location: location,
-
   open: notEmpty('currentCloseEvent'),
   currentCloseEvent: reads('onedataWebsocketErrorHandler.currentCloseEvent'),
   currentOpeningCompleted: reads('onedataWebsocketErrorHandler.currentCloseEvent'),
 
   actions: {
     reload() {
-      const _location = this.get('_location');
       return new Promise(() => {
-        _location.reload();
+        globals.location.reload();
       });
     },
   },

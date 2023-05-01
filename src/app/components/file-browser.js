@@ -23,6 +23,7 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
 import dom from 'onedata-gui-common/utils/dom';
+import globals from 'onedata-gui-common/utils/globals';
 
 const defaultIsItemDisabled = () => false;
 
@@ -237,10 +238,6 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   fileClipboardMode: null,
-
-  _document: document,
-
-  _body: document.body,
 
   /**
    * Array of selected file records.
@@ -554,7 +551,7 @@ export default Component.extend(I18n, {
   isOnlyCurrentDirSelected: reads('browserModel.isOnlyCurrentDirSelected'),
 
   contentScroll: computed(function contentScroll() {
-    return document.getElementById('content-scroll');
+    return globals.document.getElementById('content-scroll');
   }),
 
   containerScrollTop: computed('contentScroll', function containerScrollTop() {
@@ -609,7 +606,7 @@ export default Component.extend(I18n, {
       });
       // cause popover refresh
       if (currentDirActionsOpen) {
-        window.dispatchEvent(new Event('resize'));
+        globals.window.dispatchEvent(new Event('resize'));
       }
       this.send('toggleCurrentDirActions', true);
     };
@@ -685,20 +682,18 @@ export default Component.extend(I18n, {
     this._super(...arguments);
 
     const {
-      _body,
       element,
       clickOutsideDeselectHandler,
       currentDirContextMenuHandler,
       browserModel,
     } = this.getProperties(
-      '_body',
       'element',
       'clickOutsideDeselectHandler',
       'currentDirContextMenuHandler',
       'browserModel',
     );
 
-    _body.addEventListener(
+    globals.document.body.addEventListener(
       'click',
       clickOutsideDeselectHandler
     );
@@ -714,17 +709,15 @@ export default Component.extend(I18n, {
   willDestroyElement() {
     this._super(...arguments);
     const {
-      _body,
       element,
       clickOutsideDeselectHandler,
       currentDirContextMenuHandler,
     } = this.getProperties(
-      '_body',
       'element',
       'clickOutsideDeselectHandler',
       'currentDirContextMenuHandler',
     );
-    _body.removeEventListener(
+    globals.document.body.removeEventListener(
       'click',
       clickOutsideDeselectHandler
     );

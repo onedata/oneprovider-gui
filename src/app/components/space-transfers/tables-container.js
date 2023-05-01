@@ -102,8 +102,6 @@ export default Component.extend(I18n, {
    */
   tabJustChangedId: null,
 
-  _window: window,
-
   /**
    * @type {ComputedProperty<models.File>}
    */
