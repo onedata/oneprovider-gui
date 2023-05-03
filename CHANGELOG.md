@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10411 Added support for incomplete infinite scroll chunks from backend
 * VFS-9014 Migrated to getting globals from `globals` util
 * VFS-10597 Added thousands separator in charts
 * VFS-10461 Added file/archive/dataset list polling
