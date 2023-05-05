@@ -838,24 +838,23 @@ export default Component.extend(I18n, {
     }
     this.browserModel.onTableWillRefresh();
     if (!animated) {
-      return this.refreshFileList();
+      return await this.refreshFileList();
     }
     this.set('renderRefreshSpinner', true);
     // wait for refresh spinner to render because it needs parent class to transition
-    scheduleOnce('afterRender', async () => {
-      safeExec(this, 'set', 'refreshStarted', true);
-      try {
-        await sleep(fadeTime);
-        return await this.refreshFileList();
-      } finally {
-        safeExec(this, 'set', 'refreshStarted', false);
-        later(() => {
-          if (!this.refreshStarted) {
-            safeExec(this, 'set', 'renderRefreshSpinner', false);
-          }
-        }, fadeTime);
-      }
-    });
+    await waitForRender();
+    safeExec(this, 'set', 'refreshStarted', true);
+    try {
+      await sleep(fadeTime);
+      return await this.refreshFileList();
+    } finally {
+      safeExec(this, 'set', 'refreshStarted', false);
+      later(() => {
+        if (!this.refreshStarted) {
+          safeExec(this, 'set', 'renderRefreshSpinner', false);
+        }
+      }, fadeTime);
+    }
   },
 
   /**
@@ -943,7 +942,7 @@ export default Component.extend(I18n, {
     if (browserModelRefreshPromise) {
       promises.push(browserModelRefreshPromise);
     }
-    await allFulfilled(promises);
+    return await allFulfilled(promises);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known

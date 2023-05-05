@@ -30,6 +30,7 @@ import globals from 'onedata-gui-common/utils/globals';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
+import _ from 'lodash';
 
 /**
  * Contains info about column visibility: if on screen is enough space to show this column
@@ -48,6 +49,7 @@ const mixins = [
 
 export default EmberObject.extend(...mixins, {
   i18n: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -601,11 +603,22 @@ export default EmberObject.extend(...mixins, {
       );
     }
     try {
-      return fbTableApi.refresh(!silent);
+      return await fbTableApi.refresh(!silent);
     } catch (error) {
-      if (!silent) {
-        globalNotify.backendError(this.t('refreshing'), error);
+      if (this.isDestroyed || this.isDestroying) {
+        return;
       }
+      // FIXME: warning only if silent and not fatal (enoent)
+      let errorText = String(
+        this.errorExtractor.getMessage(error)?.message ?? this.t('unknownError')
+      );
+      if (errorText?.endsWith('.')) {
+        errorText = errorText.slice(0, errorText.length - 1);
+      }
+      errorText = _.lowerFirst(errorText);
+      globalNotify.warning(this.t('refreshingFailed', {
+        errorText,
+      }));
       throw error;
     }
   },

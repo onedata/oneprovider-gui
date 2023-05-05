@@ -1,5 +1,6 @@
 export default {
-  refreshing: 'refreshing items list',
+  refreshingFailed: 'Refreshing items list failed: {{errorText}}.',
+  unknownError: 'unknown error',
   fileActions: {
     refresh: 'Refresh',
   },
