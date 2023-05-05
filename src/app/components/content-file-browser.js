@@ -183,9 +183,23 @@ export default OneEmbeddedComponent.extend(
      * NOTE: observing only space, because it should reload initial dir after whole space change
      * @type {PromiseObject<Models.File>}
      */
-    initialDirProxy: promise.object(computed('spaceProxy', function initialDirProxy() {
-      return this.get('dirProxy');
+    initialDirProxy: promise.object(computed('spaceProxy', async function initialDirProxy() {
+      return this.dirProxy;
     })),
+
+    /**
+     * Always resolved when `initialDirProxy` settles (no matter if it resolves of rejects).
+     */
+    initialDirLoadingProxy: promise.object(computed(
+      'initialDirProxy',
+      async function initialDirLoadingProxy() {
+        try {
+          return await this.dirProxy;
+        } catch {
+          return null;
+        }
+      }
+    )),
 
     /**
      * @type {ComputedProperty<PromiseObject>}
@@ -195,7 +209,7 @@ export default OneEmbeddedComponent.extend(
     initialRequiredDataProxy: promise.object(promise.all(
       'spaceProxy',
       'initialSelectedItemsForJumpProxy',
-      'initialDirProxy',
+      'initialDirLoadingProxy',
       'bagitUploaderLoaderProxy',
       'dirStatsServiceStateProxy'
     )),

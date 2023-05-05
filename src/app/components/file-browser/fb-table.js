@@ -66,11 +66,12 @@ export default Component.extend(I18n, {
    */
   i18nPrefix: 'components.fileBrowser.fbTable',
 
+  // FIXME: this should be taken from browserModel (when browserModel.dirProxy becomes available)
   /**
    * @virtual
-   * @type {models/File}
+   * @type {PromiseObject<EmberObject>}
    */
-  dir: undefined,
+  dirProxy: undefined,
 
   /**
    * @virtual
@@ -269,6 +270,8 @@ export default Component.extend(I18n, {
 
   headStatusBarComponentName: reads('browserModel.headStatusBarComponentName'),
 
+  dir: reads('browserModel.dir'),
+
   /**
    * If true, files table will not jump to changed `itemsForJump` if these items are
    * already selected.
@@ -348,15 +351,15 @@ export default Component.extend(I18n, {
   specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
 
   /**
-   * @type {ComputedProperty<object>}
+   * @type {ComputedProperty<Object>}
    */
   dirLoadError: computed(
+    'dirProxy.{isRejected,reason}',
     'initialLoad.{isRejected,reason}',
     function dirLoadError() {
-      const initialLoad = this.get('initialLoad');
-      if (get(initialLoad, 'isRejected')) {
-        return get(initialLoad, 'reason');
-      }
+      return (this.dirProxy?.isRejected && this.dirProxy.reason) ||
+        (this.initialLoad?.isRejected && this.initialLoad.reason) ||
+        undefined;
     }
   ),
 

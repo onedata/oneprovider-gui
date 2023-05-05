@@ -1,49 +1,51 @@
-<div class="file-browser-head-container">
-  <div class="fb-upload-trigger"></div>
-  <div class="fb-head-inner">
-    <div class="fb-breadcrumbs-container">
-      {{file-browser/fb-breadcrumbs
-        dir=dir
-        rootDir=customRootDir
-        menuButtons=currentDirMenuButtons
-        parentsCache=parentsCache
-        getItemByIdFun=getItemByIdFun
-        resolveFileParentFun=resolveFileParentFun
-        previewMode=previewMode
-        isInModal=isInModal
-        rootIcon=rootIcon
-        space=space
-        changeDir=(action "changeDir")
-        selectCurrentDir=(action "selectCurrentDir")
-      }}
-    </div>
-    <div class="text-right fb-toolbar-container hidden-xs">
-      {{#if renderSelectionToolkitDesktop}}
-        {{file-browser/fb-selection-toolkit
-          items=selectionToolkitItems
+{{#if dir}}
+  <div class="file-browser-head-container">
+    <div class="fb-upload-trigger"></div>
+    <div class="fb-head-inner">
+      <div class="fb-breadcrumbs-container">
+        {{file-browser/fb-breadcrumbs
+          dir=dir
+          rootDir=customRootDir
+          menuButtons=currentDirMenuButtons
+          parentsCache=parentsCache
+          getItemByIdFun=getItemByIdFun
+          resolveFileParentFun=resolveFileParentFun
+          previewMode=previewMode
+          isInModal=isInModal
+          rootIcon=rootIcon
+          space=space
+          changeDir=(action "changeDir")
+          selectCurrentDir=(action "selectCurrentDir")
+        }}
+      </div>
+      <div class="text-right fb-toolbar-container hidden-xs">
+        {{#if renderSelectionToolkitDesktop}}
+          {{file-browser/fb-selection-toolkit
+            items=selectionToolkitItems
+            selectionContext=selectionContext
+            allButtonsArray=allButtonsArray
+            isInModal=isInModal
+          }}
+        {{/if}}
+        {{file-browser/fb-toolbar
+          dir=dir
+          buttons=toolbarButtons
+          previewMode=previewMode
+          isInModal=isInModal
+          fileClipboardMode=fileClipboardMode
+          fileClipboardFiles=fileClipboardFiles
           selectionContext=selectionContext
           allButtonsArray=allButtonsArray
-          isInModal=isInModal
+          selectCurrentDir=(action "selectCurrentDir")
         }}
-      {{/if}}
-      {{file-browser/fb-toolbar
-        dir=dir
-        buttons=toolbarButtons
-        previewMode=previewMode
-        isInModal=isInModal
-        fileClipboardMode=fileClipboardMode
-        fileClipboardFiles=fileClipboardFiles
-        selectionContext=selectionContext
-        allButtonsArray=allButtonsArray
-        selectCurrentDir=(action "selectCurrentDir")
-      }}
+      </div>
     </div>
   </div>
-</div>
+{{/if}}
 <div class="fb-table-container">
   {{file-browser/fb-table
-    dir=dir
     browserModel=browserModel
+    dirProxy=dirProxy
     isInModal=isInModal
     contentScroll=contentScroll
     selectedItems=selectedItems
