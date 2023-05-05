@@ -31,11 +31,12 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler
 import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
 import _ from 'lodash';
+import isPosixError from 'oneprovider-gui/utils/is-posix-error';
 
 /**
  * Contains info about column visibility: if on screen is enough space to show this column
  * and if user want to view that
- * @typedef {EmberObject} columnProperties
+ * @typedef {EmberObject} ColumnProperties
  * @property {boolean} isVisible
  * @property {boolean} isEnabled
  * @property {number} width
@@ -296,7 +297,7 @@ export default EmberObject.extend(...mixins, {
   hiddenColumnsCount: 0,
 
   /**
-   * @type {Object<string, columnProperties>}
+   * @type {Object<string, ColumnProperties>}
    */
   columns: undefined,
 
@@ -492,12 +493,9 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
-  /**
-   * @override
-   */
-  onWindowResize() {
-    return this.checkColumnsVisibility();
-  },
+  dirObserver: observer('dir', function dirObserver() {
+    this.set('lastFatalRefreshError', undefined);
+  }),
 
   init() {
     this._super(...arguments);
@@ -523,6 +521,13 @@ export default EmberObject.extend(...mixins, {
       this._super(...arguments);
       this.detachWindowResizeHandler();
     }
+  },
+
+  /**
+   * @override
+   */
+  onWindowResize() {
+    return this.checkColumnsVisibility();
   },
 
   changeDir(dir) {
@@ -603,11 +608,23 @@ export default EmberObject.extend(...mixins, {
       );
     }
     try {
-      return await fbTableApi.refresh(!silent);
+      const refreshResult = await fbTableApi.refresh(!silent);
+      // FIXME: add property doc
+      if (this.lastFatalRefreshError) {
+        this.set('lastFatalRefreshError', undefined);
+      }
+      return refreshResult;
     } catch (error) {
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
+
+      const isFatal = isPosixError(error, 'enoent') || isPosixError(error, 'eacces');
+
+      if (isFatal) {
+        this.set('lastFatalRefreshError', error);
+      }
+
       // FIXME: warning only if silent and not fatal (enoent)
       let errorText = String(
         this.errorExtractor.getMessage(error)?.message ?? this.t('unknownError')

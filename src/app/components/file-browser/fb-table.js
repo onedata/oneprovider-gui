@@ -356,8 +356,10 @@ export default Component.extend(I18n, {
   dirLoadError: computed(
     'dirProxy.{isRejected,reason}',
     'initialLoad.{isRejected,reason}',
+    'browserModel.lastFatalRefreshError',
     function dirLoadError() {
-      return (this.dirProxy?.isRejected && this.dirProxy.reason) ||
+      return this.browserModel.lastFatalRefreshError ||
+        (this.dirProxy?.isRejected && this.dirProxy.reason) ||
         (this.initialLoad?.isRejected && this.initialLoad.reason) ||
         undefined;
     }
