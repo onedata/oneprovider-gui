@@ -16,19 +16,16 @@
               inputId=(concat elementId "-" columnName "Checkbox")
               checked=columnSpec.isEnabled
               update=(action "checkboxChanged" columnName)
-              isReadOnly=false
               class=(concat-classes
                 "filter-column-checkbox"
                 (concat columnName "-checkbox")
               )
             }}
-            <label for={{concat elementId "-" columnName "Checkbox"}}>
-              <span
-                class={{concat-classes
-                  "one-label checkbox-label"
-                  (if (or columnSpec.isVisible (not columnSpec.isEnabled)) "end-line-space")
-                }}
-              >
+            <label
+              for={{concat elementId "-" columnName "Checkbox"}}
+              class="column-name-label"
+            >
+              <span class="one-label checkbox-label">
                 {{tt this columnName}}
               </span>
             </label>

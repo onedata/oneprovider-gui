@@ -1,5 +1,5 @@
 /**
- * Renders configuration columns icon with popover.
+ * Renders columns configuration icon with popover.
  *
  * @author Agnieszka Warchoł
  * @copyright (C) 2023 ACK CYFRONET AGH

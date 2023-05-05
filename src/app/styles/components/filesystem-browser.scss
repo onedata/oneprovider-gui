@@ -8,14 +8,16 @@
     }
     .fb-table-col-actions-menu {
       padding-left: 0;
-      .fb-toolbar-button.column-modification-button {
+      .fb-toolbar-button.configuration-columns-button {
         margin-left: -0.3em;
       }
     }
   }
+  .fb-table-secondary-col {
+    width: var(--column-width);
+  }
   .fb-table-col-size {
     position: relative;
-    width: var(--column-width);
     text-align: center;
 
     .dir-size-container.active:hover {
@@ -43,11 +45,9 @@
     }
   }
   .fb-table-col-modification {
-    width: var(--column-width);
     text-align: center;
   }
   .fb-table-col-owner {
-    width: var(--column-width);
     text-align: center;
     .file-owner-line {
       width: calc(var(--column-width) - 2 * $table-cell-padding);

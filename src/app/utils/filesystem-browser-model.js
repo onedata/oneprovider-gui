@@ -25,7 +25,6 @@ import { array, raw, and } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
-import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 
 export const commonActionIcons = Object.freeze({
@@ -65,12 +64,7 @@ const buttonNames = Object.freeze([
   'btnDelete',
 ]);
 
-const mixins = [
-  DownloadInBrowser,
-  WindowResizeHandler,
-];
-
-export default BaseBrowserModel.extend(...mixins, {
+export default BaseBrowserModel.extend(DownloadInBrowser, {
   errorExtractor: service(),
   fileManager: service(),
   globalNotify: service(),
@@ -1468,5 +1462,7 @@ export default BaseBrowserModel.extend(...mixins, {
         width: 200,
       }),
     });
+    this.getEnabledColumnsFromLocalStorage();
+    this.checkColumnsVisibility();
   },
 });

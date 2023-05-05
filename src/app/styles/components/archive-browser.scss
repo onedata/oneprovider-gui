@@ -1,14 +1,11 @@
 .archive-browser {
+  --column-width: 200px;
   .fb-table-secondary-col {
-    width: 120px;
-  }
-  .fb-table-col-state {
-    width: 110px;
+    width: var(--column-width);
   }
   .fb-table-col-creator {
     --col-creator-fixed-width: 240px;
     text-align: center;
-    width: var(--col-creator-fixed-width);
     max-width: var(--col-creator-fixed-width);
     // empirical size - prevent shortening archive creation dates
     @media (max-width: 1000px) {
@@ -20,7 +17,6 @@
     }
   }
   .fb-table-col-incremental {
-    width: 14em;
     max-width: 14em;
     .base-archive-id-container {
       display: block;

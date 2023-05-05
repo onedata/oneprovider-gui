@@ -1,12 +1,14 @@
 .dataset-browser {
+  --column-width: 200px;
   .fb-table-col-archives {
     position: relative;
-    width: 120px;
     text-align: center;
   }
   .fb-table-col-created {
-    width: 200px;
     text-align: center;
+  }
+  .fb-table-secondary-col {
+    width: var(--column-width);
   }
   .fb-breadcrumbs {
     .fb-breadcrumbs-separator {

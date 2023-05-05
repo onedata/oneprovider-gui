@@ -27,8 +27,16 @@ import { scheduleOnce } from '@ember/runloop';
 import { tag, raw, conditional, gt } from 'ember-awesome-macros';
 import moment from 'moment';
 import globals from 'onedata-gui-common/utils/globals';
+import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
+import { htmlSafe } from '@ember/string';
 
-export default EmberObject.extend(OwnerInjector, I18n, {
+const mixins = [
+  OwnerInjector,
+  I18n,
+  WindowResizeHandler,
+];
+
+export default EmberObject.extend(...mixins, {
   i18n: service(),
 
   /**
@@ -238,7 +246,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   columnsStyle: computed('columns', function columnsStyle() {
     const styles = {};
     for (const column in this.columns) {
-      styles[column] = `--column-width: ${this.columns[column].width}px;`;
+      styles[column] = htmlSafe(`--column-width: ${this.columns[column].width}px;`);
     }
     return styles;
   }),
@@ -636,11 +644,11 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     const element = this.get('element');
     let width = this.defaultWidthFileBrowser;
     if (element) {
-      width = element.querySelector('.fb-table-thead')?.offsetWidth;
+      width = element.querySelector('.fb-table-thead')?.offsetWidth ||
+        this.defaultWidthFileBrowser;
     }
     let remainingWidth = width - this.firstColumnWidth;
     let hiddenColumnsCount = 0;
-
     for (const column in this.columns) {
       if (this.columns[column].isEnabled) {
         if (remainingWidth >= this.columns[column].width) {
@@ -657,9 +665,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     }
     if (this.hiddenColumnsCount !== hiddenColumnsCount) {
       this.set('hiddenColumnsCount', hiddenColumnsCount);
-      if (this.isAnyColumnHidden !== (hiddenColumnsCount > 0)) {
-        this.set('isAnyColumnHidden', hiddenColumnsCount > 0);
-      }
     }
   },
 
@@ -670,6 +675,8 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     for (const column in this.columns) {
       if (enabledColumns?.split(',').includes(column)) {
         this.set(`columns.${column}.isEnabled`, true);
+      } else {
+        this.set(`columns.${column}.isEnabled`, false);
       }
     }
   },

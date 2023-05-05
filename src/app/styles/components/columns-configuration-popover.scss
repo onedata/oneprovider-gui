@@ -4,20 +4,25 @@
     margin: 0;
     list-style-type: none;
 
-    .end-line-space {
+    .column-name-label .one-label {
       padding-right: 1.6em;
     }
 
     .column {
       margin-bottom: $padding-base-vertical;
+      position: relative;
 
       &:last-child {
         margin-bottom: 0;
       }
 
       .oneicon-no-view {
-        font-size: 140%;
+        font-size: 160%;
         vertical-align: middle;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-45%);
       }
 
       label {

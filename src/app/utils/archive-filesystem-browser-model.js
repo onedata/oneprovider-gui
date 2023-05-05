@@ -168,6 +168,11 @@ export default FilesystemBrowserModel.extend({
    */
   isArchiveDipAvailable: bool('archive.config.includeDip'),
 
+  /**
+   * @type {string}
+   */
+  browserName: 'archiveFilesystemBrowser',
+
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
   // items select implementation
   /**

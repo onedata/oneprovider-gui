@@ -28,7 +28,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Utils.FilesystemBrowserModel}
+   * @type {Utils.BaseBrowserModel}
    */
   browserModel: undefined,
 
