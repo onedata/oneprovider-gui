@@ -27,10 +27,9 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     registerService(this, 'currentUser', currentUser);
     this.set('browserModel', FilesystemBrowserModel.create({
       ownerSource: this.owner,
-      columns: {
-        modification: {
-          isVisible: true,
-        },
+      firstColumnWidth: 0,
+      getEnabledColumnsFromLocalStorage() {
+        this.set('columns.modification.isEnabled', true);
       },
     }));
     this.set('spacePrivileges', { view: true });
