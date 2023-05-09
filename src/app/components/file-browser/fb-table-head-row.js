@@ -21,7 +21,5 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    this.browserModel.getEnabledColumnsFromLocalStorage();
-    this.browserModel.checkColumnsVisibility();
   },
 });

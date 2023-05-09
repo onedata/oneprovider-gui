@@ -68,7 +68,6 @@ export default FbTableHeadRow.extend(...mixins, {
    */
   onWindowResize( /** event */ ) {
     this.autoSetHideJumpControl();
-    this.browserModel.checkColumnsVisibility();
   },
 
   autoSetHideJumpControl() {

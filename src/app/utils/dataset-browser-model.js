@@ -258,7 +258,6 @@ export default BaseBrowserModel.extend(I18n, {
   //#endregion
 
   init() {
-    this._super(...arguments);
     this.set('columns', {
       archives: EmberObject.create({
         isVisible: true,
@@ -271,6 +270,7 @@ export default BaseBrowserModel.extend(I18n, {
         width: 200,
       }),
     });
+    this._super(...arguments);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known

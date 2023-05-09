@@ -7,16 +7,17 @@
       bubbles=false
     }}
   >
-    {{one-icon-tagged
+    {{#one-icon-tagged
       icon="columns"
       tagIcon=(if (not browserModel.isAnyColumnHidden) "settings")
       class="tag-right"
     }}
-    {{#if browserModel.isAnyColumnHidden}}
-      <div class="hidden-columns-number-container">
-        <span class="hidden-columns-number">{{browserModel.hiddenColumnsCount}}</span>
-      </div>
-    {{/if}}
+      {{#if browserModel.isAnyColumnHidden}}
+        <div class="hidden-columns-number-container">
+          <span class="hidden-columns-number">{{browserModel.hiddenColumnsCount}}</span>
+        </div>
+      {{/if}}
+    {{/one-icon-tagged}}
     {{one-tooltip title=(if browserModel.isAnyColumnHidden
       (tt this "hiddenColumns")
       (tt this "configureColumns")

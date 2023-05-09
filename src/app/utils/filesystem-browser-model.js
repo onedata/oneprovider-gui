@@ -1444,7 +1444,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   },
 
   init() {
-    this._super(...arguments);
     this.set('columns', {
       owner: EmberObject.create({
         isVisible: true,
@@ -1462,7 +1461,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         width: 200,
       }),
     });
-    this.getEnabledColumnsFromLocalStorage();
-    this.checkColumnsVisibility();
+    this._super(...arguments);
   },
 });

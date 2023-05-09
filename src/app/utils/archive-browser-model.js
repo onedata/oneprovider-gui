@@ -627,7 +627,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   //#endregion
 
   init() {
-    this._super(...arguments);
     this.set('columns', {
       creator: EmberObject.create({
         isVisible: true,
@@ -645,6 +644,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         width: 200,
       }),
     });
+    this._super(...arguments);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known

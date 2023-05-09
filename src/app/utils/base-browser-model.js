@@ -27,7 +27,7 @@ import { scheduleOnce } from '@ember/runloop';
 import { tag, raw, conditional, gt } from 'ember-awesome-macros';
 import moment from 'moment';
 import globals from 'onedata-gui-common/utils/globals';
-import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
+import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 import { htmlSafe } from '@ember/string';
 
 const mixins = [
@@ -464,16 +464,21 @@ export default EmberObject.extend(...mixins, {
     this._super(...arguments);
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
+    this.attachWindowResizeHandler();
 
     this.set('lastRefreshTime', Date.now());
 
     // activate observers
     this.selectedItemsOutOfScope;
+
+    this.getEnabledColumnsFromLocalStorage();
+    this.checkColumnsVisibility();
   },
 
   willDestroy() {
     this._super(...arguments);
     this.browserListPoller?.destroy();
+    this.detachWindowResizeHandler();
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
@@ -673,11 +678,9 @@ export default EmberObject.extend(...mixins, {
       `${this.browserName}.enabledColumns`
     );
     for (const column in this.columns) {
-      if (enabledColumns?.split(',').includes(column)) {
-        this.set(`columns.${column}.isEnabled`, true);
-      } else {
-        this.set(`columns.${column}.isEnabled`, false);
-      }
+      this.set(`columns.${column}.isEnabled`,
+        Boolean(enabledColumns?.split(',').includes(column))
+      );
     }
   },
 });
