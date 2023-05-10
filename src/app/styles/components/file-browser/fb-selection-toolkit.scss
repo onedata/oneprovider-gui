@@ -18,7 +18,7 @@
   .selection-count-number {
     color: $main-text-color-disabled;
   }
-  &.closed {
+  &.pill-hidden {
     max-width: 0;
     opacity: 0;
     margin-left: 0;

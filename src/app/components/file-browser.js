@@ -72,13 +72,8 @@ export const anySelectedContexts = [
 ];
 
 export function getButtonActions(buttonsArray, context) {
-  if (Array.isArray(context)) {
-    return buttonsArray
-      .filter(button => context.some(c => button.showIn.includes(c)) && !button.hidden);
-  } else {
-    return buttonsArray
-      .filter(button => button.showIn.includes(context) && !button.hidden);
-  }
+  return buttonsArray
+    .filter(b => get(b, 'showIn').includes(context) && !get(b, 'hidden'));
 }
 
 export default Component.extend(I18n, {

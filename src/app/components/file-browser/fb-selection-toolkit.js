@@ -17,7 +17,10 @@ import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
 
 export default Component.extend(I18n, {
   classNames: ['fb-selection-toolkit'],
-  classNameBindings: ['opened:opened:closed', 'mobileMode:mobile-mode:desktop-mode'],
+  classNameBindings: [
+    'isPillVisible:pill-visible:pill-hidden',
+    'mobileMode:mobile-mode:desktop-mode',
+  ],
 
   i18n: service(),
 
@@ -88,7 +91,7 @@ export default Component.extend(I18n, {
     }
   ),
 
-  opened: gt('itemsCount', 1),
+  isPillVisible: gt('itemsCount', 1),
 
   init() {
     this._super(...arguments);
