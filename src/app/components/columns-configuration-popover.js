@@ -22,7 +22,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {String}
+   * @type {string}
    */
   triggerSelector: undefined,
 
@@ -34,13 +34,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {Boolean}
+   * @type {boolean}
    */
   isOpened: false,
 
   actions: {
-    checkboxChanged(property, newValue) {
-      this.browserModel.changeColumnVisibility(property, newValue);
+    checkboxChanged(columnName, newValue) {
+      this.browserModel.changeColumnVisibility(columnName, newValue);
     },
   },
 });

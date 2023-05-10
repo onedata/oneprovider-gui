@@ -1,6 +1,6 @@
 {{#if (not (media "isMobile"))}}
   <div
-    class="fb-toolbar-button configuration-columns-button"
+    class="fb-toolbar-button columns-configuration-button"
     {{action
       (mut columnModificationOpened)
       (not columnModificationOpened)
@@ -25,7 +25,7 @@
   </div>
   {{columns-configuration-popover
     isOpened=columnModificationOpened
-    triggerSelector=(local-selector elementId ".configuration-columns-button")
+    triggerSelector=(local-selector elementId ".columns-configuration-button")
     browserModel=browserModel
   }}
 {{/if}}

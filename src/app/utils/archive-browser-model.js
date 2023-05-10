@@ -205,7 +205,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  browserName: 'archiveBrowser',
+  browserName: 'archive',
 
   /**
    * @type {ComputedProperty<Boolean>}

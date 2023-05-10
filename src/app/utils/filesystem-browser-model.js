@@ -229,7 +229,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  browserName: 'filesystemBrowser',
+  browserName: 'filesystem',
 
   /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
@@ -1042,6 +1042,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
+  init() {
+    this.set('columns', {
+      owner: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }),
+      size: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 180,
+      }),
+      modification: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }),
+    });
+    this._super(...arguments);
+  },
+
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
   // items select implementation
   /**
@@ -1441,26 +1462,5 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         },
       }).hiddenPromise;
     }
-  },
-
-  init() {
-    this.set('columns', {
-      owner: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 200,
-      }),
-      size: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 180,
-      }),
-      modification: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 200,
-      }),
-    });
-    this._super(...arguments);
   },
 });

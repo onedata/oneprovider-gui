@@ -29,6 +29,7 @@ import moment from 'moment';
 import globals from 'onedata-gui-common/utils/globals';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 import { htmlSafe } from '@ember/string';
+import dom from 'onedata-gui-common/utils/dom';
 
 const mixins = [
   OwnerInjector,
@@ -135,6 +136,12 @@ export default EmberObject.extend(...mixins, {
   emptyDirComponentName: '',
 
   /**
+   * @virtual
+   * @type {string}
+   */
+  browserName: '',
+
+  /**
    * @virtual optional
    * @type {String}
    */
@@ -210,47 +217,6 @@ export default EmberObject.extend(...mixins, {
     }, {});
   }),
 
-  /**
-   * @type {number}
-   */
-  firstColumnWidth: 600,
-
-  /**
-   * @type {number}
-   */
-  hiddenColumnsCount: 0,
-
-  /**
-   * @type {boolean}
-   */
-  isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
-
-  /**
-   * @type {string}
-   */
-  browserName: '',
-
-  /**
-   * @type {number}
-   */
-  defaultWidthFileBrowser: 1000,
-
-  /**
-   * @type {Object}
-   */
-  columns: undefined,
-
-  /**
-   * @type {Object}
-   */
-  columnsStyle: computed('columns', function columnsStyle() {
-    const styles = {};
-    for (const column in this.columns) {
-      styles[column] = htmlSafe(`--column-width: ${this.columns[column].width}px;`);
-    }
-    return styles;
-  }),
-
   //#endregion
 
   //#region file-browser state
@@ -268,6 +234,31 @@ export default EmberObject.extend(...mixins, {
   // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
   fileClipboardMode: reads('browserInstance.fileClipboardMode'),
   fileClipboardFiles: reads('browserInstance.fileClipboardFiles'),
+
+  /**
+   * @type {number}
+   */
+  firstColumnWidth: 400,
+
+  /**
+   * @type {number}
+   */
+  hiddenColumnsCount: 0,
+
+  /**
+   * @type {boolean}
+   */
+  isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
+
+  /**
+   * @type {number}
+   */
+  defaultFileBrowserWidth: 1000,
+
+  /**
+   * @type {Object}
+   */
+  columns: undefined,
 
   //#endregion
 
@@ -415,6 +406,17 @@ export default EmberObject.extend(...mixins, {
   ),
 
   /**
+   * @type {Object}
+   */
+  columnsStyle: computed('columns', function columnsStyle() {
+    const styles = {};
+    for (const column in this.columns) {
+      styles[column] = htmlSafe(`--column-width: ${this.columns[column].width}px;`);
+    }
+    return styles;
+  }),
+
+  /**
    * Controls value of `renderableSelectedItemsOutOfScope` to be synchronized with
    * `selectedItemsOutOfScope` most often once a render.
    */
@@ -465,14 +467,13 @@ export default EmberObject.extend(...mixins, {
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
     this.attachWindowResizeHandler();
+    this.getEnabledColumnsFromLocalStorage();
+    this.checkColumnsVisibility();
 
     this.set('lastRefreshTime', Date.now());
 
     // activate observers
     this.selectedItemsOutOfScope;
-
-    this.getEnabledColumnsFromLocalStorage();
-    this.checkColumnsVisibility();
   },
 
   willDestroy() {
@@ -630,8 +631,8 @@ export default EmberObject.extend(...mixins, {
    * @param {boolean} isEnabled
    * @returns {void}
    */
-  changeColumnVisibility(column, isEnabled) {
-    this.set(`columns.${column}.isEnabled`, isEnabled);
+  changeColumnVisibility(columnName, isEnabled) {
+    this.set(`columns.${columnName}.isEnabled`, isEnabled);
     this.checkColumnsVisibility();
     const enabledColumns = [];
     for (const column in this.columns) {
@@ -646,11 +647,10 @@ export default EmberObject.extend(...mixins, {
   },
 
   checkColumnsVisibility() {
-    const element = this.get('element');
-    let width = this.defaultWidthFileBrowser;
-    if (element) {
-      width = element.querySelector('.fb-table-thead')?.offsetWidth ||
-        this.defaultWidthFileBrowser;
+    let width = this.defaultFileBrowserWidth;
+    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
+    if (elementFbTableThead) {
+      width = dom.width(elementFbTableThead);
     }
     let remainingWidth = width - this.firstColumnWidth;
     let hiddenColumnsCount = 0;
@@ -677,9 +677,10 @@ export default EmberObject.extend(...mixins, {
     const enabledColumns = globals.localStorage.getItem(
       `${this.browserName}.enabledColumns`
     );
+    const enabledColumnsList = enabledColumns?.split(',');
     for (const column in this.columns) {
       this.set(`columns.${column}.isEnabled`,
-        Boolean(enabledColumns?.split(',').includes(column))
+        Boolean(enabledColumnsList?.includes(column))
       );
     }
   },

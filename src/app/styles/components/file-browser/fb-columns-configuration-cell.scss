@@ -1,7 +1,7 @@
 .fb-table-col-actions-menu {
   font-size: 200%;
   padding-left: 0;
-  .fb-toolbar-button.configuration-columns-button {
+  .fb-toolbar-button.columns-configuration-button {
     position: relative;
     margin-left: -0.3em;
   }
@@ -9,7 +9,6 @@
     position: absolute;
     display: flex;
     height: 15px;
-    border: 1px solid $color-one-orange;
     font-size: 0.4em;
     color: white;
     border-radius: 50%;
@@ -32,4 +31,3 @@
     margin-top: 1px;
   }
 }
-

@@ -20,7 +20,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.fbConfigurationColumnsCell',
+  i18nPrefix: 'components.fileBrowser.fbColumnsConfigurationCell',
 
   /**
    * @virtual
