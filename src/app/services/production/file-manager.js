@@ -89,6 +89,11 @@ export default Service.extend({
   providerManager: service(),
 
   /**
+   * @type {boolean}
+   */
+  shouldStopPollingForFileAfterOperation: false,
+
+  /**
    * @type {Array<Ember.Component>}
    */
   fileTableComponents: computed(() => []),
@@ -391,6 +396,10 @@ export default Service.extend({
         targetParentGuid: parentDirEntityId,
         targetName: name,
       });
+
+    } catch (error) {
+      this.set('shouldStopPollingForFileAfterOperation', true);
+      throw error;
     } finally {
       const file = await this.getFileByName(parentDirEntityId, name);
       if (file) {
@@ -785,6 +794,11 @@ export default Service.extend({
     operation
   ) {
     const pollSizeInterval = 1000;
+    if (this.shouldStopPollingForFileAfterOperation) {
+      this.set('shouldStopPollingForFileAfterOperation', false);
+      return;
+    }
+
     if (attempts > 0) {
       const file = await this.getFileByName(parentDirEntityId, name);
       if (file) {
