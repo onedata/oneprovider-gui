@@ -11,7 +11,11 @@
         (<span class="number">{{lastPositiveItemsCount}}</span>)
         {{one-tooltip
           title=itemsTooltipContent.tooltipContent
-          class=itemsTooltipContent.tooltipClass
+          class=(concat-classes
+            itemsTooltipContent.tooltipClass
+            "selection-toolkit-tip-content"
+          )
+          onShown=(action "onItemsTooltipShown")
         }}
       </span>
     </div>

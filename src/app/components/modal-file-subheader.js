@@ -8,7 +8,7 @@
 
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
-import { gt, conditional, raw, or, and, eq } from 'ember-awesome-macros';
+import { gt, conditional, raw, or, and, eq, tag } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
 
@@ -73,7 +73,7 @@ export default Component.extend(I18n, {
 
   truncatedTextTooltipClass: conditional(
     'multi',
-    'itemsTooltipContent.tooltipClass',
+    tag `${'itemsTooltipContent.tooltipClass'} modal-subheader-tip-content`,
     raw(undefined),
   ),
 
@@ -82,6 +82,7 @@ export default Component.extend(I18n, {
     const itemsTooltipContent = ItemsTooltipContent.extend({
       items: reads('modalFileSubheader.files'),
     }).create({
+      ownerSource: this,
       modalFileSubheader: this,
     });
     this.set('itemsTooltipContent', itemsTooltipContent);

@@ -99,6 +99,7 @@ export default Component.extend(I18n, {
     const itemsTooltipContent = ItemsTooltipContent.extend({
       items: reads('component.items'),
     }).create({
+      ownerSource: this,
       component: this,
     });
     this.set('itemsTooltipContent', itemsTooltipContent);
@@ -108,6 +109,9 @@ export default Component.extend(I18n, {
     toggleFileActions(open) {
       const _open = (typeof open === 'boolean') ? open : !this.get('fileActionsOpen');
       this.set('fileActionsOpen', _open);
+    },
+    onItemsTooltipShown() {
+      this.itemsTooltipContent.onItemsTooltipShown(...arguments);
     },
   },
 });

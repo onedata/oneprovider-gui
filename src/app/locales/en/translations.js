@@ -68,6 +68,7 @@ import filePermissionsViewModel from './utils/file-permissions-view-model';
 import fileQosViewModel from './utils/file-qos-view-model';
 import fileDistributionViewModel from './utils/file-distribution-view-model';
 import archivePropertiesViewModel from './utils/archive-properties-view-model';
+import itemsTooltipContent from './utils/items-tooltip-content';
 
 const translations = {
   components: {
@@ -136,6 +137,7 @@ const translations = {
     fileDistributionViewModel,
     fileInfo,
     archivePropertiesViewModel,
+    itemsTooltipContent,
     archiveForm: {
       baseModel: archiveFormBaseModel,
       viewModel: archiveFormViewModel,
