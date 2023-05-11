@@ -416,6 +416,7 @@ export default Component.extend(I18n, {
     return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
   }),
 
+  // TODO: VFS-8809 migrate to InfiniteScroll toolkit
   filesArray: computed('dir.entityId', 'browserModel', function filesArray() {
     const dirId = this.get('dir.entityId');
     const selectedItemsForJump = this.get('selectedItemsForJump');
@@ -558,6 +559,7 @@ export default Component.extend(I18n, {
     registerApi(api);
   }),
 
+  // TODO: VFS-8809 this additional observer can be helpful in generic scroll toolkit
   /**
    * Change of a start or end index could be needed after source array length change
    */

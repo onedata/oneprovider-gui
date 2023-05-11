@@ -76,6 +76,7 @@ export default Component.extend({
 
   spaceId: reads('space.entityId'),
 
+  // TODO: VFS-8809 migrate to InfiniteScroll toolkit
   transfersArray: computed('type', function transfersArray() {
     const type = this.get('type');
     return ReplacingChunksArray.create({
