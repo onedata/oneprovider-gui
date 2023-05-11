@@ -12,14 +12,6 @@
     <div class="table-header-status-bar">{{yield}}</div>
   </div>
 </th>
-{{#if browserModel.columns.owner.isVisible}}
-  <th
-    class="fb-table-col-owner fb-table-secondary-col"
-    style={{browserModel.columnsStyle.owner}}
-  >
-    {{tt this "owner"}}
-  </th>
-{{/if}}
 {{#if browserModel.columns.size.isVisible}}
   <th
     class="fb-table-col-size fb-table-secondary-col hidden-xs"
@@ -34,6 +26,14 @@
     style={{browserModel.columnsStyle.modification}}
   >
     {{tt this "modification"}}
+  </th>
+{{/if}}
+{{#if browserModel.columns.owner.isVisible}}
+  <th
+    class="fb-table-col-owner fb-table-secondary-col"
+    style={{browserModel.columnsStyle.owner}}
+  >
+    {{tt this "owner"}}
   </th>
 {{/if}}
 {{file-browser/fb-columns-configuration-cell

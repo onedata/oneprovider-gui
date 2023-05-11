@@ -1044,17 +1044,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   init() {
     this.set('columns', {
-      owner: EmberObject.create({
+      size: EmberObject.create({
         isVisible: true,
         isEnabled: true,
-        width: 200,
+        width: 140,
       }),
-      size: EmberObject.create({
+      modification: EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 180,
       }),
-      modification: EmberObject.create({
+      owner: EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 200,

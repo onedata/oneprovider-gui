@@ -1,9 +1,4 @@
 <th class="fb-table-col-archives">{{tt this "archives"}}</th>
-{{#if browserModel.columns.creator.isVisible}}
-  <th class="fb-table-col-creator" style={{browserModel.columnsStyle.creator}}>
-    {{tt this "creator"}}
-  </th>
-{{/if}}
 {{#if browserModel.columns.state.isVisible}}
   <th
     class="fb-table-col-state fb-table-secondary-col hidden-xs"
@@ -18,6 +13,11 @@
     style={{browserModel.columnsStyle.modification}}
   >
     {{tt this "incremental"}}
+  </th>
+{{/if}}
+{{#if browserModel.columns.creator.isVisible}}
+  <th class="fb-table-col-creator" style={{browserModel.columnsStyle.creator}}>
+    {{tt this "creator"}}
   </th>
 {{/if}}
 {{file-browser/fb-columns-configuration-cell

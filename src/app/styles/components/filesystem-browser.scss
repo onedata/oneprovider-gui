@@ -1,20 +1,10 @@
 .filesystem-browser {
-  --column-width: 100px;
   // special adjustments because of jump-control presence
   .filesystem-table-head-row {
     height: 63px;
     th {
       padding-bottom: 10px;
     }
-    .fb-table-col-actions-menu {
-      padding-left: 0;
-      .fb-toolbar-button.columns-configuration-button {
-        margin-left: -0.3em;
-      }
-    }
-  }
-  .fb-table-secondary-col {
-    width: var(--column-width);
   }
   .fb-table-col-size {
     position: relative;

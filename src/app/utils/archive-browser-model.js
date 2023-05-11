@@ -208,6 +208,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   browserName: 'archive',
 
   /**
+   * @override
+   */
+  firstColumnWidth: 350,
+
+  /**
    * @type {ComputedProperty<Boolean>}
    */
   isAnySelectedDeleting: array.isAny('selectedItems', raw('state'), raw('deleting')),

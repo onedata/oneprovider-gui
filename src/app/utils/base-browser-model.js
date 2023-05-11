@@ -31,6 +31,15 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler
 import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
 
+/**
+ * Contains info about column visibility: if on screen is enough space to show this column
+ * and if user want to view that
+ * @typedef {EmberObject} columnProperties
+ * @property {boolean} isVisible
+ * @property {boolean} isEnabled
+ * @property {number} width
+ */
+
 const mixins = [
   OwnerInjector,
   I18n,
@@ -256,7 +265,7 @@ export default EmberObject.extend(...mixins, {
   defaultFileBrowserWidth: 1000,
 
   /**
-   * @type {Object}
+   * @type {Object<string, columnProperties>}
    */
   columns: undefined,
 
@@ -678,10 +687,12 @@ export default EmberObject.extend(...mixins, {
       `${this.browserName}.enabledColumns`
     );
     const enabledColumnsList = enabledColumns?.split(',');
-    for (const column in this.columns) {
-      this.set(`columns.${column}.isEnabled`,
-        Boolean(enabledColumnsList?.includes(column))
-      );
+    if (enabledColumnsList) {
+      for (const column in this.columns) {
+        this.set(`columns.${column}.isEnabled`,
+          Boolean(enabledColumnsList?.includes(column))
+        );
+      }
     }
   },
 });

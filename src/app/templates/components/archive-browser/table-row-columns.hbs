@@ -1,13 +1,3 @@
-{{#if browserModel.columns.creator.isVisible}}
-  <td class="fb-table-col-creator fb-table-secondary-col multiline">
-    <span class="file-item-text">
-      {{filesystem-browser/table-cell-owner-info
-        owner=creator
-        errorReason=creatorProxyError
-      }}
-    </span>
-  </td>
-{{/if}}
 {{#if browserModel.columns.state.isVisible}}
   <td
     class="fb-table-col-state fb-table-secondary-col hidden-xs multiline"
@@ -72,5 +62,15 @@
         {{tt this "baseArchiveDeleted"}}
       </div>
     {{/if}}
+  </td>
+{{/if}}
+{{#if browserModel.columns.creator.isVisible}}
+  <td class="fb-table-col-creator fb-table-secondary-col multiline">
+    <span class="file-item-text">
+      {{filesystem-browser/table-cell-owner-info
+        owner=creator
+        errorReason=creatorProxyError
+      }}
+    </span>
   </td>
 {{/if}}

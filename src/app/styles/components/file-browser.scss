@@ -61,14 +61,15 @@
     }
   }
   .fb-table {
+    --column-width: 200px;
     td.multiline {
       vertical-align: middle;
       padding-top: 8px;
       padding-bottom: 8px;
       white-space: nowrap;
     }
-    .fb-table-col-actions-menu {
-      padding-left: 0;
+    .fb-table-secondary-col {
+      width: var(--column-width);
     }
   }
 }
