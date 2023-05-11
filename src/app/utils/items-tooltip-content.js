@@ -34,6 +34,17 @@ export default EmberObject.extend(I18n, OwnerInjector, {
   hugeTextCharsLength: 2750,
 
   /**
+   * Sorts items like backend - lexicographical sorting by Unicode chars order.
+   *
+   * NOTE: Not using Ember's computed sort, because it sorts in other way than standard
+   * `Array.sort` method without any sorting function.
+   * @type {ComputedProperty<Array<any>>}
+   */
+  sortedItems: computed('items.@each.name', function sortedItems() {
+    return [...this.items].sort();
+  }),
+
+  /**
    * Is set to true in `onItemsTooltipShown` callback if UL height exceeds container
    * height, causing overflow and list trim.
    * @type {boolean}
@@ -56,13 +67,13 @@ export default EmberObject.extend(I18n, OwnerInjector, {
 
   tooltipContent: computed(
     'ulElementId',
-    'items.@each.name',
+    'sortedItems.@each.name',
     'isOverflown',
     function tooltipContent() {
-      if (!Array.isArray(this.items)) {
+      if (!Array.isArray(this.sortedItems)) {
         return '';
       }
-      const itemsHtml = this.items.map(item =>
+      const itemsHtml = this.sortedItems.map(item =>
         `<li class="tag-item">${get(item, 'name')}</li>`
         // NOTE: span list MUST be separated by spaces, because otherwise it will not
         // wrap elements in Firefox
@@ -83,8 +94,8 @@ export default EmberObject.extend(I18n, OwnerInjector, {
     return `items-tooltip-content-ul-${guidFor(this)}`;
   }),
 
-  namesLengthSum: computed('items.@each.name', function isHugeMultiText() {
-    return _.sum(this.items?.map(item => item && get(item, 'name')?.length || 0));
+  namesLengthSum: computed('sortedItems.@each.name', function isHugeMultiText() {
+    return _.sum(this.sortedItems?.map(item => item && get(item, 'name')?.length || 0));
   }),
 
   isHugeMultiText: gt('namesLengthSum', 'hugeTextCharsLength'),
