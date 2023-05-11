@@ -1,18 +1,20 @@
 <div class="selection-summary">
   <div class="selection-count-summary {{unless selectedCount "selection-count-none"}}">
-    <span class="selection-count-text">
+    <div class="selection-count-text">
       {{itemsSelectedText}}
       {{#if selectedCount}}
-        {{one-tooltip
-          title=itemsTooltipContent.tooltipContent
-          class=(concat-classes
-            itemsTooltipContent.tooltipClass
-            "selection-count-tip-content"
-          )
-          onShown=(action "onItemsTooltipShown")
-        }}
+        {{#one-icon icon="browser-info" class="selection-count-tip-trigger"}}
+          {{one-tooltip
+            title=itemsTooltipContent.tooltipContent
+            class=(concat-classes
+              itemsTooltipContent.tooltipClass
+              "selection-count-tip-content"
+            )
+            onShown=(action "onItemsTooltipShown")
+          }}
+        {{/one-icon}}
       {{/if}}
-    </span>
+    </div>
   </div>
   {{#if validationError}}
     <div class="selection-validation-error text-danger">{{validationError}}</div>
