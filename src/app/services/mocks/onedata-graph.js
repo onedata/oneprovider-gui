@@ -27,6 +27,7 @@ import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive'
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { EntrySeverity } from 'onedata-gui-common/utils/audit-log';
+import atmWorkflowExecutionSummaryIndex from 'oneprovider-gui/utils/atm-workflow-execution-summary-index';
 
 const messagePosixError = (errno) => ({
   success: false,
@@ -297,9 +298,22 @@ const spaceHandlers = {
     const {
       phase,
       offset,
+      index,
       limit,
     } = data;
-    const startPosition = Math.max(offset, 0);
+    let startPosition = 0;
+    if (index) {
+      const itemPositionByIndex = allAtmWorkflowExecutionSummaries[phase]
+        .findIndex(item =>
+          atmWorkflowExecutionSummaryIndex(item, phase) === index
+        );
+      if (itemPositionByIndex !== -1) {
+        startPosition = itemPositionByIndex;
+      }
+    }
+    if (offset > 0) {
+      startPosition += offset;
+    }
     const atmWorkflowExecutionSummaries = allAtmWorkflowExecutionSummaries[phase]
       .slice(startPosition, startPosition + limit);
 
