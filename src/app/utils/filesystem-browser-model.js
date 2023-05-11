@@ -208,6 +208,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
+  dirLoadErrorComponentName: 'filesystem-browser/dir-load-error',
+
+  /**
+   * @override
+   */
   browserClass: array.join(
     array.concat(
       raw(['filesystem-browser']),

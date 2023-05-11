@@ -320,6 +320,9 @@ export default EmberObject.extend(...mixins, {
     'dir.hasParent',
     'resolveFileParentFun',
     async function isRootDirProxy() {
+      if (!this.dir) {
+        return;
+      }
       return !(await this.resolveFileParentFun(this.dir));
     }
   )),
@@ -532,6 +535,10 @@ export default EmberObject.extend(...mixins, {
 
   changeDir(dir) {
     return this.browserInstance.changeDir(dir);
+  },
+
+  navigateToRoot() {
+    return this.changeDir(null);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known

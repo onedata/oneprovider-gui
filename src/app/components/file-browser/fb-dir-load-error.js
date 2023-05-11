@@ -10,6 +10,7 @@ import Component from '@ember/component';
 import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   classNames: ['error-dir-box', 'dir-box'],
@@ -56,4 +57,15 @@ export default Component.extend(I18n, {
       }
     }
   ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  navigateToRootButtonLabel: computedT('navigateToRoot'),
+
+  actions: {
+    navigateToRoot() {
+      return this.browserModel.navigateToRoot();
+    },
+  },
 });

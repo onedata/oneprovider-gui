@@ -809,15 +809,27 @@ export default Component.extend(I18n, {
       'browserModel',
       'loadingIconFileIds',
     );
-    const dirId = get(dir, 'entityId');
-    loadingIconFileIds.pushObject(dirId);
+    const dirId = dir && get(dir, 'entityId') || null;
+    if (dirId) {
+      loadingIconFileIds.pushObject(dirId);
+    }
     try {
+      if (dirId) {
+        await browserModel.onChangeDir(dir, async (effDir = dir) => {
+          await updateDirEntityId(get(effDir, 'entityId'));
+        });
+      } else {
+        await updateDirEntityId(null);
+      }
+      containerScrollTop(0);
       await browserModel.onChangeDir(dir, async (effDir = dir) => {
         await updateDirEntityId(get(effDir, 'entityId'));
         containerScrollTop(0);
       });
     } finally {
-      removeObjectsFirstOccurence(loadingIconFileIds, [dirId]);
+      if (dirId) {
+        removeObjectsFirstOccurence(loadingIconFileIds, [dirId]);
+      }
     }
   },
 
