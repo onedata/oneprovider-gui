@@ -124,6 +124,7 @@ export default Component.extend(I18n, {
     return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
   }),
 
+  // TODO: VFS-8809 migrate to InfiniteScroll toolkit
   /**
    * @type {ComputedProperty<ReplacingChunksArray<Models.AtmWorkflowExecutionSummary>>}
    */
