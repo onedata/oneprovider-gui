@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-10692 Redesigned and refactored browser actions and selected items button
+* VFS-10826 Fixed getting time series config from not-created stores when drawing automation charts
 * VFS-9014 Migrated to getting globals from `globals` util
 * VFS-10597 Added thousands separator in charts
 * VFS-10461 Added file/archive/dataset list polling
