@@ -76,7 +76,6 @@ export default EmberObject.extend({
   },
 
   async poll() {
-    console.log('executed standard poll');
     await this.browserModel.refresh({ silent: true });
   },
 

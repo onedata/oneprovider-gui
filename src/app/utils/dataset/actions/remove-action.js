@@ -157,7 +157,7 @@ export default BaseAction.extend({
       await this.onExecutionCompleted(changedDatasets);
     } catch (error) {
       console.error(
-        'removeDatasets: post-processiing after removing datasets failed:',
+        'removeDatasets: post-processing after removing datasets failed:',
         error
       );
     }
