@@ -58,6 +58,10 @@
       text-align: left;
       font-size: 80%;
     }
+    // file-datasets panel has footer with button on the bottom - pull up the mobile menu
+    .file-datasets-archives-tab .one-pill-button.mobile-mode {
+      padding-bottom: 100px;
+    }
   }
 }
 
