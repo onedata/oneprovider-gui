@@ -61,6 +61,11 @@ export default Component.extend(I18n, {
 
   fileActionsOpen: false,
 
+  /**
+   * @type {Utils.ItemsTooltipContent}
+   */
+  itemsTooltipContent: undefined,
+
   rememberLastPositiveCount: observer(
     'itemsCount',
     function rememberLastPositiveCount() {
