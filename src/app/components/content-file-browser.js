@@ -148,7 +148,7 @@ export default OneEmbeddedComponent.extend(
             return validFiles;
           } catch (error) {
             console.error(
-              `component:content-file-browser#selectedItemsForJumpProxy: error loading selected files: ${error}`
+              `component:content-file-browser#selectedItemsForJumpProxy: error loading selected files: ${JSON.stringify(error)}`
             );
           }
         }
