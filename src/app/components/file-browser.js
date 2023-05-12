@@ -13,7 +13,7 @@ import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { notEmpty, not, raw, collect, and, bool, or, equal } from 'ember-awesome-macros';
+import { notEmpty, not, raw, collect, and, bool, or, equal, conditional } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -27,25 +27,41 @@ import globals from 'onedata-gui-common/utils/globals';
 
 const defaultIsItemDisabled = () => false;
 
-export const actionContext = {
+export const actionContext = Object.freeze({
+  // -- Selection context - context menu for selected items on the list --
+  // special selection context returned when nothing is selected
   none: 'none',
-  inDir: 'inDir',
-  inDirPreview: 'inDirPreview',
+  // single item is selected - with dir or single-item type (file), in normal or preview
+  // browser mode
   singleDir: 'singleDir',
   singleDirPreview: 'singleDirPreview',
   singleFile: 'singleFile',
   singleFilePreview: 'singleFilePreview',
+  // more than one item is selected, additional type is "Mixed" meaning that there are
+  // at least two items with different types
   multiDir: 'multiDir',
   mutliDirPreview: 'mutliDirPreview',
   multiFile: 'multiFile',
   multiFilePreview: 'multiFilePreview',
   multiMixed: 'multiMixed',
   multiMixedPreview: 'multiMixedPreview',
+
+  // -- Non-selection contexts --
+  // always-visible buttons in toolbar for current directory or when clicked on empty
+  // browser area
+  inDir: 'inDir',
+  inDirPreview: 'inDirPreview',
+  // context menu shown for current dir in breadcrumbs - in typical scenarios actions for
+  // `singleDir*` should have also this context enabled, but there is a need to make
+  // it distinct
   currentDir: 'currentDir',
   currentDirPreview: 'currentDirPreview',
-  spaceRootDir: 'spaceRootDir',
-  spaceRootDirPreview: 'spaceRootDirPreview',
-};
+  // context menu shown for first dir in breadcrumbs - in typical scenarios actions for
+  // `currentDir*` should have also this context enabled, but there is a need to make it
+  // distinct
+  rootDir: 'rootDir',
+  rootDirPreview: 'rootDirPreview',
+});
 
 export const anySelectedContexts = [
   actionContext.singleDir,
@@ -69,6 +85,7 @@ export default Component.extend(I18n, {
   errorExtractor: service(),
   media: service(),
   isMobile: service(),
+  workflowManager: service(),
 
   /**
    * @override
@@ -277,7 +294,7 @@ export default Component.extend(I18n, {
    */
   rootIcon: reads('browserModel.rootIcon'),
 
-  isRootDir: not('dir.hasParent'),
+  isRootDir: reads('browserModel.isRootDir'),
 
   showCurrentDirActions: notEmpty('currentDirMenuButtons'),
 
@@ -300,7 +317,7 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * One of values from `actionContext` enum object
+   * One of values from `actionContext` enum object marked as "selection context" in doc
    * @type {ComputedProperty<string>}
    */
   selectionContext: computed(
@@ -430,23 +447,23 @@ export default Component.extend(I18n, {
   }),
 
   currentDirMenuButtons: computed(
-    'allButtonsArray',
     'isRootDir',
+    'allButtonsArray',
     'fileClipboardMode',
     'previewMode',
     function menuButtons() {
       const {
-        allButtonsArray,
         isRootDir,
+        allButtonsArray,
         previewMode,
         browserModel,
       } = this.getProperties(
-        'allButtonsArray',
         'isRootDir',
+        'allButtonsArray',
         'previewMode',
         'browserModel',
       );
-      const context = (isRootDir ? 'spaceRootDir' : 'currentDir') +
+      const context = (isRootDir ? 'rootDir' : 'currentDir') +
         (previewMode ? 'Preview' : '');
       let buttonActions = getButtonActions(
         allButtonsArray,
@@ -466,6 +483,54 @@ export default Component.extend(I18n, {
     }
   ),
 
+  toolbarButtons: computed(
+    'allButtonsArray',
+    'fileClipboardMode',
+    'workflowManager.isBagitUploaderAvailable',
+    function toolbarButtons() {
+      const {
+        allButtonsArray,
+        fileClipboardMode,
+        previewMode,
+      } = this.getProperties(
+        'allButtonsArray',
+        'fileClipboardMode',
+        'previewMode'
+      );
+      const isBagitUploaderAvailable =
+        this.get('workflowManager.isBagitUploaderAvailable');
+      let actions = getButtonActions(
+        allButtonsArray,
+        previewMode ? 'inDirPreview' : 'inDir'
+      );
+      if (fileClipboardMode !== 'symlink') {
+        actions = actions.rejectBy('id', 'placeSymlink');
+      }
+      if (fileClipboardMode !== 'hardlink') {
+        actions = actions.rejectBy('id', 'placeHardlink');
+      }
+      if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'move') {
+        actions = actions.rejectBy('id', 'paste');
+      }
+      if (!isBagitUploaderAvailable) {
+        actions = actions.rejectBy('id', 'bagitUpload');
+      }
+      return actions;
+    }
+  ),
+
+  blankAreaContextMenuButtons: computed(
+    'toolbarButtons',
+    function blankAreaContextMenuButtons() {
+      return [{
+          separator: true,
+          title: this.browserModel.currentDirTranslation || this.t('menuCurrentDir'),
+        },
+        ...this.toolbarButtons,
+      ];
+    }
+  ),
+
   currentDirContextMenuHandler: computed(function currentDirContextMenuHandler() {
     const component = this;
     const openCurrentDirContextMenu = component.get('openCurrentDirContextMenu');
@@ -478,19 +543,7 @@ export default Component.extend(I18n, {
     };
   }),
 
-  isOnlyCurrentDirSelected: computed(
-    'selectedItems.[]',
-    'dir',
-    function isCurrentDirSelected() {
-      const {
-        selectedItems,
-        dir,
-      } = this.getProperties('selectedItems', 'dir');
-      return selectedItems &&
-        get(selectedItems, 'length') === 1 &&
-        selectedItems.includes(dir);
-    }
-  ),
+  isOnlyCurrentDirSelected: reads('browserModel.isOnlyCurrentDirSelected'),
 
   contentScroll: computed(function contentScroll() {
     return globals.document.getElementById('content-scroll');
@@ -581,6 +634,12 @@ export default Component.extend(I18n, {
         return defaultIsItemDisabled;
       }
     }
+  ),
+
+  selectionToolkitItems: conditional(
+    'isOnlyCurrentDirSelected',
+    raw([]),
+    'selectedItems',
   ),
 
   bindBrowserModel: observer('browserModel', function bindBrowserModel() {

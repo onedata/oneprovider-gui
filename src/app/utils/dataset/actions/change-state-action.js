@@ -9,6 +9,7 @@
 import BaseAction from './-base';
 import {
   anySelectedContexts,
+  actionContext,
 } from 'oneprovider-gui/components/file-browser';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -35,7 +36,7 @@ export default BaseAction.extend({
    * @virtual optional
    * @type {Function}
    */
-  onStateChanged: notImplementedIgnore,
+  onExecutionCompleted: notImplementedIgnore,
 
   /**
    * @override
@@ -56,6 +57,7 @@ export default BaseAction.extend({
    */
   showIn: Object.freeze([
     ...anySelectedContexts,
+    actionContext.currentDir,
   ]),
 
   /**
@@ -81,7 +83,7 @@ export default BaseAction.extend({
     'isAnySelectedRootDeleted',
     computedT('tip.cannotReattachDeleted'),
     computed(
-      'spacePrivileges.{manageDatasets,createArchives}',
+      'spacePrivileges.manageDatasets',
       function disabledTip() {
         const {
           spacePrivileges,
@@ -199,24 +201,19 @@ export default BaseAction.extend({
   },
 
   async toggleDatasetsAttachment(datasets, attach) {
-    const {
-      datasetManager,
-      onStateChanged,
-    } = this.getProperties(
-      'datasetManager',
-      'onStateChanged',
-    );
-    const result = await allSettled(datasets.map(dataset =>
-      datasetManager.toggleDatasetAttachment(dataset, attach)
-    ));
+    const results = await allSettled(datasets.map(async (dataset) => {
+      await this.datasetManager.toggleDatasetAttachment(dataset, attach);
+      return dataset;
+    }));
+    const changedDatasets = results.map(result => get(result, 'value')).filter(Boolean);
     try {
-      await onStateChanged();
+      await this.onExecutionCompleted(changedDatasets);
     } catch (error) {
       console.error(
         'toggleDatasetsAttachment: post-processing after toggling attachment failed:',
         error
       );
     }
-    return result;
+    return results;
   },
 });

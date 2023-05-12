@@ -263,7 +263,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   //#region Action buttons
 
   btnCopyId: computed(function btnCopyId() {
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'copyArchiveId',
       icon: 'circle-id',
       action: (archives) => {
@@ -285,7 +285,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     function btnDownloadTar() {
       const disabledTip = this.get('isAnySelectedCreating') ?
         this.t('notAvailableForCreating') : null;
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'downloadTar',
         icon: 'browser-download',
         tip: disabledTip,
@@ -311,7 +311,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       if (!selectedArchiveHasDip) {
         disabledTip = this.t('selectedArchiveNoDip');
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'browseDip',
         icon: 'browser-directory',
         action: (archives) => {
@@ -329,7 +329,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnArchiveProperties: computed(
     function btnArchiveProperties() {
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'archiveProperties',
         icon: 'properties',
         action: (archives) => {
@@ -358,7 +358,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           endingTextInParentheses: this.t('forNonOwnedArchives'),
         });
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'editDescription',
         icon: 'rename',
         tip: disabledTip,
@@ -379,7 +379,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnShowAuditLog: computed(
     function btnShowAuditLog() {
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'showAuditLog',
         icon: 'view-list',
         action: (archives) => {
@@ -415,7 +415,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           privilegeFlag: ['space_create_archives'],
         });
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'createArchive',
         icon: 'browser-archive-add',
         tip: disabledTip,
@@ -426,8 +426,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         },
         showIn: [
           actionContext.inDir,
-          actionContext.currentDir,
-          actionContext.spaceRootDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -471,7 +470,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           });
         }
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'createIncrementalArchive',
         icon: 'browser-archive-add',
         tip: disabledTip,
@@ -520,7 +519,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           privilegeFlag: ['space_recall_archives', 'space_write_data'],
         });
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'recall',
         icon: 'browser-archive-recall',
         tip: disabledTip,
@@ -569,7 +568,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       } else if (isAnySelectedDeleting) {
         disabledTip = this.t('alreadyDeleting');
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'delete',
         icon: 'browser-delete',
         title: this.t(`fileActions.delete.${areMultipleSelected ? 'multi' : 'single'}`),
@@ -603,7 +602,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           endingTextInParentheses: this.t('forNonOwnedArchives'),
         });
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'cancel',
         icon: 'cancelled',
         title: this.t('fileActions.cancel'),

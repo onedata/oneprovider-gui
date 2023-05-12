@@ -24,7 +24,7 @@ import {
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
 import { scheduleOnce } from '@ember/runloop';
-import { tag, raw, conditional } from 'ember-awesome-macros';
+import { tag, raw, conditional, eq, and, promise, bool } from 'ember-awesome-macros';
 import moment from 'moment';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
@@ -215,6 +215,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   spaceId: reads('browserInstance.spaceId'),
   previewMode: reads('browserInstance.previewMode'),
   isSpaceOwned: reads('browserInstance.isSpaceOwned'),
+  resolveFileParentFun: reads('browserInstance.resolveFileParentFun'),
   // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
   fileClipboardMode: reads('browserInstance.fileClipboardMode'),
   fileClipboardFiles: reads('browserInstance.fileClipboardFiles'),
@@ -261,6 +262,16 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   loadingIconFileIds: reads('browserInstance.loadingIconFileIds'),
 
   //#endregion
+
+  isRootDirProxy: promise.object(computed(
+    'dir.hasParent',
+    'resolveFileParentFun',
+    async function isRootDirProxy() {
+      return !(await this.resolveFileParentFun(this.dir));
+    }
+  )),
+
+  isRootDir: bool('isRootDirProxy.content'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -316,7 +327,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   ),
 
   btnRefresh: computed(function btnRefresh() {
-    return this.createFileAction(EmberObject.extend({
+    return this.createItemBrowserAction(EmberObject.extend({
       id: 'refresh',
       title: this.t('fileActions.refresh'),
       disabled: false,
@@ -334,13 +345,23 @@ export default EmberObject.extend(OwnerInjector, I18n, {
           actionContext.inDirPreview,
           actionContext.currentDir,
           actionContext.currentDirPreview,
-          actionContext.spaceRootDir,
-          actionContext.spaceRootDirPreview,
+          actionContext.rootDir,
+          actionContext.rootDirPreview,
         ]),
         raw([]),
       ),
     }));
   }),
+
+  isOnlyCurrentDirSelected: and(
+    eq('selectedItems.length', raw(1)),
+    eq('selectedItems.0', 'dir'),
+  ),
+
+  isOnlyRootDirSelected: and(
+    'isOnlyCurrentDirSelected',
+    'isRootDir',
+  ),
 
   /**
    * True if there are selected items that surely be gone from the replacing chunks array
@@ -414,9 +435,19 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     this.selectedItemsOutOfScope;
   },
 
+  /**
+   * @override
+   */
   willDestroy() {
-    this._super(...arguments);
-    this.browserListPoller?.destroy();
+    try {
+      this.browserListPoller?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  changeDir(dir) {
+    return this.browserInstance.changeDir(dir);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
@@ -521,28 +552,28 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @param {Object} options additional options for object create
    * @returns {EmberObject}
    */
-  createFileAction(fileActionSpec, options = {}) {
-    const {
-      id,
-      icon,
-      title,
-      disabled,
-      class: elementClass,
-      showIn,
-      action,
-    } = getProperties(
-      fileActionSpec,
-      'id',
-      'icon',
-      'title',
-      'disabled',
-      'class',
-      'showIn',
-      'action',
-    );
+  createItemBrowserAction(fileActionSpec, options = {}) {
     const specType = typeOf(fileActionSpec);
     switch (specType) {
-      case 'object':
+      case 'object': {
+        const {
+          id,
+          icon,
+          title,
+          disabled,
+          class: elementClass,
+          showIn,
+          action,
+        } = getProperties(
+          fileActionSpec,
+          'id',
+          'icon',
+          'title',
+          'disabled',
+          'class',
+          'showIn',
+          'action',
+        );
         return Object.assign({}, fileActionSpec, {
           icon: icon || `browser-${dasherize(id)}`,
           title: title || this.t(`fileActions.${id}`),
@@ -553,13 +584,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
             return action(files || this.get('selectedItems'), ...args);
           },
         }, options);
+      }
       case 'class':
         return fileActionSpec.create({
           ownerSource: this,
           context: this,
         }, options);
       default:
-        throw new Error(`createFileAction: not supported spec type: ${specType}`);
+        throw new Error(`createItemBrowserAction: not supported spec type: ${specType}`);
     }
   },
 });

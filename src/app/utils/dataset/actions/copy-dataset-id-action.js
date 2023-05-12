@@ -29,6 +29,8 @@ export default BaseAction.extend({
     actionContext.singleFilePreview,
     actionContext.singleDir,
     actionContext.singleDirPreview,
+    actionContext.currentDir,
+    actionContext.currentDirPreview,
   ]),
 
   /**

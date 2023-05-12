@@ -4,10 +4,21 @@
   opacity: 1;
   margin-left: 20px;
   transition: $collapse-transition-vertical;
+  .one-pill-button {
+    .icon-dot {
+      margin-bottom: 3px;
+    }
+    .one-pill-button-inner {
+      height: 30px;
+    }
+    .one-pill-button-actions-trigger {
+      width: 34px;
+    }
+  }
   .selection-count-number {
     color: $main-text-color-disabled;
   }
-  &.closed {
+  &.pill-hidden {
     max-width: 0;
     opacity: 0;
     margin-left: 0;

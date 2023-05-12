@@ -22,8 +22,8 @@ import { conditional } from 'ember-awesome-macros';
 import {
   CopyDatasetIdAction,
   CreateArchiveAction,
-  ChangeStateAction,
-  RemoveAction,
+  BrowserChangeStateAction,
+  BrowserRemoveAction,
 } from 'oneprovider-gui/utils/dataset/actions';
 import { spaceDatasetsRootId } from 'oneprovider-gui/components/content-space-datasets';
 import globals from 'onedata-gui-common/utils/globals';
@@ -165,12 +165,12 @@ export default BaseBrowserModel.extend(I18n, {
   //#region Action buttons
 
   btnCopyId: computed(function btnCopyId() {
-    return this.createFileAction(CopyDatasetIdAction);
+    return this.createItemBrowserAction(CopyDatasetIdAction);
   }),
 
   btnShowFile: computed('selectionContext', function btnShowFile() {
     const selectionContext = this.get('selectionContext');
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'showFile',
       icon: 'browser-' +
         (selectionContext === actionContext.singleFile ? 'file' : 'directory'),
@@ -188,7 +188,7 @@ export default BaseBrowserModel.extend(I18n, {
 
   btnCreateArchive: computed('spacePrivileges', function btnCreateArchive() {
     const spacePrivileges = this.get('spacePrivileges');
-    return this.createFileAction(CreateArchiveAction, {
+    return this.createItemBrowserAction(CreateArchiveAction, {
       onOpenCreateArchive: this.openCreateArchiveModal.bind(this),
       spacePrivileges,
     });
@@ -196,33 +196,28 @@ export default BaseBrowserModel.extend(I18n, {
 
   btnChangeState: computed(
     'attachmentState',
+    'spacePrivileges.manageDatasets',
     function btnChangeState() {
-      const {
-        // use attachmentState from this component to prevent unnecessary action recompute
-        attachmentState,
-        spacePrivileges,
-      } = this.getProperties(
-        'attachmentState',
-        'spacePrivileges',
-      );
-      return this.createFileAction(ChangeStateAction, {
-        attachmentState,
-        spacePrivileges,
-        onStateChanged: this.refresh.bind(this),
+      return this.createItemBrowserAction(BrowserChangeStateAction, {
+        attachmentState: this.attachmentState,
+        spacePrivileges: this.spacePrivileges,
+        browserModel: this,
       });
     }
   ),
 
-  btnRemove: computed(function btnRemove() {
-    const spacePrivileges = this.get('spacePrivileges');
-    return this.createFileAction(RemoveAction, {
-      spacePrivileges,
-      onRemoved: this.refresh.bind(this),
-    });
-  }),
+  btnRemove: computed(
+    'spacePrivileges.manageDatasets',
+    function btnRemove() {
+      return this.createItemBrowserAction(BrowserRemoveAction, {
+        browserModel: this,
+        spacePrivileges: this.spacePrivileges,
+      });
+    }
+  ),
 
   btnProtection: computed(function btnProtection() {
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'protection',
       icon: 'browser-permissions',
       action: async (datasets) => {
