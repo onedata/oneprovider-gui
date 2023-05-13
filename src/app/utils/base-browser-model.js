@@ -234,6 +234,7 @@ export default EmberObject.extend(...mixins, {
   //#region file-browser state
 
   dir: reads('browserInstance.dir'),
+  dirError: reads('browserInstance.dirError'),
   itemsArray: reads('fbTableApi.itemsArray'),
   selectedItems: reads('browserInstance.selectedItems'),
   selectedItemsForJumpProxy: reads('browserInstance.selectedItemsForJumpProxy'),

@@ -98,23 +98,20 @@ export default Component.extend(I18n, {
    */
   browserModel: undefined,
 
-  // FIXME: jsdoc for dir / dirProxy
-
-  // FIXME: dirProxy should be present in browserModel
   /**
-   * Promise proxy of browsable dir-like item like `Models.File` of type "dir".
-   * @virtual optional
-   * @type {Object|EmberObject}
-   */
-  dirProxy: undefined,
-
-  /**
-   * @virtual optional
-   * File model with dir type. It is the currently displayed directory.
+   * Browsable item with dir type. It is the currently displayed directory (container).
    * Can be replaced internally with `changeDir` action.
-   * @type {Models/File}
+   * Eg. a `Models.File` object with `dir` type.
+   * @virtual
+   * @type {any}
    */
-  dir: reads('dirProxy.content'),
+  dir: undefined,
+
+  /**
+   * @virtual
+   * @type {Object}
+   */
+  dirError: undefined,
 
   /**
    * @virtual

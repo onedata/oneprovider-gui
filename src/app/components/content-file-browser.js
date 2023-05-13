@@ -276,6 +276,8 @@ export default OneEmbeddedComponent.extend(
 
     dir: computedLastProxyContent('dirProxy'),
 
+    dirError: reads('dirProxy.reason'),
+
     spaceObserver: observer('spaceProxy.content', function spaceObserver() {
       this.get('uploadManager').changeTargetSpace(this.get('spaceProxy.content'));
     }),

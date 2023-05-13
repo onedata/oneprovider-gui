@@ -8,7 +8,7 @@ import Service from '@ember/service';
 import sinon from 'sinon';
 import { get } from '@ember/object';
 import Evented from '@ember/object/evented';
-import { resolve, reject } from 'rsvp';
+import { resolve } from 'rsvp';
 import _ from 'lodash';
 import sleep from 'onedata-gui-common/utils/sleep';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
@@ -21,8 +21,6 @@ import {
   openFileContextMenu,
 } from '../../helpers/item-browser';
 import globals from 'onedata-gui-common/utils/globals';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import { suppressRejections } from '../../helpers/suppress-rejections';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -31,7 +29,6 @@ const UploadManager = Service.extend({
 });
 
 const FileManager = Service.extend(Evented, {
-  getFileById() {},
   fetchDirChildren() {},
   copyOrMoveFile() {},
   createSymlink() {},
@@ -107,8 +104,7 @@ describe('Integration | Component | file-browser (main component)', function () 
       selectedItems: [],
     });
     this.set('updateDirEntityId', (id) => {
-      const newDir = dirs.findBy('entityId', id);
-      this.set('dirProxy', promiseObject(resolve(newDir)));
+      this.set('dir', dirs.findBy('entityId', id));
     });
     const fileManager = lookupService(this, 'fileManager');
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
@@ -299,8 +295,7 @@ describe('Integration | Component | file-browser (main component)', function () 
       const dirs = [dir];
 
       this.set('updateDirEntityId', function updateDirEntityId(id) {
-        const newDir = dirs.findBy('entityId', id);
-        this.set('dirProxy', promiseObject(resolve(newDir)));
+        this.set('dir', dirs.findBy('entityId', id));
       });
 
       this.setProperties({
@@ -346,6 +341,7 @@ describe('Integration | Component | file-browser (main component)', function () 
     },
   });
 
+  // NOTE: use "done" callback for async tests because of bug in ember test framework
   describe('selects using injected file ids', function () {
     it('visible file on list', async function () {
       const entityId = 'deid';
@@ -464,33 +460,6 @@ describe('Integration | Component | file-browser (main component)', function () 
       expect(fileSelected, 'selected file row').to.exist;
       expect(fileSelected).to.have.attr('data-row-id', selectedFile.id);
     });
-  });
-
-  it('shows not-existing directory message if directory fetch fails with enoent', async function () {
-    suppressRejections();
-    const enoentError = {
-      id: 'posix',
-      details: {
-        errno: 'enoent',
-      },
-    };
-    const files = [];
-    const fileManager = lookupService(this, 'fileManager');
-    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
-      .resolves({ childrenRecords: files, isLast: true });
-
-    this.setProperties({
-      dirProxy: promiseObject(reject(enoentError)),
-      selectedItems: [],
-    });
-
-    await renderComponent(this);
-
-    const errorDirBox = find('.error-dir-box');
-    expect(errorDirBox).to.exist;
-    expect(errorDirBox).to.contain.text('No such file or directory');
-    expect(find('.fb-table-row')).to.not.exist;
-    expect(fetchDirChildren).to.have.not.been.called;
   });
 
   context('with one item in root directory', function () {
@@ -720,8 +689,7 @@ async function mockFilesTree(testCase, treeSpec) {
   testCase.setProperties({
     elementsMap,
     fetchDirChildrenStub,
-    updateDirEntityId: (entityId) =>
-      testCase.set('dirProxy', promiseObject(resolve(elementsMap[entityId]))),
+    updateDirEntityId: id => testCase.set('dir', elementsMap[id]),
     dir: root,
     selectedItems: [],
   });
@@ -889,7 +857,6 @@ async function renderComponent(testCase) {
     isListPollingEnabled: false,
   }));
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
-  initDefaultDirProxy(testCase);
   testCase.set('changeSelectedItemsImmediately', function (selectedItems) {
     this.set('selectedItems', selectedItems);
   });
@@ -899,7 +866,7 @@ async function renderComponent(testCase) {
   });
   await render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel
-    dirProxy=dirProxy
+    dir=dir
     spaceId=spaceId
     selectedItems=selectedItems
     selectedItemsForJump=selectedItemsForJump
@@ -910,10 +877,6 @@ async function renderComponent(testCase) {
     updateDirEntityId=(action updateDirEntityId)
     changeSelectedItems=(action changeSelectedItems)
   }}</div>`);
-}
-
-function initDefaultDirProxy(testCase) {
-  setDefaultTestProperty(testCase, 'dirProxy', promiseObject(resolve(testCase.get('dir'))));
 }
 
 function setDefaultTestProperty(testCase, propertyName, defaultValue) {

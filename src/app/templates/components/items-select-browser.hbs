@@ -16,6 +16,7 @@
     {{#promise-proxy-container proxy=initialRequiredDataProxy}}
       {{file-browser
         dir=dir
+        dirError=dirProxy.reason
         previewMode=previewMode
         browserModel=browserModel
         parentModalDialogSelector=parentModalDialogSelector
