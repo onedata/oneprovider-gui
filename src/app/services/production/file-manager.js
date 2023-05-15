@@ -785,11 +785,11 @@ export default Service.extend({
     name,
     targetSize,
     operation,
-    copyOrMoveOperation,
+    operationPromiseObject,
   ) {
     const pollSizeInterval = 1000;
 
-    if (copyOrMoveOperation.isRejected) {
+    if (operationPromiseObject.isRejected) {
       return;
     }
 
@@ -809,7 +809,8 @@ export default Service.extend({
           name,
           targetSize,
           operation,
-          interval
+          operationPromiseObject,
+          interval,
         );
       }
     }
