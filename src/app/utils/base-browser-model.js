@@ -256,7 +256,17 @@ export default EmberObject.extend(...mixins, {
    */
   defaultFileBrowserWidth: 1000,
 
-  //#region
+  /**
+   * @type {number}
+   */
+  firstColumnWidth: 380,
+
+  /**
+   * @type {number}
+   */
+  lastColumnWidth: 68,
+
+  //#endregion
 
   //#region browser model state
 
@@ -277,11 +287,6 @@ export default EmberObject.extend(...mixins, {
    * @type {number}
    */
   lastRefreshTime: undefined,
-
-  /**
-   * @type {number}
-   */
-  firstColumnWidth: 400,
 
   /**
    * @type {number}
@@ -694,6 +699,7 @@ export default EmberObject.extend(...mixins, {
       width = dom.width(elementFbTableThead);
     }
     let remainingWidth = width - this.firstColumnWidth;
+    remainingWidth -= this.lastColumnWidth;
     let hiddenColumnsCount = 0;
     for (const column in this.columns) {
       if (this.columns[column].isEnabled) {
