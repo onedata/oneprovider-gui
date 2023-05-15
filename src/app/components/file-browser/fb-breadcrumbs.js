@@ -154,7 +154,7 @@ export default Component.extend(
      */
     isRootItemInfoHovered: false,
 
-    recomputePath: observer('dir.parent', function recomputePath() {
+    recomputePath: observer('dir.parent.name', function recomputePath() {
       this.updateDirPathProxy()
         .then(() => this.updateBreadcrumbsItemsProxy())
         .then(() => this.updateFilteredBreadcrumbsItemsProxy());

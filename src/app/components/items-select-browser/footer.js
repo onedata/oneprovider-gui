@@ -14,6 +14,7 @@ import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
+import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
 
 export default Component.extend(I18n, {
   classNames: ['items-select-browser-footer'],
@@ -76,4 +77,21 @@ export default Component.extend(I18n, {
       count: selectedCount,
     });
   }),
+
+  init() {
+    this._super(...arguments);
+    const itemsTooltipContent = ItemsTooltipContent.extend({
+      items: reads('component.selectedItems'),
+    }).create({
+      ownerSource: this,
+      component: this,
+    });
+    this.set('itemsTooltipContent', itemsTooltipContent);
+  },
+
+  actions: {
+    onItemsTooltipShown() {
+      this.itemsTooltipContent.onItemsTooltipShown(...arguments);
+    },
+  },
 });

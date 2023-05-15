@@ -523,10 +523,11 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         schemaId: laneSchema.id,
       };
 
-      // Reject lane runs with unknown runNumber
-      lane.runs = (lane.runs || []).filter((run) =>
-        run && (typeof run.runNumber === 'number' || run.runNumber === null)
-      );
+      // Reject lane runs with unknown runNumber. We also ignore `null` to omit
+      // active "prepare-in-advance" run as it is rather an internal information
+      // and may confuse users.
+      lane.runs = (lane.runs || [])
+        .filter((run) => typeof run?.runNumber === 'number');
       // Each lane must have at least one run. If backend hasn't sent us any,
       // we add a fake "prepare-in-advance" run.
       if (!lane.runs[0]) {

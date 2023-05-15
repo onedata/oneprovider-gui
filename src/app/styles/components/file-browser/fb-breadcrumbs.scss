@@ -27,12 +27,11 @@
   }
   .fb-breadcrumbs-dir-root {
     .inline-icon-container {
-      margin-right: 0.45em;
-
       .one-icon {
         font-size: 210%;
       }
       &.root-icon-container {
+        margin-right: 0.45em;
         margin-left: 0.1em;
 
         &.icon-info-trigger, &.icon-info-last-element-trigger {
@@ -64,13 +63,12 @@
 
   }
   .fb-breadcrumbs-separator {
+    position: relative;
     width: 0.8em;
     &::before {
       content: '/';
       font-size: 1.2em;
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%) translateX(0.1em);
+      padding-left: 0.15em;
     }
   }
   .fb-breadcrumbs-current-dir-button {

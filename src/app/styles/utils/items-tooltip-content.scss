@@ -1,0 +1,30 @@
+.tooltip-items {
+  &.huge-content {
+    .tooltip-inner {
+      max-width: calc(100vw - 60px);
+    }
+  }
+  &.item-tooltip-ul-overflows {
+    .more-container {
+      position: absolute;
+      display: block;
+      height: 4em;
+      padding-top: 2em;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent 0%, $tooltip-bg 100%, $tooltip-bg);
+      text-align: center;
+      color: white;
+    }
+  }
+  .tooltip-inner {
+    overflow: hidden;
+    position: relative;
+    max-width: calc(100vw - 200px);
+    max-height: 50vh;
+  }
+  .more-container {
+    display: none;
+  }
+}

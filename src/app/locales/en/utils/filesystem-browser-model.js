@@ -32,6 +32,7 @@ export default _.merge({}, BaseBrowserModel, {
     paste: 'Paste',
   },
   disabledActionReason: {
+    notAvailableForRootDir: 'Not available for space root directory.',
     protectionType: {
       data: 'data',
       metadata: 'metadata',

@@ -66,7 +66,8 @@ export default BaseTabModel.extend({
       return false;
     }
     const file = this.file;
-    const isSupportedFileType = file.type === 'file' || file.type === 'dir';
+    const isSupportedFileType = get(file, 'type') === 'file' ||
+      get(file, 'type') === 'dir';
     const isInShare = get(file, 'scope') === 'public';
     return isSupportedFileType && !isInShare;
   }),

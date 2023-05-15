@@ -21,13 +21,6 @@
   .col-status-no {
     color: $main-text-color-disabled;
   }
-  .fb-breadcrumbs {
-    .fb-breadcrumbs-separator {
-      &::before {
-        content: '›';
-      }
-    }
-  }
   .dir-box-text {
     .empty-archives-create-action .inline-icon-container {
       // individually adjusting icon to text (because of its shape)

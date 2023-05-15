@@ -25,12 +25,24 @@ export default class FilePermissionsHelper {
     return this.defaultUserHelper.getDefaultUser();
   }
   async createFile(properties = {}) {
+    let parent = properties.parent;
+    if (!parent) {
+      parent = await this.store.createRecord('file', {
+        name: 'dummy root',
+        type: 'dir',
+        posixPermissions: '644',
+        activePermissionsType: 'posix',
+        owner: await this.getDefaultOwner(),
+        parent: null,
+      }).save();
+    }
     return await this.store.createRecord('file', {
       name: 'dummy file',
       type: 'file',
       posixPermissions: '644',
       activePermissionsType: 'posix',
       owner: await this.getDefaultOwner(),
+      parent,
       ...properties,
     }).save();
   }

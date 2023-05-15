@@ -6,6 +6,8 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10692 Redesigned and refactored browser actions and selected items button
+* VFS-10160 Removed run-in-advance status information from workflow execution
 * VFS-10411 Added support for incomplete infinite scroll chunks from backend
 * VFS-10826 Fixed getting time series config from not-created stores when drawing automation charts
 * VFS-9014 Migrated to getting globals from `globals` util

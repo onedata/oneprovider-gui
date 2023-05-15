@@ -891,16 +891,20 @@ export default Component.extend(I18n, {
           changeSelectedItems,
         } = this.getProperties('selectedItems', 'changeSelectedItems');
         const sourceArray = get(filesArray, 'sourceArray');
-        const updatedSelectedItems = selectedItems.filter(selectedFile =>
-          sourceArray.includes(selectedFile)
-        );
+        // care about selection change only if there are some items selected that are not
+        // current dir
         if (
           !isEmpty(selectedItems) &&
+          !this.browserModel.isOnlyCurrentDirSelected
+        ) {
+          const updatedSelectedItems = selectedItems.filter(selectedFile =>
+            sourceArray.includes(selectedFile)
+          );
           // refresh may result in loss of some previously selected item, so only check
           // length - checking content of array is unnecessary
-          selectedItems.length != updatedSelectedItems.length
-        ) {
-          changeSelectedItems(updatedSelectedItems);
+          if (selectedItems.length != updatedSelectedItems.length) {
+            changeSelectedItems(updatedSelectedItems);
+          }
         }
 
         await waitForRender();

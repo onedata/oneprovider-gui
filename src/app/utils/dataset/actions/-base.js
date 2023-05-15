@@ -4,7 +4,8 @@
  * fully compatible with `Utils.Action`. Items browsers should be refactored to be able to
  * use that interface.
  *
- * Currently default-logic is partially copied from `BaseBrowserModel.createFileAction`.
+ * Currently default-logic is partially copied from plain object creation in
+ * `BaseBrowserModel.createItemBrowserAction`.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH

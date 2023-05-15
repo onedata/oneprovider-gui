@@ -749,7 +749,7 @@ export default Service.extend({
       return null;
     }
     return await this.userManager.getUserById(ownerId, {
-      throughSpaceId: file.spaceEntityId,
+      throughSpaceId: get(file, 'spaceEntityId'),
     });
   },
 
