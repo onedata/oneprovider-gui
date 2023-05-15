@@ -123,14 +123,6 @@ export default Service.extend({
       }
     );
     // FIXME: debug code
-    if (file.get('name') === 'jeden') {
-      throw {
-        id: 'posix',
-        details: {
-          errno: 'enospc',
-        },
-      };
-    }
     await this.resolveSymlinks([file], scope);
     return file;
   },

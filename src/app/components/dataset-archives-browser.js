@@ -478,7 +478,6 @@ export default Component.extend(...mixins, {
   init() {
     this._super(...arguments);
     this.switchBrowserModel();
-    window.compo = this;
   },
 
   willDestroyElement() {
