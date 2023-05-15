@@ -10,13 +10,16 @@
 {{#if browserModel.columns.incremental.isVisible}}
   <th
     class="fb-table-col-incremental fb-table-secondary-col hidden-xs"
-    style={{browserModel.columnsStyle.modification}}
+    style={{browserModel.columnsStyle.incremental}}
   >
     {{tt this "incremental"}}
   </th>
 {{/if}}
 {{#if browserModel.columns.creator.isVisible}}
-  <th class="fb-table-col-creator" style={{browserModel.columnsStyle.creator}}>
+  <th
+    class="fb-table-col-creator fb-table-secondary-col"
+    style={{browserModel.columnsStyle.creator}}
+  >
     {{tt this "creator"}}
   </th>
 {{/if}}
