@@ -61,7 +61,6 @@
     }
   }
   .fb-table {
-    --column-width: 200px;
     td.multiline {
       vertical-align: middle;
       padding-top: 8px;
@@ -69,7 +68,7 @@
       white-space: nowrap;
     }
     .fb-table-secondary-col {
-      width: var(--column-width);
+      width: var(--column-width, 200px);
     }
   }
 }

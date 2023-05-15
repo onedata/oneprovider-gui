@@ -171,7 +171,7 @@ export default FilesystemBrowserModel.extend({
   /**
    * @type {string}
    */
-  browserName: 'archiveFilesystem',
+  browserPersistedConfigurationKey: 'archiveFilesystem',
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
   // items select implementation

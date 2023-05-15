@@ -156,7 +156,7 @@ export default BaseBrowserModel.extend(I18n, {
   /**
    * @override
    */
-  browserName: 'dataset',
+  browserPersistedConfigurationKey: 'dataset',
 
   navigateDataTarget: '_top',
 

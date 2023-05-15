@@ -205,7 +205,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  browserName: 'archive',
+  browserPersistedConfigurationKey: 'archive',
 
   /**
    * @override
@@ -633,11 +633,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   init() {
     this.set('columns', {
-      creator: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 240,
-      }),
       state: EmberObject.create({
         isVisible: true,
         isEnabled: true,
@@ -647,6 +642,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isVisible: true,
         isEnabled: true,
         width: 200,
+      }),
+      creator: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 240,
       }),
     });
     this._super(...arguments);

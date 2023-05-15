@@ -65,7 +65,7 @@
     </span>
   </td>
 {{/if}}
-{{#if browserModel.columns.owner.isVisible}}
+{{#if (and browserModel.isOwnerVisible browserModel.columns.owner.isVisible)}}
   <td class="fb-table-col-owner multiline" style={{browserModel.columnsStyle.owner}}>
     <span class="file-item-text">
       {{filesystem-browser/table-cell-owner-info

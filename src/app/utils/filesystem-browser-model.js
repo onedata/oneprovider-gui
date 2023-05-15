@@ -21,7 +21,7 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
-import { array, raw, and } from 'ember-awesome-macros';
+import { array, raw, and, not } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
@@ -229,7 +229,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  browserName: 'filesystem',
+  browserPersistedConfigurationKey: 'filesystem',
 
   /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
@@ -921,6 +921,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   // #endregion
 
+  isOwnerVisible: not('previewMode'),
+
   /**
    * @type {ComputedProperty<Array<String>>}
    */
@@ -1054,12 +1056,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isEnabled: true,
         width: 180,
       }),
-      owner: EmberObject.create({
+    });
+    if (this.isOwnerVisible) {
+      this.set('columns.owner', EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 200,
-      }),
-    });
+      }));
+    }
     this._super(...arguments);
   },
 

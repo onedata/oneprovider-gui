@@ -20,12 +20,15 @@
   }
   .oneicon-columns {
     --one-icon-tagged-icon-scale: 0.6;
-    vertical-align: middle;
+    vertical-align: baseline;
   }
   .hidden-columns-number {
     @include font-semibold();
     width: 100%;
     height: 100%;
     margin-top: 1px;
+  }
+  .columns-configuration-button {
+    line-height: 1;
   }
 }

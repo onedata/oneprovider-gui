@@ -148,7 +148,7 @@ export default EmberObject.extend(...mixins, {
    * @virtual
    * @type {string}
    */
-  browserName: '',
+  browserPersistedConfigurationKey: '',
 
   /**
    * @virtual optional
@@ -244,36 +244,16 @@ export default EmberObject.extend(...mixins, {
   fileClipboardMode: reads('browserInstance.fileClipboardMode'),
   fileClipboardFiles: reads('browserInstance.fileClipboardFiles'),
 
-  /**
-   * @type {number}
-   */
-  firstColumnWidth: 400,
-
-  /**
-   * @type {number}
-   */
-  hiddenColumnsCount: 0,
-
-  /**
-   * @type {boolean}
-   */
-  isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
-
-  /**
-   * @type {number}
-   */
-  defaultFileBrowserWidth: 1000,
-
-  /**
-   * @type {Object<string, columnProperties>}
-   */
-  columns: undefined,
-
   //#endregion
 
   //#region browser model configuration
 
   refreshBtnIsVisible: true,
+
+  /**
+   * @type {number}
+   */
+  defaultFileBrowserWidth: 1000,
 
   //#region
 
@@ -297,6 +277,21 @@ export default EmberObject.extend(...mixins, {
    */
   lastRefreshTime: undefined,
 
+  /**
+   * @type {number}
+   */
+  firstColumnWidth: 400,
+
+  /**
+   * @type {number}
+   */
+  hiddenColumnsCount: 0,
+
+  /**
+   * @type {Object<string, columnProperties>}
+   */
+  columns: undefined,
+
   //#endregion
 
   //#region file-browser API
@@ -311,6 +306,11 @@ export default EmberObject.extend(...mixins, {
   loadingIconFileIds: reads('browserInstance.loadingIconFileIds'),
 
   //#endregion
+
+  /**
+   * @type {boolean}
+   */
+  isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -650,7 +650,7 @@ export default EmberObject.extend(...mixins, {
       }
     }
     globals.localStorage.setItem(
-      `${this.browserName}.enabledColumns`,
+      `${this.browserPersistedConfigurationKey}.enabledColumns`,
       enabledColumns.join()
     );
   },
@@ -684,7 +684,7 @@ export default EmberObject.extend(...mixins, {
 
   getEnabledColumnsFromLocalStorage() {
     const enabledColumns = globals.localStorage.getItem(
-      `${this.browserName}.enabledColumns`
+      `${this.browserPersistedConfigurationKey}.enabledColumns`
     );
     const enabledColumnsList = enabledColumns?.split(',');
     if (enabledColumnsList) {
