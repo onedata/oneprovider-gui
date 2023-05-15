@@ -814,15 +814,12 @@ export default Component.extend(I18n, {
       if (dirId) {
         await browserModel.onChangeDir(dir, async (effDir = dir) => {
           await updateDirEntityId(get(effDir, 'entityId'));
+          containerScrollTop(0);
         });
       } else {
         await updateDirEntityId(null);
-      }
-      containerScrollTop(0);
-      await browserModel.onChangeDir(dir, async (effDir = dir) => {
-        await updateDirEntityId(get(effDir, 'entityId'));
         containerScrollTop(0);
-      });
+      }
     } finally {
       if (dirId) {
         removeObjectsFirstOccurence(loadingIconFileIds, [dirId]);
