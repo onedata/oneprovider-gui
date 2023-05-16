@@ -1,10 +1,14 @@
-<td class="fb-table-col-archives hidden-xs">
-  <span class="file-item-text">
-    {{fileRowModel.archiveCount}}
-  </span>
-</td>
-<td class="fb-table-col-created fb-table-secondary-col hidden-xs">
-  <span class="file-item-text">
-    {{date-format file.creationTime format="dateWithMinutes" blank="—"}}
-  </span>
-</td>
+{{#if browserModel.columns.archives.isVisible}}
+  <td class="fb-table-col-archives hidden-xs">
+    <span class="file-item-text">
+      {{fileRowModel.archiveCount}}
+    </span>
+  </td>
+{{/if}}
+{{#if browserModel.columns.created.isVisible}}
+  <td class="fb-table-col-created fb-table-secondary-col hidden-xs">
+    <span class="file-item-text">
+      {{date-format file.creationTime format="dateWithMinutes" blank="—"}}
+    </span>
+  </td>
+{{/if}}
