@@ -645,7 +645,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       creator: EmberObject.create({
         isVisible: true,
         isEnabled: true,
-        width: 240,
+        width: 200,
       }),
     });
     this._super(...arguments);
