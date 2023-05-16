@@ -1,0 +1,34 @@
+.fb-table-col-actions-menu {
+  font-size: 200%;
+  .fb-toolbar-button.columns-configuration-button {
+    position: relative;
+  }
+  .hidden-columns-number-container {
+    position: absolute;
+    display: flex;
+    height: 15px;
+    font-size: 0.4em;
+    color: white;
+    border-radius: 50%;
+    bottom: -0.2em;
+    right: -0.2em;
+    background-color: $color-one-orange;
+    padding: 0 0.2em;
+    align-items: center;
+    min-width: 15px;
+    z-index: 1;
+  }
+  .oneicon-columns {
+    --one-icon-tagged-icon-scale: 0.6;
+    vertical-align: baseline;
+  }
+  .hidden-columns-number {
+    @include font-semibold();
+    width: 100%;
+    height: 100%;
+    margin-top: 1px;
+  }
+  .columns-configuration-button {
+    line-height: 1;
+  }
+}

@@ -16,6 +16,7 @@ import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-
 import { inject as service } from '@ember/service';
 import { bool, sum, array, and, raw } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
+import _ from 'lodash';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -53,6 +54,12 @@ export default Component.extend(I18n, {
    * @param {object} removeResults result of remove promises hashSettled
    */
   onHide: notImplementedIgnore,
+
+  /**
+   * @virtual optional
+   * @type {(removedFiles: Array<Models.File>) => Promise}
+   */
+  onFilesRemoved: undefined,
 
   /**
    * @type {ComputedProperty<Models.File>}
@@ -191,7 +198,7 @@ export default Component.extend(I18n, {
   ),
 
   actions: {
-    remove() {
+    async remove() {
       const {
         files,
         onHide,
@@ -216,7 +223,8 @@ export default Component.extend(I18n, {
       const filesToRemove = [...files];
       this.set('processing', true);
 
-      return handleMultiFilesOperation({
+      try {
+        const results = await handleMultiFilesOperation({
           files: filesToRemove,
           globalNotify,
           errorExtractor,
@@ -235,23 +243,26 @@ export default Component.extend(I18n, {
             .finally(() =>
               safeExec(this, () => this.incrementProperty('filesProcessedCount'))
             );
-        })
-        .then(results => {
-          filesToRemove.forEach(file => {
-            const stateName = get(file, 'currentState.stateName');
-            if (stateName.endsWith('uncommitted')) {
-              file.rollbackAttributes();
-            }
-          });
-          return fileManager.dirChildrenRefresh(get(parentDir, 'entityId'))
-            .then(() => results);
-        })
-        .then(results => {
-          onHide.bind(this)(true, results);
-        })
-        .finally(() => {
-          safeExec(this, 'set', 'processing', false);
         });
+
+        filesToRemove.forEach(file => {
+          const stateName = get(file, 'currentState.stateName');
+          if (stateName.endsWith('uncommitted')) {
+            file.rollbackAttributes();
+          }
+        });
+        const removedFiles = Object.values(results)
+          .filter(result => result.state === 'fulfilled')
+          .map(result => result.value);
+        if (!_.isEmpty(removedFiles)) {
+          await this.onFilesRemoved?.(removedFiles);
+        }
+
+        await fileManager.dirChildrenRefresh(get(parentDir, 'entityId'));
+        onHide.bind(this)(true, results);
+      } finally {
+        safeExec(this, 'set', 'processing', false);
+      }
     },
     close() {
       return this.get('onHide')(false);

@@ -45,6 +45,7 @@ import fileQos from './components/file-qos';
 import archiveAuditLog from './components/archive-audit-log';
 import fileCommon from './components/file-common';
 import apiSamples from './components/api-samples';
+import columnsConfigurationPopover from './components/columns-configuration-popover';
 
 import uploadManager from './services/upload-manager';
 
@@ -68,6 +69,7 @@ import filePermissionsViewModel from './utils/file-permissions-view-model';
 import fileQosViewModel from './utils/file-qos-view-model';
 import fileDistributionViewModel from './utils/file-distribution-view-model';
 import archivePropertiesViewModel from './utils/archive-properties-view-model';
+import itemsTooltipContent from './utils/items-tooltip-content';
 
 const translations = {
   components: {
@@ -115,6 +117,7 @@ const translations = {
     archiveAuditLog,
     fileCommon,
     apiSamples,
+    columnsConfigurationPopover,
   },
   services: {
     uploadManager,
@@ -136,6 +139,7 @@ const translations = {
     fileDistributionViewModel,
     fileInfo,
     archivePropertiesViewModel,
+    itemsTooltipContent,
     archiveForm: {
       baseModel: archiveFormBaseModel,
       viewModel: archiveFormViewModel,

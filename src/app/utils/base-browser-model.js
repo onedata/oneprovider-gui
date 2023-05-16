@@ -24,10 +24,29 @@ import {
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
 import { scheduleOnce } from '@ember/runloop';
-import { tag, raw, conditional } from 'ember-awesome-macros';
+import { tag, raw, conditional, eq, and, promise, bool, gt } from 'ember-awesome-macros';
 import moment from 'moment';
+import globals from 'onedata-gui-common/utils/globals';
+import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
+import { htmlSafe } from '@ember/string';
+import dom from 'onedata-gui-common/utils/dom';
 
-export default EmberObject.extend(OwnerInjector, I18n, {
+/**
+ * Contains info about column visibility: if on screen is enough space to show this column
+ * and if user want to view that
+ * @typedef {EmberObject} columnProperties
+ * @property {boolean} isVisible
+ * @property {boolean} isEnabled
+ * @property {number} width
+ */
+
+const mixins = [
+  OwnerInjector,
+  I18n,
+  WindowResizeHandler,
+];
+
+export default EmberObject.extend(...mixins, {
   i18n: service(),
 
   /**
@@ -126,6 +145,12 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   emptyDirComponentName: '',
 
   /**
+   * @virtual
+   * @type {string}
+   */
+  browserPersistedConfigurationKey: '',
+
+  /**
    * @virtual optional
    * @type {String}
    */
@@ -215,6 +240,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   spaceId: reads('browserInstance.spaceId'),
   previewMode: reads('browserInstance.previewMode'),
   isSpaceOwned: reads('browserInstance.isSpaceOwned'),
+  resolveFileParentFun: reads('browserInstance.resolveFileParentFun'),
   // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
   fileClipboardMode: reads('browserInstance.fileClipboardMode'),
   fileClipboardFiles: reads('browserInstance.fileClipboardFiles'),
@@ -225,7 +251,22 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   refreshBtnIsVisible: true,
 
-  //#region
+  /**
+   * @type {number}
+   */
+  defaultFileBrowserWidth: 1000,
+
+  /**
+   * @type {number}
+   */
+  firstColumnWidth: 380,
+
+  /**
+   * @type {number}
+   */
+  lastColumnWidth: 68,
+
+  //#endregion
 
   //#region browser model state
 
@@ -247,6 +288,16 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    */
   lastRefreshTime: undefined,
 
+  /**
+   * @type {number}
+   */
+  hiddenColumnsCount: 0,
+
+  /**
+   * @type {Object<string, columnProperties>}
+   */
+  columns: undefined,
+
   //#endregion
 
   //#region file-browser API
@@ -261,6 +312,21 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   loadingIconFileIds: reads('browserInstance.loadingIconFileIds'),
 
   //#endregion
+
+  isRootDirProxy: promise.object(computed(
+    'dir.hasParent',
+    'resolveFileParentFun',
+    async function isRootDirProxy() {
+      return !(await this.resolveFileParentFun(this.dir));
+    }
+  )),
+
+  isRootDir: bool('isRootDirProxy.content'),
+
+  /**
+   * @type {boolean}
+   */
+  isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -316,7 +382,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   ),
 
   btnRefresh: computed(function btnRefresh() {
-    return this.createFileAction(EmberObject.extend({
+    return this.createItemBrowserAction(EmberObject.extend({
       id: 'refresh',
       title: this.t('fileActions.refresh'),
       disabled: false,
@@ -334,13 +400,23 @@ export default EmberObject.extend(OwnerInjector, I18n, {
           actionContext.inDirPreview,
           actionContext.currentDir,
           actionContext.currentDirPreview,
-          actionContext.spaceRootDir,
-          actionContext.spaceRootDirPreview,
+          actionContext.rootDir,
+          actionContext.rootDirPreview,
         ]),
         raw([]),
       ),
     }));
   }),
+
+  isOnlyCurrentDirSelected: and(
+    eq('selectedItems.length', raw(1)),
+    eq('selectedItems.0', 'dir'),
+  ),
+
+  isOnlyRootDirSelected: and(
+    'isOnlyCurrentDirSelected',
+    'isRootDir',
+  ),
 
   /**
    * True if there are selected items that surely be gone from the replacing chunks array
@@ -363,6 +439,17 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       return selectedItems.some(item => !this.itemsArray?.includes(item));
     }
   ),
+
+  /**
+   * @type {Object}
+   */
+  columnsStyle: computed('columns', function columnsStyle() {
+    const styles = {};
+    for (const column in this.columns) {
+      styles[column] = htmlSafe(`--column-width: ${this.columns[column].width}px;`);
+    }
+    return styles;
+  }),
 
   /**
    * Controls value of `renderableSelectedItemsOutOfScope` to be synchronized with
@@ -403,10 +490,20 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     }
   ),
 
+  /**
+   * @override
+   */
+  onWindowResize() {
+    return this.checkColumnsVisibility();
+  },
+
   init() {
     this._super(...arguments);
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
+    this.attachWindowResizeHandler();
+    this.getEnabledColumnsFromLocalStorage();
+    this.checkColumnsVisibility();
 
     this.set('lastRefreshTime', Date.now());
 
@@ -414,9 +511,20 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     this.selectedItemsOutOfScope;
   },
 
+  /**
+   * @override
+   */
   willDestroy() {
-    this._super(...arguments);
-    this.browserListPoller?.destroy();
+    try {
+      this.browserListPoller?.destroy();
+    } finally {
+      this._super(...arguments);
+      this.detachWindowResizeHandler();
+    }
+  },
+
+  changeDir(dir) {
+    return this.browserInstance.changeDir(dir);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
@@ -521,28 +629,28 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @param {Object} options additional options for object create
    * @returns {EmberObject}
    */
-  createFileAction(fileActionSpec, options = {}) {
-    const {
-      id,
-      icon,
-      title,
-      disabled,
-      class: elementClass,
-      showIn,
-      action,
-    } = getProperties(
-      fileActionSpec,
-      'id',
-      'icon',
-      'title',
-      'disabled',
-      'class',
-      'showIn',
-      'action',
-    );
+  createItemBrowserAction(fileActionSpec, options = {}) {
     const specType = typeOf(fileActionSpec);
     switch (specType) {
-      case 'object':
+      case 'object': {
+        const {
+          id,
+          icon,
+          title,
+          disabled,
+          class: elementClass,
+          showIn,
+          action,
+        } = getProperties(
+          fileActionSpec,
+          'id',
+          'icon',
+          'title',
+          'disabled',
+          'class',
+          'showIn',
+          'action',
+        );
         return Object.assign({}, fileActionSpec, {
           icon: icon || `browser-${dasherize(id)}`,
           title: title || this.t(`fileActions.${id}`),
@@ -553,13 +661,76 @@ export default EmberObject.extend(OwnerInjector, I18n, {
             return action(files || this.get('selectedItems'), ...args);
           },
         }, options);
+      }
       case 'class':
         return fileActionSpec.create({
           ownerSource: this,
           context: this,
         }, options);
       default:
-        throw new Error(`createFileAction: not supported spec type: ${specType}`);
+        throw new Error(`createItemBrowserAction: not supported spec type: ${specType}`);
+    }
+  },
+
+  /**
+   * @param {string} column
+   * @param {boolean} isEnabled
+   * @returns {void}
+   */
+  changeColumnVisibility(columnName, isEnabled) {
+    this.set(`columns.${columnName}.isEnabled`, isEnabled);
+    this.checkColumnsVisibility();
+    const enabledColumns = [];
+    for (const column in this.columns) {
+      if (this.columns[column].isEnabled) {
+        enabledColumns.push(column);
+      }
+    }
+    globals.localStorage.setItem(
+      `${this.browserPersistedConfigurationKey}.enabledColumns`,
+      enabledColumns.join()
+    );
+  },
+
+  checkColumnsVisibility() {
+    let width = this.defaultFileBrowserWidth;
+    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
+    if (elementFbTableThead) {
+      width = dom.width(elementFbTableThead);
+    }
+    let remainingWidth = width - this.firstColumnWidth;
+    remainingWidth -= this.lastColumnWidth;
+    let hiddenColumnsCount = 0;
+    for (const column in this.columns) {
+      if (this.columns[column].isEnabled) {
+        if (remainingWidth >= this.columns[column].width) {
+          remainingWidth -= this.columns[column].width;
+          this.set(`columns.${column}.isVisible`, true);
+        } else {
+          this.set(`columns.${column}.isVisible`, false);
+          hiddenColumnsCount += 1;
+          remainingWidth = 0;
+        }
+      } else {
+        this.set(`columns.${column}.isVisible`, false);
+      }
+    }
+    if (this.hiddenColumnsCount !== hiddenColumnsCount) {
+      this.set('hiddenColumnsCount', hiddenColumnsCount);
+    }
+  },
+
+  getEnabledColumnsFromLocalStorage() {
+    const enabledColumns = globals.localStorage.getItem(
+      `${this.browserPersistedConfigurationKey}.enabledColumns`
+    );
+    const enabledColumnsList = enabledColumns?.split(',');
+    if (enabledColumnsList) {
+      for (const column in this.columns) {
+        this.set(`columns.${column}.isEnabled`,
+          Boolean(enabledColumnsList?.includes(column))
+        );
+      }
     }
   },
 });

@@ -12,7 +12,7 @@ import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { computed, get, observer } from '@ember/object';
+import EmberObject, { computed, get, observer } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import {
@@ -227,6 +227,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   infoIconActionName: 'info',
 
   /**
+   * @override
+   */
+  browserPersistedConfigurationKey: 'filesystem',
+
+  /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
    * context menu.
    * @type {string}
@@ -279,7 +284,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           privilegeFlag: 'space_schedule_atm_workflow_executions',
         });
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'bagitUpload',
         class: 'browser-bagit-upload',
         icon: 'browser-archive-upload',
@@ -305,7 +310,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         blockCurrentDirRecalling: true,
       });
       const disabled = Boolean(tip);
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: actionId,
         class: 'browser-upload',
         action: () => uploadManager.triggerUploadDialog(),
@@ -314,7 +319,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.inDir,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -331,7 +336,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         blockCurrentDirRecalling: true,
       });
       const disabled = Boolean(tip);
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: actionId,
         action: () => {
           const {
@@ -345,7 +350,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.inDir,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -386,7 +391,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           privilegeFlag: 'space_manage_shares',
         });
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'share',
         icon: commonActionIcons.shares,
         action: (files) => {
@@ -398,7 +403,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleFile,
           actionContext.singleDir,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -425,7 +430,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         });
       }
       const disabled = Boolean(disabledTip);
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'datasets',
         icon: 'browser-dataset',
         action: (files) => {
@@ -437,7 +442,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleDir,
           actionContext.singleFile,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -447,7 +452,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     const disabledTip = this.generateDisabledTip({
       blockWhenSymlinksOnly: true,
     });
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'metadata',
       icon: commonActionIcons.metadata,
       disabled: Boolean(disabledTip),
@@ -459,27 +464,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         actionContext.singleDir,
         actionContext.singleFile,
         actionContext.currentDir,
-        actionContext.spaceRootDir,
+        actionContext.rootDir,
       ],
     });
   }),
 
   btnInfo: computed(function btnInfo() {
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'info',
       icon: commonActionIcons.info,
       action: (files, activeTab) => {
         return this.get('openInfo')(files, activeTab);
       },
       showIn: [
-        actionContext.spaceRootDir,
         actionContext.singleDir,
         actionContext.singleFile,
         actionContext.currentDir,
-        actionContext.spaceRootDirPreview,
+        actionContext.rootDir,
         actionContext.singleDirPreview,
         actionContext.singleFilePreview,
         actionContext.currentDirPreview,
+        actionContext.rootDirPreview,
       ],
     });
   }),
@@ -488,7 +493,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'showRecallInfoButton',
     function btnRecallInfo() {
       const hidden = !this.get('showRecallInfoButton');
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'recallInfo',
         icon: 'browser-archive-recall',
         action: (files, activeTab) => {
@@ -496,10 +501,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         },
         hidden,
         showIn: [
-          actionContext.spaceRootDir,
           actionContext.singleDir,
           actionContext.singleFile,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -508,7 +513,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnDownload: computed(
     'selectedItemsContainsOnlyBrokenSymlinks',
     function btnDownload() {
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'download',
         icon: 'browser-download',
         disabled: this.get('selectedItemsContainsOnlyBrokenSymlinks'),
@@ -526,7 +531,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnDownloadTar: computed(
     'selectedItemsContainsOnlyBrokenSymlinks',
     function btnDownloadTar() {
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'downloadTar',
         icon: 'browser-download',
         disabled: this.get('selectedItemsContainsOnlyBrokenSymlinks'),
@@ -534,10 +539,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           return this.downloadFiles(files);
         },
         showIn: [
-          actionContext.spaceRootDir,
-          actionContext.spaceRootDirPreview,
           actionContext.currentDir,
           actionContext.currentDirPreview,
+          actionContext.rootDir,
+          actionContext.rootDirPreview,
           actionContext.singleDir,
           actionContext.singleDirPreview,
           actionContext.multiFile,
@@ -552,11 +557,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnRename: computed(
+    'isOnlyRootDirSelected',
     'dir.dataIsProtected',
     'selectedItemsContainsRecalling',
     function btnRename() {
       const actionId = 'rename';
       let tip = this.generateDisabledTip({
+        disabledForRootDir: true,
         protectionType: 'data',
         protectionScope: 'final',
         checkProtectionForSelected: false,
@@ -573,7 +580,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         });
       }
       const disabled = Boolean(tip);
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: actionId,
         action: (files) => {
           const {
@@ -588,18 +595,21 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleDir,
           actionContext.singleFile,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
   ),
 
   btnPermissions: computed(
+    'isOnlyRootDirSelected',
     'selectedItemsContainsOnlySymlinks',
     function btnPermissions() {
       const disabledTip = this.generateDisabledTip({
+        disabledForRootDir: true,
         blockWhenSymlinksOnly: true,
       });
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'permissions',
         icon: commonActionIcons.permissions,
         disabled: Boolean(disabledTip),
@@ -610,6 +620,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -617,7 +628,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnCreateSymlink: computed('selectedItems.length', function btnCreateSymlink() {
     const areManyFilesSelected = this.get('selectedItems.length') > 1;
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'createSymlink',
       icon: 'shortcut',
       title: this.t(
@@ -628,7 +639,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         browserInstance.setFileClipboardFiles(files.slice());
         browserInstance.setFileClipboardMode('symlink');
       },
-      showIn: anySelectedContexts,
+      showIn: [
+        ...anySelectedContexts,
+        actionContext.currentDir,
+        actionContext.rootDir,
+      ],
     });
   }),
 
@@ -648,7 +663,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           `hardlinkCreatesNewSymlinkTip.${areManyFilesSelected ? 'plural' : 'single'}`
         );
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'createHardlink',
         icon: 'text-link',
         disabled: Boolean(disabledTip),
@@ -661,20 +676,24 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           browserInstance.setFileClipboardFiles(files);
           browserInstance.setFileClipboardMode('hardlink');
         },
-        showIn: anySelectedContexts,
+        showIn: [
+          ...anySelectedContexts,
+          actionContext.currentDir,
+          actionContext.rootDir,
+        ],
       });
     }
   ),
 
   btnPlaceSymlink: computed(function btnPlaceSymlink() {
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'placeSymlink',
       icon: 'shortcut',
       action: () => this.placeSymlinks(),
       showIn: [
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
         actionContext.inDir,
+        actionContext.currentDir,
+        actionContext.rootDir,
       ],
     });
   }),
@@ -682,14 +701,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnPlaceHardlink: computed(
     'fileClipboardFiles.[]',
     function btnPlaceHardlink() {
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'placeHardlink',
         icon: commonActionIcons.hardlinks,
         action: () => this.placeHardlinks(),
         showIn: [
-          actionContext.currentDir,
-          actionContext.spaceRootDir,
           actionContext.inDir,
+          actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
@@ -699,7 +718,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     const disabledTip = this.generateDisabledTip({
       blockWhenSymlinksOnly: true,
     });
-    return this.createFileAction({
+    return this.createItemBrowserAction({
       id: 'copy',
       disabled: Boolean(disabledTip),
       tip: disabledTip,
@@ -708,17 +727,23 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         browserInstance.setFileClipboardFiles(files.rejectBy('type', 'symlink'));
         browserInstance.setFileClipboardMode('copy');
       },
-      showIn: anySelectedContexts,
+      showIn: [
+        ...anySelectedContexts,
+        actionContext.currentDir,
+        actionContext.rootDir,
+      ],
     });
   }),
 
   btnCut: computed(
+    'isOnlyRootDirSelected',
     'selectedItemsContainsOnlySymlinks',
     'dir.dataIsProtected',
     'selectedItemsContainsRecalling',
     function btnCut() {
       const actionId = 'cut';
       let tip = this.generateDisabledTip({
+        disabledForRootDir: true,
         protectionType: 'data',
         protectionScope: 'final',
         checkProtectionForSelected: false,
@@ -736,7 +761,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         });
       }
       const disabled = Boolean(tip);
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: actionId,
         action: (files) => {
           const browserInstance = this.get('browserInstance');
@@ -745,7 +770,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         },
         disabled,
         tip,
-        showIn: anySelectedContexts,
+        showIn: [
+          ...anySelectedContexts,
+          actionContext.currentDir,
+          actionContext.rootDir,
+        ],
       });
     }
   ),
@@ -762,43 +791,67 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         blockSelectedRecalling: true,
       });
       const disabled = Boolean(tip);
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: actionId,
         action: () => this.pasteFiles(),
         disabled,
         tip,
         showIn: [
-          actionContext.currentDir,
-          actionContext.spaceRootDir,
           actionContext.inDir,
+          actionContext.currentDir,
+          actionContext.rootDir,
         ],
       });
     }
   ),
 
   btnDelete: computed(
+    'isOnlyRootDirSelected',
     'selectedItems.@each.dataIsProtectedByDataset',
     'selectedItemsContainsRecalling',
     function btnDelete() {
       const actionId = 'delete';
       const tip = this.generateDisabledTip({
+        disabledForRootDir: true,
         protectionType: 'data',
         protectionScope: 'dataset',
         blockSelectedRecalling: true,
       });
       const disabled = Boolean(tip);
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: actionId,
-        action: (files) => {
-          const {
-            openRemove,
-            dir,
-          } = this.getProperties('openRemove', 'dir');
-          return openRemove(files, dir);
+        action: async (files) => {
+          const currentDir = this.dir;
+          const isRemovingCurrentDir = files.length === 1 && files[0] === currentDir;
+          let currentDirParent;
+          let onRemoved;
+          if (isRemovingCurrentDir) {
+            currentDirParent = await this.resolveFileParentFun(currentDir);
+            onRemoved = async (removedFiles) => {
+              // check if the dir is still opened as current dir
+              if (
+                removedFiles[0] === currentDir &&
+                currentDir &&
+                this.dir === currentDir &&
+                currentDirParent
+              ) {
+                this.changeDir(currentDirParent);
+              }
+            };
+          }
+          return this.openRemove(
+            files,
+            isRemovingCurrentDir ? currentDirParent : this.dir,
+            onRemoved
+          );
         },
         disabled,
         tip,
-        showIn: anySelectedContexts,
+        showIn: [
+          ...anySelectedContexts,
+          actionContext.currentDir,
+          actionContext.rootDir,
+        ],
       });
     }
   ),
@@ -809,7 +862,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       const disabledTip = this.generateDisabledTip({
         blockWhenSymlinksOnly: true,
       });
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'distribution',
         icon: commonActionIcons.distribution,
         disabled: Boolean(disabledTip),
@@ -817,7 +870,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
+          actionContext.rootDir,
         ],
         action: (files) => {
           return this.get('openInfo')(files.rejectBy('type', 'symlink'), 'distribution');
@@ -851,13 +904,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           privilegeFlag: 'space_view_qos',
         });
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'qos',
         icon: commonActionIcons.qos,
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
+          actionContext.rootDir,
         ],
         disabled: Boolean(disabledTip),
         tip: disabledTip,
@@ -893,13 +946,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           privilegeFlag: 'space_schedule_atm_workflow_executions',
         });
       }
-      return this.createFileAction({
+      return this.createItemBrowserAction({
         id: 'runWorkflow',
         icon: recordIcon('atmWorkflowSchema'),
         showIn: [
           ...anySelectedContexts,
           actionContext.currentDir,
-          actionContext.spaceRootDir,
+          actionContext.rootDir,
         ],
         disabled: Boolean(disabledTip),
         tip: disabledTip,
@@ -1038,6 +1091,29 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }
     }
   ),
+
+  init() {
+    this.set('columns', {
+      size: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 140,
+      }),
+      modification: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 180,
+      }),
+    });
+    if (this.isOwnerVisible) {
+      this.set('columns.owner', EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }));
+    }
+    this._super(...arguments);
+  },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
   // items select implementation
@@ -1184,6 +1260,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    *
    * @param {Object} options
+   * @param {boolean} [disabledForRootDir]
    * @param {'data'|'metadata'} [protectionType]
    * @param {'final'|'dataset'} [protectionScope] `final` - check final effective
    *   protection of file (concerns datasets and hardlinks inherited protection);
@@ -1197,6 +1274,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @returns
    */
   generateDisabledTip({
+    disabledForRootDir,
     protectionType,
     protectionScope = 'final',
     checkProtectionForCurrentDir = false,
@@ -1221,6 +1299,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       return;
     }
     let tip;
+    if (disabledForRootDir && this.isOnlyRootDirSelected) {
+      return this.t('disabledActionReason.notAvailableForRootDir');
+    }
     if (!tip && protectionType) {
       let protectionProperty = `${protectionType}IsProtected`;
       if (protectionScope === 'dataset') {

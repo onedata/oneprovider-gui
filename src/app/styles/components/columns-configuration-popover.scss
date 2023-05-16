@@ -1,0 +1,40 @@
+.webui-popover-columns-configuration {
+  .columns-list {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+
+    .column-name-label .one-label {
+      padding-right: 2.2em;
+    }
+
+    .column {
+      margin-bottom: $padding-base-vertical;
+      position: relative;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .oneicon-no-view {
+        font-size: 160%;
+        vertical-align: middle;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-45%);
+      }
+
+      label {
+        display: inline-block;
+        margin: 0;
+        padding-left: 0.35em;
+        cursor: pointer;
+      }
+    }
+
+    .one-checkbox, .checkbox-label {
+      vertical-align: middle;
+    }
+  }
+}

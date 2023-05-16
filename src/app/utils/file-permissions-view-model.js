@@ -147,19 +147,27 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effectiveReadonly: or('readonly', 'metadataIsProtected', 'isPosixAndNonOwner'),
+  effectiveReadonly: or('readonly', 'effectiveReadonlyTip'),
+
+  isRootDir: and(
+    not('isMultiFile'),
+    not('singleFile.hasParent'),
+  ),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
   effectiveReadonlyTip: computed(
     'readonlyTip',
+    'isRootDir',
     'metadataIsProtected',
     'isPosixAndNonOwner',
     'fileTypeTextConfig',
     function effectiveReadonlyTip() {
       if (this.readonlyTip) {
         return this.readonlyTip;
+      } else if (this.isRootDir) {
+        return this.t('readonlyDueToBeingRootDir');
       } else if (this.metadataIsProtected) {
         return this.t('readonlyDueToMetadataIsProtected');
       } else if (this.isPosixAndNonOwner) {

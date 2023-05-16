@@ -9,14 +9,18 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { observer, computed } from '@ember/object';
-import { gt } from '@ember/object/computed';
+import { reads, gt } from '@ember/object/computed';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { inject as service } from '@ember/service';
 import { conditional, raw } from 'ember-awesome-macros';
+import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
 
 export default Component.extend(I18n, {
   classNames: ['fb-selection-toolkit'],
-  classNameBindings: ['opened:opened:closed', 'mobileMode:mobile-mode:desktop-mode'],
+  classNameBindings: [
+    'isPillVisible:pill-visible:pill-hidden',
+    'mobileMode:mobile-mode:desktop-mode',
+  ],
 
   i18n: service(),
 
@@ -24,6 +28,12 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbSelectionToolkit',
+
+  /**
+   * Array of browsable items, eg. files.
+   * @type {Array<any>}
+   */
+  items: undefined,
 
   /**
    * @virtual
@@ -47,11 +57,14 @@ export default Component.extend(I18n, {
    */
   mobileMode: false,
 
-  itemsCount: 0,
-
   lastPositiveItemsCount: 0,
 
   fileActionsOpen: false,
+
+  /**
+   * @type {Utils.ItemsTooltipContent}
+   */
+  itemsTooltipContent: undefined,
 
   rememberLastPositiveCount: observer(
     'itemsCount',
@@ -62,6 +75,8 @@ export default Component.extend(I18n, {
       }
     }
   ),
+
+  itemsCount: reads('items.length'),
 
   popoverClass: conditional(
     'isInModal',
@@ -81,17 +96,27 @@ export default Component.extend(I18n, {
     }
   ),
 
-  opened: gt('itemsCount', 0),
+  isPillVisible: gt('itemsCount', 1),
 
   init() {
     this._super(...arguments);
     this.rememberLastPositiveCount();
+    const itemsTooltipContent = ItemsTooltipContent.extend({
+      items: reads('component.items'),
+    }).create({
+      ownerSource: this,
+      component: this,
+    });
+    this.set('itemsTooltipContent', itemsTooltipContent);
   },
 
   actions: {
     toggleFileActions(open) {
       const _open = (typeof open === 'boolean') ? open : !this.get('fileActionsOpen');
       this.set('fileActionsOpen', _open);
+    },
+    onItemsTooltipShown() {
+      this.itemsTooltipContent.onItemsTooltipShown(...arguments);
     },
   },
 });

@@ -7,7 +7,7 @@
  */
 
 import BaseTabModel from './base-tab-model';
-import { computed, observer } from '@ember/object';
+import { computed, observer, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import FileQosViewModel from 'oneprovider-gui/utils/file-qos-view-model';
 import { conditional, raw, getBy, eq } from 'ember-awesome-macros';
@@ -89,7 +89,7 @@ export default BaseTabModel.extend({
         return false;
       }
       const isSupportedFileType = this.files.every(file =>
-        file.type === 'file' || file.type === 'dir'
+        get(file, 'type') === 'file' || get(file, 'type') === 'dir'
       );
       return isSupportedFileType;
     }
@@ -109,7 +109,10 @@ export default BaseTabModel.extend({
       return '';
     }
     let fileType = this.files[0].type;
-    if (this.files.length > 1 && this.files.some(file => file.type !== fileType)) {
+    if (
+      this.files.length > 1 &&
+      this.files.some(file => get(file, 'type') !== fileType)
+    ) {
       fileType = null;
     }
     const fileTypeText = translateFileType(this.i18n, fileType, {

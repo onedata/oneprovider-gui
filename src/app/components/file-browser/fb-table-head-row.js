@@ -18,4 +18,9 @@ export default Component.extend(I18n, {
    * @type {Utils.BaseBrowserModel}
    */
   browserModel: undefined,
+
+  didInsertElement() {
+    this._super(...arguments);
+    this.browserModel.checkColumnsVisibility();
+  },
 });
