@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10825 Fixed unnecessary scrollbars in Safari
 * VFS-10692 Redesigned and refactored browser actions and selected items button
 * VFS-10160 Removed run-in-advance status information from workflow execution
 * VFS-10411 Added support for incomplete infinite scroll chunks from backend
