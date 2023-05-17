@@ -316,10 +316,7 @@ export default Component.extend(I18n, {
     return test;
   }),
 
-  // NOTE: not using reads as a workaround to bug in Ember 2.18
-  initialLoad: computed('filesArray.initialLoad', function initialLoad() {
-    return this.get('filesArray.initialLoad');
-  }),
+  initialLoad: reads('browserModel.initialLoad'),
 
   /**
    * True if there is initially loaded file list, but it is empty.
@@ -345,19 +342,7 @@ export default Component.extend(I18n, {
 
   specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
 
-  /**
-   * @type {ComputedProperty<Object>}
-   */
-  dirLoadError: computed(
-    'initialLoad.{isRejected,reason}',
-    'browserModel.{lastFatalRefreshError,dirError}',
-    function dirLoadError() {
-      return this.browserModel?.lastFatalRefreshError ||
-        this.browserModel?.dirError ||
-        (this.initialLoad?.isRejected && this.initialLoad.reason) ||
-        undefined;
-    }
-  ),
+  dirLoadError: reads('browserModel.dirLoadError'),
 
   isHardlinkingPossible: computed(
     'fileClipboardFiles.@each.type',

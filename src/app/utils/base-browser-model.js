@@ -352,31 +352,31 @@ export default EmberObject.extend(...mixins, {
 
   refreshBtnClass: computed(
     'renderableSelectedItemsOutOfScope',
+    'renderableDirLoadError',
+    'lastRefreshError',
     function refreshBtnClass() {
-      return this.renderableSelectedItemsOutOfScope ?
-        'refresh-selection-warning' : '';
+      return (
+        this.renderableSelectedItemsOutOfScope ||
+        this.renderableDirLoadError
+      ) ? 'refresh-selection-warning' : '';
     }
   ),
 
   refreshBtnTip: computed(
     'renderableSelectedItemsOutOfScope',
+    'renderableDirLoadError',
     'browserListPoller.pollInterval',
     'lastRefreshTime',
     function refreshBtnClass() {
-      if (this.renderableSelectedItemsOutOfScope) {
-        let lastRefreshTimeText;
-        const nowMoment = moment.unix(Math.floor(Date.now() / 1000));
-        const lastRefreshMoment = moment.unix(Math.floor(this.lastRefreshTime / 1000));
-        const isToday =
-          moment(lastRefreshMoment).startOf('day').toString() ===
-          moment(nowMoment).startOf('day').toString();
-        if (isToday) {
-          lastRefreshTimeText = lastRefreshMoment.format('H:mm');
-        } else {
-          lastRefreshTimeText = lastRefreshMoment.format('D MMM');
-        }
+      if (this.renderableDirLoadError) {
+        const errorText = this.errorExtractor
+          .getMessage(this.renderableDirLoadError)?.message ?? this.t('unknownError');
+        return this.t('refreshTip.lastError', {
+          errorText,
+        });
+      } else if (this.renderableSelectedItemsOutOfScope) {
         return this.t('refreshTip.selectedDisabled', {
-          lastRefreshTime: lastRefreshTimeText,
+          lastRefreshTime: this.createLastRefreshTimeText(),
         });
       } else {
         const pollingIntervalSecs =
@@ -414,6 +414,30 @@ export default EmberObject.extend(...mixins, {
       ),
     }));
   }),
+
+  // NOTE: not using reads as a workaround to bug in Ember 2.18
+  initialLoad: computed('itemsArray.initialLoad', function initialLoad() {
+    return this.get('itemsArray.initialLoad');
+  }),
+
+  /**
+   * @type {ComputedProperty<Object>}
+   */
+  dirLoadError: computed(
+    'initialLoad.{isRejected,reason}',
+    'dirError',
+    'isLastRefreshErrorFatal',
+    'lastRefreshError',
+    function dirLoadError() {
+      return (this.isLastRefreshErrorFatal && this.lastRefreshError) ||
+        this.dirError ||
+        (
+          this.initialLoad?.isRejected &&
+          (this.initialLoad.reason ?? { id: 'unknown' })
+        ) ||
+        undefined;
+    }
+  ),
 
   isOnlyCurrentDirSelected: and(
     eq('selectedItems.length', raw(1)),
@@ -482,6 +506,32 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
+  // FIXME: chyba pasuje załatwić to jakoś generycznie... może util do throttlowania zmian? i może wtedy wystawiać tylko finalne property (refresh tip)
+
+  /**
+   * Controls value of `renderableSelectedItemsOutOfScope` to be synchronized with
+   * `selectedItemsOutOfScope` most often once a render.
+   */
+  dirLoadErrorObserver: observer(
+    'dirLoadError',
+    function selectedItemsOutOfScopeObserver() {
+      scheduleOnce('afterRender', this.updateRenderableDirLoadError);
+    }
+  ),
+
+  /**
+   * Create function that synchronizes value of `renderableDirLoadError`
+   * property. Needed because that value changes should be throttled.
+   * @type {ComputedProperty<() => void>}
+   */
+  updateRenderableDirLoadError: computed(
+    function updateRenderableDirLoadError() {
+      return () => {
+        this.set('renderableDirLoadError', this.dirLoadError);
+      };
+    }
+  ),
+
   generateAllButtonsArray: observer(
     'buttonNames.[]',
     function generateAllButtonsArray() {
@@ -498,7 +548,7 @@ export default EmberObject.extend(...mixins, {
   ),
 
   dirObserver: observer('dir', function dirObserver() {
-    this.set('lastFatalRefreshError', undefined);
+    this.set('lastRefreshError', undefined);
   }),
 
   init() {
@@ -618,8 +668,8 @@ export default EmberObject.extend(...mixins, {
     try {
       const refreshResult = await fbTableApi.refresh(!silent);
       // FIXME: add property doc
-      if (this.lastFatalRefreshError) {
-        this.set('lastFatalRefreshError', undefined);
+      if (this.lastRefreshError) {
+        this.set('lastRefreshError', undefined);
       }
       return refreshResult;
     } catch (error) {
@@ -627,26 +677,40 @@ export default EmberObject.extend(...mixins, {
         return;
       }
 
-      const isFatal = isPosixError(error, 'enoent') || isPosixError(error, 'eacces');
+      // FIXME: jsdoc
+      this.set('lastRefreshError', error);
 
-      if (isFatal) {
-        this.set('lastFatalRefreshError', error);
+      // notification is not shown when the error is fatal, because then it is displayed
+      // as content of browser
+      if (!silent && !this.isLastRefreshErrorFatal) {
+        let errorText = String(
+          this.errorExtractor.getMessage(error)?.message ?? this.t('unknownError')
+        );
+        if (errorText?.endsWith('.')) {
+          errorText = errorText.slice(0, errorText.length - 1);
+        }
+        errorText = _.lowerFirst(errorText);
+        globalNotify.warning(this.t('refreshingFailed', {
+          errorText,
+        }));
       }
 
-      // FIXME: warning only if silent and not fatal (enoent)
-      let errorText = String(
-        this.errorExtractor.getMessage(error)?.message ?? this.t('unknownError')
-      );
-      if (errorText?.endsWith('.')) {
-        errorText = errorText.slice(0, errorText.length - 1);
-      }
-      errorText = _.lowerFirst(errorText);
-      globalNotify.warning(this.t('refreshingFailed', {
-        errorText,
-      }));
       throw error;
     }
   },
+
+  // FIXME: move up
+  isLastRefreshErrorFatal: computed(
+    'lastRefreshError',
+    function isLastRefreshErrorFatal() {
+      const error = this.lastRefreshError;
+      return error && (
+        error.id === 'internalServerError' ||
+        isPosixError(error, 'enoent') ||
+        isPosixError(error, 'eacces')
+      );
+    }
+  ),
 
   /**
    * @typedef {Object} BrowserItemActionSpec
@@ -770,5 +834,20 @@ export default EmberObject.extend(...mixins, {
         );
       }
     }
+  },
+
+  createLastRefreshTimeText() {
+    let lastRefreshTimeText;
+    const nowMoment = moment.unix(Math.floor(Date.now() / 1000));
+    const lastRefreshMoment = moment.unix(Math.floor(this.lastRefreshTime / 1000));
+    const isToday =
+      moment(lastRefreshMoment).startOf('day').toString() ===
+      moment(nowMoment).startOf('day').toString();
+    if (isToday) {
+      lastRefreshTimeText = lastRefreshMoment.format('H:mm');
+    } else {
+      lastRefreshTimeText = lastRefreshMoment.format('D MMM');
+    }
+    return lastRefreshTimeText;
   },
 });

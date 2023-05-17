@@ -134,11 +134,14 @@ export default FilesystemBrowserModel.extend({
    * @override
    */
   refreshBtnClass: computed(
-    'renderableSelectedItemsOutOfScope',
     'isFilesystemLive',
+    // inherited
+    'renderableSelectedItemsOutOfScope',
+    'renderableDirLoadError',
+    'lastRefreshError',
     function refreshBtnClass() {
       if (this.isFilesystemLive) {
-        return this.renderableSelectedItemsOutOfScope ? 'refresh-selection-warning' : '';
+        return this._super(...arguments);
       } else {
         return 'refresh-selection-info';
       }
@@ -152,6 +155,7 @@ export default FilesystemBrowserModel.extend({
     'isFilesystemLive',
     // inherited dependencies
     'renderableSelectedItemsOutOfScope',
+    'renderableDirLoadError',
     'browserListPoller.pollInterval',
     'lastRefreshTime',
     function refreshBtnTip() {
