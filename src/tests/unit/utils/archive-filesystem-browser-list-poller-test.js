@@ -23,6 +23,7 @@ describe('Unit | Utility | archive-filesystem-browser-list-poller', function () 
     };
     const browserModelMock = {
       archive: archiveMock,
+      dir: {},
       refresh: sinon.spy(),
       isListPollingEnabled: true,
     };
