@@ -22,6 +22,7 @@ import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink
 import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 /**
  * @typedef {Object} FileEntryTimeSeriesCollections
@@ -376,21 +377,22 @@ export default Service.extend({
     const getFileAttempts = 1000;
     const getFileInterval = 500;
 
-    this.pollForFileAfterOperation(
-      getFileAttempts,
-      getFileInterval,
-      parentDirEntityId,
-      name,
-      size,
-      operation
-    );
-
     try {
-      await this.onedataRpc.request(`${operation}File`, {
+      const promise = this.onedataRpc.request(`${operation}File`, {
         guid: entityId,
         targetParentGuid: parentDirEntityId,
         targetName: name,
       });
+      this.pollForFileAfterOperation(
+        getFileAttempts,
+        getFileInterval,
+        parentDirEntityId,
+        name,
+        size,
+        operation,
+        promiseObject(promise),
+      );
+      await promise;
     } finally {
       const file = await this.getFileByName(parentDirEntityId, name);
       if (file) {
@@ -782,9 +784,15 @@ export default Service.extend({
     parentDirEntityId,
     name,
     targetSize,
-    operation
+    operation,
+    operationPromiseObject,
   ) {
     const pollSizeInterval = 1000;
+
+    if (operationPromiseObject.isRejected) {
+      return;
+    }
+
     if (attempts > 0) {
       const file = await this.getFileByName(parentDirEntityId, name);
       if (file) {
@@ -801,7 +809,8 @@ export default Service.extend({
           name,
           targetSize,
           operation,
-          interval
+          operationPromiseObject,
+          interval,
         );
       }
     }

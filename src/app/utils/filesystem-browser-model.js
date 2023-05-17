@@ -12,7 +12,7 @@ import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { computed, get, observer } from '@ember/object';
+import EmberObject, { computed, get, observer } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import {
@@ -225,6 +225,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   infoIconActionName: 'info',
+
+  /**
+   * @override
+   */
+  browserPersistedConfigurationKey: 'filesystem',
 
   /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
@@ -1086,6 +1091,29 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }
     }
   ),
+
+  init() {
+    this.set('columns', {
+      size: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 140,
+      }),
+      modification: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 180,
+      }),
+    });
+    if (this.isOwnerVisible) {
+      this.set('columns.owner', EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }));
+    }
+    this._super(...arguments);
+  },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
   // items select implementation

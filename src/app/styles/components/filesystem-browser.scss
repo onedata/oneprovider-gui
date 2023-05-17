@@ -8,7 +8,6 @@
   }
   .fb-table-col-size {
     position: relative;
-    width: 150px;
     text-align: center;
 
     .dir-size-container.active:hover {
@@ -36,20 +35,13 @@
     }
   }
   .fb-table-col-modification {
-    width: 200px;
     text-align: center;
   }
   .fb-table-col-owner {
-    $width: 200px;
-    width: $width + 2 * $table-cell-padding;
     text-align: center;
-    // approx. width of provider iframe when resultion is Full HD with desktop sidebar
-    @media (max-width: 1350px) {
-      display: none;
-    }
     .file-owner-line {
-      width: $width;
-      max-width: $width;
+      width: calc(var(--column-width) - 2 * $table-cell-padding);
+      max-width: calc(var(--column-width) - 2 * $table-cell-padding);
     }
     .file-owner-username {
       opacity: $disabled-opacity;

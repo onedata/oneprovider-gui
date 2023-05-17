@@ -291,6 +291,10 @@ async function renderComponent(testCase) {
       notStubbed('openArchiveDetailsModal'),
     openCancelModal: openCancelModal ||
       notStubbed('openCancelModal'),
+    firstColumnWidth: 20,
+    getEnabledColumnsFromLocalStorage() {
+      this.set('columns.state.isEnabled', true);
+    },
   }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   await render(hbs `<div id="content-scroll">{{file-browser
