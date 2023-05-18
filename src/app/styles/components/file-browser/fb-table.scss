@@ -81,6 +81,9 @@
       @media (max-width: $screen-xs-max) {
         margin: 1em 1em;
       }
+      &.empty-dir-image {
+        margin: 1.5em;
+      }
     }
     .table {
       display: none;
