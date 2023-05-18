@@ -50,7 +50,7 @@ export default EmberObject.extend({
     'browserModel.isListPollingEnabled',
     'browserModel.dir',
     not('browserModel.selectedItemsOutOfScope'),
-    not('browserModel.dirLoadError'),
+    not('browserModel.listLoadError'),
   ),
 
   init() {

@@ -10,7 +10,14 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { getProperties, computed, observer, get, defineProperty } from '@ember/object';
+import EmberObject, {
+  getProperties,
+  computed,
+  observer,
+  get,
+  set,
+  defineProperty,
+} from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { dasherize } from '@ember/string';
@@ -24,7 +31,7 @@ import {
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
 import { scheduleOnce } from '@ember/runloop';
-import { tag, raw, conditional, eq, and, promise, bool, gt } from 'ember-awesome-macros';
+import { tag, raw, conditional, eq, and, promise, bool, gt, or } from 'ember-awesome-macros';
 import moment from 'moment';
 import globals from 'onedata-gui-common/utils/globals';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
@@ -352,25 +359,23 @@ export default EmberObject.extend(...mixins, {
 
   refreshBtnClass: computed(
     'renderableSelectedItemsOutOfScope',
-    'renderableDirLoadError',
-    'lastRefreshError',
+    'renderableListLoadError',
     function refreshBtnClass() {
-      return (
-        this.renderableSelectedItemsOutOfScope ||
-        this.renderableDirLoadError
-      ) ? 'refresh-selection-warning' : '';
+      // FIXME: decide if this should be always warning color or also danger
+      return (this.renderableSelectedItemsOutOfScope || this.renderableListLoadError) ?
+        'refresh-indicator-warning' : '';
     }
   ),
 
   refreshBtnTip: computed(
     'renderableSelectedItemsOutOfScope',
-    'renderableDirLoadError',
+    'renderableListLoadError',
     'browserListPoller.pollInterval',
     'lastRefreshTime',
     function refreshBtnClass() {
-      if (this.renderableDirLoadError) {
+      if (this.renderableListLoadError) {
         const errorText = this.errorExtractor
-          .getMessage(this.renderableDirLoadError)?.message ?? this.t('unknownError');
+          .getMessage(this.renderableListLoadError)?.message ?? this.t('unknownError');
         return this.t('refreshTip.lastError', {
           errorText,
         });
@@ -439,6 +444,8 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
+  listLoadError: or('dirLoadError', 'lastRefreshError'),
+
   isOnlyCurrentDirSelected: and(
     eq('selectedItems.length', raw(1)),
     eq('selectedItems.0', 'dir'),
@@ -482,56 +489,6 @@ export default EmberObject.extend(...mixins, {
     return styles;
   }),
 
-  /**
-   * Controls value of `renderableSelectedItemsOutOfScope` to be synchronized with
-   * `selectedItemsOutOfScope` most often once a render.
-   */
-  selectedItemsOutOfScopeObserver: observer(
-    'selectedItemsOutOfScope',
-    function selectedItemsOutOfScopeObserver() {
-      scheduleOnce('afterRender', this.updateRenderableSelectedItemsOutOfScope);
-    }
-  ),
-
-  /**
-   * Create function that synchronizes value of `renderableSelectedItemsOutOfScope`
-   * property. Needed because that value changes should be throttled.
-   * @type {ComputedProperty<() => void>}
-   */
-  updateRenderableSelectedItemsOutOfScope: computed(
-    function updateRenderableSelectedItemsOutOfScope() {
-      return () => {
-        this.set('renderableSelectedItemsOutOfScope', this.selectedItemsOutOfScope);
-      };
-    }
-  ),
-
-  // FIXME: chyba pasuje załatwić to jakoś generycznie... może util do throttlowania zmian? i może wtedy wystawiać tylko finalne property (refresh tip)
-
-  /**
-   * Controls value of `renderableSelectedItemsOutOfScope` to be synchronized with
-   * `selectedItemsOutOfScope` most often once a render.
-   */
-  dirLoadErrorObserver: observer(
-    'dirLoadError',
-    function selectedItemsOutOfScopeObserver() {
-      scheduleOnce('afterRender', this.updateRenderableDirLoadError);
-    }
-  ),
-
-  /**
-   * Create function that synchronizes value of `renderableDirLoadError`
-   * property. Needed because that value changes should be throttled.
-   * @type {ComputedProperty<() => void>}
-   */
-  updateRenderableDirLoadError: computed(
-    function updateRenderableDirLoadError() {
-      return () => {
-        this.set('renderableDirLoadError', this.dirLoadError);
-      };
-    }
-  ),
-
   generateAllButtonsArray: observer(
     'buttonNames.[]',
     function generateAllButtonsArray() {
@@ -559,10 +516,19 @@ export default EmberObject.extend(...mixins, {
     this.getEnabledColumnsFromLocalStorage();
     this.checkColumnsVisibility();
 
-    this.set('lastRefreshTime', Date.now());
+    // FIXME: experimental, change properties to be render protected; maybe in fb-table
+    createRenderableProperty(
+      this,
+      'selectedItemsOutOfScope',
+      'renderableSelectedItemsOutOfScope'
+    );
+    createRenderableProperty(
+      this,
+      'listLoadError',
+      'renderableListLoadError'
+    );
 
-    // activate observers
-    this.selectedItemsOutOfScope;
+    this.set('lastRefreshTime', Date.now());
   },
 
   /**
@@ -851,3 +817,30 @@ export default EmberObject.extend(...mixins, {
     return lastRefreshTimeText;
   },
 });
+
+// FIXME: make an util in separate file with tests
+/**
+ * Creates a property with specified `renderablePropertyName` which value is updated
+ * automatically to the value of `propertyName` in the `object` once for a render.
+ * It is useful when the original property (specifiec by `propertyName`) is updated
+ * more than once for a render and this could cause "twice render modification" error.
+ * @param {EmberObject} object
+ * @param {string} propertyName
+ * @param {string} renderablePropertyName
+ */
+function createRenderableProperty(object, propertyName, renderablePropertyName) {
+  if (!propertyName || !renderablePropertyName) {
+    throw new Error(
+      'renderModificationProtected: propertyName and renderablePropertyName must not be empty'
+    );
+  }
+  // const observerName = `_${propertyName}RenderModficationObserver`;
+  const updateRenderableProperty = function updateRenderableProperty() {
+    set(object, renderablePropertyName, object[propertyName]);
+  };
+  updateRenderableProperty();
+  object.addObserver(propertyName, this, () => {
+    scheduleOnce('afterRender', updateRenderableProperty);
+  });
+  get(object, propertyName);
+}

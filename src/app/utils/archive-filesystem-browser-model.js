@@ -143,7 +143,7 @@ export default FilesystemBrowserModel.extend({
       if (this.isFilesystemLive) {
         return this._super(...arguments);
       } else {
-        return 'refresh-selection-info';
+        return 'refresh-indicator-info';
       }
     }
   ),
