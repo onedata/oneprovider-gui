@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10892 Fixed appearance of scrollbar in archive file browser modal
 * VFS-10825 Fixed unnecessary scrollbars in Safari
 * VFS-10803 Fixed polling for file infinitely if moving or copying fails
 * VFS-10601 Added columns visibility configuration in file browsers
