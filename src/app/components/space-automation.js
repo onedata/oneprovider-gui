@@ -11,7 +11,7 @@ import { inject as service } from '@ember/service';
 import { get, getProperties, observer, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
-import { conditional, array } from 'ember-awesome-macros';
+import { promise, conditional, array } from 'ember-awesome-macros';
 import { reject, hash as hashFulfilled } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -21,6 +21,19 @@ import {
   atmWorkflowExecutionPhases,
   translateAtmWorkflowExecutionPhase,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
+
+const basicTabs = atmWorkflowExecutionPhases;
+const prioritisedBasicTabs = Object.freeze([
+  AtmWorkflowExecutionPhase.Ongoing,
+  AtmWorkflowExecutionPhase.Waiting,
+  AtmWorkflowExecutionPhase.Ended,
+]);
+const allTabs = Object.freeze([
+  ...basicTabs,
+  'preview',
+  'create',
+]);
+const defaultTab = prioritisedBasicTabs[0];
 
 const mixins = [
   I18n,
@@ -114,7 +127,7 @@ export default Component.extend(...mixins, {
   /**
    * @type {Array<String>}
    */
-  possibleTabs: undefined,
+  possibleTabs: allTabs,
 
   /**
    * @type {Object<string, AtmWorkflowExecutionPhase>}
@@ -187,6 +200,17 @@ export default Component.extend(...mixins, {
     };
   }),
 
+  /**
+   * @type {ComputedProperty<PromiseObject<string>>}
+   */
+  initialTabProxy: promise.object(computed(async function initialTabProxy() {
+    if (this.possibleTabs.includes(this.tab)) {
+      return this.tab;
+    } else {
+      return await this.findNonEmptyCollection();
+    }
+  })),
+
   atmWorkflowExecutionForPreviewLoader: observer(
     'atmWorkflowExecutionId',
     'space',
@@ -249,16 +273,15 @@ export default Component.extend(...mixins, {
     suspendedExecutionsCountInfoUpdater.on('tick', () => {
       this.updateSuspendedExecutionsCountInfoProxy({ replace: true });
     });
-    this.setProperties({
-      possibleTabs: [
-        ...atmWorkflowExecutionPhases,
-        'preview',
-        'create',
-      ],
-      suspendedExecutionsCountInfoUpdater,
-    });
+    this.set('suspendedExecutionsCountInfoUpdater', suspendedExecutionsCountInfoUpdater);
 
-    this.atmWorkflowExecutionForPreviewLoader();
+    (async () => {
+      const initialTab = await this.initialTabProxy;
+      if (this.tab !== initialTab) {
+        this.changeTab(initialTab);
+      }
+      this.atmWorkflowExecutionForPreviewLoader();
+    })();
   },
 
   willDestroyElement() {
@@ -292,6 +315,31 @@ export default Component.extend(...mixins, {
         content: executionsCount > 0 ? String(executionsCount) : null,
         className: executionsCount > 0 ? 'text-danger' : '',
       };
+    }
+  },
+
+  /**
+   * @returns {Promise<tmWorkflowExecutionPhase>}
+   */
+  async findNonEmptyCollection() {
+    try {
+      for (const collectionName of prioritisedBasicTabs) {
+        const collectionTransfers = await this.workflowManager
+          .getAtmWorkflowExecutionSummariesForSpace(
+            this.space,
+            collectionName,
+            null,
+            1,
+            0,
+          );
+        if (collectionTransfers.array.length) {
+          return collectionName;
+        }
+      }
+      return defaultTab;
+    } catch (error) {
+      console.error('Cannot fetch workflow executions due to error:', error);
+      return defaultTab;
     }
   },
 

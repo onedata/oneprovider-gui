@@ -121,7 +121,7 @@ describe('Integration | Component | space-automation', function () {
   it('has active "waiting" tab on init', async function () {
     await renderComponent();
 
-    expect(find('.nav-item-waiting')).to.have.class('active');
+    expect(find('.nav-item-ongoing')).to.have.class('active');
   });
 
   it('allows to run new workflow', async function () {
