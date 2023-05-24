@@ -274,7 +274,7 @@ export default OneEmbeddedComponent.extend(
       }
     )),
 
-    dir: computedLastProxyContent('dirProxy'),
+    dir: computedLastProxyContent('dirProxy', { nullOnReject: true }),
 
     dirError: reads('dirProxy.reason'),
 

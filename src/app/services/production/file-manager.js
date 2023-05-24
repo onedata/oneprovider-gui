@@ -122,7 +122,6 @@ export default Service.extend({
         backgroundReload,
       }
     );
-    // FIXME: debug code
     await this.resolveSymlinks([file], scope);
     return file;
   },
