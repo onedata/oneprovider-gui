@@ -585,6 +585,15 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
+  columnsVisibilityAutoChecker: observer(
+    'listLoadState.state',
+    'dirLoadError',
+    'hasEmptyDirClass',
+    function columnsVisibilityAutoChecker() {
+      this.checkColumnsVisibility();
+    },
+  ),
+
   init() {
     this._super(...arguments);
     this.set('lastRefreshTime', Date.now());
@@ -611,12 +620,6 @@ export default EmberObject.extend(...mixins, {
     this.attachWindowResizeHandler();
     this.getEnabledColumnsFromLocalStorage();
     this.checkColumnsVisibility();
-
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_base_browser_model');
   },
 
   /**
@@ -925,7 +928,6 @@ function createRenderableProperty(object, propertyPath, renderablePropertyName) 
       'renderModificationProtected: propertyName and renderablePropertyName must not be empty'
     );
   }
-  // const observerName = `_${propertyName}RenderModficationObserver`;
   const updateRenderableProperty = function updateRenderableProperty() {
     set(object, renderablePropertyName, get(object, propertyPath));
   };
