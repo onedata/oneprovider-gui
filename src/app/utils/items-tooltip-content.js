@@ -9,7 +9,6 @@
 import EmberObject, { computed, get } from '@ember/object';
 import _ from 'lodash';
 import { htmlSafe } from '@ember/string';
-import { gt } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
@@ -31,8 +30,6 @@ export default EmberObject.extend(I18n, OwnerInjector, {
    */
   items: undefined,
 
-  hugeTextCharsLength: 2750,
-
   /**
    * Sorts items like backend - lexicographical sorting by Unicode chars order.
    *
@@ -52,12 +49,9 @@ export default EmberObject.extend(I18n, OwnerInjector, {
   isOverflown: false,
 
   tooltipClass: computed(
-    'isHugeMultiText',
+    'isOverflown',
     function tooltipClass() {
       const resultClasses = ['tooltip-items', 'tooltip-with-tags'];
-      if (this.isHugeMultiText) {
-        resultClasses.push('huge-content');
-      }
       if (this.isOverflown) {
         resultClasses.push('item-tooltip-ul-overflows');
       }
@@ -94,11 +88,9 @@ export default EmberObject.extend(I18n, OwnerInjector, {
     return `items-tooltip-content-ul-${guidFor(this)}`;
   }),
 
-  namesLengthSum: computed('sortedItems.@each.name', function isHugeMultiText() {
+  namesLengthSum: computed('sortedItems.@each.name', function namesLengthSum() {
     return _.sum(this.sortedItems?.map(item => item && get(item, 'name')?.length || 0));
   }),
-
-  isHugeMultiText: gt('namesLengthSum', 'hugeTextCharsLength'),
 
   onItemsTooltipShown() {
     /** @type {HTMLUListElement} */
