@@ -136,9 +136,7 @@ export default FilesystemBrowserModel.extend({
   refreshBtnClass: computed(
     'isFilesystemLive',
     // inherited
-    'renderableSelectedItemsOutOfScope',
-    'renderableDirLoadError',
-    'lastRefreshError',
+    'browserListPoller.isPollingEnabled',
     function refreshBtnClass() {
       if (this.isFilesystemLive) {
         return this._super(...arguments);
@@ -156,7 +154,7 @@ export default FilesystemBrowserModel.extend({
     // inherited dependencies
     'renderableSelectedItemsOutOfScope',
     'renderableDirLoadError',
-    'browserListPoller.pollInterval',
+    'browserListPoller.{pollInterval,isPollingEnabled}',
     'lastRefreshTime',
     function refreshBtnTip() {
       if (this.isFilesystemLive) {

@@ -358,11 +358,9 @@ export default EmberObject.extend(...mixins, {
   }),
 
   refreshBtnClass: computed(
-    'renderableSelectedItemsOutOfScope',
-    'renderableListLoadError',
+    'renderableIsPollingEnabled',
     function refreshBtnClass() {
-      // FIXME: decide if this should be always warning color or also danger
-      return (this.renderableSelectedItemsOutOfScope || this.renderableListLoadError) ?
+      return (!this.renderableIsPollingEnabled) ?
         'refresh-indicator-warning' : '';
     }
   ),
@@ -370,6 +368,7 @@ export default EmberObject.extend(...mixins, {
   refreshBtnTip: computed(
     'renderableSelectedItemsOutOfScope',
     'renderableListLoadError',
+    'renderableIsPollingEnabled',
     'browserListPoller.pollInterval',
     'lastRefreshTime',
     function refreshBtnClass() {
@@ -383,6 +382,8 @@ export default EmberObject.extend(...mixins, {
         return this.t('refreshTip.selectedDisabled', {
           lastRefreshTime: this.createLastRefreshTimeText(),
         });
+      } else if (!this.renderableIsPollingEnabled) {
+        return this.t('refreshTip.unknownDisabled');
       } else {
         const pollingIntervalSecs =
           Math.floor(this.browserListPoller?.pollInterval / 1000);
@@ -526,6 +527,11 @@ export default EmberObject.extend(...mixins, {
       this,
       'listLoadError',
       'renderableListLoadError'
+    );
+    createRenderableProperty(
+      this,
+      'browserListPoller.isPollingEnabled',
+      'renderableIsPollingEnabled',
     );
 
     this.set('lastRefreshTime', Date.now());
@@ -821,26 +827,26 @@ export default EmberObject.extend(...mixins, {
 // FIXME: make an util in separate file with tests
 /**
  * Creates a property with specified `renderablePropertyName` which value is updated
- * automatically to the value of `propertyName` in the `object` once for a render.
+ * automatically to the value of `propertyPath` in the `object` once for a render.
  * It is useful when the original property (specifiec by `propertyName`) is updated
  * more than once for a render and this could cause "twice render modification" error.
  * @param {EmberObject} object
- * @param {string} propertyName
+ * @param {string} propertyPath
  * @param {string} renderablePropertyName
  */
-function createRenderableProperty(object, propertyName, renderablePropertyName) {
-  if (!propertyName || !renderablePropertyName) {
+function createRenderableProperty(object, propertyPath, renderablePropertyName) {
+  if (!propertyPath || !renderablePropertyName) {
     throw new Error(
       'renderModificationProtected: propertyName and renderablePropertyName must not be empty'
     );
   }
   // const observerName = `_${propertyName}RenderModficationObserver`;
   const updateRenderableProperty = function updateRenderableProperty() {
-    set(object, renderablePropertyName, object[propertyName]);
+    set(object, renderablePropertyName, get(object, propertyPath));
   };
   updateRenderableProperty();
-  object.addObserver(propertyName, this, () => {
+  object.addObserver(propertyPath, this, () => {
     scheduleOnce('afterRender', updateRenderableProperty);
   });
-  get(object, propertyName);
+  get(object, propertyPath);
 }
