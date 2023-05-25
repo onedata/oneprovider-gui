@@ -107,8 +107,22 @@ export default Component.extend(...mixins, {
     return this.get('dirProxy');
   })),
 
-  requiredDataProxy: promise.object(promise.all(
+  /**
+   * Always resolved when `initialDirProxy` settles (no matter if it resolves of rejects).
+   */
+  initialDirLoadingProxy: promise.object(computed(
     'initialDirProxy',
+    async function initialDirLoadingProxy() {
+      try {
+        return await this.dirProxy;
+      } catch {
+        return null;
+      }
+    }
+  )),
+
+  requiredDataProxy: promise.object(promise.all(
+    'initialDirLoadingProxy',
     'share.rootFile',
   )),
 

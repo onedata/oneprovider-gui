@@ -1,3 +1,3 @@
 export default {
-  navigateToRoot: 'Navigate to space root directory',
+  navigateToRoot: 'Navigate to root directory',
 };
