@@ -26,7 +26,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
-import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
+import { equal, and, not, or, raw, bool, eq } from 'ember-awesome-macros';
 import { all as allFulfilled, allSettled } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -316,7 +316,7 @@ export default Component.extend(I18n, {
     return test;
   }),
 
-  initialLoad: reads('browserModel.initialLoad'),
+  listLoadState: reads('browserModel.listLoadState'),
 
   /**
    * True if there is initially loaded file list, but it is empty.
@@ -324,7 +324,10 @@ export default Component.extend(I18n, {
    * the list was not yet loaded or cannot be loaded.
    * @type {boolean|undefined}
    */
-  isDirEmpty: and('initialLoad.isFulfilled', not('filesArray.length')),
+  isDirEmpty: and(
+    eq('listLoadState.state', raw('fulfilled')),
+    not('filesArray.length')
+  ),
 
   /**
    * If true, the `empty-dir` class should be added
@@ -342,7 +345,7 @@ export default Component.extend(I18n, {
 
   specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
 
-  dirLoadError: reads('browserModel.dirLoadError'),
+  dirLoadError: reads('browserModel.dirViewLoadError'),
 
   isHardlinkingPossible: computed(
     'fileClipboardFiles.@each.type',

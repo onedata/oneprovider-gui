@@ -17,6 +17,7 @@ import EmberObject, {
   get,
   set,
   defineProperty,
+  setProperties,
 } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
@@ -48,6 +49,16 @@ import isPosixError from 'oneprovider-gui/utils/is-posix-error';
  * @property {boolean} isEnabled
  * @property {number} width
  */
+
+/**
+ * @typedef {'pending'|'fulfilled'|'rejected'} BrowserListLoadState
+ */
+
+const BrowserListLoadState = Object.freeze({
+  Pending: 'pending',
+  Fulfilled: 'fulfilled',
+  Rejected: 'rejected',
+});
 
 const mixins = [
   OwnerInjector,
@@ -367,14 +378,14 @@ export default EmberObject.extend(...mixins, {
 
   refreshBtnTip: computed(
     'renderableSelectedItemsOutOfScope',
-    'renderableListLoadError',
+    'renderableAnyDataLoadError',
     'renderableIsPollingEnabled',
     'browserListPoller.pollInterval',
     'lastRefreshTime',
     function refreshBtnClass() {
-      if (this.renderableListLoadError) {
+      if (this.renderableAnyDataLoadError) {
         const errorText = this.errorExtractor
-          .getMessage(this.renderableListLoadError)?.message ?? this.t('unknownError');
+          .getMessage(this.renderableAnyDataLoadError)?.message ?? this.t('unknownError');
         return this.t('refreshTip.lastError', {
           errorText,
         });
@@ -427,25 +438,74 @@ export default EmberObject.extend(...mixins, {
   }),
 
   /**
+   * State of items listing. It is pending only when list is initially loaded.
+   * Refreshing can cause change state to fulfilled and rejected - it does not set
+   * state to pending when refresh is pending.
+   *
+   * - On initial load: pending -> fulfilled / rejected.
+   * - When is fulfilled and refreshing changes state to fulfilled: fulfilled.
+   * - When is rejected and refreshing changes state to rejected: rejected.
+   * @type {EmberObject}
+   */
+  listLoadState: computed('dir', () => {
+    return EmberObject.create({
+      state: BrowserListLoadState.Pending,
+      reason: undefined,
+    });
+  }),
+
+  listLoadError: conditional(
+    eq('listLoadState.state', raw('rejected')),
+    'listLoadState.reason',
+    raw(undefined),
+  ),
+
+  /**
+   * A last list refresh error is considered be "fatal" when it is unlikely that it will
+   * disappear on list refresh, so instead of informing user about refresh error using
+   * notify, the view should display error view in place of the list.
+   * @type {ComputedProperty<boolean>}
+   */
+  isLastListLoadErrorFatal: computed(
+    'listLoadError',
+    function isLastListLoadErrorFatal() {
+      const error = this.listLoadError;
+      return error && (
+        error.id === 'internalServerError' ||
+        isPosixError(error, 'enoent') ||
+        isPosixError(error, 'eacces')
+      );
+    }
+  ),
+
+  /**
+   * If this error is not empty, then items listing should not be rendered.
+   * Instead error information should be shown.
    * @type {ComputedProperty<Object>}
    */
-  dirLoadError: computed(
-    'initialLoad.{isRejected,reason}',
+  dirViewLoadError: computed(
+    'listLoadState.state',
     'dirError',
-    'isLastRefreshErrorFatal',
-    'lastRefreshError',
-    function dirLoadError() {
-      return (this.isLastRefreshErrorFatal && this.lastRefreshError) ||
+    'isLastListLoadErrorFatal',
+    'listLoadError',
+    function dirViewLoadError() {
+      return (this.isLastListLoadErrorFatal && this.listLoadError) ||
         this.dirError ||
         (
-          this.initialLoad?.isRejected &&
-          (this.initialLoad.reason ?? { id: 'unknown' })
+          this.listLoadState.state === BrowserListLoadState.Rejected &&
+          (this.listLoadState.reason ?? { id: 'unknown' })
         ) ||
         undefined;
     }
   ),
 
-  listLoadError: or('dirLoadError', 'lastRefreshError'),
+  /**
+   * A last error that occurred when item data has tried to be loaded:
+   * - loading and refreshing dir info
+   * - loading and refreshing item list
+   * @type {ComputedProperty<Object>}
+   */
+  anyDataLoadError: or('dirViewLoadError', 'listLoadError'),
 
   isOnlyCurrentDirSelected: and(
     eq('selectedItems.length', raw(1)),
@@ -505,18 +565,29 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
-  dirObserver: observer('dir', function dirObserver() {
-    this.set('lastRefreshError', undefined);
-  }),
+  listLoadStateSetter: observer(
+    'initialLoad.{isPending,isSettled}',
+    function listLoadStateSetter() {
+      const initialLoad = this.initialLoad;
+      if (!initialLoad) {
+        return;
+      }
+      if (get(initialLoad, 'isPending')) {
+        this.changeListLoadState(BrowserListLoadState.Pending);
+      } else if (get(initialLoad, 'isRejected')) {
+        this.changeListLoadState(
+          BrowserListLoadState.Rejected,
+          get(initialLoad, 'reason')
+        );
+      } else if (get(initialLoad, 'isFulfilled')) {
+        this.changeListLoadState(BrowserListLoadState.Fulfilled);
+      }
+    }
+  ),
 
   init() {
     this._super(...arguments);
-    this.generateAllButtonsArray();
-    this.initBrowserListPoller();
-    this.attachWindowResizeHandler();
-    this.getEnabledColumnsFromLocalStorage();
-    this.checkColumnsVisibility();
-
+    this.set('lastRefreshTime', Date.now());
     // FIXME: experimental, change properties to be render protected; maybe in fb-table
     createRenderableProperty(
       this,
@@ -525,8 +596,8 @@ export default EmberObject.extend(...mixins, {
     );
     createRenderableProperty(
       this,
-      'listLoadError',
-      'renderableListLoadError'
+      'anyDataLoadError',
+      'renderableAnyDataLoadError'
     );
     createRenderableProperty(
       this,
@@ -534,7 +605,18 @@ export default EmberObject.extend(...mixins, {
       'renderableIsPollingEnabled',
     );
 
-    this.set('lastRefreshTime', Date.now());
+    this.listLoadStateSetter();
+    this.generateAllButtonsArray();
+    this.initBrowserListPoller();
+    this.attachWindowResizeHandler();
+    this.getEnabledColumnsFromLocalStorage();
+    this.checkColumnsVisibility();
+
+    // FIXME: debug code
+    ((name) => {
+      window[name] = this;
+      console.log(`window.${name}`, window[name]);
+    })('debug_base_browser_model');
   },
 
   /**
@@ -562,6 +644,24 @@ export default EmberObject.extend(...mixins, {
 
   navigateToRoot() {
     return this.changeDir(null);
+  },
+
+  /**
+   * @param {BrowserListLoadState} state
+   * @param {any} [reason] Error reason only when state is rejected.
+   */
+  changeListLoadState(state, reason) {
+    if (state === 'rejected') {
+      setProperties(this.listLoadState, {
+        state,
+        reason,
+      });
+    } else if (this.listLoadState.state !== state) {
+      setProperties(this.listLoadState, {
+        state,
+        reason: undefined,
+      });
+    }
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
@@ -639,9 +739,8 @@ export default EmberObject.extend(...mixins, {
     }
     try {
       const refreshResult = await fbTableApi.refresh(!silent);
-      // FIXME: add property doc
-      if (this.lastRefreshError) {
-        this.set('lastRefreshError', undefined);
+      if (this.listLoadError) {
+        this.changeListLoadState(BrowserListLoadState.Fulfilled);
       }
       return refreshResult;
     } catch (error) {
@@ -649,12 +748,11 @@ export default EmberObject.extend(...mixins, {
         return;
       }
 
-      // FIXME: jsdoc
-      this.set('lastRefreshError', error);
+      this.changeListLoadState(BrowserListLoadState.Rejected, error);
 
       // notification is not shown when the error is fatal, because then it is displayed
       // as content of browser
-      if (!silent && !this.isLastRefreshErrorFatal) {
+      if (!silent && !this.isLastListLoadErrorFatal) {
         let errorText = String(
           this.errorExtractor.getMessage(error)?.message ?? this.t('unknownError')
         );
@@ -670,19 +768,6 @@ export default EmberObject.extend(...mixins, {
       throw error;
     }
   },
-
-  // FIXME: move up
-  isLastRefreshErrorFatal: computed(
-    'lastRefreshError',
-    function isLastRefreshErrorFatal() {
-      const error = this.lastRefreshError;
-      return error && (
-        error.id === 'internalServerError' ||
-        isPosixError(error, 'enoent') ||
-        isPosixError(error, 'eacces')
-      );
-    }
-  ),
 
   /**
    * @typedef {Object} BrowserItemActionSpec

@@ -58,7 +58,7 @@
         selectionContext=selectionContext
       }}
     {{/each}}
-    {{#if (and initialLoad.isSettled fetchingNext)}}
+    {{#if (and (eq listLoadState.state "fulfilled") fetchingNext)}}
       <tr class="loading-row">
         <td colspan="9999" class="special-row-cell loading-row-cell">
           {{spin-spinner-block
@@ -71,7 +71,7 @@
   </tbody>
 </table>
 <div class="table-bottom-spacing"></div>
-{{#if initialLoad.isPending}}
+{{#if (eq listLoadState.state "pending")}}
   <div class="loading-dir-box">
     {{spin-spinner-block
       sizeClass="lg"
