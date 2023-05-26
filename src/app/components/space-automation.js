@@ -319,7 +319,7 @@ export default Component.extend(...mixins, {
   },
 
   /**
-   * @returns {Promise<tmWorkflowExecutionPhase>}
+   * @returns {Promise<AtmWorkflowExecutionPhase>}
    */
   async findNonEmptyCollection() {
     try {
