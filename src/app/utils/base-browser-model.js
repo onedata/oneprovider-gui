@@ -97,6 +97,12 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  onInsertHeaderElements: notImplementedIgnore,
+
+  /**
+   * @virtual
    * @type {Function<(fileIds: Array<String>) => Promise>}
    */
   onOpenFile: notImplementedIgnore,
@@ -646,7 +652,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   navigateToRoot() {
-    return this.changeDir(null);
+    return this.browserInstance.updateDirEntityId(null);
   },
 
   /**

@@ -24,6 +24,7 @@ import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
 import dom from 'onedata-gui-common/utils/dom';
 import globals from 'onedata-gui-common/utils/globals';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 const defaultIsItemDisabled = () => false;
 
@@ -806,20 +807,17 @@ export default Component.extend(I18n, {
       'browserModel',
       'loadingIconFileIds',
     );
-    const dirId = dir && get(dir, 'entityId') || null;
-    if (dirId) {
-      loadingIconFileIds.pushObject(dirId);
+    if (!dir) {
+      console.error('changeDir: dir is not provided');
+      return;
     }
+    const dirId = get(dir, 'entityId');
+    loadingIconFileIds.pushObject(dirId);
     try {
-      if (dirId) {
-        await browserModel.onChangeDir(dir, async (effDir = dir) => {
-          await updateDirEntityId(get(effDir, 'entityId'));
-          containerScrollTop(0);
-        });
-      } else {
-        await updateDirEntityId(null);
+      await browserModel.onChangeDir(dir, async (effDir = dir) => {
+        await updateDirEntityId(get(effDir, 'entityId'));
         containerScrollTop(0);
-      }
+      });
     } finally {
       if (dirId) {
         removeObjectsFirstOccurence(loadingIconFileIds, [dirId]);
@@ -865,6 +863,12 @@ export default Component.extend(I18n, {
     },
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);
+    },
+    onInsertHeaderElements() {
+      (async () => {
+        await waitForRender();
+        this.browserModel.onInsertHeaderElements?.();
+      })();
     },
   },
 });

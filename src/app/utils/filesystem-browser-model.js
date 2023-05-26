@@ -1059,13 +1059,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   }),
 
-  uploadBrowseElement: computed('element', function uploadBrowseElement() {
-    const element = this.get('element');
-    if (element) {
-      return element.querySelector('.fb-upload-trigger');
-    }
-  }),
-
   onTagHoverChange: computed(function onTagHoverChange() {
     return this.changeTagHover.bind(this);
   }),
@@ -1162,16 +1155,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       readonlyFilesystem,
       uploadManager,
       uploadDropElement,
-      uploadBrowseElement,
       dir,
     } = this.getProperties(
       'readonlyFilesystem',
       'uploadManager',
       'uploadDropElement',
-      'uploadBrowseElement',
       'dir'
     );
-
     if (!readonlyFilesystem) {
       // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
       // if using selector inside filesystem browser
@@ -1182,16 +1172,25 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           'util:filesystem-browser-model#onInsertElement: uploadDropElement not found, upload using files drag&drop will not work'
         );
       }
-      if (uploadBrowseElement) {
-        uploadManager.assignUploadBrowse(uploadBrowseElement);
-      } else {
-        console.debug(
-          'util:filesystem-browser-model#onInsertElement: uploadBrowseElement not found, upload using button will not work'
-        );
-      }
     }
-
     uploadManager.changeTargetDirectory(dir);
+  },
+
+  /**
+   * @override
+   */
+  onInsertHeaderElements() {
+    if (this.readonlyFilesystem) {
+      return;
+    }
+    const uploadBrowseElement = this.getUploadBrowseElement();
+    if (uploadBrowseElement) {
+      this.uploadManager.assignUploadBrowse(uploadBrowseElement);
+    } else {
+      console.debug(
+        'onInsertHeaderElements: uploadBrowseElement not found, upload using button will not work'
+      );
+    }
   },
 
   /**
@@ -1251,6 +1250,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   featurizeItem(item) {
     return item;
+  },
+
+  getUploadBrowseElement() {
+    return this.element?.querySelector('.fb-upload-trigger');
   },
 
   /**
