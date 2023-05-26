@@ -128,13 +128,19 @@ export default OneEmbeddedComponent.extend(
         } = this.getProperties('selected', 'fileManager', 'dirProxy');
         if (selected) {
           try {
-            const files = await onlyFulfilledValues(selected.map(id =>
-              fileManager.getFileById(id)
-            ));
-            const dir = await dirProxy;
+            let dir;
+            try {
+              dir = await dirProxy;
+            } catch {
+              // allow dirProxy to fail - eg. when entering non-existing directory
+              return [];
+            }
             if (!dir) {
               return [];
             }
+            const files = await onlyFulfilledValues(selected.map(id =>
+              fileManager.getFileById(id)
+            ));
 
             const validFiles = await files.filter(file => {
               const fileId = file && file.relationEntityId('parent');
