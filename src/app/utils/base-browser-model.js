@@ -303,13 +303,6 @@ export default EmberObject.extend(...mixins, {
   browserListPoller: null,
 
   /**
-   * State of `selectedItemsOutOfScope` property that is updated only once for single
-   * render to avoid "double render" errors. The value is controlled by an observer.
-   * @type {boolean}
-   */
-  renderableSelectedItemsOutOfScope: false,
-
-  /**
    * Time in milliseconds from Date.now.
    * @type {number}
    */
@@ -374,31 +367,30 @@ export default EmberObject.extend(...mixins, {
   }),
 
   refreshBtnClass: computed(
-    'renderableIsPollingEnabled',
+    'browserListPoller.isPollingEnabled',
     function refreshBtnClass() {
-      return (!this.renderableIsPollingEnabled) ?
+      return (!this.browserListPoller?.isPollingEnabled) ?
         'refresh-indicator-warning' : '';
     }
   ),
 
   refreshBtnTip: computed(
-    'renderableSelectedItemsOutOfScope',
-    'renderableAnyDataLoadError',
-    'renderableIsPollingEnabled',
-    'browserListPoller.pollInterval',
+    'selectedItemsOutOfScope',
+    'anyDataLoadError',
+    'browserListPoller.{pollInterval,isPollingEnabled}',
     'lastRefreshTime',
-    function refreshBtnClass() {
-      if (this.renderableAnyDataLoadError) {
+    function refreshBtnTip() {
+      if (this.anyDataLoadError) {
         const errorText = this.errorExtractor
-          .getMessage(this.renderableAnyDataLoadError)?.message ?? this.t('unknownError');
+          .getMessage(this.anyDataLoadError)?.message ?? this.t('unknownError');
         return this.t('refreshTip.lastError', {
           errorText,
         });
-      } else if (this.renderableSelectedItemsOutOfScope) {
+      } else if (this.selectedItemsOutOfScope) {
         return this.t('refreshTip.selectedDisabled', {
           lastRefreshTime: this.createLastRefreshTimeText(),
         });
-      } else if (!this.renderableIsPollingEnabled) {
+      } else if (!this.browserListPoller?.isPollingEnabled) {
         return this.t('refreshTip.unknownDisabled');
       } else {
         const pollingIntervalSecs =
@@ -419,9 +411,10 @@ export default EmberObject.extend(...mixins, {
       action: () => {
         return this.refresh();
       },
+      class: tag`file-action-refresh ${'browserModelBtnClass'}`,
+      tip: undefined,
+      browserModelBtnClass: undefined,
 
-      tip: reads('context.refreshBtnTip'),
-      class: tag`file-action-refresh ${'context.refreshBtnClass'}`,
       showIn: conditional(
         'context.refreshBtnIsVisible',
         raw([
@@ -434,6 +427,20 @@ export default EmberObject.extend(...mixins, {
         ]),
         raw([]),
       ),
+
+      init() {
+        this._super(...arguments);
+        createRenderableProperty(
+          this,
+          'context.refreshBtnTip',
+          'tip'
+        );
+        createRenderableProperty(
+          this,
+          'context.refreshBtnClass',
+          'browserModelBtnClass'
+        );
+      },
     }));
   }),
 
@@ -602,22 +609,6 @@ export default EmberObject.extend(...mixins, {
   init() {
     this._super(...arguments);
     this.set('lastRefreshTime', Date.now());
-    // FIXME: experimental, change properties to be render protected; maybe in fb-table
-    createRenderableProperty(
-      this,
-      'selectedItemsOutOfScope',
-      'renderableSelectedItemsOutOfScope'
-    );
-    createRenderableProperty(
-      this,
-      'anyDataLoadError',
-      'renderableAnyDataLoadError'
-    );
-    createRenderableProperty(
-      this,
-      'browserListPoller.isPollingEnabled',
-      'renderableIsPollingEnabled',
-    );
 
     this.listLoadStateSetter();
     this.generateAllButtonsArray();

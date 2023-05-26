@@ -44,8 +44,6 @@ export default EmberObject.extend({
 
   //#endregion
 
-  selectedItemsOutOfScope: reads('browserModel.selectedItemsOutOfScope'),
-
   isPollingEnabled: and(
     'browserModel.isListPollingEnabled',
     'browserModel.dir',
