@@ -15,7 +15,6 @@ import EmberObject, {
   computed,
   observer,
   get,
-  set,
   defineProperty,
   setProperties,
 } from '@ember/object';
@@ -31,7 +30,6 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
-import { scheduleOnce } from '@ember/runloop';
 import { tag, raw, conditional, eq, and, promise, bool, gt, or } from 'ember-awesome-macros';
 import moment from 'moment';
 import globals from 'onedata-gui-common/utils/globals';
@@ -40,6 +38,7 @@ import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
 import _ from 'lodash';
 import isPosixError from 'oneprovider-gui/utils/is-posix-error';
+import createRenderableProperty from 'onedata-gui-common/utils/create-renderable-property';
 
 /**
  * Contains info about column visibility: if on screen is enough space to show this column
@@ -917,29 +916,3 @@ export default EmberObject.extend(...mixins, {
     return lastRefreshTimeText;
   },
 });
-
-// FIXME: make an util in separate file with tests
-/**
- * Creates a property with specified `renderablePropertyName` which value is updated
- * automatically to the value of `propertyPath` in the `object` once for a render.
- * It is useful when the original property (specifiec by `propertyName`) is updated
- * more than once for a render and this could cause "twice render modification" error.
- * @param {EmberObject} object
- * @param {string} propertyPath
- * @param {string} renderablePropertyName
- */
-function createRenderableProperty(object, propertyPath, renderablePropertyName) {
-  if (!propertyPath || !renderablePropertyName) {
-    throw new Error(
-      'renderModificationProtected: propertyName and renderablePropertyName must not be empty'
-    );
-  }
-  const updateRenderableProperty = function updateRenderableProperty() {
-    set(object, renderablePropertyName, get(object, propertyPath));
-  };
-  updateRenderableProperty();
-  object.addObserver(propertyPath, this, () => {
-    scheduleOnce('afterRender', updateRenderableProperty);
-  });
-  get(object, propertyPath);
-}
