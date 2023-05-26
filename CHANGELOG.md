@@ -6,7 +6,8 @@ CHANGELOG
 
 ### Latest changes
 
-* VFS-9679 Improvied initial tab selection in transfers and automation
+* VFS-9052 Improved directory load error handling in file browser (eg. no such directory)
+* VFS-9679 Improved initial tab selection in transfers and automation
 * VFS-10892 Fixed appearance of scrollbar in archive file browser modal
 * VFS-10825 Fixed unnecessary scrollbars in Safari
 * VFS-10803 Fixed polling for file infinitely if moving or copying fails
