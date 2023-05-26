@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10940 Fixed showing owner column in mobile mode in file browser
 * VFS-9679 Improvied initial tab selection in transfers and automation
 * VFS-10892 Fixed appearance of scrollbar in archive file browser modal
 * VFS-10825 Fixed unnecessary scrollbars in Safari
