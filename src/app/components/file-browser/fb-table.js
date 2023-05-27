@@ -151,13 +151,6 @@ export default Component.extend(I18n, {
   containerScrollTop: notImplementedIgnore,
 
   /**
-   * @virtual optional
-   * If defined replace `fetchDirChildren` with this function
-   * @type {Function}
-   */
-  customFetchDirChildren: undefined,
-
-  /**
    * @virtual
    * @type {boolean}
    */
@@ -535,19 +528,18 @@ export default Component.extend(I18n, {
     }
   ),
 
-  fetchDirChildren: computed('customFetchDirChildren', function fetchDirChildren() {
-    const fetchFun = this.get('customFetchDirChildren') ||
-      this._fetchDirChildren.bind(this);
+  fetchDirChildren: computed(function fetchDirChildren() {
     return async (entityId, ...args) => {
-      const dir = this.get('dir');
+      // debugger;
+      const dirId = get(this.dir, 'entityId');
       // it shows empty directory for a while
-      if (get(dir, 'entityId') !== entityId) {
+      if (dirId !== entityId) {
         // due to incomplete async implementation in fb-table, sometimes it can ask for
         // children of dir that is not currently opened
         return { childrenRecords: [], isLast: true };
       }
-      const effEntityId = get(dir, 'effFile.entityId') || get(dir, 'entityId');
-      return fetchFun(effEntityId, ...args);
+      const effEntityId = get(this.dir, 'effFile.entityId') || dirId;
+      return this.browserModel.fetchDirChildren(effEntityId, ...args);
     };
   }),
 
@@ -1049,16 +1041,6 @@ export default Component.extend(I18n, {
       (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
       '.table-start-row',
     );
-  },
-
-  // TODO: VFS-7643 this is specific to filesystem-browser - move to model after refactor
-  _fetchDirChildren(dirId, ...fetchArgs) {
-    const {
-      fileManager,
-      previewMode,
-    } = this.getProperties('fileManager', 'previewMode');
-    return fileManager
-      .fetchDirChildren(dirId, previewMode ? 'public' : 'private', ...fetchArgs);
   },
 
   clearFilesSelection() {

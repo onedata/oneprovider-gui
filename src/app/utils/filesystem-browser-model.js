@@ -21,7 +21,7 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
-import { array, raw, and, not } from 'ember-awesome-macros';
+import { bool, array, raw, and, not } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
@@ -1233,6 +1233,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       actions = actions.rejectBy('id', 'paste');
     }
     return actions;
+  },
+
+  /**
+   * @override
+   */
+  fetchDirChildren(dirId, ...fetchArgs) {
+    return this.fileManager
+      .fetchDirChildren(dirId, this.previewMode ? 'public' : 'private', ...fetchArgs);
   },
 
   /**
