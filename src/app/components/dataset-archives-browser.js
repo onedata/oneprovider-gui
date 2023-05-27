@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import { observer, computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { resolve, all as allFulfilled, Promise } from 'rsvp';
+import { resolve } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
@@ -535,13 +535,6 @@ export default Component.extend(...mixins, {
 
   async fetchDir(fileId) {
     return this.getFileById(fileId);
-  },
-
-  // TODO: VFS-7643 maybe fetch dir children will be a common operation in browser model
-  async fetchDirChildren(dirId, startIndex, size, offset) {
-    const fileManager = this.get('fileManager');
-    return fileManager
-      .fetchDirChildren(dirId, 'private', startIndex, size, offset);
   },
 
   /**
