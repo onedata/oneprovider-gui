@@ -15,6 +15,7 @@ import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { dasherize } from '@ember/string';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import animateCss from 'onedata-gui-common/utils/animate-css';
@@ -67,6 +68,12 @@ export default EmberObject.extend(...mixins, {
    * @type {Array<String>}
    */
   buttonNames: Object.freeze([]),
+
+  /**
+   * @virtual
+   * @type {(dirId: string, index: string, limit: number, offset: number) => Promise<{ childrenRecords: Array<any>, isLast: boolean }>}
+   */
+  fetchDirChildren: notImplementedReject,
 
   /**
    * @virtual

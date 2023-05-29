@@ -18,15 +18,16 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
-import { conditional } from 'ember-awesome-macros';
+import { conditional, promise, raw } from 'ember-awesome-macros';
 import {
   CopyDatasetIdAction,
   CreateArchiveAction,
   BrowserChangeStateAction,
   BrowserRemoveAction,
 } from 'oneprovider-gui/utils/dataset/actions';
-import { spaceDatasetsRootId } from 'oneprovider-gui/components/content-space-datasets';
 import globals from 'onedata-gui-common/utils/globals';
+import { resolve, all as allFulfilled } from 'rsvp';
+import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -294,6 +295,59 @@ export default BaseBrowserModel.extend(I18n, {
     // ignore - file dataset cannot be opened
   },
 
+  /**
+   * @override
+   */
+  async fetchDirChildren(...fetchArgs) {
+    const [dirId] = fetchArgs;
+    if (dirId === spaceDatasetsRootId) {
+      return this.fetchSpaceDatasets(...fetchArgs);
+    } else {
+      return this.fetchDatasetChildren(...fetchArgs);
+    }
+  },
+
+  async fetchSpaceDatasets(rootId, startIndex, size, offset /**, array */ ) {
+    if (rootId !== spaceDatasetsRootId) {
+      throw new Error(
+        'fetchSpaceDatasets: cannot use fetchSpaceDatasets for non-root'
+      );
+    }
+    if (size <= 0) {
+      return this.getEmptyFetchChildrenResponse();
+    } else {
+      return this.browserizeDatasets(await this.datasetManager.fetchChildrenDatasets({
+        parentType: 'space',
+        parentId: this.spaceId,
+        state: this.attachmentState,
+        index: startIndex,
+        limit: size,
+        offset,
+      }));
+    }
+  },
+
+  async fetchDatasetChildren(datasetId, startIndex, size, offset) {
+    return this.browserizeDatasets(await this.datasetManager.fetchChildrenDatasets({
+      parentType: 'dataset',
+      parentId: datasetId,
+      state: this.attachmentState,
+      index: startIndex,
+      limit: size,
+      offset,
+    }));
+  },
+
+  async browserizeDatasets({ childrenRecords, isLast }) {
+    const datasetManager = this.datasetManager;
+    return {
+      childrenRecords: await allFulfilled(childrenRecords.map(r =>
+        datasetManager.getBrowsableDataset(r)
+      )),
+      isLast,
+    };
+  },
+
   showRootFile(dataset) {
     const {
       getDataUrl,
@@ -303,4 +357,37 @@ export default BaseBrowserModel.extend(I18n, {
     const url = getDataUrl({ fileId: null, selected: [fileId] });
     return globals.window.open(url, navigateDataTarget);
   },
+});
+
+export const spaceDatasetsRootId = 'spaceDatasetsRoot';
+
+export const SpaceDatasetsRootBaseClass = EmberObject.extend({
+  // dataset-like properties
+  id: spaceDatasetsRootId,
+  entityId: spaceDatasetsRootId,
+  parent: promise.object(raw(resolve(null))),
+  hasParent: false,
+  protectionFlags: Object.freeze([]),
+  rootFile: promise.object(raw(resolve(null))),
+  rootFilePath: '/',
+  rootFileType: 'dir',
+
+  // special properties
+  isDatasetsRoot: true,
+
+  // virtual properties
+  name: undefined,
+  state: undefined,
+
+  // dataset-like methods
+  relationEntityId( /*relation*/ ) {
+    return null;
+  },
+  async reload() {
+    return this;
+  },
+});
+
+export const SpaceDatasetsRootClass = BrowsableDataset.extend({
+  content: SpaceDatasetsRootBaseClass.create(),
 });

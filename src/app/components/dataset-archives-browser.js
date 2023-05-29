@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import { observer, computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { resolve, all as allFulfilled, Promise } from 'rsvp';
+import { resolve } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
@@ -537,35 +537,6 @@ export default Component.extend(...mixins, {
     return this.getFileById(fileId);
   },
 
-  async fetchChildren(...fetchArgs) {
-    const {
-      viewMode,
-      currentBrowsableItemProxy,
-    } = this.getProperties(
-      'viewMode',
-      'currentBrowsableItemProxy',
-    );
-    // a workaround for fb-table trying to get children when it have not-updated "dir"
-    // not waiting for proxy to resolve, because it could cause double fetching
-    // (on next, proper fetchChildren)
-    if (!get(currentBrowsableItemProxy, 'isSettled')) {
-      return new Promise(() => {});
-    }
-
-    if (viewMode === 'files') {
-      return this.fetchDirChildren(...fetchArgs);
-    } else if (viewMode === 'archives') {
-      return this.fetchDatasetArchives(...fetchArgs);
-    }
-  },
-
-  // TODO: VFS-7643 maybe fetch dir children will be a common operation in browser model
-  async fetchDirChildren(dirId, startIndex, size, offset) {
-    const fileManager = this.get('fileManager');
-    return fileManager
-      .fetchDirChildren(dirId, 'private', startIndex, size, offset);
-  },
-
   /**
    * Should be used as file-browser `getItemById` only in files mode.
    * @param {String} fileId
@@ -708,28 +679,6 @@ export default Component.extend(...mixins, {
       onUpdateDirId(null);
       await onUpdateArchiveId(newArchiveId);
     }
-  },
-
-  // TODO: VFS-7643 maybe it will be a common operation in archive browser model
-  async fetchDatasetArchives(datasetId, startIndex, size, offset) {
-    const archiveManager = this.get('archiveManager');
-    return this.browserizeArchives(await archiveManager.fetchDatasetArchives({
-      datasetId,
-      index: startIndex,
-      limit: size,
-      offset,
-    }));
-  },
-
-  // TODO: VFS-7643 maybe it will be a common operation in archive browser model
-  async browserizeArchives({ childrenRecords, isLast }) {
-    const archiveManager = this.get('archiveManager');
-    return {
-      childrenRecords: await allFulfilled(childrenRecords.map(record =>
-        archiveManager.getBrowsableArchive(record)
-      )),
-      isLast,
-    };
   },
 
   // TODO: VFS-7643 remove partial redundancy with content-space-datasets

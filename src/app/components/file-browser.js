@@ -121,13 +121,6 @@ export default Component.extend(I18n, {
   changeSelectedItems: notImplementedThrow,
 
   /**
-   * @virtual optional
-   * Passed to component inside
-   * @type {Function}
-   */
-  customFetchDirChildren: undefined,
-
-  /**
    * @virtual
    * @type {Function}
    */

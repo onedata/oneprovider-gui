@@ -3,67 +3,79 @@
  * of shared files.
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import FilesystemBrowserModel from './filesystem-browser-model';
-import { get } from '@ember/object';
+import { promise, raw } from 'ember-awesome-macros';
 import { resolve } from 'rsvp';
-import { promise } from 'ember-awesome-macros';
-import { reads } from '@ember/object/computed';
+import EmberObject from '@ember/object';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 export default FilesystemBrowserModel.extend({
   /**
-   * @override
+   * @virtual
+   * @type {Models.Share}
    */
-  dirId: reads('browserContainerInstance.dirId'),
+  share: undefined,
 
   /**
    * @override
    */
-  async resolveDir() {
-    const fallbackDir = await this.get('fallbackDirProxy');
-    const dirItem = await this._super(...arguments);
-    if (dirItem !== fallbackDir && await this.isChildOfShare(dirItem)) {
-      return dirItem;
+  rootIcon: 'share',
+
+  /**
+   * @override
+   */
+  readonlyFilesystem: true,
+
+  /**
+   * @override
+   */
+  fetchDirChildren(dirId, ...fetchArgs) {
+    if (dirId === shareRootId) {
+      return this.fetchShareRootDirChildren(dirId, ...fetchArgs);
     } else {
-      return fallbackDir;
+      return this._super(...arguments);
     }
   },
 
-  rootDir: reads('browserContainerInstance.rootDir'),
-
-  /**
-   * @override
-   */
-  fallbackDirProxy: promise.object(promise.resolve('rootDir')),
-
-  share: reads('browserContainerInstance.share'),
-
-  isChildOfShare(file) {
-    return this.get('share.rootFile').then(shareRootFile => {
-      const rootInternalId = get(shareRootFile, 'internalFileId');
-      return this.checkOnPath(
-        file,
-        (currentFile) => get(currentFile, 'internalFileId') === rootInternalId);
-    });
-  },
-
-  checkOnPath(file, condition = () => false) {
-    if (file) {
-      if (condition(file)) {
-        return resolve(true);
+  async fetchShareRootDirChildren(dirId, startIndex, size, offset, array) {
+    if (startIndex == null) {
+      if (size <= 0 || offset < 0) {
+        return createEmptyFetchChildrenResponse();
       } else {
-        const parentId = file.belongsTo('parent').id();
-        if (parentId) {
-          return get(file, 'parent').then(parent => this.checkOnPath(parent, condition));
-        } else {
-          return resolve(false);
-        }
+        return this.share.rootFile
+          .then(rootFile => ({ childrenRecords: [rootFile], isLast: true }));
       }
+    } else if (startIndex === array.get('sourceArray.lastObject.index')) {
+      return createEmptyFetchChildrenResponse();
     } else {
-      return resolve(false);
+      throw new Error(
+        'fetchShareRootDirChildren: illegal fetch children for virtual share root dir'
+      );
     }
   },
 });
+
+export const shareRootId = 'shareRoot';
+
+export const ShareRootDirClass = EmberObject.extend({
+  id: shareRootId,
+  entityId: shareRootId,
+  type: LegacyFileType.Directory,
+  isShareRoot: true,
+  hasParent: false,
+  parent: promise.object(raw(resolve(null))),
+  async reload() {
+    return this;
+  },
+});
+
+function createEmptyFetchChildrenResponse() {
+  return {
+    childrenRecords: [],
+    isLast: true,
+  };
+}
