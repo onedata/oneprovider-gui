@@ -34,7 +34,6 @@ export default FilesystemBrowserModel.extend({
    * @override
    */
   fetchDirChildren(dirId, ...fetchArgs) {
-    // debugger;
     if (dirId === shareRootId) {
       return this.fetchShareRootDirChildren(dirId, ...fetchArgs);
     } else {

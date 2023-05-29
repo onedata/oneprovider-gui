@@ -530,7 +530,6 @@ export default Component.extend(I18n, {
 
   fetchDirChildren: computed(function fetchDirChildren() {
     return async (entityId, ...args) => {
-      // debugger;
       const dirId = get(this.dir, 'entityId');
       // it shows empty directory for a while
       if (dirId !== entityId) {
