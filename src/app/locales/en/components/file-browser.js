@@ -1,5 +1,6 @@
 import fbTable from './file-browser/fb-table';
 import fbToolbar from './file-browser/fb-toolbar';
+import fbTableRow from './file-browser/fb-table-row';
 import fbSelectionToolkit from './file-browser/fb-selection-toolkit';
 import fbCreateItemModal from './file-browser/fb-create-item-modal';
 import fbRemoveModal from './file-browser/fb-remove-modal';
@@ -17,6 +18,7 @@ export default {
   menuCurrentDir: 'Current directory',
   fbTable,
   fbToolbar,
+  fbTableRow,
   fbSelectionToolkit,
   fbCreateItemModal,
   fbRemoveModal,

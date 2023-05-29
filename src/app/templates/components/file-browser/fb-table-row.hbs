@@ -22,7 +22,7 @@
         </div>
       {{else}}
         <div
-          class="inline-icon-container-file" 
+          class="inline-icon-container-file"
           onclick={{action "handleInfoIconClick"}}
           style={{cursorStyleForIcon}}
           onmouseover={{action "changeFileNameHover" true}}
@@ -118,14 +118,19 @@
       browserModel=browserModel
     }}
   {{/if}}
-  {{#unless noItemsActions}}
-    <td class="fb-table-col-actions-menu">
-      {{#unless hideMenuTrigger}}
-        {{one-menu-toggle
-          class="file-row-actions-trigger"
-          click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
-        }}
-      {{/unless}}
-    </td>
-  {{/unless}}
+  <td class="fb-table-col-actions-menu">
+    {{#unless hideMenuTrigger}}
+      {{#one-menu-toggle
+        class="file-row-actions-trigger"
+        click=(if (and (not noItemsActions) enableContextMenuToggle)
+          (disable-bubbling (action "openContextMenu"))
+        )
+        disabled=noItemsActions
+      }}
+        {{#if noItemsActions}}
+          {{one-tooltip title=(tt this "noActions")}}
+        {{/if}}
+      {{/one-menu-toggle}}
+    {{/unless}}
+  </td>
 {{/if}}

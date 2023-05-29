@@ -651,6 +651,19 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     this._super(...arguments);
   },
 
+  /**
+   * Fetches datset archives.
+   * @override
+   */
+  async fetchDirChildren(datasetId, startIndex, size, offset) {
+    return this.browserizeArchives(await this.archiveManager.fetchDatasetArchives({
+      datasetId,
+      index: startIndex,
+      limit: size,
+      offset,
+    }));
+  },
+
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
   // items select implementation
   /**
@@ -681,6 +694,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   isItemDisabled(item) {
     return item && get(item, 'metaState') === 'destroying';
+  },
+
+  async browserizeArchives({ childrenRecords, isLast }) {
+    const archiveManager = this.archiveManager;
+    return {
+      childrenRecords: await allFulfilled(childrenRecords.map(record =>
+        archiveManager.getBrowsableArchive(record)
+      )),
+      isLast,
+    };
   },
 
   async downloadArchives(archives) {

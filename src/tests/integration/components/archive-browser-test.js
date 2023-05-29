@@ -264,11 +264,6 @@ async function renderComponent(testCase) {
   };
   setTestPropertyDefault(
     testCase,
-    'customFetchDirChildren',
-    notStubbed('customFetchDirChildren')
-  );
-  setTestPropertyDefault(
-    testCase,
     'resolveFileParentFun',
     () => null,
   );
@@ -295,12 +290,12 @@ async function renderComponent(testCase) {
     getEnabledColumnsFromLocalStorage() {
       this.set('columns.state.isEnabled', true);
     },
+    fetchDirChildren: testCase.get('fetchDirChildren') || notStubbed('fetchDirChildren'),
   }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   await render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel
     dir=dataset
-    customFetchDirChildren=customFetchDirChildren
     resolveFileParentFun=resolveFileParentFun
     spaceId=spaceId
     spacePrivileges=spacePrivileges
@@ -360,7 +355,7 @@ function mockItems({ testCase, itemsCount }) {
   archiveManager.fetchDatasetArchives = (datasetId, ...args) =>
     mockArray.fetchChildren(...args);
   testCase.set(
-    'customFetchDirChildren',
+    'fetchDirChildren',
     archiveManager.fetchDatasetArchives.bind(archiveManager)
   );
   return mockArray;
