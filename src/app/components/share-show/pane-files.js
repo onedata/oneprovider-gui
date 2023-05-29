@@ -227,6 +227,7 @@ export default Component.extend(...mixins, {
       ownerSource: this,
       rootIcon: 'share',
       readonlyFilesystem: true,
+      isOwnerVisible: false,
       openInfo: this.openInfoModal.bind(this),
     });
   },

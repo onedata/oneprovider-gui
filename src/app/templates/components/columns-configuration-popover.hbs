@@ -11,32 +11,30 @@
     }}
       <ul class="columns-list">
         {{#each-in browserModel.columns as |columnName columnSpec|}}
-          {{#if (or (not-eq columnName "owner") browserModel.isOwnerVisible)}}
-            <li class="column">
-              {{one-checkbox
-                inputId=(concat elementId "-" columnName "Checkbox")
-                checked=columnSpec.isEnabled
-                update=(action "checkboxChanged" columnName)
-                class=(concat-classes
-                  "filter-column-checkbox"
-                  (concat columnName "-checkbox")
-                )
-              }}
-              <label
-                for={{concat elementId "-" columnName "Checkbox"}}
-                class="column-name-label"
-              >
-                <span class="one-label checkbox-label">
-                  {{tt this columnName}}
-                </span>
-              </label>
-              {{#if (and (not columnSpec.isVisible) columnSpec.isEnabled)}}
-                {{#one-icon icon="no-view"}}
-                  {{one-tooltip title=(tt this "noViewTip")}}
-                {{/one-icon}}
-              {{/if}}
-            </li>
-          {{/if}}
+          <li class="column">
+            {{one-checkbox
+              inputId=(concat elementId "-" columnName "Checkbox")
+              checked=columnSpec.isEnabled
+              update=(action "checkboxChanged" columnName)
+              class=(concat-classes
+                "filter-column-checkbox"
+                (concat columnName "-checkbox")
+              )
+            }}
+            <label
+              for={{concat elementId "-" columnName "Checkbox"}}
+              class="column-name-label"
+            >
+              <span class="one-label checkbox-label">
+                {{tt this columnName}}
+              </span>
+            </label>
+            {{#if (and (not columnSpec.isVisible) columnSpec.isEnabled)}}
+              {{#one-icon icon="no-view"}}
+                {{one-tooltip title=(tt this "noViewTip")}}
+              {{/one-icon}}
+            {{/if}}
+          </li>
         {{/each-in}}
       </ul>
     {{/click-outside}}
