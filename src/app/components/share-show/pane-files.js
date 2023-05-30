@@ -2,43 +2,28 @@
  * Content for "files" tab for single share
  *
  * @author Jakub Liput
- * @copyright (C) 2020-2022 ACK CYFRONET AGH
+ * @copyright (C) 2020-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import EmberObject, { computed, get } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import {
-  promise,
-  bool,
-  raw,
-} from 'ember-awesome-macros';
-import { resolve, reject } from 'rsvp';
+import { promise } from 'ember-awesome-macros';
+import { resolve } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import ShareFilesystemBrowserModel, {
+  ShareRootDirClass,
+  shareRootId,
+} from 'oneprovider-gui/utils/share-filesystem-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 import globals from 'onedata-gui-common/utils/globals';
-
-const shareRootId = 'shareRoot';
-
-const ShareRootDir = EmberObject.extend({
-  id: shareRootId,
-  entityId: shareRootId,
-  type: 'dir',
-  isShareRoot: true,
-  hasParent: false,
-  parent: promise.object(raw(resolve(null))),
-  async reload() {
-    return this;
-  },
-});
 
 const mixins = [
   I18n,
@@ -100,8 +85,6 @@ export default Component.extend(...mixins, {
    * @type {Array<Models.File>}
    */
   selectedItems: undefined,
-
-  isInShareRoot: bool('dirProxy.content.isShareRoot'),
 
   initialDirProxy: promise.object(computed('share', function initialDirProxy() {
     return this.get('dirProxy');
@@ -203,7 +186,7 @@ export default Component.extend(...mixins, {
   dir: computedLastProxyContent('dirProxy'),
 
   rootDir: computed('share.{name,entityId}', function rootDir() {
-    return ShareRootDir.create({
+    return ShareRootDirClass.create({
       name: this.get('share.name'),
       shareRootId: this.get('share.entityId'),
     });
@@ -237,12 +220,16 @@ export default Component.extend(...mixins, {
   },
 
   createBrowserModel() {
-    return FilesystemBrowserModel.create({
-      ownerSource: this,
-      rootIcon: 'share',
-      readonlyFilesystem: true,
-      openInfo: this.openInfoModal.bind(this),
-    });
+    return ShareFilesystemBrowserModel
+      .extend({
+        share: reads('paneFiles.share'),
+      })
+      .create({
+        paneFiles: this,
+        ownerSource: this,
+        isOwnerVisible: false,
+        openInfo: this.openInfoModal.bind(this),
+      });
   },
 
   closeConfirmFileDownload() {
@@ -268,33 +255,7 @@ export default Component.extend(...mixins, {
     });
   },
 
-  getEmptyFetchChildrenResponse() {
-    return {
-      childrenRecords: [],
-      isLast: true,
-    };
-  },
-
   actions: {
-    fetchShareRootDirChildren(dirId, startIndex, size, offset, array) {
-      if (dirId !== shareRootId) {
-        return reject('cannot use fetchShareRootDirChildren for non-share-root');
-      }
-      if (startIndex == null) {
-        if (size <= 0 || offset < 0) {
-          return resolve(this.getEmptyFetchChildrenResponse());
-        } else {
-          return this.get('share.rootFile')
-            .then(rootFile => ({ childrenRecords: [rootFile], isLast: true }));
-        }
-      } else if (startIndex === array.get('sourceArray.lastObject.index')) {
-        return resolve(this.getEmptyFetchChildrenResponse());
-      } else {
-        return reject(
-          'component:share-show/pane-files#fetchShareRootDirChildren guard: illegal fetch children for virtual share root dir'
-        );
-      }
-    },
     updateDirId(dirId) {
       return this.get('updateDirId')(dirId === shareRootId ? null : dirId);
     },

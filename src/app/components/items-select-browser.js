@@ -160,10 +160,6 @@ export default Component.extend(...mixins, {
     changeSelectedItems(items) {
       return this.changeSelectedItems(items);
     },
-    fetchChildren(...args) {
-      const selectorModel = this.get('selectorModel');
-      return get(selectorModel, 'fetchChildren').call(selectorModel, ...args);
-    },
     resolveItemParent(item) {
       const selectorModel = this.get('selectorModel');
       const resolveItemParentFun = get(selectorModel, 'resolveItemParent');

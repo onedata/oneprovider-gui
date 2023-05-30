@@ -1240,6 +1240,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   },
 
   /**
+   * @override
+   */
+  fetchDirChildren(dirId, ...fetchArgs) {
+    return this.fileManager
+      .fetchDirChildren(dirId, this.previewMode ? 'public' : 'private', ...fetchArgs);
+  },
+
+  /**
    * In some specific file browsers, there is a need to show additional inheritable file
    * tags (called "features") that need additional data beside standard file data.
    * This method can be overridden to add additional computed properties to file (by

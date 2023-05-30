@@ -173,15 +173,6 @@ export default BaseModel.extend(I18n, {
   /**
    * @override
    */
-  async fetchChildren(dirId, startIndex, size, offset) {
-    const fileManager = this.get('fileManager');
-    return fileManager
-      .fetchDirChildren(dirId, 'private', startIndex, size, offset);
-  },
-
-  /**
-   * @override
-   */
   getValidationError() {
     const baseValidation = this._super(...arguments);
     if (baseValidation) {
