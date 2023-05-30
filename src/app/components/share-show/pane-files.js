@@ -213,6 +213,7 @@ export default Component.extend(...mixins, {
       .create({
         paneFiles: this,
         ownerSource: this,
+        isOwnerVisible: false,
         openInfo: this.openInfoModal.bind(this),
       });
   },
