@@ -10,7 +10,14 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { getProperties, computed, observer, get, defineProperty } from '@ember/object';
+import EmberObject, {
+  getProperties,
+  computed,
+  observer,
+  get,
+  defineProperty,
+  setProperties,
+} from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { dasherize } from '@ember/string';
@@ -24,22 +31,34 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
-import { scheduleOnce } from '@ember/runloop';
-import { tag, raw, conditional, eq, and, promise, bool, gt } from 'ember-awesome-macros';
+import { tag, raw, conditional, eq, and, promise, bool, gt, or } from 'ember-awesome-macros';
 import moment from 'moment';
 import globals from 'onedata-gui-common/utils/globals';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
+import _ from 'lodash';
+import isPosixError from 'oneprovider-gui/utils/is-posix-error';
+import createRenderThrottledProperty from 'onedata-gui-common/utils/create-render-throttled-property';
 
 /**
  * Contains info about column visibility: if on screen is enough space to show this column
  * and if user want to view that
- * @typedef {EmberObject} columnProperties
+ * @typedef {EmberObject} ColumnProperties
  * @property {boolean} isVisible
  * @property {boolean} isEnabled
  * @property {number} width
  */
+
+/**
+ * @typedef {'pending'|'fulfilled'|'rejected'} BrowserListLoadState
+ */
+
+const BrowserListLoadState = Object.freeze({
+  Pending: 'pending',
+  Fulfilled: 'fulfilled',
+  Rejected: 'rejected',
+});
 
 const mixins = [
   OwnerInjector,
@@ -49,6 +68,7 @@ const mixins = [
 
 export default EmberObject.extend(...mixins, {
   i18n: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -80,6 +100,12 @@ export default EmberObject.extend(...mixins, {
    * @type {Function}
    */
   onInsertElement: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  onInsertHeaderElements: notImplementedIgnore,
 
   /**
    * @virtual
@@ -238,6 +264,7 @@ export default EmberObject.extend(...mixins, {
   //#region file-browser state
 
   dir: reads('browserInstance.dir'),
+  dirError: reads('browserInstance.dirError'),
   itemsArray: reads('fbTableApi.itemsArray'),
   selectedItems: reads('browserInstance.selectedItems'),
   selectedItemsForJumpProxy: reads('browserInstance.selectedItemsForJumpProxy'),
@@ -283,13 +310,6 @@ export default EmberObject.extend(...mixins, {
   browserListPoller: null,
 
   /**
-   * State of `selectedItemsOutOfScope` property that is updated only once for single
-   * render to avoid "double render" errors. The value is controlled by an observer.
-   * @type {boolean}
-   */
-  renderableSelectedItemsOutOfScope: false,
-
-  /**
    * Time in milliseconds from Date.now.
    * @type {number}
    */
@@ -301,7 +321,7 @@ export default EmberObject.extend(...mixins, {
   hiddenColumnsCount: 0,
 
   /**
-   * @type {Object<string, columnProperties>}
+   * @type {Object<string, ColumnProperties>}
    */
   columns: undefined,
 
@@ -324,6 +344,9 @@ export default EmberObject.extend(...mixins, {
     'dir.hasParent',
     'resolveFileParentFun',
     async function isRootDirProxy() {
+      if (!this.dir) {
+        return;
+      }
       return !(await this.resolveFileParentFun(this.dir));
     }
   )),
@@ -351,33 +374,31 @@ export default EmberObject.extend(...mixins, {
   }),
 
   refreshBtnClass: computed(
-    'renderableSelectedItemsOutOfScope',
+    'browserListPoller.isPollingEnabled',
     function refreshBtnClass() {
-      return this.renderableSelectedItemsOutOfScope ?
-        'refresh-selection-warning' : '';
+      return (!this.browserListPoller?.isPollingEnabled) ?
+        'refresh-indicator-warning' : '';
     }
   ),
 
   refreshBtnTip: computed(
-    'renderableSelectedItemsOutOfScope',
-    'browserListPoller.pollInterval',
+    'selectedItemsOutOfScope',
+    'anyDataLoadError',
+    'browserListPoller.{pollInterval,isPollingEnabled}',
     'lastRefreshTime',
-    function refreshBtnClass() {
-      if (this.renderableSelectedItemsOutOfScope) {
-        let lastRefreshTimeText;
-        const nowMoment = moment.unix(Math.floor(Date.now() / 1000));
-        const lastRefreshMoment = moment.unix(Math.floor(this.lastRefreshTime / 1000));
-        const isToday =
-          moment(lastRefreshMoment).startOf('day').toString() ===
-          moment(nowMoment).startOf('day').toString();
-        if (isToday) {
-          lastRefreshTimeText = lastRefreshMoment.format('H:mm');
-        } else {
-          lastRefreshTimeText = lastRefreshMoment.format('D MMM');
-        }
-        return this.t('refreshTip.selectedDisabled', {
-          lastRefreshTime: lastRefreshTimeText,
+    function refreshBtnTip() {
+      if (this.anyDataLoadError) {
+        const errorText = this.errorExtractor
+          .getMessage(this.anyDataLoadError)?.message ?? this.t('unknownError');
+        return this.t('refreshTip.lastError', {
+          errorText,
         });
+      } else if (this.selectedItemsOutOfScope) {
+        return this.t('refreshTip.selectedDisabled', {
+          lastRefreshTime: this.createLastRefreshTimeText(),
+        });
+      } else if (!this.browserListPoller?.isPollingEnabled) {
+        return this.t('refreshTip.unknownDisabled');
       } else {
         const pollingIntervalSecs =
           Math.floor(this.browserListPoller?.pollInterval / 1000);
@@ -397,9 +418,10 @@ export default EmberObject.extend(...mixins, {
       action: () => {
         return this.refresh();
       },
+      class: tag`file-action-refresh ${'browserModelBtnClass'}`,
+      tip: undefined,
+      browserModelBtnClass: undefined,
 
-      tip: reads('context.refreshBtnTip'),
-      class: tag`file-action-refresh ${'context.refreshBtnClass'}`,
       showIn: conditional(
         'context.refreshBtnIsVisible',
         raw([
@@ -412,8 +434,96 @@ export default EmberObject.extend(...mixins, {
         ]),
         raw([]),
       ),
+
+      init() {
+        this._super(...arguments);
+        createRenderThrottledProperty(
+          this,
+          'context.refreshBtnTip',
+          'tip'
+        );
+        createRenderThrottledProperty(
+          this,
+          'context.refreshBtnClass',
+          'browserModelBtnClass'
+        );
+      },
     }));
   }),
+
+  initialLoad: reads('itemsArray.initialLoad'),
+
+  /**
+   * State of items listing. It is pending only when list is initially loaded.
+   * Refreshing can cause change state to fulfilled and rejected - it does not set
+   * state to pending when refresh is pending.
+   *
+   * - On initial load: pending -> fulfilled / rejected.
+   * - When is fulfilled and refreshing changes state to fulfilled: fulfilled.
+   * - When is rejected and refreshing changes state to rejected: rejected.
+   * @type {EmberObject}
+   */
+  listLoadState: computed('dir', () => {
+    return EmberObject.create({
+      state: BrowserListLoadState.Pending,
+      reason: undefined,
+    });
+  }),
+
+  listLoadError: conditional(
+    eq('listLoadState.state', raw('rejected')),
+    'listLoadState.reason',
+    raw(undefined),
+  ),
+
+  /**
+   * A last list refresh error is considered be "fatal" when it is unlikely that it will
+   * disappear on list refresh, so instead of informing user about refresh error using
+   * notify, the view should display error view in place of the list.
+   * @type {ComputedProperty<boolean>}
+   */
+  isLastListLoadErrorFatal: computed(
+    'listLoadError',
+    function isLastListLoadErrorFatal() {
+      const error = this.listLoadError;
+      return error && (
+        error.id === 'internalServerError' ||
+        isPosixError(error, 'enoent') ||
+        isPosixError(error, 'eacces')
+      );
+    }
+  ),
+
+  /**
+   * If this error is not empty, then items listing should not be rendered.
+   * Instead error information should be shown.
+   * @type {ComputedProperty<Object>}
+   */
+  dirViewLoadError: computed(
+    'isLastListLoadErrorFatal',
+    'listLoadError',
+    'dirError',
+    'listLoadState.{state,reason}',
+    function dirViewLoadError() {
+      if (this.isLastListLoadErrorFatal) {
+        return this.listLoadError;
+      }
+      if (this.dirError) {
+        return this.dirError;
+      }
+      if (this.listLoadState.state === BrowserListLoadState.Rejected) {
+        return this.listLoadState.reason ?? { id: 'unknown' };
+      }
+    }
+  ),
+
+  /**
+   * A last error that occurred when item data has tried to be loaded:
+   * - loading and refreshing dir info
+   * - loading and refreshing item list
+   * @type {ComputedProperty<Object>}
+   */
+  anyDataLoadError: or('dirViewLoadError', 'listLoadError'),
 
   isOnlyCurrentDirSelected: and(
     eq('selectedItems.length', raw(1)),
@@ -458,30 +568,6 @@ export default EmberObject.extend(...mixins, {
     return styles;
   }),
 
-  /**
-   * Controls value of `renderableSelectedItemsOutOfScope` to be synchronized with
-   * `selectedItemsOutOfScope` most often once a render.
-   */
-  selectedItemsOutOfScopeObserver: observer(
-    'selectedItemsOutOfScope',
-    function selectedItemsOutOfScopeObserver() {
-      scheduleOnce('afterRender', this.updateRenderableSelectedItemsOutOfScope);
-    }
-  ),
-
-  /**
-   * Create function that synchronizes value of `renderableSelectedItemsOutOfScope`
-   * property. Needed because that value changes should be throttled.
-   * @type {ComputedProperty<() => void>}
-   */
-  updateRenderableSelectedItemsOutOfScope: computed(
-    function updateRenderableSelectedItemsOutOfScope() {
-      return () => {
-        this.set('renderableSelectedItemsOutOfScope', this.selectedItemsOutOfScope);
-      };
-    }
-  ),
-
   generateAllButtonsArray: observer(
     'buttonNames.[]',
     function generateAllButtonsArray() {
@@ -497,25 +583,45 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
-  /**
-   * @override
-   */
-  onWindowResize() {
-    return this.checkColumnsVisibility();
-  },
+  listLoadStateSetter: observer(
+    'initialLoad.{isPending,isSettled}',
+    function listLoadStateSetter() {
+      const initialLoad = this.initialLoad;
+      if (!initialLoad) {
+        return;
+      }
+      if (get(initialLoad, 'isPending')) {
+        this.changeListLoadState(BrowserListLoadState.Pending);
+      } else if (get(initialLoad, 'isRejected')) {
+        this.changeListLoadState(
+          BrowserListLoadState.Rejected,
+          get(initialLoad, 'reason')
+        );
+      } else if (get(initialLoad, 'isFulfilled')) {
+        this.changeListLoadState(BrowserListLoadState.Fulfilled);
+      }
+    }
+  ),
+
+  columnsVisibilityAutoChecker: observer(
+    'listLoadState.state',
+    'dirLoadError',
+    'hasEmptyDirClass',
+    function columnsVisibilityAutoChecker() {
+      this.checkColumnsVisibility();
+    },
+  ),
 
   init() {
     this._super(...arguments);
+    this.set('lastRefreshTime', Date.now());
+
+    this.listLoadStateSetter();
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
     this.attachWindowResizeHandler();
     this.getEnabledColumnsFromLocalStorage();
     this.checkColumnsVisibility();
-
-    this.set('lastRefreshTime', Date.now());
-
-    // activate observers
-    this.selectedItemsOutOfScope;
   },
 
   /**
@@ -530,8 +636,37 @@ export default EmberObject.extend(...mixins, {
     }
   },
 
+  /**
+   * @override
+   */
+  onWindowResize() {
+    return this.checkColumnsVisibility();
+  },
+
   changeDir(dir) {
     return this.browserInstance.changeDir(dir);
+  },
+
+  navigateToRoot() {
+    return this.browserInstance.updateDirEntityId(null);
+  },
+
+  /**
+   * @param {BrowserListLoadState} state
+   * @param {any} [reason] Error reason only when state is rejected.
+   */
+  changeListLoadState(state, reason) {
+    if (state === BrowserListLoadState.Rejected) {
+      setProperties(this.listLoadState, {
+        state,
+        reason,
+      });
+    } else if (this.listLoadState.state !== state) {
+      setProperties(this.listLoadState, {
+        state,
+        reason: undefined,
+      });
+    }
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
@@ -608,11 +743,33 @@ export default EmberObject.extend(...mixins, {
       );
     }
     try {
-      return fbTableApi.refresh(!silent);
-    } catch (error) {
-      if (!silent) {
-        globalNotify.backendError(this.t('refreshing'), error);
+      const refreshResult = await fbTableApi.refresh(!silent);
+      if (this.listLoadError) {
+        this.changeListLoadState(BrowserListLoadState.Fulfilled);
       }
+      return refreshResult;
+    } catch (error) {
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
+
+      this.changeListLoadState(BrowserListLoadState.Rejected, error);
+
+      // notification is not shown when the error is fatal, because then it is displayed
+      // as content of browser
+      if (!silent && !this.isLastListLoadErrorFatal) {
+        let errorText = String(
+          this.errorExtractor.getMessage(error)?.message ?? this.t('unknownError')
+        );
+        if (errorText?.endsWith('.')) {
+          errorText = errorText.slice(0, errorText.length - 1);
+        }
+        errorText = _.lowerFirst(errorText);
+        globalNotify.warning(this.t('refreshingFailed', {
+          errorText,
+        }));
+      }
+
       throw error;
     }
   },
@@ -739,5 +896,20 @@ export default EmberObject.extend(...mixins, {
         );
       }
     }
+  },
+
+  createLastRefreshTimeText() {
+    let lastRefreshTimeText;
+    const nowMoment = moment.unix(Math.floor(Date.now() / 1000));
+    const lastRefreshMoment = moment.unix(Math.floor(this.lastRefreshTime / 1000));
+    const isToday =
+      moment(lastRefreshMoment).startOf('day').toString() ===
+      moment(nowMoment).startOf('day').toString();
+    if (isToday) {
+      lastRefreshTimeText = lastRefreshMoment.format('H:mm');
+    } else {
+      lastRefreshTimeText = lastRefreshMoment.format('D MMM');
+    }
+    return lastRefreshTimeText;
   },
 });

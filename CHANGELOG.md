@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9052 Improved directory load error handling in file browser (eg. no such directory)
 * VFS-10940 Fixed showing owner column in mobile mode in file browser
 * VFS-10824 Fixed file browser crash when entering share root dir using breadcrumbs
 * VFS-9679 Improved initial tab selection in transfers and automation

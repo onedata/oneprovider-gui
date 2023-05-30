@@ -134,13 +134,14 @@ export default FilesystemBrowserModel.extend({
    * @override
    */
   refreshBtnClass: computed(
-    'renderableSelectedItemsOutOfScope',
     'isFilesystemLive',
+    // inherited
+    'browserListPoller.isPollingEnabled',
     function refreshBtnClass() {
       if (this.isFilesystemLive) {
-        return this.renderableSelectedItemsOutOfScope ? 'refresh-selection-warning' : '';
+        return this._super(...arguments);
       } else {
-        return 'refresh-selection-info';
+        return 'refresh-indicator-info';
       }
     }
   ),
@@ -152,7 +153,8 @@ export default FilesystemBrowserModel.extend({
     'isFilesystemLive',
     // inherited dependencies
     'renderableSelectedItemsOutOfScope',
-    'browserListPoller.pollInterval',
+    'renderableDirLoadError',
+    'browserListPoller.{pollInterval,isPollingEnabled}',
     'lastRefreshTime',
     function refreshBtnTip() {
       if (this.isFilesystemLive) {

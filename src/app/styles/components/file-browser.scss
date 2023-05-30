@@ -123,24 +123,19 @@
         right: 0;
         bottom: 0;
         border-radius: 100%;
-        background-color: $color-one-success;
+        background-color: var(--refresh-action-indicator-color, $color-one-success);
         height: 10px;
         width: 10px;
       }
     }
-    &.refresh-selection-warning {
-      > .one-icon {
-        &::after {
-          background-color: $color-one-warning;
-        }
-      }
+    &.refresh-indicator-info {
+      --refresh-action-indicator-color: #{$color-one-azure};
     }
-    &.refresh-selection-info {
-      > .one-icon {
-        &::after {
-          background-color: $color-one-azure;
-        }
-      }
+    &.refresh-indicator-warning {
+      --refresh-action-indicator-color: #{$color-one-warning};
+    }
+    &.refresh-indicator-danger {
+      --refresh-action-indicator-color: #{$color-one-danger};
     }
   }
 }

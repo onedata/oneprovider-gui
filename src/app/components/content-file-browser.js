@@ -128,13 +128,19 @@ export default OneEmbeddedComponent.extend(
         } = this.getProperties('selected', 'fileManager', 'dirProxy');
         if (selected) {
           try {
-            const files = await onlyFulfilledValues(selected.map(id =>
-              fileManager.getFileById(id)
-            ));
-            const dir = await dirProxy;
+            let dir;
+            try {
+              dir = await dirProxy;
+            } catch {
+              // allow dirProxy to fail - eg. when entering non-existing directory
+              return [];
+            }
             if (!dir) {
               return [];
             }
+            const files = await onlyFulfilledValues(selected.map(id =>
+              fileManager.getFileById(id)
+            ));
 
             const validFiles = await files.filter(file => {
               const fileId = file && file.relationEntityId('parent');
@@ -148,7 +154,7 @@ export default OneEmbeddedComponent.extend(
             return validFiles;
           } catch (error) {
             console.error(
-              `component:content-file-browser#selectedItemsForJumpProxy: error loading selected files: ${error}`
+              `component:content-file-browser#selectedItemsForJumpProxy: error loading selected files: ${JSON.stringify(error)}`
             );
           }
         }
@@ -183,9 +189,23 @@ export default OneEmbeddedComponent.extend(
      * NOTE: observing only space, because it should reload initial dir after whole space change
      * @type {PromiseObject<Models.File>}
      */
-    initialDirProxy: promise.object(computed('spaceProxy', function initialDirProxy() {
-      return this.get('dirProxy');
+    initialDirProxy: promise.object(computed('spaceProxy', async function initialDirProxy() {
+      return this.dirProxy;
     })),
+
+    /**
+     * Always resolved when `initialDirProxy` settles (no matter if it resolves of rejects).
+     */
+    initialDirLoadingProxy: promise.object(computed(
+      'initialDirProxy',
+      async function initialDirLoadingProxy() {
+        try {
+          return await this.dirProxy;
+        } catch {
+          return null;
+        }
+      }
+    )),
 
     /**
      * @type {ComputedProperty<PromiseObject>}
@@ -195,7 +215,7 @@ export default OneEmbeddedComponent.extend(
     initialRequiredDataProxy: promise.object(promise.all(
       'spaceProxy',
       'initialSelectedItemsForJumpProxy',
-      'initialDirProxy',
+      'initialDirLoadingProxy',
       'bagitUploaderLoaderProxy',
       'dirStatsServiceStateProxy'
     )),
@@ -260,7 +280,9 @@ export default OneEmbeddedComponent.extend(
       }
     )),
 
-    dir: computedLastProxyContent('dirProxy'),
+    dir: computedLastProxyContent('dirProxy', { nullOnReject: true }),
+
+    dirError: reads('dirProxy.reason'),
 
     spaceObserver: observer('spaceProxy.content', function spaceObserver() {
       this.get('uploadManager').changeTargetSpace(this.get('spaceProxy.content'));

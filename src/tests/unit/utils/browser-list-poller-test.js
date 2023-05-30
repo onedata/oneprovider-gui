@@ -75,10 +75,10 @@ describe('Unit | Utility | browser-list-poller', function () {
 
   it('invokes silent refresh on browserModel in intervals if browserModel has polling enabled', async function () {
     const pollInterval = 1000;
-    const browserModelMock = {
+    const browserModelMock = createBrowserModel({
       isListPollingEnabled: true,
       refresh: sinon.spy(),
-    };
+    });
     this.browserListPoller = BrowserListPoller
       .create({
         pollInterval,
@@ -103,6 +103,7 @@ describe('Unit | Utility | browser-list-poller', function () {
 function createBrowserModel(data) {
   return {
     async refresh() {},
+    dir: {},
     selectedItemsOutOfScope: false,
     ...data,
   };

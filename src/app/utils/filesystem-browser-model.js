@@ -21,7 +21,7 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
-import { array, raw, and, not } from 'ember-awesome-macros';
+import { array, raw, and, not, conditional } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
@@ -37,7 +37,7 @@ export const commonActionIcons = Object.freeze({
   distribution: 'browser-distribution',
 });
 
-const buttonNames = Object.freeze([
+const availableButtonNames = Object.freeze([
   'btnBagitUpload',
   'btnUpload',
   'btnNewDirectory',
@@ -208,6 +208,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
+  dirLoadErrorComponentName: 'filesystem-browser/dir-load-error',
+
+  /**
+   * @override
+   */
   browserClass: array.join(
     array.concat(
       raw(['filesystem-browser']),
@@ -219,7 +224,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  buttonNames,
+  buttonNames: conditional(
+    'isLastListLoadErrorFatal',
+    raw(['btnRefresh']),
+    availableButtonNames,
+  ),
 
   /**
    * @override
@@ -1054,13 +1063,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   }),
 
-  uploadBrowseElement: computed('element', function uploadBrowseElement() {
-    const element = this.get('element');
-    if (element) {
-      return element.querySelector('.fb-upload-trigger');
-    }
-  }),
-
   onTagHoverChange: computed(function onTagHoverChange() {
     return this.changeTagHover.bind(this);
   }),
@@ -1157,16 +1159,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       readonlyFilesystem,
       uploadManager,
       uploadDropElement,
-      uploadBrowseElement,
       dir,
     } = this.getProperties(
       'readonlyFilesystem',
       'uploadManager',
       'uploadDropElement',
-      'uploadBrowseElement',
       'dir'
     );
-
     if (!readonlyFilesystem) {
       // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
       // if using selector inside filesystem browser
@@ -1177,16 +1176,25 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           'util:filesystem-browser-model#onInsertElement: uploadDropElement not found, upload using files drag&drop will not work'
         );
       }
-      if (uploadBrowseElement) {
-        uploadManager.assignUploadBrowse(uploadBrowseElement);
-      } else {
-        console.debug(
-          'util:filesystem-browser-model#onInsertElement: uploadBrowseElement not found, upload using button will not work'
-        );
-      }
     }
-
     uploadManager.changeTargetDirectory(dir);
+  },
+
+  /**
+   * @override
+   */
+  onInsertHeaderElements() {
+    if (this.readonlyFilesystem) {
+      return;
+    }
+    const uploadBrowseElement = this.getUploadBrowseElement();
+    if (uploadBrowseElement) {
+      this.uploadManager.assignUploadBrowse(uploadBrowseElement);
+    } else {
+      console.debug(
+        'onInsertHeaderElements: uploadBrowseElement not found, upload using button will not work'
+      );
+    }
   },
 
   /**
@@ -1254,6 +1262,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   featurizeItem(item) {
     return item;
+  },
+
+  getUploadBrowseElement() {
+    return this.element?.querySelector('.fb-upload-trigger');
   },
 
   /**

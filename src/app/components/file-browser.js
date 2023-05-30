@@ -24,6 +24,7 @@ import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
 import dom from 'onedata-gui-common/utils/dom';
 import globals from 'onedata-gui-common/utils/globals';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 const defaultIsItemDisabled = () => false;
 
@@ -99,12 +100,19 @@ export default Component.extend(I18n, {
   browserModel: undefined,
 
   /**
-   * @virtual
-   * File model with dir type. It is the currently displayed directory.
+   * Browsable item with dir type. It is the currently displayed directory (container).
    * Can be replaced internally with `changeDir` action.
-   * @type {Models/File}
+   * Eg. a `Models.File` object with `dir` type.
+   * @virtual
+   * @type {any}
    */
   dir: undefined,
+
+  /**
+   * @virtual
+   * @type {Object}
+   */
+  dirError: undefined,
 
   /**
    * @virtual
@@ -792,6 +800,10 @@ export default Component.extend(I18n, {
       'browserModel',
       'loadingIconFileIds',
     );
+    if (!dir) {
+      console.error('changeDir: dir is not provided');
+      return;
+    }
     const dirId = get(dir, 'entityId');
     loadingIconFileIds.pushObject(dirId);
     try {
@@ -800,7 +812,9 @@ export default Component.extend(I18n, {
         containerScrollTop(0);
       });
     } finally {
-      removeObjectsFirstOccurence(loadingIconFileIds, [dirId]);
+      if (dirId) {
+        removeObjectsFirstOccurence(loadingIconFileIds, [dirId]);
+      }
     }
   },
 
@@ -842,6 +856,12 @@ export default Component.extend(I18n, {
     },
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);
+    },
+    onInsertHeaderElements() {
+      (async () => {
+        await waitForRender();
+        this.browserModel.onInsertHeaderElements?.();
+      })();
     },
   },
 });
