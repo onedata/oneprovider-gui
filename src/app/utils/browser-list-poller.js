@@ -8,7 +8,6 @@
  */
 
 import EmberObject from '@ember/object';
-import { reads } from '@ember/object/computed';
 import Looper from 'onedata-gui-common/utils/looper';
 import { conditional, raw, and, not } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';

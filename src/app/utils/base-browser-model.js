@@ -451,10 +451,7 @@ export default EmberObject.extend(...mixins, {
     }));
   }),
 
-  // NOTE: not using reads as a workaround to bug in Ember 2.18
-  initialLoad: computed('itemsArray.initialLoad', function initialLoad() {
-    return this.get('itemsArray.initialLoad');
-  }),
+  initialLoad: reads('itemsArray.initialLoad'),
 
   /**
    * State of items listing. It is pending only when list is initially loaded.
@@ -503,18 +500,20 @@ export default EmberObject.extend(...mixins, {
    * @type {ComputedProperty<Object>}
    */
   dirViewLoadError: computed(
-    'listLoadState.state',
-    'dirError',
     'isLastListLoadErrorFatal',
     'listLoadError',
+    'dirError',
+    'listLoadState.{state,reason}',
     function dirViewLoadError() {
-      return (this.isLastListLoadErrorFatal && this.listLoadError) ||
-        this.dirError ||
-        (
-          this.listLoadState.state === BrowserListLoadState.Rejected &&
-          (this.listLoadState.reason ?? { id: 'unknown' })
-        ) ||
-        undefined;
+      if (this.isLastListLoadErrorFatal) {
+        return this.listLoadError;
+      }
+      if (this.dirError) {
+        return this.dirError;
+      }
+      if (this.listLoadState.state === BrowserListLoadState.Rejected) {
+        return this.listLoadState.reason ?? { id: 'unknown' };
+      }
     }
   ),
 
@@ -657,7 +656,7 @@ export default EmberObject.extend(...mixins, {
    * @param {any} [reason] Error reason only when state is rejected.
    */
   changeListLoadState(state, reason) {
-    if (state === 'rejected') {
+    if (state === BrowserListLoadState.Rejected) {
       setProperties(this.listLoadState, {
         state,
         reason,
