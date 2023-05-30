@@ -39,7 +39,7 @@ import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
 import _ from 'lodash';
 import isPosixError from 'oneprovider-gui/utils/is-posix-error';
-import createRenderableProperty from 'onedata-gui-common/utils/create-renderable-property';
+import createRenderThrottledProperty from 'onedata-gui-common/utils/create-render-throttled-property';
 
 /**
  * Contains info about column visibility: if on screen is enough space to show this column
@@ -437,12 +437,12 @@ export default EmberObject.extend(...mixins, {
 
       init() {
         this._super(...arguments);
-        createRenderableProperty(
+        createRenderThrottledProperty(
           this,
           'context.refreshBtnTip',
           'tip'
         );
-        createRenderableProperty(
+        createRenderThrottledProperty(
           this,
           'context.refreshBtnClass',
           'browserModelBtnClass'
