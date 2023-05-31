@@ -25,7 +25,6 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
             config: {
               itemDataSpec: {
                 type: 'number',
-                valueConstraints: {},
               },
             },
             requiresInitialContent: true,
@@ -46,7 +45,6 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
             config: {
               itemDataSpec: {
                 type: 'string',
-                valueConstraints: {},
               },
             },
             requiresInitialContent: true,

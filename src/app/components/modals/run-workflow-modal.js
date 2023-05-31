@@ -164,8 +164,6 @@ function filesToMinimumDataSpec(files) {
   }
   return {
     type: 'file',
-    valueConstraints: {
-      fileType,
-    },
+    fileType,
   };
 }
