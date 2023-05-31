@@ -7,14 +7,14 @@
  */
 
 import BaseModel from './base-model';
-import { computed, get } from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import SelectorDatasetBrowserModel from 'oneprovider-gui/utils/selector-dataset-browser-model';
 import { promise, equal, raw, conditional } from 'ember-awesome-macros';
 import {
   spaceDatasetsRootId,
   SpaceDatasetsRootClass,
-} from 'oneprovider-gui/components/content-space-datasets';
+} from 'oneprovider-gui/utils/dataset-browser-model';
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -41,6 +41,7 @@ export default BaseModel.extend(I18n, {
     return SelectorDatasetBrowserModel.create({
       ownerSource: this,
       onSubmitSingleItem: this.get('onSubmitSingleItem'),
+      spaceDatasetsViewState: this.spaceDatasetsViewState,
     });
   }),
 
@@ -97,6 +98,16 @@ export default BaseModel.extend(I18n, {
     computedT('dataset.multi')
   ),
 
+  spaceDatasetsViewState: computed(function spaceDatasetsViewState() {
+    return EmberObject
+      .extend({
+        attachmentState: reads('datasetSelectorModel.attachmentState'),
+      })
+      .create({
+        datasetSelectorModel: this,
+      });
+  }),
+
   // TODO: VFS-7643 properties like this could be placed in dataset-browser-model after
   // refactor (moving custom browser methods to browser models)
   spaceDatasetsRoot: computed(
@@ -116,11 +127,6 @@ export default BaseModel.extend(I18n, {
 
   spaceId: reads('space.entityId'),
 
-  isInRoot: computed('dirId', function isInRoot() {
-    const dirId = this.get('dirId');
-    return !dirId || dirId === spaceDatasetsRootId;
-  }),
-
   // TODO: VFS-7643 methods like this could be placed in dataset-browser-model after
   // refactor(moving custom browser methods to browser models)
   /**
@@ -133,78 +139,6 @@ export default BaseModel.extend(I18n, {
       return this.get('spaceDatasetsRoot');
     } else {
       return get(item, 'parent');
-    }
-  },
-
-  // TODO: VFS-7643 methods like this could be placed in dataset-browser-model after
-  // refactor(moving custom browser methods to browser models)
-  /**
-   * @override
-   */
-  async fetchChildren(...fetchArgs) {
-    const isInRoot = this.get('isInRoot');
-    if (isInRoot) {
-      return this.fetchSpaceDatasets(...fetchArgs);
-    } else {
-      return this.fetchDatasetChildren(...fetchArgs);
-    }
-  },
-
-  // TODO: VFS-7643 methods like this could be placed in dataset-browser-model after
-  // refactor(moving custom browser methods to browser models)
-  async fetchDatasetChildren(datasetId, startIndex, size, offset) {
-    const {
-      datasetManager,
-      attachmentState,
-    } = this.getProperties(
-      'datasetManager',
-      'attachmentState',
-    );
-    return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
-      parentType: 'dataset',
-      parentId: datasetId,
-      state: attachmentState,
-      index: startIndex,
-      limit: size,
-      offset,
-    }));
-  },
-
-  // TODO: VFS-7643 methods like this could be placed in dataset-browser-model after
-  // refactor(moving custom browser methods to browser models)
-  async fetchSpaceDatasets(rootId, startIndex, size, offset, array) {
-    if (rootId !== spaceDatasetsRootId) {
-      throw new Error(
-        'util:items-select-browser/dataset-model#fetchSpaceDatasets: cannot use fetchRootChildren for non-root'
-      );
-    }
-    const {
-      datasetManager,
-      spaceId,
-      attachmentState,
-    } = this.getProperties(
-      'datasetManager',
-      'spaceId',
-      'attachmentState'
-    );
-    if (startIndex == null) {
-      if (size <= 0 || offset < 0) {
-        return this.getEmptyFetchChildrenResponse();
-      } else {
-        return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
-          parentType: 'space',
-          parentId: spaceId,
-          state: attachmentState,
-          limit: size,
-          offset,
-        }));
-      }
-    } else if (startIndex === array.get('sourceArray.lastObject.index')) {
-      return this.getEmptyFetchChildrenResponse();
-    } else {
-      throw new Error(
-        'util:items-select-browser/dataset-model#fetchSpaceDatasets: illegal fetch arguments for virtual root dir'
-      );
     }
   },
 

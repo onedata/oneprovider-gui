@@ -1,9 +1,4 @@
 .tooltip-items {
-  &.huge-content {
-    .tooltip-inner {
-      max-width: calc(100vw - 60px);
-    }
-  }
   &.item-tooltip-ul-overflows {
     .more-container {
       position: absolute;
@@ -21,10 +16,13 @@
   .tooltip-inner {
     overflow: hidden;
     position: relative;
-    max-width: calc(100vw - 200px);
+    max-width: 500px;
     max-height: 50vh;
   }
   .more-container {
     display: none;
+  }
+  @media (max-width: 550px) {
+    max-width: calc(100vw - 70px);
   }
 }

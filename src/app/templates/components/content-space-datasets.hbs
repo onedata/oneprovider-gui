@@ -10,7 +10,7 @@
       {{file-browser
         browserModel=browserModel
         dir=browsableDataset
-        customFetchDirChildren=(action "fetchChildren")
+        dirError=browsableDatasetProxy.reason
         resolveFileParentFun=(action "resolveItemParent")
         space=space
         selectedItems=selectedItems

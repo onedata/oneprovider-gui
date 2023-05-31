@@ -26,7 +26,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
-import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
+import { equal, and, not, or, raw, bool, eq } from 'ember-awesome-macros';
 import { all as allFulfilled, allSettled } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -65,12 +65,6 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbTable',
-
-  /**
-   * @virtual
-   * @type {models/File}
-   */
-  dir: undefined,
 
   /**
    * @virtual
@@ -149,13 +143,6 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   containerScrollTop: notImplementedIgnore,
-
-  /**
-   * @virtual optional
-   * If defined replace `fetchDirChildren` with this function
-   * @type {Function}
-   */
-  customFetchDirChildren: undefined,
 
   /**
    * @virtual
@@ -269,6 +256,10 @@ export default Component.extend(I18n, {
 
   headStatusBarComponentName: reads('browserModel.headStatusBarComponentName'),
 
+  dir: reads('browserModel.dir'),
+
+  dirError: reads('browserModel.dirError'),
+
   /**
    * If true, files table will not jump to changed `itemsForJump` if these items are
    * already selected.
@@ -318,10 +309,7 @@ export default Component.extend(I18n, {
     return test;
   }),
 
-  // NOTE: not using reads as a workaround to bug in Ember 2.18
-  initialLoad: computed('filesArray.initialLoad', function initialLoad() {
-    return this.get('filesArray.initialLoad');
-  }),
+  listLoadState: reads('browserModel.listLoadState'),
 
   /**
    * True if there is initially loaded file list, but it is empty.
@@ -329,7 +317,10 @@ export default Component.extend(I18n, {
    * the list was not yet loaded or cannot be loaded.
    * @type {boolean|undefined}
    */
-  isDirEmpty: and('initialLoad.isFulfilled', not('filesArray.length')),
+  isDirEmpty: and(
+    eq('listLoadState.state', raw('fulfilled')),
+    not('filesArray.length')
+  ),
 
   /**
    * If true, the `empty-dir` class should be added
@@ -347,18 +338,7 @@ export default Component.extend(I18n, {
 
   specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
 
-  /**
-   * @type {ComputedProperty<object>}
-   */
-  dirLoadError: computed(
-    'initialLoad.{isRejected,reason}',
-    function dirLoadError() {
-      const initialLoad = this.get('initialLoad');
-      if (get(initialLoad, 'isRejected')) {
-        return get(initialLoad, 'reason');
-      }
-    }
-  ),
+  dirLoadError: reads('browserModel.dirViewLoadError'),
 
   isHardlinkingPossible: computed(
     'fileClipboardFiles.@each.type',
@@ -535,19 +515,17 @@ export default Component.extend(I18n, {
     }
   ),
 
-  fetchDirChildren: computed('customFetchDirChildren', function fetchDirChildren() {
-    const fetchFun = this.get('customFetchDirChildren') ||
-      this._fetchDirChildren.bind(this);
+  fetchDirChildren: computed(function fetchDirChildren() {
     return async (entityId, ...args) => {
-      const dir = this.get('dir');
+      const dirId = get(this.dir, 'entityId');
       // it shows empty directory for a while
-      if (get(dir, 'entityId') !== entityId) {
+      if (dirId !== entityId) {
         // due to incomplete async implementation in fb-table, sometimes it can ask for
         // children of dir that is not currently opened
         return { childrenRecords: [], isLast: true };
       }
-      const effEntityId = get(dir, 'effFile.entityId') || get(dir, 'entityId');
-      return fetchFun(effEntityId, ...args);
+      const effEntityId = get(this.dir, 'effFile.entityId') || dirId;
+      return this.browserModel.fetchDirChildren(effEntityId, ...args);
     };
   }),
 
@@ -835,24 +813,23 @@ export default Component.extend(I18n, {
     }
     this.browserModel.onTableWillRefresh();
     if (!animated) {
-      return this.refreshFileList();
+      return await this.refreshFileList();
     }
     this.set('renderRefreshSpinner', true);
     // wait for refresh spinner to render because it needs parent class to transition
-    scheduleOnce('afterRender', async () => {
-      safeExec(this, 'set', 'refreshStarted', true);
-      try {
-        await sleep(fadeTime);
-        return await this.refreshFileList();
-      } finally {
-        safeExec(this, 'set', 'refreshStarted', false);
-        later(() => {
-          if (!this.refreshStarted) {
-            safeExec(this, 'set', 'renderRefreshSpinner', false);
-          }
-        }, fadeTime);
-      }
-    });
+    await waitForRender();
+    safeExec(this, 'set', 'refreshStarted', true);
+    try {
+      await sleep(fadeTime);
+      return await this.refreshFileList();
+    } finally {
+      safeExec(this, 'set', 'refreshStarted', false);
+      later(() => {
+        if (!this.refreshStarted) {
+          safeExec(this, 'set', 'renderRefreshSpinner', false);
+        }
+      }, fadeTime);
+    }
   },
 
   /**
@@ -940,7 +917,7 @@ export default Component.extend(I18n, {
     if (browserModelRefreshPromise) {
       promises.push(browserModelRefreshPromise);
     }
-    await allFulfilled(promises);
+    return await allFulfilled(promises);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
@@ -1049,16 +1026,6 @@ export default Component.extend(I18n, {
       (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
       '.table-start-row',
     );
-  },
-
-  // TODO: VFS-7643 this is specific to filesystem-browser - move to model after refactor
-  _fetchDirChildren(dirId, ...fetchArgs) {
-    const {
-      fileManager,
-      previewMode,
-    } = this.getProperties('fileManager', 'previewMode');
-    return fileManager
-      .fetchDirChildren(dirId, previewMode ? 'public' : 'private', ...fetchArgs);
   },
 
   clearFilesSelection() {

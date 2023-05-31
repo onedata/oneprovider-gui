@@ -2,13 +2,13 @@
  * Container for browsing and managing datasets.
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2022 ACK CYFRONET AGH
+ * @copyright (C) 2021-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
-import EmberObject, { computed, get, observer } from '@ember/object';
+import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -25,10 +25,12 @@ import {
   collect,
   not,
 } from 'ember-awesome-macros';
-import { resolve, all as allFulfilled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
-import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
-import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
+import DatasetBrowserModel, {
+  spaceDatasetsRootId,
+  SpaceDatasetsRootClass,
+} from 'oneprovider-gui/utils/dataset-browser-model';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import { isEmpty } from '@ember/utils';
@@ -37,39 +39,6 @@ import _ from 'lodash';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
-
-export const spaceDatasetsRootId = 'spaceDatasetsRoot';
-
-export const SpaceDatasetsRootBaseClass = EmberObject.extend({
-  // dataset-like properties
-  id: spaceDatasetsRootId,
-  entityId: spaceDatasetsRootId,
-  parent: promise.object(raw(resolve(null))),
-  hasParent: false,
-  protectionFlags: Object.freeze([]),
-  rootFile: promise.object(raw(resolve(null))),
-  rootFilePath: '/',
-  rootFileType: 'dir',
-
-  // special properties
-  isDatasetsRoot: true,
-
-  // virtual properties
-  name: undefined,
-  state: undefined,
-
-  // dataset-like methods
-  relationEntityId( /*relation*/ ) {
-    return null;
-  },
-  async reload() {
-    return this;
-  },
-});
-
-export const SpaceDatasetsRootClass = BrowsableDataset.extend({
-  content: SpaceDatasetsRootBaseClass.create(),
-});
 
 const mixins = [
   I18n,
@@ -728,63 +697,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     });
   },
 
-  async fetchSpaceDatasets(rootId, startIndex, size, offset /**, array */ ) {
-    if (rootId !== spaceDatasetsRootId) {
-      throw new Error(
-        'component:content-space-datasets#fetchRootChildren: cannot use fetchRootChildren for non-root'
-      );
-    }
-    const {
-      datasetManager,
-      spaceId,
-      attachmentState,
-    } = this.getProperties(
-      'datasetManager',
-      'spaceId',
-      'attachmentState'
-    );
-    if (size <= 0) {
-      return this.getEmptyFetchChildrenResponse();
-    } else {
-      return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
-        parentType: 'space',
-        parentId: spaceId,
-        state: attachmentState,
-        index: startIndex,
-        limit: size,
-        offset,
-      }));
-    }
-  },
-
-  async fetchDatasetChildren(datasetId, startIndex, size, offset) {
-    const {
-      datasetManager,
-      attachmentState,
-    } = this.getProperties(
-      'datasetManager',
-      'attachmentState',
-    );
-    return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
-      parentType: 'dataset',
-      parentId: datasetId,
-      state: attachmentState,
-      index: startIndex,
-      limit: size,
-      offset,
-    }));
-  },
-
-  async browserizeDatasets({ childrenRecords, isLast }) {
-    const datasetManager = this.get('datasetManager');
-    return {
-      childrenRecords: await allFulfilled(childrenRecords.map(r =>
-        datasetManager.getBrowsableDataset(r)
-      )),
-      isLast,
-    };
-  },
-
   /**
    * @param {Utils.BrowsableDataset} dataset
    * @param {Models.File} file root file of selected dataset
@@ -933,25 +845,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       } else {
         // regular dataset
         return get(item, 'parent');
-      }
-    },
-    async fetchChildren(...fetchArgs) {
-      const {
-        isInRoot,
-        browsableDatasetProxy,
-      } = this.getProperties(
-        'isInRoot',
-        'browsableDatasetProxy',
-      );
-      // a workaround for fb-table trying to get children when it have not-updated "dir"
-      if (!get(browsableDatasetProxy, 'isSettled')) {
-        return this.getEmptyFetchChildrenResponse();
-      }
-
-      if (isInRoot) {
-        return this.fetchSpaceDatasets(...fetchArgs);
-      } else {
-        return this.fetchDatasetChildren(...fetchArgs);
       }
     },
   },

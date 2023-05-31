@@ -16,8 +16,9 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 const basicTabs = Object.freeze(['waiting', 'ongoing', 'ended']);
+const prioritisedBasicTabs = Object.freeze(['ongoing', 'waiting', 'ended']);
 const allTabs = [].concat('file', basicTabs);
-const defaultTab = basicTabs[0];
+const defaultTab = prioritisedBasicTabs[0];
 
 export default Component.extend(I18n, {
   classNames: ['tables-container'],
@@ -199,37 +200,25 @@ export default Component.extend(I18n, {
     this.set('tabJustChangedId', tab);
   }),
 
-  findNonEmptyCollection() {
-    const {
-      transferManager,
-      space,
-    } = this.getProperties('transferManager', 'space');
-    return transferManager.getTransfersForSpace(space, 'waiting', null, 1, 0)
-      .then(result => {
-        if (get(result, 'length') > 0) {
-          return 'waiting';
-        } else {
-          return transferManager.getTransfersForSpace(space, 'ongoing', null, 1, 0);
+  async findNonEmptyCollection() {
+    try {
+      for (const collectionName of prioritisedBasicTabs) {
+        const collectionTransfers = await this.transferManager.getTransfersForSpace(
+          this.space,
+          collectionName,
+          null,
+          1,
+          0,
+        );
+        if (collectionTransfers.length) {
+          return collectionName;
         }
-      })
-      .then(result => {
-        if (typeof result === 'string') {
-          return result;
-        } else if (get(result, 'length') > 0) {
-          return 'ongoing';
-        } else {
-          return transferManager.getTransfersForSpace(space, 'ended', null, 1, 0);
-        }
-      })
-      .then(result => {
-        if (typeof result === 'string') {
-          return result;
-        } else if (get(result, 'length') > 0) {
-          return 'ended';
-        } else {
-          return 'waiting';
-        }
-      });
+      }
+      return defaultTab;
+    } catch (error) {
+      console.error('Cannot fetch transfers due to error:', error);
+      return defaultTab;
+    }
   },
 
   init() {
