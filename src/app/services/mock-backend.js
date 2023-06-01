@@ -1365,7 +1365,6 @@ export default Service.extend({
                 config: {
                   itemDataSpec: {
                     type: 'number',
-                    valueConstraints: {},
                   },
                 },
                 requiresInitialContent: true,
@@ -1377,9 +1376,7 @@ export default Service.extend({
                 config: {
                   itemDataSpec: {
                     type: 'file',
-                    valueConstraints: {
-                      fileType: 'ANY',
-                    },
+                    fileType: 'ANY',
                   },
                 },
                 requiresInitialContent: true,

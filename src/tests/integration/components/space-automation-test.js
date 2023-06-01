@@ -32,7 +32,6 @@ describe('Integration | Component | space-automation', function () {
             config: {
               itemDataSpec: {
                 type: 'number',
-                valueConstraints: {},
               },
             },
             requiresInitialContent: true,

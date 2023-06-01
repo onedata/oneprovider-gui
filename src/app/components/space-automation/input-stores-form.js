@@ -511,9 +511,7 @@ function hasUseSelectionInputMethod(inputStore, localStorageData) {
 
   const dataSpecInArray = {
     type: AtmDataSpecType.Array,
-    valueConstraints: {
-      itemDataSpec: dataSpec,
-    },
+    itemDataSpec: dataSpec,
   };
 
   const defaultValueAtmDataSpecFilters = [{

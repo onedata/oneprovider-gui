@@ -28,7 +28,6 @@ describe('Integration | Component | space-automation/input-stores-form', functio
               config: {
                 itemDataSpec: {
                   type: 'number',
-                  valueConstraints: {},
                 },
               },
               defaultInitialContent: 10,
@@ -41,7 +40,6 @@ describe('Integration | Component | space-automation/input-stores-form', functio
               config: {
                 itemDataSpec: {
                   type: 'string',
-                  valueConstraints: {},
                 },
               },
               requiresInitialContent: true,
@@ -53,7 +51,6 @@ describe('Integration | Component | space-automation/input-stores-form', functio
               config: {
                 itemDataSpec: {
                   type: 'string',
-                  valueConstraints: {},
                 },
               },
               requiresInitialContent: false,
