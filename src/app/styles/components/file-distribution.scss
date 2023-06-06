@@ -96,6 +96,25 @@
         font-size: 130%;
         opacity: 0.4;
       }
+
+      .storage-name {
+        padding-right: 0.4em;
+      }
+
+      .record-info-with-icon {
+        .record-with-icon.flippable-icons-with-text {
+          display: inline-flex;
+
+          .popover-info-trigger {
+            font-size: 130%;
+            opacity: 0.4;
+          }
+        }
+
+        .record-name-general {
+          @include font-semibold;
+        }
+      }
     }
 
     .storage-file-path-clipboard {

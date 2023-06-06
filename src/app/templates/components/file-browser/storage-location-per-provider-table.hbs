@@ -1,7 +1,10 @@
 <tr class="oneprovider-name-row">
   <td colspan="2" class="oneprovider-name-cell">
     {{#truncated-string}}
-      {{oneproviderName}}
+      {{record-info-with-icon
+        record=record
+        recordType="provider"
+      }}
     {{/truncated-string}}
   </td>
 </tr>

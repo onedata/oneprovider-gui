@@ -1,10 +1,13 @@
 <div class="oneproviders-distribution-item-content">
-  <div class={{concat-classes 
+  <div class={{concat-classes
     "name-section"
     (if (not storageFileLocation) "center-name-section")
   }}>
     {{#truncated-string class="distribution-row-name"}}
-      <span class="storage-name">{{storageName}}</span> @ <span class="oneprovider-name"><strong>{{oneprovider.name}}</strong></span>
+      <span class="storage-name">{{storageName}}</span>
+      {{record-info-with-icon
+        record=oneprovider
+      }}
     {{/truncated-string}}
     {{#if storageFileLocation}}
       <div class="distribution-row-name path-container">

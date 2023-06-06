@@ -8,6 +8,7 @@
 
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
+import { computed } from '@ember/object';
 
 export default Component.extend({
   tagName: 'tbody',
@@ -23,4 +24,19 @@ export default Component.extend({
    * @type {string}
    */
   oneproviderName: reads('locations.firstObject.providerName'),
+
+  /**
+   * @type {string}
+   */
+  oneproviderId: reads('locations.firstObject.providerId'),
+
+  /**
+   * @type {Object}
+   */
+  record: computed('oneproviderName', 'oneproviderId', function record() {
+    return {
+      entityId: this.oneproviderId,
+      name: this.oneproviderName,
+    };
+  }),
 });
