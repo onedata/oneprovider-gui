@@ -3,13 +3,15 @@
     "name-section"
     (if (not storageFileLocation) "center-name-section")
   }}>
-    {{#truncated-string class="distribution-row-name"}}
-      <span class="storage-name">{{storageName}}</span>
+    <div class="distribution-row-name">
+      {{#truncated-string tagName="span" class="storage-name-container"}}
+        <span class="storage-name">{{storageName}}</span>
+      {{/truncated-string}}
       <span class="at-text">{{tt this "at"}}</span>
       {{record-info-with-icon
         record=oneprovider
       }}
-    {{/truncated-string}}
+    </div>
     {{#if storageFileLocation}}
       <div class="distribution-row-name path-container">
         {{clipboard-line

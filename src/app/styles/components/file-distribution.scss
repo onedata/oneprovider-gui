@@ -90,6 +90,7 @@
     }
 
     .distribution-row-name {
+      display: flex;
       padding-right: 5px;
 
       .oneicon-browser-copy {
@@ -97,20 +98,20 @@
         opacity: 0.4;
       }
 
-      .storage-name {
-        padding-right: 0.4em;
+      .storage-name-container{
+        max-width: 75%;
       }
 
       .at-text {
         opacity: 0.6;
+        padding-left: 0.4em;
       }
 
       .record-info-with-icon {
         padding-left: 0.4em;
+        max-width: calc(100% - 5em);
 
         .record-with-icon.flippable-icons-with-text {
-          display: inline-flex;
-
           .popover-info-trigger {
             font-size: 150%;
           }
