@@ -84,12 +84,18 @@ const oneproviderKrakow = Object.freeze({
   id: 'op_provider.providerkrk.instance:private',
   entityId: 'providerkrk',
   name: 'krakow',
+  constructor: {
+    modalName: 'provider',
+  },
 });
 
 const oneproviderParis = Object.freeze({
   id: 'op_provider.providerpar.instance:private',
   entityId: 'providerpar',
   name: 'paris',
+  constructor: {
+    modalName: 'provider',
+  },
 });
 
 describe('Integration | Component | file-distribution-modal/oneproviders-distribution',
@@ -131,8 +137,8 @@ describe('Integration | Component | file-distribution-modal/oneproviders-distrib
         }}
       `);
 
-      expect(findByText('krakow', '.oneprovider-name')).to.exist;
-      expect(findByText('paris', '.oneprovider-name')).to.exist;
+      expect(findByText('krakow', '.record-name-general')).to.exist;
+      expect(findByText('paris', '.record-name-general')).to.exist;
     });
 
     it('renders percentage and chunks representation', async function () {
