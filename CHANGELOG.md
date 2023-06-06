@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10319 Added provider info popovers to file details modal
 * VFS-10895 Added expand options to automation data spec of file
 * VFS-10886 Replaced browser service usages with Browser util
 * VFS-9052 Improved directory load error handling in file browser (eg. no such directory)
