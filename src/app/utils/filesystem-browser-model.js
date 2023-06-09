@@ -1106,6 +1106,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isEnabled: true,
         width: 180,
       }),
+      replication: EmberObject.create({
+        isVisible: false,
+        isEnabled: false,
+        width: 100,
+      }),
     });
     if (this.isOwnerVisible) {
       this.set('columns.owner', EmberObject.create({

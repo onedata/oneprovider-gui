@@ -224,6 +224,10 @@ export const RuntimeProperties = Mixin.create({
 
   isRecalled: computedLastProxyContent('isRecalledProxy'),
 
+  replication: computed(function replication() {
+    return Math.random();
+  }),
+
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
    * will be equal `targetSize`.

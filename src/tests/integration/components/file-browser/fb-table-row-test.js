@@ -30,6 +30,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
       firstColumnWidth: 20,
       getEnabledColumnsFromLocalStorage() {
         this.set('columns.modification.isEnabled', true);
+        this.set('columns.replication.isEnabled', true);
       },
     }));
     this.set('spacePrivileges', { view: true });
@@ -199,6 +200,80 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     const tag = find('.file-status-qos');
     expect(tag, 'file-status-qos').to.exist;
     expect(tag).to.not.have.class('file-status-tag-disabled');
+  });
+
+  it('renders 100% replication', async function () {
+    const replicationRate = 1;
+    this.set('file', createFile({ replication: replicationRate }));
+    const replicationRateText = replicationRate * 100 + '%';
+
+    await renderComponent(this);
+
+    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+    expect(find('.replication-bar.full')).to.exist;
+    expect(find('.replication-bar').style.width).to.equal('100%');
+    expect(find('.background-bar')).to.exist;
+    expect(find('.background-bar').style.width).to.equal('0%');
+  });
+
+  it('renders 0% replication', async function () {
+    const replicationRate = 0;
+    this.set('file', createFile({ replication: replicationRate }));
+    const replicationRateText = replicationRate * 100 + '%';
+
+    await renderComponent(this);
+
+    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+    expect(find('.replication-bar')).to.exist;
+    expect(find('.replication-bar').style.width).to.equal('0%');
+    expect(find('.background-bar.full')).to.exist;
+    expect(find('.background-bar').style.width).to.equal('100%');
+  });
+
+  it('renders 20% replication', async function () {
+    const replicationRate = 0.2;
+    this.set('file', createFile({ replication: replicationRate }));
+    const replicationRateText = replicationRate * 100 + '%';
+
+    await renderComponent(this);
+
+    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+    expect(find('.replication-bar')).to.exist;
+    expect(find('.replication-bar.full')).not.to.exist;
+    expect(find('.replication-bar').style.width).to.equal('20%');
+    expect(find('.background-bar')).to.exist;
+    expect(find('.background-bar.full')).not.to.exist;
+    expect(find('.background-bar').style.width).to.equal('80%');
+  });
+
+  it('renders less than 1% replication', async function () {
+    const replicationRate = 0.004;
+    this.set('file', createFile({ replication: replicationRate }));
+
+    await renderComponent(this);
+
+    expect(find('.fb-table-col-replication').textContent.trim()).to.equal('< 1%');
+    expect(find('.replication-bar.almost-empty-bar')).to.exist;
+    expect(find('.replication-bar.full')).not.to.exist;
+    expect(find('.replication-bar').style.width).to.equal('100%');
+    expect(find('.background-bar')).to.exist;
+    expect(find('.background-bar').style.width).to.equal('0%');
+  });
+
+  it('renders 1% replication', async function () {
+    const replicationRate = 0.01;
+    this.set('file', createFile({ replication: replicationRate }));
+    const replicationRateText = replicationRate * 100 + '%';
+
+    await renderComponent(this);
+
+    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+    expect(find('.replication-bar')).to.exist;
+    expect(find('.replication-bar.full')).not.to.exist;
+    expect(find('.replication-bar').style.width).to.equal('1%');
+    expect(find('.background-bar')).to.exist;
+    expect(find('.background-bar.full')).not.to.exist;
+    expect(find('.background-bar').style.width).to.equal('99%');
   });
 
   testProtectedFlag(['data']);

@@ -3,4 +3,5 @@ export default {
   size: 'Size',
   modification: 'Modification',
   owner: 'Owner',
+  replication: 'Replication',
 };

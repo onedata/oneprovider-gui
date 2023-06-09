@@ -54,6 +54,43 @@
   .file-features {
     display: flex;
   }
+
+  .fb-table-col-replication {
+    padding-right: 40px;
+    width: 160px;
+    text-align: center;
+    .replication-rate-container {
+      display: flex;
+    }
+    .replication-bar {
+      height: 4px;
+      width: 100%;
+      margin: 0;
+      border-width: 0;
+      color: $color-one-orange;
+      background-color: $color-one-orange;
+      &.full {
+        color: $color-one-mint;
+        background-color: $color-one-mint;
+      }
+      &.almost-empty-bar {
+        color: $color-one-gray-sand;
+        // #e6e6e6
+        background-color: $color-one-gray-sand;
+      }
+    }
+    .background-bar {
+      height: 4px;
+      width: 0%;
+      margin: 0;
+      border-width: 0;
+      color: $color-one-gray-sand;
+      background-color: $color-one-gray-sand;
+      &.full {
+        opacity: 60%;
+      }
+    }
+  }
 }
 
 .file-status-bar {

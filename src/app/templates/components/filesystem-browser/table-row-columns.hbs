@@ -78,3 +78,33 @@
     </span>
   </td>
 {{/if}}
+{{#if browserModel.columns.replication.isVisible}}
+  <td class="fb-table-col-replication hidden-xs">
+    <span class="file-item-text">
+      {{#if (and (gt replicationRate 0) (lt replicationRate 1))}}
+        &lt; 1%
+      {{else}}
+        {{replicationRate}}%
+      {{/if}}
+
+      <span class="replication-rate-container">
+        <hr
+          class={{concat-classes
+            "replication-bar"
+            (if (eq replicationRate 100) "full")
+            (if (and (gt replicationRate 0) (lt replicationRate 1)) "almost-empty-bar")
+          }}
+          style={{replicationStyle}}
+        >
+        <hr
+          class={{concat-classes
+            "background-bar"
+            (if (eq replicationRate 0) "full")
+          }}
+          style={{emptyBarStyle}}
+        >
+      </span>
+    </span>
+  </td>
+{{/if}}
+
