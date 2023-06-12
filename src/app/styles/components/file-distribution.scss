@@ -98,17 +98,17 @@
         opacity: 0.4;
       }
 
-      .storage-name-container{
+      .storage-name-container {
         max-width: 75%;
       }
 
       .at-text {
-        opacity: 0.6;
-        padding-left: 0.4em;
+        opacity: $disabled-opacity;
+        padding-left: 0.5em;
       }
 
       .record-info-with-icon {
-        padding-left: 0.4em;
+        padding-left: 0.5em;
         max-width: calc(100% - 5em);
 
         .record-with-icon.flippable-icons-with-text {
