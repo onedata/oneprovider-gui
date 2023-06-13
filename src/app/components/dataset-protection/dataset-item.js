@@ -124,7 +124,7 @@ export default Component.extend(I18n, {
       throw error;
     } finally {
       // do not wait for resolve - it's only a side effect
-      if (typeof updateOpenedFileData === 'function') {
+      if (typeof this.updateOpenedFileData === 'function') {
         const rootFileProxy = get(this.dataset, 'rootFile');
         if (rootFileProxy) {
           rootFileProxy.then(file => {
