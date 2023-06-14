@@ -7,7 +7,8 @@
  */
 
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
-import { raw, array, promise } from 'ember-awesome-macros';
+import { raw, array, promise, or, eq } from 'ember-awesome-macros';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -46,6 +47,17 @@ export default FbTableRowColumns.extend(I18n, {
   isDirStatsServiceStarted: array.includes(
     raw(['enabled', 'initializing']),
     'dirStatsServiceState.status'
+  ),
+
+  /**
+   * If true, then instead of number, the placeholder will be rendered in place of size.
+   * @type {ComputedProperty<boolean>}
+   */
+  isUnknownSizeShown: eq('file.effFile.size', raw(null)),
+
+  isItemDirStatsFeatureHidden: or(
+    'browserModel.isDirStatsFeatureHidden',
+    eq('file.effFile.type', raw(LegacyFileType.SymbolicLink))
   ),
 
   /**

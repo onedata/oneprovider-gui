@@ -171,6 +171,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   fileFeaturesExtensionComponentName: null,
 
   /**
+   * If true, do not show actions and options for directory statistics.
+   * @virtual optional
+   * @type {boolean}
+   */
+  isDirStatsFeatureHidden: false,
+
+  /**
    * @override
    */
   rowComponentName: 'filesystem-browser/table-row',

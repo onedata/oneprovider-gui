@@ -77,6 +77,11 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
+  isDirStatsFeatureHidden: true,
+
+  /**
+   * @override
+   */
   buttonNames: conditional(
     'isOnlyArchiveRootSelected',
     raw(archiveRootButtonNames),

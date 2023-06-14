@@ -20,11 +20,11 @@
         {{else}}
           {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
         {{/if}}
-      {{else if (or previewMode (eq file.type "symlink"))}}
-        {{#if (not-eq file.effFile.size null)}}
-          {{bytes-to-string file.effFile.size}}
-        {{else}}
+      {{else if isItemDirStatsFeatureHidden}}
+        {{#if isUnknownSizeShown}}
           —
+        {{else}}
+          {{bytes-to-string file.effFile.size}}
         {{/if}}
       {{else}}
         <div
@@ -35,10 +35,10 @@
           onclick={{action "invokeFileAction" file "info" "size"}}
         >
           <span class="dir-size-value">
-            {{#if (not-eq file.effFile.size null)}}
-              {{bytes-to-string file.effFile.size}}
-            {{else}}
+            {{#if isUnknownSizeShown}}
               —
+            {{else}}
+              {{bytes-to-string file.effFile.size}}
             {{/if}}
           </span>
           {{one-icon

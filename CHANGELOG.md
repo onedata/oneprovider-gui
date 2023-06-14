@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11029 Disabled size statistics in archive file browser
 * VFS-10996 Fixed effective protection badges to be updated after ancestor protection change
 * VFS-10940 Fixed showing owner column in mobile mode in file browser
 * VFS-10824 Fixed file browser crash when entering share root dir using breadcrumbs

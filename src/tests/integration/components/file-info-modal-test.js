@@ -17,6 +17,7 @@ import FileDistributionHelper from '../../helpers/file-distribution';
 import createSpace from '../../helpers/create-space';
 import DefaultUser from '../../helpers/default-user';
 import globals from 'onedata-gui-common/utils/globals';
+import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 
 const storageLocations = {
   locationsPerProvider: {
@@ -828,6 +829,11 @@ async function givenDefaultStubs(testCase) {
   testCase.set('getDataUrl', getDataUrl);
   const storageLocationsProxy = sinon.stub().resolves(storageLocations);
   testCase.set('storageLocationsProxy', storageLocationsProxy);
+  if (!testCase.get('browserModel')) {
+    testCase.set('browserModel', FilesystemBrowserModel.create({
+      ownerSource: testCase.owner,
+    }));
+  }
 }
 
 async function givenApiSamplesForSharedFile(testCase) {
