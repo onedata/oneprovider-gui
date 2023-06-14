@@ -12,6 +12,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { EntrySeverity } from 'onedata-gui-common/utils/audit-log';
 
 export default Component.extend(I18n, {
   classNames: ['run-workflow-creator'],
@@ -80,7 +81,7 @@ export default Component.extend(I18n, {
   atmWorkflowSchemaRevisionNumberToRun: undefined,
 
   /**
-   * One of: `'list'`, `'inputStores'`
+   * One of: `'list'`, `'setup'`
    * @type {String}
    */
   activeSlide: 'list',
@@ -101,6 +102,12 @@ export default Component.extend(I18n, {
    * @type {Object}
    */
   areInputStoresValid: true,
+
+  /**
+   * Data from execution-options-form
+   * @type {{ loggingLevel: AuditLogEntrySeverity}}
+   */
+  executionOptionsData: undefined,
 
   /**
    * @type {Boolean}
@@ -155,13 +162,13 @@ export default Component.extend(I18n, {
       );
 
       if (!atmWorkflowSchemaId || !atmWorkflowSchemaRevisionNumber) {
-        if (activeSlide === 'inputStores') {
+        if (activeSlide === 'setup') {
           this.changeSlide('list');
         }
         return;
       }
 
-      this.changeSlide('inputStores');
+      this.changeSlide('setup');
       if (
         atmWorkflowSchemaId === atmWorkflowSchemaIdToRun &&
         atmWorkflowSchemaRevisionNumber === atmWorkflowSchemaRevisionNumberToRun
@@ -196,13 +203,10 @@ export default Component.extend(I18n, {
       atmWorkflowSchema,
       atmWorkflowSchemaRevisionNumber
     ) {
-      const chooseWorkflowSchemaToRun = this.get('chooseWorkflowSchemaToRun');
-      if (chooseWorkflowSchemaToRun) {
-        chooseWorkflowSchemaToRun(
-          get(atmWorkflowSchema, 'entityId'),
-          atmWorkflowSchemaRevisionNumber
-        );
-      }
+      this.chooseWorkflowSchemaToRun?.(
+        get(atmWorkflowSchema, 'entityId'),
+        atmWorkflowSchemaRevisionNumber
+      );
     },
     inputStoresChanged({ data, isValid }) {
       this.setProperties({
@@ -210,48 +214,33 @@ export default Component.extend(I18n, {
         areInputStoresValid: isValid,
       });
     },
+    executionOptionsChanged(data) {
+      this.set('executionOptionsData', data);
+      console.log(data);
+    },
     async runWorkflow() {
       this.set('isStartingWorkflow', true);
-      const {
-        workflowManager,
-        space,
-        atmWorkflowSchemaIdToRun,
-        atmWorkflowSchemaRevisionNumberToRun,
-        inputStoresData,
-        onWorkflowStarted,
-        globalNotify,
-        chooseWorkflowSchemaToRun,
-      } = this.getProperties(
-        'workflowManager',
-        'space',
-        'atmWorkflowSchemaIdToRun',
-        'atmWorkflowSchemaRevisionNumberToRun',
-        'inputStoresData',
-        'onWorkflowStarted',
-        'globalNotify',
-        'chooseWorkflowSchemaToRun'
-      );
 
-      const spaceId = get(space, 'entityId');
+      const spaceId = get(this.space, 'entityId');
       try {
-        const atmWorkflowExecution = await workflowManager.runWorkflow(
-          atmWorkflowSchemaIdToRun,
-          atmWorkflowSchemaRevisionNumberToRun,
+        const atmWorkflowExecution = await this.workflowManager.runWorkflow(
+          this.atmWorkflowSchemaIdToRun,
+          this.atmWorkflowSchemaRevisionNumberToRun,
           spaceId,
-          inputStoresData || {}
+          this.inputStoresData ?? {},
+          this.executionOptionsData?.loggingLevel ?? EntrySeverity.Info
         );
-        globalNotify.success(this.t('workflowStartSuccessNotify'));
-        onWorkflowStarted && onWorkflowStarted(atmWorkflowExecution);
-        chooseWorkflowSchemaToRun && chooseWorkflowSchemaToRun(null, null);
+        this.globalNotify.success(this.t('workflowStartSuccessNotify'));
+        this.onWorkflowStarted?.(atmWorkflowExecution);
+        this.chooseWorkflowSchemaToRun?.(null, null);
       } catch (error) {
-        globalNotify.backendError(this.t('workflowStartFailureOperationName'), error);
+        this.globalNotify.backendError(this.t('workflowStartFailureOperationName'), error);
       } finally {
         safeExec(this, () => this.set('isStartingWorkflow', false));
       }
     },
     backSlide() {
-      const chooseWorkflowSchemaToRun = this.get('chooseWorkflowSchemaToRun');
-      chooseWorkflowSchemaToRun && chooseWorkflowSchemaToRun(null, null);
+      this.chooseWorkflowSchemaToRun?.(null, null);
     },
   },
 });

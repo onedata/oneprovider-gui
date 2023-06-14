@@ -137,8 +137,8 @@ describe('Integration | Component | space-automation', function () {
     expect(createTabPane).to.have.class('active');
     expect(createTabPane.querySelector('.run-workflow-creator')).to.exist;
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
-    await fillIn(getSlide('inputStores').querySelector('.form-control'), '10');
-    await click(getSlide('inputStores').querySelector('.btn-submit'));
+    await fillIn(getSlide('setup').querySelector('.form-control'), '10');
+    await click(getSlide('setup').querySelector('.btn-submit'));
     expect(runWorkflowStub).to.be.calledOnce
       .and.to.be.calledWith('workflow1', 1, 'space1', sinon.match.any);
     expect(find('.nav-item-preview')).to.have.class('active');

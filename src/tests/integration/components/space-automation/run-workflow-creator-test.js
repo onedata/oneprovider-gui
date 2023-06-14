@@ -82,11 +82,11 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
     expect(this.element.children[0]).to.have.class('run-workflow-creator');
   });
 
-  it('has slides "list" and "inputStores"', async function () {
+  it('has slides "list" and "setup"', async function () {
     await renderComponent();
 
     expect(getSlide('list')).to.exist;
-    expect(getSlide('inputStores')).to.exist;
+    expect(getSlide('setup')).to.exist;
   });
 
   it('has active slide "list" on init, which shows list of user workflow schemas',
@@ -103,20 +103,20 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
       expect(workflowsListComponent.textContent).to.contain('workflow 1');
     });
 
-  it('shows "inputStores" slide after workflow schema selection', async function () {
+  it('shows "setup" slide after workflow schema selection', async function () {
     await renderComponent();
 
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
-    expect(isSlideActive('inputStores')).to.be.true;
-    const inputStoresSlide = getSlide('inputStores');
-    expect(inputStoresSlide.querySelector('.slide-header').textContent.trim())
-      .to.equal('Provide initial values for "workflow 1" workflow');
-    const inputStoresForm = inputStoresSlide.querySelector('.input-stores-form');
+    expect(isSlideActive('setup')).to.be.true;
+    const setupSlide = getSlide('setup');
+    expect(setupSlide.querySelector('.slide-header').textContent.trim())
+      .to.equal('Run new "workflow 1" workflow execution');
+    const inputStoresForm = setupSlide.querySelector('.input-stores-form');
     expect(inputStoresForm).to.exist;
     expect(inputStoresForm.textContent).to.contain('store 1');
-    const backBtn = inputStoresSlide.querySelector('.btn-back');
-    const submitBtn = inputStoresSlide.querySelector('.btn-submit');
+    const backBtn = setupSlide.querySelector('.btn-back');
+    const submitBtn = setupSlide.querySelector('.btn-submit');
     expect(backBtn).to.have.class('btn-default');
     expect(backBtn).to.have.trimmed.text('Back');
     expect(backBtn).to.not.have.attr('disabled');
@@ -129,18 +129,18 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
     await renderComponent();
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
-    await fillIn(getSlide('inputStores').querySelector('.form-control'), 'abc');
+    await fillIn(getSlide('setup').querySelector('.form-control'), 'abc');
 
-    expect(getSlide('inputStores').querySelector('.btn-submit')).to.have.attr('disabled');
+    expect(getSlide('setup').querySelector('.btn-submit')).to.have.attr('disabled');
   });
 
   it('enables submit button when input store value is valid', async function () {
     await renderComponent();
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
-    await fillIn(getSlide('inputStores').querySelector('.form-control'), '10');
+    await fillIn(getSlide('setup').querySelector('.form-control'), '10');
 
-    expect(getSlide('inputStores').querySelector('.btn-submit'))
+    expect(getSlide('setup').querySelector('.btn-submit'))
       .to.not.have.attr('disabled');
   });
 
@@ -152,11 +152,11 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
 
       await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
-      const inputStoresSlide = getSlide('inputStores');
-      expect(inputStoresSlide.querySelector('.btn-submit')).to.not.have.attr('disabled');
-      expect(inputStoresSlide.querySelector('.input-stores-form')).to.not.exist;
+      const setupSlide = getSlide('setup');
+      expect(setupSlide.querySelector('.btn-submit')).to.not.have.attr('disabled');
+      expect(setupSlide.querySelector('.input-stores-form')).to.not.exist;
       expect(
-        inputStoresSlide.querySelector('.nothing-to-provide-message')
+        setupSlide.querySelector('.nothing-to-provide-message')
       ).to.have.trimmed.text('This workflow does not need any initial values.');
     });
 
@@ -173,10 +173,10 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
       expect(runWorkflowStub).to.be.not.called;
       expect(workflowStartedSpy).to.be.not.called;
       const listSlide = getSlide('list');
-      const inputStoresSlide = getSlide('inputStores');
+      const setupSlide = getSlide('setup');
       await click(listSlide.querySelector('.revisions-table-revision-entry'));
-      await fillIn(inputStoresSlide.querySelector('.form-control'), '10');
-      await click(inputStoresSlide.querySelector('.btn-submit'));
+      await fillIn(setupSlide.querySelector('.form-control'), '10');
+      await click(setupSlide.querySelector('.btn-submit'));
 
       expect(runWorkflowStub).to.be.calledOnce
         .and.to.be.calledWith('workflow1', 1, 'space1', {
@@ -187,7 +187,7 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
       expect(isSlideActive('list')).to.be.true;
     });
 
-  it('does not call "onWorkflowStarted" and stays on "inputStores" slide on failed workflow start',
+  it('does not call "onWorkflowStarted" and stays on "setup" slide on failed workflow start',
     async function () {
       const {
         workflowStartedSpy,
@@ -198,44 +198,44 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
       await renderComponent();
 
       const listSlide = getSlide('list');
-      const inputStoresSlide = getSlide('inputStores');
+      const setupSlide = getSlide('setup');
       await click(listSlide.querySelector('.revisions-table-revision-entry'));
-      await fillIn(inputStoresSlide.querySelector('.form-control'), '10');
-      await click(inputStoresSlide.querySelector('.btn-submit'));
+      await fillIn(setupSlide.querySelector('.form-control'), '10');
+      await click(setupSlide.querySelector('.btn-submit'));
       rejectPromise();
       await settled();
 
       expect(workflowStartedSpy).to.not.be.called;
-      expect(isSlideActive('inputStores')).to.be.true;
+      expect(isSlideActive('setup')).to.be.true;
     });
 
   it('blocks all controls during workflow start process', async function () {
     this.get('runWorkflowStub').returns(new Promise(() => {}));
     await renderComponent();
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
-    const inputStoresSlide = getSlide('inputStores');
-    await fillIn(inputStoresSlide.querySelector('.form-control'), '10');
+    const setupSlide = getSlide('setup');
+    await fillIn(setupSlide.querySelector('.form-control'), '10');
 
-    await click(inputStoresSlide.querySelector('.btn-submit'));
+    await click(setupSlide.querySelector('.btn-submit'));
 
-    expect(inputStoresSlide.querySelector('.btn-back')).to.have.attr('disabled');
-    expect(inputStoresSlide.querySelector('.btn-submit')).to.have.attr('disabled');
-    expect(inputStoresSlide.querySelector('.input-stores-form'))
+    expect(setupSlide.querySelector('.btn-back')).to.have.attr('disabled');
+    expect(setupSlide.querySelector('.btn-submit')).to.have.attr('disabled');
+    expect(setupSlide.querySelector('.input-stores-form'))
       .to.have.class('form-disabled');
   });
 
-  it('allows to go back to "list" slide on "Back" click on "inputStores" slide and select another workflow schema',
+  it('allows to go back to "list" slide on "Back" click on "setup" slide and select another workflow schema',
     async function () {
       await renderComponent();
 
       await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
-      await click(getSlide('inputStores').querySelector('.btn-back'));
+      await click(getSlide('setup').querySelector('.btn-back'));
 
       expect(isSlideActive('list')).to.be.true;
       await click(getSlide('list').querySelectorAll('.revisions-table-revision-entry')[1]);
 
-      expect(isSlideActive('inputStores')).to.be.true;
-      expect(getSlide('inputStores').textContent).to.contain('store 2');
+      expect(isSlideActive('setup')).to.be.true;
+      expect(getSlide('setup').textContent).to.contain('store 2');
     });
 });
 

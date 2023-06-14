@@ -1,0 +1,14 @@
+.execution-options-form {
+  min-width: 0;
+
+  .control-label {
+    flex-basis: 100%;
+    text-align: left;
+    padding-top: 0;
+    margin-bottom: 0.7em;
+  }
+
+  .field-component {
+    flex-basis: 100%;
+  }
+}
