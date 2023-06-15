@@ -84,12 +84,14 @@ const oneproviderKrakow = Object.freeze({
   id: 'op_provider.providerkrk.instance:private',
   entityId: 'providerkrk',
   name: 'krakow',
+  constructor: {},
 });
 
 const oneproviderParis = Object.freeze({
   id: 'op_provider.providerpar.instance:private',
   entityId: 'providerpar',
   name: 'paris',
+  constructor: {},
 });
 
 describe('Integration | Component | file-distribution-modal/oneproviders-distribution',
