@@ -1,6 +1,6 @@
 export default {
   form: {
-    loggingLevel: {
+    logLevel: {
       label: 'Logging level',
     },
   },

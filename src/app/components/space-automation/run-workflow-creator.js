@@ -105,7 +105,7 @@ export default Component.extend(I18n, {
 
   /**
    * Data from execution-options-form
-   * @type {{ loggingLevel: AuditLogEntrySeverity}}
+   * @type {{ logLevel: AuditLogEntrySeverity}}
    */
   executionOptionsData: undefined,
 
@@ -228,7 +228,7 @@ export default Component.extend(I18n, {
           this.atmWorkflowSchemaRevisionNumberToRun,
           spaceId,
           this.inputStoresData ?? {},
-          this.executionOptionsData?.loggingLevel ?? EntrySeverity.Info
+          this.executionOptionsData?.logLevel ?? EntrySeverity.Info
         );
         this.globalNotify.success(this.t('workflowStartSuccessNotify'));
         this.onWorkflowStarted?.(atmWorkflowExecution);

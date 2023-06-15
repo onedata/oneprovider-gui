@@ -52,7 +52,7 @@ export default Component.extend(I18n, {
   propagateValueChange() {
     const valuesDump = this.form.dumpValue();
     this.onChange?.({
-      loggingLevel: valuesDump.loggingLevel,
+      logLevel: valuesDump.logLevel,
     });
   },
 });
@@ -109,7 +109,7 @@ const LoggingLevelField = DropdownField.extend({
   /**
    * @override
    */
-  name: 'loggingLevel',
+  name: 'logLevel',
 
   /**
    * @override
