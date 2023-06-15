@@ -8,7 +8,6 @@
 
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
-import { computed } from '@ember/object';
 
 export default Component.extend({
   tagName: 'tbody',
@@ -21,22 +20,7 @@ export default Component.extend({
   locations: undefined,
 
   /**
-   * @type {string}
+   * @type {ComputedProperty<Models.Provider>}
    */
-  oneproviderName: reads('locations.firstObject.providerName'),
-
-  /**
-   * @type {string}
-   */
-  oneproviderId: reads('locations.firstObject.providerId'),
-
-  /**
-   * @type {Object}
-   */
-  record: computed('oneproviderName', 'oneproviderId', function record() {
-    return {
-      entityId: this.oneproviderId,
-      name: this.oneproviderName,
-    };
-  }),
+  oneprovider: reads('locations.firstObject.provider'),
 });
