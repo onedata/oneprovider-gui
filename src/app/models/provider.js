@@ -16,4 +16,6 @@ export default Model.extend(GraphSingleModelMixin, {
   latitude: attr('number'),
   longitude: attr('number'),
   online: attr('boolean'),
+  domain: attr('string'),
+  version: attr('string'),
 }).reopenClass(StaticGraphModelMixin);

@@ -19,6 +19,10 @@
       @media (max-width: $screen-xs-max) {
         display: block;
       }
+
+      .popover-info-trigger {
+        font-size: 160%;
+      }
     }
   }
 

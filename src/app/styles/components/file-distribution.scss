@@ -90,11 +90,36 @@
     }
 
     .distribution-row-name {
+      display: flex;
       padding-right: 5px;
 
       .oneicon-browser-copy {
         font-size: 130%;
         opacity: 0.4;
+      }
+
+      .storage-name-container {
+        max-width: 75%;
+      }
+
+      .at-text {
+        opacity: $disabled-opacity;
+        padding-left: 0.5em;
+      }
+
+      .record-info-with-icon {
+        padding-left: 0.6em;
+        max-width: calc(100% - 5em);
+
+        .record-with-icon.flippable-icons-with-text {
+          .popover-info-trigger {
+            font-size: 150%;
+          }
+        }
+
+        .record-name-general {
+          @include font-semibold;
+        }
       }
     }
 

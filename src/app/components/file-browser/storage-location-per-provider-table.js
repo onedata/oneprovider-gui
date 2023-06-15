@@ -20,7 +20,7 @@ export default Component.extend({
   locations: undefined,
 
   /**
-   * @type {string}
+   * @type {ComputedProperty<Models.Provider>}
    */
-  oneproviderName: reads('locations.firstObject.providerName'),
+  oneprovider: reads('locations.firstObject.provider'),
 });
