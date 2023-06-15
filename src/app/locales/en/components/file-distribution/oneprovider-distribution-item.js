@@ -22,4 +22,5 @@ export default {
   disabledEvictionSingleOneprovider: 'Eviction' + disabledActionSingleOneprovider,
   disabledEvictionNoBlocks: 'Eviction is not possible unless some data blocks on this Oneprovider are redundant.',
   buttonTip: 'Copy storage file path to clipboard',
+  at: 'at',
 };
