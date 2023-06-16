@@ -8,6 +8,7 @@ import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { resolve, Promise } from 'rsvp';
 import sinon from 'sinon';
 import { isSlideActive, getSlide } from '../../../helpers/one-carousel';
+import { EntrySeverity } from 'onedata-gui-common/utils/audit-log';
 
 describe('Integration | Component | space-automation/run-workflow-creator', function () {
   setupRenderingTest();
@@ -179,8 +180,14 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
       await click(setupSlide.querySelector('.btn-submit'));
 
       expect(runWorkflowStub).to.be.calledOnce
-        .and.to.be.calledWith('workflow1', 1, 'space1', {
-          store1: 10,
+        .and.to.be.calledWith({
+          atmWorkflowSchemaId: 'workflow1',
+          atmWorkflowSchemaRevisionNumber: 1,
+          spaceId: 'space1',
+          storeInitialContentOverlay: {
+            store1: 10,
+          },
+          logLevel: EntrySeverity.Info,
         });
       expect(workflowStartedSpy).to.be.calledOnce
         .and.to.be.calledWith(sinon.match.same(atmWorkflowExecution));

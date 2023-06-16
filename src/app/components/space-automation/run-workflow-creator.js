@@ -216,20 +216,19 @@ export default Component.extend(I18n, {
     },
     executionOptionsChanged(data) {
       this.set('executionOptionsData', data);
-      console.log(data);
     },
     async runWorkflow() {
       this.set('isStartingWorkflow', true);
 
       const spaceId = get(this.space, 'entityId');
       try {
-        const atmWorkflowExecution = await this.workflowManager.runWorkflow(
-          this.atmWorkflowSchemaIdToRun,
-          this.atmWorkflowSchemaRevisionNumberToRun,
+        const atmWorkflowExecution = await this.workflowManager.runWorkflow({
+          atmWorkflowSchemaId: this.atmWorkflowSchemaIdToRun,
+          atmWorkflowSchemaRevisionNumber: this.atmWorkflowSchemaRevisionNumberToRun,
           spaceId,
-          this.inputStoresData ?? {},
-          this.executionOptionsData?.logLevel ?? EntrySeverity.Info
-        );
+          storeInitialContentOverlay: this.inputStoresData ?? {},
+          logLevel: this.executionOptionsData?.logLevel ?? EntrySeverity.Info,
+        });
         this.globalNotify.success(this.t('workflowStartSuccessNotify'));
         this.onWorkflowStarted?.(atmWorkflowExecution);
         this.chooseWorkflowSchemaToRun?.(null, null);
