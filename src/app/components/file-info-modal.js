@@ -74,10 +74,9 @@ export default Component.extend(...mixins, {
   files: undefined,
 
   /**
-   * @virtual optional
-   * @type {Boolean}
+   * @type {Utils.FilesystemBrowserModel}
    */
-  previewMode: false,
+  browserModel: undefined,
 
   /**
    * Share to which opened file belongs to (should be provided in preview mode),
@@ -163,6 +162,11 @@ export default Component.extend(...mixins, {
    * @type {Number}
    */
   hardlinksLimit: 100,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  previewMode: reads('browserModel.previewMode'),
 
   tabItemsIcons: computed(function tabItemsIcons() {
     const icons = {
@@ -545,13 +549,14 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<boolean>}
    */
   isSizeTabVisible: computed(
-    'previewMode',
+    'browserModel.isDirStatsFeatureHidden',
     'isMultiFile',
     'file.effFile.type',
     'itemType',
     function isSizeTabVisible() {
       const effItemType = get(this.file, 'effFile.type') || 'file';
-      return !this.previewMode && !this.isMultiFile && effItemType !== 'file' &&
+      return !this.browserModel?.isDirStatsFeatureHidden &&
+        !this.isMultiFile && effItemType !== 'file' &&
         this.itemType !== 'symlink';
     }
   ),
