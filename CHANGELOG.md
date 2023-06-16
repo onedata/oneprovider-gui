@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9257 Fixed ignored eslint issues
 * VFS-10319 Added provider info popovers to file details modal
 * VFS-10996 Fixed effective protection badges to be updated after ancestor protection change
 * VFS-10895 Added expand options to automation data spec of file
