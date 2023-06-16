@@ -178,6 +178,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   isDirStatsFeatureHidden: false,
 
   /**
+   * If true, never show size for directory, even if it is provided by backend.
+   * @virtual optional
+   * @type {boolean}
+   */
+  isDirSizeAlwaysHidden: false,
+
+  /**
    * @override
    */
   rowComponentName: 'filesystem-browser/table-row',
