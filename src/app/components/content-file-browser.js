@@ -25,6 +25,7 @@ import { isEmpty } from '@ember/utils';
 import sortRevisionNumbers from 'onedata-gui-common/utils/revisions/sort-revision-numbers';
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 import globals from 'onedata-gui-common/utils/globals';
+import { all as allFulfilled } from 'rsvp';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -212,12 +213,20 @@ export default OneEmbeddedComponent.extend(
      */
     bagitUploaderLoaderProxy: reads('workflowManager.bagitUploaderWorkflowSchemaProxy'),
 
-    initialRequiredDataProxy: promise.object(promise.all(
+    initialRequiredDataProxy: promise.object(computed(
+      // NOTE: not observing all proxies, because loading part of them does not affects
+      // ability to display the view
       'spaceProxy',
-      'initialSelectedItemsForJumpProxy',
       'initialDirLoadingProxy',
-      'bagitUploaderLoaderProxy',
-      'dirStatsServiceStateProxy'
+      function initialRequiredDataProxy() {
+        return allFulfilled([
+          this.spaceProxy,
+          this.initialDirLoadingProxy,
+          this.initialSelectedItemsForJumpProxy,
+          this.bagitUploaderLoaderProxy,
+          this.dirStatsServiceStateProxy,
+        ]);
+      }
     )),
 
     selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),

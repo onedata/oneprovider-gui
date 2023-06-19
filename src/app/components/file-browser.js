@@ -536,6 +536,9 @@ export default Component.extend(I18n, {
     const component = this;
     const openCurrentDirContextMenu = component.get('openCurrentDirContextMenu');
     return function oncontextmenu(contextmenuEvent) {
+      if (!component.dir) {
+        return;
+      }
       component.selectCurrentDir();
       const useDefault = Boolean(openCurrentDirContextMenu(contextmenuEvent));
       if (!useDefault) {
@@ -781,11 +784,9 @@ export default Component.extend(I18n, {
   },
 
   async selectCurrentDir() {
-    const {
-      changeSelectedItems,
-      dir,
-    } = this.getProperties('changeSelectedItems', 'dir');
-    return changeSelectedItems([dir]);
+    if (this.dir) {
+      return this.changeSelectedItems([this.dir]);
+    }
   },
 
   async changeDir(dir) {
