@@ -7,29 +7,39 @@
       }}
     </div>
   {{/carousel.slide}}
-  {{#carousel.slide slideId="inputStores"}}
+  {{#carousel.slide slideId="setup"}}
     {{#promise-proxy-container proxy=atmWorkflowSchemaToRunProxy}}
       <h1 class="slide-header">
-        {{tt this "slides.inputStores.header"
+        {{tt this "slides.setup.header"
           atmWorkflowSchemaName=atmWorkflowSchemaToRunProxy.name
         }}
       </h1>
-      <div class="form-container">
-        {{#if areInitialContentsNeeded}}
-          {{space-automation/input-stores-form
-            atmWorkflowSchema=atmWorkflowSchemaToRunProxy.content
-            atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumberToRun
-            loadValuesFromLocalStorage=fillInputStores
-            space=space
-            onChange=(action "inputStoresChanged")
+      <div class="forms-container">
+        <div class="form-container">
+          <h2>{{tt this "slides.setup.inputDataHeader"}}</h2>
+          {{#if areInitialContentsNeeded}}
+            {{space-automation/input-stores-form
+              atmWorkflowSchema=atmWorkflowSchemaToRunProxy.content
+              atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumberToRun
+              loadValuesFromLocalStorage=fillInputStores
+              space=space
+              onChange=(action "inputStoresChanged")
+              isDisabled=isStartingWorkflow
+            }}
+          {{else}}
+            <div class="nothing-to-provide-message">
+              {{one-icon icon="checkbox-filled"}}
+              {{tt this "slides.setup.nothingToProvideMessage"}}
+            </div>
+          {{/if}}
+        </div>
+        <div class="form-container">
+          <h2>{{tt this "slides.setup.optionsHeader"}}</h2>
+          {{space-automation/execution-options-form
+            onChange=(action "executionOptionsChanged")
             isDisabled=isStartingWorkflow
           }}
-        {{else}}
-          <div class="nothing-to-provide-message">
-            {{one-icon icon="checkbox-filled"}}
-            {{tt this "slides.inputStores.nothingToProvideMessage"}}
-          </div>
-        {{/if}}
+        </div>
         <div class="btn-toolbar footer-buttons">
           {{#if (not fillInputStores)}}
             {{#bs-button
@@ -39,7 +49,7 @@
             }}
               {{one-icon icon="arrow-left" class="hidden-custom-xs"}}
               <span class="text">
-                {{tt this "slides.inputStores.backBtn"}}
+                {{tt this "slides.setup.backBtn"}}
               </span>
             {{/bs-button}}
           {{/if}}
@@ -50,7 +60,7 @@
             onClick=(action "runWorkflow")
             disabled=(not areInputStoresValid)
           }}
-            {{tt this "slides.inputStores.runWorkflowBtn"}}
+            {{tt this "slides.setup.runWorkflowBtn"}}
           {{/one-button}}
         </div>
       </div>
