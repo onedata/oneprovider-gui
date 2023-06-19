@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10962 Improved WebSocket auto-reconnection
 * VFS-9257 Fixed ignored eslint issues
 * VFS-10932 Added logging level to workflow execution
 * VFS-10319 Added provider info popovers to file details modal
