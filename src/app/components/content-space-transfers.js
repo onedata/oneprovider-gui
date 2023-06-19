@@ -35,6 +35,11 @@ export default OneEmbeddedComponent.extend(
     ]),
 
     /**
+     * @override
+     */
+    iframeInjectedNavigationProperties: Object.freeze(['spaceEntityId', 'tab']),
+
+    /**
      * True if space is loaded and current user has permissions to view transfers
      * @type {Boolean}
      */
