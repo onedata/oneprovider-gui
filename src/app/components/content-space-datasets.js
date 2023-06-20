@@ -160,6 +160,17 @@ export default OneEmbeddedComponent.extend(...mixins, {
   ]),
 
   /**
+   * @override
+   */
+  iframeInjectedNavigationProperties: Object.freeze([
+    'spaceId',
+    'datasetId',
+    'archiveId',
+    'dirId',
+    'attachmentState',
+  ]),
+
+  /**
    * Minimum height in pixels that a section (upper or lower part) can have.
    * @type {number}
    */

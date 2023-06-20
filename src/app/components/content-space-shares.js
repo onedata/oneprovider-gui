@@ -40,6 +40,11 @@ export default OneEmbeddedComponent.extend(
      */
     iframeInjectedProperties: Object.freeze(['spaceId', 'shareId', 'dirId']),
 
+    /**
+     * @override
+     */
+    iframeInjectedNavigationProperties: Object.freeze(['spaceId', 'shareId', 'dirId']),
+
     actions: {
       getShareUrl({ shareId }) {
         return this.callParent('getShareUrl', { shareId });

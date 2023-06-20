@@ -49,6 +49,11 @@ export default OneEmbeddedComponent.extend(
     iframeInjectedProperties: Object.freeze(['shareId', 'dirId']),
 
     /**
+     * @override
+     */
+    iframeInjectedNavigationProperties: Object.freeze(['shareId', 'dirId']),
+
+    /**
      * Public view can be turned into private by setting scope
      * @type {ComputedProperty<boolean>}
      */
