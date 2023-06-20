@@ -3,11 +3,17 @@ import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { collect } from 'ember-awesome-macros';
 import globals from 'onedata-gui-common/utils/globals';
+import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 
 export default Component.extend({
   mockBackend: service(),
 
   opened: true,
+
+  /**
+   * @type {Utils.FilesystemBrowserModel}
+   */
+  browserModel: undefined,
 
   // uncomment for globally-mocked file
   space: reads('mockBackend.entityRecords.space.0'),
@@ -23,6 +29,13 @@ export default Component.extend({
   // ),
 
   previewMode: false,
+
+  init() {
+    this._super(...arguments);
+    this.set('browserModel', FilesystemBrowserModel.create({
+      ownerSource: this,
+    }));
+  },
 
   actions: {
     closeInfoModal() {

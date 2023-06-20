@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11029 Disabled size statistics in archive file browser
 * VFS-8257 Added closing modal on transition
 * VFS-9257 Fixed ignored eslint issues
 * VFS-10932 Added logging level to workflow execution
