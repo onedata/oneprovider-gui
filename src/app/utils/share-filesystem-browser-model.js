@@ -33,6 +33,11 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
+  isDirStatsFeatureHidden: true,
+
+  /**
+   * @override
+   */
   fetchDirChildren(dirId, ...fetchArgs) {
     if (dirId === shareRootId) {
       return this.fetchShareRootDirChildren(dirId, ...fetchArgs);

@@ -23,6 +23,19 @@ export default Component.extend({
 
   /**
    * @virtual optional
+   * @type {Array<string>}
+   */
+  iframeInjectedProperties: Object.freeze([]),
+
+  /**
+   * Must be a subset of `iframeInjectedProperties`
+   * @virtual optional
+   * @type {Array<string>}
+   */
+  iframeInjectedNavigationProperties: Object.freeze([]),
+
+  /**
+   * @virtual optional
    * @type {Function}
    */
   containerScrollTop: notImplementedIgnore,
@@ -51,23 +64,25 @@ export default Component.extend({
 
   init() {
     this._super(...arguments);
-    const frameElement = this.get('frameElement');
 
-    if (frameElement) {
+    if (this.frameElement) {
       // create local callParent method that will simply invoke callParent
       // injected by parent frame
       this.callParent = function callParent() {
-        return this.get('appProxy').callParent(...arguments);
+        return this.appProxy.callParent(...arguments);
       };
 
       // fetch declared injected properties
-      this.get('iframeInjectedProperties').forEach(propertyName => {
+      this.iframeInjectedProperties.forEach(propertyName => {
         defineProperty(
           this,
           propertyName,
           reads(`appProxy.injectedData.${propertyName}`)
         );
       });
+
+      // register navigation properties in app proxy
+      this.appProxy.registerNavigationProperties(this.iframeInjectedNavigationProperties);
     } else {
       throw new Error(
         'component:one-embedded-component: view with this component must be rendered in an iframe'
@@ -75,9 +90,19 @@ export default Component.extend({
     }
   },
 
+  willDestroyElement() {
+    try {
+      this.appProxy.unregisterNavigationProperties(
+        this.iframeInjectedNavigationProperties
+      );
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
   actions: {
     containerScrollTop() {
-      return this.get('containerScrollTop')(...arguments);
+      return this.containerScrollTop(...arguments);
     },
   },
 });

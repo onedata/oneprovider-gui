@@ -27,6 +27,17 @@ export default OneEmbeddedComponent.extend(ContentSpaceBaseMixin, {
     'fillInputStores',
   ]),
 
+  /**
+   * @override
+   */
+  iframeInjectedNavigationProperties: Object.freeze([
+    'spaceEntityId',
+    'tab',
+    'workflowExecutionId',
+    'workflowSchemaId',
+    'workflowSchemaRevision',
+  ]),
+
   actions: {
     changeTab(tab) {
       return this.callParent('changeTab', tab);

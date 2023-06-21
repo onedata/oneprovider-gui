@@ -94,6 +94,14 @@ export default OneEmbeddedComponent.extend(
     ]),
 
     /**
+     * @override
+     */
+    iframeInjectedNavigationProperties: Object.freeze([
+      'spaceEntityId',
+      'dirEntityId',
+    ]),
+
+    /**
      * Set on init.
      * @type {Utils.FilesystemBrowserModel}
      */
