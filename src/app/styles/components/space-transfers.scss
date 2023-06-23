@@ -138,7 +138,7 @@ $space-transfers-gray: #B6BAC0;
     }
   }
 
-  .chart-placeholder-image {
+  .chart-placeholder-image-small {
     width: 80%;
     max-width: 430px;
     height: 95px;
@@ -146,6 +146,14 @@ $space-transfers-gray: #B6BAC0;
     background-image: url($root-url + "images/chart-placeholder.svg");
     background-position-x: center;
     opacity: 0.15;
+  }
+
+  .chart-placeholder-image {
+    height: 370px;
+    background-image: url($root-url + "images/chart-throughput-placeholder.svg");
+    opacity: 0.15;
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 
   .ct-tooltip {
