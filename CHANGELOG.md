@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10695 Changed image for transfers chart placeholder
 * VFS-10962 Improved WebSocket auto-reconnection
 * VFS-11081 Fixed incorrectly closing alert modals
 * VFS-11029 Disabled size statistics in archive file browser
