@@ -666,7 +666,7 @@ const atmStoreHandlers = {
 
     const storeType = type.slice(0, type.indexOf('StoreContentBrowseOptions'));
     const isLast = endPositon >= maxEntriesCount - 1;
-    if (storeType === 'list' || storeType === 'treeForest') {
+    if (storeType === 'list' || storeType === 'treeForest' || storeType === 'exception') {
       return {
         items: storeEntries,
         isLast,
