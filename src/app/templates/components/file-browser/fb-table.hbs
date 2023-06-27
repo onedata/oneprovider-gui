@@ -94,22 +94,22 @@
     browserModel=browserModel
   }}
 {{/if}}
-{{#if showDirContextMenu}}
-  {{#one-webui-popover
-    class="file-actions-popover"
-    popoverStyle=(concat-classes
-      "with-dropdown"
-      (if isInModal "over-modals")
-    )
-    padding=false
-    popoverTrigger="manual"
-    triggerSelector=(concat "#" elementId " .file-actions-trigger")
-    open=fileActionsOpen
-    registerApi=(action (mut contextMenuApi))
-    placement="horizontal"
-    as |popover|
-  }}
-    {{#click-outside onClickOutside=(action "toggleFileActions" false)}}
+{{#one-webui-popover
+  class="file-actions-popover"
+  popoverStyle=(concat-classes
+    "with-dropdown"
+    (if isInModal "over-modals")
+  )
+  padding=false
+  popoverTrigger="manual"
+  triggerSelector=(concat "#" elementId " .file-actions-trigger")
+  open=(and isDirContextMenuRenderable fileActionsOpen)
+  registerApi=(action (mut contextMenuApi))
+  placement="horizontal"
+  as |popover|
+}}
+  {{#click-outside onClickOutside=(action "toggleFileActions" false)}}
+    {{#if isDirContextMenuRenderable}}
       {{#popover-content-limit
         opened=(and popover.visible contextMenuRepositionTime)
       }}
@@ -120,10 +120,10 @@
           actionKey="id"
         }}
       {{/popover-content-limit}}
-    {{/click-outside}}
-  {{/one-webui-popover}}
-  <div class="file-actions-trigger floating-actions-trigger"></div>
-{{/if}}
+    {{/if}}
+  {{/click-outside}}
+{{/one-webui-popover}}
+<div class="file-actions-trigger floating-actions-trigger"></div>
 
 {{#if renderRefreshSpinner}}
   {{spin-spinner-block
