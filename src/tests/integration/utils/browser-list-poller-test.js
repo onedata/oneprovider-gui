@@ -1,17 +1,22 @@
 import { expect } from 'chai';
-import { beforeEach, afterEach, describe, it } from 'mocha';
+import { describe, it } from 'mocha';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
 import sinon from 'sinon';
 import FakeTimers from '@sinonjs/fake-timers';
 import { settled } from '@ember/test-helpers';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import EmberObject from '@ember/object';
+import { setupRenderingTest } from 'ember-mocha';
 
-describe('Unit | Utility | browser-list-poller', function () {
+describe('Integration | Utility | browser-list-poller', function () {
+  const { beforeEach, afterEach } = setupRenderingTest();
+
   beforeEach(function () {
-    this.fakeClock = FakeTimers.install();
+    this.set('fakeClock', FakeTimers.install());
   });
 
   afterEach(function () {
-    this.fakeClock?.uninstall();
+    this.get('fakeClock')?.uninstall();
     this.browserListPoller?.destroy();
   });
 
@@ -22,14 +27,15 @@ describe('Unit | Utility | browser-list-poller', function () {
       .create({
         executePoll,
         pollInterval,
-        browserModel: createBrowserModel({ isListPollingEnabled: true }),
+        browserModel: createBrowserModel(this, { isListPollingEnabled: true }),
       });
+    const fakeClock = this.get('fakeClock');
 
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     expect(executePoll).to.have.callCount(1);
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     expect(executePoll).to.have.callCount(2);
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     expect(executePoll).to.have.callCount(3);
   });
 
@@ -40,15 +46,16 @@ describe('Unit | Utility | browser-list-poller', function () {
       .create({
         executePoll,
         pollInterval,
-        browserModel: createBrowserModel({ isListPollingEnabled: false }),
+        browserModel: createBrowserModel(this, { isListPollingEnabled: false }),
       });
     this.browserListPoller = browserListPoller;
+    const fakeClock = this.get('fakeClock');
 
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     expect(executePoll).to.have.been.not.called;
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     expect(executePoll).to.have.been.not.called;
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     expect(executePoll).to.have.been.not.called;
   });
 
@@ -59,23 +66,24 @@ describe('Unit | Utility | browser-list-poller', function () {
       .create({
         executePoll,
         pollInterval,
-        browserModel: createBrowserModel({ isListPollingEnabled: true }),
+        browserModel: createBrowserModel(this, { isListPollingEnabled: true }),
       });
     this.browserListPoller = browserListPoller;
+    const fakeClock = this.get('fakeClock');
 
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     browserListPoller.destroy();
 
     expect(executePoll).to.have.been.calledOnce;
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     expect(executePoll).to.have.been.calledOnce;
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     expect(executePoll).to.have.been.calledOnce;
   });
 
   it('invokes silent refresh on browserModel in intervals if browserModel has polling enabled', async function () {
     const pollInterval = 1000;
-    const browserModelMock = createBrowserModel({
+    const browserModelMock = createBrowserModel(this, {
       isListPollingEnabled: true,
       refresh: sinon.spy(),
     });
@@ -84,14 +92,15 @@ describe('Unit | Utility | browser-list-poller', function () {
         pollInterval,
         browserModel: browserModelMock,
       });
+    const fakeClock = this.get('fakeClock');
 
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     await settled();
     expect(browserModelMock.refresh).to.have.callCount(1);
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     await settled();
     expect(browserModelMock.refresh).to.have.callCount(2);
-    this.fakeClock.tick(pollInterval + 1);
+    fakeClock.tick(pollInterval + 1);
     await settled();
     expect(browserModelMock.refresh).to.have.callCount(3);
     expect(browserModelMock.refresh).to.have.been.calledWith(
@@ -100,11 +109,15 @@ describe('Unit | Utility | browser-list-poller', function () {
   });
 });
 
-function createBrowserModel(data) {
-  return {
-    async refresh() {},
-    dir: {},
-    selectedItemsOutOfScope: false,
-    ...data,
-  };
+function createBrowserModel(mochaContext, data) {
+  return EmberObject
+    .extend(OwnerInjector)
+    .create({
+      ownerSource: mochaContext.owner,
+
+      async refresh() {},
+      dir: {},
+      selectedItemsOutOfScope: false,
+      ...data,
+    });
 }
