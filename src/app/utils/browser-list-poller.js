@@ -10,16 +10,26 @@
 import EmberObject from '@ember/object';
 import Looper from 'onedata-gui-common/utils/looper';
 import { conditional, raw, and, not } from 'ember-awesome-macros';
+import { reads } from '@ember/object/computed';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import { inject as service } from '@ember/service';
 
 export const defaultPollInterval = 10000;
 
-export default EmberObject.extend({
+export default EmberObject.extend(OwnerInjector, {
+  onedataWebsocketErrorHandler: service(),
+
   /**
    * @virtual
    * @type {Utils.BaseBrowserModel}
    */
   browserModel: undefined,
+
+  /**
+   * @override
+   */
+  ownerSource: reads('browserModel'),
 
   pollInterval: defaultPollInterval,
 
@@ -48,6 +58,7 @@ export default EmberObject.extend({
     'browserModel.dir',
     not('browserModel.selectedItemsOutOfScope'),
     not('browserModel.anyDataLoadError'),
+    not('onedataWebsocketErrorHandler.isConnectionProblem'),
   ),
 
   init() {
