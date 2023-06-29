@@ -96,10 +96,7 @@
 {{/if}}
 {{#one-webui-popover
   class="file-actions-popover"
-  popoverStyle=(concat-classes
-    "with-dropdown"
-    (if isInModal "over-modals")
-  )
+  popoverStyle="with-dropdown"
   padding=false
   popoverTrigger="manual"
   triggerSelector=(concat "#" elementId " .file-actions-trigger")

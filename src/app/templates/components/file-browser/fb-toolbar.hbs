@@ -22,10 +22,7 @@
   <div class="fixes-popover-rendering-due-to-ember-bug">
     {{#one-webui-popover
       popoverTrigger="manual"
-      popoverStyle=(concat-classes
-        "clipboard-help"
-        (if isInModal "over-modals")
-      )
+      popoverStyle="clipboard-help"
       triggerSelector=clipboardHintTargetSelector
       open=true
       placement="bottom"
