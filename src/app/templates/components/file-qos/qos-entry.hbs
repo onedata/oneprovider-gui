@@ -37,7 +37,7 @@
       }}
       {{#one-webui-popover
         class="id-info"
-        popoverStyle="id-info over-modals"
+        popoverStyle="id-info"
         triggerSelector=(concat "#" idInfoTriggerId)
         as |popover|
       }}
@@ -67,7 +67,7 @@
         {{#one-switchable-popover-modal
           class="qos-remove-question"
           triggersConfiguration=(concat "#" removeTriggerId)
-          popoverStyle="qos-remove-question over-modals"
+          popoverStyle="qos-remove-question"
           submit=(action "confirmRemove")
           as |ospm|
         }}
