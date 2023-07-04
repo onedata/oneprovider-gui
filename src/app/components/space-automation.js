@@ -179,11 +179,11 @@ export default Component.extend(...mixins, {
           name,
           revisionRegistry,
         } = getProperties(atmWorkflowSchemaSnapshot, 'name', 'revisionRegistry');
+        const entityId = get(this.atmWorkflowExecutionForPreviewProxy, 'entityId');
         if (name && revisionRegistry) {
           return {
             name,
-            conflictLabel: get(this.atmWorkflowExecutionForPreviewProxy, 'entityId')
-              .slice(0, 4),
+            conflictLabel: entityId?.slice(0, 4) ?? '',
             revisionNumber: Object.keys(revisionRegistry)[0] || 1,
           };
         }
