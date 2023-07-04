@@ -666,9 +666,20 @@ const atmStoreHandlers = {
 
     const storeType = type.slice(0, type.indexOf('StoreContentBrowseOptions'));
     const isLast = endPositon >= maxEntriesCount - 1;
-    if (storeType === 'list' || storeType === 'treeForest' || storeType === 'exception') {
+    if (storeType === 'list' || storeType === 'treeForest') {
       return {
         items: storeEntries,
+        isLast,
+      };
+    } else if (storeType === 'exception') {
+      return {
+        items: storeEntries.map(({ value, ...rest }) => ({
+          ...rest,
+          value: {
+            traceId: '123456',
+            value,
+          },
+        })),
         isLast,
       };
     } else if (storeType === 'auditLog') {

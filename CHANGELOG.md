@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11082 Added trace ID to exception store GUI
 * VFS-10973 Added exception store support
 * VFS-10695 Changed image for transfers chart placeholder
 * VFS-10962 Improved WebSocket auto-reconnection
