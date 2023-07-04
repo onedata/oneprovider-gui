@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10157 Added unique suffixes to workflow execution names
 * VFS-11123 Enabled size statistics in archive file browser
 * VFS-9303 Removed "over-modals" class from popover usages
 * VFS-10973 Added exception store support

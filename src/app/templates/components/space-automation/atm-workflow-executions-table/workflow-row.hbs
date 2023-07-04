@@ -2,7 +2,10 @@
   <td class="workflow-row-cell cell-{{column}}">
     {{#if (eq column "name")}}
       {{#truncated-string}}
-        {{atmWorkflowExecutionSummary.name}}
+        {{name-conflict item=(hash
+          name=atmWorkflowExecutionSummary.name
+          conflictLabel=conflictLabel
+        )}}
       {{/truncated-string}}
     {{else if (eq column "inventory")}}
       {{#if atmWorkflowExecutionSummary.atmInventory.name}}
