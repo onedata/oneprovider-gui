@@ -167,11 +167,11 @@ export default Component.extend(...mixins, {
   atmWorkflowExecutionForPreviewProxy: undefined,
 
   /**
-   * @type {ComputedProperty<string|undefined>}
+   * @type {ComputedProperty<{ name: string, conflictLabel: string, revisionNumber: number } | undefined>}
    */
-  atmWorkflowExecutionForPreviewLabel: computed(
+  atmWorkflowExecutionForPreviewLabelData: computed(
     'atmWorkflowExecutionForPreviewProxy.atmWorkflowSchemaSnapshot.{name,revisionRegistry}',
-    function atmWorkflowExecutionForPreviewLabel() {
+    function atmWorkflowExecutionForPreviewLabelData() {
       const atmWorkflowSchemaSnapshot =
         this.get('atmWorkflowExecutionForPreviewProxy.atmWorkflowSchemaSnapshot');
       if (atmWorkflowSchemaSnapshot) {
@@ -179,11 +179,13 @@ export default Component.extend(...mixins, {
           name,
           revisionRegistry,
         } = getProperties(atmWorkflowSchemaSnapshot, 'name', 'revisionRegistry');
+        const entityId = get(this.atmWorkflowExecutionForPreviewProxy, 'entityId');
         if (name && revisionRegistry) {
-          return this.t('tabs.preview.tabLoadedLabel', {
-            schemaName: name,
+          return {
+            name,
+            conflictLabel: entityId?.slice(0, 4) ?? '',
             revisionNumber: Object.keys(revisionRegistry)[0] || 1,
-          });
+          };
         }
       }
     }

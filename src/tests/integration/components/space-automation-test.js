@@ -164,7 +164,9 @@ describe('Integration | Component | space-automation', function () {
 
         const previewNavItem = find('.nav-item-preview');
         expect(previewNavItem).to.have.class('active');
-        expect(previewNavItem).to.have.trimmed.text('workflow 1 (rev. 1)');
+        // Using non-breaking space after "rev."
+        // eslint-disable-next-line no-irregular-whitespace
+        expect(previewNavItem.textContent.trim()).to.match(/workflow 1@exec\s+\(rev\. 1\)/);
       });
 
     it('has active "preview" tab with "Cannot load" label when "atmWorkflowExecutionId" param points to a non-existing execution',

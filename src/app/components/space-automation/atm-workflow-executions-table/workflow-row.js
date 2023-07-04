@@ -68,7 +68,17 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<String>}
    */
-  actionsTriggerId: tag `actions-trigger-${'elementId'}`,
+  actionsTriggerId: tag`actions-trigger-${'elementId'}`,
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  conflictLabel: computed(
+    'atmWorkflowExecutionSummary.entityId',
+    function conflictLabel() {
+      return this.atmWorkflowExecutionSummary.entityId.slice(0, 4);
+    }
+  ),
 
   /**
    * @type {ComputedProperty<String>}
