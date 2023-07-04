@@ -12,7 +12,6 @@ import { observer, computed } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { inject as service } from '@ember/service';
-import { conditional, raw } from 'ember-awesome-macros';
 import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
 
 export default Component.extend(I18n, {
@@ -46,12 +45,6 @@ export default Component.extend(I18n, {
   selectionContext: undefined,
 
   /**
-   * @virtual
-   * @type {Boolean}
-   */
-  isInModal: false,
-
-  /**
    * Set to true, to make it floating
    * @type {boolean}
    */
@@ -77,12 +70,6 @@ export default Component.extend(I18n, {
   ),
 
   itemsCount: reads('items.length'),
-
-  popoverClass: conditional(
-    'isInModal',
-    raw('over-modals'),
-    raw(null)
-  ),
 
   menuButtons: computed(
     'allButtonsArray',

@@ -13,7 +13,6 @@
           getItemByIdFun=getItemByIdFun
           resolveFileParentFun=resolveFileParentFun
           previewMode=previewMode
-          isInModal=isInModal
           rootIcon=rootIcon
           space=space
           changeDir=(action "changeDir")
@@ -26,14 +25,12 @@
             items=selectionToolkitItems
             selectionContext=selectionContext
             allButtonsArray=allButtonsArray
-            isInModal=isInModal
           }}
         {{/if}}
         {{file-browser/fb-toolbar
           dir=dir
           buttons=toolbarButtons
           previewMode=previewMode
-          isInModal=isInModal
           fileClipboardMode=fileClipboardMode
           fileClipboardFiles=fileClipboardFiles
           selectionContext=selectionContext
@@ -47,7 +44,6 @@
 <div class="fb-table-container">
   {{file-browser/fb-table
     browserModel=browserModel
-    isInModal=isInModal
     contentScroll=contentScroll
     selectedItems=selectedItems
     selectedItemsForJump=selectedItemsForJump
@@ -73,10 +69,7 @@
 
 {{#one-webui-popover
   class="current-dir-actions-popover"
-  popoverStyle=(concat-classes
-    "with-dropdown"
-    (if isInModal "over-modals")
-  )
+  popoverStyle="with-dropdown"
   padding=false
   triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
   open=(and currentDirActionsOpen showCurrentDirActions)
@@ -100,6 +93,5 @@
     items=selectionToolkitItems
     selectionContext=selectionContext
     allButtonsArray=allButtonsArray
-    isInModal=isInModal
   }}
 {{/if}}

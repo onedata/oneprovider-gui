@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-10157 Added unique suffixes to workflow execution names
+* VFS-9303 Removed "over-modals" class from popover usages
 * VFS-10973 Added exception store support
 * VFS-10695 Changed image for transfers chart placeholder
 * VFS-10962 Improved WebSocket auto-reconnection
