@@ -22,6 +22,8 @@ import {
   bool,
   equal,
   not,
+  array,
+  conditional,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, set, getProperties, observer } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -35,6 +37,7 @@ import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/model
 import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
 import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
+import { translateFileType } from 'onedata-gui-common/utils/file';
 
 const mixins = [
   I18n,
@@ -50,6 +53,17 @@ const mixins = [
  * @property {FileInfoTabId} id
  * @property {string} [statusIcon]
  * @property {string} [tabClass]
+ */
+
+/**
+ * @typedef {'show'|'download'} FileInfoModal.FileLinkType
+ */
+
+/**
+ * @typedef {Object} FileInfoModal.FileLinkOption
+ * @property {string} url
+ * @property {FileInfoModal.FileLinkType} type
+ * @property {SafeString} label
  */
 
 export default Component.extend(...mixins, {
@@ -148,6 +162,11 @@ export default Component.extend(...mixins, {
   getProvidersUrl: notImplementedIgnore,
 
   /**
+   * @type {FileInfoModal.FileLinkType}
+   */
+  selectedFileLinkType: null,
+
+  /**
    * @type {FileInfoTabId}
    */
   activeTab: 'general',
@@ -208,6 +227,54 @@ export default Component.extend(...mixins, {
       defaultValue: this.t('fileType.file'),
     }));
   }),
+
+  /**
+   * @type {Array<FileInfoModal.FileLinkType>}
+   */
+  availableFileLinkTypes: Object.freeze(['show', 'download']),
+
+  /**
+   * @type {ComputedProperty<Array<FileInfoModal.FileLinkOption>>}
+   */
+  availableFileLinkOptions: computed(
+    'availableFileLinkTypes',
+    'file.type',
+    function availableFileLinkOptions() {
+      if (!this.file?.type || !this.availableFileLinkTypes) {
+        return [];
+      }
+      return this.availableFileLinkTypes.map(fileLinkType => ({
+        type: fileLinkType,
+        // FIXME: real urls from backend
+        url: `https://<domain>/#/onedata?action_name=goToFile&action_fileId=<string>&action_fileAction=${fileLinkType}`,
+        label: this.t(`fileLinkLabel.${fileLinkType}`, {
+          fileTypeText: translateFileType(
+            this.i18n,
+            this.file.type, {
+              upperFirst: true,
+            }),
+        }),
+      }));
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<FileInfoModal.FileLinkType>}
+   */
+  effSelectedFileLinkType: conditional(
+    array.includes('availableFileLinkTypes', 'selectedFileLinkType'),
+    'selectedFileLinkType',
+    'availableFileLinkTypes.firstObject'
+  ),
+
+  effSelectedFileLinkOption: computed(
+    'effSelectedFileLinkType',
+    function effSelectedFileLinkOption() {
+      return this.availableFileLinkOptions.find(option =>
+        option.type === this.effSelectedFileLinkType
+      );
+    }
+  ),
 
   headerText: computed('typeTranslation', function headerText() {
     if (this.typeTranslation) {
@@ -897,6 +964,13 @@ export default Component.extend(...mixins, {
     },
     getProvidersUrl(...args) {
       return this.get('getProvidersUrl')(...args);
+    },
+
+    /**
+     * @param {ComputedProperty<FileInfoModal.FileLinkType>} fileLinkType
+     */
+    changeSelectedFileLinkOption(fileLinkOption) {
+      this.set('selectedFileLinkType', fileLinkOption.type);
     },
   },
 });
