@@ -73,6 +73,7 @@ export default Component.extend(...mixins, {
   spaceManager: service(),
   storageManager: service(),
   providerManager: service(),
+  appProxy: service(),
 
   open: false,
 
@@ -245,8 +246,10 @@ export default Component.extend(...mixins, {
       }
       return this.availableFileLinkTypes.map(fileLinkType => ({
         type: fileLinkType,
-        // FIXME: real urls from backend
-        url: `https://<domain>/#/onedata?action_name=goToFile&action_fileId=<string>&action_fileAction=${fileLinkType}`,
+        url: this.appProxy.callParent('getFileGoToUrl', {
+          fileId: this.file.cdmiObjectId,
+          fileAction: fileLinkType,
+        }),
         label: this.t(`fileLinkLabel.${fileLinkType}`, {
           fileTypeText: translateFileType(
             this.i18n,
