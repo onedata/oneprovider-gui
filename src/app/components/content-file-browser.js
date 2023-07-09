@@ -154,11 +154,9 @@ export default OneEmbeddedComponent.extend(
               dir = await dirProxy;
             } catch {
               // allow dirProxy to fail - eg. when entering non-existing directory
-              debugger;
               return [];
             }
             if (!dir) {
-              debugger;
               return [];
             }
             const files = await onlyFulfilledValues(selected.map(id =>
@@ -304,7 +302,6 @@ export default OneEmbeddedComponent.extend(
           fallbackDir,
         });
 
-        debugger;
         if (!resolverResult) {
           return null;
         }
