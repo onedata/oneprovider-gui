@@ -27,6 +27,13 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { allSettled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 
+/**
+ * Filesystem browser model supports a set of injectable string commands that allows
+ * to invoke actions in the browser in a simple way. Available commands:
+ * - download - download currently selected file(s)
+ * @typedef {'download'} FilesystemBrowserModel.Command
+ */
+
 export const commonActionIcons = Object.freeze({
   info: 'browser-info',
   hardlinks: 'text-link',
@@ -1129,6 +1136,30 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }));
     }
     this._super(...arguments);
+  },
+
+  /**
+   * @param {FilesystemBrowserModel.Command} command
+   * @returns {Promise}
+   */
+  async invokeCommand(command) {
+    switch (command) {
+      case 'download': {
+        await this.initialLoad;
+        await this.selectedItemsForJumpProxy;
+        if (!this.selectedItems?.length) {
+          break;
+        }
+        if (this.selectedItems.length === 1) {
+          this.openConfirmDownload(this.selectedItems[0]);
+        } else if (this.selectedItems.length > 1) {
+          this.downloadFiles(this.selectedItems);
+        }
+        break;
+      }
+      default:
+        break;
+    }
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known

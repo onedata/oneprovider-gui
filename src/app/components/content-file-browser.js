@@ -26,6 +26,7 @@ import sortRevisionNumbers from 'onedata-gui-common/utils/revisions/sort-revisio
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 import globals from 'onedata-gui-common/utils/globals';
 import { all as allFulfilled } from 'rsvp';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -78,6 +79,13 @@ export default OneEmbeddedComponent.extend(
      */
     selected: undefined,
 
+    // FIXME: add observer for fileAction
+    /**
+     * @virtual optional
+     * @type {'download'}
+     */
+    fileAction: null,
+
     /**
      * @virtual optional
      * @type {Function}
@@ -91,6 +99,8 @@ export default OneEmbeddedComponent.extend(
       'spaceEntityId',
       'dirEntityId',
       'selected',
+      // FIXME: być może nie trzeba tutaj wstrzykiwać
+      'fileAction',
     ]),
 
     /**
@@ -99,6 +109,7 @@ export default OneEmbeddedComponent.extend(
     iframeInjectedNavigationProperties: Object.freeze([
       'spaceEntityId',
       'dirEntityId',
+      'fileAction',
     ]),
 
     /**
@@ -315,9 +326,19 @@ export default OneEmbeddedComponent.extend(
       this.get('containerScrollTop')(0);
     }),
 
+    fileActionObserver: observer('fileAction', function fileActionObserver() {
+      // FIXME: prevent multiple action invocations - try..finally lock?
+      (async () => {
+        await this.initialRequiredDataProxy;
+        await waitForRender();
+        this.browserModel.invokeCommand(this.appProxy.injectedData.fileAction);
+      })();
+    }),
+
     init() {
       this._super(...arguments);
       this.set('browserModel', this.createBrowserModel());
+      this.fileActionObserver();
     },
 
     /**
