@@ -52,6 +52,7 @@ export default OneEmbeddedComponent.extend(
     globalNotify: service(),
     filesViewResolver: service(),
     parentAppNavigation: service(),
+    alert: service(),
 
     /**
      * Entity ID of space for which the file browser is rendered.
@@ -153,9 +154,11 @@ export default OneEmbeddedComponent.extend(
               dir = await dirProxy;
             } catch {
               // allow dirProxy to fail - eg. when entering non-existing directory
+              debugger;
               return [];
             }
             if (!dir) {
+              debugger;
               return [];
             }
             const files = await onlyFulfilledValues(selected.map(id =>
@@ -171,6 +174,13 @@ export default OneEmbeddedComponent.extend(
               return fileId === get(dir, 'entityId');
             });
 
+            if (validFiles.length < selected.length) {
+              if (selected.length === 1) {
+                this.alert.warning(this.t('selectedNotFound.single'));
+              } else if (selected.length > 1) {
+                this.alert.warning(this.t('selectedNotFound.many'));
+              }
+            }
             return validFiles;
           } catch (error) {
             console.error(
@@ -294,6 +304,7 @@ export default OneEmbeddedComponent.extend(
           fallbackDir,
         });
 
+        debugger;
         if (!resolverResult) {
           return null;
         }
