@@ -128,10 +128,9 @@
               </td>
             </tr>
           {{/if}}
-          {{#if fileGuiUrl}}
+          {{#if availableFileLinkOptions}}
             <tr class="file-info-row-gui-url">
               <td class="property-name">
-                {{!-- {{tt this "guiUrl" type=typeTranslation}} --}}
                 {{#one-dropdown
                   triggerClass="small text-like file-link-type-selector-trigger"
                   dropdownClass="small text-like file-link-type-selector-dropdown"

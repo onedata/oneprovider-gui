@@ -239,7 +239,7 @@ export default Component.extend(...mixins, {
    */
   availableFileLinkOptions: computed(
     'availableFileLinkTypes',
-    'file.type',
+    'typeTranslation',
     function availableFileLinkOptions() {
       if (!this.file?.type || !this.availableFileLinkTypes) {
         return [];
@@ -251,11 +251,7 @@ export default Component.extend(...mixins, {
           fileAction: fileLinkType,
         }),
         label: this.t(`fileLinkLabel.${fileLinkType}`, {
-          fileTypeText: translateFileType(
-            this.i18n,
-            this.file.type, {
-              upperFirst: true,
-            }),
+          fileTypeText: this.typeTranslation,
         }),
       }));
     }
@@ -431,22 +427,6 @@ export default Component.extend(...mixins, {
       return Object.keys(storageLocationsPerProvider).length;
     }
   ),
-
-  fileGuiUrlProxy: promise.object(computed('file.entityId', async function fileGuiUrl() {
-    const {
-      file,
-      getDataUrl,
-    } = this.getProperties('file', 'getDataUrl');
-    if (!file || !getDataUrl || getDataUrl === notImplementedThrow) {
-      return;
-    }
-    return await getDataUrl({
-      dir: null,
-      selected: [get(file, 'entityId')],
-    });
-  })),
-
-  fileGuiUrl: reads('fileGuiUrlProxy.content'),
 
   symlinkTargetPath: computed(
     'file.{type,targetPath}',

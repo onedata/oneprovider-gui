@@ -12,7 +12,6 @@ export default {
   modificationTime: 'Modified at',
   owner: 'Owner',
   size: 'Size',
-  guiUrl: '{{type}} URL',
   fileLinkLabel: {
     show: '{{fileTypeText}} show link',
     download: '{{fileTypeText}} download link',
