@@ -26,6 +26,7 @@ import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -1150,6 +1151,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         if (!this.selectedItems?.length) {
           break;
         }
+        await waitForRender();
         if (this.selectedItems.length === 1) {
           this.openConfirmDownload(this.selectedItems[0]);
         } else if (this.selectedItems.length > 1) {

@@ -80,10 +80,10 @@ export default OneEmbeddedComponent.extend(
      */
     selected: undefined,
 
-    // FIXME: add observer for fileAction
     /**
+     * **Injected from parent frame.**
      * @virtual optional
-     * @type {'download'}
+     * @type {FilesystemBrowserModel.Command}
      */
     fileAction: null,
 
@@ -100,7 +100,6 @@ export default OneEmbeddedComponent.extend(
       'spaceEntityId',
       'dirEntityId',
       'selected',
-      // FIXME: być może nie trzeba tutaj wstrzykiwać
       'fileAction',
     ]),
 
@@ -280,6 +279,7 @@ export default OneEmbeddedComponent.extend(
           filesViewResolver,
           fallbackDirProxy,
           parentAppNavigation,
+          fileAction,
         } = this.getProperties(
           'spaceEntityId',
           'selected',
@@ -287,6 +287,7 @@ export default OneEmbeddedComponent.extend(
           'filesViewResolver',
           'fallbackDirProxy',
           'parentAppNavigation',
+          'fileAction',
         );
 
         const currentFilesViewContext = FilesViewContext.create({
@@ -300,6 +301,7 @@ export default OneEmbeddedComponent.extend(
           selectedIds: selected,
           scope: 'private',
           fallbackDir,
+          fileAction,
         });
 
         if (!resolverResult) {
@@ -339,7 +341,7 @@ export default OneEmbeddedComponent.extend(
       (async () => {
         await this.initialRequiredDataProxy;
         await waitForRender();
-        this.browserModel.invokeCommand(this.appProxy.injectedData.fileAction);
+        this.browserModel.invokeCommand(this.fileAction);
       })();
     }),
 

@@ -25,6 +25,7 @@ import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 const mixins = [
   I18n,
@@ -60,6 +61,12 @@ export default Component.extend(...mixins, {
    * @type {Array<String>}
    */
   selectedIds: undefined,
+
+  /**
+   * @virtual optional
+   * @type {FilesystemBrowserModel.Command}
+   */
+  fileAction: null,
 
   /**
    * Scrollable file browser container passed to `file-browser` component.
@@ -475,9 +482,24 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  fileActionObserver: observer('viewMode', 'fileAction', function fileActionObserver() {
+    if (this.viewMode !== 'files' || !this.fileAction) {
+      return;
+    }
+    // FIXME: prevent multiple action invocations - try..finally lock?
+    (async () => {
+      await this.initialRequiredDataProxy;
+      await this.dirProxy;
+      await this.browserModel.initialLoad;
+      await waitForRender();
+      this.browserModel.invokeCommand(this.fileAction);
+    })();
+  }),
+
   init() {
     this._super(...arguments);
     this.switchBrowserModel();
+    this.fileActionObserver();
   },
 
   willDestroyElement() {
