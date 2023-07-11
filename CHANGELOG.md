@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11100 Added global URLs for files show and download
+* VFS-11074 Added X axes synchronization between charts in the same section
 * VFS-11082 Added trace ID to exception store GUI
 * VFS-10157 Added unique suffixes to workflow execution names
 * VFS-11123 Enabled size statistics in archive file browser
