@@ -648,6 +648,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         width: 200,
       }),
     });
+    this.set('columnsOrder', ['state', 'incremental', 'creator']);
     this._super(...arguments);
   },
 
