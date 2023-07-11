@@ -16,21 +16,3 @@
     </td>
   {{/if}}
 {{/each}}
-
-{{/if}}
-{{#if browserModel.columns.modification.isVisible}}
-
-{{/if}}
-{{#if (and browserModel.isOwnerVisible browserModel.columns.owner.isVisible)}}
-  <td
-    class="fb-table-col-owner multiline hidden-xs"
-    style={{browserModel.columnsStyle.owner}}
-  >
-    <span class="file-item-text">
-      {{filesystem-browser/table-cell-owner-info
-        owner=owner
-        errorReason=errorReasonForOwnerProxy
-      }}
-    </span>
-  </td>
-{{/if}} --}}

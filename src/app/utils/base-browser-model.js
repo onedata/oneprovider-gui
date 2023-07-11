@@ -904,6 +904,7 @@ export default EmberObject.extend(...mixins, {
     const columnsOrder = globals.localStorage.getItem(
       `${this.browserPersistedConfigurationKey}.columnsOrder`
     );
+
     const enabledColumnsList = enabledColumns?.split(',');
     if (enabledColumnsList) {
       for (const column in this.columns) {
@@ -914,7 +915,12 @@ export default EmberObject.extend(...mixins, {
     }
     const columnsOrderList = columnsOrder?.split(',');
     if (columnsOrderList) {
-      this.set('columnsOrder', columnsOrderList);
+      this.set('columnsOrder', []);
+      for (const column of columnsOrderList) {
+        if (this.columns.hasOwnProperty(column)) {
+          this.columnsOrder.push(column);
+        }
+      }
     }
   },
 

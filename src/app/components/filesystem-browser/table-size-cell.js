@@ -11,11 +11,15 @@ import layout from 'oneprovider-gui/templates/components/filesystem-browser/tabl
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import { raw, or, eq, and } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
+import { inject as service } from '@ember/service';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   layout,
   tagName: 'span',
   classNames: ['file-item-text'],
+
+  i18n: service(),
 
   /**
    * @override
