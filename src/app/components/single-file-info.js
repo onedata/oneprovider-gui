@@ -63,18 +63,22 @@ export default Component.extend(I18n, {
 
   fileName: reads('file.name'),
 
-  fileSize: reads('file.size'),
+  effFile: reads('file.effFile'),
+
+  effFileType: reads('effFile.type'),
+
+  effFileSize: reads('effFile.size'),
 
   isSizeShown: or(
-    eq('file.type', raw(LegacyFileType.Regular)),
+    eq('effFileType', raw(LegacyFileType.Regular)),
     and(
-      eq('file.type', raw(LegacyFileType.Directory)),
-      'fileSize'
+      eq('effFileType', raw(LegacyFileType.Directory)),
+      'effFileSize'
     ),
   ),
 
   fileIcon: conditional(
-    equal('file.type', raw('dir')),
+    equal('effFileType', raw('dir')),
     raw('browser-directory'),
     raw('browser-file')
   ),
