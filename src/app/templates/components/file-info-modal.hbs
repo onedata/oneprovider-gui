@@ -141,7 +141,17 @@
                   onchange=(action "changeSelectedFileLinkOption")
                   as |fileLinkOption|
                 }}
-                  {{fileLinkOption.label}}
+                  <div class="file-link-type-selector-item">
+                    {{#truncated-string class="file-link-type-selector-label"}}
+                      {{fileLinkOption.label}}
+                    {{/truncated-string}}
+                    {{#if fileLinkOption.tip}}
+                      {{one-label-tip
+                        class="file-link-type-selector-tip"
+                        title=fileLinkOption.tip
+                      }}
+                    {{/if}}
+                  </div>
                 {{/one-dropdown}}
               </td>
               <td class="property-value">

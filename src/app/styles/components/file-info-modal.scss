@@ -190,7 +190,7 @@
   .table.table-info.table-file-info {
     td.property-name {
       padding-left: 0;
-      width: 12em;
+      width: 12.2em;
       @media (max-width: $screen-xs-max) {
         width: auto;
       }
@@ -376,6 +376,22 @@
       tr {
         padding: 10px;
       }
+    }
+  }
+}
+
+.file-link-type-selector-item {
+  display: flex;
+  .file-link-type-selector-tip {
+    display: flex;
+    align-items: center;
+    margin-left: 0.5em;
+  }
+}
+.ember-power-select-selected-item {
+  .file-link-type-selector-item {
+    .file-link-type-selector-tip {
+      margin-right: 0.2em;
     }
   }
 }

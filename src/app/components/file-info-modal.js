@@ -238,7 +238,7 @@ export default Component.extend(...mixins, {
    */
   availableFileLinkOptions: computed(
     'availableFileLinkTypes',
-    'typeTranslation',
+    'itemType',
     function availableFileLinkOptions() {
       if (!this.file?.type || !this.availableFileLinkTypes) {
         return [];
@@ -249,9 +249,8 @@ export default Component.extend(...mixins, {
           fileId: this.file.cdmiObjectId,
           fileAction: fileLinkType,
         }),
-        label: this.t(`fileLinkLabel.${fileLinkType}`, {
-          fileTypeText: this.typeTranslation,
-        }),
+        label: this.t(`fileLinkLabel.${fileLinkType}`),
+        tip: this.t(`fileLinkTip.${fileLinkType}.${this.itemType}`, { defaultValue: '' }),
       }));
     }
   ),

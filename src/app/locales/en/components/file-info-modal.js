@@ -1,3 +1,5 @@
+const fileLinkAuthentication = 'Requires user authentication and the necccessary privileges';
+
 export default {
   header: '{{type}} details',
   headerDefault: 'Details',
@@ -13,8 +15,18 @@ export default {
   owner: 'Owner',
   size: 'Size',
   fileLinkLabel: {
-    show: '{{fileTypeText}} show link',
-    download: '{{fileTypeText}} download link',
+    show: 'Show item link',
+    download: 'Download item link',
+  },
+  fileLinkTip: {
+    show: {
+      file: `<p><strong>Show item link</strong></p><p>The URL opens a file browser view with the file selected. ${fileLinkAuthentication} for the file.</p>`,
+      dir: `<p><strong>Show item link</strong></p><p>The URL opens a file browser view with the directory selected. ${fileLinkAuthentication} for the directory.</p>`,
+    },
+    download: {
+      file: `<p><strong>Download item link</strong></p><p>The URL opens a file browser view and asks for the file download. ${fileLinkAuthentication} for the file.</p>`,
+      dir: `<p><strong>Download item link</strong></p><p>The URL opens a file browser view and asks for the directory and its contents download, packaged in a tar format. ${fileLinkAuthentication} for the directory.</p>`,
+    },
   },
   fileType: {
     file: 'file',
