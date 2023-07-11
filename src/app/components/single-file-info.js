@@ -2,19 +2,20 @@
  * A large file/directory icon with basic file information for use mainly in modals
  *
  * @author Jakub Liput
- * @copyright (C) 2020-2022 ACK CYFRONET AGH
+ * @copyright (C) 2020-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { conditional, equal, raw, promise } from 'ember-awesome-macros';
+import { conditional, equal, raw, promise, eq, or, and } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { computed, getProperties } from '@ember/object';
 import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 import { hash as hashFulfilled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 export default Component.extend(I18n, {
   classNames: ['single-file-info', 'details-with-icon'],
@@ -64,6 +65,14 @@ export default Component.extend(I18n, {
 
   fileSize: reads('file.size'),
 
+  isSizeShown: or(
+    eq('file.type', raw(LegacyFileType.Regular)),
+    and(
+      eq('file.type', raw(LegacyFileType.Directory)),
+      'fileSize'
+    ),
+  ),
+
   fileIcon: conditional(
     equal('file.type', raw('dir')),
     raw('browser-directory'),
@@ -109,6 +118,15 @@ export default Component.extend(I18n, {
   )),
 
   archiveInfo: reads('archiveInfoProxy.content'),
+
+  init() {
+    this._super(...arguments);
+    // FIXME: debug code
+    ((name) => {
+      window[name] = this;
+      console.log(`window.${name}`, window[name]);
+    })('debug_single_file_info');
+  },
 
   actions: {
     linkClicked(event) {

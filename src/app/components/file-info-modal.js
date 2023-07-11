@@ -2,7 +2,7 @@
  * Modal with detailed views about file or directory.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @copyright (C) 2019-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -37,7 +37,6 @@ import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/model
 import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
 import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
-import { translateFileType } from 'onedata-gui-common/utils/file';
 
 const mixins = [
   I18n,

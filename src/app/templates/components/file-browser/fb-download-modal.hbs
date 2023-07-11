@@ -7,13 +7,18 @@
   autoDetectProcessing=false
   processing=processing
   proceedButtonClass="btn btn-primary"
-  headerText=(tt this "header")
+  headerText=(tt this (concat "header." effFileType))
   proceedButtonText=(tt this "confirmDownload")
   cancelButtonText=(tt this "cancel")
   modalClass="proceed-modal fb-download-modal"
 }}
-  <div class="row row-download-question">
-    {{tt this "question"}}
-  </div>
-  {{single-file-info file=file}}
+  <p class="row-download-question">
+    {{tt this (concat "question." effFileType)}}
+  </p>
+  {{#if isDirectory}}
+    <p class="row-tar-note">
+      {{tt this "tarNote"}}
+    </p>
+  {{/if}}
+  {{single-file-info file=effFile}}
 {{/proceed-process-modal}}

@@ -41,7 +41,7 @@
         </a>
       </li>
     {{/if}}
-    {{#if (eq file.type "file")}}
+    {{#if isSizeShown}}
       <li class="property-row">
         <span class="property-label">{{tt this "size"}}:</span>
         <span class="download-file-size property-value">
