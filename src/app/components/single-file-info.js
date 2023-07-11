@@ -73,7 +73,9 @@ export default Component.extend(I18n, {
     eq('effFileType', raw(LegacyFileType.Regular)),
     and(
       eq('effFileType', raw(LegacyFileType.Directory)),
-      'effFileSize'
+      computed('effFileSize', function isSizeIsNumber() {
+        return typeof this.effFileSize === 'number';
+      })
     ),
   ),
 

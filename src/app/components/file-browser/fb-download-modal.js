@@ -12,13 +12,13 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { notEmpty, raw, eq } from 'ember-awesome-macros';
+import { bool, raw, eq } from 'ember-awesome-macros';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 export default Component.extend(I18n, {
   i18n: service(),
 
-  open: notEmpty('file'),
+  open: bool('file'),
 
   /**
    * @override
