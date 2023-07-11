@@ -27,7 +27,7 @@
   }
 
   .oneprovider-storage-location-row td {
-    &.storage-name-cell {
+    &.storage-name-cell, &.error-cell {
       display: table-cell;
       padding-top: 6px;
       padding-bottom: $padding-small-vertical;
@@ -75,6 +75,15 @@
 
     .clipboard-line {
       margin-bottom: $table-cell-padding;
+    }
+
+    .oneicon-sign-warning-rounded {
+      font-size: 120%;
+      color: $color-one-yellow;
+      vertical-align: middle;
+      width: 1.2em;
+      margin-left: -2px;
+      margin-right: 1px;
     }
   }
 }
