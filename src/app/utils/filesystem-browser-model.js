@@ -1121,12 +1121,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         width: 180,
       }),
     });
+    this.set('columnsOrder', ['size', 'modification']);
     if (this.isOwnerVisible) {
       this.set('columns.owner', EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 200,
       }));
+      this.columnsOrder.push('owner');
     }
     this._super(...arguments);
   },

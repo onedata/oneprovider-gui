@@ -42,5 +42,31 @@ export default Component.extend(I18n, {
     checkboxChanged(columnName, newValue) {
       this.browserModel.changeColumnVisibility(columnName, newValue);
     },
+    moveColumnDown(columnName) {
+      const columnsOrder = this.browserModel.columnsOrder;
+      const indexOfColumn = columnsOrder.indexOf(columnName);
+
+      if (indexOfColumn + 1 < columnsOrder.length) {
+        const columnToSwitch = columnsOrder[indexOfColumn + 1];
+        columnsOrder
+          .replace(indexOfColumn, 1, [columnToSwitch])
+          .replace(indexOfColumn + 1, 1, [columnName]);
+        this.browserModel.saveNewOrder();
+        this.browserModel.checkColumnsVisibility();
+      }
+    },
+    moveColumnUp(columnName) {
+      const columnsOrder = this.browserModel.columnsOrder;
+      const indexOfColumn = columnsOrder.indexOf(columnName);
+
+      if (indexOfColumn - 1 >= 0) {
+        const columnToSwitch = columnsOrder[indexOfColumn - 1];
+        columnsOrder
+          .replace(indexOfColumn, 1, [columnToSwitch])
+          .replace(indexOfColumn - 1, 1, [columnName]);
+        this.browserModel.saveNewOrder();
+        this.browserModel.checkColumnsVisibility();
+      }
+    },
   },
 });

@@ -845,14 +845,27 @@ export default EmberObject.extend(...mixins, {
     this.set(`columns.${columnName}.isEnabled`, isEnabled);
     this.checkColumnsVisibility();
     const enabledColumns = [];
-    for (const column in this.columns) {
+    const allColumns = [];
+    for (const column of this.columnsOrder) {
       if (this.columns[column].isEnabled) {
         enabledColumns.push(column);
       }
+      allColumns.push(column);
     }
     globals.localStorage.setItem(
       `${this.browserPersistedConfigurationKey}.enabledColumns`,
       enabledColumns.join()
+    );
+    globals.localStorage.setItem(
+      `${this.browserPersistedConfigurationKey}.columnsOrder`,
+      allColumns.join()
+    );
+  },
+
+  saveNewOrder() {
+    globals.localStorage.setItem(
+      `${this.browserPersistedConfigurationKey}.columnsOrder`,
+      this.columnsOrder
     );
   },
 
@@ -865,7 +878,7 @@ export default EmberObject.extend(...mixins, {
     let remainingWidth = width - this.firstColumnWidth;
     remainingWidth -= this.lastColumnWidth;
     let hiddenColumnsCount = 0;
-    for (const column in this.columns) {
+    for (const column of this.columnsOrder) {
       if (this.columns[column].isEnabled) {
         if (remainingWidth >= this.columns[column].width) {
           remainingWidth -= this.columns[column].width;
@@ -888,6 +901,9 @@ export default EmberObject.extend(...mixins, {
     const enabledColumns = globals.localStorage.getItem(
       `${this.browserPersistedConfigurationKey}.enabledColumns`
     );
+    const columnsOrder = globals.localStorage.getItem(
+      `${this.browserPersistedConfigurationKey}.columnsOrder`
+    );
     const enabledColumnsList = enabledColumns?.split(',');
     if (enabledColumnsList) {
       for (const column in this.columns) {
@@ -895,6 +911,10 @@ export default EmberObject.extend(...mixins, {
           Boolean(enabledColumnsList?.includes(column))
         );
       }
+    }
+    const columnsOrderList = columnsOrder?.split(',');
+    if (columnsOrderList) {
+      this.set('columnsOrder', columnsOrderList);
     }
   },
 

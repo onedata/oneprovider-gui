@@ -10,11 +10,11 @@
       exceptSelector=triggerSelector
     }}
       <ul class="columns-list">
-        {{#each-in browserModel.columns as |columnName columnSpec|}}
+        {{#each this.browserModel.columnsOrder as |columnName|}}
           <li class="column">
             {{one-checkbox
               inputId=(concat elementId "-" columnName "Checkbox")
-              checked=columnSpec.isEnabled
+              checked=(get (get browserModel.columns columnName) "isEnabled")
               update=(action "checkboxChanged" columnName)
               class=(concat-classes
                 "filter-column-checkbox"
@@ -26,16 +26,35 @@
               class="column-name-label"
             >
               <span class="one-label checkbox-label">
-                {{tt this columnName}}
+                <span>{{tt this columnName}}</span>
+                {{#if (and
+                  (not (get (get browserModel.columns columnName) "isVisible"))
+                  (get (get browserModel.columns columnName) "isEnabled")
+                )}}
+                  {{#one-icon icon="no-view"}}
+                    {{one-tooltip title=(tt this "noViewTip")}}
+                  {{/one-icon}}
+                {{/if}}
               </span>
             </label>
-            {{#if (and (not columnSpec.isVisible) columnSpec.isEnabled)}}
-              {{#one-icon icon="no-view"}}
-                {{one-tooltip title=(tt this "noViewTip")}}
-              {{/one-icon}}
-            {{/if}}
+            <div class="arrows-container">
+              <span
+                class="move-down-button"
+                onClick={{action "moveColumnDown" columnName}}
+              >
+                {{one-icon icon="move-down"}}
+                {{one-tooltip title=(tt this "moveDown")}}
+              </span>
+              <span
+                class="move-up-button"
+                onClick={{action "moveColumnUp" columnName}}
+              >
+                {{one-icon icon="move-up"}}
+                {{one-tooltip title=(tt this "moveUp")}}
+              </span>
+            </div>
           </li>
-        {{/each-in}}
+        {{/each}}
       </ul>
     {{/click-outside}}
   {{/one-webui-popover}}

@@ -1,0 +1,46 @@
+{{#if (eq file.effFile.type "file")}}
+  {{#if (or file.effFile.isShowProgress (not file.effFile.isPollingSize))}}
+    <span class="{{if file.effFile.isShowProgress "infinite animated pulse-mint"}}">
+      {{bytes-to-string file.effFile.size}}
+    </span>
+    {{#if file.effFile.isShowProgress}}
+      <br>
+      <span class="small">
+        {{tt this file.effFile.currentOperation}}
+      </span>
+    {{/if}}
+  {{else}}
+    {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+  {{/if}}
+{{else if isItemDirStatsFeatureHidden}}
+  {{#if isUnknownSizeShown}}
+    —
+  {{else}}
+    {{bytes-to-string file.effFile.size}}
+  {{/if}}
+{{else}}
+  <div
+    class={{concat-classes
+      "dir-size-container"
+      "active"
+    }}
+    onclick={{action "invokeFileAction" file "info" "size"}}
+  >
+    <span class="dir-size-value">
+      {{#if isUnknownSizeShown}}
+        —
+      {{else}}
+        {{bytes-to-string file.effFile.size}}
+      {{/if}}
+    </span>
+    {{one-icon
+      icon="overview"
+      class="inline-icon-container"
+    }}
+  </div>
+  {{#if tooltipText}}
+    {{one-tooltip
+      title=tooltipText
+    }}
+  {{/if}}
+{{/if}}
