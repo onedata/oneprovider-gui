@@ -7,7 +7,7 @@
  */
 
 import Component from '@ember/component';
-import { observer, computed, get } from '@ember/object';
+import { observer, computed, get, trySet } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { resolve } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -26,6 +26,7 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 const mixins = [
   I18n,
@@ -96,6 +97,12 @@ export default Component.extend(...mixins, {
    * @type {Boolean}
    */
   navigateAfterRecall: false,
+
+  /**
+   * Used by `fileActionObserver` to prevent multiple async invocations which is unsafe.
+   * @type {boolean}
+   */
+  fileActionObserverLock: false,
 
   /**
    * @virtual optional
@@ -483,16 +490,24 @@ export default Component.extend(...mixins, {
   ),
 
   fileActionObserver: observer('viewMode', 'fileAction', function fileActionObserver() {
-    if (this.viewMode !== 'files' || !this.fileAction) {
+    if (this.viewMode !== 'files' || !this.fileAction || this.fileActionObserverLock) {
       return;
     }
-    // FIXME: prevent multiple action invocations - try..finally lock?
+    this.set('fileActionObserverLock', true);
     (async () => {
-      await this.initialRequiredDataProxy;
-      await this.dirProxy;
-      await this.browserModel.initialLoad;
-      await waitForRender();
-      this.browserModel.invokeCommand(this.fileAction);
+      try {
+        await this.initialRequiredDataProxy;
+        await this.dirProxy;
+        await this.browserModel.initialLoad;
+        await waitForRender();
+        // HACK: In Firefox, the command is invoked before changeSelectedItems in
+        // browser container finishes. Using sleep(0) postpones invocation in browser
+        // execution queue always after changeSelectedItems.
+        await sleep(0);
+        this.browserModel.invokeCommand(this.fileAction);
+      } finally {
+        trySet(this, 'fileActionObserverLock', false);
+      }
     })();
   }),
 

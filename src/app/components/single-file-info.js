@@ -119,15 +119,6 @@ export default Component.extend(I18n, {
 
   archiveInfo: reads('archiveInfoProxy.content'),
 
-  init() {
-    this._super(...arguments);
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_single_file_info');
-  },
-
   actions: {
     linkClicked(event) {
       const onLinkClicked = this.get('onLinkClicked');
