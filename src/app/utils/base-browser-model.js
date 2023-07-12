@@ -917,9 +917,7 @@ export default EmberObject.extend(...mixins, {
     if (columnsOrderList) {
       this.set('columnsOrder', []);
       for (const column of columnsOrderList) {
-        if (this.columns.hasOwnProperty(column)) {
-          this.columnsOrder.push(column);
-        }
+        this.columnsOrder.push(column);
       }
     }
   },
