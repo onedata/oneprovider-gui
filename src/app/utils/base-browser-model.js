@@ -845,20 +845,14 @@ export default EmberObject.extend(...mixins, {
     this.set(`columns.${columnName}.isEnabled`, isEnabled);
     this.checkColumnsVisibility();
     const enabledColumns = [];
-    const allColumns = [];
     for (const column of this.columnsOrder) {
       if (this.columns[column].isEnabled) {
         enabledColumns.push(column);
       }
-      allColumns.push(column);
     }
     globals.localStorage.setItem(
       `${this.browserPersistedConfigurationKey}.enabledColumns`,
       enabledColumns.join()
-    );
-    globals.localStorage.setItem(
-      `${this.browserPersistedConfigurationKey}.columnsOrder`,
-      allColumns.join()
     );
   },
 

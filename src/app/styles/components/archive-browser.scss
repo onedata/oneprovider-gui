@@ -7,10 +7,6 @@
     @media (max-width: 1000px) {
       --col-creator-fixed-width: 180px;
     }
-    // empirical size of content when whole app width is 1365px
-    @media (max-width: 915px) {
-      display: none;
-    }
   }
   .fb-table-col-incremental {
     max-width: 14em;
