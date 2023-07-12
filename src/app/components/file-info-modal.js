@@ -409,6 +409,16 @@ export default Component.extend(...mixins, {
             locationsPerProviderWithStorageName[providerId] = [storageNameWithPath];
           }
         }
+
+        if (locationsPerProvider[providerId].error) {
+          const provider = await this.providerManager.getProviderById(providerId);
+          const providerError = {
+            storageName: null,
+            provider,
+            error: locationsPerProvider[providerId].error,
+          };
+          locationsPerProviderWithStorageName[providerId] = [providerError];
+        }
       }
 
       if (_.isEmpty(locationsPerProvider)) {
