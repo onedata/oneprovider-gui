@@ -20,7 +20,7 @@
 {{#each browserModel.columnsOrder as |columnName|}}
   {{#if (get browserModel (concat "columns." columnName ".isVisible"))}}
     <th
-      class="fb-table-col-size fb-table-secondary-col hidden-xs"
+      class={{concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"}}
       style={{get browserModel (concat "columnsStyle." columnName)}}
     >
       {{tt this columnName}}

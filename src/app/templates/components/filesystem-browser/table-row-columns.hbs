@@ -1,18 +1,82 @@
 {{#each browserModel.columnsOrder as |columnName|}}
   {{#if (get browserModel (concat "columns." columnName ".isVisible"))}}
-    <td class={{concat
-        "fb-table-col-" columnName " hidden-xs "
-        (if (and (eq columnName "size") file.effFile.isShowProgress) "multiline")
-        (if (eq columnName "owner") "multiline")
-      }}
-      style={{concat "browserModel.columnsStyle." columnName}}
-    >
-      {{component (concat "filesystem-browser/table-" columnName "-cell")
-        browserModel=browserModel
-        file=file
-        dirStatsServiceState=dirStatsServiceState
-        invokeFileAction=(action "invokeFileAction")
-      }}
-    </td>
+    {{#if (eq columnName "size")}}
+      <td class={{concat
+          "fb-table-col-size hidden-xs "
+          (if file.effFile.isShowProgress "multiline")
+        }}
+        style={{browserModel.columnsStyle.size}}
+      >
+        <span class="file-item-text">
+          {{#if (eq file.effFile.type "file")}}
+            {{#if (or file.effFile.isShowProgress (not file.effFile.isPollingSize))}}
+              <span class="{{if file.effFile.isShowProgress "infinite animated pulse-mint"}}">
+                {{bytes-to-string file.effFile.size}}
+              </span>
+              {{#if file.effFile.isShowProgress}}
+                <br>
+                <span class="small">
+                  {{tt this file.effFile.currentOperation}}
+                </span>
+              {{/if}}
+            {{else}}
+              {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+            {{/if}}
+          {{else if isItemDirStatsFeatureHidden}}
+            {{#if isUnknownSizeShown}}
+              —
+            {{else}}
+              {{bytes-to-string file.effFile.size}}
+            {{/if}}
+          {{else}}
+            <div
+              class={{concat-classes
+                "dir-size-container"
+                "active"
+              }}
+              onclick={{action "invokeFileAction" file "info" "size"}}
+            >
+              <span class="dir-size-value">
+                {{#if isUnknownSizeShown}}
+                  —
+                {{else}}
+                  {{bytes-to-string file.effFile.size}}
+                {{/if}}
+              </span>
+              {{one-icon
+                icon="overview"
+                class="inline-icon-container"
+              }}
+            </div>
+            {{#if tooltipText}}
+              {{one-tooltip
+                title=tooltipText
+              }}
+            {{/if}}
+          {{/if}}
+        </span>
+      </td>
+    {{else if (eq columnName "modification")}}
+      <td
+        class="fb-table-col-modification hidden-xs"
+        style={{browserModel.columnsStyle.modification}}
+      >
+        <span class="file-item-text">
+          {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
+        </span>
+      </td>
+    {{else if (eq columnName "owner")}}
+      <td
+        class="fb-table-col-owner multiline hidden-xs"
+        style={{browserModel.columnsStyle.owner}}
+      >
+        <span class="file-item-text">
+          {{filesystem-browser/table-cell-owner-info
+            owner=owner
+            errorReason=errorReasonForOwnerProxy
+          }}
+        </span>
+      </td>
+    {{/if}}
   {{/if}}
 {{/each}}

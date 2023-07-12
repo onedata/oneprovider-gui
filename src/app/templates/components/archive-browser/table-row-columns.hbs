@@ -1,76 +1,78 @@
-{{#if browserModel.columns.state.isVisible}}
-  <td
-    class="fb-table-col-state fb-table-secondary-col hidden-xs multiline"
-  >
-    {{archive-state
-      class="file-item-text"
-      archive=fileRowModel.archive
-      stateClassMapping=stateClassMapping
-    }}
-  </td>
-{{/if}}
-{{#if browserModel.columns.incremental.isVisible}}
-  <td class="fb-table-col-incremental fb-table-secondary-col hidden-xs multiline">
-    <div
-      class="file-item-text base-archive-info {{if fileRowModel.isIncremental "col-status-yes" "col-status-no"}}"
-    >
-      {{#if fileRowModel.isIncremental}}
-        {{#if loadingBaseArchiveProxy.isPending}}
-          {{tt this "loading"}}
-        {{else if baseArchiveName}}
-          {{#if baseArchiveUrl}}
-            <a
-              class="azure base-archive-link"
-              target={{navigateTarget}}
-              href={{baseArchiveUrl}}
-              onclick={{action "baseArchiveLinkClick"}}
-              onkeydown={{invoke-on-enter (action "baseArchiveLinkClick")}}
-            >
-              {{#truncated-string class="base-archive-name"}}
-                {{fileRowModel.baseArchiveNameProxy.content}}
+{{#each browserModel.columnsOrder as |columnName|}}
+  {{#if (get browserModel (concat "columns." columnName ".isVisible"))}}
+    {{#if (eq columnName "state")}}
+      <td
+        class="fb-table-col-state fb-table-secondary-col hidden-xs multiline"
+      >
+        {{archive-state
+          class="file-item-text"
+          archive=fileRowModel.archive
+          stateClassMapping=stateClassMapping
+        }}
+      </td>
+    {{else if (eq columnName "incremental")}}
+      <td class="fb-table-col-incremental fb-table-secondary-col hidden-xs multiline">
+        <div
+          class="file-item-text base-archive-info {{if fileRowModel.isIncremental "col-status-yes" "col-status-no"}}"
+        >
+          {{#if fileRowModel.isIncremental}}
+            {{#if loadingBaseArchiveProxy.isPending}}
+              {{tt this "loading"}}
+            {{else if baseArchiveName}}
+              {{#if baseArchiveUrl}}
+                <a
+                  class="azure base-archive-link"
+                  target={{navigateTarget}}
+                  href={{baseArchiveUrl}}
+                  onclick={{action "baseArchiveLinkClick"}}
+                  onkeydown={{invoke-on-enter (action "baseArchiveLinkClick")}}
+                >
+                  {{#truncated-string class="base-archive-name"}}
+                    {{fileRowModel.baseArchiveNameProxy.content}}
+                  {{/truncated-string}}
+                </a>
+              {{else}}
+                {{#truncated-string class="base-archive-name"}}
+                  {{fileRowModel.baseArchiveNameProxy.content}}
+                {{/truncated-string}}
+              {{/if}}
+              <div class="file-info-secondary">
+                {{archive-browser/secondary-description
+                  archive=baseArchiveProxy.content
+                  class="file-info-secondary-inner file-info-secondary-left"
+                }}
+              </div>
+            {{else if baseArchiveId}}
+              {{#truncated-string
+                tagName="code"
+                class="base-archive-id-container"
+                tooltipClass="tooltip-lg tooltip-text-monospace"
+              }}
+                <strong>{{tt this "id"}}:</strong>
+                <span class="base-archive-id">{{baseArchiveId}}</span>
               {{/truncated-string}}
-            </a>
+            {{else}}
+              –
+            {{/if}}
           {{else}}
-            {{#truncated-string class="base-archive-name"}}
-              {{fileRowModel.baseArchiveNameProxy.content}}
-            {{/truncated-string}}
+            {{tt this "no"}}
           {{/if}}
-          <div class="file-info-secondary">
-            {{archive-browser/secondary-description
-              archive=baseArchiveProxy.content
-              class="file-info-secondary-inner file-info-secondary-left"
-            }}
+        </div>
+        {{#if baseArchiveIsDeleted}}
+          <div class="file-item-text text-muted base-archive-deleted small">
+            {{tt this "baseArchiveDeleted"}}
           </div>
-        {{else if baseArchiveId}}
-          {{#truncated-string
-            tagName="code"
-            class="base-archive-id-container"
-            tooltipClass="tooltip-lg tooltip-text-monospace"
-          }}
-            <strong>{{tt this "id"}}:</strong>
-            <span class="base-archive-id">{{baseArchiveId}}</span>
-          {{/truncated-string}}
-        {{else}}
-          –
         {{/if}}
-      {{else}}
-        {{tt this "no"}}
-      {{/if}}
-    </div>
-    {{#if baseArchiveIsDeleted}}
-      <div class="file-item-text text-muted base-archive-deleted small">
-        {{tt this "baseArchiveDeleted"}}
-      </div>
+      </td>
+    {{else if (eq columnName "creator")}}
+      <td class="fb-table-col-creator fb-table-secondary-col multiline">
+        <span class="file-item-text">
+          {{filesystem-browser/table-cell-owner-info
+            owner=creator
+            errorReason=creatorProxyError
+          }}
+        </span>
+      </td>
     {{/if}}
-  </td>
-{{/if}}
-{{#if browserModel.columns.creator.isVisible}}
-  <td class="fb-table-col-creator fb-table-secondary-col multiline">
-    <span class="file-item-text">
-      {{filesystem-browser/table-cell-owner-info
-        owner=creator
-        errorReason=creatorProxyError
-      }}
-    </span>
-  </td>
-{{/if}}
+  {{/if}}
+{{/each}}
