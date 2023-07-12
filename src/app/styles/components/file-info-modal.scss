@@ -378,6 +378,13 @@
       }
     }
   }
+  .ember-power-select-selected-item {
+    .file-link-type-selector-item {
+      .file-link-type-selector-tip {
+        margin-right: 0.2em;
+      }
+    }
+  }
 }
 
 .file-link-type-selector-item {
@@ -386,12 +393,5 @@
     display: flex;
     align-items: center;
     margin-left: 0.5em;
-  }
-}
-.ember-power-select-selected-item {
-  .file-link-type-selector-item {
-    .file-link-type-selector-tip {
-      margin-right: 0.2em;
-    }
   }
 }

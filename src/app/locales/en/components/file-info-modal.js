@@ -25,7 +25,7 @@ export default {
     },
     download: {
       file: `<p><strong>Download item link</strong></p><p>The URL opens a file browser view and asks for the file download. ${fileLinkAuthentication} for the file.</p>`,
-      dir: `<p><strong>Download item link</strong></p><p>The URL opens a file browser view and asks for the directory and its contents download, packaged in a tar format. ${fileLinkAuthentication} for the directory.</p>`,
+      dir: `<p><strong>Download item link</strong></p><p>The URL opens a file browser view and asks for the directory and its contents download, packaged in the tar format. ${fileLinkAuthentication} for the directory.</p>`,
     },
   },
   fileType: {

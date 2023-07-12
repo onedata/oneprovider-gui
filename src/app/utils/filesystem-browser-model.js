@@ -1154,12 +1154,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         await waitForRender();
         if (this.selectedItems.length === 1) {
           this.openConfirmDownload(this.selectedItems[0]);
-        } else if (this.selectedItems.length > 1) {
+        } else {
           this.downloadFiles(this.selectedItems);
         }
         break;
       }
       default:
+        if (command) {
+          console.warn(
+            `An unknown command has been invoked in filesystem-browser-model: "${command}", ignoring.`
+          );
+        }
         break;
     }
   },
