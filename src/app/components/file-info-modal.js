@@ -240,7 +240,12 @@ export default Component.extend(...mixins, {
     'availableFileLinkTypes',
     'itemType',
     function availableFileLinkOptions() {
-      if (!this.file?.type || !this.availableFileLinkTypes) {
+      if (
+        !this.file?.type ||
+        !this.availableFileLinkTypes ||
+        // TODO: VFS-11156 Implement shared files global URLs
+        this.browserModel.previewMode
+      ) {
         return [];
       }
       return this.availableFileLinkTypes.map(fileLinkType => ({
