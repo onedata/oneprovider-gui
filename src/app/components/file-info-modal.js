@@ -239,12 +239,13 @@ export default Component.extend(...mixins, {
   availableFileLinkOptions: computed(
     'availableFileLinkTypes',
     'itemType',
+    'previewMode',
     function availableFileLinkOptions() {
       if (
         !this.file?.type ||
         !this.availableFileLinkTypes ||
         // TODO: VFS-11156 Implement shared files global URLs
-        this.browserModel.previewMode
+        this.previewMode
       ) {
         return [];
       }

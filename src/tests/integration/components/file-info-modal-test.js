@@ -104,7 +104,11 @@ const file1 = {
 };
 
 describe('Integration | Component | file-info-modal', function () {
-  setupRenderingTest();
+  const { afterEach } = setupRenderingTest();
+
+  afterEach(function () {
+    this.browserModel?.destroy?.();
+  });
 
   // NOTE: context is not used for async render tests, because mocha's context is buggy
 
@@ -706,6 +710,7 @@ async function renderComponent() {
     getDataUrl=getDataUrl
     storageLocationsProxy=storageLocationsProxy
     tabOptions=tabOptions
+    browserModel=browserModel
   }}`);
 }
 
