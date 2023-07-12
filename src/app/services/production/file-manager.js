@@ -320,6 +320,27 @@ export default Service.extend({
         limit,
         offset,
         inclusive: true,
+        attributes: [
+          'name',
+          'mode',
+          'guid',
+          'activePermissionsType',
+          'index',
+          'ownerId',
+          'providerId',
+          'shares',
+          'type',
+          'mtime',
+          'localReplicationRate',
+          'size',
+          'recallRootId',
+          'effDatasetMembership',
+          'effDatasetProtectionFlags',
+          'effProtectionFlags',
+          'effQosMembership',
+          'qosStatus',
+          'hasMetadata',
+        ],
       },
       subscribe: false,
     });
@@ -347,6 +368,7 @@ export default Service.extend({
       aspect: symlinkTargetAttrsAspect,
       scope,
     });
+    console.log('dfsaf2');
     return this.get('onedataGraph').request({
       operation: 'get',
       gri: requestGri,
@@ -403,6 +425,7 @@ export default Service.extend({
   },
 
   getFileDownloadUrl(fileIds, scope = 'private') {
+    console.log('dfsaf3');
     return this.get('onedataGraph').request({
       operation: 'get',
       gri: gri({
@@ -424,6 +447,7 @@ export default Service.extend({
   },
 
   async getFileHardlinks(fileId, limit = 100) {
+    console.log('dfsaf5');
     const idsResult = await this.get('onedataGraph').request({
       operation: 'get',
       gri: gri({
@@ -483,6 +507,7 @@ export default Service.extend({
     const fileIdB = isRecordB ? get(fileRecordOrIdB, 'entityId') : fileRecordOrIdB;
 
     try {
+      console.log('dfsaf6');
       await this.get('onedataGraph').request({
         operation: 'get',
         gri: gri({
@@ -716,6 +741,7 @@ export default Service.extend({
       entityId: recallRootId,
       aspect: cancelRecallAspect,
     });
+    console.log('dfsaf8');
     return this.get('onedataGraph').request({
       operation: 'create',
       gri: requestGri,

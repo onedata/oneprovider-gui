@@ -83,18 +83,21 @@ export default FbTableRowColumns.extend(I18n, {
   /**
    * @type {ComputedProperty<number>}
    */
-  replicationRate: computed(function replicationRate() {
-    const replicationRate = this.file.effFile.replication * 100;
-    if (replicationRate > 0 && replicationRate < 1) {
-      return replicationRate;
+  replicationRate: computed(
+    'file.effFile.localReplicationRate',
+    function replicationRate() {
+      const replicationRate = this.file.effFile.localReplicationRate * 100;
+      if (replicationRate > 0 && replicationRate < 1) {
+        return replicationRate;
+      }
+      return Math.round(replicationRate);
     }
-    return Math.round(replicationRate);
-  }),
+  ),
 
   /**
    * @type {ComputedProperty<string>}
    */
-  replicationStyle: computed(function replicationStyle() {
+  replicationStyle: computed('replicationRate', function replicationStyle() {
     if (this.replicationRate > 0 && this.replicationRate < 1) {
       return htmlSafe('width: 100%');
     }
@@ -104,7 +107,7 @@ export default FbTableRowColumns.extend(I18n, {
   /**
    * @type {ComputedProperty<string>}
    */
-  emptyBarStyle: computed(function emptyBarStyle() {
+  emptyBarStyle: computed('replicationRate', function emptyBarStyle() {
     if (this.replicationRate > 0 && this.replicationRate < 1) {
       return htmlSafe('width: 0%');
     }
