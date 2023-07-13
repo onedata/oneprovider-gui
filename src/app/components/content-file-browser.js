@@ -8,7 +8,7 @@
 
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
-import { computed, get, getProperties, observer, trySet } from '@ember/object';
+import { computed, get, getProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';

@@ -7,7 +7,7 @@
  */
 
 import Component from '@ember/component';
-import { observer, computed, get, trySet } from '@ember/object';
+import { observer, computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { resolve } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
