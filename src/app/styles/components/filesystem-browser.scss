@@ -59,6 +59,7 @@
     padding-right: 40px;
     width: 160px;
     text-align: center;
+
     .replication-rate-container {
       display: flex;
     }
@@ -89,6 +90,9 @@
       &.full {
         opacity: 60%;
       }
+    }
+    .file-item-text:hover .replication-rate-text {
+      text-decoration: underline;
     }
   }
 }

@@ -86,11 +86,14 @@ export default FbTableRowColumns.extend(I18n, {
   replicationRate: computed(
     'file.effFile.localReplicationRate',
     function replicationRate() {
-      const replicationRate = this.file.effFile.localReplicationRate * 100;
-      if (replicationRate > 0 && replicationRate < 1) {
-        return replicationRate;
+      if (this.file.effFile.localReplicationRate) {
+        const replicationRate = this.file.effFile.localReplicationRate * 100;
+        if (replicationRate > 0 && replicationRate < 1) {
+          return replicationRate;
+        }
+        return Math.round(replicationRate);
       }
-      return Math.round(replicationRate);
+      return null;
     }
   ),
 
