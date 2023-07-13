@@ -109,7 +109,6 @@ export default OneEmbeddedComponent.extend(
     iframeInjectedNavigationProperties: Object.freeze([
       'spaceEntityId',
       'dirEntityId',
-      'fileAction',
     ]),
 
     /**
@@ -117,6 +116,13 @@ export default OneEmbeddedComponent.extend(
      * @type {Utils.FilesystemBrowserModel}
      */
     browserModel: undefined,
+
+    /**
+     * A flag indicating that this file browser will be closed immediately to open another
+     * file browser (archive filesystem in datasets browser, etc.), because file should
+     * not be shown in this context.
+     */
+    willRedirectToOtherBrowser: false,
 
     /**
      * @type {Models.File}
@@ -177,13 +183,18 @@ export default OneEmbeddedComponent.extend(
               return fileId === get(dir, 'entityId');
             });
 
-            if (validFiles.length < selected.length) {
-              if (selected.length === 1) {
-                this.alert.warning(this.t('selectedNotFound.single'));
-              } else if (selected.length > 1) {
-                this.alert.warning(this.t('selectedNotFound.many'));
+            (async () => {
+              if (this.willRedirectToOtherBrowser) {
+                return;
               }
-            }
+              if (validFiles.length < selected.length) {
+                if (selected.length === 1) {
+                  this.alert.warning(this.t('selectedNotFound.single'));
+                } else if (selected.length > 1) {
+                  this.alert.warning(this.t('selectedNotFound.many'));
+                }
+              }
+            })();
             return validFiles;
           } catch (error) {
             console.error(
@@ -317,6 +328,7 @@ export default OneEmbeddedComponent.extend(
           return resolverResult.dir;
         } else {
           if (resolverResult.url) {
+            this.set('willRedirectToOtherBrowser', true);
             parentAppNavigation.openUrl(resolverResult.url, true);
           }
           return fallbackDir;
@@ -342,21 +354,37 @@ export default OneEmbeddedComponent.extend(
       this.get('containerScrollTop')(0);
     }),
 
-    fileActionObserver: observer('fileAction', function fileActionObserver() {
-      if (this.fileActionObserverLock) {
-        return;
-      }
-      this.set('fileActionObserverLock', true);
-      (async () => {
-        try {
-          await this.initialRequiredDataProxy;
-          await waitForRender();
-          this.browserModel.invokeCommand(this.fileAction);
-        } finally {
-          trySet(this, 'fileActionObserverLock', false);
+    fileActionObserver: observer(
+      'fileAction',
+      // additional properties, that should invoke file action from URL
+      'selected',
+      function fileActionObserver() {
+        if (this.fileActionObserverLock || !this.fileAction) {
+          return;
         }
-      })();
-    }),
+        this.set('fileActionObserverLock', true);
+        (async () => {
+          try {
+            await this.initialRequiredDataProxy;
+            await this.dirProxy;
+            if (this.willRedirectToOtherBrowser) {
+              return;
+            }
+            await waitForRender();
+            this.browserModel.invokeCommand(this.fileAction);
+          } finally {
+            if (!this.willRedirectToOtherBrowser) {
+              safeExec(this, () => {
+                this.callParent('updateFileAction', null);
+              });
+            }
+            safeExec(this, () => {
+              this.set('fileActionObserverLock', false);
+            });
+          }
+        })();
+      }
+    ),
 
     init() {
       this._super(...arguments);

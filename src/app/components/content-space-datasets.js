@@ -176,7 +176,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'archiveId',
     'dirId',
     'attachmentState',
-    'fileAction',
   ]),
 
   /**

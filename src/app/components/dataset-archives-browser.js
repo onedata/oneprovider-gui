@@ -489,27 +489,36 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  fileActionObserver: observer('viewMode', 'fileAction', function fileActionObserver() {
-    if (this.viewMode !== 'files' || !this.fileAction || this.fileActionObserverLock) {
-      return;
-    }
-    this.set('fileActionObserverLock', true);
-    (async () => {
-      try {
-        await this.initialRequiredDataProxy;
-        await this.dirProxy;
-        await this.browserModel.initialLoad;
-        await waitForRender();
-        // HACK: In Firefox, the command is invoked before changeSelectedItems in
-        // browser container finishes. Using sleep(0) postpones invocation in browser
-        // execution queue always after changeSelectedItems.
-        await sleep(0);
-        this.browserModel.invokeCommand(this.fileAction);
-      } finally {
-        trySet(this, 'fileActionObserverLock', false);
+  fileActionObserver: observer(
+    'fileAction',
+    // additional properties, that should invoke file action from URL
+    'selected',
+    'viewMode',
+    function fileActionObserver() {
+      if (this.viewMode !== 'files' || !this.fileAction || this.fileActionObserverLock) {
+        return;
       }
-    })();
-  }),
+      this.set('fileActionObserverLock', true);
+      (async () => {
+        try {
+          await this.initialRequiredDataProxy;
+          await this.dirProxy;
+          await this.browserModel.initialLoad;
+          await waitForRender();
+          // HACK: In Firefox, the command is invoked before changeSelectedItems in
+          // browser container finishes. Using sleep(0) postpones invocation in browser
+          // execution queue always after changeSelectedItems.
+          await sleep(0);
+          this.browserModel.invokeCommand(this.fileAction);
+        } finally {
+          safeExec(this, () => {
+            this.appProxy.callParent('updateFileAction', null);
+            this.set('fileActionObserverLock', false);
+          });
+        }
+      })();
+    }
+  ),
 
   init() {
     this._super(...arguments);

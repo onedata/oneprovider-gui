@@ -57,6 +57,20 @@ export default Component.extend(I18n, {
    */
   isDirectory: eq('effFileType', raw(LegacyFileType.Directory)),
 
+  /**
+   * @param {AppProxyTransitionInfo} transitionInfo
+   * @returns {boolean}
+   */
+  shouldCloseOnTransition(transitionInfo) {
+    if (transitionInfo?.type !== 'appProxy') {
+      return true;
+    }
+    // do not close modal if fileAction is cleared
+    if (!transitionInfo.data.changedProperties.fileAction?.newValue) {
+      return false;
+    }
+  },
+
   actions: {
     close() {
       return this.get('onHide')();
