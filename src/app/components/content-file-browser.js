@@ -109,6 +109,7 @@ export default OneEmbeddedComponent.extend(
     iframeInjectedNavigationProperties: Object.freeze([
       'spaceEntityId',
       'dirEntityId',
+      'fileAction',
     ]),
 
     /**
