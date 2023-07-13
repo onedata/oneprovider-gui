@@ -2,7 +2,7 @@
  * Modal with detailed views about file or directory.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @copyright (C) 2019-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -22,6 +22,8 @@ import {
   bool,
   equal,
   not,
+  array,
+  conditional,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, set, getProperties, observer } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -52,6 +54,17 @@ const mixins = [
  * @property {string} [tabClass]
  */
 
+/**
+ * @typedef {'show'|'download'} FileInfoModal.FileLinkType
+ */
+
+/**
+ * @typedef {Object} FileInfoModal.FileLinkOption
+ * @property {string} url
+ * @property {FileInfoModal.FileLinkType} type
+ * @property {SafeString} label
+ */
+
 export default Component.extend(...mixins, {
   i18n: service(),
   fileManager: service(),
@@ -59,6 +72,7 @@ export default Component.extend(...mixins, {
   spaceManager: service(),
   storageManager: service(),
   providerManager: service(),
+  appProxy: service(),
 
   open: false,
 
@@ -148,6 +162,11 @@ export default Component.extend(...mixins, {
   getProvidersUrl: notImplementedIgnore,
 
   /**
+   * @type {FileInfoModal.FileLinkType}
+   */
+  selectedFileLinkType: null,
+
+  /**
    * @type {FileInfoTabId}
    */
   activeTab: 'general',
@@ -208,6 +227,57 @@ export default Component.extend(...mixins, {
       defaultValue: this.t('fileType.file'),
     }));
   }),
+
+  /**
+   * @type {Array<FileInfoModal.FileLinkType>}
+   */
+  availableFileLinkTypes: Object.freeze(['show', 'download']),
+
+  /**
+   * @type {ComputedProperty<Array<FileInfoModal.FileLinkOption>>}
+   */
+  availableFileLinkOptions: computed(
+    'availableFileLinkTypes',
+    'itemType',
+    'previewMode',
+    function availableFileLinkOptions() {
+      if (
+        !this.file?.type ||
+        !this.availableFileLinkTypes ||
+        // TODO: VFS-11156 Implement shared files global URLs
+        this.previewMode
+      ) {
+        return [];
+      }
+      return this.availableFileLinkTypes.map(fileLinkType => ({
+        type: fileLinkType,
+        url: this.appProxy.callParent('getFileGoToUrl', {
+          fileId: this.file.cdmiObjectId,
+          fileAction: fileLinkType,
+        }),
+        label: this.t(`fileLinkLabel.${fileLinkType}`),
+        tip: this.t(`fileLinkTip.${fileLinkType}.${this.itemType}`, { defaultValue: '' }),
+      }));
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<FileInfoModal.FileLinkType>}
+   */
+  effSelectedFileLinkType: conditional(
+    array.includes('availableFileLinkTypes', 'selectedFileLinkType'),
+    'selectedFileLinkType',
+    'availableFileLinkTypes.firstObject'
+  ),
+
+  effSelectedFileLinkOption: computed(
+    'effSelectedFileLinkType',
+    function effSelectedFileLinkOption() {
+      return this.availableFileLinkOptions.find(option =>
+        option.type === this.effSelectedFileLinkType
+      );
+    }
+  ),
 
   headerText: computed('typeTranslation', function headerText() {
     if (this.typeTranslation) {
@@ -371,22 +441,6 @@ export default Component.extend(...mixins, {
       return Object.keys(storageLocationsPerProvider).length;
     }
   ),
-
-  fileGuiUrlProxy: promise.object(computed('file.entityId', async function fileGuiUrl() {
-    const {
-      file,
-      getDataUrl,
-    } = this.getProperties('file', 'getDataUrl');
-    if (!file || !getDataUrl || getDataUrl === notImplementedThrow) {
-      return;
-    }
-    return await getDataUrl({
-      dir: null,
-      selected: [get(file, 'entityId')],
-    });
-  })),
-
-  fileGuiUrl: reads('fileGuiUrlProxy.content'),
 
   symlinkTargetPath: computed(
     'file.{type,targetPath}',
@@ -907,6 +961,13 @@ export default Component.extend(...mixins, {
     },
     getProvidersUrl(...args) {
       return this.get('getProvidersUrl')(...args);
+    },
+
+    /**
+     * @param {ComputedProperty<FileInfoModal.FileLinkType>} fileLinkType
+     */
+    changeSelectedFileLinkOption(fileLinkOption) {
+      this.set('selectedFileLinkType', fileLinkOption.type);
     },
   },
 });

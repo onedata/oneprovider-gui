@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11100 Added global URLs for files show and download
 * VFS-11153 Added showing error in storage locations in file details
 * VFS-11074 Added X axes synchronization between charts in the same section
 * VFS-11082 Added trace ID to exception store GUI

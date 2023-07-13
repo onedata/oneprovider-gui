@@ -2,7 +2,7 @@
  * Asks to download a file in mobile mode
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,12 +12,13 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { notEmpty } from 'ember-awesome-macros';
+import { bool, raw, eq } from 'ember-awesome-macros';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 export default Component.extend(I18n, {
   i18n: service(),
 
-  open: notEmpty('file'),
+  open: bool('file'),
 
   /**
    * @override
@@ -26,7 +27,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {models/file}
+   * @type {Models.File}
    */
   file: undefined,
 
@@ -44,7 +45,31 @@ export default Component.extend(I18n, {
    */
   confirmDownload: notImplementedReject,
 
-  itemType: reads('file.type'),
+  /**
+   * @type {ComputedProperty<Models.File>}
+   */
+  effFile: reads('file.effFile'),
+
+  effFileType: reads('effFile.type'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isDirectory: eq('effFileType', raw(LegacyFileType.Directory)),
+
+  /**
+   * @param {AppProxyTransitionInfo} transitionInfo
+   * @returns {boolean}
+   */
+  shouldCloseOnTransition(transitionInfo) {
+    if (transitionInfo?.type !== 'appProxy') {
+      return true;
+    }
+    // do not close modal if fileAction is cleared
+    if (!transitionInfo.data.changedProperties.fileAction?.newValue) {
+      return false;
+    }
+  },
 
   actions: {
     close() {

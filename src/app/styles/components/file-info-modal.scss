@@ -15,6 +15,9 @@
   .file-info-modal-body {
     .bs-modal-body-scroll {
       padding-top: $modal-title-padding + $btn-group-tabs-vertical-offset;
+      // allow to overflow labels to the left (needed for text-like dropdown)
+      margin-left: -$modal-inner-padding;
+      padding-left: $modal-inner-padding;
     }
   }
 
@@ -187,7 +190,7 @@
   .table.table-info.table-file-info {
     td.property-name {
       padding-left: 0;
-      width: 11em;
+      width: 12.2em;
       @media (max-width: $screen-xs-max) {
         width: auto;
       }
@@ -374,5 +377,21 @@
         padding: 10px;
       }
     }
+  }
+  .ember-power-select-selected-item {
+    .file-link-type-selector-item {
+      .file-link-type-selector-tip {
+        margin-right: 0.2em;
+      }
+    }
+  }
+}
+
+.file-link-type-selector-item {
+  display: flex;
+  .file-link-type-selector-tip {
+    display: flex;
+    align-items: center;
+    margin-left: 0.5em;
   }
 }
