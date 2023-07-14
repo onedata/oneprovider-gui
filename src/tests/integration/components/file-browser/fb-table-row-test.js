@@ -204,7 +204,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
 
   it('renders 100% replication', async function () {
     const replicationRate = 1;
-    this.set('file', createFile({ replication: replicationRate }));
+    this.set('file', createFile({ localReplicationRate: replicationRate }));
     const replicationRateText = replicationRate * 100 + '%';
 
     await renderComponent(this);
@@ -218,7 +218,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
 
   it('renders 0% replication', async function () {
     const replicationRate = 0;
-    this.set('file', createFile({ replication: replicationRate }));
+    this.set('file', createFile({ localReplicationRate: replicationRate }));
     const replicationRateText = replicationRate * 100 + '%';
 
     await renderComponent(this);
@@ -232,7 +232,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
 
   it('renders 20% replication', async function () {
     const replicationRate = 0.2;
-    this.set('file', createFile({ replication: replicationRate }));
+    this.set('file', createFile({ localReplicationRate: replicationRate }));
     const replicationRateText = replicationRate * 100 + '%';
 
     await renderComponent(this);
@@ -248,7 +248,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
 
   it('renders less than 1% replication', async function () {
     const replicationRate = 0.004;
-    this.set('file', createFile({ replication: replicationRate }));
+    this.set('file', createFile({ localReplicationRate: replicationRate }));
 
     await renderComponent(this);
 
@@ -262,7 +262,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
 
   it('renders 1% replication', async function () {
     const replicationRate = 0.01;
-    this.set('file', createFile({ replication: replicationRate }));
+    this.set('file', createFile({ localReplicationRate: replicationRate }));
     const replicationRateText = replicationRate * 100 + '%';
 
     await renderComponent(this);
