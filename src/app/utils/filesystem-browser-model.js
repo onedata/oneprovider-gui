@@ -1109,7 +1109,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       replication: EmberObject.create({
         isVisible: false,
         isEnabled: false,
-        width: 100,
+        width: 140,
       }),
     });
     if (this.isOwnerVisible) {

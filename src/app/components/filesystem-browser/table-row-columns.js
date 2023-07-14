@@ -81,14 +81,26 @@ export default FbTableRowColumns.extend(I18n, {
   errorReasonForOwnerProxy: reads('ownerProxy.reason'),
 
   /**
-   * @type {ComputedProperty<number>}
+   * @type {ComputedProperty<boolean>}
+   */
+  isSmallReplicationRate: computed(
+    'file.effFile.localReplicationRate',
+    function isSmallReplicationRate() {
+      const replicationRate = this.file.effFile.localReplicationRate * 100;
+      return replicationRate > 0 && replicationRate < 1;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<number|null>}
    */
   replicationRate: computed(
     'file.effFile.localReplicationRate',
+    'isSmallReplicationRate',
     function replicationRate() {
-      if (this.file.effFile.localReplicationRate) {
+      if (!isNaN(this.file.effFile.localReplicationRate)) {
         const replicationRate = this.file.effFile.localReplicationRate * 100;
-        if (replicationRate > 0 && replicationRate < 1) {
+        if (this.isSmallReplicationRate) {
           return replicationRate;
         }
         return Math.round(replicationRate);
@@ -100,23 +112,31 @@ export default FbTableRowColumns.extend(I18n, {
   /**
    * @type {ComputedProperty<string>}
    */
-  replicationStyle: computed('replicationRate', function replicationStyle() {
-    if (this.replicationRate > 0 && this.replicationRate < 1) {
-      return htmlSafe('width: 100%');
+  replicationStyle: computed(
+    'replicationRate',
+    'isSmallReplicationRate',
+    function replicationStyle() {
+      if (this.isSmallReplicationRate) {
+        return htmlSafe('width: 100%');
+      }
+      return htmlSafe(`width: ${this.replicationRate}%`);
     }
-    return htmlSafe(`width: ${this.replicationRate}%`);
-  }),
+  ),
 
   /**
    * @type {ComputedProperty<string>}
    */
-  emptyBarStyle: computed('replicationRate', function emptyBarStyle() {
-    if (this.replicationRate > 0 && this.replicationRate < 1) {
-      return htmlSafe('width: 0%');
+  emptyBarStyle: computed(
+    'replicationRate',
+    'isSmallReplicationRate',
+    function emptyBarStyle() {
+      if (this.isSmallReplicationRate) {
+        return htmlSafe('width: 0%');
+      }
+      const left = 100 - this.replicationRate;
+      return htmlSafe(`width: ${left}%`);
     }
-    const left = 100 - this.replicationRate;
-    return htmlSafe(`width: ${left}%`);
-  }),
+  ),
 
   actions: {
     invokeFileAction(file, btnId, ...args) {

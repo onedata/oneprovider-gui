@@ -88,18 +88,18 @@
         <span class="replication-rate-text empty-replication-rate">—</span>
       {{else}}
         <span class="replication-rate-text">
-          {{#if (and (gt replicationRate 0) (lt replicationRate 1))}}
+          {{#if isSmallReplicationRate}}
             &lt; 1%
           {{else}}
             {{replicationRate}}%
           {{/if}}
         </span>
-        <span class="replication-rate-container">
+        <span class="replication-bar-container">
           <hr
             class={{concat-classes
               "replication-bar"
               (if (eq replicationRate 100) "full")
-              (if (and (gt replicationRate 0) (lt replicationRate 1)) "almost-empty-bar")
+              (if isSmallReplicationRate "almost-empty-bar")
             }}
             style={{replicationStyle}}
           >
