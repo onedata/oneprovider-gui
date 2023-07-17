@@ -212,8 +212,8 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
     expect(find('.replication-bar.full')).to.exist;
     expect(find('.replication-bar').style.width).to.equal('100%');
-    expect(find('.background-bar')).to.exist;
-    expect(find('.background-bar').style.width).to.equal('0%');
+    expect(find('.remain-background-bar')).to.exist;
+    expect(find('.remain-background-bar').style.width).to.equal('0%');
   });
 
   it('renders 0% replication', async function () {
@@ -226,8 +226,8 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
     expect(find('.replication-bar')).to.exist;
     expect(find('.replication-bar').style.width).to.equal('0%');
-    expect(find('.background-bar.full')).to.exist;
-    expect(find('.background-bar').style.width).to.equal('100%');
+    expect(find('.remain-background-bar.full')).to.exist;
+    expect(find('.remain-background-bar').style.width).to.equal('100%');
   });
 
   it('renders 20% replication', async function () {
@@ -241,9 +241,9 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     expect(find('.replication-bar')).to.exist;
     expect(find('.replication-bar.full')).not.to.exist;
     expect(find('.replication-bar').style.width).to.equal('20%');
-    expect(find('.background-bar')).to.exist;
-    expect(find('.background-bar.full')).not.to.exist;
-    expect(find('.background-bar').style.width).to.equal('80%');
+    expect(find('.remain-background-bar')).to.exist;
+    expect(find('.remain-background-bar.full')).not.to.exist;
+    expect(find('.remain-background-bar').style.width).to.equal('80%');
   });
 
   it('renders less than 1% replication', async function () {
@@ -256,8 +256,8 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     expect(find('.replication-bar.almost-empty-bar')).to.exist;
     expect(find('.replication-bar.full')).not.to.exist;
     expect(find('.replication-bar').style.width).to.equal('100%');
-    expect(find('.background-bar')).to.exist;
-    expect(find('.background-bar').style.width).to.equal('0%');
+    expect(find('.remain-background-bar')).to.exist;
+    expect(find('.remain-background-bar').style.width).to.equal('0%');
   });
 
   it('renders 1% replication', async function () {
@@ -271,9 +271,9 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     expect(find('.replication-bar')).to.exist;
     expect(find('.replication-bar.full')).not.to.exist;
     expect(find('.replication-bar').style.width).to.equal('1%');
-    expect(find('.background-bar')).to.exist;
-    expect(find('.background-bar.full')).not.to.exist;
-    expect(find('.background-bar').style.width).to.equal('99%');
+    expect(find('.remain-background-bar')).to.exist;
+    expect(find('.remain-background-bar.full')).not.to.exist;
+    expect(find('.remain-background-bar').style.width).to.equal('99%');
   });
 
   testProtectedFlag(['data']);

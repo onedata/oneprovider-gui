@@ -1128,6 +1128,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isEnabled: true,
         width: 180,
       }),
+      // TODO VFS-10636 Comment that column
+      // TODO VFS-11089 Uncomment that column
       replication: EmberObject.create({
         isVisible: false,
         isEnabled: false,

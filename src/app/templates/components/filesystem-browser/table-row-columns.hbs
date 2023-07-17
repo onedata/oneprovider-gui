@@ -84,29 +84,29 @@
       class="file-item-text"
       onclick={{action "invokeFileAction" file "info" "distribution"}}
     >
-      {{#if (eq replicationRate null)}}
+      {{#if (eq percentageReplication null)}}
         <span class="replication-rate-text empty-replication-rate">—</span>
       {{else}}
         <span class="replication-rate-text">
           {{#if isSmallReplicationRate}}
             &lt; 1%
           {{else}}
-            {{replicationRate}}%
+            {{percentageReplication}}%
           {{/if}}
         </span>
         <span class="replication-bar-container">
           <hr
             class={{concat-classes
               "replication-bar"
-              (if (eq replicationRate 100) "full")
+              (if (eq percentageReplication 100) "full")
               (if isSmallReplicationRate "almost-empty-bar")
             }}
-            style={{replicationStyle}}
+            style={{replicationBarStyle}}
           >
           <hr
             class={{concat-classes
-              "background-bar"
-              (if (eq replicationRate 0) "full")
+              "remain-background-bar"
+              (if (eq percentageReplication 0) "full")
             }}
             style={{emptyBarStyle}}
           >

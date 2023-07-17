@@ -320,6 +320,8 @@ export default Service.extend({
         limit,
         offset,
         inclusive: true,
+        // TODO VFS-10636 Comment attributes
+        // TODO VFS-11089 Use that attributes in smarter way
         attributes: [
           'name',
           'mode',

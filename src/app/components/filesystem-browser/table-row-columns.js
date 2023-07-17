@@ -113,48 +113,51 @@ export default FbTableRowColumns.extend(I18n, {
   ),
 
   /**
+   * When the value is above 1 then it is rounded down,
+   * otherwise the accuracy remains unchanged
    * @type {ComputedProperty<number|null>}
    */
-  replicationRate: computed(
+  percentageReplication: computed(
     'file.effFile.localReplicationRate',
     'isSmallReplicationRate',
-    function replicationRate() {
-      if (!isNaN(this.file.effFile.localReplicationRate)) {
-        const replicationRate = this.file.effFile.localReplicationRate * 100;
-        if (this.isSmallReplicationRate) {
-          return replicationRate;
-        }
-        return Math.round(replicationRate);
+    function percentageReplication() {
+      const localReplicationRate = this.file.effFile.localReplicationRate;
+      if (isNaN(localReplicationRate) || (localReplicationRate === null)) {
+        return null;
       }
-      return null;
+      const replicationRate = localReplicationRate * 100;
+      if (this.isSmallReplicationRate) {
+        return replicationRate;
+      }
+      return Math.min(Math.floor(replicationRate), 100);
     }
   ),
 
   /**
-   * @type {ComputedProperty<string>}
+   * @type {ComputedProperty<SafeString>}
    */
-  replicationStyle: computed(
-    'replicationRate',
+  replicationBarStyle: computed(
+    'percentageReplication',
     'isSmallReplicationRate',
-    function replicationStyle() {
+    function replicationBarStyle() {
       if (this.isSmallReplicationRate) {
         return htmlSafe('width: 100%');
       }
-      return htmlSafe(`width: ${this.replicationRate}%`);
+      return htmlSafe(`width: ${this.percentageReplication}%`);
     }
   ),
 
   /**
-   * @type {ComputedProperty<string>}
+   * @type {ComputedProperty<SafeString>}
    */
   emptyBarStyle: computed(
-    'replicationRate',
+    'percentageReplication',
     'isSmallReplicationRate',
     function emptyBarStyle() {
       if (this.isSmallReplicationRate) {
         return htmlSafe('width: 0%');
       }
-      const left = 100 - this.replicationRate;
+      const left = 100 - this.percentageReplication;
       return htmlSafe(`width: ${left}%`);
     }
   ),
