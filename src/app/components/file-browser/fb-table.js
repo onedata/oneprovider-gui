@@ -334,7 +334,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  showDirContextMenu: not('dirLoadError'),
+  isDirContextMenuRenderable: not('dirLoadError'),
 
   specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
 
@@ -517,6 +517,9 @@ export default Component.extend(I18n, {
 
   fetchDirChildren: computed(function fetchDirChildren() {
     return async (entityId, ...args) => {
+      if (!this.dir) {
+        return { childrenRecords: [], isLast: true };
+      }
       const dirId = get(this.dir, 'entityId');
       // it shows empty directory for a while
       if (dirId !== entityId) {

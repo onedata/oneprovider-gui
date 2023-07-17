@@ -13,7 +13,7 @@ import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { notEmpty, not, raw, collect, and, bool, or, equal, conditional } from 'ember-awesome-macros';
+import { notEmpty, not, raw, collect, and, or, equal, conditional } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -248,8 +248,6 @@ export default Component.extend(I18n, {
   selectedItemsForJumpProxy: undefined,
 
   selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
-
-  isInModal: bool('parentModalDialogSelector'),
 
   renderSelectionToolkitDesktop: and(
     not('media.isMobile'),
@@ -536,6 +534,9 @@ export default Component.extend(I18n, {
     const component = this;
     const openCurrentDirContextMenu = component.get('openCurrentDirContextMenu');
     return function oncontextmenu(contextmenuEvent) {
+      if (!component.dir) {
+        return;
+      }
       component.selectCurrentDir();
       const useDefault = Boolean(openCurrentDirContextMenu(contextmenuEvent));
       if (!useDefault) {
@@ -781,11 +782,9 @@ export default Component.extend(I18n, {
   },
 
   async selectCurrentDir() {
-    const {
-      changeSelectedItems,
-      dir,
-    } = this.getProperties('changeSelectedItems', 'dir');
-    return changeSelectedItems([dir]);
+    if (this.dir) {
+      return this.changeSelectedItems([this.dir]);
+    }
   },
 
   async changeDir(dir) {

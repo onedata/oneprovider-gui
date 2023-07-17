@@ -1492,7 +1492,7 @@ export default Service.extend({
                 const exceptionStoreId = `exception-${phase}-${i}-${lane.id}-${runNumber}`;
                 exceptionStoresPerRun[runNumber] =
                   await this.createAtmStore(exceptionStoreId, {
-                    type: 'list',
+                    type: 'exception',
                     config: {
                       itemDataSpec: { type: 'object' },
                     },

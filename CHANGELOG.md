@@ -6,6 +6,23 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11100 Added global URLs for files show and download
+* VFS-11153 Added showing error in storage locations in file details
+* VFS-11074 Added X axes synchronization between charts in the same section
+* VFS-11082 Added trace ID to exception store GUI
+* VFS-10157 Added unique suffixes to workflow execution names
+* VFS-11123 Enabled size statistics in archive file browser
+* VFS-9303 Removed "over-modals" class from popover usages
+* VFS-10973 Added exception store support
+* VFS-10695 Changed image for transfers chart placeholder
+* VFS-10962 Improved WebSocket auto-reconnection
+* VFS-11081 Fixed incorrectly closing alert modals
+* VFS-11029 Disabled size statistics in archive file browser
+* VFS-8257 Added closing modal on transition
+* VFS-9257 Fixed ignored eslint issues
+* VFS-10932 Added logging level to workflow execution
+* VFS-10319 Added provider info popovers to file details modal
+* VFS-10996 Fixed effective protection badges to be updated after ancestor protection change
 * VFS-10895 Added expand options to automation data spec of file
 * VFS-10886 Replaced browser service usages with Browser util
 * VFS-9052 Improved directory load error handling in file browser (eg. no such directory)

@@ -26,6 +26,14 @@ import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { allSettled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+
+/**
+ * Filesystem browser model supports a set of injectable string commands that allows
+ * to invoke actions in the browser in a simple way. Available commands:
+ * - download - download currently selected file(s)
+ * @typedef {'download'} FilesystemBrowserModel.Command
+ */
 
 export const commonActionIcons = Object.freeze({
   info: 'browser-info',
@@ -169,6 +177,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {String}
    */
   fileFeaturesExtensionComponentName: null,
+
+  /**
+   * If true, do not show actions and options for directory statistics.
+   * @virtual optional
+   * @type {boolean}
+   */
+  isDirStatsFeatureHidden: false,
+
+  /**
+   * If true, never show size for directory, even if it is provided by backend.
+   * @virtual optional
+   * @type {boolean}
+   */
+  isDirSizeAlwaysHidden: false,
 
   /**
    * @override
@@ -1120,6 +1142,36 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }));
     }
     this._super(...arguments);
+  },
+
+  /**
+   * @param {FilesystemBrowserModel.Command} command
+   * @returns {Promise}
+   */
+  async invokeCommand(command) {
+    switch (command) {
+      case 'download': {
+        await this.initialLoad;
+        await this.selectedItemsForJumpProxy;
+        if (!this.selectedItems?.length) {
+          break;
+        }
+        await waitForRender();
+        if (this.selectedItems.length === 1) {
+          this.openConfirmDownload(this.selectedItems[0]);
+        } else {
+          this.downloadFiles(this.selectedItems);
+        }
+        break;
+      }
+      default:
+        if (command) {
+          console.warn(
+            `An unknown command has been invoked in filesystem-browser-model: "${command}", ignoring.`
+          );
+        }
+        break;
+    }
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known

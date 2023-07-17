@@ -25,7 +25,10 @@
                 {{#truncated-string class="one-label tab-name"}}
                   {{#if (eq tabId "preview")}}
                     {{#if atmWorkflowExecutionForPreviewProxy.isFulfilled}}
-                      {{atmWorkflowExecutionForPreviewLabel}}
+                      {{name-conflict item=atmWorkflowExecutionForPreviewLabelData}}
+                      {{tt this "tabs.preview.tabLoadedRevLabel"
+                        revisionNumber=atmWorkflowExecutionForPreviewLabelData.revisionNumber
+                      }}
                     {{else if atmWorkflowExecutionForPreviewProxy.isRejected}}
                       {{tt this "tabs.preview.tabErrorLabel"}}
                     {{else}}

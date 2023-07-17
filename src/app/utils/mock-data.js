@@ -1,6 +1,5 @@
 import commonMockData from 'onedata-gui-common/utils/mock-data';
 
-/* eslint-disable max-len */
 export const exampleMarkdownShort = commonMockData.exampleMarkdownShort;
 
 export const exampleMarkdownLong = commonMockData.exampleMarkdownLong;

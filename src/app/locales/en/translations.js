@@ -8,7 +8,6 @@ import contentSpaceDatasets from './components/content-space-datasets';
 import fileBrowser from './components/file-browser';
 import posixPermissionsEditor from './components/posix-permissions-editor';
 import fileDistribution from './components/file-distribution';
-import websocketConnectionModal from './components/websocket-connection-modal';
 import spaceTransfers from './components/space-transfers';
 import spaceShares from './components/space-shares';
 import spaceAutomation from './components/space-automation';
@@ -80,7 +79,6 @@ const translations = {
     fileBrowser,
     posixPermissionsEditor,
     fileDistribution,
-    websocketConnectionModal,
     spaceTransfers,
     spaceShares,
     spaceAutomation,

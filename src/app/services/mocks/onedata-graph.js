@@ -671,6 +671,17 @@ const atmStoreHandlers = {
         items: storeEntries,
         isLast,
       };
+    } else if (storeType === 'exception') {
+      return {
+        items: storeEntries.map(({ value, ...rest }) => ({
+          ...rest,
+          value: {
+            traceId: '123456',
+            value,
+          },
+        })),
+        isLast,
+      };
     } else if (storeType === 'auditLog') {
       return {
         logEntries: storeEntries,

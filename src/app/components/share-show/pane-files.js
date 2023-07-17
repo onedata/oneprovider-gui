@@ -54,6 +54,12 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
+   * @type {Utils.ShareFilesystemBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   updateDirId: notImplementedThrow,

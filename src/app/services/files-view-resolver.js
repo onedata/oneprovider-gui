@@ -70,6 +70,7 @@ export default Service.extend({
     selectedIds = [],
     scope = 'private',
     fallbackDir = null,
+    fileAction = null,
   }) {
     const fileManager = this.get('fileManager');
     const file = dirId && await fileManager.getFileById(dirId, { scope });
@@ -95,7 +96,13 @@ export default Service.extend({
       }
       // the currentFilesViewContext can be ommited to force resolving dir
       if (currentFilesViewContext) {
-        return this.resolveForDir(dir, currentFilesViewContext, fallbackDir, selectedIds);
+        return this.resolveForDir({
+          dir,
+          currentFilesViewContext,
+          fallbackDir,
+          selectedIds,
+          fileAction,
+        });
       } else {
         return { result: 'resolve', dir };
       }
@@ -112,12 +119,13 @@ export default Service.extend({
           }
           // the currentFilesViewContext can be ommited to force resolving dir
           if (currentFilesViewContext) {
-            return this.resolveForDir(
-              parent,
+            return this.resolveForDir({
+              dir: parent,
               currentFilesViewContext,
               fallbackDir,
-              selectedIds
-            );
+              selectedIds,
+              fileAction,
+            });
           } else {
             return { result: 'resolve', dir: parent };
           }
@@ -137,7 +145,13 @@ export default Service.extend({
    *   generated URL
    * @returns {Promise<Object>} see format of object returned by `resolveViewOptions`
    */
-  async resolveForDir(dir, currentFilesViewContext, fallbackDir, selectedIds) {
+  async resolveForDir({
+    dir,
+    currentFilesViewContext,
+    fallbackDir,
+    selectedIds,
+    fileAction,
+  }) {
     const filesViewContextFactory = this.get('filesViewContextFactory');
     const filesViewContext = await filesViewContextFactory.createFromFile(dir);
     if (
@@ -149,11 +163,17 @@ export default Service.extend({
     } else if (filesViewContext.isEqual(currentFilesViewContext)) {
       return { result: 'resolve', dir, filesViewContext };
     } else {
+      const options = {
+        selected: isEmpty(selectedIds) ? null : selectedIds,
+      };
+      if (fileAction) {
+        options.fileAction = fileAction;
+      }
       const url = this.generateUrl(
         filesViewContext,
-        'open', {
-          selected: isEmpty(selectedIds) ? null : selectedIds,
-        });
+        'open',
+        options
+      );
       if (url) {
         return { result: 'redirect', url, filesViewContext };
       } else {

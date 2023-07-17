@@ -20,7 +20,7 @@
     </div>
     {{#one-webui-popover
       triggerSelector=(concat "#" elementId " .storages-matching-block .storages-matching-info-icon")
-      popoverStyle="qos-expression-info-list over-modals"
+      popoverStyle="qos-expression-info-list"
     }}
       {{#perfect-scrollbar-element class="storages-matching-list"}}
         {{#each matchingStorages as |storage|}}

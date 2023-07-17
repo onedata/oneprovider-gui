@@ -119,6 +119,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
   selectedFiles: undefined,
 
   /**
+   * **Injected from parent frame.**
+   * @virtual optional
+   * @type {FilesystemBrowserModel.Command}
+   */
+  fileAction: null,
+
+  /**
    * One of: 'attached', 'detached'
    *
    * **Injected from parent frame.**
@@ -157,6 +164,19 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'selectedArchives',
     'selectedFiles',
     'attachmentState',
+    'fileAction',
+  ]),
+
+  /**
+   * @override
+   */
+  iframeInjectedNavigationProperties: Object.freeze([
+    'spaceId',
+    'datasetId',
+    'archiveId',
+    'dirId',
+    'attachmentState',
+    'fileAction',
   ]),
 
   /**

@@ -8,10 +8,14 @@
 
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
+import { computed } from '@ember/object';
+import { inject as service } from '@ember/service';
 
 export default Component.extend({
   tagName: 'tbody',
   classNames: ['storage-location-per-provider-table'],
+
+  errorExtractor: service(),
 
   /**
    * @virtual
@@ -20,7 +24,15 @@ export default Component.extend({
   locations: undefined,
 
   /**
-   * @type {string}
+   * @type {ComputedProperty<Models.Provider>}
    */
-  oneproviderName: reads('locations.firstObject.providerName'),
+  oneprovider: reads('locations.firstObject.provider'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  errorMessage: computed('locations.firstObject.error', function errorMessage() {
+    return this.errorExtractor.getMessage(this.locations.firstObject.error)?.message ||
+      this.locations.firstObject.error.description;
+  }),
 });

@@ -17,7 +17,7 @@ import {
   getFileGri,
   dirSizeStatsTimeSeriesNameGenerators,
 } from 'oneprovider-gui/models/file';
-import { getSpaceIdFromFileId } from 'onedata-gui-common/utils/file-id-parsers';
+import { getSpaceIdFromGuid } from 'onedata-gui-common/utils/file-guid-parsers';
 import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink-utils';
 import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
@@ -592,7 +592,7 @@ export default Service.extend({
    * @returns {DirCurrentSizeStats|null}
    */
   async getDirCurrentSizeStats(fileId) {
-    const spaceId = getSpaceIdFromFileId(fileId);
+    const spaceId = getSpaceIdFromGuid(fileId);
     if (
       (await this.spaceManager.getDirStatsServiceState(spaceId))?.status !== 'enabled'
     ) {

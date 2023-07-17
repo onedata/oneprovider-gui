@@ -17,7 +17,7 @@ import EmberObject, { computed, get } from '@ember/object';
 import { inject as service } from '@ember/service';
 import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import { getSpaceIdFromFileId, getShareIdFromFileId } from 'oneprovider-gui/models/file';
+import { getSpaceIdFromGuid, getShareIdFromGuid } from 'onedata-gui-common/utils/file-guid-parsers';
 
 const FilesViewContext = EmberObject.extend({
   file: undefined,
@@ -81,10 +81,10 @@ export const FilesViewContextFactory = EmberObject.extend(OwnerInjector, {
       file,
     });
     const fileId = get(file, 'entityId');
-    const shareId = file && getShareIdFromFileId(fileId) || null;
+    const shareId = file && getShareIdFromGuid(fileId) || null;
     return FilesViewContext.create({
       ownerSource: this,
-      spaceId: getSpaceIdFromFileId(fileId),
+      spaceId: getSpaceIdFromGuid(fileId),
       shareId,
       isSpecialHiddenDir: await get(fileArchiveInfo, 'isSpecialHiddenDirProxy'),
       archiveId: await get(fileArchiveInfo, 'archiveIdProxy'),
