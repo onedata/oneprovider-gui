@@ -252,11 +252,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  browserPersistedConfigurationKey: conditional(
-    'isOwnerVisible',
-    raw('filesystem'),
-    raw('sharedFilesystem'),
-  ),
+  browserPersistedConfigurationKey: 'filesystem',
 
   /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir

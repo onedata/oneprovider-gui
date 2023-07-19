@@ -10,7 +10,7 @@
       exceptSelector=triggerSelector
     }}
       <ul class="columns-list">
-        {{#each this.browserModel.columnsOrder as |columnName|}}
+        {{#each browserModel.columnsOrder as |columnName|}}
           <li class="column">
             {{one-checkbox
               inputId=(concat elementId "-" columnName "Checkbox")

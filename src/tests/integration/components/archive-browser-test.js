@@ -287,7 +287,7 @@ async function renderComponent(testCase) {
     openCancelModal: openCancelModal ||
       notStubbed('openCancelModal'),
     firstColumnWidth: 20,
-    getEnabledColumnsFromLocalStorage() {
+    loadColumnsConfigFromLocalStorage() {
       this.set('columns.state.isEnabled', true);
     },
     fetchDirChildren: testCase.get('fetchDirChildren') || notStubbed('fetchDirChildren'),

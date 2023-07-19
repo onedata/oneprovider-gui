@@ -48,11 +48,11 @@ export default Component.extend(I18n, {
 
       if (indexOfColumn + 1 < columnsOrder.length) {
         const columnToSwitch = columnsOrder[indexOfColumn + 1];
-        columnsOrder
-          .replace(indexOfColumn, 1, [columnToSwitch])
-          .replace(indexOfColumn + 1, 1, [columnName]);
-        this.browserModel.saveNewOrder();
+        columnsOrder[indexOfColumn + 1] = columnName;
+        columnsOrder[indexOfColumn] = columnToSwitch;
+        this.browserModel.saveColumnsOrder();
         this.browserModel.checkColumnsVisibility();
+        this.browserModel.notifyPropertyChange('columnsOrder');
       }
     },
     moveColumnUp(columnName) {
@@ -61,11 +61,11 @@ export default Component.extend(I18n, {
 
       if (indexOfColumn - 1 >= 0) {
         const columnToSwitch = columnsOrder[indexOfColumn - 1];
-        columnsOrder
-          .replace(indexOfColumn, 1, [columnToSwitch])
-          .replace(indexOfColumn - 1, 1, [columnName]);
-        this.browserModel.saveNewOrder();
+        columnsOrder[indexOfColumn - 1] = columnName;
+        columnsOrder[indexOfColumn] = columnToSwitch;
+        this.browserModel.saveColumnsOrder();
         this.browserModel.checkColumnsVisibility();
+        this.browserModel.notifyPropertyChange('columnsOrder');
       }
     },
   },

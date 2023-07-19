@@ -325,6 +325,13 @@ export default EmberObject.extend(...mixins, {
    */
   columns: undefined,
 
+  /**
+   * It is array with name of columns in order which should be display.
+   * There are enable and disable columns here.
+   * @type {Object<string>}
+   */
+  columnsOrder: undefined,
+
   //#endregion
 
   //#region file-browser API
@@ -620,7 +627,7 @@ export default EmberObject.extend(...mixins, {
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
     this.attachWindowResizeHandler();
-    this.getEnabledColumnsFromLocalStorage();
+    this.loadColumnsConfigFromLocalStorage();
     this.checkColumnsVisibility();
   },
 
@@ -856,7 +863,7 @@ export default EmberObject.extend(...mixins, {
     );
   },
 
-  saveNewOrder() {
+  saveColumnsOrder() {
     globals.localStorage.setItem(
       `${this.browserPersistedConfigurationKey}.columnsOrder`,
       this.columnsOrder
@@ -891,7 +898,7 @@ export default EmberObject.extend(...mixins, {
     }
   },
 
-  getEnabledColumnsFromLocalStorage() {
+  loadColumnsConfigFromLocalStorage() {
     const enabledColumns = globals.localStorage.getItem(
       `${this.browserPersistedConfigurationKey}.enabledColumns`
     );
@@ -907,12 +914,8 @@ export default EmberObject.extend(...mixins, {
         );
       }
     }
-    const columnsOrderList = columnsOrder?.split(',');
-    if (columnsOrderList) {
-      this.set('columnsOrder', []);
-      for (const column of columnsOrderList) {
-        this.columnsOrder.push(column);
-      }
+    if (columnsOrder) {
+      this.set('columnsOrder', columnsOrder.split(','));
     }
   },
 
