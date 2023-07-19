@@ -141,9 +141,9 @@ export default FbTableRowColumns.extend(I18n, {
     'isSmallReplicationRate',
     function replicationBarStyle() {
       if (this.isSmallReplicationRate) {
-        return htmlSafe('width: 100%');
+        return htmlSafe('width: 100%;');
       }
-      return htmlSafe(`width: ${this.percentageReplication}%`);
+      return htmlSafe(`width: ${this.percentageReplication}%;`);
     }
   ),
 
@@ -155,10 +155,10 @@ export default FbTableRowColumns.extend(I18n, {
     'isSmallReplicationRate',
     function emptyBarStyle() {
       if (this.isSmallReplicationRate) {
-        return htmlSafe('width: 0%');
+        return htmlSafe('width: 0%;');
       }
       const left = 100 - this.percentageReplication;
-      return htmlSafe(`width: ${left}%`);
+      return htmlSafe(`width: ${left}%;`);
     }
   ),
 

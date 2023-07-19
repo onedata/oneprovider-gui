@@ -1129,11 +1129,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         width: 180,
       }),
       // TODO VFS-10636 Comment that column
-      // TODO VFS-11089 Uncomment that column
+      // TODO: VFS-11089 Enable replication column with optional replication data fetch
       replication: EmberObject.create({
         isVisible: false,
         isEnabled: false,
-        width: 140,
+        width: 160,
       }),
     });
     if (this.isOwnerVisible) {
