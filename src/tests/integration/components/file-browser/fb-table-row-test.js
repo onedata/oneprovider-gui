@@ -30,7 +30,8 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
       firstColumnWidth: 20,
       getEnabledColumnsFromLocalStorage() {
         this.set('columns.modification.isEnabled', true);
-        this.set('columns.replication.isEnabled', true);
+        // TODO: VFS-11089 Uncomment replication tests
+        // this.set('columns.replication.isEnabled', true);
       },
     }));
     this.set('spacePrivileges', { view: true });
