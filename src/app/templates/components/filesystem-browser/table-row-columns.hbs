@@ -78,3 +78,42 @@
     </span>
   </td>
 {{/if}}
+{{#if browserModel.columns.replication.isVisible}}
+  <td class="fb-table-col-replication hidden-xs">
+    <span
+      class="file-item-text"
+      onclick={{action "invokeFileAction" file "info" "distribution"}}
+    >
+      {{#if (eq percentageReplication null)}}
+        <span class="replication-rate-text empty-replication-rate">—</span>
+      {{else}}
+        <span class="replication-rate-text">
+          {{#if isSmallReplicationRate}}
+            &lt; 1%
+          {{else}}
+            {{percentageReplication}}%
+          {{/if}}
+        </span>
+        <span class="replication-bar-container">
+          <hr
+            class={{concat-classes
+              "replication-bar"
+              (if (eq percentageReplication 100) "full")
+              (if isSmallReplicationRate "almost-empty-bar")
+            }}
+            style={{replicationBarStyle}}
+          >
+          <hr
+            class={{concat-classes
+              "remain-background-bar"
+              (if (eq percentageReplication 0) "full")
+            }}
+            style={{emptyBarStyle}}
+          >
+        </span>
+      {{/if}}
+      {{one-tooltip title=(tt this "replicationRateTooltip")}}
+    </span>
+  </td>
+{{/if}}
+

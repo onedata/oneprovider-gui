@@ -13,6 +13,7 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import { htmlSafe } from '@ember/string';
 
 export default FbTableRowColumns.extend(I18n, {
   i18n: service(),
@@ -99,6 +100,67 @@ export default FbTableRowColumns.extend(I18n, {
    * @type {Object}
    */
   errorReasonForOwnerProxy: reads('ownerProxy.reason'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSmallReplicationRate: computed(
+    'file.effFile.localReplicationRate',
+    function isSmallReplicationRate() {
+      const replicationRate = this.file.effFile.localReplicationRate * 100;
+      return replicationRate > 0 && replicationRate < 1;
+    }
+  ),
+
+  /**
+   * When the value is above 1 then it is rounded down,
+   * otherwise the accuracy remains unchanged
+   * @type {ComputedProperty<number|null>}
+   */
+  percentageReplication: computed(
+    'file.effFile.localReplicationRate',
+    'isSmallReplicationRate',
+    function percentageReplication() {
+      const localReplicationRate = this.file.effFile.localReplicationRate;
+      if (isNaN(localReplicationRate) || (localReplicationRate === null)) {
+        return null;
+      }
+      const replicationRate = localReplicationRate * 100;
+      if (this.isSmallReplicationRate) {
+        return replicationRate;
+      }
+      return Math.min(Math.floor(replicationRate), 100);
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  replicationBarStyle: computed(
+    'percentageReplication',
+    'isSmallReplicationRate',
+    function replicationBarStyle() {
+      if (this.isSmallReplicationRate) {
+        return htmlSafe('width: 100%;');
+      }
+      return htmlSafe(`width: ${this.percentageReplication}%;`);
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  emptyBarStyle: computed(
+    'percentageReplication',
+    'isSmallReplicationRate',
+    function emptyBarStyle() {
+      if (this.isSmallReplicationRate) {
+        return htmlSafe('width: 0%;');
+      }
+      const left = 100 - this.percentageReplication;
+      return htmlSafe(`width: ${left}%;`);
+    }
+  ),
 
   actions: {
     invokeFileAction(file, btnId, ...args) {

@@ -1128,6 +1128,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isEnabled: true,
         width: 180,
       }),
+      // TODO: VFS-11089 Enable replication column with optional replication data fetch
+      // replication: EmberObject.create({
+      //   isVisible: false,
+      //   isEnabled: false,
+      //   width: 160,
+      // }),
     });
     if (this.isOwnerVisible) {
       this.set('columns.owner', EmberObject.create({

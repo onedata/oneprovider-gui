@@ -41,6 +41,17 @@
     {{tt this "owner"}}
   </th>
 {{/if}}
+{{#if browserModel.columns.replication.isVisible}}
+  <th
+    class="fb-table-col-replication fb-table-secondary-col hidden-xs"
+    style={{browserModel.columnsStyle.replication}}
+  >
+    {{tt this "replication"}}
+    {{#one-icon icon="browser-info"}}
+      {{one-tooltip title=(tt this "replicationTooltip" oneprovider=currentProviderName)}}
+    {{/one-icon}}
+  </th>
+{{/if}}
 {{!-- hide actions th to make space for jump-control (see also colspan in first th) --}}
 {{file-browser/fb-columns-configuration-cell
   browserModel=browserModel
