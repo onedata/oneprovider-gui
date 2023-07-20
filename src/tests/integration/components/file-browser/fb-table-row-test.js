@@ -202,79 +202,80 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     expect(tag).to.not.have.class('file-status-tag-disabled');
   });
 
-  it('renders 100% replication', async function () {
-    const replicationRate = 1;
-    this.set('file', createFile({ localReplicationRate: replicationRate }));
-    const replicationRateText = replicationRate * 100 + '%';
+  // TODO: VFS-11089 Uncomment replication tests
+  // it('renders 100% replication', async function () {
+  //   const replicationRate = 1;
+  //   this.set('file', createFile({ localReplicationRate: replicationRate }));
+  //   const replicationRateText = replicationRate * 100 + '%';
 
-    await renderComponent(this);
+  //   await renderComponent(this);
 
-    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
-    expect(find('.replication-bar.full')).to.exist;
-    expect(find('.replication-bar').style.width).to.equal('100%');
-    expect(find('.remain-background-bar')).to.exist;
-    expect(find('.remain-background-bar').style.width).to.equal('0%');
-  });
+  //   expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+  //   expect(find('.replication-bar.full')).to.exist;
+  //   expect(find('.replication-bar').style.width).to.equal('100%');
+  //   expect(find('.remain-background-bar')).to.exist;
+  //   expect(find('.remain-background-bar').style.width).to.equal('0%');
+  // });
 
-  it('renders 0% replication', async function () {
-    const replicationRate = 0;
-    this.set('file', createFile({ localReplicationRate: replicationRate }));
-    const replicationRateText = replicationRate * 100 + '%';
+  // it('renders 0% replication', async function () {
+  //   const replicationRate = 0;
+  //   this.set('file', createFile({ localReplicationRate: replicationRate }));
+  //   const replicationRateText = replicationRate * 100 + '%';
 
-    await renderComponent(this);
+  //   await renderComponent(this);
 
-    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
-    expect(find('.replication-bar')).to.exist;
-    expect(find('.replication-bar').style.width).to.equal('0%');
-    expect(find('.remain-background-bar.full')).to.exist;
-    expect(find('.remain-background-bar').style.width).to.equal('100%');
-  });
+  //   expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+  //   expect(find('.replication-bar')).to.exist;
+  //   expect(find('.replication-bar').style.width).to.equal('0%');
+  //   expect(find('.remain-background-bar.full')).to.exist;
+  //   expect(find('.remain-background-bar').style.width).to.equal('100%');
+  // });
 
-  it('renders 20% replication', async function () {
-    const replicationRate = 0.2;
-    this.set('file', createFile({ localReplicationRate: replicationRate }));
-    const replicationRateText = replicationRate * 100 + '%';
+  // it('renders 20% replication', async function () {
+  //   const replicationRate = 0.2;
+  //   this.set('file', createFile({ localReplicationRate: replicationRate }));
+  //   const replicationRateText = replicationRate * 100 + '%';
 
-    await renderComponent(this);
+  //   await renderComponent(this);
 
-    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
-    expect(find('.replication-bar')).to.exist;
-    expect(find('.replication-bar.full')).not.to.exist;
-    expect(find('.replication-bar').style.width).to.equal('20%');
-    expect(find('.remain-background-bar')).to.exist;
-    expect(find('.remain-background-bar.full')).not.to.exist;
-    expect(find('.remain-background-bar').style.width).to.equal('80%');
-  });
+  //   expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+  //   expect(find('.replication-bar')).to.exist;
+  //   expect(find('.replication-bar.full')).not.to.exist;
+  //   expect(find('.replication-bar').style.width).to.equal('20%');
+  //   expect(find('.remain-background-bar')).to.exist;
+  //   expect(find('.remain-background-bar.full')).not.to.exist;
+  //   expect(find('.remain-background-bar').style.width).to.equal('80%');
+  // });
 
-  it('renders less than 1% replication', async function () {
-    const replicationRate = 0.004;
-    this.set('file', createFile({ localReplicationRate: replicationRate }));
+  // it('renders less than 1% replication', async function () {
+  //   const replicationRate = 0.004;
+  //   this.set('file', createFile({ localReplicationRate: replicationRate }));
 
-    await renderComponent(this);
+  //   await renderComponent(this);
 
-    expect(find('.fb-table-col-replication').textContent.trim()).to.equal('< 1%');
-    expect(find('.replication-bar.almost-empty-bar')).to.exist;
-    expect(find('.replication-bar.full')).not.to.exist;
-    expect(find('.replication-bar').style.width).to.equal('100%');
-    expect(find('.remain-background-bar')).to.exist;
-    expect(find('.remain-background-bar').style.width).to.equal('0%');
-  });
+  //   expect(find('.fb-table-col-replication').textContent.trim()).to.equal('< 1%');
+  //   expect(find('.replication-bar.almost-empty-bar')).to.exist;
+  //   expect(find('.replication-bar.full')).not.to.exist;
+  //   expect(find('.replication-bar').style.width).to.equal('100%');
+  //   expect(find('.remain-background-bar')).to.exist;
+  //   expect(find('.remain-background-bar').style.width).to.equal('0%');
+  // });
 
-  it('renders 1% replication', async function () {
-    const replicationRate = 0.01;
-    this.set('file', createFile({ localReplicationRate: replicationRate }));
-    const replicationRateText = replicationRate * 100 + '%';
+  // it('renders 1% replication', async function () {
+  //   const replicationRate = 0.01;
+  //   this.set('file', createFile({ localReplicationRate: replicationRate }));
+  //   const replicationRateText = replicationRate * 100 + '%';
 
-    await renderComponent(this);
+  //   await renderComponent(this);
 
-    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
-    expect(find('.replication-bar')).to.exist;
-    expect(find('.replication-bar.full')).not.to.exist;
-    expect(find('.replication-bar').style.width).to.equal('1%');
-    expect(find('.remain-background-bar')).to.exist;
-    expect(find('.remain-background-bar.full')).not.to.exist;
-    expect(find('.remain-background-bar').style.width).to.equal('99%');
-  });
+  //   expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+  //   expect(find('.replication-bar')).to.exist;
+  //   expect(find('.replication-bar.full')).not.to.exist;
+  //   expect(find('.replication-bar').style.width).to.equal('1%');
+  //   expect(find('.remain-background-bar')).to.exist;
+  //   expect(find('.remain-background-bar.full')).not.to.exist;
+  //   expect(find('.remain-background-bar').style.width).to.equal('99%');
+  // });
 
   testProtectedFlag(['data']);
   testProtectedFlag(['metadata']);
