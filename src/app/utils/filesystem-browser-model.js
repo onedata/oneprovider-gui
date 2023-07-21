@@ -1129,6 +1129,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         width: 180,
       }),
     });
+    // TODO: VFS-10636 Comment that column
+    // TODO: VFS-11089 Enable qos column with optional replication data fetch
+    this.set('columns.qos', EmberObject.create({
+      isVisible: false,
+      isEnabled: false,
+      width: 100,
+    }));
     if (this.isOwnerVisible) {
       this.set('columns.owner', EmberObject.create({
         isVisible: true,

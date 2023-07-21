@@ -7,12 +7,13 @@
  */
 
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
-import { raw, array, promise, or, eq, and } from 'ember-awesome-macros';
+import { raw, array, promise, or, eq, and, getBy, not } from 'ember-awesome-macros';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 
 export default FbTableRowColumns.extend(I18n, {
   i18n: service(),
@@ -99,6 +100,18 @@ export default FbTableRowColumns.extend(I18n, {
    * @type {Object}
    */
   errorReasonForOwnerProxy: reads('ownerProxy.reason'),
+
+  /**
+   * One of: impossible, pending, fulfilled, error, noQos
+   * @type {ComputedProperty<String>}
+   */
+  qosStatus: reads('file.effFile.qosStatus'),
+
+  /**
+   * QoS fulfillment icon name
+   * @type {ComputedProperty<String>}
+   */
+  statusIcon: getBy(raw(qosStatusIcons), 'qosStatus'),
 
   actions: {
     invokeFileAction(file, btnId, ...args) {

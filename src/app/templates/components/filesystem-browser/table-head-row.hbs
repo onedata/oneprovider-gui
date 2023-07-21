@@ -41,6 +41,17 @@
     {{tt this "owner"}}
   </th>
 {{/if}}
+{{#if browserModel.columns.qos.isVisible}}
+  <th
+    class="fb-table-col-qos fb-table-secondary-col hidden-xs"
+    style={{browserModel.columnsStyle.qos}}
+  >
+    {{tt this "qos"}}
+    {{#one-icon icon="browser-info"}}
+      {{one-tooltip title=(tt this "qosTooltip")}}
+    {{/one-icon}}
+  </th>
+{{/if}}
 {{!-- hide actions th to make space for jump-control (see also colspan in first th) --}}
 {{file-browser/fb-columns-configuration-cell
   browserModel=browserModel

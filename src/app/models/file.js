@@ -274,6 +274,7 @@ export default Model.extend(
     size: attr('number'),
     posixPermissions: attr('string'),
     hasMetadata: attr('boolean'),
+    qosStatus: attr('string'),
 
     sharesCount: attr('number'),
     hardlinksCount: attr('number', { defaultValue: 1 }),
