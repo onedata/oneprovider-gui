@@ -3,6 +3,7 @@ export default {
   owner: 'Owner',
   modification: 'Modification',
   qos: 'QoS',
+  replication: 'Replication',
   archives: 'Archives',
   created: 'Created at',
   creator: 'Creator',

@@ -109,6 +109,51 @@
   .file-features {
     display: flex;
   }
+
+  .fb-table-col-replication {
+    text-align: center;
+
+    .file-item-text:hover .replication-rate-text {
+      text-decoration: underline;
+    }
+
+    .replication-bar-container {
+      display: flex;
+
+      hr {
+        height: 0.3em;
+        margin: 0;
+        border-width: 0;
+      }
+
+      .replication-bar {
+        width: 100%;
+        background-color: $color-one-orange;
+
+        &.full {
+          background-color: $color-one-mint;
+        }
+        &.almost-empty-bar {
+          background-color: $color-one-gray-sand;
+        }
+      }
+
+      .remain-background-bar {
+        width: 0%;
+        background-color: $color-one-gray-sand;
+
+        &.full {
+          opacity: 0.6;
+        }
+      }
+    }
+
+    .oneicon-browser-info {
+      font-size: 150%;
+      vertical-align: bottom;
+      opacity: $disabled-opacity;
+    }
+  }
 }
 
 .file-status-bar {

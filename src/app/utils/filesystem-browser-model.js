@@ -1128,8 +1128,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isEnabled: true,
         width: 180,
       }),
+      // TODO: VFS-11089 Enable replication column with optional replication data fetch
+      // replication: EmberObject.create({
+      //   isVisible: false,
+      //   isEnabled: false,
+      //   width: 160,
+      // }),
     });
-    // TODO: VFS-10636 Comment that column
+    // TODO: VFS-10638 Comment that column
     // TODO: VFS-11089 Enable qos column with optional replication data fetch
     this.set('columns.qos', EmberObject.create({
       isVisible: false,

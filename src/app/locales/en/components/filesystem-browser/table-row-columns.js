@@ -13,4 +13,5 @@ export default {
     error: 'Cannot evaluate requirement status',
     noQos: 'There are no QoS requirements defined for this file',
   },
+  replicationRateTooltip: 'Show data distribution details',
 };
