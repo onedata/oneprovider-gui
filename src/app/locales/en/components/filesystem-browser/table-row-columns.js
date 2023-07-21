@@ -6,7 +6,7 @@ export default {
   initializingStatsInfo: 'Directory statistics are being initialized',
   enabledStatsInfo: 'Show more size statistics',
   disabledStatsInfo: 'Directory statistics are disabled. Click for more information.',
-  statusHint: {
+  qosStatusHint: {
     pending: 'Pending – data replication is still ongoing',
     fulfilled: 'Fulfilled – desired number of replicas have been created on matching storages and their contents are up-to-date',
     impossible: 'Impossible – there are not enough storages matching the expression to meet the required number of replicas',
