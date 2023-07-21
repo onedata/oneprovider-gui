@@ -58,10 +58,20 @@
     text-align: center;
 
     .file-item-text:hover {
-      text-decoration: underline;
+      &.clickable {
+        text-decoration: underline;
+      }
     }
 
-    .qos-status-noQos {
+    .file-item-text span {
+      cursor: default;
+    }
+
+    .file-item-text.clickable span {
+      cursor: pointer;
+    }
+
+    .no-qos-text {
       font-size: 100%;
       padding-bottom: 3px;
     }

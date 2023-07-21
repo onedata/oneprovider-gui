@@ -83,11 +83,15 @@
     class="fb-table-col-qos hidden-xs"
     style={{browserModel.columnsStyle.qos}}
   >
-    <span class={{concat-classes "file-item-text" (concat "qos-status-" qosStatus)}}
-      onclick={{action "invokeFileAction" file "info" "qos"}}
+    <span class={{concat-classes
+        "file-item-text"
+        (concat "qos-status-" qosStatus)
+        (if (not qosViewForbidden) "clickable")
+      }}
+      onclick={{unless qosViewForbidden (action "invokeFileAction" file "info" "qos")}}
     >
       {{#if (eq qosStatus "noQos")}}
-        —
+        <span class="no-qos-text">—</span>
       {{else}}
         <span class="file-item-icon">
           {{one-icon icon=statusIcon class=(concat "qos-status-" qosStatus)}}

@@ -108,6 +108,16 @@ export default FbTableRowColumns.extend(I18n, {
   qosStatus: reads('file.effFile.qosStatus'),
 
   /**
+   * @type {ComputedProperty<SpacePrivileges>}
+   */
+  spacePrivileges: reads('browserModel.spacePrivileges'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  qosViewForbidden: not('spacePrivileges.viewQos'),
+
+  /**
    * QoS fulfillment icon name
    * @type {ComputedProperty<String>}
    */
