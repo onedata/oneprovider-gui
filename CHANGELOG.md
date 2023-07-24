@@ -6,6 +6,14 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10636 Added disabled replication column
+* VFS-11100 Added global URLs for files show and download
+* VFS-11153 Added showing error in storage locations in file details
+* VFS-11074 Added X axes synchronization between charts in the same section
+* VFS-11082 Added trace ID to exception store GUI
+* VFS-10157 Added unique suffixes to workflow execution names
+* VFS-11123 Enabled size statistics in archive file browser
+* VFS-9303 Removed "over-modals" class from popover usages
 * VFS-10973 Added exception store support
 * VFS-10695 Changed image for transfers chart placeholder
 * VFS-10962 Improved WebSocket auto-reconnection

@@ -102,6 +102,7 @@ describe('Integration | Component | space-automation/atm-workflow-executions-tab
         constructor: {
           modelName: 'atm-workflow-execution-summary',
         },
+        entityId: 'id12345',
         name: 'workflow1',
         scheduleTime: scheduleTime.unix(),
         startTime: startTime.unix(),
@@ -153,7 +154,7 @@ describe('Integration | Component | space-automation/atm-workflow-executions-tab
 
     await renderComponent();
 
-    expect(find('.cell-name')).to.have.trimmed.text('workflow1');
+    expect(find('.cell-name')).to.have.trimmed.text('workflow1@id12');
   });
 
   it('shows inventory name in "inventory" column', async function () {

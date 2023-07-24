@@ -14,7 +14,7 @@ export default {
     preview: {
       tabLoadingLabel: 'Loading...',
       tabErrorLabel: 'Cannot load',
-      tabLoadedLabel: '{{schemaName}} (rev. {{revisionNumber}})',
+      tabLoadedRevLabel: '(rev.&nbsp;{{revisionNumber}})',
     },
     create: {
       tabLabel: 'Run workflow',

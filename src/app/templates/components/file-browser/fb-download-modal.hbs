@@ -2,18 +2,24 @@
   opened=open
   backdropClose=(not processing)
   keyboard=(not processing)
-  close=(action "close")
-  proceed=(action "download")
   autoDetectProcessing=false
   processing=processing
   proceedButtonClass="btn btn-primary"
-  headerText=(tt this "header")
+  headerText=(tt this (concat "header." effFileType))
   proceedButtonText=(tt this "confirmDownload")
   cancelButtonText=(tt this "cancel")
   modalClass="proceed-modal fb-download-modal"
+  shouldCloseOnTransition=shouldCloseOnTransition
+  close=(action "close")
+  proceed=(action "download")
 }}
-  <div class="row row-download-question">
-    {{tt this "question"}}
-  </div>
+  <p class="row-download-question">
+    {{tt this (concat "question." effFileType)}}
+  </p>
+  {{#if isDirectory}}
+    <p class="row-tar-note">
+      {{tt this "tarNote"}}
+    </p>
+  {{/if}}
   {{single-file-info file=file}}
 {{/proceed-process-modal}}

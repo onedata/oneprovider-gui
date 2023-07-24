@@ -128,14 +128,35 @@
               </td>
             </tr>
           {{/if}}
-          {{#if fileGuiUrl}}
+          {{#if availableFileLinkOptions}}
             <tr class="file-info-row-gui-url">
-              <td class="property-name with-input{{if smallContent "-sm"}}">
-                {{tt this "guiUrl" type=typeTranslation}}
+              <td class="property-name">
+                {{#one-dropdown
+                  triggerClass="small text-like file-link-type-selector-trigger"
+                  dropdownClass="small text-like file-link-type-selector-dropdown"
+                  renderInPlace=false
+                  options=availableFileLinkOptions
+                  selected=effSelectedFileLinkOption
+                  searchEnabled=false
+                  onchange=(action "changeSelectedFileLinkOption")
+                  as |fileLinkOption|
+                }}
+                  <div class="file-link-type-selector-item">
+                    {{#truncated-string class="file-link-type-selector-label"}}
+                      {{fileLinkOption.label}}
+                    {{/truncated-string}}
+                    {{#if fileLinkOption.tip}}
+                      {{one-label-tip
+                        class="file-link-type-selector-tip"
+                        title=fileLinkOption.tip
+                      }}
+                    {{/if}}
+                  </div>
+                {{/one-dropdown}}
               </td>
               <td class="property-value">
                 {{clipboard-line
-                  value=fileGuiUrl
+                  value=effSelectedFileLinkOption.url
                   size=(if smallContent "sm")
                 }}
               </td>

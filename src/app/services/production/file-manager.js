@@ -17,7 +17,7 @@ import {
   getFileGri,
   dirSizeStatsTimeSeriesNameGenerators,
 } from 'oneprovider-gui/models/file';
-import { getSpaceIdFromFileId } from 'onedata-gui-common/utils/file-id-parsers';
+import { getSpaceIdFromGuid } from 'onedata-gui-common/utils/file-guid-parsers';
 import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink-utils';
 import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
@@ -320,6 +320,31 @@ export default Service.extend({
         limit,
         offset,
         inclusive: true,
+        // TODO: VFS-11089 Use that attributes in smarter way
+        // attributes: [
+        //   'name',
+        //   'mode',
+        //   'guid',
+        //   'activePermissionsType',
+        //   'index',
+        //   'ownerId',
+        //   'providerId',
+        //   'shares',
+        //   'type',
+        //   'mtime',
+        //   'localReplicationRate',
+        //   'size',
+        //   'recallRootId',
+        //   'effDatasetMembership',
+        //   'effDatasetProtectionFlags',
+        //   'effProtectionFlags',
+        //   'effQosMembership',
+        //   'qosStatus',
+        //   'hasMetadata',
+        //   'posixPermissions',
+        //   'hardlinksCount',
+        //   'parentId',
+        // ],
       },
       subscribe: false,
     });
@@ -568,7 +593,7 @@ export default Service.extend({
    * @returns {DirCurrentSizeStats|null}
    */
   async getDirCurrentSizeStats(fileId) {
-    const spaceId = getSpaceIdFromFileId(fileId);
+    const spaceId = getSpaceIdFromGuid(fileId);
     if (
       (await this.spaceManager.getDirStatsServiceState(spaceId))?.status !== 'enabled'
     ) {

@@ -133,10 +133,7 @@
           {{one-icon icon="arrow-down"}}
         </div>
         {{#one-webui-popover
-          popoverStyle=(concat-classes
-            "with-dropdown webui-popover-in-fb-head"
-            (if isInModal "over-modals")
-          )
+          popoverStyle="with-dropdown webui-popover-in-fb-head"
           padding=false
           popoverTrigger="manual"
           triggerSelector=(concat "#" elementId " .breadcrumbs-current-dir-actions-trigger")

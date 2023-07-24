@@ -24,6 +24,11 @@
       style={{get browserModel (concat "columnsStyle." columnName)}}
     >
       {{tt this columnName}}
+      {{#if (eq columnName "replication")}}
+        {{#one-icon icon="browser-info"}}
+          {{one-tooltip title=(tt this "replicationTooltip" oneprovider=currentProviderName)}}
+        {{/one-icon}}
+      {{/if}}
     </th>
   {{/if}}
 {{/each}}

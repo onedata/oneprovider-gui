@@ -26,6 +26,7 @@ import sortRevisionNumbers from 'onedata-gui-common/utils/revisions/sort-revisio
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 import globals from 'onedata-gui-common/utils/globals';
 import { all as allFulfilled } from 'rsvp';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -51,6 +52,7 @@ export default OneEmbeddedComponent.extend(
     globalNotify: service(),
     filesViewResolver: service(),
     parentAppNavigation: service(),
+    alert: service(),
 
     /**
      * Entity ID of space for which the file browser is rendered.
@@ -79,6 +81,13 @@ export default OneEmbeddedComponent.extend(
     selected: undefined,
 
     /**
+     * **Injected from parent frame.**
+     * @virtual optional
+     * @type {FilesystemBrowserModel.Command}
+     */
+    fileAction: null,
+
+    /**
      * @virtual optional
      * @type {Function}
      */
@@ -91,6 +100,7 @@ export default OneEmbeddedComponent.extend(
       'spaceEntityId',
       'dirEntityId',
       'selected',
+      'fileAction',
     ]),
 
     /**
@@ -99,6 +109,7 @@ export default OneEmbeddedComponent.extend(
     iframeInjectedNavigationProperties: Object.freeze([
       'spaceEntityId',
       'dirEntityId',
+      'fileAction',
     ]),
 
     /**
@@ -106,6 +117,13 @@ export default OneEmbeddedComponent.extend(
      * @type {Utils.FilesystemBrowserModel}
      */
     browserModel: undefined,
+
+    /**
+     * A flag indicating that this file browser will be closed immediately to open another
+     * file browser (archive filesystem in datasets browser, etc.), because file should
+     * not be shown in this context.
+     */
+    willRedirectToOtherBrowser: false,
 
     /**
      * @type {Models.File}
@@ -119,6 +137,12 @@ export default OneEmbeddedComponent.extend(
      * @type {Array<Models.File>}
      */
     selectedItems: undefined,
+
+    /**
+     * Used by `fileActionObserver` to prevent multiple async invocations which is unsafe.
+     * @type {boolean}
+     */
+    fileActionObserverLock: false,
 
     /**
      * @type {ComputedProperty<Boolean>}
@@ -160,6 +184,18 @@ export default OneEmbeddedComponent.extend(
               return fileId === get(dir, 'entityId');
             });
 
+            (async () => {
+              if (this.willRedirectToOtherBrowser) {
+                return;
+              }
+              if (validFiles.length < selected.length) {
+                if (selected.length === 1) {
+                  this.alert.warning(this.t('selectedNotFound.single'));
+                } else if (selected.length > 1) {
+                  this.alert.warning(this.t('selectedNotFound.many'));
+                }
+              }
+            })();
             return validFiles;
           } catch (error) {
             console.error(
@@ -261,6 +297,7 @@ export default OneEmbeddedComponent.extend(
           filesViewResolver,
           fallbackDirProxy,
           parentAppNavigation,
+          fileAction,
         } = this.getProperties(
           'spaceEntityId',
           'selected',
@@ -268,6 +305,7 @@ export default OneEmbeddedComponent.extend(
           'filesViewResolver',
           'fallbackDirProxy',
           'parentAppNavigation',
+          'fileAction',
         );
 
         const currentFilesViewContext = FilesViewContext.create({
@@ -281,6 +319,7 @@ export default OneEmbeddedComponent.extend(
           selectedIds: selected,
           scope: 'private',
           fallbackDir,
+          fileAction,
         });
 
         if (!resolverResult) {
@@ -290,6 +329,7 @@ export default OneEmbeddedComponent.extend(
           return resolverResult.dir;
         } else {
           if (resolverResult.url) {
+            this.set('willRedirectToOtherBrowser', true);
             parentAppNavigation.openUrl(resolverResult.url, true);
           }
           return fallbackDir;
@@ -315,9 +355,42 @@ export default OneEmbeddedComponent.extend(
       this.get('containerScrollTop')(0);
     }),
 
+    fileActionObserver: observer(
+      'fileAction',
+      // additional properties, that should invoke file action from URL
+      'selected',
+      function fileActionObserver() {
+        if (this.fileActionObserverLock || !this.fileAction) {
+          return;
+        }
+        this.set('fileActionObserverLock', true);
+        (async () => {
+          try {
+            await this.initialRequiredDataProxy;
+            await this.dirProxy;
+            if (this.willRedirectToOtherBrowser) {
+              return;
+            }
+            await waitForRender();
+            this.browserModel.invokeCommand(this.fileAction);
+          } finally {
+            if (!this.willRedirectToOtherBrowser) {
+              safeExec(this, () => {
+                this.callParent('updateFileAction', null);
+              });
+            }
+            safeExec(this, () => {
+              this.set('fileActionObserverLock', false);
+            });
+          }
+        })();
+      }
+    ),
+
     init() {
       this._super(...arguments);
       this.set('browserModel', this.createBrowserModel());
+      this.fileActionObserver();
     },
 
     /**

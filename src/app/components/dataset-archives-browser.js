@@ -25,6 +25,8 @@ import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 const mixins = [
   I18n,
@@ -62,6 +64,12 @@ export default Component.extend(...mixins, {
   selectedIds: undefined,
 
   /**
+   * @virtual optional
+   * @type {FilesystemBrowserModel.Command}
+   */
+  fileAction: null,
+
+  /**
    * Scrollable file browser container passed to `file-browser` component.
    * See `component:file-browser#contentScroll` property for details.
    * @virtual optional
@@ -89,6 +97,12 @@ export default Component.extend(...mixins, {
    * @type {Boolean}
    */
   navigateAfterRecall: false,
+
+  /**
+   * Used by `fileActionObserver` to prevent multiple async invocations which is unsafe.
+   * @type {boolean}
+   */
+  fileActionObserverLock: false,
 
   /**
    * @virtual optional
@@ -475,9 +489,41 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  fileActionObserver: observer(
+    'fileAction',
+    // additional properties, that should invoke file action from URL
+    'selected',
+    'viewMode',
+    function fileActionObserver() {
+      if (this.viewMode !== 'files' || !this.fileAction || this.fileActionObserverLock) {
+        return;
+      }
+      this.set('fileActionObserverLock', true);
+      (async () => {
+        try {
+          await this.initialRequiredDataProxy;
+          await this.dirProxy;
+          await this.browserModel.initialLoad;
+          await waitForRender();
+          // HACK: In Firefox, the command is invoked before changeSelectedItems in
+          // browser container finishes. Using sleep(0) postpones invocation in browser
+          // execution queue always after changeSelectedItems.
+          await sleep(0);
+          this.browserModel.invokeCommand(this.fileAction);
+        } finally {
+          safeExec(this, () => {
+            this.appProxy.callParent('updateFileAction', null);
+            this.set('fileActionObserverLock', false);
+          });
+        }
+      })();
+    }
+  ),
+
   init() {
     this._super(...arguments);
     this.switchBrowserModel();
+    this.fileActionObserver();
   },
 
   willDestroyElement() {

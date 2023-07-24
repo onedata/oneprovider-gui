@@ -2,7 +2,7 @@
  * Single file or directory model.
  *
  * @author Jakub Liput, Michał Borzęcki
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @copyright (C) 2019-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -22,35 +22,16 @@ import { bool, array, promise, or, eq, raw } from 'ember-awesome-macros';
 import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
+import {
+  getInternalFileIdFromGuid,
+  getSpaceIdFromGuid,
+} from 'onedata-gui-common/utils/file-guid-parsers';
 
 /**
  * @typedef {'data_protection'|'metadata_protection'} ProtectionFlag
  */
 
 export const entityType = 'file';
-
-// file entity id holds few values: <guid_type>#<internal_file_id>#<space_id>#<share_id>
-
-const guidRegexp = /guid#(.*)#(.*)/;
-const shareGuidRegexp = /shareGuid#(.*)#(.*)#(.*)/;
-
-export function getInternalFileIdFromFileId(fileEntityId) {
-  const decoded = atob(fileEntityId);
-  const m = decoded.match(guidRegexp) || decoded.match(shareGuidRegexp);
-  return m && m[1];
-}
-
-export function getSpaceIdFromFileId(fileEntityId) {
-  const decoded = atob(fileEntityId);
-  const m = decoded.match(guidRegexp) || decoded.match(shareGuidRegexp);
-  return m && m[2];
-}
-
-export function getShareIdFromFileId(fileEntityId) {
-  const decoded = atob(fileEntityId);
-  const m = decoded.match(shareGuidRegexp);
-  return m && m[3];
-}
 
 export function getFileGri(fileId, scope) {
   return gri({
@@ -157,11 +138,11 @@ export const RuntimeProperties = Mixin.create({
   }),
 
   spaceEntityId: computed('entityId', function spaceEntityId() {
-    return getSpaceIdFromFileId(this.get('entityId'));
+    return getSpaceIdFromGuid(this.get('entityId'));
   }),
 
   internalFileId: computed('entityId', function internalFileId() {
-    return getInternalFileIdFromFileId(this.get('entityId'));
+    return getInternalFileIdFromGuid(this.get('entityId'));
   }),
 
   /**
@@ -293,6 +274,7 @@ export default Model.extend(
     size: attr('number'),
     posixPermissions: attr('string'),
     hasMetadata: attr('boolean'),
+    localReplicationRate: attr('number'),
 
     sharesCount: attr('number'),
     hardlinksCount: attr('number', { defaultValue: 1 }),

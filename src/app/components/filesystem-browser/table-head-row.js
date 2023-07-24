@@ -9,11 +9,12 @@
 import FbTableHeadRow from 'oneprovider-gui/components/file-browser/fb-table-head-row';
 import { reads } from '@ember/object/computed';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
-import { observer } from '@ember/object';
+import { observer, computed } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { or } from 'ember-awesome-macros';
+import { or, promise } from 'ember-awesome-macros';
 import globals from 'onedata-gui-common/utils/globals';
+import { inject as service } from '@ember/service';
 
 const mixins = [
   WindowResizeHandler,
@@ -21,6 +22,8 @@ const mixins = [
 
 export default FbTableHeadRow.extend(...mixins, {
   classNames: ['filesystem-table-head-row'],
+
+  providerManager: service(),
 
   /**
    * @override
@@ -45,6 +48,18 @@ export default FbTableHeadRow.extend(...mixins, {
   isShareRoot: reads('browserModel.dir.isShareRoot'),
 
   effIsJumpControlHidden: or('isShareRoot', 'noSpaceForJumpControl'),
+
+  /**
+   * @type {PromiseObject<Models.Provider>}
+   */
+  currentProviderProxy: promise.object(computed(function currentProviderProxy() {
+    return this.get('providerManager').getCurrentProvider();
+  })),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  currentProviderName: reads('currentProviderProxy.content.name'),
 
   dirObserver: observer('browserModel.dir', async function dirObserver() {
     // let header display feature tags for new dir

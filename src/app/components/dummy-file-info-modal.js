@@ -18,15 +18,15 @@ export default Component.extend({
   // uncomment for globally-mocked file
   space: reads('mockBackend.entityRecords.space.0'),
   share: null,
-  files: collect('mockBackend.entityRecords.file.5'),
+  // files: collect('mockBackend.entityRecords.file.5'),
 
   // uncomment for multi files
-  // files: collect(
-  //   // a directory with QoS
-  //   'mockBackend.entityRecords.chainDir.2',
-  //   'mockBackend.entityRecords.chainDir.3',
-  //   'mockBackend.entityRecords.chainDir.4',
-  // ),
+  files: collect(
+    //   // a directory with QoS
+    'mockBackend.entityRecords.chainDir.2',
+    //   'mockBackend.entityRecords.chainDir.3',
+    //   'mockBackend.entityRecords.chainDir.4',
+  ),
 
   previewMode: false,
 
