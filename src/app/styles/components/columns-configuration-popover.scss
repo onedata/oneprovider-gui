@@ -13,7 +13,7 @@
 
       &:first-of-type .move-up-button,
       &:last-of-type .move-down-button {
-        opacity: $disabled-opacity;
+        opacity: 0.2;
         cursor: auto;
       }
 

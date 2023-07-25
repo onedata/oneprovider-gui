@@ -9,6 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import { computed } from '@ember/object';
 
 export default Component.extend(I18n, {
   classNames: ['columns-configuration-popover'],
@@ -37,6 +38,13 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   isOpened: false,
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  columnsCount: computed('browserModel.columnsOrder', function columnsCount() {
+    return this.browserModel.columnsOrder.length - 1;
+  }),
 
   actions: {
     checkboxChanged(columnName, newValue) {

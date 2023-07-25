@@ -10,7 +10,7 @@
       exceptSelector=triggerSelector
     }}
       <ul class="columns-list">
-        {{#each browserModel.columnsOrder as |columnName|}}
+        {{#each browserModel.columnsOrder as |columnName index|}}
           <li class="column">
             {{one-checkbox
               inputId=(concat elementId "-" columnName "Checkbox")
@@ -43,14 +43,18 @@
                 onClick={{action "moveColumnDown" columnName}}
               >
                 {{one-icon icon="move-down"}}
-                {{one-tooltip title=(tt this "moveDown")}}
+                {{#if (not-eq index columnsCount)}}
+                  {{one-tooltip title=(tt this "moveDown")}}
+                {{/if}}
               </span>
               <span
                 class="move-up-button"
                 onClick={{action "moveColumnUp" columnName}}
               >
                 {{one-icon icon="move-up"}}
-                {{one-tooltip title=(tt this "moveUp")}}
+                {{#if (not-eq index 0)}}
+                  {{one-tooltip title=(tt this "moveUp")}}
+                {{/if}}
               </span>
             </div>
           </li>
