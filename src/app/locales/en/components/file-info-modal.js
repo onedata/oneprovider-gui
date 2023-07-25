@@ -14,9 +14,10 @@ export default {
   modificationTime: 'Modified at',
   owner: 'Owner',
   size: 'Size',
+  fileLink: '{{type}} link',
   fileLinkLabel: {
-    show: 'Show item link',
-    download: 'Download item link',
+    show: 'Show',
+    download: 'Download',
   },
   fileLinkTip: {
     show: {

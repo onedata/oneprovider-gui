@@ -5,6 +5,7 @@
   )
   open=open
   size="xl"
+  modalId=modalId
   backdropClose=true
   keyboard=true
   onHide=(action "close")
@@ -128,40 +129,41 @@
               </td>
             </tr>
           {{/if}}
-          {{#if availableFileLinkOptions}}
-            <tr class="file-info-row-gui-url">
-              <td class="property-name">
-                {{#one-dropdown
-                  triggerClass="small text-like file-link-type-selector-trigger"
-                  dropdownClass="small text-like file-link-type-selector-dropdown"
-                  renderInPlace=false
-                  options=availableFileLinkOptions
-                  selected=effSelectedFileLinkOption
-                  searchEnabled=false
-                  onchange=(action "changeSelectedFileLinkOption")
-                  as |fileLinkOption|
-                }}
-                  <div class="file-link-type-selector-item">
-                    {{#truncated-string class="file-link-type-selector-label"}}
-                      {{fileLinkOption.label}}
-                    {{/truncated-string}}
-                    {{#if fileLinkOption.tip}}
-                      {{one-label-tip
-                        class="file-link-type-selector-tip"
-                        title=fileLinkOption.tip
+          <tr class="file-info-row-gui-url">
+            <td class="property-name with-input-sm">{{tt this "fileLink" type=typeTranslation}}</td>
+            <td class="property-value">
+              {{#each availableFileLinkOptions as |fileLinkOption|}}
+                <div class="clipboard-line sm file-link-clipboard-line">
+                  <div class="input-group input-group-sm">
+                    <div
+                      class="input-group-addon input-group-addon-text file-link-group-addon truncate input-group-addon-left"
+                    >
+                      <div class="file-link-group-addon-inner">
+                        <span>{{fileLinkOption.label}}</span>
+                        {{one-label-tip title=fileLinkOption.tip}}
+                      </div>
+                    </div>
+                    <input
+                      type="text"
+                      class={{concat-classes
+                        "file-link-clipboard-line-input clipboard-input form-control input-sm"
+                        (concat fileLinkOption.type "-file-link-clipboard-line-input")
                       }}
-                    {{/if}}
+                      value={{fileLinkOption.url}}
+                      readonly
+                    >
                   </div>
-                {{/one-dropdown}}
-              </td>
-              <td class="property-value">
-                {{clipboard-line
-                  value=effSelectedFileLinkOption.url
-                  size=(if smallContent "sm")
-                }}
-              </td>
-            </tr>
-          {{/if}}
+                  {{#one-copy-button
+                    class="clipboard-btn clipboard-btn-input"
+                    clipboardTarget=(local-selector modalId (concat "." fileLinkOption.type "-file-link-clipboard-line-input"))
+                  }}
+                    <div class="copy-btn-background"></div>
+                    {{one-icon class="copy-btn-icon" icon="browser-copy"}}
+                  {{/one-copy-button}}
+                </div>
+              {{/each}}
+            </td>
+          </tr>
           <tr id={{cdmiRowId}} class="file-info-row-cdmi-object-id">
             <td class="property-name with-input">
               {{tt this "cdmiObjectId"}}

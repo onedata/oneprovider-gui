@@ -22,8 +22,6 @@ import {
   bool,
   equal,
   not,
-  array,
-  conditional,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, set, getProperties, observer } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -37,6 +35,7 @@ import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/model
 import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
 import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
+import { guidFor } from '@ember/object/internals';
 
 const mixins = [
   I18n,
@@ -63,6 +62,7 @@ const mixins = [
  * @property {string} url
  * @property {FileInfoModal.FileLinkType} type
  * @property {SafeString} label
+ * @property {SafeString} tip
  */
 
 export default Component.extend(...mixins, {
@@ -187,6 +187,13 @@ export default Component.extend(...mixins, {
    */
   previewMode: reads('browserModel.previewMode'),
 
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  modalId: computed(function modalId() {
+    return `${guidFor(this)}-modal`;
+  }),
+
   tabItemsIcons: computed(function tabItemsIcons() {
     const icons = {
       ...commonActionIcons,
@@ -258,24 +265,6 @@ export default Component.extend(...mixins, {
         label: this.t(`fileLinkLabel.${fileLinkType}`),
         tip: this.t(`fileLinkTip.${fileLinkType}.${this.itemType}`, { defaultValue: '' }),
       }));
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<FileInfoModal.FileLinkType>}
-   */
-  effSelectedFileLinkType: conditional(
-    array.includes('availableFileLinkTypes', 'selectedFileLinkType'),
-    'selectedFileLinkType',
-    'availableFileLinkTypes.firstObject'
-  ),
-
-  effSelectedFileLinkOption: computed(
-    'effSelectedFileLinkType',
-    function effSelectedFileLinkOption() {
-      return this.availableFileLinkOptions.find(option =>
-        option.type === this.effSelectedFileLinkType
-      );
     }
   ),
 

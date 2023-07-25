@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11199 Added pretty URLs for files show and download
 * VFS-10636 Added disabled replication column
 * VFS-11100 Added global URLs for files show and download
 * VFS-11153 Added showing error in storage locations in file details
