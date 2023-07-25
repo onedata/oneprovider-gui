@@ -9,7 +9,9 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { computed } from '@ember/object';
+import { computed, trySet } from '@ember/object';
+import { next } from '@ember/runloop';
+import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
 
 export default Component.extend(I18n, {
   classNames: ['columns-configuration-popover'],
@@ -46,6 +48,16 @@ export default Component.extend(I18n, {
     return this.browserModel.columnsOrder.length - 1;
   }),
 
+  /**
+   * @type {boolean}
+   */
+  arrowTooltipVisible: true,
+
+  /**
+   * @type {Boolean}
+   */
+  isInFirefox: browser.name === BrowserName.Firefox,
+
   actions: {
     checkboxChanged(columnName, newValue) {
       this.browserModel.changeColumnVisibility(columnName, newValue);
@@ -61,6 +73,12 @@ export default Component.extend(I18n, {
         this.browserModel.saveColumnsOrder();
         this.browserModel.checkColumnsVisibility();
         this.browserModel.notifyPropertyChange('columnsOrder');
+        // workaround to bug in firefox
+        // tooltip not disappeared after click and move element
+        if (this.isInFirefox) {
+          this.set('arrowTooltipVisible', false);
+          next(() => trySet(this, 'arrowTooltipVisible', true));
+        }
       }
     },
     moveColumnUp(columnName) {
@@ -74,6 +92,12 @@ export default Component.extend(I18n, {
         this.browserModel.saveColumnsOrder();
         this.browserModel.checkColumnsVisibility();
         this.browserModel.notifyPropertyChange('columnsOrder');
+        // workaround to bug in firefox
+        // tooltip not disappeared after click and move element
+        if (this.isInFirefox) {
+          this.set('arrowTooltipVisible', false);
+          next(() => trySet(this, 'arrowTooltipVisible', true));
+        }
       }
     },
   },
