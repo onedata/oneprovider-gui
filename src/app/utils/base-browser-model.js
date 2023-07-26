@@ -326,8 +326,8 @@ export default EmberObject.extend(...mixins, {
   columns: undefined,
 
   /**
-   * It is array with name of columns in order which should be display.
-   * There are enable and disable columns here.
+   * An array with names of columns, in display order (from left to right).
+   * There are enabled and disabled columns here.
    * @type {Object<string>}
    */
   columnsOrder: undefined,
