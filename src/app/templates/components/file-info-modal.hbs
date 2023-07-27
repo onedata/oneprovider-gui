@@ -132,30 +132,30 @@
           <tr class="file-info-row-gui-url">
             <td class="property-name with-input-sm">{{tt this "fileLink" type=typeTranslation}}</td>
             <td class="property-value">
-              {{#each availableFileLinkOptions as |fileLinkOption|}}
+              {{#each availableFileLinkModels as |fileLinkModel|}}
                 <div class="clipboard-line sm file-link-clipboard-line">
                   <div class="input-group input-group-sm">
                     <div
                       class="input-group-addon input-group-addon-text file-link-group-addon truncate input-group-addon-left"
                     >
                       <div class="file-link-group-addon-inner">
-                        <span>{{fileLinkOption.label}}</span>
-                        {{one-label-tip title=fileLinkOption.tip}}
+                        <span>{{fileLinkModel.label}}</span>
+                        {{one-label-tip title=fileLinkModel.tip}}
                       </div>
                     </div>
                     <input
                       type="text"
                       class={{concat-classes
                         "file-link-clipboard-line-input clipboard-input form-control input-sm"
-                        (concat fileLinkOption.type "-file-link-clipboard-line-input")
+                        (concat fileLinkModel.type "-file-link-clipboard-line-input")
                       }}
-                      value={{fileLinkOption.url}}
+                      value={{fileLinkModel.url}}
                       readonly
                     >
                   </div>
                   {{#one-copy-button
                     class="clipboard-btn clipboard-btn-input"
-                    clipboardTarget=(local-selector modalId (concat "." fileLinkOption.type "-file-link-clipboard-line-input"))
+                    clipboardTarget=(local-selector modalId (concat "." fileLinkModel.type "-file-link-clipboard-line-input"))
                   }}
                     <div class="copy-btn-background"></div>
                     {{one-icon class="copy-btn-icon" icon="browser-copy"}}

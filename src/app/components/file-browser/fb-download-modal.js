@@ -12,8 +12,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { bool, raw, eq } from 'ember-awesome-macros';
-import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import { bool } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   i18n: service(),

@@ -58,7 +58,7 @@ const mixins = [
  */
 
 /**
- * @typedef {Object} FileInfoModal.FileLinkOption
+ * @typedef {Object} FileInfoModal.FileLinkModel
  * @property {string} url
  * @property {FileInfoModal.FileLinkType} type
  * @property {SafeString} label
@@ -162,11 +162,6 @@ export default Component.extend(...mixins, {
   getProvidersUrl: notImplementedIgnore,
 
   /**
-   * @type {FileInfoModal.FileLinkType}
-   */
-  selectedFileLinkType: null,
-
-  /**
    * @type {FileInfoTabId}
    */
   activeTab: 'general',
@@ -241,13 +236,13 @@ export default Component.extend(...mixins, {
   availableFileLinkTypes: Object.freeze(['show', 'download']),
 
   /**
-   * @type {ComputedProperty<Array<FileInfoModal.FileLinkOption>>}
+   * @type {ComputedProperty<Array<FileInfoModal.FileLinkModel>>}
    */
-  availableFileLinkOptions: computed(
+  availableFileLinkModels: computed(
     'availableFileLinkTypes',
     'typeTranslation',
     'previewMode',
-    function availableFileLinkOptions() {
+    function availableFileLinkModels() {
       if (
         !this.file?.type ||
         !this.availableFileLinkTypes ||
@@ -954,13 +949,6 @@ export default Component.extend(...mixins, {
     },
     getProvidersUrl(...args) {
       return this.get('getProvidersUrl')(...args);
-    },
-
-    /**
-     * @param {ComputedProperty<FileInfoModal.FileLinkType>} fileLinkType
-     */
-    changeSelectedFileLinkOption(fileLinkOption) {
-      this.set('selectedFileLinkType', fileLinkOption.type);
     },
   },
 });
