@@ -23,7 +23,7 @@ import { hashSettled, hash as hashFulfilled, all as allFulfilled } from 'rsvp';
 import { formatNumber } from 'onedata-gui-common/helpers/format-number';
 import { htmlSafe } from '@ember/string';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { or, raw } from 'ember-awesome-macros';
+import { or, raw, eq } from 'ember-awesome-macros';
 
 const mixins = [
   I18n,
@@ -96,6 +96,11 @@ export default Component.extend(...mixins, {
    * @type {Boolean}
    */
   dirStatsNotReady: false,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSpaceRootDir: eq('file.entityId', 'space.rootDir.entityId'),
 
   /**
    * @type {ComputedProperty<string>}
@@ -740,6 +745,12 @@ export default Component.extend(...mixins, {
       seriesColorsConfig,
       latestDirSizeStatsValuesUpdater,
     });
+
+    // FIXME: debug code
+    ((name) => {
+      window[name] = this;
+      console.log(`window.${name}`, window[name]);
+    })('debug_file_entry_charts');
   },
 
   /**
