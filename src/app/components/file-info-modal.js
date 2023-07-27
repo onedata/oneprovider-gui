@@ -22,8 +22,6 @@ import {
   bool,
   equal,
   not,
-  array,
-  conditional,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, set, getProperties, observer } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -37,6 +35,7 @@ import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/model
 import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
 import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
+import { guidFor } from '@ember/object/internals';
 
 const mixins = [
   I18n,
@@ -59,10 +58,11 @@ const mixins = [
  */
 
 /**
- * @typedef {Object} FileInfoModal.FileLinkOption
+ * @typedef {Object} FileInfoModal.FileLinkModel
  * @property {string} url
  * @property {FileInfoModal.FileLinkType} type
  * @property {SafeString} label
+ * @property {SafeString} tip
  */
 
 export default Component.extend(...mixins, {
@@ -162,11 +162,6 @@ export default Component.extend(...mixins, {
   getProvidersUrl: notImplementedIgnore,
 
   /**
-   * @type {FileInfoModal.FileLinkType}
-   */
-  selectedFileLinkType: null,
-
-  /**
    * @type {FileInfoTabId}
    */
   activeTab: 'general',
@@ -186,6 +181,13 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<boolean>}
    */
   previewMode: reads('browserModel.previewMode'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  modalId: computed(function modalId() {
+    return `${guidFor(this)}-modal`;
+  }),
 
   tabItemsIcons: computed(function tabItemsIcons() {
     const icons = {
@@ -234,13 +236,13 @@ export default Component.extend(...mixins, {
   availableFileLinkTypes: Object.freeze(['show', 'download']),
 
   /**
-   * @type {ComputedProperty<Array<FileInfoModal.FileLinkOption>>}
+   * @type {ComputedProperty<Array<FileInfoModal.FileLinkModel>>}
    */
-  availableFileLinkOptions: computed(
+  availableFileLinkModels: computed(
     'availableFileLinkTypes',
-    'itemType',
+    'typeTranslation',
     'previewMode',
-    function availableFileLinkOptions() {
+    function availableFileLinkModels() {
       if (
         !this.file?.type ||
         !this.availableFileLinkTypes ||
@@ -256,26 +258,12 @@ export default Component.extend(...mixins, {
           fileAction: fileLinkType,
         }),
         label: this.t(`fileLinkLabel.${fileLinkType}`),
-        tip: this.t(`fileLinkTip.${fileLinkType}.${this.itemType}`, { defaultValue: '' }),
+        tip: this.t(`fileLinkTip.${fileLinkType}`, {
+          type: _.lowerCase(this.typeTranslation),
+        }, {
+          defaultValue: '',
+        }),
       }));
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<FileInfoModal.FileLinkType>}
-   */
-  effSelectedFileLinkType: conditional(
-    array.includes('availableFileLinkTypes', 'selectedFileLinkType'),
-    'selectedFileLinkType',
-    'availableFileLinkTypes.firstObject'
-  ),
-
-  effSelectedFileLinkOption: computed(
-    'effSelectedFileLinkType',
-    function effSelectedFileLinkOption() {
-      return this.availableFileLinkOptions.find(option =>
-        option.type === this.effSelectedFileLinkType
-      );
     }
   ),
 
@@ -961,13 +949,6 @@ export default Component.extend(...mixins, {
     },
     getProvidersUrl(...args) {
       return this.get('getProvidersUrl')(...args);
-    },
-
-    /**
-     * @param {ComputedProperty<FileInfoModal.FileLinkType>} fileLinkType
-     */
-    changeSelectedFileLinkOption(fileLinkOption) {
-      this.set('selectedFileLinkType', fileLinkOption.type);
     },
   },
 });

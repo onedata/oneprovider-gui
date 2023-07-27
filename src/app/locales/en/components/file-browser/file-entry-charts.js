@@ -4,6 +4,7 @@ export default {
   noStatistics: 'Requested directory statistics are not ready yet – calculation is in progress.',
   currentSize: {
     header: 'Current size',
+    spaceDirIncludesArchives: 'Statistics for the space directory include archives.',
     fileCounters: sizeStatsPerProviderTable.fileCounters,
     currentSizeOnProvidersCount: 'collected from <span>{{providersWithStatsCount}} out of {{providersCount}}</span> providers',
     currentSizeTip: 'Presented information is partial since it was collected only from online providers with enabled directory size statistics. From the global point of view, the actual size of the space may differ.',
