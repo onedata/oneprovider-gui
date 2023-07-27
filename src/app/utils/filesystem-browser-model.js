@@ -1154,10 +1154,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       case 'download': {
         await this.initialLoad;
         await this.selectedItemsForJumpProxy;
+        await waitForRender();
         if (!this.selectedItems?.length) {
           break;
         }
-        await waitForRender();
         if (this.selectedItems.length === 1) {
           this.openConfirmDownload(this.selectedItems[0]);
         } else {
