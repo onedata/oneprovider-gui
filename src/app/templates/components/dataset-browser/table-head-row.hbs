@@ -1,20 +1,14 @@
 <th class="fb-table-col-datasets">{{tt this "datasets"}}</th>
-{{#if browserModel.columns.archives.isVisible}}
-  <th
-    class="fb-table-col-archives fb-table-secondary-col hidden-xs"
-    style={{browserModel.columnsStyle.archives}}
-  >
-    {{tt this "archives"}}
-  </th>
-{{/if}}
-{{#if browserModel.columns.created.isVisible}}
-  <th
-    class="fb-table-col-created fb-table-secondary-col hidden-xs"
-    style={{browserModel.columnsStyle.created}}
-  >
-    {{tt this "created"}}
-  </th>
-{{/if}}
+{{#each browserModel.columnsOrder as |columnName|}}
+  {{#if (get browserModel (concat "columns." columnName ".isVisible"))}}
+    <th
+      class={{concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"}}
+      style={{get browserModel (concat "columnsStyle." columnName)}}
+    >
+      {{tt this columnName}}
+    </th>
+  {{/if}}
+{{/each}}
 {{file-browser/fb-columns-configuration-cell
   browserModel=browserModel
 }}
