@@ -245,7 +245,7 @@ export default Component.extend(...mixins, {
    */
   availableFileLinkOptions: computed(
     'availableFileLinkTypes',
-    'itemType',
+    'typeTranslation',
     'previewMode',
     function availableFileLinkOptions() {
       if (
@@ -263,7 +263,11 @@ export default Component.extend(...mixins, {
           fileAction: fileLinkType,
         }),
         label: this.t(`fileLinkLabel.${fileLinkType}`),
-        tip: this.t(`fileLinkTip.${fileLinkType}.${this.itemType}`, { defaultValue: '' }),
+        tip: this.t(`fileLinkTip.${fileLinkType}`, {
+          type: _.lowerCase(this.typeTranslation),
+        }, {
+          defaultValue: '',
+        }),
       }));
     }
   ),

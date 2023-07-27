@@ -53,11 +53,6 @@ export default Component.extend(I18n, {
   effFileType: reads('effFile.type'),
 
   /**
-   * @type {ComputedProperty<boolean>}
-   */
-  isDirectory: eq('effFileType', raw(LegacyFileType.Directory)),
-
-  /**
    * @param {AppProxyTransitionInfo} transitionInfo
    * @returns {boolean}
    */
