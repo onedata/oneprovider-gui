@@ -1,119 +1,122 @@
-{{#if browserModel.columns.size.isVisible}}
-  <td class={{concat
-      "fb-table-col-size hidden-xs "
-      (if file.effFile.isShowProgress "multiline")
-    }}
-    style={{browserModel.columnsStyle.size}}
-  >
-    <span class="file-item-text">
-      {{#if (eq file.effFile.type "file")}}
-        {{#if (or file.effFile.isShowProgress (not file.effFile.isPollingSize))}}
-          <span class="{{if file.effFile.isShowProgress "infinite animated pulse-mint"}}">
-            {{bytes-to-string file.effFile.size}}
-          </span>
-          {{#if file.effFile.isShowProgress}}
-            <br>
-            <span class="small">
-              {{tt this file.effFile.currentOperation}}
-            </span>
-          {{/if}}
-        {{else}}
-          {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
-        {{/if}}
-      {{else if isItemDirStatsFeatureHidden}}
-        {{#if isUnknownSizeShown}}
-          —
-        {{else}}
-          {{bytes-to-string file.effFile.size}}
-        {{/if}}
-      {{else}}
-        <div
-          class={{concat-classes
-            "dir-size-container"
-            "active"
-          }}
-          onclick={{action "invokeFileAction" file "info" "size"}}
-        >
-          <span class="dir-size-value">
+{{#each browserModel.columnsOrder as |columnName|}}
+  {{#if (get browserModel (concat "columns." columnName ".isVisible"))}}
+    {{#if (eq columnName "size")}}
+      <td class={{concat
+          "fb-table-col-size hidden-xs "
+          (if file.effFile.isShowProgress "multiline")
+        }}
+        style={{browserModel.columnsStyle.size}}
+      >
+        <span class="file-item-text">
+          {{#if (eq file.effFile.type "file")}}
+            {{#if (or file.effFile.isShowProgress (not file.effFile.isPollingSize))}}
+              <span class="{{if file.effFile.isShowProgress "infinite animated pulse-mint"}}">
+                {{bytes-to-string file.effFile.size}}
+              </span>
+              {{#if file.effFile.isShowProgress}}
+                <br>
+                <span class="small">
+                  {{tt this file.effFile.currentOperation}}
+                </span>
+              {{/if}}
+            {{else}}
+              {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+            {{/if}}
+          {{else if isItemDirStatsFeatureHidden}}
             {{#if isUnknownSizeShown}}
               —
             {{else}}
               {{bytes-to-string file.effFile.size}}
             {{/if}}
-          </span>
-          {{one-icon
-            icon="overview"
-            class="inline-icon-container"
-          }}
-        </div>
-        {{#if tooltipText}}
-          {{one-tooltip
-            title=tooltipText
-          }}
-        {{/if}}
-      {{/if}}
-    </span>
-  </td>
-{{/if}}
-{{#if browserModel.columns.modification.isVisible}}
-  <td
-    class="fb-table-col-modification hidden-xs"
-    style={{browserModel.columnsStyle.modification}}
-  >
-    <span class="file-item-text">
-      {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
-    </span>
-  </td>
-{{/if}}
-{{#if (and browserModel.isOwnerVisible browserModel.columns.owner.isVisible)}}
-  <td
-    class="fb-table-col-owner multiline hidden-xs"
-    style={{browserModel.columnsStyle.owner}}
-  >
-    <span class="file-item-text">
-      {{filesystem-browser/table-cell-owner-info
-        owner=owner
-        errorReason=errorReasonForOwnerProxy
-      }}
-    </span>
-  </td>
-{{/if}}
-{{#if browserModel.columns.replication.isVisible}}
-  <td class="fb-table-col-replication hidden-xs">
-    <span
-      class="file-item-text"
-      onclick={{action "invokeFileAction" file "info" "distribution"}}
-    >
-      {{#if (eq percentageReplication null)}}
-        <span class="replication-rate-text empty-replication-rate">—</span>
-      {{else}}
-        <span class="replication-rate-text">
-          {{#if isSmallReplicationRate}}
-            &lt; 1%
           {{else}}
-            {{percentageReplication}}%
+            <div
+              class={{concat-classes
+                "dir-size-container"
+                "active"
+              }}
+              onclick={{action "invokeFileAction" file "info" "size"}}
+            >
+              <span class="dir-size-value">
+                {{#if isUnknownSizeShown}}
+                  —
+                {{else}}
+                  {{bytes-to-string file.effFile.size}}
+                {{/if}}
+              </span>
+              {{one-icon
+                icon="overview"
+                class="inline-icon-container"
+              }}
+            </div>
+            {{#if tooltipText}}
+              {{one-tooltip
+                title=tooltipText
+              }}
+            {{/if}}
           {{/if}}
         </span>
-        <span class="replication-bar-container">
-          <hr
-            class={{concat-classes
-              "replication-bar"
-              (if (eq percentageReplication 100) "full")
-              (if isSmallReplicationRate "almost-empty-bar")
-            }}
-            style={{replicationBarStyle}}
-          >
-          <hr
-            class={{concat-classes
-              "remain-background-bar"
-              (if (eq percentageReplication 0) "full")
-            }}
-            style={{emptyBarStyle}}
-          >
+      </td>
+    {{else if (eq columnName "modification")}}
+      <td
+        class="fb-table-col-modification hidden-xs"
+        style={{browserModel.columnsStyle.modification}}
+      >
+        <span class="file-item-text">
+          {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
         </span>
-      {{/if}}
-      {{one-tooltip title=(tt this "replicationRateTooltip")}}
-    </span>
-  </td>
-{{/if}}
+      </td>
+    {{else if (eq columnName "owner")}}
+      <td
+        class="fb-table-col-owner multiline hidden-xs"
+        style={{browserModel.columnsStyle.owner}}
+      >
+        <span class="file-item-text">
+          {{filesystem-browser/table-cell-owner-info
+            owner=owner
+            errorReason=errorReasonForOwnerProxy
+          }}
+        </span>
+      </td>
+    {{else if browserModel.columns.replication.isVisible}}
+      <td class="fb-table-col-replication hidden-xs">
+        <span
+          class="file-item-text"
+          onclick={{action "invokeFileAction" file "info" "distribution"}}
+        >
+          {{#if (eq percentageReplication null)}}
+            <span class="replication-rate-text empty-replication-rate">—</span>
+          {{else}}
+            <span class="replication-rate-text">
+              {{#if isSmallReplicationRate}}
+                &lt; 1%
+              {{else}}
+                {{percentageReplication}}%
+              {{/if}}
+            </span>
+            <span class="replication-bar-container">
+              <hr
+                class={{concat-classes
+                  "replication-bar"
+                  (if (eq percentageReplication 100) "full")
+                  (if isSmallReplicationRate "almost-empty-bar")
+                }}
+                style={{replicationBarStyle}}
+              >
+              <hr
+                class={{concat-classes
+                  "remain-background-bar"
+                  (if (eq percentageReplication 0) "full")
+                }}
+                style={{emptyBarStyle}}
+              >
+            </span>
+          {{/if}}
+          {{one-tooltip title=(tt this "replicationRateTooltip")}}
+        </span>
+      </td>
+    {{/if}}
+  {{/if}}
+{{/each}}
+
+
 

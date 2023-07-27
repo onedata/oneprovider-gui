@@ -266,6 +266,7 @@ export default BaseBrowserModel.extend(I18n, {
         width: 200,
       }),
     });
+    this.set('columnsOrder', ['archives', 'created']);
     this._super(...arguments);
   },
 
