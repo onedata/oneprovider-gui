@@ -25,7 +25,7 @@
     >
       {{tt this columnName}}
       {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
-        {{#one-icon icon="browser-info"}}
+        {{#one-icon icon="browser-info" class="column-info-icon"}}
           {{one-tooltip title=(tt this "replicationTooltip" oneprovider=currentProviderName)}}
         {{/one-icon}}
       {{/if}}

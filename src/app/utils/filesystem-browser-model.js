@@ -1142,7 +1142,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       isEnabled: false,
       width: 100,
     }));
-    this.set('columnsOrder', ['size', 'modification']);
+    this.set('columnsOrder', ['size', 'modification', 'qos']);
     if (this.isOwnerVisible) {
       this.set('columns.owner', EmberObject.create({
         isVisible: true,
