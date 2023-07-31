@@ -6,7 +6,7 @@
       padding-bottom: 10px;
     }
   }
-  .fb-table-secondary-col .oneicon-browser-info {
+  .fb-table-secondary-col .qos-column-info {
     font-size: 150%;
     vertical-align: bottom;
     opacity: $disabled-opacity;
@@ -57,26 +57,21 @@
     position: relative;
     text-align: center;
 
-    .file-item-text:hover {
+    .file-item-text {
       &.clickable {
-        text-decoration: underline;
+        &:hover {
+          text-decoration: underline;
+        }
+        span {
+          cursor: pointer;
+        }
+      }
+      span {
+        cursor: default;
       }
     }
 
-    .file-item-text span {
-      cursor: default;
-    }
-
-    .file-item-text.clickable span {
-      cursor: pointer;
-    }
-
-    .no-qos-text {
-      font-size: 100%;
-      padding-bottom: 3px;
-    }
-
-    .file-item-icon {
+    .status-icon {
       font-size: 220%;
       position: absolute;
       top: 50%;
@@ -86,19 +81,19 @@
       line-height: 1;
 
       .one-icon {
-        color: var(--tab-status-icon-color, 'inherit');
+        color: var(--item-qos-status-icon-color, 'inherit');
 
         &.qos-status-error {
-          --tab-status-icon-color: #{$color-one-warning};
+          --item-qos-status-icon-color: #{$color-one-warning};
         }
         &.qos-status-fulfilled {
-          --tab-status-icon-color: #{$color-one-success};
+          --item-qos-status-icon-color: #{$color-one-success};
         }
         &.qos-status-pending {
-          --tab-status-icon-color: #{$color-one-warning};
+          --item-qos-status-icon-color: #{$color-one-warning};
         }
         &.qos-status-impossible {
-          --tab-status-icon-color: #{$color-one-danger};
+          --item-qos-status-icon-color: #{$color-one-danger};
         }
       }
     }

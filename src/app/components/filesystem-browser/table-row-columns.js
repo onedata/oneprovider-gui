@@ -103,8 +103,7 @@ export default FbTableRowColumns.extend(I18n, {
   errorReasonForOwnerProxy: reads('ownerProxy.reason'),
 
   /**
-   * One of: impossible, pending, fulfilled, error, noQos
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<QosStatus>}
    */
   qosStatus: reads('file.effFile.qosStatus'),
 
@@ -123,6 +122,14 @@ export default FbTableRowColumns.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   statusIcon: getBy(raw(qosStatusIcons), 'qosStatus'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  fileTypeText: computed('fileType', function fileTypeText() {
+    const fileType = this.file.type;
+    return this.t(`qosStatusHint.${fileType || 'file'}`);
+  }),
 
   /**
    * @type {ComputedProperty<boolean>}

@@ -11,7 +11,9 @@ export default {
     fulfilled: 'Fulfilled – desired number of replicas have been created on matching storages and their contents are up-to-date',
     impossible: 'Impossible – there are not enough storages matching the expression to meet the required number of replicas',
     error: 'Cannot evaluate requirement status',
-    noQos: 'There are no QoS requirements defined for this file',
+    noQos: 'There are no QoS requirements defined for this {{fileType}}',
+    file: 'file',
+    dir: 'directory',
   },
   replicationRateTooltip: 'Show data distribution details',
 };
