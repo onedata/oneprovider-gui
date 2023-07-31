@@ -10,7 +10,9 @@ export default {
     file: questionTemplate('file'),
     dir: questionTemplate('directory and all its contents'),
   },
-  tarNote: 'Note, that the directory will be packaged in the tar format.',
-  confirmDownload: 'Download',
+  confirmDownload: {
+    file: 'Download',
+    dir: 'Download (tar)',
+  },
   cancel: 'Cancel',
 };

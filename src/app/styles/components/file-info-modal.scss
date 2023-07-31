@@ -137,6 +137,19 @@
     .one-label-tip {
       margin-left: 0.5em;
     }
+
+    .root-dir-alert {
+      display: flex;
+      align-items: center;
+      margin-top: -10px;
+      margin-bottom: 25px;
+      .one-icon {
+        font-size: 200%;
+      }
+      .one-icon + .text {
+        margin-left: 0.8em;
+      }
+    }
   }
 
   .historical-size-section {
@@ -190,7 +203,7 @@
   .table.table-info.table-file-info {
     td.property-name {
       padding-left: 0;
-      width: 12.2em;
+      width: 11em;
       @media (max-width: $screen-xs-max) {
         width: auto;
       }
@@ -375,6 +388,25 @@
       box-shadow: none;
       tr {
         padding: 10px;
+      }
+    }
+  }
+
+  .file-link-clipboard-line {
+    margin-top: 1em;
+    &:first-of-type {
+      margin-top: 0;
+    }
+  }
+
+  .file-link-group-addon {
+    .file-link-group-addon-inner {
+      display: flex;
+      align-items: center;
+      .one-label-tip {
+        display: flex;
+        align-items: center;
+        margin-left: 0.4em;
       }
     }
   }

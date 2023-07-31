@@ -17,52 +17,21 @@
     <div class="table-header-status-bar">{{yield}}</div>
   </div>
 </th>
-{{#if browserModel.columns.size.isVisible}}
-  <th
-    class="fb-table-col-size fb-table-secondary-col hidden-xs"
-    style={{browserModel.columnsStyle.size}}
-  >
-    {{tt this "size"}}
-  </th>
-{{/if}}
-{{#if browserModel.columns.modification.isVisible}}
-  <th
-    class="fb-table-col-modification fb-table-secondary-col hidden-xs"
-    style={{browserModel.columnsStyle.modification}}
-  >
-    {{tt this "modification"}}
-  </th>
-{{/if}}
-{{#if (and browserModel.isOwnerVisible browserModel.columns.owner.isVisible)}}
-  <th
-    class="fb-table-col-owner fb-table-secondary-col hidden-xs"
-    style={{browserModel.columnsStyle.owner}}
-  >
-    {{tt this "owner"}}
-  </th>
-{{/if}}
-{{#if browserModel.columns.qos.isVisible}}
-  <th
-    class="fb-table-col-qos fb-table-secondary-col hidden-xs"
-    style={{browserModel.columnsStyle.qos}}
-  >
-    {{tt this "qos"}}
-    {{#one-icon icon="browser-info" class="qos-column-info"}}
-      {{one-tooltip title=(tt this "qosTooltip")}}
-    {{/one-icon}}
-  </th>
-{{/if}}
-{{#if browserModel.columns.replication.isVisible}}
-  <th
-    class="fb-table-col-replication fb-table-secondary-col hidden-xs"
-    style={{browserModel.columnsStyle.replication}}
-  >
-    {{tt this "replication"}}
-    {{#one-icon icon="browser-info"}}
-      {{one-tooltip title=(tt this "replicationTooltip" oneprovider=currentProviderName)}}
-    {{/one-icon}}
-  </th>
-{{/if}}
+{{#each browserModel.columnsOrder as |columnName|}}
+  {{#if (get browserModel (concat "columns." columnName ".isVisible"))}}
+    <th
+      class={{concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"}}
+      style={{get browserModel (concat "columnsStyle." columnName)}}
+    >
+      {{tt this columnName}}
+      {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
+        {{#one-icon icon="browser-info"}}
+          {{one-tooltip title=(tt this "replicationTooltip" oneprovider=currentProviderName)}}
+        {{/one-icon}}
+      {{/if}}
+    </th>
+  {{/if}}
+{{/each}}
 {{!-- hide actions th to make space for jump-control (see also colspan in first th) --}}
 {{file-browser/fb-columns-configuration-cell
   browserModel=browserModel

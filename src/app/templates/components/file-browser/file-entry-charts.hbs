@@ -7,6 +7,12 @@
 {{else}}
   {{#promise-proxy-container proxy=loadingProxy}}
     <div class="current-size-section">
+      {{#if isSpaceRootDir}}
+        <div class="alert alert-info root-dir-alert">
+          {{one-icon icon="browser-info"}}
+          <div class="text">{{tt this "currentSize.spaceDirIncludesArchives"}}</div>
+        </div>
+      {{/if}}
       <h2 class="current-size-header">
         {{tt this "currentSize.header"}}
         <span class={{concat-classes

@@ -325,6 +325,13 @@ export default EmberObject.extend(...mixins, {
    */
   columns: undefined,
 
+  /**
+   * An array with names of columns, in display order (from left to right).
+   * There are enabled and disabled columns here.
+   * @type {Object<string>}
+   */
+  columnsOrder: undefined,
+
   //#endregion
 
   //#region file-browser API
@@ -620,7 +627,7 @@ export default EmberObject.extend(...mixins, {
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
     this.attachWindowResizeHandler();
-    this.getEnabledColumnsFromLocalStorage();
+    this.loadColumnsConfigFromLocalStorage();
     this.checkColumnsVisibility();
   },
 
@@ -845,7 +852,7 @@ export default EmberObject.extend(...mixins, {
     this.set(`columns.${columnName}.isEnabled`, isEnabled);
     this.checkColumnsVisibility();
     const enabledColumns = [];
-    for (const column in this.columns) {
+    for (const column of this.columnsOrder) {
       if (this.columns[column].isEnabled) {
         enabledColumns.push(column);
       }
@@ -853,6 +860,13 @@ export default EmberObject.extend(...mixins, {
     globals.localStorage.setItem(
       `${this.browserPersistedConfigurationKey}.enabledColumns`,
       enabledColumns.join()
+    );
+  },
+
+  saveColumnsOrder() {
+    globals.localStorage.setItem(
+      `${this.browserPersistedConfigurationKey}.columnsOrder`,
+      this.columnsOrder
     );
   },
 
@@ -865,7 +879,7 @@ export default EmberObject.extend(...mixins, {
     let remainingWidth = width - this.firstColumnWidth;
     remainingWidth -= this.lastColumnWidth;
     let hiddenColumnsCount = 0;
-    for (const column in this.columns) {
+    for (const column of this.columnsOrder) {
       if (this.columns[column].isEnabled) {
         if (remainingWidth >= this.columns[column].width) {
           remainingWidth -= this.columns[column].width;
@@ -884,10 +898,14 @@ export default EmberObject.extend(...mixins, {
     }
   },
 
-  getEnabledColumnsFromLocalStorage() {
+  loadColumnsConfigFromLocalStorage() {
     const enabledColumns = globals.localStorage.getItem(
       `${this.browserPersistedConfigurationKey}.enabledColumns`
     );
+    const columnsOrder = globals.localStorage.getItem(
+      `${this.browserPersistedConfigurationKey}.columnsOrder`
+    );
+
     const enabledColumnsList = enabledColumns?.split(',');
     if (enabledColumnsList) {
       for (const column in this.columns) {
@@ -895,6 +913,9 @@ export default EmberObject.extend(...mixins, {
           Boolean(enabledColumnsList?.includes(column))
         );
       }
+    }
+    if (columnsOrder) {
+      this.set('columnsOrder', columnsOrder.split(','));
     }
   },
 

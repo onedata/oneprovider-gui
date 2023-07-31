@@ -28,7 +28,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     this.set('browserModel', FilesystemBrowserModel.create({
       ownerSource: this.owner,
       firstColumnWidth: 20,
-      getEnabledColumnsFromLocalStorage() {
+      loadColumnsConfigFromLocalStorage() {
         this.set('columns.modification.isEnabled', true);
         // TODO: VFS-11089 Uncomment replication tests
         // this.set('columns.replication.isEnabled', true);

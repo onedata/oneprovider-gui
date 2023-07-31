@@ -1142,12 +1142,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       isEnabled: false,
       width: 100,
     }));
+    this.set('columnsOrder', ['size', 'modification']);
     if (this.isOwnerVisible) {
       this.set('columns.owner', EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 200,
       }));
+      this.columnsOrder.push('owner');
     }
     this._super(...arguments);
   },
@@ -1161,10 +1163,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       case 'download': {
         await this.initialLoad;
         await this.selectedItemsForJumpProxy;
+        await waitForRender();
         if (!this.selectedItems?.length) {
           break;
         }
-        await waitForRender();
         if (this.selectedItems.length === 1) {
           this.openConfirmDownload(this.selectedItems[0]);
         } else {

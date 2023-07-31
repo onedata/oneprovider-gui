@@ -4,13 +4,50 @@
     margin: 0;
     list-style-type: none;
 
-    .column-name-label .one-label {
-      padding-right: 2.2em;
-    }
-
     .column {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: $padding-base-vertical;
       position: relative;
+
+      &:first-of-type .move-up-button,
+      &:last-of-type .move-down-button {
+        opacity: 0.2;
+        cursor: auto;
+      }
+
+      &:hover .arrows-container {
+        visibility: visible;
+      }
+
+      .arrows-container {
+        display: flex;
+        cursor: pointer;
+
+        @media (hover: none) {
+          visibility: visible;
+        }
+        @media (hover: hover) {
+          visibility: hidden;
+        }
+
+        .oneicon {
+          font-size: 120%;
+          font-weight: bold;
+          vertical-align: middle;
+        }
+      }
+
+      label.column-name-label {
+        display: inline-flex;
+        flex-grow: 1;
+        padding-right: 2.2em;
+
+        .checkbox-label {
+          position: relative;
+        }
+      }
 
       &:last-child {
         margin-bottom: 0;
@@ -20,7 +57,7 @@
         font-size: 160%;
         vertical-align: middle;
         position: absolute;
-        right: 0;
+        right: -1.2em;
         top: 50%;
         transform: translateY(-45%);
       }

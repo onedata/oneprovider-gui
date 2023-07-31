@@ -38,6 +38,11 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
+  browserPersistedConfigurationKey: 'sharedFilesystem',
+
+  /**
+   * @override
+   */
   fetchDirChildren(dirId, ...fetchArgs) {
     if (dirId === shareRootId) {
       return this.fetchShareRootDirChildren(dirId, ...fetchArgs);
