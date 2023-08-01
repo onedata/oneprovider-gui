@@ -174,6 +174,20 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
+  forceContinueAction: computed(
+    'atmWorkflowExecutionProxy.isFulfilled',
+    function forceContinueAction() {
+      if (this.atmWorkflowExecutionProxy.isFulfilled) {
+        return this.workflowActions.createForceContinueAtmWorkflowExecutionAction({
+          atmWorkflowExecution: this.atmWorkflowExecutionProxy.content,
+        });
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Utils.Action>}
+   */
   pauseResumeAction: computed(
     'atmWorkflowExecutionProxy.isFulfilled',
     function pauseResumeAction() {
