@@ -12,7 +12,6 @@ import Action from 'onedata-gui-common/utils/action';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { reject } from 'rsvp';
 import { eq, raw, or, not } from 'ember-awesome-macros';
 import { normalizeWorkflowStatus } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
@@ -116,7 +115,7 @@ export default Action.extend({
   async forceContinueAtmWorkflowExecution() {
     const atmWorkflowExecutionId = this.get('atmWorkflowExecution.entityId');
     if (!atmWorkflowExecutionId) {
-      return reject();
+      throw new Error('Unknown ID of atm. workflow execution.');
     }
     await this.workflowManager.forceContinueAtmWorkflowExecution(atmWorkflowExecutionId);
   },
