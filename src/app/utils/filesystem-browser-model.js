@@ -1116,6 +1116,38 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
+  requiredFilePropertiesSetter: observer(
+    // FIXME: maybe use isVisible
+    'columns.size.isEnabled',
+    'columns.modification.isEnabled',
+    'columns.owner.isEnabled',
+    'columns.replication.isEnabled',
+    function requiredFilePropertiesSetter() {
+      const requiredProperties = [
+        'name',
+        'originalName',
+        'isShared',
+        'parent',
+        'hasParent',
+        'effFile',
+        // FIXME: add more
+      ];
+      if (this.columns.size.isEnabled) {
+        requiredProperties.push('size');
+      }
+      if (this.columns.modification.isEnabled) {
+        requiredProperties.push('modificationTime');
+      }
+      if (this.columns.owner.isEnabled) {
+        requiredProperties.push('owner');
+      }
+      if (this.columns.replication.isEnabled) {
+        requiredProperties.push('localReplicationRate');
+      }
+      // FIXME: tutaj skończona praca - zarejestrować attry jako consumer this
+    }
+  ),
+
   init() {
     this.set('columns', {
       size: EmberObject.create({
@@ -1129,11 +1161,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         width: 180,
       }),
       // TODO: VFS-11089 Enable replication column with optional replication data fetch
-      // replication: EmberObject.create({
-      //   isVisible: false,
-      //   isEnabled: false,
-      //   width: 160,
-      // }),
+      // FIXME: experimental
+      replication: EmberObject.create({
+        isVisible: false,
+        isEnabled: false,
+        width: 160,
+      }),
     });
     this.set('columnsOrder', ['size', 'modification']);
     if (this.isOwnerVisible) {
@@ -1145,6 +1178,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       this.columnsOrder.push('owner');
     }
     this._super(...arguments);
+    this.requiredFilePropertiesSetter();
   },
 
   /**

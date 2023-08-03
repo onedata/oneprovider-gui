@@ -23,6 +23,7 @@ import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import FilePropertiesRequirementQuery from 'oneprovider-gui/utils/file-properties-requirement-query';
 
 /**
  * @typedef {Object} FileEntryTimeSeriesCollections
@@ -88,6 +89,7 @@ export default Service.extend({
   spaceManager: service(),
   storageManager: service(),
   providerManager: service(),
+  filePropertiesRequirementRegistry: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -115,13 +117,21 @@ export default Service.extend({
   } = {}) {
     const store = this.get('store');
     const fileGri = getFileGri(fileId, scope);
-    const file = await store.findRecord(
-      fileModelName,
-      fileGri, {
-        reload,
-        backgroundReload,
-      }
+    const requirementQuery = FilePropertiesRequirementQuery.create({ fileGri });
+    const attributes = this.filePropertiesRequirementRegistry.findAttrsRequirement(
+      requirementQuery
     );
+    const file = await store.findRecord(fileModelName, fileGri, {
+      reload,
+      backgroundReload,
+      adapterOptions: {
+        _meta: {
+          additionalData: {
+            attributes,
+          },
+        },
+      },
+    });
     await this.resolveSymlinks([file], scope);
     return file;
   },
@@ -312,6 +322,12 @@ export default Service.extend({
       aspect: childrenAttrsAspect,
       scope,
     });
+    const requirementQuery = FilePropertiesRequirementQuery.create({
+      parentGuid: dirId,
+    });
+    const attributes = this.filePropertiesRequirementRegistry.findAttrsRequirement(
+      requirementQuery
+    );
     return this.get('onedataGraph').request({
       operation: 'get',
       gri: requestGri,
@@ -320,31 +336,7 @@ export default Service.extend({
         limit,
         offset,
         inclusive: true,
-        // TODO: VFS-11089 Use that attributes in smarter way
-        // attributes: [
-        //   'name',
-        //   'mode',
-        //   'guid',
-        //   'activePermissionsType',
-        //   'index',
-        //   'ownerId',
-        //   'providerId',
-        //   'shares',
-        //   'type',
-        //   'mtime',
-        //   'localReplicationRate',
-        //   'size',
-        //   'recallRootId',
-        //   'effDatasetMembership',
-        //   'effDatasetProtectionFlags',
-        //   'effProtectionFlags',
-        //   'effQosMembership',
-        //   'qosStatus',
-        //   'hasMetadata',
-        //   'posixPermissions',
-        //   'hardlinksCount',
-        //   'parentId',
-        // ],
+        attributes,
       },
       subscribe: false,
     });

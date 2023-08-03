@@ -1,0 +1,134 @@
+import Service from '@ember/service';
+import { possibleFileRawAttributesSet } from 'oneprovider-gui/utils/file-properties-requirement';
+import _ from 'lodash';
+
+/**
+ * A GUI entity (might be a component, service, anything that is "living" during runtime)
+ * that uses file with some required properties. As long, as the Consumer lives, it should
+ * be registered in the FilePropertiesRequiremenetsRegistry with its requirements.
+ *
+ * For example, a file shares information panel component would need a file: `name`,
+ * `sharesCount` and `sharesRecords` properties. This need (a FilePropertiesRequirement)
+ * is registered in global registry as a pair with the Consumer, and any method fetching
+ * file data should ask the registry for the needed properties set as long as there are
+ * Consumers that needs these properties.
+ * @typedef {any} FileConsumer
+ */
+
+/**
+ * @type {Object<File.Property, File.RawAttribute|Array<File.RawAttribute>}
+ */
+const propertiesToAttrsMapping = Object.freeze({
+  // FIXME: sprawdzić czy to jest na pewno dostępne w atrybutach z backendu
+  // sharesCount,
+  // conflictingName,
+  // targetPath,
+
+  // FIXME: artificial relation properties that are created in serializer - być może usunąć
+  // 'acl',
+  // 'distribution',
+  // 'storageLocationInfo',
+  // 'fileQosSummary',
+  // 'fileDatasetSummary',
+  // 'archiveRecallInfo',
+  // 'archiveRecallState',
+
+  // Attributes normalized by serializer to create ember-data relations.
+  shareRecords: 'shares',
+  parent: 'parentId',
+  owner: 'ownerId',
+  provider: 'providerId',
+  archive: 'archiveId',
+
+  // FIXME: alias na mtime - powinno się to usunąć na rzecz mtime
+  modificationTime: 'mtime',
+  originalName: ['conflictingName', 'name'],
+  effFile: ['type', 'symlinkTargetFile'],
+  dataIsProtected: 'effProtectionFlags',
+  metadataIsProtected: 'effProtectionFlags',
+  dataIsProtectedByDataset: 'effDatasetProtectionFlags',
+  metadataIsProtectedByDataset: 'effDatasetProtectionFlags',
+  isShared: 'sharesCount',
+  cdmiObjectId: 'entityId',
+  hasParent: 'parentId',
+  isArchiveRootDir: 'archiveId',
+  spaceEntityId: 'fileId',
+  internalFileId: 'fileId',
+  recallingMembership: 'recallRootId',
+  isRecalling: 'recallRootId',
+  isRecalled: 'recallRootId',
+});
+
+export default Service.extend({
+  /**
+   * @type {Map<FileConsumer, Array<Utils.FilePropertiesRequirement>}
+   */
+  consumerRequirementsMap: undefined,
+
+  init() {
+    this._super(...arguments);
+    this.set('consumerRequirementsMap', new Map());
+  },
+
+  /**
+   * @param {Utils.FilePropertiesRequirementQuery} query
+   * @returns {Array<File.RawAttribute>}
+   */
+  findAttrsRequirement(query) {
+    // FIXME: development - normally will search for all matching requirements in
+    // the registry and make a union
+    // return FilePropertiesRequirement.create().getAttrs();
+    const matchingRequirements = this.getRequirements().filter(requirement =>
+      query.matches(requirement)
+    );
+    const requiredProperties = _.uniq(_.flatten(
+      matchingRequirements.map(requirement => requirement.properties)
+    ));
+    return this.propertiesToAttrs(requiredProperties);
+  },
+
+  /**
+   * @param {FileConsumer} consumer
+   * @param {Array<Utils.FilePropertiesRequirement>|Utils.FilePropertiesRequirement} requirements
+   */
+  setRequirements(consumer, requirements) {
+    const reqArray = Array.isArray(requirements) ? requirements : [requirements];
+    this.consumerRequirementsMap.set(consumer, reqArray);
+  },
+
+  /**
+   * @param {FileConsumer} consumer
+   */
+  removeRequirements(consumer) {
+    this.consumerRequirementsMap.delete(consumer);
+  },
+
+  getRequirements() {
+    return _.flatten([...this.consumerRequirementsMap.values()]);
+  },
+
+  // FIXME: to chyba powinno być w serializerze
+  /**
+   * @param {Array<File.Property>} properties
+   * @returns {Array<File.RawAttribute>}
+   */
+  propertiesToAttrs(properties) {
+    /** @type {Array<File.RawAttribute>} */
+    const attributes = [];
+    for (const property of properties) {
+      // By default, the name of attribute is the same as property. If there is no such
+      // attribute, it means that it could be an artificial property that was
+      // created in file serializer, that does not need an attribute.
+      const attr = propertiesToAttrsMapping[property] ??
+        (possibleFileRawAttributesSet.has(property) ? property : null);
+      if (attr) {
+        if (Array.isArray(attr)) {
+          attributes.push(...attr);
+        } else {
+          attributes.push(attr);
+        }
+      }
+    }
+    return _.uniq(attributes);
+  },
+});
