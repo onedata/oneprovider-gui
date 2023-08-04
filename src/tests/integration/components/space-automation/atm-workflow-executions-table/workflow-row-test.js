@@ -72,6 +72,10 @@ const executionActionsSpec = [{
   label: 'Cancel',
   icon: 'cancelled',
 }, {
+  className: 'force-continue-atm-workflow-execution-action-trigger',
+  label: 'Force continue',
+  icon: 'play',
+}, {
   className: 'remove-atm-workflow-execution-action-trigger',
   label: 'Remove',
   icon: 'x',

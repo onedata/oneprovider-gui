@@ -228,6 +228,24 @@ export default Service.extend({
    * @param {string} atmWorkflowExecutionId
    * @returns {Promise<void>}
    */
+  async forceContinueAtmWorkflowExecution(atmWorkflowExecutionId) {
+    const forceContinueGri = gri({
+      entityType: atmWorkflowExecutionEntityType,
+      entityId: atmWorkflowExecutionId,
+      aspect: 'force_continue',
+      scope: 'private',
+    });
+    await this.onedataGraph.request({
+      gri: forceContinueGri,
+      operation: 'create',
+      subscribe: false,
+    });
+  },
+
+  /**
+   * @param {string} atmWorkflowExecutionId
+   * @returns {Promise<void>}
+   */
   async pauseAtmWorkflowExecution(atmWorkflowExecutionId) {
     const requestGri = gri({
       entityType: atmWorkflowExecutionEntityType,

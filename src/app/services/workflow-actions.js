@@ -2,12 +2,13 @@
  * Provides workflows manipulation functions ready to use for GUI.
  *
  * @author Michał Borzęcki
- * @copyright (C) 2021-2022 ACK CYFRONET AGH
+ * @copyright (C) 2021-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Service from '@ember/service';
 import CancelAtmWorkflowExecutionAction from 'oneprovider-gui/utils/workflow-actions/cancel-atm-workflow-execution-action';
+import ForceContinueAtmWorkflowExecutionAction from 'oneprovider-gui/utils/workflow-actions/force-continue-atm-workflow-execution-action';
 import PauseResumeAtmWorkflowExecutionAction from 'oneprovider-gui/utils/workflow-actions/pause-resume-atm-workflow-execution-action';
 import RemoveAtmWorkflowExecutionAction from 'oneprovider-gui/utils/workflow-actions/remove-atm-workflow-execution-action';
 
@@ -23,6 +24,14 @@ export default Service.extend({
    */
   createCancelAtmWorkflowExecutionAction(context) {
     return CancelAtmWorkflowExecutionAction.create({ ownerSource: this, context });
+  },
+
+  /**
+   * @param {ForceContinueAtmWorkflowExecutionActionContext} context
+   * @returns {Utils.WorkflowActions.ForceContinueAtmWorkflowExecutionAction}
+   */
+  createForceContinueAtmWorkflowExecutionAction(context) {
+    return ForceContinueAtmWorkflowExecutionAction.create({ ownerSource: this, context });
   },
 
   /**
