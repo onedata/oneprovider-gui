@@ -89,7 +89,7 @@ export default Service.extend({
   spaceManager: service(),
   storageManager: service(),
   providerManager: service(),
-  filePropertiesRequirementRegistry: service(),
+  filePropertiesRequirementsRegistry: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -118,7 +118,7 @@ export default Service.extend({
     const store = this.get('store');
     const fileGri = getFileGri(fileId, scope);
     const requirementQuery = FilePropertiesRequirementQuery.create({ fileGri });
-    const attributes = this.filePropertiesRequirementRegistry.findAttrsRequirement(
+    const attributes = this.filePropertiesRequirementsRegistry.findAttrsRequirement(
       requirementQuery
     );
     const file = await store.findRecord(fileModelName, fileGri, {
@@ -136,6 +136,7 @@ export default Service.extend({
     return file;
   },
 
+  // FIXME: przy wyszukiawniu pliku po nazwie nie potrzeba pobierać wyszystkich atrybutów
   async getFileByName(parentDirId, fileName, scope = 'private') {
     const data = await this.fetchDirChildren(
       parentDirId,
@@ -325,10 +326,10 @@ export default Service.extend({
     const requirementQuery = FilePropertiesRequirementQuery.create({
       parentGuid: dirId,
     });
-    const attributes = this.filePropertiesRequirementRegistry.findAttrsRequirement(
+    const attributes = this.filePropertiesRequirementsRegistry.findAttrsRequirement(
       requirementQuery
     );
-    return this.get('onedataGraph').request({
+    return this.onedataGraph.request({
       operation: 'get',
       gri: requestGri,
       data: {

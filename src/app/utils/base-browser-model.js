@@ -347,6 +347,8 @@ export default EmberObject.extend(...mixins, {
 
   //#endregion
 
+  dirId: reads('dir.entityId'),
+
   isRootDirProxy: promise.object(computed(
     'dir.hasParent',
     'resolveFileParentFun',

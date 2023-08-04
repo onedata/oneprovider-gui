@@ -1,11 +1,14 @@
 import Service from '@ember/service';
-import { possibleFileRawAttributesSet } from 'oneprovider-gui/utils/file-properties-requirement';
+import FilePropertiesRequirement, {
+  possibleFileRawAttributesSet,
+} from 'oneprovider-gui/utils/file-properties-requirement';
 import _ from 'lodash';
+import { computed } from '@ember/object';
 
 /**
  * A GUI entity (might be a component, service, anything that is "living" during runtime)
  * that uses file with some required properties. As long, as the Consumer lives, it should
- * be registered in the FilePropertiesRequiremenetsRegistry with its requirements.
+ * be registered in the FilePropertiesRequirementsRegistry with its requirements.
  *
  * For example, a file shares information panel component would need a file: `name`,
  * `sharesCount` and `sharesRecords` properties. This need (a FilePropertiesRequirement)
@@ -60,10 +63,34 @@ const propertiesToAttrsMapping = Object.freeze({
 });
 
 export default Service.extend({
+  //#region configuration
+
+  // FIXME: maybe add more, maybe remove type...
+  basicProperties: Object.freeze([
+    'guid',
+    'name',
+    'type',
+  ]),
+
+  //#endregion
+
+  //#region state
+
   /**
    * @type {Map<FileConsumer, Array<Utils.FilePropertiesRequirement>}
    */
   consumerRequirementsMap: undefined,
+
+  //#endregion
+
+  /**
+   * @type {ComputedProperty<Utils.FilePropertiesRequirement>}
+   */
+  basicRequirement: computed('basicProperties', function basicRequirement() {
+    return FilePropertiesRequirement.create({
+      properties: this.basicProperties,
+    });
+  }),
 
   init() {
     this._super(...arguments);
@@ -75,12 +102,10 @@ export default Service.extend({
    * @returns {Array<File.RawAttribute>}
    */
   findAttrsRequirement(query) {
-    // FIXME: development - normally will search for all matching requirements in
-    // the registry and make a union
-    // return FilePropertiesRequirement.create().getAttrs();
     const matchingRequirements = this.getRequirements().filter(requirement =>
       query.matches(requirement)
     );
+    matchingRequirements.push(this.basicRequirement);
     const requiredProperties = _.uniq(_.flatten(
       matchingRequirements.map(requirement => requirement.properties)
     ));
@@ -107,7 +132,6 @@ export default Service.extend({
     return _.flatten([...this.consumerRequirementsMap.values()]);
   },
 
-  // FIXME: to chyba powinno być w serializerze
   /**
    * @param {Array<File.Property>} properties
    * @returns {Array<File.RawAttribute>}

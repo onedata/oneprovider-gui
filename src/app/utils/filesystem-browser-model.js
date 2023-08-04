@@ -27,6 +27,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { allSettled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import FilePropertiesRequirement from 'oneprovider-gui/utils/file-properties-requirement';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -80,6 +81,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   uploadManager: service(),
   workflowManager: service(),
   modalManager: service(),
+  filePropertiesRequirementsRegistry: service(),
 
   /**
    * @override
@@ -1117,19 +1119,24 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   requiredFilePropertiesSetter: observer(
+    'dirId',
     // FIXME: maybe use isVisible
     'columns.size.isEnabled',
     'columns.modification.isEnabled',
     'columns.owner.isEnabled',
     'columns.replication.isEnabled',
     function requiredFilePropertiesSetter() {
+      // FIXME: wydzielić logikę z observera
+      if (!this.dirId) {
+        return;
+      }
       const requiredProperties = [
         'name',
-        'originalName',
-        'isShared',
-        'parent',
-        'hasParent',
-        'effFile',
+        // 'originalName',
+        // 'isShared',
+        // 'parent',
+        // 'hasParent',
+        // 'effFile',
         // FIXME: add more
       ];
       if (this.columns.size.isEnabled) {
@@ -1144,7 +1151,18 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       if (this.columns.replication.isEnabled) {
         requiredProperties.push('localReplicationRate');
       }
-      // FIXME: tutaj skończona praca - zarejestrować attry jako consumer this
+      const listingRequirement = FilePropertiesRequirement.create({
+        properties: requiredProperties,
+        parentGuid: this.dirId,
+      });
+      const parentDirRequirement = FilePropertiesRequirement.create({
+        properties: requiredProperties,
+        fileGri: this.dirId,
+      });
+      this.filePropertiesRequirementsRegistry.setRequirements(this, [
+        listingRequirement,
+        parentDirRequirement,
+      ]);
     }
   ),
 
