@@ -82,7 +82,7 @@ const fileParent1 = {
   type: 'dir',
   hasParent: true,
   cdmiObjectId: exampleCdmiObjectId,
-  modificationTime: Math.floor(Date.now() / 1000),
+  mtime: Math.floor(Date.now() / 1000),
   owner: resolve(owner1),
 };
 
@@ -93,7 +93,7 @@ const file1 = {
   type: 'file',
   hasParent: true,
   cdmiObjectId: exampleCdmiObjectId,
-  modificationTime: Math.floor(Date.now() / 1000),
+  mtime: Math.floor(Date.now() / 1000),
   owner: resolve(owner1),
   posixPermissions: '644',
   activePermissionsType: 'posix',
@@ -727,7 +727,7 @@ async function givenDummyFile(testCase) {
     type: 'file',
     hasParent: true,
     cdmiObjectId: exampleCdmiObjectId,
-    modificationTime: Math.floor(Date.now() / 1000),
+    mtime: Math.floor(Date.now() / 1000),
     posixPermissions: '644',
     activePermissionsType: 'posix',
   });

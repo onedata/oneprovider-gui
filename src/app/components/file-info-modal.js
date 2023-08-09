@@ -464,7 +464,7 @@ export default Component.extend(...mixins, {
 
   cdmiObjectId: reads('file.cdmiObjectId'),
 
-  modificationTime: reads('file.modificationTime'),
+  mtime: reads('file.mtime'),
 
   fileSize: reads('file.size'),
 

@@ -12,7 +12,7 @@ export default {
   unknownSpaceInSymlink: 'unknown space',
   spaceId: 'Space ID',
   cdmiObjectId: 'File ID',
-  modificationTime: 'Modified at',
+  mtime: 'Modified at',
   owner: 'Owner',
   size: 'Size',
   fileLink: '{{type}} link',

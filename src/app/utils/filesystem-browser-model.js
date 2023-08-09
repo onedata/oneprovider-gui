@@ -1143,7 +1143,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         requiredProperties.push('size');
       }
       if (this.columns.modification.isEnabled) {
-        requiredProperties.push('modificationTime');
+        requiredProperties.push('mtime');
       }
       if (this.columns.owner.isEnabled) {
         requiredProperties.push('owner');

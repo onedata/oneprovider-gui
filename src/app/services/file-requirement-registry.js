@@ -43,8 +43,6 @@ const propertiesToAttrsMapping = Object.freeze({
   provider: 'providerId',
   archive: 'archiveId',
 
-  // FIXME: alias na mtime - powinno się to usunąć na rzecz mtime
-  modificationTime: 'mtime',
   originalName: ['conflictingName', 'name'],
   effFile: ['type', 'symlinkTargetFile'],
   dataIsProtected: 'effProtectionFlags',

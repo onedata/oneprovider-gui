@@ -365,9 +365,6 @@ export default Model.extend(
      * @type {Models.Archive}
      */
     archive: belongsTo('archive'),
-
-    // FIXME: legacy aliases - refactor to use attributes
-    modificationTime: alias('mtime'),
   }).reopenClass(StaticGraphModelMixin, {
   /**
    * @override

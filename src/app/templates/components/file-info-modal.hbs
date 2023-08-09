@@ -206,10 +206,10 @@
             </tr>
           {{/if}}
           <tr class="file-info-row-modification-time">
-            <td class="property-name">{{tt this "modificationTime"}}</td>
+            <td class="property-name">{{tt this "mtime"}}</td>
             <td class="property-value">
               {{#truncated-string}}
-                {{date-format modificationTime format="dateWithMinutes" blank="—"}}
+                {{date-format mtime format="dateWithMinutes" blank="—"}}
               {{/truncated-string}}
             </td>
           </tr>

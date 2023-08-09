@@ -83,8 +83,6 @@ const possibleFileProperties = Object.freeze([
   'archiveRecallState',
   'archive',
 
-  // FIXME: alias na mtime - powinno się to usunąć na rzecz mtime
-  'modificationTime',
   // FIXME: runtime properties zależne od properties - zaimplementować
   'originalName', // FIXME: zależy od conflictingName, name
   'effFile', // FIXME: 'type', 'symlinkTargetFile'

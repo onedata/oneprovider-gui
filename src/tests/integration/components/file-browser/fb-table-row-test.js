@@ -44,7 +44,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('renders modification date', async function () {
     const date = moment('2022-05-18T08:50:00+00:00').unix();
     const dateReadable = /18 May 2022 \d+:50/;
-    this.set('file', createFile({ modificationTime: date }));
+    this.set('file', createFile({ mtime: date }));
 
     await renderComponent(this);
 
@@ -380,7 +380,7 @@ function checkNoAccessTag({ renders, description, properties }) {
 // TODO: VFS-9850 Use real file model in tests
 function createFile(override = {}, ownerGri = userGri) {
   const data = Object.assign({
-    modificationTime: moment('2020-01-01T08:50:00+00:00').unix(),
+    mtime: moment('2020-01-01T08:50:00+00:00').unix(),
     posixPermissions: '777',
     type: 'file',
     belongsTo(name) {
