@@ -6,7 +6,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import FilePropertiesRequirementQuery from 'oneprovider-gui/utils/file-properties-requirement-query';
+import FileQuery from 'oneprovider-gui/utils/file-query';
 import _ from 'lodash';
 
 /**
@@ -112,7 +112,7 @@ const possibleFileProperties = Object.freeze([
  * @typedef {typeof possibleFileProperties[number]} File.Property
  */
 
-export default FilePropertiesRequirementQuery.extend({
+export default FileQuery.extend({
   /**
    * @virtual
    * @type {File.Property}

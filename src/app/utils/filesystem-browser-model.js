@@ -27,7 +27,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { allSettled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
-import FilePropertiesRequirement from 'oneprovider-gui/utils/file-properties-requirement';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -81,7 +81,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   uploadManager: service(),
   workflowManager: service(),
   modalManager: service(),
-  filePropertiesRequirementsRegistry: service(),
+  fileRequirementRegistry: service(),
 
   /**
    * @override
@@ -1151,15 +1151,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       if (this.columns.replication.isEnabled) {
         requiredProperties.push('localReplicationRate');
       }
-      const listingRequirement = FilePropertiesRequirement.create({
+      const listingRequirement = FileRequirement.create({
         properties: requiredProperties,
         parentGuid: this.dirId,
       });
-      const parentDirRequirement = FilePropertiesRequirement.create({
+      const parentDirRequirement = FileRequirement.create({
         properties: requiredProperties,
         fileGri: this.dirId,
       });
-      this.filePropertiesRequirementsRegistry.setRequirements(this, [
+      this.fileRequirementRegistry.setRequirements(this, [
         listingRequirement,
         parentDirRequirement,
       ]);

@@ -22,7 +22,7 @@ export default EmberObject.extend({
   fileGri: undefined,
 
   /**
-   * @param {Utils.FilePropertiesRequirementQuery} query
+   * @param {Utils.FileQuery} query
    * @returns {boolean}
    */
   matches(query) {

@@ -23,7 +23,7 @@ import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import FilePropertiesRequirementQuery from 'oneprovider-gui/utils/file-properties-requirement-query';
+import FileQuery from 'oneprovider-gui/utils/file-query';
 
 /**
  * @typedef {Object} FileEntryTimeSeriesCollections
@@ -89,7 +89,7 @@ export default Service.extend({
   spaceManager: service(),
   storageManager: service(),
   providerManager: service(),
-  filePropertiesRequirementsRegistry: service(),
+  fileRequirementRegistry: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -117,8 +117,8 @@ export default Service.extend({
   } = {}) {
     const store = this.get('store');
     const fileGri = getFileGri(fileId, scope);
-    const requirementQuery = FilePropertiesRequirementQuery.create({ fileGri });
-    const attributes = this.filePropertiesRequirementsRegistry.findAttrsRequirement(
+    const requirementQuery = FileQuery.create({ fileGri });
+    const attributes = this.fileRequirementRegistry.findAttrsRequirement(
       requirementQuery
     );
     const file = await store.findRecord(fileModelName, fileGri, {
@@ -323,10 +323,10 @@ export default Service.extend({
       aspect: childrenAttrsAspect,
       scope,
     });
-    const requirementQuery = FilePropertiesRequirementQuery.create({
+    const requirementQuery = FileQuery.create({
       parentGuid: dirId,
     });
-    const attributes = this.filePropertiesRequirementsRegistry.findAttrsRequirement(
+    const attributes = this.fileRequirementRegistry.findAttrsRequirement(
       requirementQuery
     );
     return this.onedataGraph.request({
