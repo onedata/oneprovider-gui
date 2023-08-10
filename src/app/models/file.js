@@ -8,7 +8,6 @@
 
 import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
-import { alias } from '@ember/object/computed';
 import { belongsTo, hasMany } from 'onedata-gui-websocket-client/utils/relationships';
 import { computed, get, getProperties } from '@ember/object';
 import Mixin from '@ember/object/mixin';
@@ -302,7 +301,7 @@ export default Model.extend(
      * or like this (absolute path):
      * `<__onedata_space_id:cbe3808d32b011f8578877ca531ad214chfb28>/some/file`
      */
-    targetPath: attr('string'),
+    symlinkValue: attr('string'),
 
     /**
      * Possible values: none, direct, ancestor, directAndAncestor

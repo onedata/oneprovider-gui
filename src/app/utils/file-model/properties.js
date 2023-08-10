@@ -1,0 +1,53 @@
+// FIXME: jsdoc
+
+export const possibleFileProperties = Object.freeze([
+  // model properties
+  'acl',
+  'activePermissionsType',
+  'archive',
+  'archiveRecallInfo',
+  'archiveRecallState',
+  'conflictingName',
+  'distribution',
+  'effDatasetMembership',
+  'effDatasetProtectionFlags',
+  'effProtectionFlags',
+  'effQosMembership',
+  'fileDatasetSummary',
+  'fileQosSummary',
+  'hardlinksCount',
+  'hasMetadata',
+  'index',
+  'localReplicationRate',
+  'mtime',
+  'name',
+  'owner',
+  'parent',
+  'posixPermissions',
+  'provider',
+  'recallRootId',
+  'shareRecords',
+  'size',
+  'storageLocationInfo',
+  'symlinkValue',
+  'type',
+
+  // runtime properties
+  'cdmiObjectId',
+  'dataIsProtected',
+  'dataIsProtectedByDataset',
+  'effFile',
+  'hasParent',
+  'internalFileId',
+  'isArchiveRootDir',
+  'isRecalled',
+  'isRecalling',
+  'isShared',
+  'metadataIsProtected',
+  'metadataIsProtectedByDataset',
+  'originalName',
+  'recallingMembership',
+  'spaceEntityId',
+]);
+
+export default possibleFileProperties;

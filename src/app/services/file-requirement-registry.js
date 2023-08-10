@@ -1,7 +1,11 @@
 import Service from '@ember/service';
-import FileRequirement, {
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import {
   possibleFileRawAttributesSet,
-} from 'oneprovider-gui/utils/file-requirement';
+  // FIXME: for testing
+  // possibleFileProperties,
+  propertyToAttributesMap,
+} from 'oneprovider-gui/utils/file-model';
 import _ from 'lodash';
 import { computed } from '@ember/object';
 
@@ -18,56 +22,16 @@ import { computed } from '@ember/object';
  * @typedef {any} FileConsumer
  */
 
-/**
- * @type {Object<File.Property, File.RawAttribute|Array<File.RawAttribute>}
- */
-const propertiesToAttrsMapping = Object.freeze({
-  // FIXME: sprawdzić czy to jest na pewno dostępne w atrybutach z backendu
-  // sharesCount,
-  // conflictingName,
-  // targetPath,
-
-  // FIXME: artificial relation properties that are created in serializer - być może usunąć
-  // 'acl',
-  // 'distribution',
-  // 'storageLocationInfo',
-  // 'fileQosSummary',
-  // 'fileDatasetSummary',
-  // 'archiveRecallInfo',
-  // 'archiveRecallState',
-
-  // Attributes normalized by serializer to create ember-data relations.
-  shareRecords: 'shares',
-  parent: 'parentId',
-  owner: 'ownerId',
-  provider: 'providerId',
-  archive: 'archiveId',
-
-  originalName: ['conflictingName', 'name'],
-  effFile: ['type', 'symlinkTargetFile'],
-  dataIsProtected: 'effProtectionFlags',
-  metadataIsProtected: 'effProtectionFlags',
-  dataIsProtectedByDataset: 'effDatasetProtectionFlags',
-  metadataIsProtectedByDataset: 'effDatasetProtectionFlags',
-  isShared: 'sharesCount',
-  cdmiObjectId: 'entityId',
-  hasParent: 'parentId',
-  isArchiveRootDir: 'archiveId',
-  spaceEntityId: 'fileId',
-  internalFileId: 'fileId',
-  recallingMembership: 'recallRootId',
-  isRecalling: 'recallRootId',
-  isRecalled: 'recallRootId',
-});
-
 export default Service.extend({
   //#region configuration
 
   // FIXME: maybe add more, maybe remove type...
   basicProperties: Object.freeze([
-    'guid',
+    'fileId',
     'name',
     'type',
+    // FIXME: for testing:
+    // ...possibleFileProperties,
   ]),
 
   //#endregion
@@ -141,7 +105,7 @@ export default Service.extend({
       // By default, the name of attribute is the same as property. If there is no such
       // attribute, it means that it could be an artificial property that was
       // created in file serializer, that does not need an attribute.
-      const attr = propertiesToAttrsMapping[property] ??
+      const attr = propertyToAttributesMap[property] ??
         (possibleFileRawAttributesSet.has(property) ? property : null);
       if (attr) {
         if (Array.isArray(attr)) {

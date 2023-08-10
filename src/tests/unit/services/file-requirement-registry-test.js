@@ -39,7 +39,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       'archiveId',
       'conflictingName',
       'type',
-      'symlinkTargetFile',
+      'symlinkValue',
     ].sort();
     expect([...attrs].sort()).to.deep.equal(expectedAttrs);
   });
@@ -113,7 +113,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       'name',
       'size',
       // additional attributes added always by default
-      'guid',
+      'fileId',
       'type',
     ].sort());
   });

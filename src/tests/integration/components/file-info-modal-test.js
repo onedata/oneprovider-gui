@@ -167,7 +167,7 @@ describe('Integration | Component | file-info-modal', function () {
     this.set('file', {
       ...file1,
       type: 'file',
-      targetPath: 'some/path',
+      symlinkValue: 'some/path',
     });
 
     await renderComponent();
@@ -180,7 +180,7 @@ describe('Integration | Component | file-info-modal', function () {
     this.set('file', {
       ...file1,
       type: 'symlink',
-      targetPath: 'some/path',
+      symlinkValue: 'some/path',
     });
 
     await renderComponent();
@@ -196,7 +196,7 @@ describe('Integration | Component | file-info-modal', function () {
         file: {
           ...file1,
           type: 'symlink',
-          targetPath: '<__onedata_space_id:space1>/some/path',
+          symlinkValue: '<__onedata_space_id:space1>/some/path',
         },
         space: await createSpaceModel(this, {
           id: gri({
@@ -222,7 +222,7 @@ describe('Integration | Component | file-info-modal', function () {
         file: {
           ...file1,
           type: 'symlink',
-          targetPath: '<__onedata_space_id:space2>/some/path',
+          symlinkValue: '<__onedata_space_id:space2>/some/path',
         },
         space: await createSpaceModel(this, {
           id: gri({
@@ -248,7 +248,7 @@ describe('Integration | Component | file-info-modal', function () {
         file: {
           ...file1,
           type: 'symlink',
-          targetPath: '<__onedata_space_id:space1>/some/path',
+          symlinkValue: '<__onedata_space_id:space1>/some/path',
         },
         space: undefined,
         previewMode: true,

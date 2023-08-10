@@ -431,7 +431,7 @@ export default Component.extend(...mixins, {
   ),
 
   symlinkTargetPath: computed(
-    'file.{type,targetPath}',
+    'file.{type,symlinkValue}',
     'space.{entityId,name}',
     function symlinkTargetPath() {
       const {
@@ -444,15 +444,15 @@ export default Component.extend(...mixins, {
       } = getProperties(space || {}, 'name', 'entityId');
       const {
         type: fileType,
-        targetPath,
-      } = getProperties(file || {}, 'type', 'targetPath');
+        symlinkValue,
+      } = getProperties(file || {}, 'type', 'symlinkValue');
       if (fileType !== 'symlink') {
         return;
       }
 
-      const pathParseResult = extractDataFromPrefixedSymlinkPath(targetPath || '');
+      const pathParseResult = extractDataFromPrefixedSymlinkPath(symlinkValue || '');
       if (!pathParseResult) {
-        return targetPath;
+        return symlinkValue;
       }
 
       if (pathParseResult.spaceId !== spaceEntityId || !spaceName) {

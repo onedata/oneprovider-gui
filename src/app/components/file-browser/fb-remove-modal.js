@@ -36,13 +36,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {models/File}
+   * @type {Array<Models.File>}
    */
   files: undefined,
 
   /**
    * @virtual
-   * @type {models/File}
+   * @type {Models.File}
    */
   parentDir: undefined,
 

@@ -278,7 +278,7 @@ export default Service.extend({
       distribution: null,
       fileQosSummary: null,
       fileDatasetSummary: null,
-      targetPath: `./${get(targetDir, 'name')}`,
+      symlinkValue: `./${get(targetDir, 'name')}`,
     });
     const symlinkMap = this.get('symlinkMap');
     symlinkMap[get(symlinkDir, 'entityId')] = get(targetDir, 'entityId');
@@ -1168,7 +1168,7 @@ export default Service.extend({
           fileQosSummary: isSymlink ? undefined : fileQosSummary,
           fileDatasetSummary: isSymlink ? undefined : emptyDatasetSummary,
           provider,
-          targetPath: isSymlink ? '../some/file' : undefined,
+          symlinkValue: isSymlink ? '../some/file' : undefined,
           storageLocationInfo: isSymlink ? undefined : storageLocationInfo,
         }).save();
       })))
@@ -1243,7 +1243,7 @@ export default Service.extend({
       fileQosSummary: fileQosSummary,
       fileDatasetSummary: emptyDatasetSummary,
       provider,
-      targetPath: undefined,
+      symlinkValue: undefined,
       owner,
       storageLocationInfo,
     }, customData);

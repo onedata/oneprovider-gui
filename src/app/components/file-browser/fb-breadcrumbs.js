@@ -41,7 +41,6 @@ export default Component.extend(
   createDataProxyMixin('filteredBreadcrumbsItems', { type: 'array' }), {
     classNames: ['fb-breadcrumbs'],
 
-    fileManager: service(),
     archiveManager: service(),
     i18n: service(),
 
