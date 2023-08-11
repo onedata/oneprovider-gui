@@ -13,8 +13,9 @@ export default Mixin.create({
    */
   init() {
     this._super(...arguments);
-    this.fileConsumer = FileConsumer.create({
+    this.fileConsumer = FileConsumerModel.create({
       consumer: this,
+      ownerSource: this,
     });
   },
 
@@ -32,8 +33,11 @@ export default Mixin.create({
   // FIXME: później można zamknąć dane mixinu w obiekcie
 });
 
-// FIXME: nazwa klasy, żeby nie była taka sama jak typedef FileConsumer
-const FileConsumer = EmberObject.extend(OwnerInjector, {
+/**
+ * A logic controlling file-requirements auto add/remove from global registry for
+ * a FileConsumer (`consumer` property).
+ */
+const FileConsumerModel = EmberObject.extend(OwnerInjector, {
   fileRequirementRegistry: service(),
 
   /**
