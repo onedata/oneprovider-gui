@@ -1112,7 +1112,7 @@ export default OnedataGraphMock.extend({
     if (type === 'data') {
       mockChildren = this.getMockChildrenData(entityId);
       arrIndex = mockChildren.findIndex(fileData => {
-        const childId = get(fileData, 'guid');
+        const childId = get(fileData, 'fileId');
         return atob(childId).endsWith(index);
       });
     } else if (type === 'id') {

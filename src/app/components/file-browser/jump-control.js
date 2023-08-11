@@ -167,7 +167,7 @@ export default Component.extend(I18n, {
       if (!fileData) {
         return;
       }
-      const fileId = get(fileData, 'guid');
+      const fileId = get(fileData, 'fileId');
       const file = await fileManager.getFileById(fileId, { scope: parentScope });
       await this.tableSelectAndJump(file);
       if (isLastJumpFailed) {

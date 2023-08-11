@@ -39,6 +39,8 @@ import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
  * API object exposed by `fb-table` component, be used to control the component and read
@@ -48,7 +50,12 @@ import globals from 'onedata-gui-common/utils/globals';
 
 const defaultIsItemDisabled = () => false;
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   classNames: ['fb-table'],
   classNameBindings: [
     'hasEmptyDirClass:empty-dir',
@@ -233,6 +240,25 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   headerVisible: undefined,
+
+  /**
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed(
+    // FIXME: check isVisible instead isEnabled
+    'dir.id',
+    function fileRequirements() {
+      return [
+        FileRequirement.create({
+          fileGri: get(this.dir, 'id'),
+          properties: [
+            'effFile',
+            'type',
+          ],
+        }),
+      ];
+    }
+  ),
 
   headRowComponentName: or(
     'browserModel.headRowComponentName',

@@ -19,7 +19,7 @@ export default ProductionFileManager.extend({
    * @override
    */
   pushChildrenAttrsToStore(childrenAttrs) {
-    return allFulfilled(childrenAttrs.map(attr => this.getFileById(get(attr, 'guid'))));
+    return allFulfilled(childrenAttrs.map(attr => this.getFileById(get(attr, 'fileId'))));
   },
 
   getFileDownloadUrl() {

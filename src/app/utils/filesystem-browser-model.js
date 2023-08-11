@@ -1118,26 +1118,19 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  requiredFilePropertiesSetter: observer(
+  /**
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed(
+    // FIXME: check isVisible instead isEnabled
     'dirId',
-    // FIXME: maybe use isVisible
-    'columns.size.isEnabled',
-    'columns.modification.isEnabled',
-    'columns.owner.isEnabled',
-    'columns.replication.isEnabled',
-    function requiredFilePropertiesSetter() {
-      // FIXME: wydzielić logikę z observera
-      if (!this.dirId) {
-        return;
-      }
+    'columns.{size.isVisible,modification.isVisible,owner.isVisible,replication.isVisible}',
+    function fileRequirements() {
       const requiredProperties = [
         'name',
-        // 'originalName',
-        // 'isShared',
-        // 'parent',
-        // 'hasParent',
-        // 'effFile',
-        // FIXME: add more
+        'originalName',
+        'parent',
+        'sharesCount',
       ];
       if (this.columns.size.isEnabled) {
         requiredProperties.push('size');
@@ -1159,11 +1152,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         properties: requiredProperties,
         fileGri: this.dirId,
       });
-      this.fileRequirementRegistry.setRequirements(this, [
-        listingRequirement,
-        parentDirRequirement,
-      ]);
-    }
+      return [listingRequirement, parentDirRequirement];
+    },
   ),
 
   init() {
