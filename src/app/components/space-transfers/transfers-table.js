@@ -12,7 +12,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, get, set, setProperties } from '@ember/object';
+import EmberObject, { computed, get, set, setProperties } from '@ember/object';
 import _ from 'lodash';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -23,6 +23,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import { sum } from 'ember-awesome-macros';
 import isDirectlyClicked from 'onedata-gui-common/utils/is-directly-clicked';
+import ColumnsConfigurationModel from '../../utils/columns-configuration';
 
 const allColumnNames = [
   'path',
@@ -37,6 +38,20 @@ const allColumnNames = [
   'type',
   'status',
 ];
+
+const allColumnWidth = {
+  path: 190,
+  userName: 200,
+  destination: 200,
+  scheduledAt: 160,
+  startedAt: 160,
+  finishedAt: 160,
+  processed: 90,
+  replicated: 100,
+  evicted: 80,
+  type: 52,
+  status: 65,
+};
 
 const tableExcludedColumnNames = {
   file: ['path'],
@@ -175,12 +190,22 @@ export default Component.extend(I18n, {
     }
   ),
 
-  visibleColumns: computed('visibleColumnNames', function visibleColumns() {
-    const visibleColumnNames = this.get('visibleColumnNames');
-    return Object.values(
-      this.getProperties(...visibleColumnNames.map(name => `${name}Column`))
-    );
-  }),
+  visibleColumns: computed(
+    'visibleColumnNames',
+    'columnsConfiguration.{columns,columnsOrder.[]}',
+    function visibleColumns() {
+      const columnsConfigurationWithFirstCol = ['path'];
+      for (const columnName of this.columnsConfiguration.columnsOrder) {
+        if (this.columnsConfiguration.columns[columnName].isVisible) {
+          columnsConfigurationWithFirstCol.push(columnName);
+        }
+      }
+      return Object.values(
+        this.getProperties(...columnsConfigurationWithFirstCol.map(
+          name => `${name}Column`))
+      );
+    }
+  ),
 
   /**
    * Add columns rendered beside visibleColumns
@@ -372,14 +397,47 @@ export default Component.extend(I18n, {
     });
   }),
 
+  columnsConfiguration: undefined,
+
   //#endregion
 
   init() {
     this._super(...arguments);
     this.registerArrayLoadingHandlers();
+    this.set('columnsConfiguration', this.createColumnsConfiguration());
+  },
+
+  /**
+   * @override
+   */
+  didInsertElement() {
+    this._super(...arguments);
+    const elem = this.element?.querySelector('.transfers-table-thead');
+    this.set('columnsConfiguration.elementTable', elem);
+    this.columnsConfiguration.checkColumnsVisibility();
   },
 
   //#region Methods
+
+  createColumnsConfiguration() {
+    const columns = {};
+    const visibleColumnNames = this.visibleColumnNames;
+    visibleColumnNames.shift();
+    for (const column of this.visibleColumnNames) {
+      columns[column] = EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: allColumnWidth[column],
+      });
+    }
+    const columnsOrder = this.visibleColumnNames;
+    return ColumnsConfigurationModel.create({
+      persistedConfigurationKey: 'transfer' + this.transferType,
+      columns,
+      columnsOrder,
+      firstColumnWidth: 190,
+    });
+  },
 
   createColumn(id, customData) {
     return Object.assign({

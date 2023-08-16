@@ -27,6 +27,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { allSettled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import ColumnsConfigurationModel from './columns-configuration';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -256,11 +257,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   infoIconActionName: 'info',
-
-  /**
-   * @override
-   */
-  browserPersistedConfigurationKey: 'filesystem',
 
   /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
@@ -1117,7 +1113,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   init() {
-    this.set('columns', {
+    this.set('columnsConfiguration', this.createColumnsConfiguration());
+    this._super(...arguments);
+  },
+
+  createColumnsConfiguration() {
+    const columns = {
       size: EmberObject.create({
         isVisible: true,
         isEnabled: true,
@@ -1128,23 +1129,30 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isEnabled: true,
         width: 180,
       }),
-      // TODO: VFS-11089 Enable replication column with optional replication data fetch
-      // replication: EmberObject.create({
-      //   isVisible: false,
-      //   isEnabled: false,
-      //   width: 160,
-      // }),
-    });
-    this.set('columnsOrder', ['size', 'modification']);
+    };
+    // TODO: VFS-11089 Enable replication column with optional replication data fetch
+    // columns.replication = EmberObject.create({
+    //   isVisible: false,
+    //   isEnabled: false,
+    //   width: 160,
+    // }),
+    const columnsOrder = ['size', 'modification'];
     if (this.isOwnerVisible) {
-      this.set('columns.owner', EmberObject.create({
+      columns.owner = EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 200,
-      }));
-      this.columnsOrder.push('owner');
+      });
+      columnsOrder.push('owner');
     }
-    this._super(...arguments);
+    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
+    return ColumnsConfigurationModel.create({
+      persistedConfigurationKey: 'filesystem',
+      columns,
+      columnsOrder,
+      firstColumnWidth: 380,
+      elementTable: elementFbTableThead,
+    });
   },
 
   /**

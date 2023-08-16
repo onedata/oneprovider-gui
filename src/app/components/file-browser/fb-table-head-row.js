@@ -21,6 +21,6 @@ export default Component.extend(I18n, {
 
   didInsertElement() {
     this._super(...arguments);
-    this.browserModel.checkColumnsVisibility();
+    this.browserModel.columnsConfiguration.checkColumnsVisibility();
   },
 });
