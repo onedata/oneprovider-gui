@@ -32,9 +32,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Utils.BaseBrowserModel}
+   * @type {Utils.ColumnsConfiguration}
    */
-  browserModel: undefined,
+  columnsConfiguration: undefined,
 
   /**
    * @virtual optional
@@ -45,7 +45,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<string>}
    */
-  columnsCount: reads('browserModel.columnsOrder.length'),
+  columnsCount: reads('columnsConfiguration.columnsOrder.length'),
 
   /**
    * @type {boolean}
@@ -58,9 +58,9 @@ export default Component.extend(I18n, {
   isInFirefox: browser.name === BrowserName.Firefox,
 
   applyCurrentColumnsOrder() {
-    this.browserModel.saveColumnsOrder();
-    this.browserModel.checkColumnsVisibility();
-    this.browserModel.notifyPropertyChange('columnsOrder');
+    this.columnsConfiguration.saveColumnsOrder();
+    this.columnsConfiguration.checkColumnsVisibility();
+    this.columnsConfiguration.notifyPropertyChange('columnsOrder');
     // workaround to bug in firefox
     // tooltip not disappeared after click and move element
     if (this.isInFirefox) {
@@ -71,10 +71,10 @@ export default Component.extend(I18n, {
 
   actions: {
     checkboxChanged(columnName, newValue) {
-      this.browserModel.changeColumnVisibility(columnName, newValue);
+      this.columnsConfiguration.changeColumnVisibility(columnName, newValue);
     },
     moveColumnDown(columnName) {
-      const columnsOrder = this.browserModel.columnsOrder;
+      const columnsOrder = this.columnsConfiguration.columnsOrder;
       const indexOfColumn = columnsOrder.indexOf(columnName);
 
       if (indexOfColumn === -1 || indexOfColumn + 1 >= columnsOrder.length) {
@@ -87,7 +87,7 @@ export default Component.extend(I18n, {
       this.applyCurrentColumnsOrder();
     },
     moveColumnUp(columnName) {
-      const columnsOrder = this.browserModel.columnsOrder;
+      const columnsOrder = this.columnsConfiguration.columnsOrder;
       const indexOfColumn = columnsOrder.indexOf(columnName);
 
       if (indexOfColumn === -1 || indexOfColumn <= 0) {

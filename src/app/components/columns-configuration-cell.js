@@ -20,11 +20,11 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.fbColumnsConfigurationCell',
+  i18nPrefix: 'components.columnsConfigurationCell',
 
   /**
    * @virtual
-   * @type {Utils.FilesystemBrowserModel}
+   * @type {Utils.ColumnsConfiguration}
    */
-  browserModel: undefined,
+  columnsConfiguration: undefined,
 });

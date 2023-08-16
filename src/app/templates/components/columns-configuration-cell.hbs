@@ -9,16 +9,16 @@
   >
     {{#one-icon-tagged
       icon="columns"
-      tagIcon=(if (not browserModel.isAnyColumnHidden) "settings")
+      tagIcon=(if (not columnsConfiguration.isAnyColumnHidden) "settings")
       class="tag-right"
     }}
-      {{#if browserModel.isAnyColumnHidden}}
+      {{#if columnsConfiguration.isAnyColumnHidden}}
         <div class="hidden-columns-number-container">
-          <span class="hidden-columns-number">{{browserModel.hiddenColumnsCount}}</span>
+          <span class="hidden-columns-number">{{columnsConfiguration.hiddenColumnsCount}}</span>
         </div>
       {{/if}}
     {{/one-icon-tagged}}
-    {{one-tooltip title=(if browserModel.isAnyColumnHidden
+    {{one-tooltip title=(if columnsConfiguration.isAnyColumnHidden
       (tt this "hiddenColumns")
       (tt this "configureColumns")
     )}}
@@ -26,6 +26,6 @@
   {{columns-configuration-popover
     isOpened=columnModificationOpened
     triggerSelector=(local-selector elementId ".columns-configuration-button")
-    browserModel=browserModel
+    columnsConfiguration=columnsConfiguration
   }}
 {{/if}}
