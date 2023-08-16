@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11249 Adjusted calls to backend to the new workflow execution API (changed `laneSchemaId` to `laneIndex`)
 * VFS-11246 Added support for new atm audit log backend API - change from "referencedComponents" to "referencedElements"
 * VFS-11165 Added "force continue" action to the failed workflow execution
 * VFS-11199 Added pretty URLs for files show and download

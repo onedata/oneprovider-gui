@@ -394,10 +394,10 @@ export default Service.extend({
 
   /**
    * @param {String} atmWorkflowExecutionId
-   * @param {String} atmLaneId
+   * @param {String} atmLanePositionInParent starts from 1
    * @param {AtmLaneRunNumber} runNumber
    */
-  async retryAtmLane(atmWorkflowExecutionId, atmLaneId, runNumber) {
+  async retryAtmLane(atmWorkflowExecutionId, atmLanePositionInParent, runNumber) {
     const retryGri = gri({
       entityType: atmWorkflowExecutionEntityType,
       entityId: atmWorkflowExecutionId,
@@ -409,7 +409,7 @@ export default Service.extend({
       operation: 'create',
       subscribe: false,
       data: {
-        laneSchemaId: atmLaneId,
+        laneIndex: atmLanePositionInParent,
         laneRunNumber: runNumber,
       },
     });
@@ -417,10 +417,10 @@ export default Service.extend({
 
   /**
    * @param {String} atmWorkflowExecutionId
-   * @param {String} atmLaneId
+   * @param {String} atmLanePositionInParent starts from 1
    * @param {AtmLaneRunNumber} runNumber
    */
-  async rerunAtmLane(atmWorkflowExecutionId, atmLaneId, runNumber) {
+  async rerunAtmLane(atmWorkflowExecutionId, atmLanePositionInParent, runNumber) {
     const rerunGri = gri({
       entityType: atmWorkflowExecutionEntityType,
       entityId: atmWorkflowExecutionId,
@@ -432,7 +432,7 @@ export default Service.extend({
       operation: 'create',
       subscribe: false,
       data: {
-        laneSchemaId: atmLaneId,
+        laneIndex: atmLanePositionInParent,
         laneRunNumber: runNumber,
       },
     });
