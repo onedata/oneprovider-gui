@@ -31,7 +31,7 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
-import { tag, raw, conditional, eq, and, promise, bool, gt, or } from 'ember-awesome-macros';
+import { tag, raw, conditional, eq, and, promise, bool, or } from 'ember-awesome-macros';
 import moment from 'moment';
 import _ from 'lodash';
 import isPosixError from 'oneprovider-gui/utils/is-posix-error';
