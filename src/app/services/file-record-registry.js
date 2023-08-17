@@ -25,7 +25,8 @@ export default Service.extend({
    * @param {...Models.File} files
    * @returns {void}
    */
-  register(consumer, ...files) {
+  setFiles(consumer, ...files) {
+    this.removeFiles(consumer);
     for (const file of files) {
       this.addToMap(file, consumer);
     }
@@ -37,7 +38,7 @@ export default Service.extend({
    * @param {...Models.File} files
    * @returns {void}
    */
-  deregister(consumer, ...files) {
+  removeFiles(consumer, ...files) {
     if (files.length) {
       for (const file of files) {
         const consumers = this.fileConsumerMap.get(file);
@@ -60,6 +61,14 @@ export default Service.extend({
   },
 
   /**
+   * @public
+   * @returns {Set<Models.File>}
+   */
+  getRegisteredFiles() {
+    return [...this.fileConsumerMap.keys()];
+  },
+
+  /**
    * @private
    * @param {FileConsumer} consumer
    * @param {Models.File} file
@@ -73,17 +82,5 @@ export default Service.extend({
       this.fileConsumerMap.set(file, consumers);
     }
     consumers.add(consumer);
-  },
-
-  removeFromMap(file, consumer) {
-
-  },
-
-  /**
-   * @public
-   * @returns {Set<Models.File>}
-   */
-  getRegisteredFiles() {
-    return [...this.fileConsumerMap.keys()];
   },
 });

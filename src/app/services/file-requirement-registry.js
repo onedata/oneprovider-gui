@@ -19,7 +19,9 @@ import { computed } from '@ember/object';
  * is registered in global registry as a pair with the Consumer, and any method fetching
  * file data should ask the registry for the needed properties set as long as there are
  * Consumers that needs these properties.
- * @typedef {any} FileConsumer
+ * @typedef {Object} FileConsumer
+ * @property {Array<Utils.FileRequirement>} fileRequirements
+ * @property {Array<Models.File>} usedFiles
  */
 
 // FIXME: ten service może służyć jako projektowane FileRecordsRegistry

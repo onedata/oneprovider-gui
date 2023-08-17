@@ -19,8 +19,8 @@ describe('Integration | Service | file-record-registry', function () {
     const consumer1 = {};
     const consumer2 = {};
 
-    fileRecordRegistry.register(consumer1, files[0], files[1]);
-    fileRecordRegistry.register(consumer2, files[2]);
+    fileRecordRegistry.setFiles(consumer1, files[0], files[1]);
+    fileRecordRegistry.setFiles(consumer2, files[2]);
 
     const registeredFiles = fileRecordRegistry.getRegisteredFiles();
     expect([...registeredFiles.values()].sort()).to.deep.equal([...files].sort());
@@ -35,9 +35,9 @@ describe('Integration | Service | file-record-registry', function () {
     const consumer1 = {};
     const consumer2 = {};
 
-    fileRecordRegistry.register(consumer1, files[0]);
-    fileRecordRegistry.register(consumer2, files[0]);
-    fileRecordRegistry.deregister(consumer2, files[0]);
+    fileRecordRegistry.setFiles(consumer1, files[0]);
+    fileRecordRegistry.setFiles(consumer2, files[0]);
+    fileRecordRegistry.removeFiles(consumer2, files[0]);
 
     const registeredFiles = fileRecordRegistry.getRegisteredFiles();
     expect([...registeredFiles.values()]).to.deep.equal([files[0]]);
@@ -52,10 +52,10 @@ describe('Integration | Service | file-record-registry', function () {
     const consumer1 = {};
     const consumer2 = {};
 
-    fileRecordRegistry.register(consumer1, files[0], files[1]);
-    fileRecordRegistry.register(consumer2, files[0]);
-    fileRecordRegistry.deregister(consumer1, files[0]);
-    fileRecordRegistry.deregister(consumer2, files[0]);
+    fileRecordRegistry.setFiles(consumer1, files[0], files[1]);
+    fileRecordRegistry.setFiles(consumer2, files[0]);
+    fileRecordRegistry.removeFiles(consumer1, files[0]);
+    fileRecordRegistry.removeFiles(consumer2, files[0]);
 
     const registeredFiles = fileRecordRegistry.getRegisteredFiles();
     expect([...registeredFiles.values()]).to.deep.equal([files[1]]);
@@ -70,9 +70,9 @@ describe('Integration | Service | file-record-registry', function () {
     const consumer1 = {};
     const consumer2 = {};
 
-    fileRecordRegistry.register(consumer1, files[0], files[1]);
-    fileRecordRegistry.register(consumer2, files[1], files[2], files[3]);
-    fileRecordRegistry.deregister(consumer2);
+    fileRecordRegistry.setFiles(consumer1, files[0], files[1]);
+    fileRecordRegistry.setFiles(consumer2, files[1], files[2], files[3]);
+    fileRecordRegistry.removeFiles(consumer2);
 
     const registeredFiles = fileRecordRegistry.getRegisteredFiles();
     expect([...registeredFiles.values()].sort())
@@ -87,8 +87,8 @@ describe('Integration | Service | file-record-registry', function () {
     );
     const consumer1 = {};
 
-    fileRecordRegistry.register(consumer1, files[0], files[1]);
-    fileRecordRegistry.deregister(consumer1, files[1]);
+    fileRecordRegistry.setFiles(consumer1, files[0], files[1]);
+    fileRecordRegistry.removeFiles(consumer1, files[1]);
 
     const storedFiles = store.peekAll('file').toArray();
     expect(storedFiles).to.deep.equal([files[0]]);

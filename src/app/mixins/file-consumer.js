@@ -4,6 +4,7 @@ import Mixin from '@ember/object/mixin';
 import EmberObject, { observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import { reads } from '@ember/object/computed';
 
 // FIXME: implementacja: jeśli warunki zawierają tylko zestaw podstawowych danych, to nie trzeba rejestrować
 
@@ -29,8 +30,6 @@ export default Mixin.create({
       this._super(...arguments);
     }
   },
-
-  // FIXME: później można zamknąć dane mixinu w obiekcie
 });
 
 /**
@@ -39,6 +38,7 @@ export default Mixin.create({
  */
 const FileConsumerModel = EmberObject.extend(OwnerInjector, {
   fileRequirementRegistry: service(),
+  fileRecordRegistry: service(),
 
   /**
    * @virtual
@@ -46,12 +46,29 @@ const FileConsumerModel = EmberObject.extend(OwnerInjector, {
    */
   consumer: undefined,
 
+  fileRequirements: reads('consumer.fileRequirements'),
+
+  usedFiles: reads('consumer.usedFiles'),
+
   fileRequirementsObserver: observer(
-    'consumer.fileRequirements',
+    'fileRequirements',
     function fileRequirementsObserver() {
       this.fileRequirementRegistry.setRequirements(
         this.consumer,
-        this.consumer.fileRequirements ?? []
+        this.fileRequirements ?? []
+      );
+    }
+  ),
+
+  usedFilesObserver: observer(
+    'usedFiles',
+    function usedFilesObserver() {
+      if (!Array.isArray(this.usedFiles)) {
+        return;
+      }
+      this.fileRecordRegistry.setFiles(
+        this.consumer,
+        ...this.usedFiles
       );
     }
   ),
@@ -62,6 +79,7 @@ const FileConsumerModel = EmberObject.extend(OwnerInjector, {
   init() {
     this._super(...arguments);
     this.fileRequirementsObserver();
+    this.usedFilesObserver();
   },
 
   /**
@@ -70,6 +88,7 @@ const FileConsumerModel = EmberObject.extend(OwnerInjector, {
   willDestroy() {
     try {
       this.fileRequirementRegistry.removeRequirements(this.consumer);
+      this.fileRecordRegistry.removeFiles(this.consumer);
     } finally {
       this._super(...arguments);
     }

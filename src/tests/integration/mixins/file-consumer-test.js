@@ -8,6 +8,8 @@ import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { lookupService } from '../../helpers/stub-service';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import _ from 'lodash';
+import { all as allFulfilled } from 'rsvp';
 
 const BaseDummyComponentClass = Component.extend(FileConsumerMixin, {
   layout: hbs `<span>dummy consumer</span>`,
@@ -98,6 +100,68 @@ describe('Integration | Mixin | file-consumer', function () {
         .to.not.contain(requirement1);
       expect(fileRequirementRegistry.getRequirements())
         .to.contain(requirement2);
+    }
+  );
+
+  it('registers file records on inserting and deregisters on destroying',
+    async function () {
+      const store = lookupService(this, 'store');
+      const usedFiles = await allFulfilled(
+        _.range(1).map(i => store.createRecord('file', { name: `file-${i}` }).save())
+      );
+      this.set('usedFiles', usedFiles);
+      const DummyComponentClass = BaseDummyComponentClass.extend({
+        /** @override */
+        usedFiles,
+      });
+      this.set('isVisible', false);
+      this.owner.register('component:dummy-component', DummyComponentClass);
+      const fileRecordRegistry = lookupService(this, 'file-record-registry');
+      await render(hbs `
+        {{#if isVisible}}
+          {{dummy-component}}
+        {{/if}}
+      `);
+
+      // before component inserting
+      expect(fileRecordRegistry.getRegisteredFiles())
+        .to.not.contain(usedFiles[0]);
+
+      // after component inserting
+      this.set('isVisible', true);
+      await waitForRender();
+      expect(fileRecordRegistry.getRegisteredFiles())
+        .to.contain(usedFiles[0]);
+
+      // after component removing
+      this.set('isVisible', false);
+      await waitForRender();
+      expect(fileRecordRegistry.getRegisteredFiles())
+        .to.not.contain(usedFiles[0]);
+    }
+  );
+
+  it('replaces file records for consumer in global registry on requirements change',
+    async function () {
+      const store = lookupService(this, 'store');
+      const files = await allFulfilled(
+        _.range(4).map(i => store.createRecord('file', { name: `file-${i}` }).save())
+      );
+      this.set('usedFiles', files.slice(0, 2));
+      const fileRecordRegistry = lookupService(this, 'file-record-registry');
+      await render(hbs `
+        {{base-dummy-component usedFiles=usedFiles}}
+      `);
+
+      // original files
+      expect(fileRecordRegistry.getRegisteredFiles().sort(), 'original')
+        .to.deep.equal([files[0], files[1]].sort());
+
+      // changing files
+      this.set('usedFiles', files.slice(2, 4));
+      await waitForRender();
+      expect(fileRecordRegistry.getRegisteredFiles().sort(), 'changed')
+        .to.deep.equal([files[2], files[3]].sort());
     }
   );
 });
