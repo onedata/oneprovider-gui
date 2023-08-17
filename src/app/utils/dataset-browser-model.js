@@ -28,6 +28,7 @@ import {
 import globals from 'onedata-gui-common/utils/globals';
 import { resolve, all as allFulfilled } from 'rsvp';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
+import ColumnsConfigurationModel from './columns-configuration';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -154,11 +155,6 @@ export default BaseBrowserModel.extend(I18n, {
     }
   }),
 
-  /**
-   * @override
-   */
-  browserPersistedConfigurationKey: 'dataset',
-
   navigateDataTarget: '_top',
 
   /**
@@ -254,7 +250,12 @@ export default BaseBrowserModel.extend(I18n, {
   //#endregion
 
   init() {
-    this.set('columns', {
+    this.set('columnsConfiguration', this.createColumnsConfiguration());
+    this._super(...arguments);
+  },
+
+  createColumnsConfiguration() {
+    const columns = {
       archives: EmberObject.create({
         isVisible: true,
         isEnabled: true,
@@ -265,9 +266,16 @@ export default BaseBrowserModel.extend(I18n, {
         isEnabled: true,
         width: 200,
       }),
+    };
+    const columnsOrder = ['archives', 'created'];
+    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
+    return ColumnsConfigurationModel.create({
+      persistedConfigurationKey: 'dataset',
+      columns,
+      columnsOrder,
+      firstColumnWidth: 350,
+      elementTable: elementFbTableThead,
     });
-    this.set('columnsOrder', ['archives', 'created']);
-    this._super(...arguments);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known

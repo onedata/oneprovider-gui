@@ -194,6 +194,14 @@ export default FilesystemBrowserModel.extend({
    */
   browserPersistedConfigurationKey: 'archiveFilesystem',
 
+  init() {
+    this._super(...arguments);
+    this.set(
+      'columnsConfiguration.persistedConfigurationKey',
+      this.browserPersistedConfigurationKey
+    );
+  },
+
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
   // items select implementation
   /**

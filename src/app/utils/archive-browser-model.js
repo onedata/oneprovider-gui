@@ -24,6 +24,7 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import ArchiveBrowserListPoller from 'oneprovider-gui/utils/archive-browser-list-poller';
+import ColumnsConfigurationModel from './columns-configuration';
 
 const allButtonNames = Object.freeze([
   'btnArchiveProperties',
@@ -201,16 +202,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       return visibleButtons;
     }
   ),
-
-  /**
-   * @override
-   */
-  browserPersistedConfigurationKey: 'archive',
-
-  /**
-   * @override
-   */
-  firstColumnWidth: 350,
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -631,7 +622,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   //#endregion
 
   init() {
-    this.set('columns', {
+    this.set('columnsConfiguration', this.createColumnsConfiguration());
+    this._super(...arguments);
+  },
+
+  createColumnsConfiguration() {
+    const columns = {
       state: EmberObject.create({
         isVisible: true,
         isEnabled: true,
@@ -647,9 +643,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isEnabled: true,
         width: 200,
       }),
+    };
+    const columnsOrder = ['state', 'incremental', 'creator'];
+    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
+    return ColumnsConfigurationModel.create({
+      persistedConfigurationKey: 'archive',
+      columns,
+      columnsOrder,
+      firstColumnWidth: 350,
+      elementTable: elementFbTableThead,
     });
-    this.set('columnsOrder', ['state', 'incremental', 'creator']);
-    this._super(...arguments);
   },
 
   /**
