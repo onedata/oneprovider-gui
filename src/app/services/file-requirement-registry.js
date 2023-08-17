@@ -22,6 +22,18 @@ import { computed } from '@ember/object';
  * @typedef {any} FileConsumer
  */
 
+// FIXME: ten service może służyć jako projektowane FileRecordsRegistry
+// - wszystkie załadowane pliki: store.peekAll('file')
+// - zmienia się requirement:
+
+// FIXME: scrollujemy się w dół, zmieniamy kolumny - najłatwiej byłoby przeładować wszystkie pliki w storze peekAll, które pasują do zmienionych requirementów
+// był taki pomysł: listę plików bierzemy z service FileRecordsRegistry
+// ten service działa jakby bufor na ładowanie/wyładowywanie rekordów plików - każdy komponent rejestruje to co używa i wyrejestrowuje tego co nie używa
+// jeśli licznik spadnie do 0 to file usuwane jest ze stora
+// usunięcie nastąpi np. podczas odświeżenia listy - część plików staje się invalidowana i dodatkowo komponent powinien zgłosić, że ich nie potrzebuje
+
+// FIXME: jeśli globalna lista
+
 export default Service.extend({
   //#region configuration
 
