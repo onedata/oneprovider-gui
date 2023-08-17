@@ -64,6 +64,7 @@ export default Component.extend(I18n, {
   classNames: ['transfers-table', 'one-infinite-list'],
 
   globalNotify: service(),
+  media: service(),
 
   /**
    * @override
@@ -193,8 +194,17 @@ export default Component.extend(I18n, {
   visibleColumns: computed(
     'visibleColumnNames',
     'columnsConfiguration.{columns,columnsOrder.[]}',
+    'media.isMobile',
     function visibleColumns() {
       const columnsConfigurationWithFirstCol = ['path'];
+      if (this.media.isMobile) {
+        const mobileVisibilityColumnNames =
+          columnsConfigurationWithFirstCol.concat(this.visibleColumnNames);
+        return Object.values(
+          this.getProperties(...mobileVisibilityColumnNames.map(
+            name => `${name}Column`))
+        );
+      }
       for (const columnName of this.columnsConfiguration.columnsOrder) {
         if (this.columnsConfiguration.columns[columnName].isVisible) {
           columnsConfigurationWithFirstCol.push(columnName);
@@ -331,42 +341,42 @@ export default Component.extend(I18n, {
   userNameColumn: computed(function userNameColumn() {
     return this.createColumn('userName', {
       component: 'cell-user',
-      className: 'col-hide-2',
+      className: 'hidden-xs',
     });
   }),
 
   destinationColumn: computed(function destinationColumn() {
     return this.createColumn('destination', {
       component: 'cell-truncated',
-      className: 'col-hide-3',
+      className: 'hidden-xs',
     });
   }),
 
   scheduledAtColumn: computed(function scheduledAtColumn() {
     return this.createColumn('scheduledAt', {
       propertyName: 'scheduledAtReadable',
-      className: 'col-hide-5',
+      className: 'hidden-xs',
     });
   }),
 
   startedAtColumn: computed(function startedAtColumn() {
     return this.createColumn('startedAt', {
       propertyName: 'startedAtReadable',
-      className: 'col-hide-4',
+      className: 'hidden-xs',
     });
   }),
 
   finishedAtColumn: computed(function finishedAtColumn() {
     return this.createColumn('finishedAt', {
       propertyName: 'finishedAtReadable',
-      className: 'col-hide-4',
+      className: 'hidden-xs',
     });
   }),
 
   processedColumn: computed(function processedColumn() {
     return this.createColumn('processed', {
       component: 'cell-processed',
-      className: 'col-hide-1',
+      className: 'hidden-xs',
     });
   }),
 
@@ -379,7 +389,7 @@ export default Component.extend(I18n, {
   evictedColumn: computed(function evictedColumn() {
     return this.createColumn('evicted', {
       component: 'cell-evicted',
-      className: 'col-hide-6',
+      className: 'hidden-xs',
     });
   }),
 
@@ -432,7 +442,7 @@ export default Component.extend(I18n, {
     }
     const columnsOrder = this.visibleColumnNames;
     return ColumnsConfigurationModel.create({
-      persistedConfigurationKey: 'transfer' + this.transferType,
+      persistedConfigurationKey: 'transfer.' + this.transferType,
       columns,
       columnsOrder,
       firstColumnWidth: 190,
