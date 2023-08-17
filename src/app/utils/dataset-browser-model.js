@@ -155,6 +155,11 @@ export default BaseBrowserModel.extend(I18n, {
     }
   }),
 
+  /**
+   * @override
+   */
+  browserPersistedConfigurationKey: 'dataset',
+
   navigateDataTarget: '_top',
 
   /**
@@ -270,11 +275,11 @@ export default BaseBrowserModel.extend(I18n, {
     const columnsOrder = ['archives', 'created'];
     const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
     return ColumnsConfigurationModel.create({
-      persistedConfigurationKey: 'dataset',
+      persistedConfigurationKey: this.browserPersistedConfigurationKey,
       columns,
       columnsOrder,
       firstColumnWidth: 350,
-      elementTable: elementFbTableThead,
+      tableThead: elementFbTableThead,
     });
   },
 

@@ -1,16 +1,14 @@
 /**
  * A class for modification visibility and order of columns in table.
  * The column's order and if column is enabled is save in local storage.
- * The visibility of columns depends of windows size and change dynamically.
+ * The visibility of columns depends of windows size and changes dynamically.
  *
  * @author Agnieszka Warchoł
  * @copyright (C) 2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, {
-  computed,
-} from '@ember/object';
+import EmberObject, { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { raw, gt } from 'ember-awesome-macros';
@@ -37,6 +35,12 @@ export default EmberObject.extend(...mixins, {
    * @type {string}
    */
   persistedConfigurationKey: '',
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  tableThead: undefined,
 
   /**
    * @type {number}
@@ -138,8 +142,8 @@ export default EmberObject.extend(...mixins, {
 
   checkColumnsVisibility() {
     let width = this.defaultTableWidth;
-    if (this.elementTable) {
-      width = dom.width(this.elementTable);
+    if (this.tableThead) {
+      width = dom.width(this.tableThead);
     }
     let remainingWidth = width - this.firstColumnWidth;
     remainingWidth -= this.lastColumnWidth;

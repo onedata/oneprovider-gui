@@ -204,6 +204,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   /**
+   * @override
+   */
+  browserPersistedConfigurationKey: 'archive',
+
+  /**
    * @type {ComputedProperty<Boolean>}
    */
   isAnySelectedDeleting: array.isAny('selectedItems', raw('state'), raw('deleting')),
@@ -647,11 +652,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     const columnsOrder = ['state', 'incremental', 'creator'];
     const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
     return ColumnsConfigurationModel.create({
-      persistedConfigurationKey: 'archive',
+      persistedConfigurationKey: this.browserPersistedConfigurationKey,
       columns,
       columnsOrder,
       firstColumnWidth: 350,
-      elementTable: elementFbTableThead,
+      tableThead: elementFbTableThead,
     });
   },
 

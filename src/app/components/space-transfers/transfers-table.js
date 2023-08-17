@@ -158,6 +158,11 @@ export default Component.extend(I18n, {
    */
   expandedTransferIds: computed(() => A()),
 
+  /**
+   * @type {Utils.ColumnsConfiguration}
+   */
+  columnsConfiguration: undefined,
+
   //#endregion
 
   //#region Computed properties
@@ -407,8 +412,6 @@ export default Component.extend(I18n, {
     });
   }),
 
-  columnsConfiguration: undefined,
-
   //#endregion
 
   init() {
@@ -422,8 +425,8 @@ export default Component.extend(I18n, {
    */
   didInsertElement() {
     this._super(...arguments);
-    const elem = this.element?.querySelector('.transfers-table-thead');
-    this.set('columnsConfiguration.elementTable', elem);
+    const transfersTableThead = this.element?.querySelector('.transfers-table-thead');
+    this.set('columnsConfiguration.tableThead', transfersTableThead);
     this.columnsConfiguration.checkColumnsVisibility();
   },
 

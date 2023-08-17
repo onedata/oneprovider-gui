@@ -259,6 +259,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   infoIconActionName: 'info',
 
   /**
+   * @override
+   */
+  browserPersistedConfigurationKey: 'filesystem',
+
+  /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
    * context menu.
    * @type {string}
@@ -1136,6 +1141,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     //   isEnabled: false,
     //   width: 160,
     // }),
+    // const columnsOrder = ['size', 'modification', replication];
     const columnsOrder = ['size', 'modification'];
     if (this.isOwnerVisible) {
       columns.owner = EmberObject.create({
@@ -1147,11 +1153,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
     const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
     return ColumnsConfigurationModel.create({
-      persistedConfigurationKey: 'filesystem',
+      persistedConfigurationKey: this.browserPersistedConfigurationKey,
       columns,
       columnsOrder,
       firstColumnWidth: 380,
-      elementTable: elementFbTableThead,
+      tableThead: elementFbTableThead,
     });
   },
 
