@@ -135,13 +135,13 @@ export default Component.extend({
     factory.setRetryLaneCallback(async (lane, runNumber) =>
       await this.get('workflowManager').retryAtmLane(
         this.get('atmWorkflowExecutionProxy.entityId'),
-        get(lane, 'id'),
+        lane.positionInParent,
         runNumber
       ));
     factory.setRerunLaneCallback(async (lane, runNumber) =>
       await this.get('workflowManager').rerunAtmLane(
         this.get('atmWorkflowExecutionProxy.entityId'),
-        get(lane, 'id'),
+        lane.positionInParent,
         runNumber
       ));
     factory.setShowTaskPodsActivityCallback((task) => {
