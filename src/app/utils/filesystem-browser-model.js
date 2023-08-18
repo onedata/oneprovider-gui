@@ -1186,7 +1186,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       this.columnsOrder.push('owner');
     }
     this._super(...arguments);
-    this.requiredFilePropertiesSetter();
   },
 
   /**
