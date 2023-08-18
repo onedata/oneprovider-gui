@@ -10,7 +10,7 @@ import FileQuery from 'oneprovider-gui/utils/file-query';
 import _ from 'lodash';
 import { possibleFileRawAttributes } from 'oneprovider-gui/utils/file-model';
 
-// FIXME: przenieść do serializera/file?
+// FIXME: przenieść do serializera/file?
 
 /**
  * @typedef {typeof possibleFileProperties[number]} File.Property
