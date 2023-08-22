@@ -38,15 +38,6 @@ import isPosixError from 'oneprovider-gui/utils/is-posix-error';
 import createRenderThrottledProperty from 'onedata-gui-common/utils/create-render-throttled-property';
 
 /**
- * Contains info about column visibility: if on screen is enough space to show this column
- * and if user want to view that
- * @typedef {EmberObject} ColumnProperties
- * @property {boolean} isVisible
- * @property {boolean} isEnabled
- * @property {number} width
- */
-
-/**
  * @typedef {'pending'|'fulfilled'|'rejected'} BrowserListLoadState
  */
 
@@ -208,6 +199,7 @@ export default EmberObject.extend(...mixins, {
   singleSelect: false,
 
   /**
+   * @type {Utils.ColumnsConfiguration}
    * @virtual
    */
   columnsConfiguration: undefined,

@@ -27,7 +27,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { allSettled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
-import ColumnsConfigurationModel from './columns-configuration';
+import ColumnsConfigurationModel from 'oneprovider-gui/utils/columns-configuration';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows

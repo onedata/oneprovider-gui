@@ -28,7 +28,7 @@ import {
 import globals from 'onedata-gui-common/utils/globals';
 import { resolve, all as allFulfilled } from 'rsvp';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
-import ColumnsConfigurationModel from './columns-configuration';
+import ColumnsConfigurationModel from 'oneprovider-gui/utils/columns-configuration';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',

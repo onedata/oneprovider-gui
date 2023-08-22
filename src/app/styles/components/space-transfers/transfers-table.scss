@@ -33,8 +33,9 @@
     width: var(--column-width, 200px);
   }
 
-  .fb-table-col-actions-menu {
+  th.table-col-actions-menu {
     width: 40px;
+    padding-bottom: $padding-base-vertical;
   }
 
   .transfers-table-col-scheduledAt,

@@ -23,7 +23,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import { sum } from 'ember-awesome-macros';
 import isDirectlyClicked from 'onedata-gui-common/utils/is-directly-clicked';
-import ColumnsConfigurationModel from '../../utils/columns-configuration';
+import ColumnsConfigurationModel from 'oneprovider-gui/utils/columns-configuration';
 
 const allColumnNames = [
   'path',
@@ -46,11 +46,11 @@ const allColumnWidth = {
   scheduledAt: 160,
   startedAt: 160,
   finishedAt: 160,
-  processed: 90,
+  processed: 100,
   replicated: 100,
-  evicted: 80,
-  type: 52,
-  status: 65,
+  evicted: 90,
+  type: 80,
+  status: 80,
 };
 
 const tableExcludedColumnNames = {
@@ -153,15 +153,15 @@ export default Component.extend(I18n, {
   fetchingNext: false,
 
   /**
+   * @type {Utils.ColumnsConfiguration}
+   */
+  columnsConfiguration: undefined,
+
+  /**
    * List of transfer EntityIds that are expanded on the view
    * @type {Array<Srting>}
    */
   expandedTransferIds: computed(() => A()),
-
-  /**
-   * @type {Utils.ColumnsConfiguration}
-   */
-  columnsConfiguration: undefined,
 
   //#endregion
 
@@ -201,23 +201,23 @@ export default Component.extend(I18n, {
     'columnsConfiguration.{columns,columnsOrder.[]}',
     'media.isMobile',
     function visibleColumns() {
-      const columnsConfigurationWithFirstCol = ['path'];
+      let columnsConfigurationWithFirstCol = ['path'];
       if (this.media.isMobile) {
-        const mobileVisibilityColumnNames =
-          columnsConfigurationWithFirstCol.concat(this.visibleColumnNames);
-        return Object.values(
-          this.getProperties(...mobileVisibilityColumnNames.map(
-            name => `${name}Column`))
-        );
-      }
-      for (const columnName of this.columnsConfiguration.columnsOrder) {
-        if (this.columnsConfiguration.columns[columnName].isVisible) {
-          columnsConfigurationWithFirstCol.push(columnName);
+        columnsConfigurationWithFirstCol = [
+          ...columnsConfigurationWithFirstCol,
+          ...this.visibleColumnNames,
+        ];
+      } else {
+        for (const columnName of this.columnsConfiguration.columnsOrder) {
+          if (this.columnsConfiguration.columns[columnName].isVisible) {
+            columnsConfigurationWithFirstCol.push(columnName);
+          }
         }
       }
       return Object.values(
-        this.getProperties(...columnsConfigurationWithFirstCol.map(
-          name => `${name}Column`))
+        this.getProperties(...columnsConfigurationWithFirstCol.map(name =>
+          `${name}Column`
+        ))
       );
     }
   ),
@@ -434,21 +434,21 @@ export default Component.extend(I18n, {
 
   createColumnsConfiguration() {
     const columns = {};
-    const visibleColumnNames = this.visibleColumnNames;
+    const visibleColumnNames = [...this.visibleColumnNames];
     visibleColumnNames.shift();
-    for (const column of this.visibleColumnNames) {
-      columns[column] = EmberObject.create({
+    for (const columnName of visibleColumnNames) {
+      columns[columnName] = EmberObject.create({
         isVisible: true,
         isEnabled: true,
-        width: allColumnWidth[column],
+        width: allColumnWidth[columnName],
       });
     }
-    const columnsOrder = this.visibleColumnNames;
+    const columnsOrder = visibleColumnNames;
     return ColumnsConfigurationModel.create({
       persistedConfigurationKey: 'transfer.' + this.transferType,
       columns,
       columnsOrder,
-      firstColumnWidth: 190,
+      firstColumnWidth: allColumnWidth['path'],
     });
   },
 

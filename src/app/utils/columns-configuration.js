@@ -1,7 +1,7 @@
 /**
- * A class for modification visibility and order of columns in table.
- * The column's order and if column is enabled is save in local storage.
- * The visibility of columns depends of windows size and changes dynamically.
+ * A class for visibility and order of columns modification in table.
+ * The columns order and column enabled state is saved in the local storage.
+ * The visibility of columns depends of browser window size and changes dynamically.
  *
  * @author Agnieszka Warchoł
  * @copyright (C) 2023 ACK CYFRONET AGH
@@ -16,6 +16,19 @@ import globals from 'onedata-gui-common/utils/globals';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
+
+/**
+ * Contains info about column visibility: if on screen is enough space to show this column
+ * and if user want to view that
+ * @typedef {EmberObject} ColumnProperties
+ * @property {boolean} isVisible
+ * @property {boolean} isEnabled
+ * @property {number} width
+ */
+
+/**
+ * @typedef {string} ColumnName
+ */
 
 const mixins = [
   I18n,
@@ -38,7 +51,7 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {string}
+   * @type {object}
    */
   tableThead: undefined,
 
@@ -63,14 +76,14 @@ export default EmberObject.extend(...mixins, {
   hiddenColumnsCount: 0,
 
   /**
-   * @type {Object<string, ColumnProperties>}
+   * @type {Object<ColumnName, ColumnProperties>}
    */
   columns: undefined,
 
   /**
    * An array with names of columns, in display order (from left to right).
    * There are enabled and disabled columns here.
-   * @type {Object<string>}
+   * @type {Object<ColumnName>}
    */
   columnsOrder: undefined,
 
@@ -84,8 +97,8 @@ export default EmberObject.extend(...mixins, {
    */
   columnsStyle: computed('columns', function columnsStyle() {
     const styles = {};
-    for (const column in this.columns) {
-      styles[column] = htmlSafe(`--column-width: ${this.columns[column].width}px;`);
+    for (const columName in this.columns) {
+      styles[columName] = htmlSafe(`--column-width: ${this.columns[columName].width}px;`);
     }
     return styles;
   }),
@@ -113,7 +126,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
-   * @param {string} column
+   * @param {string} columnName
    * @param {boolean} isEnabled
    * @returns {void}
    */
@@ -121,9 +134,9 @@ export default EmberObject.extend(...mixins, {
     this.set(`columns.${columnName}.isEnabled`, isEnabled);
     this.checkColumnsVisibility();
     const enabledColumns = [];
-    for (const column of this.columnsOrder) {
-      if (this.columns[column].isEnabled) {
-        enabledColumns.push(column);
+    for (const columName of this.columnsOrder) {
+      if (this.columns[columName].isEnabled) {
+        enabledColumns.push(columName);
       }
     }
     this.notifyPropertyChange('columns');
@@ -141,25 +154,22 @@ export default EmberObject.extend(...mixins, {
   },
 
   checkColumnsVisibility() {
-    let width = this.defaultTableWidth;
-    if (this.tableThead) {
-      width = dom.width(this.tableThead);
-    }
+    const width = this.tableThead ? dom.width(this.tableThead) : this.defaultTableWidth;
     let remainingWidth = width - this.firstColumnWidth;
     remainingWidth -= this.lastColumnWidth;
     let hiddenColumnsCount = 0;
-    for (const column of this.columnsOrder) {
-      if (this.columns[column].isEnabled) {
-        if (remainingWidth >= this.columns[column].width) {
-          remainingWidth -= this.columns[column].width;
-          this.set(`columns.${column}.isVisible`, true);
+    for (const columName of this.columnsOrder) {
+      if (this.columns[columName].isEnabled) {
+        if (remainingWidth >= this.columns[columName].width) {
+          remainingWidth -= this.columns[columName].width;
+          this.set(`columns.${columName}.isVisible`, true);
         } else {
-          this.set(`columns.${column}.isVisible`, false);
+          this.set(`columns.${columName}.isVisible`, false);
           hiddenColumnsCount += 1;
           remainingWidth = 0;
         }
       } else {
-        this.set(`columns.${column}.isVisible`, false);
+        this.set(`columns.${columName}.isVisible`, false);
       }
     }
     if (this.hiddenColumnsCount !== hiddenColumnsCount) {
@@ -178,9 +188,9 @@ export default EmberObject.extend(...mixins, {
 
     const enabledColumnsList = enabledColumns?.split(',');
     if (enabledColumnsList) {
-      for (const column in this.columns) {
-        this.set(`columns.${column}.isEnabled`,
-          Boolean(enabledColumnsList?.includes(column))
+      for (const columName in this.columns) {
+        this.set(`columns.${columName}.isEnabled`,
+          Boolean(enabledColumnsList?.includes(columName))
         );
       }
     }

@@ -14,14 +14,18 @@
     }}
       {{#if columnsConfiguration.isAnyColumnHidden}}
         <div class="hidden-columns-number-container">
-          <span class="hidden-columns-number">{{columnsConfiguration.hiddenColumnsCount}}</span>
+          <span class="hidden-columns-number">
+            {{columnsConfiguration.hiddenColumnsCount}}
+          </span>
         </div>
       {{/if}}
     {{/one-icon-tagged}}
-    {{one-tooltip title=(if columnsConfiguration.isAnyColumnHidden
-      (tt this "hiddenColumns")
-      (tt this "configureColumns")
-    )}}
+    {{#unless columnModificationOpened}}
+      {{one-tooltip title=(if columnsConfiguration.isAnyColumnHidden
+        (tt this "hiddenColumns")
+        (tt this "configureColumns")
+      )}}
+    {{/unless}}
   </div>
   {{columns-configuration-popover
     isOpened=columnModificationOpened

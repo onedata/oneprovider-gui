@@ -12,7 +12,7 @@ import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   tagName: 'th',
-  classNames: ['fb-table-col-actions-menu', 'hidden-xs'],
+  classNames: ['table-col-actions-menu', 'hidden-xs'],
 
   i18n: service(),
   media: service(),

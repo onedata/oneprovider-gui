@@ -17,16 +17,18 @@
     <div class="table-header-status-bar">{{yield}}</div>
   </div>
 </th>
-{{#each browserModel.columnsConfiguration.columnsOrder as |columnName|}}
-  {{#if (get browserModel (concat "columnsConfiguration.columns." columnName ".isVisible"))}}
+{{#each columnsConfiguration.columnsOrder as |columnName|}}
+  {{#if (get columnsConfiguration (concat "columns." columnName ".isVisible"))}}
     <th
       class={{concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"}}
-      style={{get browserModel (concat "columnsConfiguration.columnsStyle." columnName)}}
+      style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
     >
       {{tt this columnName}}
       {{#if (eq columnName "replication")}}
         {{#one-icon icon="browser-info"}}
-          {{one-tooltip title=(tt this "replicationTooltip" oneprovider=currentProviderName)}}
+          {{one-tooltip
+            title=(tt this "replicationTooltip" oneprovider=currentProviderName)
+          }}
         {{/one-icon}}
       {{/if}}
     </th>
@@ -34,5 +36,5 @@
 {{/each}}
 {{!-- hide actions th to make space for jump-control (see also colspan in first th) --}}
 {{columns-configuration-cell
-  columnsConfiguration=browserModel.columnsConfiguration
+  columnsConfiguration=columnsConfiguration
 }}

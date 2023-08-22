@@ -24,7 +24,7 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import ArchiveBrowserListPoller from 'oneprovider-gui/utils/archive-browser-list-poller';
-import ColumnsConfigurationModel from './columns-configuration';
+import ColumnsConfigurationModel from 'oneprovider-gui/utils/columns-configuration';
 
 const allButtonNames = Object.freeze([
   'btnArchiveProperties',

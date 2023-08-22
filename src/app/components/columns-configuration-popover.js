@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { trySet } from '@ember/object';
+import { trySet, computed } from '@ember/object';
 import { next } from '@ember/runloop';
 import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
 import { reads } from '@ember/object/computed';
@@ -46,6 +46,13 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<string>}
    */
   columnsCount: reads('columnsConfiguration.columnsOrder.length'),
+
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  lastIndexColumn: computed('columnsCount', function lastIndexColumn() {
+    return this.columnsCount - 1;
+  }),
 
   /**
    * @type {boolean}

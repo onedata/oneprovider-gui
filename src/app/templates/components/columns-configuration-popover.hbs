@@ -43,7 +43,7 @@
                 onClick={{action "moveColumnDown" columnName}}
               >
                 {{one-icon icon="move-down"}}
-                {{#if (and (not-eq index columnsCount) arrowTooltipVisible)}}
+                {{#if (and (not-eq index lastIndexColumn) arrowTooltipVisible)}}
                   {{one-tooltip title=(tt this "moveDown")}}
                 {{/if}}
               </span>
