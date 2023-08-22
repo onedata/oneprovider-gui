@@ -157,6 +157,21 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   /**
    * @override
    */
+  async convertAtmExceptionStoreTraceIdsToIndices(storeInstanceId, traceIds) {
+    if (!storeInstanceId) {
+      console.error(
+        'util:workflow-visualiser/execution-data-fetcher#fetchStoreContent: invalid storeSchemaId',
+      );
+      throw notFoundError;
+    }
+
+    return await this.workflowManager
+      .convertAtmExceptionStoreTraceIdsToIndices(storeInstanceId, traceIds);
+  },
+
+  /**
+   * @override
+   */
   getStoreContentPresenterContext() {
     return {
       getSymbolicLinkTargetById: this.getSymbolicLinkTargetById.bind(this),
