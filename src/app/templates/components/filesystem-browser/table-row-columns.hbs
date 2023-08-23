@@ -126,14 +126,15 @@
           }}
           onclick={{unless qosViewForbidden (action "invokeFileAction" file "info" "qos")}}
         >
-          {{#if (or (eq qosStatus "noQos") (not qosStatus))}}
+          {{#if (not qosStatus)}}
             <span class="no-qos-text">—</span>
+            {{one-tooltip title=(tt this "qosStatusHint.noQos" fileType=fileTypeText)}}
           {{else}}
             <span class="status-icon">
               {{one-icon icon=statusIcon class=(concat "qos-status-icon qos-status-" qosStatus)}}
+              {{one-tooltip title=(tt this (concat "qosStatusHint." qosStatus) fileType=fileTypeText)}}
             </span>
           {{/if}}
-          {{one-tooltip title=(tt this (concat "qosStatusHint." qosStatus) fileType=fileTypeText)}}
         </span>
       </td>
     {{/if}}

@@ -32,7 +32,7 @@ import {
  */
 
 /**
- * @typedef {'impossible'|'pending'|'fulfilled'|'error'|'noQos'} QosStatus
+ * @typedef {'impossible'|'pending'|'fulfilled'|'error'|null} QosStatus
  */
 
 export const entityType = 'file';
