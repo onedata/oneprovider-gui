@@ -182,11 +182,13 @@ export default EmberObject.extend(...mixins, {
     const enabledColumns = globals.localStorage.getItem(
       `${this.persistedConfigurationKey}.enabledColumns`
     );
+    const enabledColumnsList = enabledColumns?.split(',');
+
     const columnsOrder = globals.localStorage.getItem(
       `${this.persistedConfigurationKey}.columnsOrder`
     );
+    const columnsOrderList = columnsOrder?.split(',');
 
-    const enabledColumnsList = enabledColumns?.split(',');
     if (enabledColumnsList) {
       for (const columName in this.columns) {
         this.set(`columns.${columName}.isEnabled`,
@@ -194,8 +196,20 @@ export default EmberObject.extend(...mixins, {
         );
       }
     }
-    if (columnsOrder) {
-      this.set('columnsOrder', columnsOrder.split(','));
+    if (columnsOrderList) {
+      for (const columName of columnsOrderList) {
+        if (!this.columnsOrder.includes(columName)) {
+          console.log(columName);
+          const index = columnsOrderList.indexOf(columName);
+          columnsOrderList.splice(index, 1);
+        }
+      }
+      for (const columName of this.columnsOrder) {
+        if (!columnsOrderList.includes(columName)) {
+          columnsOrderList.push(columName);
+        }
+      }
+      this.set('columnsOrder', columnsOrderList);
     }
   },
 });
