@@ -205,11 +205,6 @@ export default EmberObject.extend(...mixins, {
   columnsConfiguration: undefined,
 
   /**
-   * @type {string}
-   */
-  browserPersistedConfigurationKey: '',
-
-  /**
    * @type {String}
    */
   rootIcon: 'space',

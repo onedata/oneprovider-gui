@@ -26,7 +26,7 @@
               class="column-name-label"
             >
               <span class="one-label checkbox-label">
-                <span>{{tt this columnName}}</span>
+                <span>{{tt this (concat translationKey "." columnName)}}</span>
                 {{#if (and
                   (not (get (get columnsConfiguration.columns columnName) "isVisible"))
                   (get (get columnsConfiguration.columns columnName) "isEnabled")

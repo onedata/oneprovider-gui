@@ -64,6 +64,16 @@ export default Component.extend(I18n, {
    */
   isInFirefox: browser.name === BrowserName.Firefox,
 
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  translationKey: computed(
+    'columnsConfiguration.persistedConfigurationKey',
+    function translationKey() {
+      return this.columnsConfiguration.persistedConfigurationKey.split('.')[0];
+    }
+  ),
+
   applyCurrentColumnsOrder() {
     this.columnsConfiguration.saveColumnsOrder();
     this.columnsConfiguration.checkColumnsVisibility();
