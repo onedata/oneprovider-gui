@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10638 Added disabled QoS column
 * VFS-11199 Added pretty URLs for files show and download
 * VFS-10637 Added setting for modify order columns in file browser
 * VFS-10636 Added disabled replication column

@@ -15,6 +15,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 import { htmlSafe } from '@ember/string';
+import { translateFileType } from 'onedata-gui-common/utils/file';
 
 export default FbTableRowColumns.extend(I18n, {
   i18n: service(),
@@ -119,16 +120,16 @@ export default FbTableRowColumns.extend(I18n, {
 
   /**
    * QoS fulfillment icon name
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
   statusIcon: getBy(raw(qosStatusIcons), 'qosStatus'),
 
   /**
    * @type {ComputedProperty<string>}
    */
-  fileTypeText: computed('fileType', function fileTypeText() {
-    const fileType = this.file.type;
-    return this.t(`qosStatusHint.${fileType || 'file'}`);
+  fileTypeText: computed('file.type', function fileTypeText() {
+    const fileType = this.get('file.type');
+    return translateFileType(this.i18n, fileType, { form: 'singular' });
   }),
 
   /**
