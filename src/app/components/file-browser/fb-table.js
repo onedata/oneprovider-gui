@@ -242,12 +242,16 @@ export default Component.extend(...mixins, {
   headerVisible: undefined,
 
   /**
+   * @override
    * @implements {Mixins.FileConsumer}
    */
   fileRequirements: computed(
     // FIXME: check isVisible instead isEnabled
     'dir.id',
     function fileRequirements() {
+      if (!this.dir) {
+        return [];
+      }
       return [
         FileRequirement.create({
           fileGri: get(this.dir, 'id'),
@@ -258,6 +262,22 @@ export default Component.extend(...mixins, {
         }),
       ];
     }
+  ),
+
+  // FIXME: experimental, not tested
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFiles: computed(
+    'dir',
+    'filesArray.sourceArray.[]',
+    function usedFiles() {
+      const listedFiles = this.filesArray.sourceArray.filter(item =>
+        item && get(item, 'id')
+      );
+      return [this.dir, ...listedFiles];
+    },
   ),
 
   headRowComponentName: or(

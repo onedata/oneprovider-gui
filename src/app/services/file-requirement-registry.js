@@ -1,13 +1,12 @@
-import Service from '@ember/service';
+import Service, { inject as service } from '@ember/service';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import {
   possibleFileRawAttributesSet,
-  // FIXME: for testing
-  // possibleFileProperties,
   propertyToAttributesMap,
 } from 'oneprovider-gui/utils/file-model';
 import _ from 'lodash';
 import { computed } from '@ember/object';
+import { allSettled } from 'rsvp';
 
 /**
  * A GUI entity (might be a component, service, anything that is "living" during runtime)
@@ -24,10 +23,6 @@ import { computed } from '@ember/object';
  * @property {Array<Models.File>} usedFiles
  */
 
-// FIXME: ten service może służyć jako projektowane FileRecordsRegistry
-// - wszystkie załadowane pliki: store.peekAll('file')
-// - zmienia się requirement:
-
 // FIXME: scrollujemy się w dół, zmieniamy kolumny - najłatwiej byłoby przeładować wszystkie pliki w storze peekAll, które pasują do zmienionych requirementów
 // był taki pomysł: listę plików bierzemy z service FileRecordsRegistry
 // ten service działa jakby bufor na ładowanie/wyładowywanie rekordów plików - każdy komponent rejestruje to co używa i wyrejestrowuje tego co nie używa
@@ -37,12 +32,17 @@ import { computed } from '@ember/object';
 // FIXME: jeśli globalna lista
 
 export default Service.extend({
+  store: service(),
+
   //#region configuration
 
   // FIXME: maybe add more, maybe remove type...
   basicProperties: Object.freeze([
+    'conflictingName',
     'fileId',
+    'hasParent',
     'name',
+    'parent',
     'type',
     // FIXME: for testing:
     // ...possibleFileProperties,
@@ -74,14 +74,18 @@ export default Service.extend({
   },
 
   /**
-   * @param {Utils.FileQuery} query
+   * @public
+   * @param {Array<Utils.FileQuery>} queries
    * @returns {Array<File.RawAttribute>}
    */
-  findAttrsRequirement(query) {
-    const matchingRequirements = this.getRequirements().filter(requirement =>
-      query.matches(requirement)
-    );
-    matchingRequirements.push(this.basicRequirement);
+  findAttrsRequirement(...queries) {
+    let matchingRequirements = [this.basicRequirement];
+    for (const query of queries) {
+      matchingRequirements.push(
+        ...this.getRequirements().filter(requirement => query.matches(requirement))
+      );
+    }
+    matchingRequirements = _.uniq(matchingRequirements);
     const requiredProperties = _.uniq(_.flatten(
       matchingRequirements.map(requirement => requirement.properties)
     ));
@@ -89,12 +93,23 @@ export default Service.extend({
   },
 
   /**
+   * Sets FileRequirements for the FileConsumer.
+   * If consumer already has requirements set then replace all requirements.
+   * If there are files loaded already in store that will have its requirements extended
+   * then reload these files. Extending requirements means, that there will be more
+   * properties for file required after reuirements set.
+   * @public
    * @param {FileConsumer} consumer
    * @param {Array<Utils.FileRequirement>|Utils.FileRequirement} requirements
+   * @returns {Promise<PromiseState<Models.File>>}
    */
-  setRequirements(consumer, requirements) {
+  async setRequirements(consumer, requirements) {
     const reqArray = Array.isArray(requirements) ? requirements : [requirements];
+    const filesToUpdate = this.getFilesToUpdate(consumer, requirements);
     this.consumerRequirementsMap.set(consumer, reqArray);
+    await allSettled(filesToUpdate.map(file => {
+      return file.reload();
+    }));
   },
 
   /**
@@ -109,6 +124,69 @@ export default Service.extend({
   },
 
   /**
+   * @private
+   * @param {FileConsumer} consumer
+   * @param {Array<FileRequirement>} newRequirements
+   * @returns {Array<FileRequirement>}
+   */
+  getAbsentRequirements(consumer, newRequirements) {
+    const currentRequirements = this.consumerRequirementsMap.get(consumer);
+    if (!currentRequirements?.length) {
+      return [...newRequirements];
+    }
+
+    const currentRequirementsStringified =
+      currentRequirements.map(req => req.stringify());
+    const newConditions =
+      _.differenceWith(newRequirements, currentRequirements, (ra, rb) =>
+        ra.matches(rb)
+      );
+    const newReqOldConditions = _.difference(newRequirements, newConditions);
+    const oldConditionsWithNewProperties = newReqOldConditions.filter(newReq => {
+      // filter out identical requirements
+      if (currentRequirementsStringified.includes(newReq.stringify())) {
+        return false;
+      }
+      // search for at least one property in new requirement that does not occur
+      // in current requirements
+      for (const currentReq of currentRequirements) {
+        if (currentReq.matches(newReq)) {
+          const currentProperties = currentReq.properties;
+          for (const newProperty of newReq.properties) {
+            if (!currentProperties.includes(newProperty)) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    });
+    return _.uniq([...newConditions, ...oldConditionsWithNewProperties]);
+  },
+
+  // FIXME: optymalizacja: jeśli nie było do tej pory requirementów - powinno pobrać wszystkie pasujące pliki
+  // FIXME: optymalizacja: brać pliki dla konsumera poprzez fileRecordRegistry?
+  /**
+   * @private
+   * @param {FileConsumer} consumer
+   * @param {Array<FileRequirement>} newRequirements
+   * @returns {Array<Models.File>}
+   */
+  getFilesToUpdate(consumer, newRequirements) {
+    if (!newRequirements?.length) {
+      return [];
+    }
+    const absentRequirements = this.getAbsentRequirements(consumer, newRequirements);
+    const storedFiles = this.store.peekAll('file').toArray();
+    return storedFiles.filter(storedFile => {
+      return absentRequirements.some(requirement => {
+        return requirement.matchesFile(storedFile);
+      });
+    });
+  },
+
+  /**
+   * @private
    * @param {Array<File.Property>} properties
    * @returns {Array<File.RawAttribute>}
    */

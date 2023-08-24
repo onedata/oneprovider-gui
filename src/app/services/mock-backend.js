@@ -47,6 +47,8 @@ import {
   atmWorkflowExecutionPhases,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 import globals from 'onedata-gui-common/utils/globals';
+import FileConsumerModel from 'oneprovider-gui/utils/file-consumer-model';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -106,9 +108,54 @@ const effProtectionFlagSets = [
   ['data_protection', 'metadata_protection'],
 ];
 
-export default Service.extend({
+const mixins = [
+  FileConsumerMixin,
+];
+
+export default Service.extend(...mixins, {
   store: service(),
   archiveManager: service(),
+
+  /**
+   * @override
+   * @type {Array<Models.File>}
+   */
+  usedFiles: Object.freeze([]),
+
+  knownEntityRecordsKeys: Object.freeze([
+    'archive',
+    'archiveRecallInfo',
+    'archiveRecallState',
+    'atmInventory',
+    'atmInventory',
+    'atmWorkflowExecution',
+    'atmWorkflowExecutionSummary',
+    'atmWorkflowSchema',
+    'chainDir',
+    'dataset',
+    'dir',
+    'file',
+    'fileDatasetSummary',
+    'fileDistribution',
+    'fileQosSummary',
+    'handle',
+    'handleService',
+    'owner',
+    'provider',
+    'rootDir',
+    'space',
+    'spaceRootDir',
+    'storageLocationInfo',
+    'transfer',
+  ]),
+
+  knownFileRecordsKeys: Object.freeze([
+    'chainDir',
+    'dir',
+    'file',
+    'rootDir',
+    'spaceRootDir',
+  ]),
 
   /**
    * WARNING: Will be initialized only after generating development model.
@@ -219,7 +266,16 @@ export default Service.extend({
     const effSpaceList = await user.get('effSpaceList');
     const effSpaceListList = await get(effSpaceList, 'list');
     await allFulfilled(effSpaceListList.toArray());
+    this.updateUsedFiles();
     return user;
+  },
+
+  updateUsedFiles() {
+    const usedFiles = this.knownFileRecordsKeys.reduce((resultFiles, key) => {
+      resultFiles.push(...this.entityRecords[key]);
+      return resultFiles;
+    }, []);
+    this.set('usedFiles', usedFiles);
   },
 
   createListRecord(store, type, records) {

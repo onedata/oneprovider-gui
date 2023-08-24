@@ -25,6 +25,8 @@ import {
   getInternalFileIdFromGuid,
   getSpaceIdFromGuid,
 } from 'onedata-gui-common/utils/file-guid-parsers';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 
 /**
  * @typedef {'data_protection'|'metadata_protection'} ProtectionFlag
@@ -263,108 +265,157 @@ export const RuntimeProperties = Mixin.create({
   },
 });
 
-export default Model.extend(
+const FileRelationConsumer = Mixin.create(FileConsumerMixin, {
+  // FIXME: użyć gdzieś tego
+  async getRelation(relationName, options) {
+    const requiredProperties = options.requiredProperties;
+    if (requiredProperties) {
+      // FIXME: eksperymentalnie uproszczone: będzie trzeba zarządzać wieloma relacjami
+      // w File wystarczy jedno
+      const fileGri = this.belongsTo(relationName)?.id();
+      if (!fileGri) {
+        return null;
+      }
+      const fileRequirement = FileRequirement.create({
+        // FIXME: debug
+        test: 'lolololo',
+        fileGri,
+        properties: requiredProperties,
+      });
+      this.set('fileRequirements', [fileRequirement]);
+    }
+    return await this._super(...arguments);
+  },
+});
+
+const mixins = Object.freeze([
   GraphSingleModelMixin,
+  FileRelationConsumer,
   RuntimeProperties,
-  createConflictModelMixin('shareRecords'), {
-    name: attr('string'),
-    index: attr('string'),
-    type: attr('file-type'),
-    size: attr('number'),
-    posixPermissions: attr('string'),
-    hasMetadata: attr('boolean'),
-    localReplicationRate: attr('number'),
+  createConflictModelMixin('shareRecords'),
+]);
 
-    sharesCount: attr('number'),
-    hardlinksCount: attr('number', { defaultValue: 1 }),
+export default Model.extend(...mixins, {
+  name: attr('string'),
+  index: attr('string'),
+  type: attr('file-type'),
+  size: attr('number'),
+  posixPermissions: attr('string'),
+  hasMetadata: attr('boolean'),
+  sharesCount: attr('number'),
+  hardlinksCount: attr('number', { defaultValue: 1 }),
+  localReplicationRate: attr('number'),
 
-    /**
-     * If there is a filename conflict between providers (two files with the same name,
-     * but created on different providers) this property contains a base of file name.
-     * Eg. we have two files with the same name created on providers with ids "a123" and
-     * "b456":
-     *
-     * ```
-     * { name: 'hello@a123', conflictingName: 'hello' }
-     * { name: 'hello@b456', conflictingName: 'hello' }
-     * ```
-     *
-     * If there is no naming conflict, the `name` is without suffix and this property
-     * is not provided (empty).
-     */
-    conflictingName: attr('string'),
+  /**
+   * If there is a filename conflict between providers (two files with the same name,
+   * but created on different providers) this property contains a base of file name.
+   * Eg. we have two files with the same name created on providers with ids "a123" and
+   * "b456":
+   *
+   * ```
+   * { name: 'hello@a123', conflictingName: 'hello' }
+   * { name: 'hello@b456', conflictingName: 'hello' }
+   * ```
+   *
+   * If there is no naming conflict, the `name` is without suffix and this property
+   * is not provided (empty).
+   */
+  conflictingName: attr('string'),
 
-    /**
-     * Not empty only for symlinks. Contains target path. May contain any string,
-     * but in general it may look like this (relative path):
-     * `../some/file`
-     * or like this (absolute path):
-     * `<__onedata_space_id:cbe3808d32b011f8578877ca531ad214chfb28>/some/file`
-     */
-    symlinkValue: attr('string'),
+  /**
+   * Not empty only for symlinks. Contains target path. May contain any string,
+   * but in general it may look like this (relative path):
+   * `../some/file`
+   * or like this (absolute path):
+   * `<__onedata_space_id:cbe3808d32b011f8578877ca531ad214chfb28>/some/file`
+   * @type {ComputedProperty<string>}
+   */
+  symlinkValue: attr('string'),
 
-    /**
-     * Possible values: none, direct, ancestor, directAndAncestor
-     */
-    effQosMembership: attr('string', { defaultValue: 'none' }),
+  // FIXME: jeśli nie ma danych (nie poproszono o nie) to tagi dla current dira są pokazywane, dlaczego?
+  /**
+   * Possible values: none, direct, ancestor, directAndAncestor
+   */
+  effQosMembership: attr('string', { defaultValue: 'none' }),
 
-    /**
-     * Possible values: none, direct, ancestor, directAndAncestor
-     */
-    effDatasetMembership: attr('string', { defaultValue: 'none' }),
+  // FIXME: jeśli nie ma danych (nie poproszono o nie) to tagi dla current dira są pokazywane, dlaczego?
+  /**
+   * Possible values: none, direct, ancestor, directAndAncestor
+   */
+  effDatasetMembership: attr('string', { defaultValue: 'none' }),
 
-    /**
-     * Effective protection flags inherited from attached ancestor dataset flags.
-     * @type {ComputedProperty<Array<ProtectionFlag>>}
-     */
-    effDatasetProtectionFlags: attr('array'),
+  /**
+   * Effective protection flags inherited from attached ancestor dataset flags.
+   * @type {ComputedProperty<Array<ProtectionFlag>>}
+   */
+  effDatasetProtectionFlags: attr('array'),
 
-    /**
-     * Effective protection flags - concerning attached ancestor dataset flags and
-     * flags inherited from hardlinks.
-     * @type {ComputedProperty<Array<ProtectionFlag>>}
-     */
-    effProtectionFlags: attr('array'),
+  /**
+   * Effective protection flags - concerning attached ancestor dataset flags and
+   * flags inherited from hardlinks.
+   * @type {ComputedProperty<Array<ProtectionFlag>>}
+   */
+  effProtectionFlags: attr('array'),
 
-    /**
-     * If file is a recalled archive root or descendant of one, GUID of recalled archive
-     * root. Null or empty otherwise.
-     * @type {ComputedProperty<String>}
-     */
-    recallRootId: attr('string'),
+  /**
+   * If file is a recalled archive root or descendant of one, GUID of recalled archive
+   * root. Null or empty otherwise.
+   * @type {ComputedProperty<string>}
+   */
+  recallRootId: attr('string'),
 
-    /**
-     * Modification time in UNIX timestamp format.
-     */
-    mtime: attr('number'),
+  /**
+   * Modification time in UNIX timestamp format.
+   */
+  mtime: attr('number'),
 
-    /**
-     * One of: `posix`, `acl`. Cannot be modified
-     */
-    activePermissionsType: attr('string'),
+  atime: attr('number'),
+  ctime: attr('number'),
 
-    shareRecords: hasMany('share'),
+  /**
+   * One of: `posix`, `acl`. Cannot be modified
+   */
+  activePermissionsType: attr('string'),
 
-    acl: belongsTo('acl'),
-    parent: belongsTo('file'),
-    distribution: belongsTo('file-distribution'),
-    storageLocationInfo: belongsTo('storage-location-info'),
-    // NOTE: User record from this relation can be fetched only if the user has been
-    // already fetched using authHint (eg. using userManager or from space.userList).
-    // If you want to fetch owner before this, consider using `fileManager.getFileOwner`.
-    owner: belongsTo('user'),
-    provider: belongsTo('provider'),
-    fileQosSummary: belongsTo('file-qos-summary'),
-    fileDatasetSummary: belongsTo('file-dataset-summary'),
-    archiveRecallInfo: belongsTo('archive-recall-info'),
-    archiveRecallState: belongsTo('archive-recall-state'),
+  /**
+   * FIXME: nazwa tego pola może być myląca w odniesieniu do localReplicationRate
+   * ONLY for regular files. True if the file is fully replicated on current provider.
+   * Typically this property should not be used - use
+   * @type {ComputedProperty<boolean>}
+   */
+  isFullyReplicated: attr('boolean'),
 
-    /**
-     * Relation to archive model if this file is a root dir of archive.
-     * @type {Models.Archive}
-     */
-    archive: belongsTo('archive'),
-  }).reopenClass(StaticGraphModelMixin, {
+  isDeleted: attr('boolean'),
+  // FIXME: opisać
+  qosStatus: attr('string'),
+  storageGroupId: attr('string'),
+  storageUserId: attr('string'),
+
+  shareRecords: hasMany('share'),
+
+  acl: belongsTo('acl'),
+  parent: belongsTo('file'),
+  distribution: belongsTo('file-distribution'),
+  storageLocationInfo: belongsTo('storage-location-info'),
+  // NOTE: User record from this relation can be fetched only if the user has been
+  // already fetched using authHint (eg. using userManager or from space.userList).
+  // If you want to fetch owner before this, consider using `fileManager.getFileOwner`.
+  owner: belongsTo('user'),
+  provider: belongsTo('provider'),
+  fileQosSummary: belongsTo('file-qos-summary'),
+  fileDatasetSummary: belongsTo('file-dataset-summary'),
+  archiveRecallInfo: belongsTo('archive-recall-info'),
+  archiveRecallState: belongsTo('archive-recall-state'),
+
+  /**
+   * Relation to archive model if this file is a root dir of archive.
+   * @type {Models.Archive}
+   */
+  archive: belongsTo('archive'),
+
+  // FIXME: co to jest?
+  conflictingFiles: attr('array'),
+}).reopenClass(StaticGraphModelMixin, {
   /**
    * @override
    */

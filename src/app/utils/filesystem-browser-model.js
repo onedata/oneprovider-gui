@@ -28,6 +28,7 @@ import { allSettled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -73,7 +74,12 @@ const availableButtonNames = Object.freeze([
   'btnDelete',
 ]);
 
-export default BaseBrowserModel.extend(DownloadInBrowser, {
+const mixins = [
+  FileConsumerMixin,
+  DownloadInBrowser,
+];
+
+export default BaseBrowserModel.extend(...mixins, {
   errorExtractor: service(),
   fileManager: service(),
   globalNotify: service(),
@@ -1119,42 +1125,59 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   /**
+   * @override
    * @implements {Mixins.FileConsumer}
    */
   fileRequirements: computed(
     // FIXME: check isVisible instead isEnabled
-    'dirId',
-    'columns.{size.isVisible,modification.isVisible,owner.isVisible,replication.isVisible}',
+    'dir',
+    'columns.{size.isEnabled,modification.isEnabled,owner.isEnabled,replication.isEnabled}',
     function fileRequirements() {
-      const requiredProperties = [
+      if (!this.dir) {
+        return [];
+      }
+      const parentDirGri = get(this.dir, 'id');
+      const parentDirId = get(this.dir, 'entityId');
+      const basicProperties = [
+        'conflictingName',
         'name',
-        'originalName',
         'parent',
-        'sharesCount',
       ];
+      const listedFilesProperties = [...basicProperties, 'sharesCount'];
       if (this.columns.size.isEnabled) {
-        requiredProperties.push('size');
+        listedFilesProperties.push('size');
       }
       if (this.columns.modification.isEnabled) {
-        requiredProperties.push('mtime');
+        listedFilesProperties.push('mtime');
       }
       if (this.columns.owner.isEnabled) {
-        requiredProperties.push('owner');
+        listedFilesProperties.push('owner');
       }
       if (this.columns.replication.isEnabled) {
-        requiredProperties.push('localReplicationRate');
+        listedFilesProperties.push('localReplicationRate');
       }
-      const listingRequirement = FileRequirement.create({
-        properties: requiredProperties,
-        parentGuid: this.dirId,
-      });
       const parentDirRequirement = FileRequirement.create({
-        properties: requiredProperties,
-        fileGri: this.dirId,
+        properties: basicProperties,
+        // FIXME: tutaj musi być gri, albo zmienić jakoś FileRequirement na entityId
+        // - chyba lepiej zmienić na matchowanie, żeby było też fileId
+        fileGri: parentDirGri,
       });
-      return [listingRequirement, parentDirRequirement];
+      const listingRequirement = FileRequirement.create({
+        properties: listedFilesProperties,
+        parentId: parentDirId,
+      });
+      return [parentDirRequirement, listingRequirement];
     },
   ),
+
+  // FIXME: implement usedFiles
+  // /**
+  //  * @override
+  //  * @implements {Mixins.FileConsumer}
+  //  */
+  // usedFiles: computed('dir', function usedFiles() {
+
+  // }),
 
   init() {
     this.set('columns', {
@@ -1168,7 +1191,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isEnabled: true,
         width: 180,
       }),
-      // TODO: VFS-11089 Enable replication column with optional replication data fetch
+      // FIXME: VFS-11089 Enable replication column with optional replication data fetch
       // FIXME: experimental
       replication: EmberObject.create({
         isVisible: false,
@@ -1185,6 +1208,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }));
       this.columnsOrder.push('owner');
     }
+    // FIXME: jeśli użytkownik ma w order zapisane tylko size, modification, owner,
+    // to nie będzie miał po upgrade już replication
+    // to trzeba naprawić
+    this.columnsOrder.push('replication');
     this._super(...arguments);
   },
 
@@ -1348,6 +1375,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   fetchDirChildren(dirId, ...fetchArgs) {
+    // FIXME: to się uruchamia zbyt często
+    // force fileRequirements change
+    this.fileConsumerModel.fileRequirementsObserver();
     return this.fileManager
       .fetchDirChildren(dirId, this.previewMode ? 'public' : 'private', ...fetchArgs);
   },

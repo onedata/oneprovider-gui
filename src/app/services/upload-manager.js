@@ -235,6 +235,7 @@ export default Service.extend(I18n, {
           return { 'X-Auth-Token': this.get('tokenProxy.content') };
         },
         query(file) {
+          // FIXME: co to za guid? i czy powinien zostać, czy być zmieniony na fileId?
           return { guid: get(file.fileModel, 'entityId') };
         },
         generateUniqueIdentifier: () => uuid(),

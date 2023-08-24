@@ -22,7 +22,6 @@ export const possibleFileRawAttributes = Object.freeze([
   'hardlinksCount',
   'hasMetadata',
   'index',
-  // FIXME: obecnie nie działa, bo jest is_fully_replicated
   'isFullyReplicated',
   'isDeleted',
   'localReplicationRate',

@@ -324,7 +324,7 @@ export default Service.extend({
       scope,
     });
     const requirementQuery = FileQuery.create({
-      parentGuid: dirId,
+      parentId: dirId,
     });
     const attributes = this.fileRequirementRegistry.findAttrsRequirement(
       requirementQuery

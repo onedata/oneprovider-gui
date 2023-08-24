@@ -1250,7 +1250,7 @@ function recordToChildData(record) {
     'mtime',
     'activePermissionsType'
   ), {
-    guid: get(record, 'entityId'),
+    fileId: get(record, 'entityId'),
     shares: hasManyEntityIds(record, 'shareRecords'),
     parentId: belongsToEntityId(record, 'parent'),
     ownerId: belongsToEntityId(record, 'owner'),

@@ -57,6 +57,9 @@
 
   .fb-table-col-replication {
     text-align: center;
+    padding-top: 0;
+    padding-bottom: 0;
+    vertical-align: middle;
 
     .file-item-text:hover .replication-rate-text {
       text-decoration: underline;

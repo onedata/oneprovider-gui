@@ -176,7 +176,7 @@ export default Serializer.extend({
     if (recordGri) {
       // this is record update
       const { entityId, scope } = parseGri(recordGri);
-      hash.guid = entityId;
+      hash.fileId = entityId;
       this.serializeRelations(hash, scope);
       this.serializeVirtualRelations(hash);
     }
@@ -188,7 +188,7 @@ export default Serializer.extend({
       // NOTE: The mock is broken, because it does not include guid and scope properties.
       // "gri" could be replaced here by "id", but virtual relations still does not work
       // properly - in mock, please use setting these relations manually or try to fix it.
-      hash.gri = getFileGri(hash.guid, hash.scope);
+      hash.gri = getFileGri(hash.fileId, hash.scope);
     }
     const parsedGri = parseGri(hash.gri);
     const scope = hash.scope || parsedGri.scope;

@@ -30,7 +30,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
       firstColumnWidth: 20,
       loadColumnsConfigFromLocalStorage() {
         this.set('columns.modification.isEnabled', true);
-        // TODO: VFS-11089 Uncomment replication tests
+        // FIXME: VFS-11089 Uncomment replication tests
         // this.set('columns.replication.isEnabled', true);
       },
     }));
@@ -203,7 +203,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     expect(tag).to.not.have.class('file-status-tag-disabled');
   });
 
-  // TODO: VFS-11089 Uncomment replication tests
+  // FIXME: VFS-11089 Uncomment replication tests
   // it('renders 100% replication', async function () {
   //   const replicationRate = 1;
   //   this.set('file', createFile({ localReplicationRate: replicationRate }));

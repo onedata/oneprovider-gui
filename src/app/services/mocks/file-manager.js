@@ -18,8 +18,15 @@ export default ProductionFileManager.extend({
   /**
    * @override
    */
-  pushChildrenAttrsToStore(childrenAttrs) {
-    return allFulfilled(childrenAttrs.map(attr => this.getFileById(get(attr, 'fileId'))));
+  async pushChildrenAttrsToStore(childrenAttrs) {
+    try {
+      return allFulfilled(childrenAttrs.map(attr => {
+        const fileId = get(attr, 'fileId');
+        return this.getFileById(fileId);
+      }));
+    } catch (error) {
+      throw error;
+    }
   },
 
   getFileDownloadUrl() {

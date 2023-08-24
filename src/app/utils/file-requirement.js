@@ -7,8 +7,6 @@
  */
 
 import FileQuery from 'oneprovider-gui/utils/file-query';
-import _ from 'lodash';
-import { possibleFileRawAttributes } from 'oneprovider-gui/utils/file-model';
 
 // FIXME: przenieść do serializera/file?
 
@@ -16,24 +14,32 @@ import { possibleFileRawAttributes } from 'oneprovider-gui/utils/file-model';
  * @typedef {typeof possibleFileProperties[number]} File.Property
  */
 
-export default FileQuery.extend({
+const FileRequirement = FileQuery.extend({
   /**
+   * FIXME: doc
    * @virtual
    * @type {File.Property}
    */
   properties: undefined,
 
-  // FIXME: nie jest to używane - zamiast tego logika jest w service:file-requirement-registry
   /**
-   * @type {Array<File.RawAttribute>}
+   * @returns {string}
    */
-  getAttrs() {
-    // FIXME: na razie zwraca stare atrybuty
-    // FIXME: powinno zwracać zawsze zestaw podstawowywch atrybutów
-    return _.without(
-      possibleFileRawAttributes,
-      'localReplicationRate',
-      'qosStatus'
-    );
+  stringify() {
+    const fileQueryString = this._super(...arguments);
+    const propertiesString = [...this.properties].sort().join(',');
+    return `<FileRequirement:${fileQueryString}|properties:${propertiesString}>`;
+  },
+
+  /**
+   * @param {FileRequirement} otherRequirement
+   * @returns boolean
+   */
+  isEqual(otherRequirement) {
+    return this.stringify() === otherRequirement?.stringify();
   },
 });
+
+// FIXME: debug
+export default FileRequirement;
+window.FileRequirement = FileRequirement;

@@ -17,6 +17,11 @@ export default Service.extend({
   init() {
     this._super(...arguments);
     this.set('fileConsumerMap', new Map());
+    // FIXME: debug code
+    ((name) => {
+      window[name] = this;
+      console.log(`window.${name}`, window[name]);
+    })('debug_file_record_registry');
   },
 
   /**
@@ -26,12 +31,33 @@ export default Service.extend({
    * @returns {void}
    */
   setFiles(consumer, ...files) {
-    this.removeFiles(consumer);
-    for (const file of files) {
+    // FIXME: get all files registered for consumer
+    const currentConsumerFiles = this.getFilesForConsumer(consumer);
+    const filesToDeregister = [];
+    const filesToRegister = [];
+
+    // Will deregister files that are not in the new files.
+    for (const currentFile of currentConsumerFiles) {
+      if (!files.includes(currentFile)) {
+        filesToDeregister.push(currentFile);
+      }
+    }
+    // Will register only files that are not in the current files.
+    for (const newFile of files) {
+      if (!currentConsumerFiles.has(newFile)) {
+        filesToRegister.push(newFile);
+      }
+    }
+
+    if (filesToDeregister.length) {
+      this.removeFiles(consumer, ...filesToDeregister);
+    }
+    for (const file of filesToRegister) {
       this.addToMap(file, consumer);
     }
   },
 
+  // FIXME: zmiana nazwy (i pewnie też w requirementsach) bo removeFiles brzmi jak ich usuwanie (delete)
   /**
    * @public
    * @param {FileConsumer} consumer
@@ -45,8 +71,7 @@ export default Service.extend({
         if (consumers) {
           consumers.delete(consumer);
           if (!consumers.size) {
-            this.fileConsumerMap.delete(file);
-            this.store.unloadRecord(file);
+            this.clearFileEntry(file);
           }
         }
       }
@@ -54,7 +79,7 @@ export default Service.extend({
       for (const [file, consumers] of this.fileConsumerMap) {
         consumers.delete(consumer);
         if (!consumers.size) {
-          this.fileConsumerMap.delete(file);
+          this.clearFileEntry(file);
         }
       }
     }
@@ -66,6 +91,30 @@ export default Service.extend({
    */
   getRegisteredFiles() {
     return [...this.fileConsumerMap.keys()];
+  },
+
+  /**
+   * @public
+   * @param {FileConsumer} consumer
+   * @returns {Set<Models.File>}
+   */
+  getFilesForConsumer(consumer) {
+    const files = new Set();
+    for (const [file, consumers] of this.fileConsumerMap.entries()) {
+      if (consumers.has(consumer)) {
+        files.add(file);
+      }
+    }
+    return files;
+  },
+
+  /**
+   * @private
+   * @param {Models.File} file
+   */
+  clearFileEntry(file) {
+    this.fileConsumerMap.delete(file);
+    this.store.unloadRecord(file);
   },
 
   /**

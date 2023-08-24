@@ -6,20 +6,31 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject from '@ember/object';
+import EmberObject, { get } from '@ember/object';
 
-export default EmberObject.extend({
+// FIXME: lepiej będzie zrobić jakieś podklasy typu, żeby matchować po jednym warunku na raz
+const FileQuery = EmberObject.extend({
+  // FIXME: czy nie ujednolicić, żeby było parentGri? albo parentId?
   /**
    * @virtual optional
    * @type {undefined|null|string}
    */
-  parentGuid: undefined,
+  parentId: undefined,
 
   /**
    * @virtual optional
    * @type {undefined|null|string}
    */
   fileGri: undefined,
+
+  init() {
+    this._super(...arguments);
+    if (this.parentId && this.fileGri) {
+      throw new Error(
+        'FileQuery should have only one of these properties: parentId or fileGri'
+      );
+    }
+  },
 
   /**
    * @param {Utils.FileQuery} query
@@ -29,6 +40,64 @@ export default EmberObject.extend({
     if (!query) {
       return false;
     }
-    return this.parentGuid === query.parentGuid && this.fileGri === query.fileGri;
+    if (this.parentId && query.parentId) {
+      return this.parentId === query.parentId;
+    }
+    if (this.fileGri && query.fileGri) {
+      return this.fileGri === query.fileGri;
+    }
+    // one of the query is all-match query
+    if (!this.fileGri && !this.parentId || !query.fileGri && !query.parentId) {
+      return true;
+    }
+    return false;
+  },
+
+  getQueryType() {
+    if (this.parentId) {
+      return 'parentId';
+    }
+    if (this.fileGri) {
+      return 'fileGri';
+    }
+    return 'none';
+  },
+
+  /**
+   * @returns {string}
+   */
+  stringify() {
+    const type = this.getQueryType();
+    let condition;
+    if (type === 'parentId') {
+      condition = this.parentId;
+    } else if (type === 'fileGri') {
+      condition = this.fileGri;
+    }
+    return `<FileQuery:${type}${condition ? '-' : ''}${condition ?? ''}>`;
+  },
+
+  /**
+   * @param {Models.File} file
+   * @returns {boolean}
+   */
+  matchesFile(file) {
+    if (!file) {
+      return false;
+    }
+    switch (this.getQueryType()) {
+      case 'fileGri':
+        return get(file, 'id') === this.fileGri;
+      case 'parentId':
+        return file.relationEntityId('parent') === this.parentId;
+      case 'none':
+        return true;
+      default:
+        return false;
+    }
   },
 });
+
+// FIXME: debug
+export default FileQuery;
+window.FileQuery = FileQuery;
