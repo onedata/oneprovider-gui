@@ -43,7 +43,7 @@ const mixins = [
 const suspendedExecutionsCounterLimit = 50;
 
 /**
- * @typedef {'cancel'|'pause'|'resume'|'remove'} AtmWorkflowExecutionLifecycleChangingOperation
+ * @typedef {'cancel'|'forceContinue'|'pause'|'resume'|'remove'} AtmWorkflowExecutionLifecycleChangingOperation
  */
 
 export default Component.extend(...mixins, {
