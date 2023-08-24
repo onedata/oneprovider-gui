@@ -626,40 +626,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   //#endregion
 
-  init() {
-    this.set('columnsConfiguration', this.createColumnsConfiguration());
-    this._super(...arguments);
-  },
-
-  createColumnsConfiguration() {
-    const columns = {
-      state: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 200,
-      }),
-      incremental: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 180,
-      }),
-      creator: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 200,
-      }),
-    };
-    const columnsOrder = ['state', 'incremental', 'creator'];
-    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
-    return ColumnsConfigurationModel.create({
-      persistedConfigurationKey: this.browserPersistedConfigurationKey,
-      columns,
-      columnsOrder,
-      firstColumnWidth: 350,
-      tableThead: elementFbTableThead,
-    });
-  },
-
   /**
    * Fetches datset archives.
    * @override
@@ -703,6 +669,38 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   isItemDisabled(item) {
     return item && get(item, 'metaState') === 'destroying';
+  },
+
+  /**
+   * @override
+   */
+  createColumnsConfiguration() {
+    const columns = {
+      state: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }),
+      incremental: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 180,
+      }),
+      creator: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }),
+    };
+    const columnsOrder = ['state', 'incremental', 'creator'];
+    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
+    return ColumnsConfigurationModel.create({
+      persistedConfigurationKey: this.browserPersistedConfigurationKey,
+      columns,
+      columnsOrder,
+      firstColumnWidth: 350,
+      tableThead: elementFbTableThead,
+    });
   },
 
   async browserizeArchives({ childrenRecords, isLast }) {

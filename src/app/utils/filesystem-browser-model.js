@@ -1117,11 +1117,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  init() {
-    this.set('columnsConfiguration', this.createColumnsConfiguration());
-    this._super(...arguments);
-  },
-
+  /**
+   * @override
+   */
   createColumnsConfiguration() {
     const columns = {
       size: EmberObject.create({

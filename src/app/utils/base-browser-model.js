@@ -36,6 +36,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import isPosixError from 'oneprovider-gui/utils/is-posix-error';
 import createRenderThrottledProperty from 'onedata-gui-common/utils/create-render-throttled-property';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
 /**
  * @typedef {'pending'|'fulfilled'|'rejected'} BrowserListLoadState
@@ -164,6 +165,13 @@ export default EmberObject.extend(...mixins, {
   emptyDirComponentName: '',
 
   /**
+   * @virtual
+   * @type {Function}
+   * @returns {Utils.ColumnsConfiguration}
+   */
+  createColumnsConfiguration: notImplementedThrow,
+
+  /**
    * @virtual optional
    * @type {String}
    */
@@ -200,7 +208,6 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @type {Utils.ColumnsConfiguration}
-   * @virtual
    */
   columnsConfiguration: undefined,
 
@@ -564,6 +571,7 @@ export default EmberObject.extend(...mixins, {
     this.listLoadStateSetter();
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
+    this.set('columnsConfiguration', this.createColumnsConfiguration());
   },
 
   /**

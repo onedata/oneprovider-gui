@@ -43,9 +43,9 @@ const allColumnWidth = {
   path: 190,
   userName: 200,
   destination: 200,
-  scheduledAt: 160,
-  startedAt: 160,
-  finishedAt: 160,
+  scheduledAt: 150,
+  startedAt: 150,
+  finishedAt: 150,
   processed: 100,
   replicated: 100,
   evicted: 90,
@@ -432,6 +432,9 @@ export default Component.extend(I18n, {
 
   //#region Methods
 
+  /**
+   * @returns {Utils.ColumnsConfiguration}
+   */
   createColumnsConfiguration() {
     const columns = {};
     const visibleColumnNames = [...this.visibleColumnNames];

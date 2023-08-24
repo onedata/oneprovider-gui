@@ -27,6 +27,7 @@ import dom from 'onedata-gui-common/utils/dom';
  */
 
 /**
+ * Unique label of column in a table
  * @typedef {string} ColumnName
  */
 
@@ -93,7 +94,7 @@ export default EmberObject.extend(...mixins, {
   isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
 
   /**
-   * @type {Object}
+   * @type {Object<ColumnName, SafeString>}
    */
   columnsStyle: computed('columns', function columnsStyle() {
     const styles = {};
@@ -126,7 +127,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
-   * @param {string} columnName
+   * @param {ColumnName} columnName
    * @param {boolean} isEnabled
    * @returns {void}
    */

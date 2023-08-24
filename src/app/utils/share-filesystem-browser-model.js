@@ -40,14 +40,6 @@ export default FilesystemBrowserModel.extend({
    */
   browserPersistedConfigurationKey: 'sharedFilesystem',
 
-  init() {
-    this._super(...arguments);
-    this.set(
-      'columnsConfiguration.persistedConfigurationKey',
-      this.browserPersistedConfigurationKey
-    );
-  },
-
   /**
    * @override
    */

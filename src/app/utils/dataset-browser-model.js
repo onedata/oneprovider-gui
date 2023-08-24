@@ -254,11 +254,9 @@ export default BaseBrowserModel.extend(I18n, {
 
   //#endregion
 
-  init() {
-    this.set('columnsConfiguration', this.createColumnsConfiguration());
-    this._super(...arguments);
-  },
-
+  /**
+   * @override
+   */
   createColumnsConfiguration() {
     const columns = {
       archives: EmberObject.create({
