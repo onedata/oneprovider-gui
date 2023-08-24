@@ -3,4 +3,5 @@ export default {
   owner: 'Owner',
   modification: 'Modification',
   replication: 'Replication',
+  qos: 'QoS',
 };

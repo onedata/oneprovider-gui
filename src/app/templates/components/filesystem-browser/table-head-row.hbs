@@ -24,10 +24,10 @@
       style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
     >
       {{tt this columnName}}
-      {{#if (eq columnName "replication")}}
-        {{#one-icon icon="browser-info"}}
+      {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
+        {{#one-icon icon="browser-info" class="column-info-icon"}}
           {{one-tooltip
-            title=(tt this "replicationTooltip" oneprovider=currentProviderName)
+            title=(tt this (concat columnName "Tooltip") oneprovider=currentProviderName)
           }}
         {{/one-icon}}
       {{/if}}

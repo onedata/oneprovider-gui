@@ -1134,14 +1134,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isEnabled: true,
         width: 180,
       }),
+      // TODO: VFS-11089 Enable replication column with optional replication data fetch
+      // replication: EmberObject.create({
+      //   isVisible: false,
+      //   isEnabled: false,
+      //   width: 160,
+      // }),
+      // qos: EmberObject.create({
+      //   isVisible: false,
+      //   isEnabled: false,
+      //   width: 100,
+      // }),
     };
-    // TODO: VFS-11089 Enable replication column with optional replication data fetch
-    // columns.replication = EmberObject.create({
-    //   isVisible: false,
-    //   isEnabled: false,
-    //   width: 160,
-    // }),
-    // const columnsOrder = ['size', 'modification', replication];
+    // TODO: VFS-11089 Enable qos column with optional replication data fetch
+    // const columnsOrder = ['size', 'modification', 'replication', 'qos'];
     const columnsOrder = ['size', 'modification'];
     if (this.isOwnerVisible) {
       columns.owner = EmberObject.create({
