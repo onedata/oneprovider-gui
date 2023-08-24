@@ -2,6 +2,7 @@ export default {
   size: 'Size',
   owner: 'Owner',
   modification: 'Modification',
+  qos: 'QoS',
   replication: 'Replication',
   archives: 'Archives',
   created: 'Created at',
