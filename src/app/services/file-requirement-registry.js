@@ -44,7 +44,6 @@ export default Service.extend({
     'name',
     'parent',
     'type',
-    // FIXME: for testing:
     // ...possibleFileProperties,
   ]),
 

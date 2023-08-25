@@ -1,3 +1,5 @@
+// FIXME: jsdoc
+
 import OnedataWebsocketAdapter from 'onedata-gui-websocket-client/adapters/onedata-websocket';
 import FileQuery from 'oneprovider-gui/utils/file-query';
 import { inject as service } from '@ember/service';
@@ -39,7 +41,7 @@ export default OnedataWebsocketAdapter.extend({
         }
         // FIXME: do not get attributes for buggy root dir
         const fakeRoot =
-          'Z3VpZCN1c2VyUm9vdF9kYjg3MjFmMGFiM2E5YjFjZjU4ZGUwMWYwNGVlMzlhNGNoZDlhZCNyb290RGlyVmlydHVhbFNwYWNlSWQ';
+          'Z3VpZCNzcGFjZV84MzA0MzYzZjMzZWI3MDZmYjFlNjkxYWZlZTYwMTZkMmNoMDU5YSM4MzA0MzYzZjMzZWI3MDZmYjFlNjkxYWZlZTYwMTZkMmNoMDU5YQ';
         if (!id.includes(fakeRoot)) {
           snapshot.adapterOptions._meta.additionalData.attributes = attributes;
         } else {
@@ -47,32 +49,6 @@ export default OnedataWebsocketAdapter.extend({
             'fileId',
             'name',
             'type',
-            'activePermissionsType',
-            // 'archiveId',
-            'atime',
-            'conflictingFiles',
-            'conflictingName',
-            'ctime',
-            // 'effDatasetMembership',
-            // 'effDatasetProtectionFlags',
-            // 'effProtectionFlags',
-            // 'effQosMembership',
-            'hardlinksCount',
-            'hasMetadata',
-            'index',
-            'isDeleted',
-            'isFullyReplicated',
-            'localReplicationRate',
-            'mtime',
-            'ownerId',
-            'parentId',
-            'posixPermissions',
-            'providerId',
-            // 'qosStatus',
-            'shares',
-            'size',
-            // 'storageGroupId',
-            // 'storageUserId',
             'symlinkValue',
           ];
         }

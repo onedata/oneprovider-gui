@@ -332,13 +332,11 @@ export default Model.extend(...mixins, {
    */
   symlinkValue: attr('string'),
 
-  // FIXME: jeśli nie ma danych (nie poproszono o nie) to tagi dla current dira są pokazywane, dlaczego?
   /**
    * Possible values: none, direct, ancestor, directAndAncestor
    */
   effQosMembership: attr('string', { defaultValue: 'none' }),
 
-  // FIXME: jeśli nie ma danych (nie poproszono o nie) to tagi dla current dira są pokazywane, dlaczego?
   /**
    * Possible values: none, direct, ancestor, directAndAncestor
    */
@@ -386,7 +384,6 @@ export default Model.extend(...mixins, {
   isFullyReplicated: attr('boolean'),
 
   isDeleted: attr('boolean'),
-  // FIXME: opisać
   qosStatus: attr('string'),
   storageGroupId: attr('string'),
   storageUserId: attr('string'),
