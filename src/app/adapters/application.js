@@ -1,4 +1,7 @@
-import OnedataAdapter from 'onedata-gui-websocket-client/adapters/application';
+import OneproviderWebsocketAdapter from 'oneprovider-gui/adapters/onedata-websocket';
+import LocalStorageAdapter from 'onedata-gui-websocket-client/adapters/local-storage';
+import config from 'ember-get-config';
+import { environmentExport } from 'onedata-gui-websocket-client/utils/development-environment';
 import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 import { entityType as groupEntityType } from 'oneprovider-gui/models/group';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
@@ -14,6 +17,12 @@ import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/mo
 import { entityType as atmWorkflowSchemaSnapshotEntityType } from 'oneprovider-gui/models/atm-workflow-schema-snapshot';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 import { entityType as storageEntityType } from 'oneprovider-gui/models/storage';
+
+const BaseAdapter = environmentExport(
+  config,
+  OneproviderWebsocketAdapter,
+  LocalStorageAdapter
+);
 
 export const entityTypeToEmberModelNameMap = Object.freeze(new Map([
   [groupEntityType, 'group'],
@@ -33,7 +42,7 @@ export const entityTypeToEmberModelNameMap = Object.freeze(new Map([
   [storageEntityType, 'storage'],
 ]));
 
-export default OnedataAdapter.extend({
+export default BaseAdapter.extend({
   /**
    * @override
    */
