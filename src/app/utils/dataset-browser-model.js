@@ -28,7 +28,7 @@ import {
 import globals from 'onedata-gui-common/utils/globals';
 import { resolve, all as allFulfilled } from 'rsvp';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
-import ColumnsConfigurationModel from 'oneprovider-gui/utils/columns-configuration';
+import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -272,8 +272,8 @@ export default BaseBrowserModel.extend(I18n, {
     };
     const columnsOrder = ['archives', 'created'];
     const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
-    return ColumnsConfigurationModel.create({
-      persistedConfigurationKey: this.browserPersistedConfigurationKey,
+    return ColumnsConfiguration.create({
+      configurationType: this.browserPersistedConfigurationKey,
       columns,
       columnsOrder,
       firstColumnWidth: 350,

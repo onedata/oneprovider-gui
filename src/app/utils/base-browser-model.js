@@ -166,8 +166,7 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Function}
-   * @returns {Utils.ColumnsConfiguration}
+   * @type {() => Utils.ColumnsConfiguration}
    */
   createColumnsConfiguration: notImplementedThrow,
 

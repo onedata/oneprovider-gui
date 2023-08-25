@@ -23,7 +23,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import { sum } from 'ember-awesome-macros';
 import isDirectlyClicked from 'onedata-gui-common/utils/is-directly-clicked';
-import ColumnsConfigurationModel from 'oneprovider-gui/utils/columns-configuration';
+import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 
 const allColumnNames = [
   'path',
@@ -447,8 +447,8 @@ export default Component.extend(I18n, {
       });
     }
     const columnsOrder = visibleColumnNames;
-    return ColumnsConfigurationModel.create({
-      persistedConfigurationKey: 'transfer.' + this.transferType,
+    return ColumnsConfiguration.create({
+      configurationType: 'transfer.' + this.transferType,
       columns,
       columnsOrder,
       firstColumnWidth: allColumnWidth['path'],

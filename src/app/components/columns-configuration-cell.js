@@ -12,7 +12,7 @@ import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   tagName: 'th',
-  classNames: ['table-col-actions-menu', 'hidden-xs'],
+  classNames: ['columns-configuration-cell', 'hidden-xs'],
 
   i18n: service(),
   media: service(),

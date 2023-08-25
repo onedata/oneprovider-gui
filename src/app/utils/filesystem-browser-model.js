@@ -27,7 +27,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { allSettled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
-import ColumnsConfigurationModel from 'oneprovider-gui/utils/columns-configuration';
+import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -1156,8 +1156,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       columnsOrder.push('owner');
     }
     const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
-    return ColumnsConfigurationModel.create({
-      persistedConfigurationKey: this.browserPersistedConfigurationKey,
+    return ColumnsConfiguration.create({
+      configurationType: this.browserPersistedConfigurationKey,
       columns,
       columnsOrder,
       firstColumnWidth: 380,

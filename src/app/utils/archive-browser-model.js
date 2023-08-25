@@ -24,7 +24,7 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import ArchiveBrowserListPoller from 'oneprovider-gui/utils/archive-browser-list-poller';
-import ColumnsConfigurationModel from 'oneprovider-gui/utils/columns-configuration';
+import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 
 const allButtonNames = Object.freeze([
   'btnArchiveProperties',
@@ -694,8 +694,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     };
     const columnsOrder = ['state', 'incremental', 'creator'];
     const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
-    return ColumnsConfigurationModel.create({
-      persistedConfigurationKey: this.browserPersistedConfigurationKey,
+    return ColumnsConfiguration.create({
+      configurationType: this.browserPersistedConfigurationKey,
       columns,
       columnsOrder,
       firstColumnWidth: 350,

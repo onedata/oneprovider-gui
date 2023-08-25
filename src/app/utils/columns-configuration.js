@@ -16,6 +16,7 @@ import globals from 'onedata-gui-common/utils/globals';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
+import { reads } from '@ember/object/computed';
 
 /**
  * Contains info about column visibility: if on screen is enough space to show this column
@@ -48,7 +49,22 @@ export default EmberObject.extend(...mixins, {
    * @virtual
    * @type {string}
    */
-  persistedConfigurationKey: '',
+  configurationType: '',
+
+  /**
+   * @type {string}
+   */
+  persistedConfigurationKey: reads('configurationType'),
+
+  /**
+   * @type {string}
+   */
+  translationKey: computed(
+    'configurationType',
+    function translationKey() {
+      return this.configurationType.split('.')[0];
+    }
+  ),
 
   /**
    * @virtual

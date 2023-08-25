@@ -67,12 +67,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<string>}
    */
-  translationKey: computed(
-    'columnsConfiguration.persistedConfigurationKey',
-    function translationKey() {
-      return this.columnsConfiguration.persistedConfigurationKey.split('.')[0];
-    }
-  ),
+  translationKey: reads('columnsConfiguration.translationKey'),
 
   applyCurrentColumnsOrder() {
     this.columnsConfiguration.saveColumnsOrder();
