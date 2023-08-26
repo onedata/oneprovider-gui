@@ -122,6 +122,7 @@ describe('Integration | Component | archive-recall (internal)', function () {
       testCase: this,
       rootDir: this.get('spaceRootDir'),
       filesCount,
+      useStore: true,
     });
     stubDefaultCheckFileNameExists(this);
 
