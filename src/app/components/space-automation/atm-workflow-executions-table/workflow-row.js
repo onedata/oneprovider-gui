@@ -147,6 +147,21 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
+  forceContinueAction: computed('atmWorkflowExecutionSummary', function forceContinueAction() {
+    const action = this.workflowActions.createForceContinueAtmWorkflowExecutionAction({
+      atmWorkflowExecution: this.atmWorkflowExecutionSummary,
+    });
+    action.addExecuteHook((result) => {
+      if (result?.status === 'done') {
+        this.onLifecycleChange?.('forceContinue');
+      }
+    });
+    return action;
+  }),
+
+  /**
+   * @type {ComputedProperty<Utils.Action>}
+   */
   pauseResumeAction: computed(
     'atmWorkflowExecutionSummary',
     function pauseResumeAction() {
@@ -198,6 +213,7 @@ export default Component.extend(I18n, {
   atmWorkflowExecutionActions: collect(
     'pauseResumeAction',
     'cancelAction',
+    'forceContinueAction',
     'removeAction',
     'copyIdAction',
   ),

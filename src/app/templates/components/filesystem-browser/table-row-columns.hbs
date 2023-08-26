@@ -77,7 +77,7 @@
           }}
         </span>
       </td>
-    {{else if browserModel.columns.replication.isVisible}}
+    {{else if (eq columnName "replication")}}
       <td class="fb-table-col-replication hidden-xs">
         <span
           class="file-item-text"
@@ -112,6 +112,29 @@
             </span>
           {{/if}}
           {{one-tooltip title=(tt this "replicationRateTooltip")}}
+        </span>
+      </td>
+    {{else if (eq columnName "qos")}}
+      <td
+        class="fb-table-col-qos hidden-xs"
+        style={{browserModel.columnsStyle.qos}}
+      >
+        <span class={{concat-classes
+            "file-item-text"
+            (concat "qos-status-" qosStatus)
+            (if (not qosViewForbidden) "clickable")
+          }}
+          onclick={{unless qosViewForbidden (action "invokeFileAction" file "info" "qos")}}
+        >
+          {{#if (not qosStatus)}}
+            <span class="no-qos-text">—</span>
+            {{one-tooltip title=(tt this "qosStatusHint.noQos" fileType=fileTypeText)}}
+          {{else}}
+            <span class="status-icon">
+              {{one-icon icon=statusIcon class=(concat "qos-status-icon qos-status-" qosStatus)}}
+              {{one-tooltip title=(tt this (concat "qosStatusHint." qosStatus) fileType=fileTypeText)}}
+            </span>
+          {{/if}}
         </span>
       </td>
     {{/if}}

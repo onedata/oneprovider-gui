@@ -7,13 +7,15 @@
  */
 
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
-import { raw, array, promise, or, eq, and } from 'ember-awesome-macros';
+import { raw, array, promise, or, eq, and, getBy, not } from 'ember-awesome-macros';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 import { htmlSafe } from '@ember/string';
+import { translateFileType } from 'onedata-gui-common/utils/file';
 
 export default FbTableRowColumns.extend(I18n, {
   i18n: service(),
@@ -100,6 +102,35 @@ export default FbTableRowColumns.extend(I18n, {
    * @type {Object}
    */
   errorReasonForOwnerProxy: reads('ownerProxy.reason'),
+
+  /**
+   * @type {ComputedProperty<QosStatus>}
+   */
+  qosStatus: reads('file.effFile.qosStatus'),
+
+  /**
+   * @type {ComputedProperty<SpacePrivileges>}
+   */
+  spacePrivileges: reads('browserModel.spacePrivileges'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  qosViewForbidden: not('spacePrivileges.viewQos'),
+
+  /**
+   * QoS fulfillment icon name
+   * @type {ComputedProperty<string>}
+   */
+  statusIcon: getBy(raw(qosStatusIcons), 'qosStatus'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  fileTypeText: computed('file.type', function fileTypeText() {
+    const fileType = this.get('file.type');
+    return translateFileType(this.i18n, fileType, { form: 'singular' });
+  }),
 
   /**
    * @type {ComputedProperty<boolean>}

@@ -6,6 +6,11 @@
       padding-bottom: 10px;
     }
   }
+  .fb-table-secondary-col .column-info-icon {
+    font-size: 150%;
+    vertical-align: bottom;
+    opacity: $disabled-opacity;
+  }
   .fb-table-col-size {
     position: relative;
     text-align: center;
@@ -46,6 +51,51 @@
     .file-owner-username {
       opacity: $disabled-opacity;
       font-size: 90%;
+    }
+  }
+  .fb-table-col-qos {
+    position: relative;
+    text-align: center;
+
+    .file-item-text {
+      &.clickable {
+        &:hover {
+          text-decoration: underline;
+        }
+        span {
+          cursor: pointer;
+        }
+      }
+      span {
+        cursor: default;
+      }
+    }
+
+    .status-icon {
+      font-size: 220%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding-top: 0.1em;
+      line-height: 1;
+
+      .one-icon {
+        color: var(--item-qos-status-icon-color, 'inherit');
+
+        &.qos-status-error {
+          --item-qos-status-icon-color: #{$color-one-warning};
+        }
+        &.qos-status-fulfilled {
+          --item-qos-status-icon-color: #{$color-one-success};
+        }
+        &.qos-status-pending {
+          --item-qos-status-icon-color: #{$color-one-warning};
+        }
+        &.qos-status-impossible {
+          --item-qos-status-icon-color: #{$color-one-danger};
+        }
+      }
     }
   }
   .empty-dir-image {

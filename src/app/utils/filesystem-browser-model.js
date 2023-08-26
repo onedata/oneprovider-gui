@@ -1198,8 +1198,13 @@ export default BaseBrowserModel.extend(...mixins, {
         isEnabled: false,
         width: 160,
       }),
+      qos: EmberObject.create({
+        isVisible: false,
+        isEnabled: false,
+        width: 100,
+      }),
     });
-    this.set('columnsOrder', ['size', 'modification']);
+    this.set('columnsOrder', ['size', 'modification', 'replication', 'qos']);
     if (this.isOwnerVisible) {
       this.set('columns.owner', EmberObject.create({
         isVisible: true,
@@ -1211,7 +1216,6 @@ export default BaseBrowserModel.extend(...mixins, {
     // FIXME: jeśli użytkownik ma w order zapisane tylko size, modification, owner,
     // to nie będzie miał po upgrade już replication
     // to trzeba naprawić
-    this.columnsOrder.push('replication');
     this._super(...arguments);
   },
 
