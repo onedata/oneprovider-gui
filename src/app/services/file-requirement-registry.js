@@ -100,24 +100,30 @@ export default Service.extend({
    * @public
    * @param {FileConsumer} consumer
    * @param {Array<Utils.FileRequirement>|Utils.FileRequirement} requirements
-   * @returns {Promise<PromiseState<Models.File>>}
+   * @returns {Promise<PromiseState<Models.File>>} Settled promise states of files that
+   *   have been triggered to be reloaded.
    */
   async setRequirements(consumer, requirements) {
+    // FIXME: zmienić requirements na spread argument
     const reqArray = Array.isArray(requirements) ? requirements : [requirements];
     const filesToUpdate = this.getFilesToUpdate(consumer, requirements);
     this.consumerRequirementsMap.set(consumer, reqArray);
-    await allSettled(filesToUpdate.map(file => {
+    return await allSettled(filesToUpdate.map(file => {
       return file.reload();
     }));
   },
 
   /**
+   * @public
    * @param {FileConsumer} consumer
    */
   removeRequirements(consumer) {
     this.consumerRequirementsMap.delete(consumer);
   },
 
+  /**
+   * @returns Array<Utils.FileRequirement>
+   */
   getRequirements() {
     return _.flatten([...this.consumerRequirementsMap.values()]);
   },
@@ -186,7 +192,7 @@ export default Service.extend({
 
   /**
    * @private
-   * @param {Array<File.Property>} properties
+   * @param {Array<FileModel.Property>} properties
    * @returns {Array<File.RawAttribute>}
    */
   propertiesToAttrs(properties) {

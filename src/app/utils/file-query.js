@@ -8,18 +8,22 @@
 
 import EmberObject, { get } from '@ember/object';
 
+/**
+ * @typedef {'parentId'|'fileGri'|'none'} FileQuery.Type
+ */
+
 // FIXME: lepiej będzie zrobić jakieś podklasy typu, żeby matchować po jednym warunku na raz
 const FileQuery = EmberObject.extend({
   // FIXME: czy nie ujednolicić, żeby było parentGri? albo parentId?
   /**
    * @virtual optional
-   * @type {undefined|null|string}
+   * @type {undefined|string}
    */
   parentId: undefined,
 
   /**
    * @virtual optional
-   * @type {undefined|null|string}
+   * @type {undefined|string}
    */
   fileGri: undefined,
 
@@ -33,6 +37,7 @@ const FileQuery = EmberObject.extend({
   },
 
   /**
+   * @public
    * @param {Utils.FileQuery} query
    * @returns {boolean}
    */
@@ -53,31 +58,8 @@ const FileQuery = EmberObject.extend({
     return false;
   },
 
-  getQueryType() {
-    if (this.parentId) {
-      return 'parentId';
-    }
-    if (this.fileGri) {
-      return 'fileGri';
-    }
-    return 'none';
-  },
-
   /**
-   * @returns {string}
-   */
-  stringify() {
-    const type = this.getQueryType();
-    let condition;
-    if (type === 'parentId') {
-      condition = this.parentId;
-    } else if (type === 'fileGri') {
-      condition = this.fileGri;
-    }
-    return `<FileQuery:${type}${condition ? '-' : ''}${condition ?? ''}>`;
-  },
-
-  /**
+   * @public
    * @param {Models.File} file
    * @returns {boolean}
    */
@@ -95,6 +77,35 @@ const FileQuery = EmberObject.extend({
       default:
         return false;
     }
+  },
+
+  /**
+   * @public
+   * @returns {FileQuery.Type}
+   */
+  getQueryType() {
+    if (this.parentId) {
+      return 'parentId';
+    }
+    if (this.fileGri) {
+      return 'fileGri';
+    }
+    return 'none';
+  },
+
+  /**
+   * @public
+   * @returns {string}
+   */
+  stringify() {
+    const type = this.getQueryType();
+    let condition;
+    if (type === 'parentId') {
+      condition = this.parentId;
+    } else if (type === 'fileGri') {
+      condition = this.fileGri;
+    }
+    return `<FileQuery:${type}${condition ? '-' : ''}${condition ?? ''}>`;
   },
 });
 

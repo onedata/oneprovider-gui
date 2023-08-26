@@ -11,14 +11,14 @@ import FileQuery from 'oneprovider-gui/utils/file-query';
 // FIXME: przenieść do serializera/file?
 
 /**
- * @typedef {typeof possibleFileProperties[number]} File.Property
+ * @typedef {typeof possibleFileProperties[number]} FileModel.Property
  */
 
 const FileRequirement = FileQuery.extend({
   /**
    * FIXME: doc
    * @virtual
-   * @type {File.Property}
+   * @type {Array<FileModel.Property>}
    */
   properties: undefined,
 
@@ -32,7 +32,7 @@ const FileRequirement = FileQuery.extend({
   },
 
   /**
-   * @param {FileRequirement} otherRequirement
+   * @param {Utils.FileRequirement} otherRequirement
    * @returns boolean
    */
   isEqual(otherRequirement) {

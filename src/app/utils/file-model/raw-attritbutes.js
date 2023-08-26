@@ -1,7 +1,7 @@
 // FIXME: jsdoc
 
 /**
- * @typedef {typeof possibleFileRawAttributes[number]} File.RawAttribute
+ * @typedef {typeof possibleFileRawAttributes[number]} FileModel.RawAttribute
  */
 
 /**

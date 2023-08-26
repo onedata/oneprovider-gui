@@ -1,7 +1,7 @@
 // FIXME: jsdoc
 
 /**
- * @type {Object<File.Property, File.RawAttribute|Array<File.RawAttribute>}
+ * @type {Object<FileModel.Property, File.RawAttribute|Array<File.RawAttribute>}
  */
 export const propertyToAttributesMap = Object.freeze({
   // attributes normalized by serializer to create ember-data relations
