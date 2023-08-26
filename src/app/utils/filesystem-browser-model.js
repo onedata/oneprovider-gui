@@ -74,6 +74,14 @@ const availableButtonNames = Object.freeze([
   'btnDelete',
 ]);
 
+const columnsRequirementsDependencies = [
+  'size',
+  'modification',
+  'owner',
+  'replication',
+  'qos',
+].map(columnName => `${columnName}.isEnabled`).join(',');
+
 const mixins = [
   FileConsumerMixin,
   DownloadInBrowser,
@@ -1131,7 +1139,7 @@ export default BaseBrowserModel.extend(...mixins, {
   fileRequirements: computed(
     // FIXME: check isVisible instead isEnabled
     'dir',
-    'columns.{size.isEnabled,modification.isEnabled,owner.isEnabled,replication.isEnabled}',
+    `columns.{${columnsRequirementsDependencies}}`,
     function fileRequirements() {
       if (!this.dir) {
         return [];
@@ -1155,6 +1163,9 @@ export default BaseBrowserModel.extend(...mixins, {
       }
       if (this.columns.replication.isEnabled) {
         listedFilesProperties.push('localReplicationRate');
+      }
+      if (this.columns.qos.isEnabled) {
+        listedFilesProperties.push('qosStatus');
       }
       const parentDirRequirement = FileRequirement.create({
         properties: basicProperties,
