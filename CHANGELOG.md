@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11207 Added separate dir size stats in space root dir for archives and trash
 * VFS-10638 Added disabled QoS column
 * VFS-11225 Added failure threshold to atm lane
 * VFS-11249 Adjusted calls to backend to the new workflow execution API (changed `laneSchemaId` to `laneIndex`)

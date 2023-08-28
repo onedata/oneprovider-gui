@@ -1,0 +1,9 @@
+{{#if viewModel.isSizeStatsDisabled}}
+  {{file-browser/fb-no-dir-statistics
+    getProvidersUrl=viewModel.getProvidersUrl
+  }}
+{{else}}
+  {{file-browser/file-entry-charts
+    viewModel=viewModel
+  }}
+{{/if}}

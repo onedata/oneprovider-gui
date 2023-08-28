@@ -31,10 +31,10 @@
           {{tt this "fileCounters.physicalSizeLabel"}}:
         </span>
         <span class="physical-size-value">
-          {{bytes-to-string sizeStats.physicalSize}}
-          {{#if (gte sizeStats.physicalSize 1024)}}
+          {{bytes-to-string sizeStats.totalPhysicalSize}}
+          {{#if (gte sizeStats.totalPhysicalSize 1024)}}
             <span class="extra-info">
-              ({{format-number sizeStats.physicalSize}}&nbsp;B)
+              ({{format-number sizeStats.totalPhysicalSize}}&nbsp;B)
             </span>
           {{/if}}
         </span>
@@ -66,10 +66,10 @@
       {{/if}}
     </td>
     <td class="physical-size-value">
-      {{bytes-to-string sizeStats.physicalSize}}
-      {{#if (gte sizeStats.physicalSize 1024)}}
+      {{bytes-to-string sizeStats.totalPhysicalSize}}
+      {{#if (gte sizeStats.totalPhysicalSize 1024)}}
         <span class="extra-info">
-          ({{format-number sizeStats.physicalSize}}&nbsp;B)
+          ({{format-number sizeStats.totalPhysicalSize}}&nbsp;B)
         </span>
       {{/if}}
     </td>
