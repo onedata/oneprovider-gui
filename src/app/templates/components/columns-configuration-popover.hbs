@@ -10,11 +10,11 @@
       exceptSelector=triggerSelector
     }}
       <ul class="columns-list">
-        {{#each browserModel.columnsOrder as |columnName index|}}
+        {{#each columnsConfiguration.columnsOrder as |columnName index|}}
           <li class="column">
             {{one-checkbox
               inputId=(concat elementId "-" columnName "Checkbox")
-              checked=(get (get browserModel.columns columnName) "isEnabled")
+              checked=(get (get columnsConfiguration.columns columnName) "isEnabled")
               update=(action "checkboxChanged" columnName)
               class=(concat-classes
                 "filter-column-checkbox"
@@ -26,10 +26,10 @@
               class="column-name-label"
             >
               <span class="one-label checkbox-label">
-                <span>{{tt this columnName}}</span>
+                <span>{{tt this (concat translationKey "." columnName)}}</span>
                 {{#if (and
-                  (not (get (get browserModel.columns columnName) "isVisible"))
-                  (get (get browserModel.columns columnName) "isEnabled")
+                  (not (get (get columnsConfiguration.columns columnName) "isVisible"))
+                  (get (get columnsConfiguration.columns columnName) "isEnabled")
                 )}}
                   {{#one-icon icon="no-view"}}
                     {{one-tooltip title=(tt this "noViewTip")}}
@@ -43,7 +43,7 @@
                 onClick={{action "moveColumnDown" columnName}}
               >
                 {{one-icon icon="move-down"}}
-                {{#if (and (not-eq index columnsCount) arrowTooltipVisible)}}
+                {{#if (and (not-eq index lastIndexColumn) arrowTooltipVisible)}}
                   {{one-tooltip title=(tt this "moveDown")}}
                 {{/if}}
               </span>

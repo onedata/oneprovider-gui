@@ -29,18 +29,20 @@
     }
   }
 
+  .transfers-table-thead th:not(:first-of-type):not(:last-of-type) {
+    width: var(--column-width, 200px);
+  }
+
+  th.columns-configuration-cell {
+    width: 40px;
+    padding-bottom: $padding-base-vertical;
+  }
+
   .transfers-table-col-scheduledAt,
   .transfers-table-col-startedAt,
   .transfers-table-col-finishedAt {
     min-width: 120px;
   }
-
-  @include hide-on-breakpoint(col-hide-1, 1180px);
-  @include hide-on-breakpoint(col-hide-2, 1060px);
-  @include hide-on-breakpoint(col-hide-3, 940px);
-  @include hide-on-breakpoint(col-hide-4, 790px);
-  @include hide-on-breakpoint(col-hide-5, 600px);
-  @include hide-on-breakpoint(col-hide-6, 470px);
 
   tr {
     .first-row-space {
