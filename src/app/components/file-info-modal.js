@@ -699,7 +699,7 @@ export default Component.extend(...mixins, {
         function size() {
           return this.tabModelFactory.createTabModel('size', {
             dirStatsServiceState: this.dirStatsServiceState,
-            isDirStatsFeatureHidden: this.browserModel.isDirStatsFeatureHidden,
+            isDirStatsFeatureHidden: this.browserModel?.isDirStatsFeatureHidden ?? false,
             getProvidersUrl: this.getProvidersUrl,
           });
         }
