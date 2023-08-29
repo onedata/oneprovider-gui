@@ -7,7 +7,8 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { get, computed } from '@ember/object';
+import EmberObject, { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { eq, getBy } from 'ember-awesome-macros';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
@@ -66,9 +67,19 @@ export default EmberObject.extend(...mixins, {
   completeLatestDirSizeStatsValuesUpdater: undefined,
 
   /**
+   * @type {ComputedProperty<string>}
+   */
+  fileId: reads('file.entityId'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  spaceId: reads('space.entityId'),
+
+  /**
    * @type {ComputedProperty<boolean>}
    */
-  isSpaceRootDir: eq('file.entityId', 'space.rootDir.entityId'),
+  isSpaceRootDir: eq('fileId', 'space.rootDir.entityId'),
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -90,7 +101,7 @@ export default EmberObject.extend(...mixins, {
    */
   completeTotalPhysicalSizes: computed(
     'completeLatestDirSizeStatsValues',
-    function totalPhysicalSizes() {
+    function completeTotalPhysicalSizes() {
       const totalSizes = {};
       Object.keys(this.completeLatestDirSizeStatsValues ?? {}).forEach((statsType) => {
         totalSizes[statsType] =
@@ -155,12 +166,10 @@ export default EmberObject.extend(...mixins, {
     try {
       let result;
       if (this.isSpaceRootDir) {
-        result = await this.fileManager.getSpaceCurrentSizeStats(
-          get(this.space, 'entityId')
-        );
+        result = await this.fileManager.getSpaceCurrentSizeStats(this.spaceId);
       } else {
         result = {
-          all: await this.fileManager.getDirCurrentSizeStats(get(this.file, 'entityId')),
+          all: await this.fileManager.getDirCurrentSizeStats(this.fileId),
         };
       }
       safeExec(this, () => this.set('dirStatsNotReady', false));
@@ -181,13 +190,13 @@ export default EmberObject.extend(...mixins, {
   getDirSizeStatsTimeSeriesCollectionLayout(providerId) {
     if (this.isSpaceRootDir) {
       return this.fileManager.getSpaceSizeStatsTimeSeriesCollectionLayout(
-        get(this.space, 'entityId'),
+        this.spaceId,
         providerId,
         this.activeTab
       );
     } else {
       return this.fileManager.getDirSizeStatsTimeSeriesCollectionLayout(
-        get(this.file, 'entityId'),
+        this.fileId,
         providerId
       );
     }
@@ -201,14 +210,14 @@ export default EmberObject.extend(...mixins, {
   getDirSizeStatsTimeSeriesCollectionSlice(providerId, queryParams) {
     if (this.isSpaceRootDir) {
       return this.fileManager.getSpaceSizeStatsTimeSeriesCollectionSlice(
-        get(this.space, 'entityId'),
+        this.spaceId,
         providerId,
         this.activeTab,
         queryParams
       );
     } else {
       return this.fileManager.getDirSizeStatsTimeSeriesCollectionSlice(
-        get(this.file, 'entityId'),
+        this.fileId,
         providerId,
         queryParams
       );

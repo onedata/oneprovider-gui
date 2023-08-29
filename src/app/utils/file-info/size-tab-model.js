@@ -8,10 +8,11 @@
 
 import BaseTabModel from './base-tab-model';
 import { promise, eq, conditional, raw, and, not } from 'ember-awesome-macros';
-import { computed, get } from '@ember/object';
+import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { resolve } from 'rsvp';
 import FileSizeViewModel from 'oneprovider-gui/utils/file-size-view-model';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 export default BaseTabModel.extend({
   /**
@@ -50,6 +51,11 @@ export default BaseTabModel.extend({
   getProvidersUrl: undefined,
 
   /**
+   * @type {Utils.FileSizeViewModel}
+   */
+  viewModel: null,
+
+  /**
    * @override
    */
   tabId: 'size',
@@ -74,7 +80,7 @@ export default BaseTabModel.extend({
   statusIcon: computed(
     'areSomeProvidersOffline',
     'isSizeStatsDisabled',
-    function tabClass() {
+    function statusIcon() {
       if (this.areSomeProvidersOffline) {
         return 'sign-warning-rounded';
       } else if (!this.isSizeStatsDisabled) {
@@ -105,27 +111,9 @@ export default BaseTabModel.extend({
     if (!this._super(...arguments)) {
       return false;
     }
-    return !this.isDirStatsFeatureHidden && get(this.file, 'type') === 'dir';
+    return !this.isDirStatsFeatureHidden &&
+      get(this.file, 'type') === LegacyFileType.Directory;
   }),
-
-  /**
-   * @type {ComputedProperty<Utils.FileSizeViewModel>}
-   */
-  viewModel: computed(
-    'file',
-    'space',
-    'dirStatsServiceState',
-    'getProvidersUrl',
-    function viewModel() {
-      return FileSizeViewModel.create({
-        ownerSource: this,
-        file: this.file,
-        space: this.space,
-        dirStatsServiceState: this.dirStatsServiceState,
-        getProvidersUrl: this.getProvidersUrl,
-      });
-    }
-  ),
 
   /**
    * One of `enabled`, `disabled`, `stopping`, `initializing`
@@ -144,7 +132,7 @@ export default BaseTabModel.extend({
    * @type {ComputedProperty<boolean>}
    */
   areSomeProvidersOffline: computed('providers', function areSomeProvidersOffline() {
-    return Boolean(this.providers?.find((p) => !p.online));
+    return Boolean(this.providers?.some((p) => !get(p, 'online')));
   }),
 
   /**
@@ -172,12 +160,37 @@ export default BaseTabModel.extend({
    */
   isSpaceRootDir: eq('file.entityId', 'space.rootDir.entityId'),
 
+  viewModelSetter: observer(
+    'file',
+    'space',
+    'dirStatsServiceState',
+    'getProvidersUrl',
+    function viewModelSetter() {
+      this.viewModel?.destroy();
+      this.set('viewModel', FileSizeViewModel.create({
+        ownerSource: this,
+        file: this.file,
+        space: this.space,
+        dirStatsServiceState: this.dirStatsServiceState,
+        getProvidersUrl: this.getProvidersUrl,
+      }));
+    }
+  ),
+
+  /**
+   * @override
+   */
+  init() {
+    this._super(...arguments);
+    this.viewModelSetter();
+  },
+
   /**
    * @override
    */
   willDestroy() {
     try {
-      this.cacheFor('viewModel')?.destroy();
+      this.viewModel?.destroy();
     } finally {
       this._super(...arguments);
     }

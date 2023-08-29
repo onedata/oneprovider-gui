@@ -687,23 +687,10 @@ export default Component.extend(...mixins, {
       tabOptions: reads('fileInfoModal.tabOptions'),
       previewMode: reads('fileInfoModal.previewMode'),
       tabModelFactory: reads('fileInfoModal.tabModelFactory'),
-      browserModel: reads('fileInfoModal.browserModel'),
-      dirStatsServiceState: reads('fileInfoModal.dirStatsServiceState'),
-      getProvidersUrl: reads('fileInfoModal.getProvidersUrl'),
 
-      size: computed(
-        'tabModelFactory',
-        'dirStatsServiceState',
-        'browserModel.isDirStatsFeatureHidden',
-        'getProvidersUrl',
-        function size() {
-          return this.tabModelFactory.createTabModel('size', {
-            dirStatsServiceState: this.dirStatsServiceState,
-            isDirStatsFeatureHidden: this.browserModel?.isDirStatsFeatureHidden ?? false,
-            getProvidersUrl: this.getProvidersUrl,
-          });
-        }
-      ),
+      size: computed(function size() {
+        return this.tabModelFactory.createTabModel('size');
+      }),
 
       metadata: computed(
         'tabModelFactory',

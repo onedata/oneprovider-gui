@@ -6,6 +6,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
+import { or, raw } from 'ember-awesome-macros';
 import SizeTabModel from './size-tab-model';
 import MetadataTabModel from './metadata-tab-model';
 import PermissionsTabModel from './permissions-tab-model';
@@ -51,6 +52,12 @@ export default EmberObject.extend(OwnerInjector, {
     return SizeTabModel.extend({
       file: reads('fileInfoModal.file'),
       space: reads('fileInfoModal.space'),
+      dirStatsServiceState: reads('fileInfoModal.dirStatsServiceState'),
+      isDirStatsFeatureHidden: or(
+        'fileInfoModal.browserModel.isDirStatsFeatureHidden',
+        raw(false)
+      ),
+      getProvidersUrl: reads('fileInfoModal.getProvidersUrl'),
     }).create({
       fileInfoModal: this.fileInfoModal,
       ownerSource: this,

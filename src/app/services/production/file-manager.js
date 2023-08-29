@@ -721,10 +721,10 @@ export default Service.extend({
           }
 
           // In the loop below we calculate new regular data values by
-          // subtracting points from `metricToSubtract`. Points in regular data
-          // and in metric to subtract can have different timestamps. Hence we
-          // insert any missing timestamp in regularData/metricToSubtract in
-          // every iteration.
+          // subtracting `metricToSubtract` points from "all" metrics. Points in
+          // regular data and in metric to subtract can have different
+          // timestamps. Hence we insert any missing timestamp in
+          // regularData/metricToSubtract in every iteration.
           let idxInRegularDataMetric = 0;
           let idxInSubtractMetric = 0;
           // eslint-disable-next-line no-constant-condition
