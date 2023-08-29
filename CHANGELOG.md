@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11224 Added jumping to items in exception store
 * VFS-10696 Added setting for modifying the order of columns in the transfers table
 * VFS-10638 Added disabled QoS column
 * VFS-11225 Added failure threshold to atm lane
