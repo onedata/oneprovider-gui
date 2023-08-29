@@ -12,7 +12,7 @@ import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   tagName: 'th',
-  classNames: ['fb-table-col-actions-menu', 'hidden-xs'],
+  classNames: ['columns-configuration-cell', 'hidden-xs'],
 
   i18n: service(),
   media: service(),
@@ -20,11 +20,11 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.fbColumnsConfigurationCell',
+  i18nPrefix: 'components.columnsConfigurationCell',
 
   /**
    * @virtual
-   * @type {Utils.FilesystemBrowserModel}
+   * @type {Utils.ColumnsConfiguration}
    */
-  browserModel: undefined,
+  columnsConfiguration: undefined,
 });

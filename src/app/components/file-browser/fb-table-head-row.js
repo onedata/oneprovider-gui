@@ -8,6 +8,7 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { reads } from '@ember/object/computed';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -19,8 +20,13 @@ export default Component.extend(I18n, {
    */
   browserModel: undefined,
 
+  /**
+   * @type {ComputedProperty<Utils.ColumnsConfiguration>}
+   */
+  columnsConfiguration: reads('browserModel.columnsConfiguration'),
+
   didInsertElement() {
     this._super(...arguments);
-    this.browserModel.checkColumnsVisibility();
+    this.browserModel.columnsConfiguration.checkColumnsVisibility();
   },
 });

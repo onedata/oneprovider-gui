@@ -12,7 +12,6 @@ import jumpControl from './file-browser/jump-control';
 import fileEntryCharts from './file-browser/file-entry-charts';
 import fbNoDirStatistics from './file-browser/fb-no-dir-statistics';
 import sizeStatsPerProviderTable from './file-browser/size-stats-per-provider-table';
-import fbColumnsConfigurationCell from './file-browser/fb-columns-configuration-cell';
 
 export default {
   menuCurrentDir: 'Current directory',
@@ -30,5 +29,4 @@ export default {
   fileEntryCharts,
   fbNoDirStatistics,
   sizeStatsPerProviderTable,
-  fbColumnsConfigurationCell,
 };
