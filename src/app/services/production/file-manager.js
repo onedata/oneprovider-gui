@@ -298,8 +298,20 @@ export default Service.extend({
     return resolve(childrenAttrs.map(fileAttrs => {
       fileAttrs.scope = scope;
       const modelData = store.normalize(fileModelName, fileAttrs);
-      return store.push(modelData);
-    }));
+      const currentRecord = store.peekRecord('file', modelData.data.id);
+      if (currentRecord?.currentState.stateName === 'root.deleted.inFlight') {
+        return currentRecord;
+      }
+      try {
+        return store.push(modelData);
+      } catch (error) {
+        console.error(
+          `Could not push file data to store: ${error}`,
+          modelData
+        );
+        return currentRecord;
+      }
+    }).filter(record => Boolean(record)));
   },
 
   /**
