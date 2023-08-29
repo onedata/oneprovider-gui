@@ -393,6 +393,26 @@ export default Service.extend({
   },
 
   /**
+   * @param {string} atmStoreInstanceId
+   * @param {Array<string>} traceIds
+   * @returns {Object<string, string>} map traceId -> index
+   */
+  async convertAtmExceptionStoreTraceIdsToIndices(atmStoreInstanceId, traceIds) {
+    const requestGri = gri({
+      entityType: atmStoreEntityType,
+      entityId: atmStoreInstanceId,
+      aspect: 'indices_by_trace_ids',
+      scope: 'private',
+    });
+    return await this.onedataGraph.request({
+      gri: requestGri,
+      operation: 'get',
+      subscribe: false,
+      data: { traceIds },
+    });
+  },
+
+  /**
    * @param {String} atmWorkflowExecutionId
    * @param {String} atmLanePositionInParent starts from 1
    * @param {AtmLaneRunNumber} runNumber
