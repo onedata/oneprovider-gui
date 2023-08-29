@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11268 Added error handling for file data push to store on fetching files list
 * VFS-10696 Added setting for modifying the order of columns in the transfers table
 * VFS-10638 Added disabled QoS column
 * VFS-11225 Added failure threshold to atm lane
