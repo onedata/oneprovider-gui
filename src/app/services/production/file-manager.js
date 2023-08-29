@@ -305,11 +305,13 @@ export default Service.extend({
       try {
         return store.push(modelData);
       } catch (error) {
-        console.error(`Could not push file data to store: ${error}`);
-        console.error(JSON.stringify(modelData));
+        console.error(
+          `Could not push file data to store: ${error}`,
+          modelData
+        );
         return currentRecord;
       }
-    }));
+    }).filter(record => Boolean(record)));
   },
 
   /**
