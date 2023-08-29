@@ -8,7 +8,7 @@ import Service from '@ember/service';
 import sinon from 'sinon';
 import { get } from '@ember/object';
 import Evented from '@ember/object/evented';
-import { resolve } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import sleep from 'onedata-gui-common/utils/sleep';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
@@ -392,22 +392,20 @@ describe('Integration | Component | file-browser (main component)', function () 
     it('file that is out of initial list range', async function () {
       const entityId = 'deid';
       const name = 'Test directory';
-      const dir = {
-        entityId,
+      const dir = await createFile(this, {
+        id: getFileGri(entityId),
         name,
         type: 'dir',
-        parent: resolve(null),
-      };
-      const files = _.range(61).map(i => {
-        const id = `f${i}`;
+      });
+      const files = await allFulfilled(_.range(61).map(i => {
+        const entityId = `f${i}`;
         const name = `File ${i}`;
-        return {
-          id,
-          entityId: id,
+        return createFile(this, {
+          entityId,
           name,
           index: name,
-        };
-      });
+        });
+      }));
       const selectedFile = files[60];
       const selectedItemsForJump = [selectedFile];
       this.setProperties({
@@ -419,14 +417,14 @@ describe('Integration | Component | file-browser (main component)', function () 
       fetchDirChildren.withArgs(
         entityId, // dirId
         sinon.match.any, // scope
-        selectedFile.index, // index
+        get(selectedFile, 'index'), // index
         sinon.match.any, // limit
         sinon.match.any // offset
       ).resolves({ childrenRecords: [...files], isLast: true });
       fetchDirChildren.withArgs(
         entityId,
         sinon.match.any,
-        files[60].index,
+        get(files[60], 'index'),
         70,
         -10
       ).resolves({ childrenRecords: files.slice(50, 120), isLast: true });
@@ -451,30 +449,25 @@ describe('Integration | Component | file-browser (main component)', function () 
       );
       const fileSelected = find('.file-selected');
       expect(fileSelected, 'selected file row').to.exist;
-      expect(fileSelected).to.have.attr('data-row-id', selectedFile.id);
+      expect(fileSelected).to.have.attr('data-row-id', selectedFile.entityId);
     });
   });
 
   context('with one item in root directory', function () {
-    beforeEach(function () {
-      const dir = {
-        entityId: 'root',
+    beforeEach(async function () {
+      const dir = await createFile(this, {
+        id: getFileGri('root'),
         name: 'Test directory',
         index: 'Test directory',
         type: 'dir',
-        hasParent: false,
-        parent: resolve(null),
-      };
-      dir.effFile = dir;
+      });
 
-      const item1 = {
-        entityId: 'i1',
+      const item1 = await createFile(this, {
+        id: getFileGri('i1'),
         name: 'A1',
         index: 'A1',
-        hasParent: true,
-        parent: resolve(dir),
-      };
-      item1.effFile = item1;
+        parent: dir,
+      });
 
       this.setProperties({ dir, item1, selectedItems: [] });
       stubSimpleFetch(this, dir, [item1]);
@@ -886,8 +879,8 @@ function notStubbed(stubName) {
 
 async function createFile(testCase, data) {
   if (data.entityId) {
-    data.id = `file.${data.entityId}.instance:private`;
-    delete data.entityId;
+    data.id = getFileGri(data.entityId),
+      delete data.entityId;
   }
   return await lookupService(testCase, 'store').createRecord('file', data).save();
 }

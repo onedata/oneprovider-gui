@@ -272,7 +272,7 @@ export const RuntimeProperties = Mixin.create({
 const FileRelationConsumer = Mixin.create(FileConsumerMixin, {
   // FIXME: użyć gdzieś tego
   async getRelation(relationName, options) {
-    const requiredProperties = options.requiredProperties;
+    const requiredProperties = options?.requiredProperties;
     if (requiredProperties) {
       // FIXME: eksperymentalnie uproszczone: będzie trzeba zarządzać wieloma relacjami
       // w File wystarczy jedno

@@ -113,6 +113,7 @@ export default Service.extend({
    * @param {Models.File} file
    */
   clearFileEntry(file) {
+    // FIXME: check is store isDestroyed/isDestroying
     this.fileConsumerMap.delete(file);
     this.store.unloadRecord(file);
   },
