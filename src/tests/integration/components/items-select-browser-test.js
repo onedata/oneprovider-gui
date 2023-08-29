@@ -8,7 +8,8 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import Evented from '@ember/object/evented';
 import Service from '@ember/service';
-import { registerService } from '../../helpers/stub-service';
+import { lookupService, registerService } from '../../helpers/stub-service';
+import { getFileGri } from 'oneprovider-gui/models/file';
 
 const FileManager = Service.extend(Evented, {
   async fetchDirChildren() {
@@ -40,13 +41,14 @@ describe('Integration | Component | items-select-browser', function () {
 
 async function renderComponent(testCase) {
   if (!testCase.get('selectorModel')) {
-    const space = {
-      rootDir: promiseObject(resolve({
-        name: 'Test root',
-        entityId: 'test_root_dir',
-        hasParent: false,
-      })),
-    };
+    const store = lookupService(testCase, 'store');
+    const rootDir = store.createRecord('file', {
+      name: 'Test root',
+      id: getFileGri('test_root_dir'),
+    });
+    const space = store.createRecord('space', {
+      rootDir,
+    });
     const selectorModel = FilesystemModel.create({
       ownerSource: testCase.owner,
       constraintSpec: {
