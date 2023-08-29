@@ -24,6 +24,7 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import ArchiveBrowserListPoller from 'oneprovider-gui/utils/archive-browser-list-poller';
+import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 
 const allButtonNames = Object.freeze([
   'btnArchiveProperties',
@@ -206,11 +207,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   browserPersistedConfigurationKey: 'archive',
-
-  /**
-   * @override
-   */
-  firstColumnWidth: 350,
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -630,28 +626,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   //#endregion
 
-  init() {
-    this.set('columns', {
-      state: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 200,
-      }),
-      incremental: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 180,
-      }),
-      creator: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 200,
-      }),
-    });
-    this.set('columnsOrder', ['state', 'incremental', 'creator']);
-    this._super(...arguments);
-  },
-
   /**
    * Fetches datset archives.
    * @override
@@ -695,6 +669,38 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   isItemDisabled(item) {
     return item && get(item, 'metaState') === 'destroying';
+  },
+
+  /**
+   * @override
+   */
+  createColumnsConfiguration() {
+    const columns = {
+      state: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }),
+      incremental: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 180,
+      }),
+      creator: EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: 200,
+      }),
+    };
+    const columnsOrder = ['state', 'incremental', 'creator'];
+    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
+    return ColumnsConfiguration.create({
+      configurationType: this.browserPersistedConfigurationKey,
+      columns,
+      columnsOrder,
+      firstColumnWidth: 350,
+      tableThead: elementFbTableThead,
+    });
   },
 
   async browserizeArchives({ childrenRecords, isLast }) {

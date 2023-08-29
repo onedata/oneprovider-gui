@@ -2,11 +2,19 @@
   <thead class="transfers-table-thead">
     <tr>
       {{#each visibleColumns as |column|}}
-        <th class={{concat-classes (concat "transfers-table-col-" column.id) column.className}}>
+        <th
+          class={{concat-classes
+            (concat "transfers-table-col-" column.id)
+            column.className
+          }}
+          style={{get columnsConfiguration.columnsStyle column.id}}
+        >
           {{tt this column.id}}
         </th>
       {{/each}}
-      <th class="transfers-table-col-actions"></th>
+      {{columns-configuration-cell
+        columnsConfiguration=columnsConfiguration
+      }}
     </tr>
   </thead>
   <tbody class="transfers-table-tbody">

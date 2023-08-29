@@ -27,6 +27,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { allSettled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -1116,8 +1117,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  init() {
-    this.set('columns', {
+  /**
+   * @override
+   */
+  createColumnsConfiguration() {
+    const columns = {
       size: EmberObject.create({
         isVisible: true,
         isEnabled: true,
@@ -1134,17 +1138,31 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       //   isEnabled: false,
       //   width: 160,
       // }),
-    });
-    this.set('columnsOrder', ['size', 'modification']);
+      // qos: EmberObject.create({
+      //   isVisible: false,
+      //   isEnabled: false,
+      //   width: 100,
+      // }),
+    };
+    // TODO: VFS-11089 Enable qos column with optional replication data fetch
+    // const columnsOrder = ['size', 'modification', 'replication', 'qos'];
+    const columnsOrder = ['size', 'modification'];
     if (this.isOwnerVisible) {
-      this.set('columns.owner', EmberObject.create({
+      columns.owner = EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 200,
-      }));
-      this.columnsOrder.push('owner');
+      });
+      columnsOrder.push('owner');
     }
-    this._super(...arguments);
+    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
+    return ColumnsConfiguration.create({
+      configurationType: this.browserPersistedConfigurationKey,
+      columns,
+      columnsOrder,
+      firstColumnWidth: 380,
+      tableThead: elementFbTableThead,
+    });
   },
 
   /**

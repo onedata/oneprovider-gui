@@ -31,6 +31,10 @@ import {
  * @typedef {'data_protection'|'metadata_protection'} ProtectionFlag
  */
 
+/**
+ * @typedef {'impossible'|'pending'|'fulfilled'|'error'|null} QosStatus
+ */
+
 export const entityType = 'file';
 
 export function getFileGri(fileId, scope) {
@@ -278,6 +282,11 @@ export default Model.extend(
 
     sharesCount: attr('number'),
     hardlinksCount: attr('number', { defaultValue: 1 }),
+
+    /**
+     * @type {ComputedProperty<QosStatus>}
+     */
+    qosStatus: attr('string'),
 
     /**
      * If there is a filename conflict between providers (two files with the same name,

@@ -12,7 +12,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, get, set, setProperties } from '@ember/object';
+import EmberObject, { computed, get, set, setProperties } from '@ember/object';
 import _ from 'lodash';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -23,6 +23,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import { sum } from 'ember-awesome-macros';
 import isDirectlyClicked from 'onedata-gui-common/utils/is-directly-clicked';
+import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 
 const allColumnNames = [
   'path',
@@ -38,6 +39,20 @@ const allColumnNames = [
   'status',
 ];
 
+const allColumnWidth = {
+  path: 190,
+  userName: 200,
+  destination: 200,
+  scheduledAt: 150,
+  startedAt: 150,
+  finishedAt: 150,
+  processed: 100,
+  replicated: 100,
+  evicted: 90,
+  type: 80,
+  status: 80,
+};
+
 const tableExcludedColumnNames = {
   file: ['path'],
   waiting: ['startedAt', 'finishedAt', 'processed', 'replicated', 'evicted'],
@@ -49,6 +64,7 @@ export default Component.extend(I18n, {
   classNames: ['transfers-table', 'one-infinite-list'],
 
   globalNotify: service(),
+  media: service(),
 
   /**
    * @override
@@ -137,6 +153,11 @@ export default Component.extend(I18n, {
   fetchingNext: false,
 
   /**
+   * @type {Utils.ColumnsConfiguration}
+   */
+  columnsConfiguration: undefined,
+
+  /**
    * List of transfer EntityIds that are expanded on the view
    * @type {Array<Srting>}
    */
@@ -175,12 +196,31 @@ export default Component.extend(I18n, {
     }
   ),
 
-  visibleColumns: computed('visibleColumnNames', function visibleColumns() {
-    const visibleColumnNames = this.get('visibleColumnNames');
-    return Object.values(
-      this.getProperties(...visibleColumnNames.map(name => `${name}Column`))
-    );
-  }),
+  visibleColumns: computed(
+    'visibleColumnNames',
+    'columnsConfiguration.{columns,columnsOrder.[]}',
+    'media.isMobile',
+    function visibleColumns() {
+      let columnsConfigurationWithFirstCol = ['path'];
+      if (this.media.isMobile) {
+        columnsConfigurationWithFirstCol = [
+          ...columnsConfigurationWithFirstCol,
+          ...this.visibleColumnNames,
+        ];
+      } else {
+        for (const columnName of this.columnsConfiguration.columnsOrder) {
+          if (this.columnsConfiguration.columns[columnName].isVisible) {
+            columnsConfigurationWithFirstCol.push(columnName);
+          }
+        }
+      }
+      return Object.values(
+        this.getProperties(...columnsConfigurationWithFirstCol.map(name =>
+          `${name}Column`
+        ))
+      );
+    }
+  ),
 
   /**
    * Add columns rendered beside visibleColumns
@@ -306,42 +346,42 @@ export default Component.extend(I18n, {
   userNameColumn: computed(function userNameColumn() {
     return this.createColumn('userName', {
       component: 'cell-user',
-      className: 'col-hide-2',
+      className: 'hidden-xs',
     });
   }),
 
   destinationColumn: computed(function destinationColumn() {
     return this.createColumn('destination', {
       component: 'cell-truncated',
-      className: 'col-hide-3',
+      className: 'hidden-xs',
     });
   }),
 
   scheduledAtColumn: computed(function scheduledAtColumn() {
     return this.createColumn('scheduledAt', {
       propertyName: 'scheduledAtReadable',
-      className: 'col-hide-5',
+      className: 'hidden-xs',
     });
   }),
 
   startedAtColumn: computed(function startedAtColumn() {
     return this.createColumn('startedAt', {
       propertyName: 'startedAtReadable',
-      className: 'col-hide-4',
+      className: 'hidden-xs',
     });
   }),
 
   finishedAtColumn: computed(function finishedAtColumn() {
     return this.createColumn('finishedAt', {
       propertyName: 'finishedAtReadable',
-      className: 'col-hide-4',
+      className: 'hidden-xs',
     });
   }),
 
   processedColumn: computed(function processedColumn() {
     return this.createColumn('processed', {
       component: 'cell-processed',
-      className: 'col-hide-1',
+      className: 'hidden-xs',
     });
   }),
 
@@ -354,7 +394,7 @@ export default Component.extend(I18n, {
   evictedColumn: computed(function evictedColumn() {
     return this.createColumn('evicted', {
       component: 'cell-evicted',
-      className: 'col-hide-6',
+      className: 'hidden-xs',
     });
   }),
 
@@ -377,9 +417,43 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this.registerArrayLoadingHandlers();
+    this.set('columnsConfiguration', this.createColumnsConfiguration());
+  },
+
+  /**
+   * @override
+   */
+  didInsertElement() {
+    this._super(...arguments);
+    const transfersTableThead = this.element?.querySelector('.transfers-table-thead');
+    this.set('columnsConfiguration.tableThead', transfersTableThead);
+    this.columnsConfiguration.checkColumnsVisibility();
   },
 
   //#region Methods
+
+  /**
+   * @returns {Utils.ColumnsConfiguration}
+   */
+  createColumnsConfiguration() {
+    const columns = {};
+    const visibleColumnNames = [...this.visibleColumnNames];
+    visibleColumnNames.shift();
+    for (const columnName of visibleColumnNames) {
+      columns[columnName] = EmberObject.create({
+        isVisible: true,
+        isEnabled: true,
+        width: allColumnWidth[columnName],
+      });
+    }
+    const columnsOrder = visibleColumnNames;
+    return ColumnsConfiguration.create({
+      configurationType: 'transfer.' + this.transferType,
+      columns,
+      columnsOrder,
+      firstColumnWidth: allColumnWidth['path'],
+    });
+  },
 
   createColumn(id, customData) {
     return Object.assign({

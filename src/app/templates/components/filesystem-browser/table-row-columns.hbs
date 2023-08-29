@@ -1,11 +1,11 @@
-{{#each browserModel.columnsOrder as |columnName|}}
-  {{#if (get browserModel (concat "columns." columnName ".isVisible"))}}
+{{#each columnsConfiguration.columnsOrder as |columnName|}}
+  {{#if (get columnsConfiguration (concat "columns." columnName ".isVisible"))}}
     {{#if (eq columnName "size")}}
       <td class={{concat
           "fb-table-col-size hidden-xs "
           (if file.effFile.isShowProgress "multiline")
         }}
-        style={{browserModel.columnsStyle.size}}
+        style={{columnsConfiguration.columnsStyle.size}}
       >
         <span class="file-item-text">
           {{#if (eq file.effFile.type "file")}}
@@ -59,7 +59,7 @@
     {{else if (eq columnName "modification")}}
       <td
         class="fb-table-col-modification hidden-xs"
-        style={{browserModel.columnsStyle.modification}}
+        style={{columnsConfiguration.columnsStyle.modification}}
       >
         <span class="file-item-text">
           {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
@@ -68,7 +68,7 @@
     {{else if (eq columnName "owner")}}
       <td
         class="fb-table-col-owner multiline hidden-xs"
-        style={{browserModel.columnsStyle.owner}}
+        style={{columnsConfiguration.columnsStyle.owner}}
       >
         <span class="file-item-text">
           {{filesystem-browser/table-cell-owner-info
@@ -77,7 +77,7 @@
           }}
         </span>
       </td>
-    {{else if browserModel.columns.replication.isVisible}}
+    {{else if (eq columnName "replication")}}
       <td class="fb-table-col-replication hidden-xs">
         <span
           class="file-item-text"
@@ -112,6 +112,29 @@
             </span>
           {{/if}}
           {{one-tooltip title=(tt this "replicationRateTooltip")}}
+        </span>
+      </td>
+    {{else if (eq columnName "qos")}}
+      <td
+        class="fb-table-col-qos hidden-xs"
+        style={{browserModel.columnsStyle.qos}}
+      >
+        <span class={{concat-classes
+            "file-item-text"
+            (concat "qos-status-" qosStatus)
+            (if (not qosViewForbidden) "clickable")
+          }}
+          onclick={{unless qosViewForbidden (action "invokeFileAction" file "info" "qos")}}
+        >
+          {{#if (not qosStatus)}}
+            <span class="no-qos-text">—</span>
+            {{one-tooltip title=(tt this "qosStatusHint.noQos" fileType=fileTypeText)}}
+          {{else}}
+            <span class="status-icon">
+              {{one-icon icon=statusIcon class=(concat "qos-status-icon qos-status-" qosStatus)}}
+              {{one-tooltip title=(tt this (concat "qosStatusHint." qosStatus) fileType=fileTypeText)}}
+            </span>
+          {{/if}}
         </span>
       </td>
     {{/if}}

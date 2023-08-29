@@ -406,7 +406,8 @@ $space-transfers-gray: #B6BAC0;
   width: 40px;
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 // tooltip style - must be outside component class
