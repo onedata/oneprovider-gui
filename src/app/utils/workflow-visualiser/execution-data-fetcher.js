@@ -160,7 +160,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   async convertAtmExceptionStoreTraceIdsToIndices(storeInstanceId, traceIds) {
     if (!storeInstanceId) {
       console.error(
-        'util:workflow-visualiser/execution-data-fetcher#fetchStoreContent: invalid storeSchemaId',
+        'execution-data-fetcher#convertAtmExceptionStoreTraceIdsToIndices: invalid storeInstanceId',
       );
       throw notFoundError;
     }
