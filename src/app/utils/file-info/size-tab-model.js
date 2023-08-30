@@ -132,7 +132,7 @@ export default BaseTabModel.extend({
    * @type {ComputedProperty<boolean>}
    */
   areSomeProvidersOffline: computed('providers', function areSomeProvidersOffline() {
-    return Boolean(this.providers?.some((p) => !get(p, 'online')));
+    return Boolean(this.providers?.toArray().some((p) => !get(p, 'online')));
   }),
 
   /**
