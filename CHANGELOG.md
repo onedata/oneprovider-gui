@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11312 Fix showing jump to file input
 * VFS-11268 Added error handling for file data push to store on fetching files list
 * VFS-11224 Added jumping to items in exception store
 * VFS-10696 Added setting for modifying the order of columns in the transfers table
