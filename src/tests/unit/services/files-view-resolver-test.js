@@ -6,8 +6,6 @@ import Service from '@ember/service';
 import sinon from 'sinon';
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import { set } from '@ember/object';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import { resolve } from 'rsvp';
 import { getFileGri } from 'oneprovider-gui/models/file';
 
 const AppProxy = Service.extend({

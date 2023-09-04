@@ -390,7 +390,6 @@ export default Model.extend(
     isFullyReplicated: attr('boolean'),
 
     isDeleted: attr('boolean'),
-    qosStatus: attr('string'),
     storageGroupId: attr('string'),
     storageUserId: attr('string'),
 

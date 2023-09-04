@@ -4,8 +4,6 @@ import { setupRenderingTest } from 'ember-mocha';
 import { render, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import { resolve } from 'rsvp';
 import Evented from '@ember/object/evented';
 import Service from '@ember/service';
 import { lookupService, registerService } from '../../helpers/stub-service';
