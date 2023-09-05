@@ -381,15 +381,6 @@ export default Model.extend(
      */
     activePermissionsType: attr('string'),
 
-    /**
-     * FIXME: nazwa tego pola może być myląca w odniesieniu do localReplicationRate
-     * ONLY for regular files. True if the file is fully replicated on current provider.
-     * Typically this property should not be used - use
-     * @type {ComputedProperty<boolean>}
-     */
-    isFullyReplicated: attr('boolean'),
-
-    isDeleted: attr('boolean'),
     storageGroupId: attr('string'),
     storageUserId: attr('string'),
 
@@ -414,9 +405,6 @@ export default Model.extend(
      * @type {Models.Archive}
      */
     archive: belongsTo('archive'),
-
-    // FIXME: co to jest?
-    conflictingFiles: attr('array'),
   }).reopenClass(StaticGraphModelMixin, {
   /**
    * @override

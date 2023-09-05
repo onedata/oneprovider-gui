@@ -8,13 +8,21 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { observer, computed } from '@ember/object';
+import { observer, computed, get } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { inject as service } from '@ember/service';
 import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { or, raw } from 'ember-awesome-macros';
 
-export default Component.extend(I18n, {
+const mixins = Object.freeze([
+  I18n,
+  FileConsumerMixin,
+]);
+
+export default Component.extend(...mixins, {
   classNames: ['fb-selection-toolkit'],
   classNameBindings: [
     'isPillVisible:pill-visible:pill-hidden',
@@ -59,15 +67,29 @@ export default Component.extend(I18n, {
    */
   itemsTooltipContent: undefined,
 
-  rememberLastPositiveCount: observer(
-    'itemsCount',
-    function rememberLastPositiveCount() {
-      const itemsCount = this.get('itemsCount');
-      if (itemsCount > 0) {
-        this.set('lastPositiveItemsCount', itemsCount);
-      }
+  // FIXME: implement
+  /**
+   * @override
+   */
+  fileRequirements: computed('items', function fileRequirements() {
+    if (!this.items) {
+      return [];
     }
-  ),
+    return this.items.map(item =>
+      FileRequirement.create({
+        fileGri: get(item, 'id'),
+        properties: ['name'],
+      }),
+    );
+  }),
+
+  /**
+   * @override
+   */
+  // FIXME: causes:
+  // Assertion Failed: Cannot update watchers for `entityId` on `<oneprovider-gui@model:file::ember951:file.file-0.instance:private>` after it has been destroyed.
+  // error in tests (when file consumer model has observer turned on)
+  // usedFiles: or('items', raw([])),
 
   itemsCount: reads('items.length'),
 
@@ -84,6 +106,16 @@ export default Component.extend(I18n, {
   ),
 
   isPillVisible: gt('itemsCount', 1),
+
+  rememberLastPositiveCount: observer(
+    'itemsCount',
+    function rememberLastPositiveCount() {
+      const itemsCount = this.get('itemsCount');
+      if (itemsCount > 0) {
+        this.set('lastPositiveItemsCount', itemsCount);
+      }
+    }
+  ),
 
   init() {
     this._super(...arguments);

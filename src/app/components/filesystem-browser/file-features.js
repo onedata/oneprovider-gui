@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { or, not } from 'ember-awesome-macros';
+import { or, not, collect, conditional } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { computed, observer, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
@@ -19,6 +19,8 @@ import { htmlSafe } from '@ember/string';
 import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percentage-progress';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 export const defaultFilesystemFeatures = Object.freeze([
   'effDatasetMembership',
@@ -26,7 +28,12 @@ export const defaultFilesystemFeatures = Object.freeze([
   'recallingMembership',
 ]);
 
-export default Component.extend(I18n, {
+const mixins = Object.freeze([
+  I18n,
+  FileConsumerMixin,
+]);
+
+export default Component.extend(...mixins, {
   classNames: ['file-features'],
 
   i18n: service(),
@@ -73,6 +80,37 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Array<String>>}
    */
   features: reads('browserModel.fileFeatures'),
+
+  /**
+   * @override
+   */
+  fileRequirements: computed('item', function fileRequirements() {
+    if (!this.item) {
+      return [];
+    }
+    return [
+      FileRequirement.create({
+        fileGri: this.get('item.id'),
+        properties: [
+          'dataIsProtected',
+          'metadataIsProtected',
+          'effDatasetMembership',
+          'effQosMembership',
+          'recallingMembership',
+        ],
+      }),
+    ];
+  }),
+
+  // FIXME: implement
+  /**
+   * @override
+   */
+  usedFiles: conditional(
+    'item',
+    collect('item'),
+    collect(),
+  ),
 
   file: reads('item'),
 

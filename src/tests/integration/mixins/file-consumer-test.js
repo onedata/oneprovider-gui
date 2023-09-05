@@ -42,7 +42,7 @@ describe('Integration | Mixin | file-consumer', function () {
       this.set('isVisible', false);
       this.owner.register('component:dummy-component', DummyComponentClass);
       const fileRequirementRegistry = lookupService(this, 'fileRequirementRegistry');
-      await render(hbs `
+      await render(hbs`
         {{#if isVisible}}
           {{dummy-component}}
         {{/if}}
@@ -72,7 +72,7 @@ describe('Integration | Mixin | file-consumer', function () {
       const requirement1 = FileRequirement.create({
         fileGri,
         properties: [
-          'name',
+          'ctime',
         ],
       });
       const requirement2 = FileRequirement.create({
@@ -83,9 +83,9 @@ describe('Integration | Mixin | file-consumer', function () {
       });
       this.set('fileRequirements', [requirement1]);
       const fileRequirementRegistry = lookupService(this, 'fileRequirementRegistry');
-      await render(hbs `
-      {{base-dummy-component fileRequirements=fileRequirements}}
-    `);
+      await render(hbs`
+        {{base-dummy-component fileRequirements=fileRequirements}}
+      `);
 
       // original requirement
       expect(fileRequirementRegistry.getRequirements())
@@ -117,7 +117,7 @@ describe('Integration | Mixin | file-consumer', function () {
       this.set('isVisible', false);
       this.owner.register('component:dummy-component', DummyComponentClass);
       const fileRecordRegistry = lookupService(this, 'file-record-registry');
-      await render(hbs `
+      await render(hbs`
         {{#if isVisible}}
           {{dummy-component}}
         {{/if}}
@@ -149,7 +149,7 @@ describe('Integration | Mixin | file-consumer', function () {
       );
       this.set('usedFiles', files.slice(0, 2));
       const fileRecordRegistry = lookupService(this, 'file-record-registry');
-      await render(hbs `
+      await render(hbs`
         {{base-dummy-component usedFiles=usedFiles}}
       `);
 
@@ -162,6 +162,90 @@ describe('Integration | Mixin | file-consumer', function () {
       await waitForRender();
       expect(fileRecordRegistry.getRegisteredFiles().sort(), 'changed')
         .to.deep.equal([files[2], files[3]].sort());
+    }
+  );
+
+  // FIXME: duplikuje sprawdzenie z ostatnim testem, do usunięcia?
+  it('does not add requirements to registry if they are covered by basic properties',
+    async function () {
+      const fileGri = 'some-gri';
+      const requirement = FileRequirement.create({
+        fileGri,
+        properties: [
+          'name',
+          'type',
+        ],
+      });
+      const fileRequirements = [requirement];
+      const DummyComponentClass = BaseDummyComponentClass.extend({
+        /** @override */
+        fileRequirements,
+      });
+      this.owner.register('component:dummy-component', DummyComponentClass);
+      const fileRequirementRegistry = lookupService(this, 'fileRequirementRegistry');
+      await render(hbs`{{dummy-component}}`);
+      await waitForRender();
+
+      expect(fileRequirementRegistry.getRequirements())
+        .to.not.contain(requirement);
+    }
+  );
+
+  it('does not add requirements to registry on change if they are covered by basic properties on change from non-basic',
+    async function () {
+      const fileGri = 'some-gri';
+      const richRequirement = FileRequirement.create({
+        fileGri,
+        properties: [
+          'name',
+          'type',
+          'mtime',
+        ],
+      });
+      const frugalRequirement = FileRequirement.create({
+        fileGri,
+        properties: [
+          'name',
+          'type',
+        ],
+      });
+      this.set('fileRequirements', [richRequirement]);
+      const fileRequirementRegistry = lookupService(this, 'fileRequirementRegistry');
+      await render(hbs`{{base-dummy-component fileRequirements=fileRequirements}}`);
+      await waitForRender();
+
+      expect(fileRequirementRegistry.getRequirements()).to.contain(richRequirement);
+      this.set('fileRequirements', [frugalRequirement]);
+      expect(fileRequirementRegistry.getRequirements()).to.not.contain(frugalRequirement);
+    }
+  );
+
+  it('adds only requirements to registry that are not covered by basic properties',
+    async function () {
+      const fileGri = 'some-gri';
+      const richRequirement = FileRequirement.create({
+        fileGri,
+        properties: [
+          'name',
+          'type',
+          'mtime',
+        ],
+      });
+      const frugalRequirement = FileRequirement.create({
+        fileGri,
+        properties: [
+          'name',
+          'type',
+        ],
+      });
+      this.set('fileRequirements', [richRequirement, frugalRequirement]);
+      const fileRequirementRegistry = lookupService(this, 'fileRequirementRegistry');
+      await render(hbs`{{base-dummy-component fileRequirements=fileRequirements}}`);
+      await waitForRender();
+
+      const resultRequirements = fileRequirementRegistry.getRequirements();
+      expect(resultRequirements).to.contain(richRequirement);
+      expect(resultRequirements).to.not.contain(frugalRequirement);
     }
   );
 });

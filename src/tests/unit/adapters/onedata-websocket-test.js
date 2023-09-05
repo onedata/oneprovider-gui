@@ -5,6 +5,7 @@ import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import { getFileGri } from 'oneprovider-gui/models/file';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import _ from 'lodash';
 
 describe('Unit | Adapter | onedata-websocket', function () {
   setupTest();
@@ -29,24 +30,24 @@ describe('Unit | Adapter | onedata-websocket', function () {
 
       await adapter.findRecord(store, type, fileGri, snapshot);
 
-      expect(requestStub).to.have.been.calledWith(sinon.match({
-        data: {
-          attributes: [
-            // attributes added by default
-            'conflictingName',
-            'fileId',
-            'parentId',
-            'name',
-            'type',
-            // attributes from requirement1
-            'ctime',
-            'mtime',
-            'atime',
-          ],
-        },
-      }));
-    }
-  );
+      const expectedAttributes = [
+        // attributes added by default
+        'conflictingName',
+        'fileId',
+        'parentId',
+        'name',
+        'type',
+        'symlinkValue',
+        // attributes from requirement1
+        'ctime',
+        'mtime',
+        'atime',
+      ].sort();
+      expect(requestStub).to.have.been.calledWith(sinon.match((request) =>
+        Array.isArray(request?.data?.attributes) &&
+        _.isEqual([...request.data.attributes].sort(), expectedAttributes)
+      ));
+    });
 });
 
 function createModelType(modelName) {

@@ -39,11 +39,13 @@ export default Service.extend({
   // FIXME: maybe add more, maybe remove type...
   basicProperties: Object.freeze([
     'conflictingName',
+    'effFile',
     'fileId',
     'hasParent',
     'name',
     'parent',
     'type',
+    // FIXME:
     // ...possibleFileProperties,
   ]),
 
@@ -78,7 +80,7 @@ export default Service.extend({
    * @returns {Array<File.RawAttribute>}
    */
   findAttrsRequirement(...queries) {
-    let matchingRequirements = [this.basicRequirement];
+    let matchingRequirements = [];
     for (const query of queries) {
       matchingRequirements.push(
         ...this.getRequirements().filter(requirement => query.matches(requirement))
@@ -105,7 +107,12 @@ export default Service.extend({
    */
   async setRequirements(consumer, requirements) {
     // FIXME: zmienić requirements na spread argument
-    const reqArray = Array.isArray(requirements) ? requirements : [requirements];
+    let reqArray = Array.isArray(requirements) ? requirements : [requirements];
+    reqArray = this.filterRichRequirements(reqArray);
+    if (_.isEmpty(reqArray)) {
+      this.consumerRequirementsMap.delete(consumer);
+      return;
+    }
     const filesToUpdate = this.getFilesToUpdate(consumer, requirements);
     this.consumerRequirementsMap.set(consumer, reqArray);
     return await allSettled(filesToUpdate.map(file => {
@@ -125,7 +132,27 @@ export default Service.extend({
    * @returns Array<Utils.FileRequirement>
    */
   getRequirements() {
-    return _.flatten([...this.consumerRequirementsMap.values()]);
+    return _.flatten([
+      this.basicRequirement,
+      ...this.consumerRequirementsMap.values(),
+    ]);
+  },
+
+  /**
+   * @private
+   * @param {Array<FileRequirement>} requirements
+   * @returns {Array<FileRequirement>}
+   */
+  filterRichRequirements(requirements) {
+    if (_.isEmpty(requirements)) {
+      return [];
+    }
+    const basicProperties = this.basicProperties;
+    return requirements.filter(requirement =>
+      requirement.properties.some(requiredProperty =>
+        !basicProperties.includes(requiredProperty)
+      )
+    );
   },
 
   /**

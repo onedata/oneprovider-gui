@@ -12,6 +12,7 @@ import { run } from '@ember/runloop';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import { set } from '@ember/object';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
+import _ from 'lodash';
 
 describe('Integration | Component | filesystem-browser/file-features', function () {
   const { afterEach } = setupRenderingTest();
@@ -35,6 +36,30 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       browserModel.destroy();
     }
   });
+
+  it('adds additional properties to file-requirement-registry',
+    async function () {
+      await this.createItem({
+        name: 'foo',
+      });
+      const item = this.get('item');
+      this.setProperties({
+        item,
+      });
+      const fileRequirementRegistry = lookupService(this, 'file-requirement-registry');
+      const requirementsBefore = fileRequirementRegistry.getRequirements();
+      const propertiesBefore = _.flatten(requirementsBefore.map(req => req.properties));
+      await render(hbs `{{filesystem-browser/file-features
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=false
+      }}`);
+
+      const requirementsAfter = fileRequirementRegistry.getRequirements();
+      const propertiesAfter = _.flatten(requirementsAfter.map(req => req.properties));
+      expect(propertiesAfter.length).to.be.greaterThan(propertiesBefore.length);
+    }
+  );
 
   ['none', 'direct'].forEach(membership => {
     it(`does not show collapsed inherited tag if features are "${membership}" in collapsed mode`,

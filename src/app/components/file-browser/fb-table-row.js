@@ -8,7 +8,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
-import { raw, conditional, isEmpty, or, and } from 'ember-awesome-macros';
+import { raw, conditional, isEmpty, or, and, collect } from 'ember-awesome-macros';
 import { get, computed, getProperties, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
@@ -20,12 +20,20 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import layout from 'oneprovider-gui/templates/components/file-browser/fb-table-row';
 import { htmlSafe } from '@ember/string';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
 }
 
-export default Component.extend(I18n, FastDoubleClick, {
+const mixins = Object.freeze([
+  I18n,
+  FastDoubleClick,
+  FileConsumerMixin,
+]);
+
+export default Component.extend(...mixins, {
   layout,
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],
@@ -212,6 +220,32 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {boolean}
    */
   isFileNameHovered: false,
+
+  // FIXME: implement
+  /**
+   * @override
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file || this.file.isDestroyed) {
+      return [];
+    }
+    return [
+      FileRequirement.create({
+        fileGri: this.get('file.id'),
+        properties: ['type', 'name', 'effFile', 'conflictingName'],
+      }),
+    ];
+  }),
+
+  // FIXME: implement
+  /**
+   * @override
+   */
+  usedFiles: conditional(
+    'file',
+    collect('file'),
+    collect(),
+  ),
 
   statusBarComponentName: or(
     'browserModel.statusBarComponentName',

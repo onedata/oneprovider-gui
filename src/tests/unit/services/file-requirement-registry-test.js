@@ -52,39 +52,41 @@ describe('Unit | Service | file-requirement-registry', function () {
     expect([...attrs].sort()).to.deep.equal(expectedAttrs);
   });
 
-  it('getRequirements returns all currently registered requirements without removed', async function () {
-    const service = this.owner.lookup('service:file-requirement-registry');
-    const consumer1 = { name: 'c1' };
-    const consumer2 = { name: 'c2' };
-    const consumer3 = { name: 'c3' };
-    const req1 = FileRequirement.create({
-      parentId: 'p1',
-      properties: ['name', 'type'],
-    });
-    const req2 = FileRequirement.create({
-      parentId: 'p2',
-      properties: ['size'],
-    });
-    const req31 = FileRequirement.create({
-      parentId: 'p3',
-      properties: ['distribution'],
-    });
-    const req32 = FileRequirement.create({
-      parentId: 'p4',
-      properties: ['acl'],
-    });
+  it('getRequirements returns all currently registered requirements with basic, without removed',
+    async function () {
+      const service = this.owner.lookup('service:file-requirement-registry');
+      const consumer1 = { name: 'c1' };
+      const consumer2 = { name: 'c2' };
+      const consumer3 = { name: 'c3' };
+      const req1 = FileRequirement.create({
+        parentId: 'p1',
+        properties: ['atime', 'ctime'],
+      });
+      const req2 = FileRequirement.create({
+        parentId: 'p2',
+        properties: ['size'],
+      });
+      const req31 = FileRequirement.create({
+        parentId: 'p3',
+        properties: ['distribution'],
+      });
+      const req32 = FileRequirement.create({
+        parentId: 'p4',
+        properties: ['acl'],
+      });
 
-    await service.setRequirements(consumer1, req1);
-    await service.setRequirements(consumer2, req2);
-    await service.setRequirements(consumer3, [req31, req32]);
-    service.removeRequirements(consumer2);
+      await service.setRequirements(consumer1, req1);
+      await service.setRequirements(consumer2, req2);
+      await service.setRequirements(consumer3, [req31, req32]);
+      service.removeRequirements(consumer2);
 
-    const resultRequirements = service.getRequirements();
-    expect(resultRequirements).to.have.lengthOf(3);
-    expect(resultRequirements).to.include(req1);
-    expect(resultRequirements).to.include(req31);
-    expect(resultRequirements).to.include(req32);
-  });
+      const resultRequirements = service.getRequirements();
+      // including basic requirement
+      expect(resultRequirements).to.have.lengthOf(4);
+      expect(resultRequirements).to.include(req1);
+      expect(resultRequirements).to.include(req31);
+      expect(resultRequirements).to.include(req32);
+    });
 
   it('findAttrsRequirement returns attributes for given requirements using query', async function () {
     const service = this.owner.lookup('service:file-requirement-registry');
@@ -124,16 +126,17 @@ describe('Unit | Service | file-requirement-registry', function () {
       'fileId',
       'type',
       'parentId',
+      'symlinkValue',
     ].sort());
   });
 
-  it('private method getAbsentRequirements gets requirements that adds new properties for consumer files',
+  it('private method getAbsentRequirements gets requirements that add new properties for consumer files',
     async function () {
       const service = lookupService(this, 'file-requirement-registry');
       const consumer1 = { name: 'c1' };
       const req1 = FileRequirement.create({
         fileGri: 'file.a1.instance:private',
-        properties: ['name', 'type'],
+        properties: ['posixPermissions', 'qosStatus'],
       });
       const req2 = FileRequirement.create({
         fileGri: 'file.a2.instance:private',
@@ -146,12 +149,12 @@ describe('Unit | Service | file-requirement-registry', function () {
       // an old condition with the same properties
       const newReq1 = FileRequirement.create({
         fileGri: 'file.a1.instance:private',
-        properties: ['name', 'type'],
+        properties: ['posixPermissions', 'qosStatus'],
       });
       // a new condition with the same properties
       const newReq2 = FileRequirement.create({
         fileGri: 'file.b1.instance:private',
-        properties: ['name', 'type'],
+        properties: ['posixPermissions', 'qosStatus'],
       });
       // a weaker requirement for old condition (req2)
       const newReq3 = FileRequirement.create({
@@ -190,7 +193,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       const consumer1 = { name: 'c1' };
       const req1 = FileRequirement.create({
         fileGri: get(fileMap.a1, 'id'),
-        properties: ['name', 'type'],
+        properties: ['posixPermissions', 'qosStatus'],
       });
       const req2 = FileRequirement.create({
         fileGri: get(fileMap.a2, 'id'),
@@ -203,12 +206,12 @@ describe('Unit | Service | file-requirement-registry', function () {
       // an old condition with the same properties
       const newReq1 = FileRequirement.create({
         fileGri: get(fileMap.a1, 'id'),
-        properties: ['name', 'type'],
+        properties: ['posixPermissions', 'qosStatus'],
       });
       // a new condition with the same properties
       const newReq2 = FileRequirement.create({
         fileGri: get(fileMap.b1, 'id'),
-        properties: ['name', 'type'],
+        properties: ['posixPermissions', 'qosStatus'],
       });
       // a weaker requirement for old condition (req2)
       const newReq3 = FileRequirement.create({
@@ -250,7 +253,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       const consumer1 = { name: 'c1' };
       const req1 = FileRequirement.create({
         fileGri: get(fileMap.a1, 'id'),
-        properties: ['name', 'type'],
+        properties: ['posixPermissions', 'qosStatus'],
       });
       const req2 = FileRequirement.create({
         fileGri: get(fileMap.a2, 'id'),
@@ -263,12 +266,12 @@ describe('Unit | Service | file-requirement-registry', function () {
       // an old condition with the same properties
       const newReq1 = FileRequirement.create({
         fileGri: get(fileMap.a1, 'id'),
-        properties: ['name', 'type'],
+        properties: ['posixPermissions', 'qosStatus'],
       });
       // a new condition with the same properties
       const newReq2 = FileRequirement.create({
         fileGri: get(fileMap.b1, 'id'),
-        properties: ['name', 'type'],
+        properties: ['posixPermissions', 'qosStatus'],
       });
       // a weaker requirement for old condition (req2)
       const newReq3 = FileRequirement.create({
