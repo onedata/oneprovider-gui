@@ -40,6 +40,17 @@ describe('Unit | Utility | file-query', function () {
     expect(query1.matches(query2)).to.be.true;
   });
 
+  it('matches to another query if one condition is empty', function () {
+    const fileGri = getFileGri(
+      'Z3VpZCM5MjY3NmQ0YjYwZTA4YzA0MWQ1NGZkMmFlOGQxNWNhZGNoZjZhYyNjYzY4NTU1N2NiMzc5NDdhMTAwZDNkMWYyYmEzYjI3NGNoNDlhZA',
+      'private'
+    );
+    const query1 = FileQuery.create();
+    const query2 = FileQuery.create({ fileGri });
+
+    expect(query1.matches(query2)).to.be.true;
+  });
+
   it('does not match to another query if fileGris are used and are not the same', function () {
     const fileGri1 = getFileGri(
       'Z3VpZCM5MjY3NmQ0YjYwZTA4YzA0MWQ1NGZkMmFlOGQxNWNhZGNoZjZhYyNjYzY4NTU1N2NiMzc5NDdhMTAwZDNkMWYyYmEzYjI3NGNoNDlhZA',

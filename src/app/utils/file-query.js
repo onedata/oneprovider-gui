@@ -52,7 +52,7 @@ const FileQuery = EmberObject.extend({
       return this.fileGri === query.fileGri;
     }
     // one of the query is all-match query
-    if (!this.fileGri && !this.parentId || !query.fileGri && !query.parentId) {
+    if (this.getQueryType() === 'none' || query.getQueryType() === 'none') {
       return true;
     }
     return false;

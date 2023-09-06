@@ -88,14 +88,14 @@ describe('Unit | Service | file-requirement-registry', function () {
       expect(resultRequirements).to.include(req32);
     });
 
-  it('findAttrsRequirement returns attributes for given requirements using query', async function () {
+  it('findAttrsRequirement returns attributes for given requirements (parentId) using query', async function () {
     const service = this.owner.lookup('service:file-requirement-registry');
     const consumer1 = { name: 'c1' };
     const consumer2 = { name: 'c2' };
     const consumer3 = { name: 'c3' };
     const req1 = FileRequirement.create({
       parentId: 'p1',
-      properties: ['name', 'type'],
+      properties: ['name', 'ctime', 'mtime'],
     });
     const req2 = FileRequirement.create({
       parentId: 'p2',
@@ -119,16 +119,47 @@ describe('Unit | Service | file-requirement-registry', function () {
     const resultAttrs = service.findAttrsRequirement(query).sort();
 
     expect(resultAttrs).to.deep.equal([
-      'conflictingName',
-      'name',
       'size',
       // additional attributes added always by default
       'fileId',
       'type',
       'parentId',
       'symlinkValue',
+      'conflictingName',
+      'name',
     ].sort());
   });
+
+  it('findAttrsRequirement returns attributes registered for files in store that have parent from query',
+    async function () {
+      const service = this.owner.lookup('service:file-requirement-registry');
+      const store = lookupService(this, 'store');
+      const consumer1 = {};
+      const parent1Guid = getFileGri('parent1');
+      const parent1 = await store.createRecord('file', {
+        id: parent1Guid,
+        name: 'parent-1',
+      }).save();
+      const file1Gri = getFileGri('file1');
+      await store.createRecord('file', {
+        id: file1Gri,
+        parent: parent1,
+        name: 'file-1',
+      }).save();
+      const req1 = FileRequirement.create({
+        fileGri: file1Gri,
+        properties: ['ctime'],
+      });
+      await service.setRequirements(consumer1, req1);
+      const query = FileQuery.create({
+        parentId: get(parent1, 'entityId'),
+      });
+
+      const resultAttrs = service.findAttrsRequirement(query);
+
+      expect(resultAttrs).to.contain('ctime');
+    },
+  );
 
   it('private method getAbsentRequirements gets requirements that add new properties for consumer files',
     async function () {

@@ -76,15 +76,32 @@ export default Service.extend({
 
   /**
    * @public
-   * @param {Array<Utils.FileQuery>} queries
+   * @param {...Utils.FileQuery} queries
    * @returns {Array<File.RawAttribute>}
    */
   findAttrsRequirement(...queries) {
     let matchingRequirements = [];
+    const allRequirements = this.getRequirements();
+    // FIXME: optymalizacja: można odejmować wykorzystane requirementy z allRequirements
+    // FIXME: optymalizacja: nie array i uniq, tylko Set?
     for (const query of queries) {
       matchingRequirements.push(
-        ...this.getRequirements().filter(requirement => query.matches(requirement))
+        ...allRequirements.filter(requirement => query.matches(requirement))
       );
+      // FIXME: co jeśli pobrany zostanie na świeżo plik, który będzie miał parenta, który jest w requirements?
+      // trzeba przeanalizować problemy z tym przypadkiem i najwyżej tylko opisać
+      if (query.getQueryType() === 'parentId') {
+        const parentId = query.parentId;
+        const allFiles = this.store.peekAll('file').toArray();
+        const filesForParent = allFiles.filter(file =>
+          file?.relationEntityId('parent') === parentId
+        );
+        for (const file of filesForParent) {
+          matchingRequirements.push(
+            ...allRequirements.filter(requirement => requirement.matchesFile(file))
+          );
+        }
+      }
     }
     matchingRequirements = _.uniq(matchingRequirements);
     const requiredProperties = _.uniq(_.flatten(
