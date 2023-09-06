@@ -18,6 +18,7 @@ import { get, computed } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
 import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
 import { aspect as archiveRecallStateAspect } from 'oneprovider-gui/models/archive-recall-state';
+import config from 'ember-get-config';
 
 export const qosSummaryAspect = 'qos_summary';
 export const datasetSummaryAspect = 'dataset_summary';
@@ -122,7 +123,13 @@ export default Serializer.extend({
    */
   normalize(typeClass, hash) {
     // FIXME: hack to support temporarily buggy API in backend - to remove
-    if (hash.attributes) {
+    if (
+      hash.attributes &&
+      (
+        config.environment === 'development-backend' ||
+        config.environment === 'production'
+      )
+    ) {
       for (const attr in hash.attributes) {
         hash[attr] = hash.attributes[attr];
       }
