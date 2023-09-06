@@ -29,16 +29,17 @@
                 {{one-label-tip title=(tt this "publishWelcome.handleServiceTextMore")}}
               </p>
               <div class="row row-handle-service-select">
-                {{#one-dropdown
-                  triggerClass="select-handle-service"
-                  dropdownClass="select-handle-service-dropdown"
-                  placeholder=(tt this "publishWelcome.selectHandleServicePlaceholder")
-                  searchField="name"
-                  selected=selectedHandleService
-                  options=handleServices
-                  onchange=(action (mut selectedHandleService))
+                <OneDropdown
+                  @triggerClass="select-handle-service"
+                  @dropdownClass="select-handle-service-dropdown"
+                  @placeholder={{tt this "publishWelcome.selectHandleServicePlaceholder"}}
+                  @searchEnabled={{true}}
+                  @searchField="name"
+                  @selected={{selectedHandleService}}
+                  @options={{handleServices}}
+                  @onChange={{action (mut selectedHandleService)}}
                   as |handleService|
-                }}
+                >
                   <div class="option-container" data-handle-id={{handleService.entityId}}>
                     {{#truncated-string}}
                       {{name-conflict
@@ -50,7 +51,7 @@
                       }}
                     {{/truncated-string}}
                   </div>
-                {{/one-dropdown}}
+                </OneDropdown>
               </div>
             {{/content-info}}
           {{/carousel.slide}}
