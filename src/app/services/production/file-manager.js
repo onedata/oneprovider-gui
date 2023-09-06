@@ -73,7 +73,7 @@ import FileQuery from 'oneprovider-gui/utils/file-query';
  */
 
 const cancelRecallAspect = 'cancel_archive_recall';
-const childrenAttrsAspect = 'children_details';
+const childrenAttrsAspect = 'children';
 const symlinkTargetAttrsAspect = 'symlink_target';
 const recallLogAspect = 'archive_recall_log';
 const fileModelName = 'file';

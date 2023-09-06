@@ -511,7 +511,7 @@ const fileHandlers = {
     }
     return response;
   },
-  children_details(operation, entityId, { index, limit, offset }) {
+  children(operation, entityId, { index, limit, offset }) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
