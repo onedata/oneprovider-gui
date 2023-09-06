@@ -121,6 +121,14 @@ export default Serializer.extend({
    * @override
    */
   normalize(typeClass, hash) {
+    // FIXME: hack to support temporarily buggy API in backend - to remove
+    if (hash.attributes) {
+      for (const attr in hash.attributes) {
+        hash[attr] = hash.attributes[attr];
+      }
+      delete hash.attributes;
+    }
+
     this.normalizeData(hash);
     return this._super(typeClass, hash);
   },
