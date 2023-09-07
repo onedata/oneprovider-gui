@@ -200,7 +200,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       await service.setRequirements(consumer1, [req1, req2, req3]);
 
       const absentRequirementSet =
-        service.getAbsentRequirementSet(consumer1, [newReq1, newReq2, newReq3, newReq4]);
+        service.getAbsentRequirementSet([newReq1, newReq2, newReq3, newReq4]);
 
       expect([...absentRequirementSet.values()].sort())
         .to.deep.equal([newReq2, newReq4].sort());
@@ -259,7 +259,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       await fileRequirementRegistry.setRequirements(consumer1, [req1, req2, req3]);
 
       const filesToUpdate =
-        fileRequirementRegistry.getFilesToUpdate(consumer1, newRequirements);
+        fileRequirementRegistry.getFilesToUpdate(newRequirements);
 
       expect([...filesToUpdate].sort()).to.deep.equal([fileMap.b1, fileMap.a2].sort());
     }

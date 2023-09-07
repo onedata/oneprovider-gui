@@ -136,7 +136,7 @@ export default Service.extend({
       this.consumerRequirementsMap.delete(consumer);
       return;
     }
-    const filesToUpdate = this.getFilesToUpdate(consumer, requirements);
+    const filesToUpdate = this.getFilesToUpdate(requirements);
     this.consumerRequirementsMap.set(consumer, reqArray);
     return await allSettled(filesToUpdate.map(file => {
       return file.reload();
@@ -180,36 +180,34 @@ export default Service.extend({
 
   /**
    * From the collection of `newRequirements` choose a sub-collection that brings new
-   * required properties for files (not in the current registry).
+   * required properties for files (not in the current registry - `currentRequirements`).
    * @private
-   * @param {FileConsumer} consumer
    * @param {Array<FileRequirement>} newRequirements
+   * @param {Array<FileRequirement>} [currentRequirements]
    * @returns {Set<FileRequirement>}
    */
-  getAbsentRequirementSet(consumer, newRequirements) {
-    // FIXME: raczej trzeba brać wszysztkie możliwe requirementy z rejestru:
-    // - dodaję jakieś requirementy
-    // - całkiem możliwe jest, że inny consumer już miał wcześniej takie wymaganie - więc musiał załadować, więc nie jest potrzebny reload
-    const currentRequirements = this.consumerRequirementsMap.get(consumer);
-    if (!currentRequirements?.length) {
+  getAbsentRequirementSet(newRequirements, currentRequirements = this.getRequirements()) {
+    const currentPreciseRequirements = currentRequirements.filter(req =>
+      req.getQueryType() !== 'none'
+    );
+    if (!currentPreciseRequirements?.length) {
       return new Set(newRequirements);
     }
-
-    const currentRequirementsStringified =
-      currentRequirements.map(req => req.stringify());
-    const newConditions =
-      _.differenceWith(newRequirements, currentRequirements, (ra, rb) =>
+    const newReqsNewConditions =
+      _.differenceWith(newRequirements, currentPreciseRequirements, (ra, rb) =>
         ra.matches(rb)
       );
-    const newReqOldConditions = _.difference(newRequirements, newConditions);
-    const oldConditionsWithNewProperties = newReqOldConditions.filter(newReq => {
+    const newReqsOldConditions = _.difference(newRequirements, newReqsNewConditions);
+    const currentRequirementsStringified =
+      currentPreciseRequirements.map(req => req.stringify());
+    const oldConditionsWithNewProperties = newReqsOldConditions.filter(newReq => {
       // filter out identical requirements
       if (currentRequirementsStringified.includes(newReq.stringify())) {
         return false;
       }
       // search for at least one property in new requirement that does not occur
       // in current requirements
-      for (const currentReq of currentRequirements) {
+      for (const currentReq of currentPreciseRequirements) {
         if (currentReq.matches(newReq)) {
           const currentProperties = currentReq.properties;
           for (const newProperty of newReq.properties) {
@@ -221,7 +219,7 @@ export default Service.extend({
       }
       return false;
     });
-    return new Set([...newConditions, ...oldConditionsWithNewProperties]);
+    return new Set([...newReqsNewConditions, ...oldConditionsWithNewProperties]);
   },
 
   // FIXME: optymalizacja: jeśli nie było do tej pory requirementów - powinno pobrać wszystkie pasujące pliki
@@ -230,17 +228,16 @@ export default Service.extend({
    * For collection of requirements in `newRequiremets` get file records that
    * need a reload because new properties need to be loaded for them.
    * @private
-   * @param {FileConsumer} consumer
    * @param {Array<FileRequirement>} newRequirements
    * @returns {Array<Models.File>}
    */
-  getFilesToUpdate(consumer, newRequirements) {
+  getFilesToUpdate(newRequirements) {
     if (!newRequirements?.length) {
       return [];
     }
     const allRequirements = this.getRequirements();
     const absentRequirementSet =
-      this.getAbsentRequirementSet(consumer, newRequirements);
+      this.getAbsentRequirementSet(newRequirements, allRequirements);
     const storedFiles = this.store.peekAll('file').toArray();
 
     // FIXME: wśród absentRequirements są requirementy, które odnoszą się do fileGri,
