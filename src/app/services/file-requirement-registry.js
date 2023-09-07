@@ -82,8 +82,13 @@ export default Service.extend({
   findAttrsRequirement(...queries) {
     let matchingRequirements = [];
     const allRequirements = this.getRequirements();
-    // FIXME: optymalizacja: pobierać wszystkie pliki tylko jak trzeba
-    const allFiles = this.store.peekAll('file').toArray();
+    let allFiles;
+    const getAllFiles = () => {
+      if (!allFiles) {
+        allFiles = this.store.peekAll('file').toArray();
+      }
+      return allFiles;
+    };
     // FIXME: optymalizacja: można odejmować wykorzystane requirementy z allRequirements
     // FIXME: optymalizacja: nie array i uniq, tylko Set?
     for (const query of queries) {
@@ -94,7 +99,7 @@ export default Service.extend({
       // trzeba przeanalizować problemy z tym przypadkiem i najwyżej tylko opisać
       if (query.getQueryType() === 'parentId') {
         const parentId = query.parentId;
-        const filesForParent = allFiles.filter(file =>
+        const filesForParent = getAllFiles().filter(file =>
           file?.relationEntityId('parent') === parentId
         );
         for (const file of filesForParent) {
