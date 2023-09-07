@@ -82,6 +82,8 @@ export default Service.extend({
   findAttrsRequirement(...queries) {
     let matchingRequirements = [];
     const allRequirements = this.getRequirements();
+    // FIXME: optymalizacja: pobierać wszystkie pliki tylko jak trzeba
+    const allFiles = this.store.peekAll('file').toArray();
     // FIXME: optymalizacja: można odejmować wykorzystane requirementy z allRequirements
     // FIXME: optymalizacja: nie array i uniq, tylko Set?
     for (const query of queries) {
@@ -92,7 +94,6 @@ export default Service.extend({
       // trzeba przeanalizować problemy z tym przypadkiem i najwyżej tylko opisać
       if (query.getQueryType() === 'parentId') {
         const parentId = query.parentId;
-        const allFiles = this.store.peekAll('file').toArray();
         const filesForParent = allFiles.filter(file =>
           file?.relationEntityId('parent') === parentId
         );
@@ -173,15 +174,20 @@ export default Service.extend({
   },
 
   /**
+   * From the collection of `newRequirements` choose a sub-collection that brings new
+   * required properties for files (not in the current registry).
    * @private
    * @param {FileConsumer} consumer
    * @param {Array<FileRequirement>} newRequirements
-   * @returns {Array<FileRequirement>}
+   * @returns {Set<FileRequirement>}
    */
-  getAbsentRequirements(consumer, newRequirements) {
+  getAbsentRequirementSet(consumer, newRequirements) {
+    // FIXME: raczej trzeba brać wszysztkie możliwe requirementy z rejestru:
+    // - dodaję jakieś requirementy
+    // - całkiem możliwe jest, że inny consumer już miał wcześniej takie wymaganie - więc musiał załadować, więc nie jest potrzebny reload
     const currentRequirements = this.consumerRequirementsMap.get(consumer);
     if (!currentRequirements?.length) {
-      return [...newRequirements];
+      return new Set(newRequirements);
     }
 
     const currentRequirementsStringified =
@@ -210,12 +216,14 @@ export default Service.extend({
       }
       return false;
     });
-    return _.uniq([...newConditions, ...oldConditionsWithNewProperties]);
+    return new Set([...newConditions, ...oldConditionsWithNewProperties]);
   },
 
   // FIXME: optymalizacja: jeśli nie było do tej pory requirementów - powinno pobrać wszystkie pasujące pliki
   // FIXME: optymalizacja: brać pliki dla konsumera poprzez fileRecordRegistry?
   /**
+   * For collection of requirements in `newRequiremets` get file records that
+   * need a reload because new properties need to be loaded for them.
    * @private
    * @param {FileConsumer} consumer
    * @param {Array<FileRequirement>} newRequirements
@@ -225,12 +233,44 @@ export default Service.extend({
     if (!newRequirements?.length) {
       return [];
     }
-    const absentRequirements = this.getAbsentRequirements(consumer, newRequirements);
+    const allRequirements = this.getRequirements();
+    const absentRequirementSet =
+      this.getAbsentRequirementSet(consumer, newRequirements);
     const storedFiles = this.store.peekAll('file').toArray();
+
+    // FIXME: wśród absentRequirements są requirementy, które odnoszą się do fileGri,
+    // podczas gdy mamy już załadowane do rejestru requirementy z parentId, które pokrywają
+    // już te propertiesy dla naszych plików - trzeba będzie wyrzucać te requirementy
+
+    // reject requirements that
+    const parentBasedRequirements = allRequirements.filter(requirement =>
+      requirement.getQueryType() === 'parentId' &&
+      !absentRequirementSet.has(requirement)
+    );
+    for (const parentRequirement of parentBasedRequirements) {
+      const filesWithParent = storedFiles.filter(file =>
+        parentRequirement.matchesFile(file)
+      );
+      // FIXME: może być wiele parent reqsów dla plików - pasuje robić sumę - komentarz
+      for (const file of filesWithParent) {
+        for (const newRequirement of absentRequirementSet.values()) {
+          if (
+            newRequirement.matchesFile(file) &&
+            arrayContainsArray(parentRequirement.properties, newRequirement.properties)
+          ) {
+            absentRequirementSet.delete(newRequirement);
+          }
+        }
+      }
+    }
+
     return storedFiles.filter(storedFile => {
-      return absentRequirements.some(requirement => {
-        return requirement.matchesFile(storedFile);
-      });
+      for (const requirement of absentRequirementSet.values()) {
+        if (requirement.matchesFile(storedFile)) {
+          return true;
+        }
+      }
+      return false;
     });
   },
 
@@ -259,3 +299,13 @@ export default Service.extend({
     return _.uniq(attributes);
   },
 });
+
+function arrayContainsArray(superset, subset) {
+  if (0 === subset.length || superset.length < subset.length) {
+    return false;
+  }
+  for (let i = 0; i < subset.length; ++i) {
+    if (superset.indexOf(subset[i]) === -1) return false;
+  }
+  return true;
+}

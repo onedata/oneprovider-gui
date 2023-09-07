@@ -181,7 +181,8 @@ describe('Integration | Component | space-transfers', function () {
       }}</div>`);
 
       expect(find('.nav-link-file'), '.nav-link-file').to.not.exist;
-    });
+    }
+  );
 
   it('renders tab link for file tab with file name if fileId is provided',
     async function () {
@@ -217,5 +218,6 @@ describe('Integration | Component | space-transfers', function () {
       const navLinkFile = find('.nav-link-file');
       expect(navLinkFile, '.nav-link-file').to.exist;
       expect(navLinkFile).to.have.trimmed.text(file.name);
-    });
+    }
+  );
 });

@@ -161,7 +161,7 @@ describe('Unit | Service | file-requirement-registry', function () {
     },
   );
 
-  it('private method getAbsentRequirements gets requirements that add new properties for consumer files',
+  it('private method getAbsentRequirementSet gets requirements that add new properties for consumer files',
     async function () {
       const service = lookupService(this, 'file-requirement-registry');
       const consumer1 = { name: 'c1' };
@@ -199,10 +199,11 @@ describe('Unit | Service | file-requirement-registry', function () {
       });
       await service.setRequirements(consumer1, [req1, req2, req3]);
 
-      const absentRequirements =
-        service.getAbsentRequirements(consumer1, [newReq1, newReq2, newReq3, newReq4]);
+      const absentRequirementSet =
+        service.getAbsentRequirementSet(consumer1, [newReq1, newReq2, newReq3, newReq4]);
 
-      expect([...absentRequirements].sort()).to.deep.equal([newReq2, newReq4].sort());
+      expect([...absentRequirementSet.values()].sort())
+        .to.deep.equal([newReq2, newReq4].sort());
     }
   );
 

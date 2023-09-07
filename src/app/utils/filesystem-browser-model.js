@@ -1150,6 +1150,16 @@ export default BaseBrowserModel.extend(...mixins, {
         'conflictingName',
         'name',
         'parent',
+        'type',
+        'index',
+        // Properties that are needed by nested components - added here for requirements
+        // to be available before rows are rendered (which could cause records reload,
+        // it requirements wouldn't be prepared earlier).
+        'dataIsProtected',
+        'metadataIsProtected',
+        'effDatasetMembership',
+        'effQosMembership',
+        'recallingMembership',
       ];
       const listedFilesProperties = [...basicProperties, 'sharesCount'];
       if (this.columns.size.isEnabled) {
