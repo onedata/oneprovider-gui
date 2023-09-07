@@ -241,11 +241,12 @@ export default Component.extend(...mixins, {
   /**
    * @override
    */
-  usedFiles: conditional(
-    'file',
-    collect('file'),
-    collect(),
-  ),
+  usedFiles: computed(function usedFiles() {
+    if (!this.file || !Object.keys(this.file).length) {
+      return [];
+    }
+    return [this.file];
+  }),
 
   statusBarComponentName: or(
     'browserModel.statusBarComponentName',
