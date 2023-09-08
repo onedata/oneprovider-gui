@@ -130,7 +130,7 @@ describe('Unit | Service | file-requirement-registry', function () {
     ].sort());
   });
 
-  it('findAttrsRequirement returns attributes registered for files in store that have parent from query',
+  it('findAttrsRequirement returns attributes registered for files that have parent from query',
     async function () {
       const service = this.owner.lookup('service:file-requirement-registry');
       const store = lookupService(this, 'store');
@@ -141,11 +141,12 @@ describe('Unit | Service | file-requirement-registry', function () {
         name: 'parent-1',
       }).save();
       const file1Gri = getFileGri('file1');
-      await store.createRecord('file', {
+      const file1 = await store.createRecord('file', {
         id: file1Gri,
         parent: parent1,
         name: 'file-1',
       }).save();
+      mockFileRecordRegistryFiles(this, [parent1, file1]);
       const req1 = FileRequirement.create({
         fileGri: file1Gri,
         properties: ['ctime'],
@@ -221,6 +222,7 @@ describe('Unit | Service | file-requirement-registry', function () {
           }).save()
         )
       );
+      mockFileRecordRegistryFiles(this, files);
       const fileMap = _.zipObject(fileIds, files);
       const consumer1 = { name: 'c1' };
       const req1 = FileRequirement.create({
@@ -279,6 +281,7 @@ describe('Unit | Service | file-requirement-registry', function () {
           }).save()
         )
       );
+      mockFileRecordRegistryFiles(this, files);
       const fileMap = _.zipObject(fileIds, files);
       const reloadSpies = files.map(file => sinon.spy(file, 'reload'));
       const reloadSpyMap = _.zipObject(fileIds, reloadSpies);
@@ -330,3 +333,13 @@ describe('Unit | Service | file-requirement-registry', function () {
     }
   );
 });
+
+/**
+ *
+ * @param {Mocha.Context} mochaContext
+ * @param {Array<Models.File>} files
+ */
+function mockFileRecordRegistryFiles(mochaContext, files) {
+  const fileRecordRegistry = lookupService(mochaContext, 'fileRecordRegistry');
+  sinon.stub(fileRecordRegistry, 'getRegisteredFiles').returns(files);
+}

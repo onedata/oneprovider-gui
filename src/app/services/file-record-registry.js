@@ -17,11 +17,6 @@ export default Service.extend({
   init() {
     this._super(...arguments);
     this.set('fileConsumerMap', new Map());
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_file_record_registry');
   },
 
   /**
@@ -31,7 +26,6 @@ export default Service.extend({
    * @returns {void}
    */
   setFiles(consumer, ...files) {
-    // FIXME: get all files registered for consumer
     const currentConsumerFiles = this.getFilesForConsumer(consumer);
     const filesToDeregister = [];
     const filesToRegister = [];
@@ -71,7 +65,7 @@ export default Service.extend({
         if (consumers) {
           consumers.delete(consumer);
           if (!consumers.size) {
-            this.clearFileEntry(file);
+            this.fileConsumerMap.delete(file);
           }
         }
       }
@@ -79,7 +73,7 @@ export default Service.extend({
       for (const [file, consumers] of this.fileConsumerMap) {
         consumers.delete(consumer);
         if (!consumers.size) {
-          this.clearFileEntry(file);
+          this.fileConsumerMap.delete(file);
         }
       }
     }
@@ -87,7 +81,7 @@ export default Service.extend({
 
   /**
    * @public
-   * @returns {Set<Models.File>}
+   * @returns {Array<Models.File>}
    */
   getRegisteredFiles() {
     return [...this.fileConsumerMap.keys()];
@@ -109,6 +103,7 @@ export default Service.extend({
   },
 
   /**
+   * FIXME: nie jest na razie używane, do użycia przez garbage collector
    * @private
    * @param {Models.File} file
    */

@@ -78,35 +78,4 @@ describe('Integration | Service | file-record-registry', function () {
     expect([...registeredFiles.values()].sort())
       .to.deep.equal([files[0], files[1]].sort());
   });
-
-  it('unloads file record from store if it is not referenced after deregister', async function () {
-    const fileRecordRegistry = lookupService(this, 'file-record-registry');
-    const store = lookupService(this, 'store');
-    const files = await allFulfilled(
-      _.range(2).map(i => store.createRecord('file', { name: `file-${i}` }).save())
-    );
-    const consumer1 = {};
-
-    fileRecordRegistry.setFiles(consumer1, files[0], files[1]);
-    fileRecordRegistry.removeFiles(consumer1, files[1]);
-
-    const storedFiles = store.peekAll('file').toArray();
-    expect(storedFiles).to.deep.equal([files[0]]);
-  });
-
-  it('unloads file record from store if it is not referenced after deregister using only consumer',
-    async function () {
-      const fileRecordRegistry = lookupService(this, 'file-record-registry');
-      const store = lookupService(this, 'store');
-      const files = await allFulfilled(
-        _.range(2).map(i => store.createRecord('file', { name: `file-${i}` }).save())
-      );
-      const consumer1 = {};
-
-      fileRecordRegistry.setFiles(consumer1, files[0], files[1]);
-      fileRecordRegistry.removeFiles(consumer1);
-
-      const storedFiles = store.peekAll('file').toArray();
-      expect(storedFiles).to.deep.equal([]);
-    });
 });

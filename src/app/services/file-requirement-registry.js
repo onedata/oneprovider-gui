@@ -32,7 +32,7 @@ import { allSettled } from 'rsvp';
 // FIXME: jeśli globalna lista
 
 export default Service.extend({
-  store: service(),
+  fileRecordRegistry: service(),
 
   //#region configuration
 
@@ -85,7 +85,7 @@ export default Service.extend({
     let allFiles;
     const getAllFiles = () => {
       if (!allFiles) {
-        allFiles = this.store.peekAll('file').toArray();
+        allFiles = this.fileRecordRegistry.getRegisteredFiles();
       }
       return allFiles;
     };
@@ -238,7 +238,7 @@ export default Service.extend({
     const allRequirements = this.getRequirements();
     const absentRequirementSet =
       this.getAbsentRequirementSet(newRequirements, allRequirements);
-    const storedFiles = this.store.peekAll('file').toArray();
+    const storedFiles = this.fileRecordRegistry.getRegisteredFiles();
 
     // FIXME: wśród absentRequirements są requirementy, które odnoszą się do fileGri,
     // podczas gdy mamy już załadowane do rejestru requirementy z parentId, które pokrywają
