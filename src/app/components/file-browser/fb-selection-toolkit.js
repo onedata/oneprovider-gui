@@ -67,7 +67,6 @@ export default Component.extend(...mixins, {
    */
   itemsTooltipContent: undefined,
 
-  // FIXME: implement
   /**
    * @override
    */
@@ -86,10 +85,7 @@ export default Component.extend(...mixins, {
   /**
    * @override
    */
-  // FIXME: causes:
-  // Assertion Failed: Cannot update watchers for `entityId` on `<oneprovider-gui@model:file::ember951:file.file-0.instance:private>` after it has been destroyed.
-  // error in tests (when file consumer model has observer turned on)
-  // usedFiles: or('items', raw([])),
+  usedFiles: or('items', raw([])),
 
   itemsCount: reads('items.length'),
 
