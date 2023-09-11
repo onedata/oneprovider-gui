@@ -24,6 +24,7 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
 import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import FileQuery from 'oneprovider-gui/utils/file-query';
+import { pullPrivateFileAttributes } from 'oneprovider-gui/utils/file-model';
 
 /**
  * @typedef {Object} FileEntryTimeSeriesCollections
@@ -121,6 +122,9 @@ export default Service.extend({
     const attributes = this.fileRequirementRegistry.findAttrsRequirement(
       requirementQuery
     );
+    if (scope === 'public') {
+      pullPrivateFileAttributes(attributes);
+    }
     const file = await store.findRecord(fileModelName, fileGri, {
       reload,
       backgroundReload,
@@ -329,6 +333,9 @@ export default Service.extend({
     const attributes = this.fileRequirementRegistry.findAttrsRequirement(
       requirementQuery
     );
+    if (scope === 'public') {
+      pullPrivateFileAttributes(attributes);
+    }
     return this.onedataGraph.request({
       operation: 'get',
       gri: requestGri,

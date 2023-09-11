@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { or, not, collect, conditional } from 'ember-awesome-macros';
+import { raw, or, not, collect, conditional, and } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { computed, observer, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
@@ -81,33 +81,44 @@ export default Component.extend(...mixins, {
    */
   features: reads('browserModel.fileFeatures'),
 
+  // TODO: VFS-11252 Decide how we could omit specifying file requirements when
+  // the component is used multiple times and it is always used in browser
+  /**
+   * If set to true, FileConsumer management is disabled in this component and should be
+   * managed externally (eg. by BrowserModel).
+   */
+  isFileConsumerDisabled: false,
+
   /**
    * @override
    */
-  fileRequirements: computed('item', function fileRequirements() {
-    if (!this.item) {
-      return [];
-    }
-    return [
-      FileRequirement.create({
-        fileGri: this.get('item.id'),
-        properties: [
-          'dataIsProtected',
-          'metadataIsProtected',
-          'effDatasetMembership',
-          'effQosMembership',
-          'recallingMembership',
-        ],
-      }),
-    ];
-  }),
+  fileRequirements: conditional(
+    'isFileConsumerDisabled',
+    raw([]),
+    computed('item', function fileRequirements() {
+      if (!this.item) {
+        return [];
+      }
+      return [
+        FileRequirement.create({
+          fileGri: this.get('item.id'),
+          properties: [
+            'dataIsProtected',
+            'metadataIsProtected',
+            'effDatasetMembership',
+            'effQosMembership',
+            'recallingMembership',
+          ],
+        }),
+      ];
+    })
+  ),
 
-  // FIXME: implement
   /**
    * @override
    */
   usedFiles: conditional(
-    'item',
+    and(not('isFileConsumerDisabled'), 'item'),
     collect('item'),
     collect(),
   ),

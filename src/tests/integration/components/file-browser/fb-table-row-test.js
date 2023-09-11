@@ -388,6 +388,11 @@ function createFile(override = {}, ownerGri = userGri) {
         };
       }
     },
+    hasMany() {
+      return {
+        ids: () => [],
+      };
+    },
   }, override);
 
   const file = FileMock.create(data);

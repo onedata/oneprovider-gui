@@ -1152,29 +1152,36 @@ export default BaseBrowserModel.extend(...mixins, {
         'parent',
         'type',
         'index',
-        // Properties that are needed by nested components - added here for requirements
-        // to be available before rows are rendered (which could cause records reload,
-        // it requirements wouldn't be prepared earlier).
-        'dataIsProtected',
-        'metadataIsProtected',
-        'effDatasetMembership',
-        'effQosMembership',
-        'recallingMembership',
       ];
-      const listedFilesProperties = [...basicProperties, 'sharesCount'];
+      // Properties that are needed by nested components - added here for requirements
+      // to be available before rows are rendered (which could cause records reload,
+      // it requirements wouldn't be prepared earlier).
+      if (!this.previewMode) {
+        basicProperties.push(
+          // file-features component
+          'dataIsProtected',
+          'metadataIsProtected',
+          'effDatasetMembership',
+          'effQosMembership',
+          'recallingMembership',
+          // table-row-status-bar component
+          'isShared',
+        );
+      }
+      const listedFilesProperties = [...basicProperties];
       if (this.columns.size.isEnabled) {
         listedFilesProperties.push('size');
       }
       if (this.columns.modification.isEnabled) {
         listedFilesProperties.push('mtime');
       }
-      if (this.columns.owner.isEnabled) {
+      if (this.columns.owner?.isEnabled) {
         listedFilesProperties.push('owner');
       }
-      if (this.columns.replication.isEnabled) {
+      if (this.columns.replication?.isEnabled) {
         listedFilesProperties.push('localReplicationRate');
       }
-      if (this.columns.qos.isEnabled) {
+      if (this.columns.qos?.isEnabled) {
         listedFilesProperties.push('qosStatus');
       }
       const parentDirRequirement = FileRequirement.create({

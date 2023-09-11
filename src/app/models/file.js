@@ -210,6 +210,10 @@ export const RuntimeProperties = Mixin.create({
 
   isRecalled: computedLastProxyContent('isRecalledProxy'),
 
+  sharesCount: computed('shareRecords', function sharesCount() {
+    return this.hasMany('shareRecords')?.ids().length;
+  }),
+
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
    * will be equal `targetSize`.
@@ -303,7 +307,6 @@ export default Model.extend(
     size: attr('number'),
     posixPermissions: attr('string'),
     hasMetadata: attr('boolean'),
-    sharesCount: attr('number'),
     hardlinksCount: attr('number', { defaultValue: 1 }),
     localReplicationRate: attr('number'),
 

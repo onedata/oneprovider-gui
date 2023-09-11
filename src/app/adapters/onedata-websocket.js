@@ -5,6 +5,7 @@ import FileQuery from 'oneprovider-gui/utils/file-query';
 import { inject as service } from '@ember/service';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
+import { pullPrivateFileAttributes } from 'oneprovider-gui/utils/file-model';
 
 export default OnedataWebsocketAdapter.extend({
   fileRequirementRegistry: service(),
@@ -30,6 +31,16 @@ export default OnedataWebsocketAdapter.extend({
       const attributes =
         this.fileRequirementRegistry.findAttrsRequirement(...queries);
       if (!_.isEmpty(attributes)) {
+        try {
+          const scope = parseGri(id)?.scope;
+          if (scope === 'public') {
+            pullPrivateFileAttributes(attributes);
+          }
+        } catch {
+          // If the id is non-parseable, do not bother pulling attributes, as the request
+          // will probably fail.
+          console.warn('findRecord: file ID is not parseable as GRI', id);
+        }
         if (!snapshot.adapterOptions) {
           snapshot.adapterOptions = {};
         }
@@ -39,19 +50,7 @@ export default OnedataWebsocketAdapter.extend({
         if (!snapshot.adapterOptions._meta.additionalData) {
           snapshot.adapterOptions._meta.additionalData = {};
         }
-        // FIXME: do not get attributes for buggy root dir
-        const fakeRoot =
-          'Z3VpZCNzcGFjZV84MzA0MzYzZjMzZWI3MDZmYjFlNjkxYWZlZTYwMTZkMmNoMDU5YSM4MzA0MzYzZjMzZWI3MDZmYjFlNjkxYWZlZTYwMTZkMmNoMDU5YQ';
-        if (!id.includes(fakeRoot)) {
-          snapshot.adapterOptions._meta.additionalData.attributes = attributes;
-        } else {
-          snapshot.adapterOptions._meta.additionalData.attributes = [
-            'fileId',
-            'name',
-            'type',
-            'symlinkValue',
-          ];
-        }
+        snapshot.adapterOptions._meta.additionalData.attributes = attributes;
       }
     }
     return await this._super(...arguments);

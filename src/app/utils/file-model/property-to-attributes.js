@@ -22,6 +22,7 @@ export const propertyToAttributesMap = Object.freeze({
   isRecalled: 'recallRootId',
   isRecalling: 'recallRootId',
   isShared: 'shares',
+  sharesCount: 'shares',
   metadataIsProtected: 'effProtectionFlags',
   metadataIsProtectedByDataset: 'effDatasetProtectionFlags',
   originalName: ['conflictingName', 'name'],
