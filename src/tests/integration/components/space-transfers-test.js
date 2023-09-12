@@ -23,10 +23,6 @@ const TransferManager = Service.extend({
   getSpaceTransfersThroughputCharts: notImplementedReject,
 });
 
-const Store = Service.extend({
-  findRecord: notImplementedReject,
-});
-
 const ErrorExtractor = Service.extend({
   getMessage: () => ({
     message: 'error extractor message',
@@ -65,7 +61,6 @@ describe('Integration | Component | space-transfers', function () {
     const fileId = 'dummyFileId';
     const defaultTab = 'waiting';
     registerService(this, 'transferManager', TransferManager);
-    registerService(this, 'store', Store);
     registerService(this, 'errorExtractor', ErrorExtractor);
     this.setProperties({
       space,
