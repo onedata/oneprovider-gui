@@ -25,8 +25,6 @@ import {
   getInternalFileIdFromGuid,
   getSpaceIdFromGuid,
 } from 'onedata-gui-common/utils/file-guid-parsers';
-import FileRequirement from 'oneprovider-gui/utils/file-requirement';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 
 /**
  * @typedef {'data_protection'|'metadata_protection'} ProtectionFlag
@@ -275,7 +273,6 @@ export const RuntimeProperties = Mixin.create({
 
 export default Model.extend(
   GraphSingleModelMixin,
-  FileRelationConsumer,
   RuntimeProperties,
   createConflictModelMixin('shareRecords'), {
     name: attr('string'),

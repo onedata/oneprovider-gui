@@ -149,6 +149,22 @@ export default OneEmbeddedComponent.extend(
     fileActionObserverLock: false,
 
     /**
+     * @override
+     * @implements {Mixins.FileConsumer}
+     */
+    fileRequirements: computed('dirEntityId', function fileRequirements() {
+      if (!this.dirEntityId) {
+        return [];
+      }
+      return [
+        FileRequirement.create({
+          fileGri: getFileGri(this.dirEntityId, 'private'),
+          properties: ['parent', 'type', 'effFile'],
+        }),
+      ];
+    }),
+
+    /**
      * @type {ComputedProperty<Boolean>}
      */
     effUploadDisabled: reads('dir.dataIsProtected'),
@@ -291,22 +307,6 @@ export default OneEmbeddedComponent.extend(
         }
       }
     )),
-
-    // FIXME: pozycja w pliku
-    /**
-     * @implements {Mixins.FileConsumer}
-     */
-    fileRequirements: computed('dirEntityId', function fileRequirements() {
-      if (!this.dirEntityId) {
-        return [];
-      }
-      return [
-        FileRequirement.create({
-          fileGri: getFileGri(this.dirEntityId, 'private'),
-          properties: ['parent', 'type', 'effFile'],
-        }),
-      ];
-    }),
 
     dirProxy: promise.object(computed(
       'dirEntityId',
