@@ -152,16 +152,32 @@ export default OneEmbeddedComponent.extend(
      * @override
      * @implements {Mixins.FileConsumer}
      */
-    fileRequirements: computed('dirEntityId', function fileRequirements() {
-      if (!this.dirEntityId) {
+    fileRequirements: computed('dirGri', function fileRequirements() {
+      if (!this.dirGri) {
         return [];
       }
       return [
         FileRequirement.create({
-          fileGri: getFileGri(this.dirEntityId, 'private'),
+          debug: 'content-file-browser',
+          fileGri: this.dirGri,
           properties: ['parent', 'type', 'effFile'],
         }),
       ];
+    }),
+
+    /**
+     * @override
+     * @implements {Mixins.FileConsumer}
+     */
+    usedFiles: computed('dir', function usedFiles() {
+      if (!this.dir) {
+        return [];
+      }
+      return [this.dir];
+    }),
+
+    dirGri: computed('dirEntityId', function dirGri() {
+      return getFileGri(this.dirEntityId, 'private');
     }),
 
     /**
@@ -335,7 +351,6 @@ export default OneEmbeddedComponent.extend(
           spaceId: spaceEntityId,
         });
         const fallbackDir = await fallbackDirProxy;
-
         const resolverResult = await filesViewResolver.resolveViewOptions({
           dirId: dirEntityId,
           currentFilesViewContext,

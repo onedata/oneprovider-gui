@@ -29,26 +29,14 @@ export default EmberObject.extend(OwnerInjector, {
   fileRequirementsObserver: observer(
     'fileRequirements',
     function fileRequirementsObserver() {
-      if (!Array.isArray(this.fileRequirements)) {
-        return;
-      }
-      this.fileRequirementRegistry.setRequirements(
-        this.consumer,
-        this.fileRequirements
-      );
+      this.registerRequirements();
     }
   ),
 
   usedFilesObserver: observer(
     'usedFiles',
     function usedFilesObserver() {
-      if (!Array.isArray(this.usedFiles)) {
-        return;
-      }
-      this.fileRecordRegistry.setFiles(
-        this.consumer,
-        ...this.usedFiles
-      );
+      this.registerUsedFiles();
     }
   ),
 
@@ -59,6 +47,26 @@ export default EmberObject.extend(OwnerInjector, {
     this._super(...arguments);
     this.fileRequirementsObserver();
     this.usedFilesObserver();
+  },
+
+  registerRequirements() {
+    if (!Array.isArray(this.fileRequirements)) {
+      return;
+    }
+    this.fileRequirementRegistry.setRequirements(
+      this.consumer,
+      this.fileRequirements
+    );
+  },
+
+  registerUsedFiles() {
+    if (!Array.isArray(this.usedFiles)) {
+      return;
+    }
+    this.fileRecordRegistry.setFiles(
+      this.consumer,
+      ...this.usedFiles
+    );
   },
 
   /**
