@@ -5,7 +5,7 @@ import { render, find, findAll, triggerEvent, click } from '@ember/test-helpers'
 import { hbs } from 'ember-cli-htmlbars';
 import moment from 'moment';
 import Service from '@ember/service';
-import { lookupService, registerService } from '../../../helpers/stub-service';
+import { registerService } from '../../../helpers/stub-service';
 import { RuntimeProperties as FileRuntimeProperties } from 'oneprovider-gui/models/file';
 import EmberObject, { set } from '@ember/object';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';

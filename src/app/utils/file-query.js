@@ -109,6 +109,4 @@ const FileQuery = EmberObject.extend({
   },
 });
 
-// FIXME: debug
 export default FileQuery;
-window.FileQuery = FileQuery;

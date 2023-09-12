@@ -8,7 +8,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
-import { raw, conditional, isEmpty, or, and, collect } from 'ember-awesome-macros';
+import { raw, conditional, isEmpty, or, and } from 'ember-awesome-macros';
 import { get, computed, getProperties, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';

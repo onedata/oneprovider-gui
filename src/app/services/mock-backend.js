@@ -47,7 +47,6 @@ import {
   atmWorkflowExecutionPhases,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 import globals from 'onedata-gui-common/utils/globals';
-import FileConsumerModel from 'oneprovider-gui/utils/file-consumer-model';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 
 const userEntityId = 'stub_user_id';

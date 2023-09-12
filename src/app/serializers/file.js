@@ -18,7 +18,6 @@ import { get, computed } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
 import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
 import { aspect as archiveRecallStateAspect } from 'oneprovider-gui/models/archive-recall-state';
-import config from 'ember-get-config';
 
 export const qosSummaryAspect = 'qos_summary';
 export const datasetSummaryAspect = 'dataset_summary';

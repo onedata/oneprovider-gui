@@ -40,6 +40,4 @@ const FileRequirement = FileQuery.extend({
   },
 });
 
-// FIXME: debug
 export default FileRequirement;
-window.FileRequirement = FileRequirement;
