@@ -5,7 +5,7 @@ import {
   propertyToAttributesMap,
 } from 'oneprovider-gui/utils/file-model';
 import _ from 'lodash';
-import { computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { allSettled } from 'rsvp';
 
 /**
@@ -33,6 +33,7 @@ import { allSettled } from 'rsvp';
 
 export default Service.extend({
   fileRecordRegistry: service(),
+  store: service(),
 
   //#region configuration
 
@@ -85,29 +86,58 @@ export default Service.extend({
     let allFiles;
     const getAllFiles = () => {
       if (!allFiles) {
-        allFiles = this.fileRecordRegistry.getRegisteredFiles();
+        allFiles = this.store.peekAll('file');
       }
       return allFiles;
     };
     // FIXME: optymalizacja: można odejmować wykorzystane requirementy z allRequirements
     // FIXME: optymalizacja: nie array i uniq, tylko Set?
     for (const query of queries) {
+      const queryType = query.getQueryType();
+
+      // Select requirements directly matching the query.
       matchingRequirements.push(
         ...allRequirements.filter(requirement => query.matches(requirement))
       );
       // FIXME: co jeśli pobrany zostanie na świeżo plik, który będzie miał parenta, który jest w requirements?
       // trzeba przeanalizować problemy z tym przypadkiem i najwyżej tylko opisać
-      if (query.getQueryType() === 'parentId') {
-        const parentId = query.parentId;
-        const filesForParent = getAllFiles().filter(file =>
-          file?.relationEntityId('parent') === parentId
-        );
-        for (const file of filesForParent) {
-          matchingRequirements.push(
-            ...allRequirements.filter(requirement => requirement.matchesFile(file))
+
+      // Select requirements for known files that have the parent matching
+
+      switch (queryType) {
+        case 'fileGri': {
+          const file = getAllFiles().find(file =>
+            file && get(file, 'id') === query.fileGri
           );
+          if (file) {
+            matchingRequirements.push(
+              ...allRequirements.filter(req =>
+                req.getQueryType() === 'parentId' &&
+                req.parentId === file.relationEntityId('parent')
+              )
+            );
+          }
         }
+        break;
+        case 'parentId': {
+          const parentId = query.parentId;
+          const filesForParent = getAllFiles().filter(file =>
+            file?.relationEntityId('parent') === parentId
+          );
+          for (const file of filesForParent) {
+            matchingRequirements.push(
+              ...allRequirements.filter(requirement => requirement.matchesFile(file))
+            );
+          }
+        }
+        break;
+        default:
+          break;
       }
+
+      // FIXME: Pytam się o propertiesy dla pliku, który pobieram, bo jest effFile pewnego
+      // innego pliku.
+      // Select requirements for
     }
     matchingRequirements = _.uniq(matchingRequirements);
     const requiredProperties = _.uniq(_.flatten(
@@ -244,7 +274,7 @@ export default Service.extend({
     // podczas gdy mamy już załadowane do rejestru requirementy z parentId, które pokrywają
     // już te propertiesy dla naszych plików - trzeba będzie wyrzucać te requirementy
 
-    // reject requirements that
+    // reject requirements that.. FIXME: dokończyć doc
     const parentBasedRequirements = allRequirements.filter(requirement =>
       requirement.getQueryType() === 'parentId' &&
       !absentRequirementSet.has(requirement)

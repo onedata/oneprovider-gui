@@ -273,29 +273,6 @@ export const RuntimeProperties = Mixin.create({
   },
 });
 
-const FileRelationConsumer = Mixin.create(FileConsumerMixin, {
-  // FIXME: użyć gdzieś tego
-  async getRelation(relationName, options) {
-    const requiredProperties = options?.requiredProperties;
-    if (requiredProperties) {
-      // FIXME: eksperymentalnie uproszczone: będzie trzeba zarządzać wieloma relacjami
-      // w File wystarczy jedno
-      const fileGri = this.belongsTo(relationName)?.id();
-      if (!fileGri) {
-        return null;
-      }
-      const fileRequirement = FileRequirement.create({
-        // FIXME: debug
-        test: 'lolololo',
-        fileGri,
-        properties: requiredProperties,
-      });
-      this.set('fileRequirements', [fileRequirement]);
-    }
-    return await this._super(...arguments);
-  },
-});
-
 export default Model.extend(
   GraphSingleModelMixin,
   FileRelationConsumer,
@@ -408,7 +385,8 @@ export default Model.extend(
      * @type {Models.Archive}
      */
     archive: belongsTo('archive'),
-  }).reopenClass(StaticGraphModelMixin, {
+  }
+).reopenClass(StaticGraphModelMixin, {
   /**
    * @override
    */

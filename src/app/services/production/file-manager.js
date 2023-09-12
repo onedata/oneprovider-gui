@@ -283,30 +283,27 @@ export default Service.extend({
    * @param {Number} offset
    * @returns {Promise<{ childrenRecords: Array<Models.File>, isLast: Boolean }>}
    */
-  fetchDirChildren(dirId, scope, index, limit, offset) {
+  async fetchDirChildren(dirId, scope, index, limit, offset) {
     if (!limit || limit <= 0) {
-      return resolve({ childrenRecords: [], isLast: false });
+      return { childrenRecords: [], isLast: false };
     } else {
-      return this.fetchChildrenAttrs({
+      const { children, isLast } = await this.fetchChildrenAttrs({
         dirId,
         scope,
         index,
         limit,
         offset,
-      }).then(({ children, isLast }) =>
-        this.pushChildrenAttrsToStore(children, scope)
-        .then(childrenRecords =>
-          this.resolveSymlinks(childrenRecords, scope).then(() => childrenRecords)
-        )
-        .then(childrenRecords => ({ childrenRecords, isLast }))
-      );
+      });
+      const childrenRecords = await this.pushChildrenAttrsToStore(children, scope);
+      await this.resolveSymlinks(childrenRecords, scope);
+      return { childrenRecords, isLast };
     }
   },
 
   /**
    * @param {Array<Object>} childrenAttrs data for creating File model
    * @param {String} scope one of: private, public
-   * @returns {Array<Record>}
+   * @returns {Promise<Array<Models.File>>}
    */
   pushChildrenAttrsToStore(childrenAttrs, scope) {
     const store = this.get('store');
@@ -350,31 +347,45 @@ export default Service.extend({
     });
   },
 
-  resolveSymlinks(files, scope) {
+  async resolveSymlinks(files, scope) {
     const symlinks = files.filterBy('type', 'symlink');
-    return allFulfilled(symlinks.map(symlink =>
-      this.fetchSymlinkTargetAttrs(get(symlink, 'entityId'), scope)
-      .then(targetAttrs => this.pushChildrenAttrsToStore([targetAttrs], scope))
-      .then(([targetRecord]) => set(symlink, 'symlinkTargetFile', targetRecord))
-      .catch(() => set(symlink, 'symlinkTargetFile', null))
-    ));
+    await allFulfilled(symlinks.map(async (symlink) => {
+      try {
+        const targetAttrs = await this.fetchSymlinkTargetAttrs(
+          get(symlink, 'id'),
+          scope
+        );
+        const [targetRecord] = await this.pushChildrenAttrsToStore([targetAttrs], scope);
+        set(symlink, 'symlinkTargetFile', targetRecord);
+      } catch {
+        set(symlink, 'symlinkTargetFile', null);
+      }
+    }));
   },
 
   /**
-   * @param {String} symlinkEntityId
-   * @param {String} scope
+   * @param {string} symlinkGri
+   * @param {string} scope
    * @returns {Promise<Object>} attributes of symlink target
    */
-  fetchSymlinkTargetAttrs(symlinkEntityId, scope) {
+  fetchSymlinkTargetAttrs(symlinkGri, scope) {
+    const symlinkFileId = parseGri(symlinkGri).entityId;
     const requestGri = gri({
-      entityId: symlinkEntityId,
+      entityId: symlinkFileId,
       entityType: fileEntityType,
       aspect: symlinkTargetAttrsAspect,
       scope,
     });
-    return this.get('onedataGraph').request({
+    const query = FileQuery.create({
+      fileGri: symlinkGri,
+    });
+    const attributes = this.fileRequirementRegistry.findAttrsRequirement(query);
+    return this.onedataGraph.request({
       operation: 'get',
       gri: requestGri,
+      data: {
+        attributes,
+      },
       subscribe: false,
     });
   },
