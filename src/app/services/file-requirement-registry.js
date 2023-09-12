@@ -80,7 +80,7 @@ export default Service.extend({
    * @param {...Utils.FileQuery} queries
    * @returns {Array<File.RawAttribute>}
    */
-  findAttrsRequirement(...queries) {
+  getRequiredAttributes(...queries) {
     let matchingRequirements = [];
     const allRequirements = this.getRequirements();
     let allFiles;
@@ -154,20 +154,18 @@ export default Service.extend({
    * properties for file required after reuirements set.
    * @public
    * @param {FileConsumer} consumer
-   * @param {Array<Utils.FileRequirement>|Utils.FileRequirement} requirements
+   * @param {...Utils.FileRequirement} requirements
    * @returns {Promise<PromiseState<Models.File>>} Settled promise states of files that
    *   have been triggered to be reloaded.
    */
-  async setRequirements(consumer, requirements) {
-    // FIXME: zmienić requirements na spread argument
-    let reqArray = Array.isArray(requirements) ? requirements : [requirements];
-    reqArray = this.filterRichRequirements(reqArray);
-    if (_.isEmpty(reqArray)) {
+  async setRequirements(consumer, ...requirements) {
+    const richRequirements = this.filterOutBasicRequirements(requirements);
+    if (_.isEmpty(richRequirements)) {
       this.consumerRequirementsMap.delete(consumer);
       return;
     }
-    const filesToUpdate = this.getFilesToUpdate(requirements);
-    this.consumerRequirementsMap.set(consumer, reqArray);
+    const filesToUpdate = this.getFilesToUpdate(richRequirements);
+    this.consumerRequirementsMap.set(consumer, richRequirements);
     return await allSettled(filesToUpdate.map(file => {
       return file.reload();
     }));
@@ -176,8 +174,9 @@ export default Service.extend({
   /**
    * @public
    * @param {FileConsumer} consumer
+   * @returns {void}
    */
-  removeRequirements(consumer) {
+  deregisterRequirements(consumer) {
     this.consumerRequirementsMap.delete(consumer);
   },
 
@@ -196,7 +195,7 @@ export default Service.extend({
    * @param {Array<FileRequirement>} requirements
    * @returns {Array<FileRequirement>}
    */
-  filterRichRequirements(requirements) {
+  filterOutBasicRequirements(requirements) {
     if (_.isEmpty(requirements)) {
       return [];
     }

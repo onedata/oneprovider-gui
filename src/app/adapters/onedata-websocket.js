@@ -29,7 +29,7 @@ export default OnedataWebsocketAdapter.extend({
         }));
       }
       const attributes =
-        this.fileRequirementRegistry.findAttrsRequirement(...queries);
+        this.fileRequirementRegistry.getRequiredAttributes(...queries);
       if (!_.isEmpty(attributes)) {
         try {
           const scope = parseGri(id)?.scope;

@@ -119,7 +119,7 @@ export default Service.extend({
     const store = this.get('store');
     const fileGri = getFileGri(fileId, scope);
     const requirementQuery = FileQuery.create({ fileGri });
-    const attributes = this.fileRequirementRegistry.findAttrsRequirement(
+    const attributes = this.fileRequirementRegistry.getRequiredAttributes(
       requirementQuery
     );
     if (scope === 'public') {
@@ -327,7 +327,7 @@ export default Service.extend({
     const requirementQuery = FileQuery.create({
       parentId: dirId,
     });
-    const attributes = this.fileRequirementRegistry.findAttrsRequirement(
+    const attributes = this.fileRequirementRegistry.getRequiredAttributes(
       requirementQuery
     );
     if (scope === 'public') {
@@ -379,7 +379,7 @@ export default Service.extend({
     const query = FileQuery.create({
       fileGri: symlinkGri,
     });
-    const attributes = this.fileRequirementRegistry.findAttrsRequirement(query);
+    const attributes = this.fileRequirementRegistry.getRequiredAttributes(query);
     return this.onedataGraph.request({
       operation: 'get',
       gri: requestGri,

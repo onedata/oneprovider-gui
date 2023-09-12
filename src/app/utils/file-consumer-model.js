@@ -55,7 +55,7 @@ export default EmberObject.extend(OwnerInjector, {
     }
     this.fileRequirementRegistry.setRequirements(
       this.consumer,
-      this.fileRequirements
+      ...this.fileRequirements
     );
   },
 
@@ -74,8 +74,8 @@ export default EmberObject.extend(OwnerInjector, {
    */
   willDestroy() {
     try {
-      this.fileRequirementRegistry.removeRequirements(this.consumer);
-      this.fileRecordRegistry.removeFiles(this.consumer);
+      this.fileRequirementRegistry.deregisterRequirements(this.consumer);
+      this.fileRecordRegistry.deregisterFiles(this.consumer);
     } finally {
       this._super(...arguments);
     }

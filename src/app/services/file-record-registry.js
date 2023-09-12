@@ -44,21 +44,21 @@ export default Service.extend({
     }
 
     if (filesToDeregister.length) {
-      this.removeFiles(consumer, ...filesToDeregister);
+      this.deregisterFiles(consumer, ...filesToDeregister);
     }
     for (const file of filesToRegister) {
       this.addToMap(file, consumer);
     }
   },
 
-  // FIXME: zmiana nazwy (i pewnie też w requirementsach) bo removeFiles brzmi jak ich usuwanie (delete)
+  // FIXME: zmiana nazwy (i pewnie też w requirementsach) bo deregisterFiles brzmi jak ich usuwanie (delete)
   /**
    * @public
    * @param {FileConsumer} consumer
    * @param {...Models.File} files
    * @returns {void}
    */
-  removeFiles(consumer, ...files) {
+  deregisterFiles(consumer, ...files) {
     if (files.length) {
       for (const file of files) {
         const consumers = this.fileConsumerMap.get(file);

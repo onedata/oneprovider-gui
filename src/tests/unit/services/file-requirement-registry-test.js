@@ -77,8 +77,8 @@ describe('Unit | Service | file-requirement-registry', function () {
 
       await service.setRequirements(consumer1, req1);
       await service.setRequirements(consumer2, req2);
-      await service.setRequirements(consumer3, [req31, req32]);
-      service.removeRequirements(consumer2);
+      await service.setRequirements(consumer3, req31, req32);
+      service.deregisterRequirements(consumer2);
 
       const resultRequirements = service.getRequirements();
       // including basic requirement
@@ -88,7 +88,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       expect(resultRequirements).to.include(req32);
     });
 
-  it('findAttrsRequirement returns attributes for given requirements (parentId) using query', async function () {
+  it('getRequiredAttributes returns attributes for given requirements (parentId) using query', async function () {
     const service = this.owner.lookup('service:file-requirement-registry');
     const consumer1 = { name: 'c1' };
     const consumer2 = { name: 'c2' };
@@ -114,9 +114,9 @@ describe('Unit | Service | file-requirement-registry', function () {
     });
     await service.setRequirements(consumer1, req1);
     await service.setRequirements(consumer2, req2);
-    await service.setRequirements(consumer3, [req31, req32]);
+    await service.setRequirements(consumer3, req31, req32);
 
-    const resultAttrs = service.findAttrsRequirement(query).sort();
+    const resultAttrs = service.getRequiredAttributes(query).sort();
 
     expect(resultAttrs).to.deep.equal([
       'size',
@@ -130,7 +130,7 @@ describe('Unit | Service | file-requirement-registry', function () {
     ].sort());
   });
 
-  it('findAttrsRequirement returns attributes registered for files that have parent from query',
+  it('getRequiredAttributes returns attributes registered for files that have parent from query',
     async function () {
       const service = this.owner.lookup('service:file-requirement-registry');
       const store = lookupService(this, 'store');
@@ -156,7 +156,7 @@ describe('Unit | Service | file-requirement-registry', function () {
         parentId: get(parent1, 'entityId'),
       });
 
-      const resultAttrs = service.findAttrsRequirement(query);
+      const resultAttrs = service.getRequiredAttributes(query);
 
       expect(resultAttrs).to.contain('ctime');
     },
@@ -198,7 +198,7 @@ describe('Unit | Service | file-requirement-registry', function () {
         fileGri: 'file.a2.instance:private',
         properties: ['mtime', 'ctime', 'atime'],
       });
-      await service.setRequirements(consumer1, [req1, req2, req3]);
+      await service.setRequirements(consumer1, req1, req2, req3);
 
       const absentRequirementSet =
         service.getAbsentRequirementSet([newReq1, newReq2, newReq3, newReq4]);
@@ -258,7 +258,7 @@ describe('Unit | Service | file-requirement-registry', function () {
         properties: ['mtime', 'ctime', 'atime'],
       });
       const newRequirements = [newReq1, newReq2, newReq3, newReq4];
-      await fileRequirementRegistry.setRequirements(consumer1, [req1, req2, req3]);
+      await fileRequirementRegistry.setRequirements(consumer1, req1, req2, req3);
 
       const filesToUpdate =
         fileRequirementRegistry.getFilesToUpdate(newRequirements);
@@ -319,12 +319,12 @@ describe('Unit | Service | file-requirement-registry', function () {
         properties: ['mtime', 'ctime', 'atime'],
       });
       const newRequirements = [newReq1, newReq2, newReq3, newReq4];
-      await fileRequirementRegistry.setRequirements(consumer1, [req1, req2, req3]);
+      await fileRequirementRegistry.setRequirements(consumer1, req1, req2, req3);
       for (const reloadSpy of Object.values(reloadSpyMap)) {
         reloadSpy.resetHistory();
       }
 
-      await fileRequirementRegistry.setRequirements(consumer1, newRequirements);
+      await fileRequirementRegistry.setRequirements(consumer1, ...newRequirements);
 
       expect(reloadSpyMap.a1, 'a1').to.be.not.called;
       expect(reloadSpyMap.a2, 'a2').to.be.calledOnce;
