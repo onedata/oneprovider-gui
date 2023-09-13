@@ -29,6 +29,7 @@ import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browse
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -1196,8 +1197,11 @@ export default BaseBrowserModel.extend(...mixins, {
     },
   ),
 
-  init() {
-    this.set('columns', {
+  /**
+   * @override
+   */
+  createColumnsConfiguration() {
+    const columns = {
       size: EmberObject.create({
         isVisible: true,
         isEnabled: true,
@@ -1218,19 +1222,24 @@ export default BaseBrowserModel.extend(...mixins, {
         isEnabled: false,
         width: 100,
       }),
-    });
-    this.set('columnsOrder', ['size', 'modification', 'replication', 'qos']);
+    };
+    const columnsOrder = ['size', 'modification', 'replication', 'qos'];
     if (this.isOwnerVisible) {
-      this.set('columns.owner', EmberObject.create({
+      columns.owner = EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 200,
-      }));
-      this.columnsOrder.push('owner');
+      });
+      columnsOrder.push('owner');
     }
-    // TODO: VFS-11252 Check if user having (size, modification, owner) in localstore
-    // will have new columns applied (it was fixed in develop)
-    this._super(...arguments);
+    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
+    return ColumnsConfiguration.create({
+      configurationType: this.browserPersistedConfigurationKey,
+      columns,
+      columnsOrder,
+      firstColumnWidth: 380,
+      tableThead: elementFbTableThead,
+    });
   },
 
   /**

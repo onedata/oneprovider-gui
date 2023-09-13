@@ -6,6 +6,11 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-10939 Fixed copying from provider popover in firefox
+* VFS-11312 Fix showing jump to file input
+* VFS-11268 Added error handling for file data push to store on fetching files list
+* VFS-11224 Added jumping to items in exception store
+* VFS-10696 Added setting for modifying the order of columns in the transfers table
 * VFS-10638 Added disabled QoS column
 * VFS-11225 Added failure threshold to atm lane
 * VFS-11249 Adjusted calls to backend to the new workflow execution API (changed `laneSchemaId` to `laneIndex`)

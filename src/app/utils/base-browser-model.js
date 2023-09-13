@@ -31,24 +31,12 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import { typeOf } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
-import { tag, raw, conditional, eq, and, promise, bool, gt, or } from 'ember-awesome-macros';
+import { tag, raw, conditional, eq, and, promise, bool, or } from 'ember-awesome-macros';
 import moment from 'moment';
-import globals from 'onedata-gui-common/utils/globals';
-import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
-import { htmlSafe } from '@ember/string';
-import dom from 'onedata-gui-common/utils/dom';
 import _ from 'lodash';
 import isPosixError from 'oneprovider-gui/utils/is-posix-error';
 import createRenderThrottledProperty from 'onedata-gui-common/utils/create-render-throttled-property';
-
-/**
- * Contains info about column visibility: if on screen is enough space to show this column
- * and if user want to view that
- * @typedef {EmberObject} ColumnProperties
- * @property {boolean} isVisible
- * @property {boolean} isEnabled
- * @property {number} width
- */
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
 /**
  * @typedef {'pending'|'fulfilled'|'rejected'} BrowserListLoadState
@@ -63,7 +51,6 @@ const BrowserListLoadState = Object.freeze({
 const mixins = [
   OwnerInjector,
   I18n,
-  WindowResizeHandler,
 ];
 
 export default EmberObject.extend(...mixins, {
@@ -179,9 +166,9 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {string}
+   * @type {() => Utils.ColumnsConfiguration}
    */
-  browserPersistedConfigurationKey: '',
+  createColumnsConfiguration: notImplementedThrow,
 
   /**
    * @virtual optional
@@ -217,6 +204,11 @@ export default EmberObject.extend(...mixins, {
    * When true, allow to select only single item on list.
    */
   singleSelect: false,
+
+  /**
+   * @type {Utils.ColumnsConfiguration}
+   */
+  columnsConfiguration: undefined,
 
   /**
    * @type {String}
@@ -285,21 +277,6 @@ export default EmberObject.extend(...mixins, {
 
   refreshBtnIsVisible: true,
 
-  /**
-   * @type {number}
-   */
-  defaultFileBrowserWidth: 1000,
-
-  /**
-   * @type {number}
-   */
-  firstColumnWidth: 380,
-
-  /**
-   * @type {number}
-   */
-  lastColumnWidth: 68,
-
   //#endregion
 
   //#region browser model state
@@ -314,23 +291,6 @@ export default EmberObject.extend(...mixins, {
    * @type {number}
    */
   lastRefreshTime: undefined,
-
-  /**
-   * @type {number}
-   */
-  hiddenColumnsCount: 0,
-
-  /**
-   * @type {Object<string, ColumnProperties>}
-   */
-  columns: undefined,
-
-  /**
-   * An array with names of columns, in display order (from left to right).
-   * There are enabled and disabled columns here.
-   * @type {Object<string>}
-   */
-  columnsOrder: undefined,
 
   //#endregion
 
@@ -361,11 +321,6 @@ export default EmberObject.extend(...mixins, {
   )),
 
   isRootDir: bool('isRootDirProxy.content'),
-
-  /**
-   * @type {boolean}
-   */
-  isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -566,17 +521,6 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
-  /**
-   * @type {Object}
-   */
-  columnsStyle: computed('columns', function columnsStyle() {
-    const styles = {};
-    for (const column in this.columns) {
-      styles[column] = htmlSafe(`--column-width: ${this.columns[column].width}px;`);
-    }
-    return styles;
-  }),
-
   generateAllButtonsArray: observer(
     'buttonNames.[]',
     function generateAllButtonsArray() {
@@ -617,7 +561,7 @@ export default EmberObject.extend(...mixins, {
     'dirLoadError',
     'hasEmptyDirClass',
     function columnsVisibilityAutoChecker() {
-      this.checkColumnsVisibility();
+      this.columnsConfiguration.checkColumnsVisibility();
     },
   ),
 
@@ -628,9 +572,7 @@ export default EmberObject.extend(...mixins, {
     this.listLoadStateSetter();
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
-    this.attachWindowResizeHandler();
-    this.loadColumnsConfigFromLocalStorage();
-    this.checkColumnsVisibility();
+    this.set('columnsConfiguration', this.createColumnsConfiguration());
   },
 
   /**
@@ -641,15 +583,7 @@ export default EmberObject.extend(...mixins, {
       this.browserListPoller?.destroy();
     } finally {
       this._super(...arguments);
-      this.detachWindowResizeHandler();
     }
-  },
-
-  /**
-   * @override
-   */
-  onWindowResize() {
-    return this.checkColumnsVisibility();
   },
 
   changeDir(dir) {
@@ -842,82 +776,6 @@ export default EmberObject.extend(...mixins, {
         }, options);
       default:
         throw new Error(`createItemBrowserAction: not supported spec type: ${specType}`);
-    }
-  },
-
-  /**
-   * @param {string} column
-   * @param {boolean} isEnabled
-   * @returns {void}
-   */
-  changeColumnVisibility(columnName, isEnabled) {
-    this.set(`columns.${columnName}.isEnabled`, isEnabled);
-    this.checkColumnsVisibility();
-    const enabledColumns = [];
-    for (const column of this.columnsOrder) {
-      if (this.columns[column].isEnabled) {
-        enabledColumns.push(column);
-      }
-    }
-    globals.localStorage.setItem(
-      `${this.browserPersistedConfigurationKey}.enabledColumns`,
-      enabledColumns.join()
-    );
-  },
-
-  saveColumnsOrder() {
-    globals.localStorage.setItem(
-      `${this.browserPersistedConfigurationKey}.columnsOrder`,
-      this.columnsOrder
-    );
-  },
-
-  checkColumnsVisibility() {
-    let width = this.defaultFileBrowserWidth;
-    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
-    if (elementFbTableThead) {
-      width = dom.width(elementFbTableThead);
-    }
-    let remainingWidth = width - this.firstColumnWidth;
-    remainingWidth -= this.lastColumnWidth;
-    let hiddenColumnsCount = 0;
-    for (const column of this.columnsOrder) {
-      if (this.columns[column].isEnabled) {
-        if (remainingWidth >= this.columns[column].width) {
-          remainingWidth -= this.columns[column].width;
-          this.set(`columns.${column}.isVisible`, true);
-        } else {
-          this.set(`columns.${column}.isVisible`, false);
-          hiddenColumnsCount += 1;
-          remainingWidth = 0;
-        }
-      } else {
-        this.set(`columns.${column}.isVisible`, false);
-      }
-    }
-    if (this.hiddenColumnsCount !== hiddenColumnsCount) {
-      this.set('hiddenColumnsCount', hiddenColumnsCount);
-    }
-  },
-
-  loadColumnsConfigFromLocalStorage() {
-    const enabledColumns = globals.localStorage.getItem(
-      `${this.browserPersistedConfigurationKey}.enabledColumns`
-    );
-    const columnsOrder = globals.localStorage.getItem(
-      `${this.browserPersistedConfigurationKey}.columnsOrder`
-    );
-
-    const enabledColumnsList = enabledColumns?.split(',');
-    if (enabledColumnsList) {
-      for (const column in this.columns) {
-        this.set(`columns.${column}.isEnabled`,
-          Boolean(enabledColumnsList?.includes(column))
-        );
-      }
-    }
-    if (columnsOrder) {
-      this.set('columnsOrder', columnsOrder.split(','));
     }
   },
 
