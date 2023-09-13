@@ -1140,7 +1140,7 @@ export default BaseBrowserModel.extend(...mixins, {
   fileRequirements: computed(
     // TODO: 11252 Try checking isVisible instead isEnabled
     'dir',
-    `columns.{${columnsRequirementsDependencies}}`,
+    `columnsConfiguration.columns.{${columnsRequirementsDependencies}}`,
     function fileRequirements() {
       if (!this.dir) {
         return [];
@@ -1170,19 +1170,20 @@ export default BaseBrowserModel.extend(...mixins, {
         );
       }
       const listedFilesProperties = [...basicProperties];
-      if (this.columns.size.isEnabled) {
+      const columns = this.columnsConfiguration.columns;
+      if (columns.size?.isEnabled) {
         listedFilesProperties.push('size');
       }
-      if (this.columns.modification.isEnabled) {
+      if (columns.modification?.isEnabled) {
         listedFilesProperties.push('mtime');
       }
-      if (this.columns.owner?.isEnabled) {
+      if (columns.owner?.isEnabled) {
         listedFilesProperties.push('owner');
       }
-      if (this.columns.replication?.isEnabled) {
+      if (columns.replication?.isEnabled) {
         listedFilesProperties.push('localReplicationRate');
       }
-      if (this.columns.qos?.isEnabled) {
+      if (columns.qos?.isEnabled) {
         listedFilesProperties.push('qosStatus');
       }
       const parentDirRequirement = new FileRequirement({
