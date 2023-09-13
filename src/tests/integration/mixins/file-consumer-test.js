@@ -25,7 +25,7 @@ describe('Integration | Mixin | file-consumer', function () {
   it('registers requirements on inserting and deregisters on destroying',
     async function () {
       const fileGri = 'some-gri';
-      const requirement = FileRequirement.create({
+      const requirement = new FileRequirement({
         fileGri,
         properties: [
           'name',
@@ -69,13 +69,13 @@ describe('Integration | Mixin | file-consumer', function () {
   it('replaces requirements for consumer in global registry on requirements change',
     async function () {
       const fileGri = 'some-gri';
-      const requirement1 = FileRequirement.create({
+      const requirement1 = new FileRequirement({
         fileGri,
         properties: [
           'ctime',
         ],
       });
-      const requirement2 = FileRequirement.create({
+      const requirement2 = new FileRequirement({
         fileGri,
         properties: [
           'mtime',
@@ -168,7 +168,7 @@ describe('Integration | Mixin | file-consumer', function () {
   it('does not add requirements to registry if they are covered by basic properties',
     async function () {
       const fileGri = 'some-gri';
-      const requirement = FileRequirement.create({
+      const requirement = new FileRequirement({
         fileGri,
         properties: [
           'name',
@@ -193,7 +193,7 @@ describe('Integration | Mixin | file-consumer', function () {
   it('does not add requirements to registry on change if they are covered by basic properties on change from non-basic',
     async function () {
       const fileGri = 'some-gri';
-      const richRequirement = FileRequirement.create({
+      const richRequirement = new FileRequirement({
         fileGri,
         properties: [
           'name',
@@ -201,7 +201,7 @@ describe('Integration | Mixin | file-consumer', function () {
           'mtime',
         ],
       });
-      const frugalRequirement = FileRequirement.create({
+      const frugalRequirement = new FileRequirement({
         fileGri,
         properties: [
           'name',
@@ -222,7 +222,7 @@ describe('Integration | Mixin | file-consumer', function () {
   it('adds only requirements to registry that are not covered by basic properties',
     async function () {
       const fileGri = 'some-gri';
-      const richRequirement = FileRequirement.create({
+      const richRequirement = new FileRequirement({
         fileGri,
         properties: [
           'name',
@@ -230,7 +230,7 @@ describe('Integration | Mixin | file-consumer', function () {
           'mtime',
         ],
       });
-      const frugalRequirement = FileRequirement.create({
+      const frugalRequirement = new FileRequirement({
         fileGri,
         properties: [
           'name',

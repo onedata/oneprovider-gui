@@ -252,7 +252,7 @@ export default Component.extend(...mixins, {
         return [];
       }
       return [
-        FileRequirement.create({
+        new FileRequirement({
           fileGri: get(this.dir, 'id'),
           properties: [
             'effFile',

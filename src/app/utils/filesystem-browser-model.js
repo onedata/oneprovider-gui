@@ -1184,11 +1184,11 @@ export default BaseBrowserModel.extend(...mixins, {
       if (this.columns.qos?.isEnabled) {
         listedFilesProperties.push('qosStatus');
       }
-      const parentDirRequirement = FileRequirement.create({
+      const parentDirRequirement = new FileRequirement({
         properties: basicProperties,
         fileGri: parentDirGri,
       });
-      const listingRequirement = FileRequirement.create({
+      const listingRequirement = new FileRequirement({
         properties: listedFilesProperties,
         parentId: parentDirId,
       });

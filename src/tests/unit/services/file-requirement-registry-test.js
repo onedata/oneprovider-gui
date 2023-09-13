@@ -58,19 +58,19 @@ describe('Unit | Service | file-requirement-registry', function () {
       const consumer1 = { name: 'c1' };
       const consumer2 = { name: 'c2' };
       const consumer3 = { name: 'c3' };
-      const req1 = FileRequirement.create({
+      const req1 = new FileRequirement({
         parentId: 'p1',
         properties: ['atime', 'ctime'],
       });
-      const req2 = FileRequirement.create({
+      const req2 = new FileRequirement({
         parentId: 'p2',
         properties: ['size'],
       });
-      const req31 = FileRequirement.create({
+      const req31 = new FileRequirement({
         parentId: 'p3',
         properties: ['distribution'],
       });
-      const req32 = FileRequirement.create({
+      const req32 = new FileRequirement({
         parentId: 'p4',
         properties: ['acl'],
       });
@@ -93,23 +93,23 @@ describe('Unit | Service | file-requirement-registry', function () {
     const consumer1 = { name: 'c1' };
     const consumer2 = { name: 'c2' };
     const consumer3 = { name: 'c3' };
-    const req1 = FileRequirement.create({
+    const req1 = new FileRequirement({
       parentId: 'p1',
       properties: ['name', 'ctime', 'mtime'],
     });
-    const req2 = FileRequirement.create({
+    const req2 = new FileRequirement({
       parentId: 'p2',
       properties: ['size'],
     });
-    const req31 = FileRequirement.create({
+    const req31 = new FileRequirement({
       parentId: 'p2',
       properties: ['originalName'],
     });
-    const req32 = FileRequirement.create({
+    const req32 = new FileRequirement({
       parentId: 'p3',
       properties: ['acl'],
     });
-    const query = FileQuery.create({
+    const query = new FileQuery({
       parentId: 'p2',
     });
     await service.setRequirements(consumer1, req1);
@@ -147,12 +147,12 @@ describe('Unit | Service | file-requirement-registry', function () {
         name: 'file-1',
       }).save();
       mockFileRecordRegistryFiles(this, [parent1, file1]);
-      const req1 = FileRequirement.create({
+      const req1 = new FileRequirement({
         fileGri: file1Gri,
         properties: ['ctime'],
       });
       await service.setRequirements(consumer1, req1);
-      const query = FileQuery.create({
+      const query = new FileQuery({
         parentId: get(parent1, 'entityId'),
       });
 
@@ -166,35 +166,35 @@ describe('Unit | Service | file-requirement-registry', function () {
     async function () {
       const service = lookupService(this, 'file-requirement-registry');
       const consumer1 = { name: 'c1' };
-      const req1 = FileRequirement.create({
+      const req1 = new FileRequirement({
         fileGri: 'file.a1.instance:private',
         properties: ['posixPermissions', 'qosStatus'],
       });
-      const req2 = FileRequirement.create({
+      const req2 = new FileRequirement({
         fileGri: 'file.a2.instance:private',
         properties: ['mtime', 'ctime'],
       });
-      const req3 = FileRequirement.create({
+      const req3 = new FileRequirement({
         fileGri: 'file.a3.instance:private',
         properties: ['size'],
       });
       // an old condition with the same properties
-      const newReq1 = FileRequirement.create({
+      const newReq1 = new FileRequirement({
         fileGri: 'file.a1.instance:private',
         properties: ['posixPermissions', 'qosStatus'],
       });
       // a new condition with the same properties
-      const newReq2 = FileRequirement.create({
+      const newReq2 = new FileRequirement({
         fileGri: 'file.b1.instance:private',
         properties: ['posixPermissions', 'qosStatus'],
       });
       // a weaker requirement for old condition (req2)
-      const newReq3 = FileRequirement.create({
+      const newReq3 = new FileRequirement({
         fileGri: 'file.a2.instance:private',
         properties: ['mtime'],
       });
       // a stronger requirement for old condition
-      const newReq4 = FileRequirement.create({
+      const newReq4 = new FileRequirement({
         fileGri: 'file.a2.instance:private',
         properties: ['mtime', 'ctime', 'atime'],
       });
@@ -225,35 +225,35 @@ describe('Unit | Service | file-requirement-registry', function () {
       mockFileRecordRegistryFiles(this, files);
       const fileMap = _.zipObject(fileIds, files);
       const consumer1 = { name: 'c1' };
-      const req1 = FileRequirement.create({
+      const req1 = new FileRequirement({
         fileGri: get(fileMap.a1, 'id'),
         properties: ['posixPermissions', 'qosStatus'],
       });
-      const req2 = FileRequirement.create({
+      const req2 = new FileRequirement({
         fileGri: get(fileMap.a2, 'id'),
         properties: ['mtime', 'ctime'],
       });
-      const req3 = FileRequirement.create({
+      const req3 = new FileRequirement({
         fileGri: get(fileMap.a3, 'id'),
         properties: ['size'],
       });
       // an old condition with the same properties
-      const newReq1 = FileRequirement.create({
+      const newReq1 = new FileRequirement({
         fileGri: get(fileMap.a1, 'id'),
         properties: ['posixPermissions', 'qosStatus'],
       });
       // a new condition with the same properties
-      const newReq2 = FileRequirement.create({
+      const newReq2 = new FileRequirement({
         fileGri: get(fileMap.b1, 'id'),
         properties: ['posixPermissions', 'qosStatus'],
       });
       // a weaker requirement for old condition (req2)
-      const newReq3 = FileRequirement.create({
+      const newReq3 = new FileRequirement({
         fileGri: get(fileMap.a2, 'id'),
         properties: ['mtime'],
       });
       // a stronger requirement for old condition
-      const newReq4 = FileRequirement.create({
+      const newReq4 = new FileRequirement({
         fileGri: get(fileMap.a2, 'id'),
         properties: ['mtime', 'ctime', 'atime'],
       });
@@ -286,35 +286,35 @@ describe('Unit | Service | file-requirement-registry', function () {
       const reloadSpies = files.map(file => sinon.spy(file, 'reload'));
       const reloadSpyMap = _.zipObject(fileIds, reloadSpies);
       const consumer1 = { name: 'c1' };
-      const req1 = FileRequirement.create({
+      const req1 = new FileRequirement({
         fileGri: get(fileMap.a1, 'id'),
         properties: ['posixPermissions', 'qosStatus'],
       });
-      const req2 = FileRequirement.create({
+      const req2 = new FileRequirement({
         fileGri: get(fileMap.a2, 'id'),
         properties: ['mtime', 'ctime'],
       });
-      const req3 = FileRequirement.create({
+      const req3 = new FileRequirement({
         fileGri: get(fileMap.a3, 'id'),
         properties: ['size'],
       });
       // an old condition with the same properties
-      const newReq1 = FileRequirement.create({
+      const newReq1 = new FileRequirement({
         fileGri: get(fileMap.a1, 'id'),
         properties: ['posixPermissions', 'qosStatus'],
       });
       // a new condition with the same properties
-      const newReq2 = FileRequirement.create({
+      const newReq2 = new FileRequirement({
         fileGri: get(fileMap.b1, 'id'),
         properties: ['posixPermissions', 'qosStatus'],
       });
       // a weaker requirement for old condition (req2)
-      const newReq3 = FileRequirement.create({
+      const newReq3 = new FileRequirement({
         fileGri: get(fileMap.a2, 'id'),
         properties: ['mtime'],
       });
       // a stronger requirement for old condition
-      const newReq4 = FileRequirement.create({
+      const newReq4 = new FileRequirement({
         fileGri: get(fileMap.a2, 'id'),
         properties: ['mtime', 'ctime', 'atime'],
       });

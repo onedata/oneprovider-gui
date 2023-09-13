@@ -118,7 +118,7 @@ export default Service.extend({
   } = {}) {
     const store = this.get('store');
     const fileGri = getFileGri(fileId, scope);
-    const requirementQuery = FileQuery.create({ fileGri });
+    const requirementQuery = new FileQuery({ fileGri });
     const attributes = this.fileRequirementRegistry.getRequiredAttributes(
       requirementQuery
     );
@@ -323,7 +323,7 @@ export default Service.extend({
       aspect: childrenAttrsAspect,
       scope,
     });
-    const requirementQuery = FileQuery.create({
+    const requirementQuery = new FileQuery({
       parentId: dirId,
     });
     const attributes = this.fileRequirementRegistry.getRequiredAttributes(
@@ -375,7 +375,7 @@ export default Service.extend({
       aspect: symlinkTargetAttrsAspect,
       scope,
     });
-    const query = FileQuery.create({
+    const query = new FileQuery({
       fileGri: symlinkGri,
     });
     const attributes = this.fileRequirementRegistry.getRequiredAttributes(query);

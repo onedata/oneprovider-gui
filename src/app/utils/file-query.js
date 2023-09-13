@@ -15,35 +15,34 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { get } from '@ember/object';
+import { get } from '@ember/object';
 
 /**
  * @typedef {'parentId'|'fileGri'|'none'} FileQuery.Type
  */
 
-const FileQuery = EmberObject.extend({
-  /**
-   * Entity ID of parent of file to match.
-   * @virtual optional
-   * @type {undefined|string}
-   */
-  parentId: undefined,
-
-  /**
-   * Exact GRI of file to match.
-   * @virtual optional
-   * @type {undefined|string}
-   */
-  fileGri: undefined,
-
-  init() {
-    this._super(...arguments);
-    if (this.parentId && this.fileGri) {
+export default class FileQuery {
+  constructor(conditions = {}) {
+    if (conditions.parentId && conditions.fileGri) {
       throw new Error(
         'FileQuery should have only one of these properties: parentId or fileGri'
       );
     }
-  },
+
+    /**
+     * Entity ID of parent of file to match.
+     * @virtual optional
+     * @type {undefined|string}
+     */
+    this.parentId = conditions.parentId;
+
+    /**
+     * Exact GRI of file to match.
+     * @virtual optional
+     * @type {undefined|string}
+     */
+    this.fileGri = conditions.fileGri;
+  }
 
   /**
    * @public
@@ -65,7 +64,7 @@ const FileQuery = EmberObject.extend({
       return true;
     }
     return false;
-  },
+  }
 
   /**
    * @public
@@ -86,7 +85,7 @@ const FileQuery = EmberObject.extend({
       default:
         return false;
     }
-  },
+  }
 
   /**
    * @public
@@ -100,13 +99,13 @@ const FileQuery = EmberObject.extend({
       return 'fileGri';
     }
     return 'none';
-  },
+  }
 
   /**
    * @public
    * @returns {string}
    */
-  stringify() {
+  toString() {
     const type = this.getQueryType();
     let condition;
     if (type === 'parentId') {
@@ -115,7 +114,5 @@ const FileQuery = EmberObject.extend({
       condition = this.fileGri;
     }
     return `<FileQuery:${type}${condition ? '-' : ''}${condition ?? ''}>`;
-  },
-});
-
-export default FileQuery;
+  }
+}

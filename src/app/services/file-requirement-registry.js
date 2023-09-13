@@ -82,7 +82,7 @@ export default Service.extend({
    * @type {ComputedProperty<Utils.FileRequirement>}
    */
   basicRequirement: computed('basicProperties', function basicRequirement() {
-    return FileRequirement.create({
+    return new FileRequirement({
       properties: this.basicProperties,
     });
   }),
@@ -261,10 +261,10 @@ export default Service.extend({
       );
     const newReqsOldConditions = _.difference(newRequirements, newReqsNewConditions);
     const currentRequirementsStringified =
-      currentPreciseRequirements.map(req => req.stringify());
+      currentPreciseRequirements.map(req => req.toString());
     const oldConditionsWithNewProperties = newReqsOldConditions.filter(newReq => {
       // filter out identical requirements
-      if (currentRequirementsStringified.includes(newReq.stringify())) {
+      if (currentRequirementsStringified.includes(newReq.toString())) {
         return false;
       }
       // search for at least one property in new requirement that does not occur

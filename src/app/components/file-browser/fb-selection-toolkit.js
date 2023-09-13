@@ -75,7 +75,7 @@ export default Component.extend(...mixins, {
       return [];
     }
     return this.items.map(item =>
-      FileRequirement.create({
+      new FileRequirement({
         fileGri: get(item, 'id'),
         properties: ['name'],
       }),

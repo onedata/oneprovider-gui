@@ -5,15 +5,15 @@ import { getFileGri } from 'oneprovider-gui/models/file';
 
 describe('Unit | Utility | file-query', function () {
   it('can be created without any condition', function () {
-    const result = FileQuery.create();
+    const result = new FileQuery();
     expect(result).to.be.ok;
   });
 
   it('matches to another query when parentIds are the same', function () {
     const parentId =
       'Z3VpZCM5MjY3NmQ0YjYwZTA4YzA0MWQ1NGZkMmFlOGQxNWNhZGNoZjZhYyNjYzY4NTU1N2NiMzc5NDdhMTAwZDNkMWYyYmEzYjI3NGNoNDlhZA';
-    const query1 = FileQuery.create({ parentId });
-    const query2 = FileQuery.create({ parentId });
+    const query1 = new FileQuery({ parentId });
+    const query2 = new FileQuery({ parentId });
 
     expect(query1.matches(query2)).to.be.true;
   });
@@ -23,8 +23,8 @@ describe('Unit | Utility | file-query', function () {
       'Z3VpZCM5MjY3NmQ0YjYwZTA4YzA0MWQ1NGZkMmFlOGQxNWNhZGNoZjZhYyNjYzY4NTU1N2NiMzc5NDdhMTAwZDNkMWYyYmEzYjI3NGNoNDlhZA';
     const parentId2 =
       'Z3VpZCNzcGFjZV9jYzY4NTU1N2NiMzc5NDdhMTAwZDNkMWYyYmEzYjI3NGNoNDlhZCNjYzY4NTU1N2NiMzc5NDdhMTAwZDNkMWYyYmEzYjI3NGNoNDlhZA';
-    const query1 = FileQuery.create({ parentId: parentId1 });
-    const query2 = FileQuery.create({ parentId: parentId2 });
+    const query1 = new FileQuery({ parentId: parentId1 });
+    const query2 = new FileQuery({ parentId: parentId2 });
 
     expect(query1.matches(query2)).to.be.false;
   });
@@ -34,8 +34,8 @@ describe('Unit | Utility | file-query', function () {
       'Z3VpZCM5MjY3NmQ0YjYwZTA4YzA0MWQ1NGZkMmFlOGQxNWNhZGNoZjZhYyNjYzY4NTU1N2NiMzc5NDdhMTAwZDNkMWYyYmEzYjI3NGNoNDlhZA',
       'private'
     );
-    const query1 = FileQuery.create({ fileGri });
-    const query2 = FileQuery.create({ fileGri });
+    const query1 = new FileQuery({ fileGri });
+    const query2 = new FileQuery({ fileGri });
 
     expect(query1.matches(query2)).to.be.true;
   });
@@ -45,8 +45,8 @@ describe('Unit | Utility | file-query', function () {
       'Z3VpZCM5MjY3NmQ0YjYwZTA4YzA0MWQ1NGZkMmFlOGQxNWNhZGNoZjZhYyNjYzY4NTU1N2NiMzc5NDdhMTAwZDNkMWYyYmEzYjI3NGNoNDlhZA',
       'private'
     );
-    const query1 = FileQuery.create();
-    const query2 = FileQuery.create({ fileGri });
+    const query1 = new FileQuery();
+    const query2 = new FileQuery({ fileGri });
 
     expect(query1.matches(query2)).to.be.true;
   });
@@ -60,8 +60,8 @@ describe('Unit | Utility | file-query', function () {
       'Z3VpZCNzcGFjZV9jYzY4NTU1N2NiMzc5NDdhMTAwZDNkMWYyYmEzYjI3NGNoNDlhZCNjYzY4NTU1N2NiMzc5NDdhMTAwZDNkMWYyYmEzYjI3NGNoNDlhZA',
       'private'
     );
-    const query1 = FileQuery.create({ fileGri: fileGri1 });
-    const query2 = FileQuery.create({ fileGri: fileGri2 });
+    const query1 = new FileQuery({ fileGri: fileGri1 });
+    const query2 = new FileQuery({ fileGri: fileGri2 });
 
     expect(query1.matches(query2)).to.be.false;
   });
@@ -73,18 +73,18 @@ describe('Unit | Utility | file-query', function () {
       fileId,
       'private'
     );
-    const query1 = FileQuery.create({ fileGri });
-    const query2 = FileQuery.create({ parentId: fileId });
+    const query1 = new FileQuery({ fileGri });
+    const query2 = new FileQuery({ parentId: fileId });
 
     expect(query1.matches(query2)).to.be.false;
   });
 
   it('can be stringified, presenting the condition', function () {
-    const query = FileQuery.create({
+    const query = new FileQuery({
       fileGri: 'file.12345.instance:private',
     });
 
-    const result = query.stringify();
+    const result = query.toString();
 
     expect(result).to.be.equal(
       '<FileQuery:fileGri-file.12345.instance:private>'
@@ -96,7 +96,7 @@ describe('Unit | Utility | file-query', function () {
       const file = new MockFile({
         id: 'file.12345.instance:private',
       });
-      const query = FileQuery.create({
+      const query = new FileQuery({
         fileGri: 'file.12345.instance:private',
       });
 
@@ -109,7 +109,7 @@ describe('Unit | Utility | file-query', function () {
       const file = new MockFile({
         id: 'file.12345.instance:private',
       });
-      const query = FileQuery.create({});
+      const query = new FileQuery({});
 
       const result = query.matchesFile(file);
 
@@ -120,7 +120,7 @@ describe('Unit | Utility | file-query', function () {
       const file = new MockFile({
         id: 'file.12345.instance:private',
       });
-      const query = FileQuery.create({
+      const query = new FileQuery({
         fileGri: 'file.67890.instance:private',
       });
 
@@ -134,7 +134,7 @@ describe('Unit | Utility | file-query', function () {
         const file = new MockFile({
           id: 'file.12345.instance:private',
         });
-        const query = FileQuery.create({
+        const query = new FileQuery({
           parentId: 'file.67890.instance:private',
         });
 

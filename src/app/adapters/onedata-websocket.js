@@ -24,13 +24,13 @@ export default OnedataWebsocketAdapter.extend({
     const meta = snapshot.adapterOptions?._meta;
     const currentAdditionalData = meta?.additionalData;
     if (type.modelName === 'file' && !currentAdditionalData?.attributes) {
-      const queries = [FileQuery.create({
+      const queries = [new FileQuery({
         fileGri: id,
       })];
       const parentGri = snapshot?.belongsTo?.('parent')?.id;
       if (parentGri) {
         const parentId = parseGri(parentGri).entityId;
-        queries.push(FileQuery.create({
+        queries.push(new FileQuery({
           parentId,
         }));
       }

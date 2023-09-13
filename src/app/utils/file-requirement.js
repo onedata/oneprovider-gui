@@ -13,30 +13,37 @@
 
 import FileQuery from 'oneprovider-gui/utils/file-query';
 
-const FileRequirement = FileQuery.extend({
-  /**
-   * Properties that should be available for file record matching the query.
-   * @virtual
-   * @type {Array<FileModel.Property>}
-   */
-  properties: undefined,
+export default class FileRequirement extends FileQuery {
+  constructor(options = {}) {
+    super(options);
+
+    if (!Array.isArray(options.properties)) {
+      throw new Error('FileRequirement properties must be an Array');
+    }
+
+    /**
+     * Properties that should be available for file record matching the query.
+     * @virtual
+     * @type {Array<FileModel.Property>}
+     */
+    this.properties = options.properties;
+  }
 
   /**
+   * @override
    * @returns {string}
    */
-  stringify() {
-    const fileQueryString = this._super(...arguments);
+  toString() {
+    const fileQueryString = super.toString(...arguments);
     const propertiesString = [...this.properties].sort().join(',');
     return `<FileRequirement:${fileQueryString}|properties:${propertiesString}>`;
-  },
+  }
 
   /**
    * @param {Utils.FileRequirement} otherRequirement
    * @returns boolean
    */
   isEqual(otherRequirement) {
-    return this.stringify() === otherRequirement?.stringify();
-  },
-});
-
-export default FileRequirement;
+    return this.toString() === otherRequirement?.toString();
+  }
+}

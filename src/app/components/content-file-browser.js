@@ -157,7 +157,7 @@ export default OneEmbeddedComponent.extend(
         return [];
       }
       return [
-        FileRequirement.create({
+        new FileRequirement({
           debug: 'content-file-browser',
           fileGri: this.dirGri,
           properties: ['parent', 'type', 'effFile'],

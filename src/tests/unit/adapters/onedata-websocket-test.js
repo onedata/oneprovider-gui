@@ -20,7 +20,7 @@ describe('Unit | Adapter | onedata-websocket', function () {
       const snapshot = createSnapshot();
       const fileGri = getFileGri('12345');
       const consumer1 = { name: 'c1' };
-      const requirement1 = FileRequirement.create({
+      const requirement1 = new FileRequirement({
         fileGri,
         properties: ['ctime', 'mtime', 'atime'],
       });
