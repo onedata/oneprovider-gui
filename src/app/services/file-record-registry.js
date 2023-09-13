@@ -1,4 +1,27 @@
-// FIXME: jsdoc
+/**
+ * Stores collection of file records that are used with the file requirement flow to help
+ * FileRequirementRegistry managing requirements changes for already loaded files.
+ *
+ * There are FileConsumers in the app - entities (eg. components) that use file records. A
+ * FileConsumer uses a set of files and these files could need specific properties of file
+ * model. Each FileConsumer should register a set of Files that are used in the consumer
+ * and these registered files are taken into account when requirements are changed in the
+ * FileRequirementRegistry - when there is a change that causes loaded records to
+ * have new properties, the files should be reloaded. When the consumer is destroyed, the
+ * files should be deregistered, so the change of requirements should not cause these
+ * files to be reloaded anymore.
+ *
+ * This registry does not reload files by itself - it is used only by other services
+ * to get the registered files.
+ *
+ * See `Mixin.FileConsumer` documentation to implement the FileConsumer and use this
+ * registry in a convenient way. The registry typically should not be used directly, but
+ * by using `Mixin.FileConsumer`.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2023 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import Service, { inject as service } from '@ember/service';
 
@@ -51,7 +74,6 @@ export default Service.extend({
     }
   },
 
-  // FIXME: zmiana nazwy (i pewnie też w requirementsach) bo deregisterFiles brzmi jak ich usuwanie (delete)
   /**
    * @public
    * @param {FileConsumer} consumer
@@ -100,18 +122,6 @@ export default Service.extend({
       }
     }
     return files;
-  },
-
-  /**
-   * FIXME: nie jest na razie używane, do użycia przez garbage collector
-   * @private
-   * @param {Models.File} file
-   */
-  clearFileEntry(file) {
-    this.fileConsumerMap.delete(file);
-    if (!this.store.isDestroyed && !this.store.isDestroying) {
-      this.store.unloadRecord(file);
-    }
   },
 
   /**

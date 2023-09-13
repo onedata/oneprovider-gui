@@ -140,7 +140,6 @@ export default Service.extend({
     return file;
   },
 
-  // FIXME: przy wyszukiawniu pliku po nazwie nie potrzeba pobierać wyszystkich atrybutów
   async getFileByName(parentDirId, fileName, scope = 'private') {
     const data = await this.fetchDirChildren(
       parentDirId,

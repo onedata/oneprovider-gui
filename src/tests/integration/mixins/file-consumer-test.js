@@ -165,7 +165,6 @@ describe('Integration | Mixin | file-consumer', function () {
     }
   );
 
-  // FIXME: duplikuje sprawdzenie z ostatnim testem, do usunięcia?
   it('does not add requirements to registry if they are covered by basic properties',
     async function () {
       const fileGri = 'some-gri';

@@ -1,4 +1,15 @@
-// FIXME: jsdoc
+/**
+ * Collection of known properties of frontend File model.
+ * Includes runtime properties (not only model attributes and relations).
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2023 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
+/**
+ * @typedef {typeof possibleFileProperties[number]} FileModel.Property
+ */
 
 export const possibleFileProperties = Object.freeze([
   // model properties

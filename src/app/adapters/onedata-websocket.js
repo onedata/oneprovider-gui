@@ -1,4 +1,10 @@
-// FIXME: jsdoc
+/**
+ * Extends Onedata WebSocket adapter with Oneprovider specific model handling.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2023 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import OnedataWebsocketAdapter from 'onedata-gui-websocket-client/adapters/onedata-websocket';
 import FileQuery from 'oneprovider-gui/utils/file-query';

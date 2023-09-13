@@ -1,4 +1,11 @@
-// FIXME: jsdoc
+/**
+ * Collection of known raw data attributes of file model in backend.
+ * These attributes are translated into frontend file model properties in FileAdapter.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2023 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import _ from 'lodash';
 
@@ -41,6 +48,8 @@ export const possibleFileRawAttributes = Object.freeze([
   'storageUserId',
   'symlinkValue',
   'type',
+  // NOTE: there are also special attributes "xattr.*" for getting specific xattrs of file
+  // record but its support is not implemented in frontend yet.
 ]);
 
 export const sharedFileRawAttributes = Object.freeze([
@@ -55,9 +64,9 @@ export const sharedFileRawAttributes = Object.freeze([
   'shares',
   'size',
   'type',
+  // NOTE: there are also special attributes "xattr.*" for getting specific xattrs of file
+  // record but its support is not implemented in frontend yet.
 ]);
-
-// FIXME: zawrzeć jakoś wiedzę o specjalnym atrybucie: "xattr.*"
 
 /**
  * @type {Set<File.RawAttribute>}

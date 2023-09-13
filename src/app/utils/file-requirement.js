@@ -1,5 +1,10 @@
 /**
- * FIXME: doc
+ * Specifies which properties (FileModel.Property) are needed by which files (using
+ * FileQuery conditions).
+ *
+ * FileRequirements are created to be finally registered in FileRequirementRegistry, but
+ * as a class user you should specify them with Mixin.FileConsumer - see its documentation
+ * for details.
  *
  * @author Jakub Liput
  * @copyright (C) 2023 ACK CYFRONET AGH
@@ -8,15 +13,9 @@
 
 import FileQuery from 'oneprovider-gui/utils/file-query';
 
-// FIXME: przenieść do serializera/file?
-
-/**
- * @typedef {typeof possibleFileProperties[number]} FileModel.Property
- */
-
 const FileRequirement = FileQuery.extend({
   /**
-   * FIXME: doc
+   * Properties that should be available for file record matching the query.
    * @virtual
    * @type {Array<FileModel.Property>}
    */

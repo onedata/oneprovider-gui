@@ -1137,7 +1137,7 @@ export default BaseBrowserModel.extend(...mixins, {
    * @implements {Mixins.FileConsumer}
    */
   fileRequirements: computed(
-    // FIXME: check isVisible instead isEnabled
+    // TODO: 11252 Try checking isVisible instead isEnabled
     'dir',
     `columns.{${columnsRequirementsDependencies}}`,
     function fileRequirements() {
@@ -1186,8 +1186,6 @@ export default BaseBrowserModel.extend(...mixins, {
       }
       const parentDirRequirement = FileRequirement.create({
         properties: basicProperties,
-        // FIXME: tutaj musi być gri, albo zmienić jakoś FileRequirement na entityId
-        // - chyba lepiej zmienić na matchowanie, żeby było też fileId
         fileGri: parentDirGri,
       });
       const listingRequirement = FileRequirement.create({
@@ -1197,15 +1195,6 @@ export default BaseBrowserModel.extend(...mixins, {
       return [parentDirRequirement, listingRequirement];
     },
   ),
-
-  // FIXME: implement usedFiles
-  // /**
-  //  * @override
-  //  * @implements {Mixins.FileConsumer}
-  //  */
-  // usedFiles: computed('dir', function usedFiles() {
-
-  // }),
 
   init() {
     this.set('columns', {
@@ -1219,8 +1208,6 @@ export default BaseBrowserModel.extend(...mixins, {
         isEnabled: true,
         width: 180,
       }),
-      // FIXME: VFS-11089 Enable replication column with optional replication data fetch
-      // FIXME: experimental
       replication: EmberObject.create({
         isVisible: false,
         isEnabled: false,
@@ -1241,9 +1228,8 @@ export default BaseBrowserModel.extend(...mixins, {
       }));
       this.columnsOrder.push('owner');
     }
-    // FIXME: jeśli użytkownik ma w order zapisane tylko size, modification, owner,
-    // to nie będzie miał po upgrade już replication
-    // to trzeba naprawić
+    // TODO: VFS-11252 Check if user having (size, modification, owner) in localstore
+    // will have new columns applied (it was fixed in develop)
     this._super(...arguments);
   },
 
@@ -1407,7 +1393,7 @@ export default BaseBrowserModel.extend(...mixins, {
    * @override
    */
   fetchDirChildren(dirId, ...fetchArgs) {
-    // FIXME: to się uruchamia zbyt często
+    // TODO: VFS-11252 It might be invoked too often - make benchmarks / fix
     // force fileRequirements change
     this.fileConsumerModel.fileRequirementsObserver();
     return this.fileManager

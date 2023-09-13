@@ -1,3 +1,27 @@
+/**
+ * Stores requirements for file records data and offers querying for attributes
+ * that should be fetched using file API basing on specified conditions.
+ *
+ * There are FileConsumers in the app - entities (eg. components) that use file record.
+ * A FileConsumer uses a set of files and these files could need specific properties of
+ * file model. As the file model have a large number of properties, the backend allows
+ * to specify which attributes should be fetched when asking for the file data (or
+ * multiple files data in case of fetching directory children). Each FileConsumer
+ * should register a set of FileRequirements that specifies a condition saying which
+ * backend requests are affected. Then the requirements are registered for the consumer
+ * in this registry. When the consumer is destroyed, the requirements should be
+ * deregistered, so the backend API calls will not take its requirements into account
+ * anymore.
+ *
+ * See `Mixin.FileConsumer` documentation to implement the FileConsumer and use this
+ * registry in a convenient way. The registry typically should not be used directly, but
+ * by using `Mixin.FileConsumer`.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2023 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service, { inject as service } from '@ember/service';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import {
@@ -23,21 +47,16 @@ import { allSettled } from 'rsvp';
  * @property {Array<Models.File>} usedFiles
  */
 
-// FIXME: scrollujemy się w dół, zmieniamy kolumny - najłatwiej byłoby przeładować wszystkie pliki w storze peekAll, które pasują do zmienionych requirementów
-// był taki pomysł: listę plików bierzemy z service FileRecordsRegistry
-// ten service działa jakby bufor na ładowanie/wyładowywanie rekordów plików - każdy komponent rejestruje to co używa i wyrejestrowuje tego co nie używa
-// jeśli licznik spadnie do 0 to file usuwane jest ze stora
-// usunięcie nastąpi np. podczas odświeżenia listy - część plików staje się invalidowana i dodatkowo komponent powinien zgłosić, że ich nie potrzebuje
-
-// FIXME: jeśli globalna lista
-
 export default Service.extend({
   fileRecordRegistry: service(),
   store: service(),
 
   //#region configuration
 
-  // FIXME: maybe add more, maybe remove type...
+  /**
+   * File properties that should be always available in file record.
+   * @type {Array<FileModel.Property>}
+   */
   basicProperties: Object.freeze([
     'conflictingName',
     'effFile',
@@ -46,8 +65,6 @@ export default Service.extend({
     'name',
     'parent',
     'type',
-    // FIXME:
-    // ...possibleFileProperties,
   ]),
 
   //#endregion
@@ -76,13 +93,20 @@ export default Service.extend({
   },
 
   /**
+   * Gets attributes required for the queries. Checks:
+   * - exact query matching with requirement query (GRI-GRI, parent-parent),
+   * - if the already loaded file matches some parent condition using GRI query,
+   * - if the already loaded file matches some GRI condition using parent query.
+   *
+   * Uses all already loaded files from store to perform non-exact query matching.
+   *
    * @public
    * @param {...Utils.FileQuery} queries
    * @returns {Array<File.RawAttribute>}
    */
   getRequiredAttributes(...queries) {
-    let matchingRequirements = [];
-    const allRequirements = this.getRequirements();
+    const matchingRequirements = [];
+    let remainRequirements = this.getRequirements();
     let allFiles;
     const getAllFiles = () => {
       if (!allFiles) {
@@ -90,56 +114,65 @@ export default Service.extend({
       }
       return allFiles;
     };
-    // FIXME: optymalizacja: można odejmować wykorzystane requirementy z allRequirements
-    // FIXME: optymalizacja: nie array i uniq, tylko Set?
     for (const query of queries) {
+      let currentMatchingRequirements;
       const queryType = query.getQueryType();
 
       // Select requirements directly matching the query.
-      matchingRequirements.push(
-        ...allRequirements.filter(requirement => query.matches(requirement))
+      [currentMatchingRequirements, remainRequirements] = _.partition(
+        remainRequirements,
+        (req) => query.matches(req)
       );
-      // FIXME: co jeśli pobrany zostanie na świeżo plik, który będzie miał parenta, który jest w requirements?
-      // trzeba przeanalizować problemy z tym przypadkiem i najwyżej tylko opisać
-
-      // Select requirements for known files that have the parent matching
+      matchingRequirements.push(...currentMatchingRequirements);
+      if (!remainRequirements.length) {
+        break;
+      }
 
       switch (queryType) {
         case 'fileGri': {
+          // Select requirements for known files that have the parent matching
           const file = getAllFiles().find(file =>
             file && get(file, 'id') === query.fileGri
           );
           if (file) {
-            matchingRequirements.push(
-              ...allRequirements.filter(req =>
-                req.getQueryType() === 'parentId' &&
-                req.parentId === file.relationEntityId('parent')
-              )
+            [currentMatchingRequirements, remainRequirements] = _.partition(
+              remainRequirements,
+              (req) => {
+                return req.getQueryType() === 'parentId' &&
+                  req.parentId === file.relationEntityId('parent');
+              }
             );
+
+            matchingRequirements.push(...currentMatchingRequirements);
+            if (!remainRequirements.length) {
+              break;
+            }
           }
         }
         break;
         case 'parentId': {
+          // Select requirements for known files that have the parent matching
           const parentId = query.parentId;
           const filesForParent = getAllFiles().filter(file =>
             file?.relationEntityId('parent') === parentId
           );
           for (const file of filesForParent) {
-            matchingRequirements.push(
-              ...allRequirements.filter(requirement => requirement.matchesFile(file))
+            [currentMatchingRequirements, remainRequirements] = _.partition(
+              remainRequirements,
+              (req) => req.matchesFile(file)
             );
+
+            matchingRequirements.push(...currentMatchingRequirements);
+            if (!remainRequirements.length) {
+              break;
+            }
           }
         }
         break;
         default:
           break;
       }
-
-      // FIXME: Pytam się o propertiesy dla pliku, który pobieram, bo jest effFile pewnego
-      // innego pliku.
-      // Select requirements for
     }
-    matchingRequirements = _.uniq(matchingRequirements);
     const requiredProperties = _.uniq(_.flatten(
       matchingRequirements.map(requirement => requirement.properties)
     ));
@@ -251,8 +284,6 @@ export default Service.extend({
     return new Set([...newReqsNewConditions, ...oldConditionsWithNewProperties]);
   },
 
-  // FIXME: optymalizacja: jeśli nie było do tej pory requirementów - powinno pobrać wszystkie pasujące pliki
-  // FIXME: optymalizacja: brać pliki dla konsumera poprzez fileRecordRegistry?
   /**
    * For collection of requirements in `newRequiremets` get file records that
    * need a reload because new properties need to be loaded for them.
@@ -264,27 +295,34 @@ export default Service.extend({
     if (!newRequirements?.length) {
       return [];
     }
+    const registeredFiles = this.fileRecordRegistry.getRegisteredFiles();
     const allRequirements = this.getRequirements();
-    const absentRequirementSet =
-      this.getAbsentRequirementSet(newRequirements, allRequirements);
-    const storedFiles = this.fileRecordRegistry.getRegisteredFiles();
+    if (!allRequirements.length) {
+      return registeredFiles;
+    }
 
-    // FIXME: wśród absentRequirements są requirementy, które odnoszą się do fileGri,
-    // podczas gdy mamy już załadowane do rejestru requirementy z parentId, które pokrywają
-    // już te propertiesy dla naszych plików - trzeba będzie wyrzucać te requirementy
+    const absentRequirementSet = this.getAbsentRequirementSet(
+      newRequirements,
+      allRequirements
+    );
 
-    // reject requirements that.. FIXME: dokończyć doc
+    // Ignore (remove from final set) GRI-based requirements that are covered by
+    // existing parent requirements.
     const parentBasedRequirements = allRequirements.filter(requirement =>
       requirement.getQueryType() === 'parentId' &&
       !absentRequirementSet.has(requirement)
     );
     for (const parentRequirement of parentBasedRequirements) {
-      const filesWithParent = storedFiles.filter(file =>
+      const filesWithParentMatching = registeredFiles.filter(file =>
         parentRequirement.matchesFile(file)
       );
-      // FIXME: może być wiele parent reqsów dla plików - pasuje robić sumę - komentarz
-      for (const file of filesWithParent) {
+      for (const file of filesWithParentMatching) {
         for (const newRequirement of absentRequirementSet.values()) {
+          // Checking if parent requirement properties contains new requirement
+          // properties is simplified - there could be more requirements for the same
+          // parent that makes a properties sum containing new requirement properties, but
+          // in most cases it should be enough to check parent requirement properties
+          // one-by-one.
           if (
             newRequirement.matchesFile(file) &&
             arrayContainsArray(parentRequirement.properties, newRequirement.properties)
@@ -295,7 +333,7 @@ export default Service.extend({
       }
     }
 
-    return storedFiles.filter(storedFile => {
+    return registeredFiles.filter(storedFile => {
       for (const requirement of absentRequirementSet.values()) {
         if (requirement.matchesFile(storedFile)) {
           return true;

@@ -246,7 +246,6 @@ export default Component.extend(...mixins, {
    * @implements {Mixins.FileConsumer}
    */
   fileRequirements: computed(
-    // FIXME: check isVisible instead isEnabled
     'dir.id',
     function fileRequirements() {
       if (!this.dir) {
@@ -264,7 +263,6 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  // FIXME: experimental, not tested
   /**
    * @override
    * @implements {Mixins.FileConsumer}

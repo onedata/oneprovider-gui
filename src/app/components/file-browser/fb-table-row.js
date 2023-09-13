@@ -221,11 +221,10 @@ export default Component.extend(...mixins, {
    */
   isFileNameHovered: false,
 
-  // FIXME: implement
   /**
    * @override
    */
-  fileRequirements: computed('file', function fileRequirements() {
+  fileRequirements: computed('file.isDestroyed', function fileRequirements() {
     if (!this.file || this.file.isDestroyed) {
       return [];
     }
@@ -237,11 +236,10 @@ export default Component.extend(...mixins, {
     ];
   }),
 
-  // FIXME: implement
   /**
    * @override
    */
-  usedFiles: computed(function usedFiles() {
+  usedFiles: computed('file', function usedFiles() {
     if (!this.file || !Object.keys(this.file).length) {
       return [];
     }

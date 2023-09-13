@@ -1,5 +1,14 @@
 /**
- * FIXME: doc
+ * Specifies which file or a set of files should be chosen from some set of files.
+ * Used in pair with FileRequirement (which is its subclass) to match file requirements.
+ *
+ * When constructed, one of the properties should be specified:
+ * - `parentId` - to match files by parent they have,
+ * - `fileGri` - to match file by its exact GRI (record ID).
+ *
+ * There is also a special type of query - "none" type query, that will match all files,
+ * which can be created by not providing any of above conditions. You should not use
+ * the "none"-typed query - it is used only for adding basic requirements to file.
  *
  * @author Jakub Liput
  * @copyright (C) 2023 ACK CYFRONET AGH
@@ -12,16 +21,16 @@ import EmberObject, { get } from '@ember/object';
  * @typedef {'parentId'|'fileGri'|'none'} FileQuery.Type
  */
 
-// FIXME: lepiej będzie zrobić jakieś podklasy typu, żeby matchować po jednym warunku na raz
 const FileQuery = EmberObject.extend({
-  // FIXME: czy nie ujednolicić, żeby było parentGri? albo parentId?
   /**
+   * Entity ID of parent of file to match.
    * @virtual optional
    * @type {undefined|string}
    */
   parentId: undefined,
 
   /**
+   * Exact GRI of file to match.
    * @virtual optional
    * @type {undefined|string}
    */
