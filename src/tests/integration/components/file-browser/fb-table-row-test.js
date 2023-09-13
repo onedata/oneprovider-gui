@@ -206,6 +206,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     const replicationRate = 1;
     this.set('file', createFile({ localReplicationRate: replicationRate }));
     const replicationRateText = replicationRate * 100 + '%';
+    enableColumn(this, 'replication');
 
     await renderComponent(this);
 
@@ -220,6 +221,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     const replicationRate = 0;
     this.set('file', createFile({ localReplicationRate: replicationRate }));
     const replicationRateText = replicationRate * 100 + '%';
+    enableColumn(this, 'replication');
 
     await renderComponent(this);
 
@@ -234,6 +236,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     const replicationRate = 0.2;
     this.set('file', createFile({ localReplicationRate: replicationRate }));
     const replicationRateText = replicationRate * 100 + '%';
+    enableColumn(this, 'replication');
 
     await renderComponent(this);
 
@@ -249,6 +252,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('renders less than 1% replication', async function () {
     const replicationRate = 0.004;
     this.set('file', createFile({ localReplicationRate: replicationRate }));
+    enableColumn(this, 'replication');
 
     await renderComponent(this);
 
@@ -264,6 +268,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     const replicationRate = 0.01;
     this.set('file', createFile({ localReplicationRate: replicationRate }));
     const replicationRateText = replicationRate * 100 + '%';
+    enableColumn(this, 'replication');
 
     await renderComponent(this);
 
@@ -416,4 +421,15 @@ async function renderComponent(testCase) {
 async function expandInheritanceTag() {
   const inheritanceTag = find('.file-status-inherited');
   await click(inheritanceTag);
+}
+
+function enableColumn(mochaContext, columnName) {
+  mochaContext.set(
+    `browserModel.columnsConfiguration.columns.${columnName}.isEnabled`,
+    true
+  );
+  mochaContext.set(
+    `browserModel.columnsConfiguration.columns.${columnName}.isVisible`,
+    true
+  );
 }
