@@ -23,7 +23,7 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  rootIcon: 'share',
+  rootIcon: 'browser-share',
 
   /**
    * @override

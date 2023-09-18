@@ -366,7 +366,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }
       return this.createItemBrowserAction({
         id: 'editDescription',
-        icon: 'rename',
+        icon: 'browser-rename',
         tip: disabledTip,
         disabled: Boolean(disabledTip),
         action: (archives) => {
