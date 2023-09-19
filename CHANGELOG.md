@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11251 Removed unused oneicons
 * VFS-10939 Fixed copying from provider popover in firefox
 * VFS-11312 Fix showing jump to file input
 * VFS-11268 Added error handling for file data push to store on fetching files list
