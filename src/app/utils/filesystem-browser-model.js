@@ -96,7 +96,6 @@ export default BaseBrowserModel.extend(...mixins, {
   uploadManager: service(),
   workflowManager: service(),
   modalManager: service(),
-  fileRequirementRegistry: service(),
 
   /**
    * @override

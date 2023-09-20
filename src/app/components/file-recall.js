@@ -133,13 +133,6 @@ export default Component.extend(I18n, {
         'recallingProviderProxy',
         'relativePathProxy',
       );
-      archiveProxy.then(() => console.log('archiveProxy'));
-      datasetProxy.then(() => console.log('datasetProxy'));
-      recallRootFileProxy.then(() => console.log('recallRootFileProxy'));
-      archiveRecallInfoProxy.then(() => console.log('archiveRecallInfoProxy'));
-      archiveRecallStateProxy.then(() => console.log('archiveRecallStateProxy'));
-      recallingProviderProxy.then(() => console.log('recallingProviderProxy'));
-      relativePathProxy.then(() => console.log('relativePathProxy'));
 
       const result = await hashSettled({
         archive: archiveProxy,

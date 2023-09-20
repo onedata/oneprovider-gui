@@ -84,12 +84,10 @@ export const onlyPrivateFileRawAttributesSet = new Set(
  * @returns {Array<FileModel.RawAttribute>}
  */
 export function pullPrivateFileAttributes(attributes) {
-  if (
-    attributes.some(attr => onlyPrivateFileRawAttributesSet.has(attr))
-  ) {
-    const privateFileAttributes = attributes.filter(attr =>
-      onlyPrivateFileRawAttributesSet.has(attr)
-    );
+  const privateFileAttributes = attributes.filter(attr =>
+    onlyPrivateFileRawAttributesSet.has(attr)
+  );
+  if (privateFileAttributes.length) {
     console.warn(
       'Filtering-out private-scope-only file attributes',
       privateFileAttributes

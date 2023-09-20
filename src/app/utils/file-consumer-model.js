@@ -50,7 +50,8 @@ export default EmberObject.extend(OwnerInjector, {
   },
 
   registerRequirements() {
-    if (!Array.isArray(this.fileRequirements)) {
+    if (!Array.isArray(this.fileRequirements) || !this.fileRequirements.length) {
+      this.fileRequirementRegistry.deregisterRequirements(this.consumer);
       return;
     }
     this.fileRequirementRegistry.setRequirements(
@@ -61,6 +62,7 @@ export default EmberObject.extend(OwnerInjector, {
 
   registerUsedFiles() {
     if (!Array.isArray(this.usedFiles)) {
+      this.fileRecordRegistry.deregisterFiles(this.consumer);
       return;
     }
     this.fileRecordRegistry.setFiles(

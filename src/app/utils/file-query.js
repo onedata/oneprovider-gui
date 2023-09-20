@@ -45,11 +45,35 @@ export default class FileQuery {
   }
 
   /**
+   * Returns true if results of this query would contain results of the other query.
+   * @public
+   * @param {Utils.FileQuery} otherQuery
+   * @returns {boolean}
+   */
+  matches(otherQuery) {
+    if (!otherQuery) {
+      return false;
+    }
+    if (this.parentId && otherQuery.parentId) {
+      return this.parentId === otherQuery.parentId;
+    }
+    if (this.fileGri && otherQuery.fileGri) {
+      return this.fileGri === otherQuery.fileGri;
+    }
+    // the query is all-match query, so it matches everything
+    if (this.getQueryType() === 'none') {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Returns true if two queries have the same matching condition.
    * @public
    * @param {Utils.FileQuery} query
    * @returns {boolean}
    */
-  matches(query) {
+  conditionEquals(query) {
     if (!query) {
       return false;
     }
@@ -59,14 +83,14 @@ export default class FileQuery {
     if (this.fileGri && query.fileGri) {
       return this.fileGri === query.fileGri;
     }
-    // one of the query is all-match query
-    if (this.getQueryType() === 'none' || query.getQueryType() === 'none') {
+    if (this.getQueryType() === 'none' && query.getQueryType() === 'none') {
       return true;
     }
     return false;
   }
 
   /**
+   * Returns true if results of this query would contain the file.
    * @public
    * @param {Models.File} file
    * @returns {boolean}

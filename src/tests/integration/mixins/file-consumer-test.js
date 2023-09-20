@@ -215,6 +215,7 @@ describe('Integration | Mixin | file-consumer', function () {
 
       expect(fileRequirementRegistry.getRequirements()).to.contain(richRequirement);
       this.set('fileRequirements', [frugalRequirement]);
+      await waitForRender();
       expect(fileRequirementRegistry.getRequirements()).to.not.contain(frugalRequirement);
     }
   );

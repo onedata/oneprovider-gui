@@ -309,8 +309,6 @@ describe('Unit | Service | files-view-resolver', function () {
       sinon.match({ scope: 'private' })
     );
     expect(result.result).to.equal('resolve');
-    console.log(result.dir.get('name'));
-    console.log(parentDir.get('name'));
     expect(result.dir).to.equal(parentDir);
     expect(result.filesViewContext).to.be.not.empty;
     expect(result.filesViewContext.isEqual(FilesViewContext.create({

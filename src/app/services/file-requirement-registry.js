@@ -31,6 +31,7 @@ import {
 import _ from 'lodash';
 import { get, computed } from '@ember/object';
 import { allSettled } from 'rsvp';
+import includesAll from 'onedata-gui-common/utils/includes-all';
 
 /**
  * A GUI entity (might be a component, service, anything that is "living" during runtime)
@@ -121,7 +122,7 @@ export default Service.extend({
       // Select requirements directly matching the query.
       [currentMatchingRequirements, remainRequirements] = _.partition(
         remainRequirements,
-        (req) => query.matches(req)
+        (req) => req.matches(query)
       );
       matchingRequirements.push(...currentMatchingRequirements);
       if (!remainRequirements.length) {
@@ -144,9 +145,6 @@ export default Service.extend({
             );
 
             matchingRequirements.push(...currentMatchingRequirements);
-            if (!remainRequirements.length) {
-              break;
-            }
           }
         }
         break;
@@ -184,7 +182,7 @@ export default Service.extend({
    * If consumer already has requirements set then replace all requirements.
    * If there are files loaded already in store that will have its requirements extended
    * then reload these files. Extending requirements means, that there will be more
-   * properties for file required after reuirements set.
+   * properties for file required after requirements set.
    * @public
    * @param {FileConsumer} consumer
    * @param {...Utils.FileRequirement} requirements
@@ -249,19 +247,16 @@ export default Service.extend({
    * @returns {Set<FileRequirement>}
    */
   getAbsentRequirementSet(newRequirements, currentRequirements = this.getRequirements()) {
-    const currentPreciseRequirements = currentRequirements.filter(req =>
-      req.getQueryType() !== 'none'
-    );
-    if (!currentPreciseRequirements?.length) {
+    if (!currentRequirements?.length) {
       return new Set(newRequirements);
     }
     const newReqsNewConditions =
-      _.differenceWith(newRequirements, currentPreciseRequirements, (ra, rb) =>
-        ra.matches(rb)
+      _.differenceWith(newRequirements, currentRequirements, (ra, rb) =>
+        ra.conditionEquals(rb)
       );
     const newReqsOldConditions = _.difference(newRequirements, newReqsNewConditions);
     const currentRequirementsStringified =
-      currentPreciseRequirements.map(req => req.toString());
+      currentRequirements.map(req => req.toString());
     const oldConditionsWithNewProperties = newReqsOldConditions.filter(newReq => {
       // filter out identical requirements
       if (currentRequirementsStringified.includes(newReq.toString())) {
@@ -269,14 +264,15 @@ export default Service.extend({
       }
       // search for at least one property in new requirement that does not occur
       // in current requirements
-      for (const currentReq of currentPreciseRequirements) {
-        if (currentReq.matches(newReq)) {
-          const currentProperties = currentReq.properties;
-          for (const newProperty of newReq.properties) {
-            if (!currentProperties.includes(newProperty)) {
-              return true;
-            }
-          }
+      const equalConditionCurrentReqs = currentRequirements.filter(currentReq =>
+        currentReq.conditionEquals(newReq)
+      );
+      const equalConditionPropertiesSet = new Set(
+        _.flatten(equalConditionCurrentReqs.map(req => req.properties))
+      );
+      for (const newProperty of newReq.properties) {
+        if (!equalConditionPropertiesSet.has(newProperty)) {
+          return true;
         }
       }
       return false;
@@ -325,7 +321,7 @@ export default Service.extend({
           // one-by-one.
           if (
             newRequirement.matchesFile(file) &&
-            arrayContainsArray(parentRequirement.properties, newRequirement.properties)
+            includesAll(parentRequirement.properties, newRequirement.properties)
           ) {
             absentRequirementSet.delete(newRequirement);
           }
@@ -368,13 +364,3 @@ export default Service.extend({
     return _.uniq(attributes);
   },
 });
-
-function arrayContainsArray(superset, subset) {
-  if (0 === subset.length || superset.length < subset.length) {
-    return false;
-  }
-  for (let i = 0; i < subset.length; ++i) {
-    if (superset.indexOf(subset[i]) === -1) return false;
-  }
-  return true;
-}
