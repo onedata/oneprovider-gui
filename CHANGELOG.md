@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11207 Added separate dir size stats in space root dir for archives and trash
 * VFS-10939 Fixed copying from provider popover in firefox
 * VFS-11312 Fix showing jump to file input
 * VFS-11268 Added error handling for file data push to store on fetching files list

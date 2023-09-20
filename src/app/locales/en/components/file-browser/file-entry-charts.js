@@ -4,12 +4,14 @@ export default {
   noStatistics: 'Requested directory statistics are not ready yet – calculation is in progress.',
   currentSize: {
     header: 'Current size',
-    spaceDirIncludesArchives: 'Statistics for the space directory include archives.',
-    fileCounters: sizeStatsPerProviderTable.fileCounters,
+    fileCounters: {
+      ...sizeStatsPerProviderTable.fileCounters,
+      totalPhysicalSizeLabel: 'Total physical size',
+    },
     currentSizeOnProvidersCount: 'collected from <span>{{providersWithStatsCount}} out of {{providersCount}}</span> providers',
     currentSizeTip: 'Presented information is partial since it was collected only from online providers with enabled directory size statistics. From the global point of view, the actual size of the space may differ.',
     logicalSizeTip: 'Logical byte size is the total size of file data contained in this directory, i.e. the sum of logical byte sizes of all regular files.',
-    physicalSizeTip: 'Summarized storage size used to store the data. Includes only the sizes reported by online providers with enabled directory size statistics.',
+    totalPhysicalSizeTip: 'Summarized storage size used to store the data. Includes only the sizes reported by online providers with enabled directory size statistics.',
   },
   showMoreStats: 'Show size statistics per provider',
   hideMoreStats: 'Hide size statistics per provider',

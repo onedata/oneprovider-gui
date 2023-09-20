@@ -468,55 +468,6 @@ export default Component.extend(...mixins, {
 
   fileSize: reads('file.size'),
 
-  /**
-   * One of `enabled`, `disabled`, `stopping`, `initializing`
-   * @type {ComputedProperty<String>}
-   */
-  dirStatsServiceStatus: reads('dirStatsServiceState.status'),
-
-  /**
-   * @type {ComputedProperty<boolean>}
-   */
-  isSizeStatsDisabled: computed(
-    'dirStatsServiceStatus',
-    'itemType',
-    function isSizeStatsDisabled() {
-      const {
-        dirStatsServiceStatus,
-        itemType,
-      } = this.getProperties('dirStatsServiceStatus', 'itemType');
-      return ['disabled', 'stopping'].includes(dirStatsServiceStatus) ||
-        itemType === 'symlink';
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<boolean>}
-   */
-  areSomeProvidersOffline: computed('providers', function areSomeProvidersOffline() {
-    return Boolean(this.providers?.find((p) => !p.online));
-  }),
-
-  /**
-   * @type {ComputedProperty<Array<Models.Provider>>}
-   */
-  providers: reads('providersProxy.content'),
-
-  /**
-   * List of providers that support this space.
-   * @type {ComputedProperty<Ember.Array<Provider>>}
-   */
-  providersProxy: promise.array(
-    computed('space', function providersProxy() {
-      if (this.space) {
-        return this.space.getRelation('providerList')
-          .then(providerList => get(providerList, 'list'));
-      } else {
-        resolve([]);
-      }
-    })
-  ),
-
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
@@ -599,22 +550,6 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isSizeTabVisible: computed(
-    'browserModel.isDirStatsFeatureHidden',
-    'isMultiFile',
-    'file.effFile.type',
-    'itemType',
-    function isSizeTabVisible() {
-      const effItemType = get(this.file, 'effFile.type') || 'file';
-      return !this.browserModel?.isDirStatsFeatureHidden &&
-        !this.isMultiFile && effItemType !== 'file' &&
-        this.itemType !== 'symlink';
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<boolean>}
-   */
   isApiSamplesTabVisible: and(
     not('isMultiFile'),
     notEqual('itemType', raw('symlink'))
@@ -626,7 +561,6 @@ export default Component.extend(...mixins, {
   visibleTabs: computed(
     'isGeneralTabVisible',
     'isHardlinksTabVisible',
-    'isSizeTabVisible',
     'isApiSamplesTabVisible',
     'visibleTabsModels.@each.isVisible',
     function visibleTabs() {
@@ -636,9 +570,6 @@ export default Component.extend(...mixins, {
       }
       if (this.isHardlinksTabVisible) {
         tabs.push('hardlinks');
-      }
-      if (this.isSizeTabVisible) {
-        tabs.push('size');
       }
       if (this.isApiSamplesTabVisible) {
         tabs.push('apiSamples');
@@ -659,6 +590,7 @@ export default Component.extend(...mixins, {
 
   // TODO: VFS-9628 will contain all tab models after refactor
   allTabModels: collect(
+    'tabModels.size',
     'tabModels.metadata',
     'tabModels.permissions',
     'tabModels.shares',
@@ -690,7 +622,6 @@ export default Component.extend(...mixins, {
         'general',
         'apiSamples',
         'hardlinks',
-        'size',
       ];
       for (const tabId of nonModelTabIds) {
         if (!this.visibleTabs.includes(tabId)) {
@@ -721,25 +652,13 @@ export default Component.extend(...mixins, {
   }),
 
   builtInTabItems: computed(
-    'isSizeStatsDisabled',
     'hardlinksLimitExceeded',
     'hardlinksLimit',
     'hardlinksCount',
-    'areSomeProvidersOffline',
     function builtInTabItems() {
       const hardlinksCount = this.hardlinksLimitExceeded ?
         `${this.hardlinksLimit}+` :
         this.hardlinksCount;
-      let sizeStatsTabClass = '';
-      let sizeStatsStatusIcon = null;
-
-      if (this.areSomeProvidersOffline) {
-        sizeStatsTabClass = 'tab-status-warning';
-        sizeStatsStatusIcon = 'sign-warning-rounded';
-      } else if (!this.isSizeStatsDisabled) {
-        sizeStatsTabClass = 'tab-status-success';
-        sizeStatsStatusIcon = 'checkbox-filled';
-      }
 
       return {
         /** @type {FileInfoTabItem} */
@@ -756,14 +675,6 @@ export default Component.extend(...mixins, {
         },
 
         /** @type {FileInfoTabItem} */
-        size: {
-          id: 'size',
-          name: this.t('tabs.size.tabTitle'),
-          tabClass: sizeStatsTabClass,
-          statusIcon: sizeStatsStatusIcon,
-        },
-
-        /** @type {FileInfoTabItem} */
         apiSamples: {
           id: 'apiSamples',
           name: this.t('tabs.apiSamples.tabTitle'),
@@ -776,6 +687,10 @@ export default Component.extend(...mixins, {
       tabOptions: reads('fileInfoModal.tabOptions'),
       previewMode: reads('fileInfoModal.previewMode'),
       tabModelFactory: reads('fileInfoModal.tabModelFactory'),
+
+      size: computed(function size() {
+        return this.tabModelFactory.createTabModel('size');
+      }),
 
       metadata: computed(
         'tabModelFactory',
@@ -946,9 +861,6 @@ export default Component.extend(...mixins, {
     },
     toggleStorageLocations() {
       this.toggleProperty('areStorageLocationsExpanded');
-    },
-    getProvidersUrl(...args) {
-      return this.get('getProvidersUrl')(...args);
     },
   },
 });
