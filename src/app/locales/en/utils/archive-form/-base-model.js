@@ -56,7 +56,7 @@ export default {
     includeDip: {
       label: 'Include DIP',
       tip: `
-        <p>Determines whether dissemination information package (DIP) is created alongside with archival information package (AIP), on the storage.</p>
+        <p>Determines whether dissemination information package (DIP) is created alongside with archival information package (AIP), on the storage backend.</p>
         <p>For more information on DIP and AIP, refer to <strong>Open Archival Information System</strong>.</p>
       `,
     },
