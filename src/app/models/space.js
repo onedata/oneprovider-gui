@@ -30,6 +30,8 @@ export default Model.extend(
     name: attr('string'),
     preferableWriteBlockSize: attr('number'),
     rootDir: belongsTo('file'),
+    archivesDirId: attr('string'),
+    trashDirId: attr('string'),
     providerList: belongsTo('provider-list'),
     effUserList: belongsTo('user-list'),
     effGroupList: belongsTo('group-list'),
