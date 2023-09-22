@@ -368,6 +368,17 @@ export default Model.extend(
 
     parent: belongsTo('file'),
 
+    /**
+     * Async relations below are always available to resolve, because they base on
+     * the file ID.
+     */
+
+    acl: belongsTo('acl'),
+    distribution: belongsTo('file-distribution'),
+    fileQosSummary: belongsTo('file-qos-summary'),
+    fileDatasetSummary: belongsTo('file-dataset-summary'),
+    storageLocationInfo: belongsTo('storage-location-info'),
+
     //#endregion
 
     //#region custom attributes
@@ -438,10 +449,6 @@ export default Model.extend(
 
     shareRecords: hasMany('share'),
 
-    acl: belongsTo('acl'),
-    distribution: belongsTo('file-distribution'),
-    storageLocationInfo: belongsTo('storage-location-info'),
-
     /**
      * NOTE: User record from this relation can be fetched only if the user has been
      * already fetched using authHint (eg. using userManager or from space.userList).
@@ -449,8 +456,6 @@ export default Model.extend(
      */
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
-    fileQosSummary: belongsTo('file-qos-summary'),
-    fileDatasetSummary: belongsTo('file-dataset-summary'),
     archiveRecallInfo: belongsTo('archive-recall-info'),
     archiveRecallState: belongsTo('archive-recall-state'),
 

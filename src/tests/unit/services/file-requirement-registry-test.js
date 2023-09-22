@@ -86,7 +86,8 @@ describe('Unit | Service | file-requirement-registry', function () {
       expect(resultRequirements).to.include(req1);
       expect(resultRequirements).to.include(req31);
       expect(resultRequirements).to.include(req32);
-    });
+    }
+  );
 
   it('getRequiredAttributes returns attributes for given requirements (parentId) using query', async function () {
     const service = this.owner.lookup('service:file-requirement-registry');
@@ -130,14 +131,15 @@ describe('Unit | Service | file-requirement-registry', function () {
     ].sort());
   });
 
-  it('getRequiredAttributes returns attributes registered for files that have parent from query',
+  it('getRequiredAttributes returns attributes registered only using parent-queries for parent query',
     async function () {
       const service = this.owner.lookup('service:file-requirement-registry');
       const store = lookupService(this, 'store');
       const consumer1 = {};
-      const parent1Guid = getFileGri('parent1');
+      const parent1Id = 'parent1';
+      const parent1Gri = getFileGri(parent1Id);
       const parent1 = await store.createRecord('file', {
-        id: parent1Guid,
+        id: parent1Gri,
         name: 'parent-1',
       }).save();
       const file1Gri = getFileGri('file1');
@@ -148,17 +150,27 @@ describe('Unit | Service | file-requirement-registry', function () {
       }).save();
       mockFileRecordRegistryFiles(this, [parent1, file1]);
       const req1 = new FileRequirement({
+        parentId: parent1Id,
+        properties: ['mtime'],
+      });
+      const req2 = new FileRequirement({
+        parentId: parent1Id,
+        properties: ['atime'],
+      });
+      const req3 = new FileRequirement({
         fileGri: file1Gri,
         properties: ['ctime'],
       });
-      await service.setRequirements(consumer1, req1);
+      await service.setRequirements(consumer1, req1, req2, req3);
       const query = new FileQuery({
-        parentId: get(parent1, 'entityId'),
+        parentId: parent1Id,
       });
 
       const resultAttrs = service.getRequiredAttributes(query);
 
-      expect(resultAttrs).to.contain('ctime');
+      expect(resultAttrs).to.contain('mtime');
+      expect(resultAttrs).to.contain('atime');
+      expect(resultAttrs).to.not.contain('ctime');
     },
   );
 

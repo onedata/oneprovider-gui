@@ -36,9 +36,12 @@ import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
 import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
 import { guidFor } from '@ember/object/internals';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
   I18n,
+  FileConsumerMixin,
   createDataProxyMixin('fileHardlinks'),
 ];
 
@@ -160,6 +163,33 @@ export default Component.extend(...mixins, {
    * @type {Function}
    */
   getProvidersUrl: notImplementedIgnore,
+
+  // TODO: VFS-11252 make global file updater registry, because many components would
+  // need to update individual files data - as in this components, where the qos-tab-model
+  // updates files when modal is opened
+  // TODO: VFS-11252 add more needed properties or move to other class
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('files.[]', function fileRequirements() {
+    // Requirements only for tabs that are implemented in file-info-modal:
+    // general, hardlinks, size, apiSamples - these tabs are displayed only when single
+    // file is diplayed.
+    if (this.files?.length === 1) {
+      const properties = ['size', 'owner', 'mtime', 'shareRecords'];
+      return this.files.map(file => new FileRequirement({
+        fileGri: get(file, 'id'),
+        properties,
+      }));
+    }
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFiles: reads('files'),
 
   /**
    * @type {FileInfoTabId}

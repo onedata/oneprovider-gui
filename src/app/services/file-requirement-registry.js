@@ -131,46 +131,22 @@ export default Service.extend({
         break;
       }
 
-      switch (queryType) {
-        case 'fileGri': {
-          // Select requirements for known files that have the parent matching
-          const file = getAllFiles().find(file =>
-            file && get(file, 'id') === query.fileGri
-          );
-          if (file) {
-            [currentMatchingRequirements, remainRequirements] = _.partition(
-              remainRequirements,
-              (req) => {
-                return req.getQueryType() === 'parentId' &&
-                  req.parentId === file.relationEntityId('parent');
-              }
-            );
-
-            matchingRequirements.push(...currentMatchingRequirements);
-          }
-        }
-        break;
-        case 'parentId': {
-          // Select requirements for known files that have the parent matching
-          const parentId = query.parentId;
-          const filesForParent = getAllFiles().filter(file =>
-            file?.relationEntityId('parent') === parentId
-          );
-          for (const file of filesForParent) {
-            [currentMatchingRequirements, remainRequirements] = _.partition(
-              remainRequirements,
-              (req) => req.matchesFile(file)
-            );
-
-            matchingRequirements.push(...currentMatchingRequirements);
-            if (!remainRequirements.length) {
-              break;
+      if (queryType === 'fileGri') {
+        // Select requirements for known files that have the parent matching
+        const file = getAllFiles().find(file =>
+          file && get(file, 'id') === query.fileGri
+        );
+        if (file) {
+          [currentMatchingRequirements, remainRequirements] = _.partition(
+            remainRequirements,
+            (req) => {
+              return req.getQueryType() === 'parentId' &&
+                req.parentId === file.relationEntityId('parent');
             }
-          }
+          );
+
+          matchingRequirements.push(...currentMatchingRequirements);
         }
-        break;
-        default:
-          break;
       }
     }
     const requiredProperties = _.uniq(_.flatten(

@@ -27,13 +27,6 @@ export default OnedataWebsocketAdapter.extend({
       const queries = [new FileQuery({
         fileGri: id,
       })];
-      const parentGri = snapshot?.belongsTo?.('parent')?.id;
-      if (parentGri) {
-        const parentId = parseGri(parentGri).entityId;
-        queries.push(new FileQuery({
-          parentId,
-        }));
-      }
       const attributes =
         this.fileRequirementRegistry.getRequiredAttributes(...queries);
       if (!_.isEmpty(attributes)) {

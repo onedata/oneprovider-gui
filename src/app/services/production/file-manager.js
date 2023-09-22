@@ -79,6 +79,21 @@ const symlinkTargetAttrsAspect = 'symlink_target';
 const recallLogAspect = 'archive_recall_log';
 const fileModelName = 'file';
 
+const belongsToIdAttrSet = new Set(['parentId', 'ownerId', 'providerId', 'archiveId']);
+const hasManyIdAttrSet = new Set(['shares']);
+
+function serializeBelongsToProperty(record, targetAttrName) {
+  const propertyName = _.trimEnd(targetAttrName, 'Id');
+  return record.relationEntityId(propertyName);
+}
+
+function serializeHasManyProperty(record, targetAttrName) {
+  const propertyName = {
+    shares: 'shareRecords',
+  } [targetAttrName];
+  return record.hasMany(propertyName).ids().map(gri => parseGri(gri).entityId);
+}
+
 export default Service.extend({
   store: service(),
   onedataRpc: service(),
@@ -286,55 +301,32 @@ export default Service.extend({
     if (!limit || limit <= 0) {
       return { childrenRecords: [], isLast: false };
     } else {
+      const attributes = this.attributesForChildrenAttrsQuery(dirId, scope);
       const { children, isLast } = await this.fetchChildrenAttrs({
         dirId,
         scope,
         index,
         limit,
         offset,
+        attributes,
       });
-      const childrenRecords = await this.pushChildrenAttrsToStore(children, scope);
+      const childrenRecords = this.pushChildrenAttrsToStore({
+        childrenAttrs: children,
+        attributes,
+        scope,
+      });
       await this.resolveSymlinks(childrenRecords, scope);
       return { childrenRecords, isLast };
     }
   },
 
   /**
-   * @param {Array<Object>} childrenAttrs data for creating File model
-   * @param {String} scope one of: private, public
-   * @returns {Promise<Array<Models.File>>}
+   * @private
+   * @param {string} dirId
+   * @param {'private'|'public'}
+   * @returns {Array<FileModel.RawAttribute>}
    */
-  pushChildrenAttrsToStore(childrenAttrs, scope) {
-    const store = this.get('store');
-    return resolve(childrenAttrs.map(fileAttrs => {
-      fileAttrs.scope = scope;
-      const modelData = store.normalize(fileModelName, fileAttrs);
-      const currentRecord = store.peekRecord('file', modelData.data.id);
-      if (currentRecord?.currentState.stateName === 'root.deleted.inFlight') {
-        return currentRecord;
-      }
-      try {
-        return store.push(modelData);
-      } catch (error) {
-        console.error(
-          `Could not push file data to store: ${error}`,
-          modelData
-        );
-        return currentRecord;
-      }
-    }).filter(record => Boolean(record)));
-  },
-
-  /**
-   * @returns {Promise<{ children: Array, isLast: Boolean }>}
-   */
-  fetchChildrenAttrs({ dirId, scope, index, limit, offset }) {
-    const requestGri = gri({
-      entityId: dirId,
-      entityType: fileEntityType,
-      aspect: childrenAttrsAspect,
-      scope,
-    });
+  attributesForChildrenAttrsQuery(dirId, scope) {
     const requirementQuery = new FileQuery({
       parentId: dirId,
     });
@@ -344,6 +336,84 @@ export default Service.extend({
     if (scope === 'public') {
       pullPrivateFileAttributes(attributes);
     }
+    return attributes;
+  },
+
+  /**
+   * @private
+   * @param {Array<Object>} childrenAttrs Data of file records for creating File model.
+   *   Contains attributes specified in `attributes` argument.
+   * @param {Array<FileModel.RawAttribute>} attributes List of attributes that are
+   *   included in each children data object of `childrenAttrs`.
+   * @param {'private'|'public'} scope Scope for GRI.
+   * @returns {Array<Models.File>}
+   */
+  pushChildrenAttrsToStore({ childrenAttrs, attributes, scope }) {
+    const store = this.store;
+    return childrenAttrs.map(fileAttrs => {
+      const effFileAttrs = { ...fileAttrs };
+      const effAttributes = attributes ? attributes : Object.keys(fileAttrs);
+      const fileGri = getFileGri(fileAttrs.fileId, scope);
+      const currentRecord = store.peekRecord('file', fileGri);
+      let currentAdditionalData;
+      if (currentRecord) {
+        if (currentRecord.currentState.stateName === 'root.deleted.inFlight') {
+          return currentRecord;
+        }
+        const additionalAttributes = _.difference(
+          // TODO: 11252 could be optimized to get required attributes without doing
+          // heuristics to get requirements for parent - because we will reject parent
+          // requirements anyway
+          this.fileRequirementRegistry.getRequiredAttributes(
+            new FileQuery({
+              fileGri: get(currentRecord, 'id'),
+            }),
+          ),
+          effAttributes,
+        );
+        currentAdditionalData = additionalAttributes.reduce((data, attribute) => {
+          const propertyValue = get(currentRecord, attribute);
+          if (belongsToIdAttrSet.has(attribute)) {
+            data[attribute] = serializeBelongsToProperty(currentRecord, attribute);
+          } else if (hasManyIdAttrSet.has(attribute)) {
+            data[attribute] = serializeHasManyProperty(currentRecord, attribute);
+          } else {
+            // Copy data as-is, because the property wasn't specially deserialized.
+            data[attribute] = propertyValue;
+          }
+          return data;
+        }, {});
+        _.merge(effFileAttrs, currentAdditionalData);
+      }
+
+      effFileAttrs.scope = scope;
+      const modelData = store.normalize(fileModelName, effFileAttrs);
+      try {
+        return store.push(modelData);
+      } catch (error) {
+        console.error(
+          `Could not push file data to store: ${error}`,
+          modelData
+        );
+        return currentRecord;
+      }
+    }).filter(record => Boolean(record));
+  },
+
+  /**
+   * Gets basic and custom file attributes of files that are children of `dirId`.
+   * Custom attributes are evaluated using parent requirements registered in
+   * FileRequirementRegistry.
+   * @private
+   * @returns {Promise<{ children: Array, isLast: Boolean }>}
+   */
+  fetchChildrenAttrs({ dirId, scope, index, limit, offset, attributes }) {
+    const requestGri = gri({
+      entityId: dirId,
+      entityType: fileEntityType,
+      aspect: childrenAttrsAspect,
+      scope,
+    });
     return this.onedataGraph.request({
       operation: 'get',
       gri: requestGri,
@@ -366,7 +436,10 @@ export default Service.extend({
           get(symlink, 'id'),
           scope
         );
-        const [targetRecord] = await this.pushChildrenAttrsToStore([targetAttrs], scope);
+        const [targetRecord] = this.pushChildrenAttrsToStore({
+          childrenAttrs: [targetAttrs],
+          scope,
+        });
         set(symlink, 'symlinkTargetFile', targetRecord);
       } catch {
         set(symlink, 'symlinkTargetFile', null);

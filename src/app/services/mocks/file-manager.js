@@ -9,7 +9,7 @@
 
 import ProductionFileManager from '../production/file-manager';
 import { inject as service } from '@ember/service';
-import { all as allFulfilled, Promise } from 'rsvp';
+import { Promise } from 'rsvp';
 import { get } from '@ember/object';
 
 export default ProductionFileManager.extend({
@@ -18,12 +18,12 @@ export default ProductionFileManager.extend({
   /**
    * @override
    */
-  async pushChildrenAttrsToStore(childrenAttrs) {
+  pushChildrenAttrsToStore({ childrenAttrs }) {
     try {
-      return allFulfilled(childrenAttrs.map(attr => {
+      return childrenAttrs.map(attr => {
         const fileId = get(attr, 'fileId');
         return this.getFileById(fileId);
-      }));
+      });
     } catch (error) {
       throw error;
     }
