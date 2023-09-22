@@ -60,7 +60,9 @@ export default Service.extend({
    */
   basicProperties: Object.freeze([
     'conflictingName',
+    'originalName',
     'effFile',
+    'symlinkValue',
     'fileId',
     'hasParent',
     'name',

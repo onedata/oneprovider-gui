@@ -20,8 +20,6 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import layout from 'oneprovider-gui/templates/components/file-browser/fb-table-row';
 import { htmlSafe } from '@ember/string';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
-import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -30,7 +28,6 @@ function isEventFromMenuToggle(event) {
 const mixins = Object.freeze([
   I18n,
   FastDoubleClick,
-  FileConsumerMixin,
 ]);
 
 export default Component.extend(...mixins, {
@@ -220,31 +217,6 @@ export default Component.extend(...mixins, {
    * @type {boolean}
    */
   isFileNameHovered: false,
-
-  /**
-   * @override
-   */
-  fileRequirements: computed('file.isDestroyed', function fileRequirements() {
-    if (!this.file || this.file.isDestroyed) {
-      return [];
-    }
-    return [
-      new FileRequirement({
-        fileGri: this.get('file.id'),
-        properties: ['type', 'name', 'effFile', 'conflictingName'],
-      }),
-    ];
-  }),
-
-  /**
-   * @override
-   */
-  usedFiles: computed('file', function usedFiles() {
-    if (!this.file || !Object.keys(this.file).length) {
-      return [];
-    }
-    return [this.file];
-  }),
 
   statusBarComponentName: or(
     'browserModel.statusBarComponentName',

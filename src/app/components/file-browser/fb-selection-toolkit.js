@@ -8,18 +8,14 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { observer, computed, get } from '@ember/object';
+import { observer, computed } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { inject as service } from '@ember/service';
 import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
-import FileRequirement from 'oneprovider-gui/utils/file-requirement';
-import { or, raw } from 'ember-awesome-macros';
 
 const mixins = Object.freeze([
   I18n,
-  FileConsumerMixin,
 ]);
 
 export default Component.extend(...mixins, {
@@ -66,26 +62,6 @@ export default Component.extend(...mixins, {
    * @type {Utils.ItemsTooltipContent}
    */
   itemsTooltipContent: undefined,
-
-  /**
-   * @override
-   */
-  fileRequirements: computed('items', function fileRequirements() {
-    if (!this.items) {
-      return [];
-    }
-    return this.items.map(item =>
-      new FileRequirement({
-        fileGri: get(item, 'id'),
-        properties: ['name'],
-      }),
-    );
-  }),
-
-  /**
-   * @override
-   */
-  usedFiles: or('items', raw([])),
 
   itemsCount: reads('items.length'),
 

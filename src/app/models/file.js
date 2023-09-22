@@ -1,6 +1,33 @@
 /**
  * Single file or directory model.
  *
+ * # BASIC PROPERTIES
+ *
+ * The File model could be fetched from backend with custom set of attributes.
+ * In frontend, we use FileRequirementRegistry service to manage properties that
+ * are needed by currently used components, object, etc. called File Consumers.
+ *
+ * There are many File Consumers that need only a small set of file attributes, so
+ * there is a set of often used properties called Basic Properties. The file requirement
+ * system is configured to always fetch the Basic Properties from backend.
+ * When using only these properties, you should not do anything special.
+ *
+ * The Basic Properties are declared in regions:
+ * - basic runtime properties
+ * - basic attributes
+ *
+ * You can see alse current set of basic properties in FileRequirementRegistry service.
+ *
+ * # CUSTOM PROPERTIES
+ *
+ * If you want to use file attributes that are not listed in the Basic Properties,
+ * you must implement a FileConsumerMixin in your class. See FileConsumerMixin docs
+ * for details.
+ *
+ * Custom properties are declared in regions:
+ * - custom runtime properties
+ * - custom attributes
+ *
  * @author Jakub Liput, Michał Borzęcki
  * @copyright (C) 2019-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -53,52 +80,12 @@ export const dirSizeStatsTimeSeriesNameGenerators = {
 };
 
 export const RuntimeProperties = Mixin.create({
-  /**
-   * Not empty when file is a symlink and points to an accessible file.
-   * @type {Models.File|undefined}
-   */
-  symlinkTargetFile: undefined,
+  //#region runtime basic properties
 
   /**
-   * Contains error of loading file distribution. Is null if distribution has not
-   * been fetched yet or it has been fetched successfully. It is persisted in this place
-   * due to the bug in Ember that makes belongsTo relationship unusable after
-   * rejected fetch (id and value become null).
-   * @type {Object}
+   * Properties declared in this region are always available in file record.
+   * See BASIC PROPERTIES section in head documentation for details.
    */
-  distributionLoadError: null,
-
-  /**
-   * @type {boolean}
-   */
-  isPollingSize: false,
-
-  /**
-   * @type {any}
-   */
-  pollSizeTimerId: null,
-
-  /**
-   * One of `copy`, `move`
-   * @type {string}
-   */
-  currentOperation: '',
-
-  /**
-   * @type {boolean}
-   */
-  isCopyingMovingStop: false,
-
-  /**
-   * @type {boolean}
-   */
-  isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
-
-  /**
-   * Name of file ignoring naming conflict.
-   * @type {ComputedProperty<string>}
-   */
-  originalName: or('conflictingName', 'name'),
 
   /**
    * When file is a symlink, then `effFile` is the file pointed
@@ -114,13 +101,15 @@ export const RuntimeProperties = Mixin.create({
     return type === 'symlink' ? symlinkTargetFile : this;
   }),
 
-  dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
-  metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
+  hasParent: computed(function hasParent() {
+    return Boolean(this.belongsTo('parent').id());
+  }),
 
-  dataIsProtectedByDataset: hasProtectionFlag('effDatasetProtectionFlags', 'data'),
-  metadataIsProtectedByDataset: hasProtectionFlag('effDatasetProtectionFlags', 'metadata'),
-
-  isShared: bool('sharesCount'),
+  /**
+   * Name of file ignoring naming conflict.
+   * @type {ComputedProperty<string>}
+   */
+  originalName: or('conflictingName', 'name'),
 
   cdmiObjectId: computed('entityId', function cdmiObjectId() {
     try {
@@ -132,9 +121,23 @@ export const RuntimeProperties = Mixin.create({
     }
   }),
 
-  hasParent: computed(function hasParent() {
-    return Boolean(this.belongsTo('parent').id());
-  }),
+  //#endregion
+
+  //#region custom runtime properties
+
+  /**
+   * Properties declared in this region are available in records only if the file
+   * requirement system is used.
+   * See CUSTOM PROPERTIES section in this file header documentation for details.
+   */
+
+  dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
+  metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
+
+  dataIsProtectedByDataset: hasProtectionFlag('effDatasetProtectionFlags', 'data'),
+  metadataIsProtectedByDataset: hasProtectionFlag('effDatasetProtectionFlags', 'metadata'),
+
+  isShared: bool('sharesCount'),
 
   isArchiveRootDir: computed(function isArchiveRootDir() {
     return Boolean(this.belongsTo('archive').id());
@@ -212,6 +215,57 @@ export const RuntimeProperties = Mixin.create({
     return this.hasMany('shareRecords')?.ids().length;
   }),
 
+  //#endregion
+
+  //#region runtime record state
+
+  /**
+   * Properties set and managed in runtime, without backend attributes relation.
+   */
+
+  /**
+   * Not empty when file is a symlink and points to an accessible file.
+   * @type {Models.File|undefined}
+   */
+  symlinkTargetFile: undefined,
+
+  /**
+   * Contains error of loading file distribution. Is null if distribution has not
+   * been fetched yet or it has been fetched successfully. It is persisted in this place
+   * due to the bug in Ember that makes belongsTo relationship unusable after
+   * rejected fetch (id and value become null).
+   * @type {Object}
+   */
+  distributionLoadError: null,
+
+  /**
+   * @type {boolean}
+   */
+  isPollingSize: false,
+
+  /**
+   * @type {any}
+   */
+  pollSizeTimerId: null,
+
+  /**
+   * One of `copy`, `move`
+   * @type {string}
+   */
+  currentOperation: '',
+
+  /**
+   * @type {boolean}
+   */
+  isCopyingMovingStop: false,
+
+  /**
+   * @type {boolean}
+   */
+  isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
+
+  //#endregion
+
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
    * will be equal `targetSize`.
@@ -275,19 +329,12 @@ export default Model.extend(
   GraphSingleModelMixin,
   RuntimeProperties,
   createConflictModelMixin('shareRecords'), {
-    name: attr('string'),
-    index: attr('string'),
-    type: attr('file-type'),
-    size: attr('number'),
-    posixPermissions: attr('string'),
-    hasMetadata: attr('boolean'),
-    hardlinksCount: attr('number', { defaultValue: 1 }),
-    localReplicationRate: attr('number'),
+    //#region basic attributes
 
     /**
-     * @type {ComputedProperty<QosStatus>}
+     * Properties declared in this region are always available in file record.
+     * See BASIC PROPERTIES section in this file header documentation for details.
      */
-    qosStatus: attr('string'),
 
     /**
      * If there is a filename conflict between providers (two files with the same name,
@@ -305,6 +352,8 @@ export default Model.extend(
      */
     conflictingName: attr('string'),
 
+    name: attr('string'),
+
     /**
      * Not empty only for symlinks. Contains target path. May contain any string,
      * but in general it may look like this (relative path):
@@ -314,6 +363,32 @@ export default Model.extend(
      * @type {ComputedProperty<string>}
      */
     symlinkValue: attr('string'),
+
+    type: attr('file-type'),
+
+    parent: belongsTo('file'),
+
+    //#endregion
+
+    //#region custom attributes
+
+    /**
+     * Properties declared in this region are available in records only if the file
+     * requirement system is used.
+     * See CUSTOM PROPERTIES section in this file header documentation for details.
+     */
+
+    index: attr('string'),
+    size: attr('number'),
+    posixPermissions: attr('string'),
+    hasMetadata: attr('boolean'),
+    hardlinksCount: attr('number', { defaultValue: 1 }),
+    localReplicationRate: attr('number'),
+
+    /**
+     * @type {ComputedProperty<QosStatus>}
+     */
+    qosStatus: attr('string'),
 
     /**
      * Possible values: none, direct, ancestor, directAndAncestor
@@ -364,12 +439,14 @@ export default Model.extend(
     shareRecords: hasMany('share'),
 
     acl: belongsTo('acl'),
-    parent: belongsTo('file'),
     distribution: belongsTo('file-distribution'),
     storageLocationInfo: belongsTo('storage-location-info'),
-    // NOTE: User record from this relation can be fetched only if the user has been
-    // already fetched using authHint (eg. using userManager or from space.userList).
-    // If you want to fetch owner before this, consider using `fileManager.getFileOwner`.
+
+    /**
+     * NOTE: User record from this relation can be fetched only if the user has been
+     * already fetched using authHint (eg. using userManager or from space.userList).
+     * If you want to fetch owner before this, consider using `fileManager.getFileOwner`.
+     */
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
     fileQosSummary: belongsTo('file-qos-summary'),
@@ -382,6 +459,8 @@ export default Model.extend(
      * @type {Models.Archive}
      */
     archive: belongsTo('archive'),
+
+    //#endregion
   }
 ).reopenClass(StaticGraphModelMixin, {
   /**
