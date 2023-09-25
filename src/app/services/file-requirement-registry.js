@@ -79,6 +79,20 @@ export default Service.extend({
    */
   consumerRequirementsMap: undefined,
 
+  /**
+   * A cache mapping parent ID to set of all properties that are required by requirements
+   * with `parentId` condition.
+   * @type {Object<string, Map<FileModel.Property, number>>}
+   */
+  propertiesForParentId: undefined,
+
+  /**
+   * A cache mapping file GRI to set of all properties that are required by requirements
+   * with `fileGri` condition.
+   * @type {Object<string, Map<FileModel.Property, number>>}
+   */
+  propertiesForFileGri: undefined,
+
   //#endregion
 
   /**
@@ -93,6 +107,8 @@ export default Service.extend({
   init() {
     this._super(...arguments);
     this.set('consumerRequirementsMap', new Map());
+    this.set('propertiesForParentId', {});
+    this.set('propertiesForFileGri', {});
   },
 
   /**
@@ -111,6 +127,10 @@ export default Service.extend({
     const matchingRequirements = [];
     let remainRequirements = this.getRequirements();
     let allFiles;
+    /**
+     * Lazily get all store files - uses cache when invoked many times.
+     * @returns {Array<Models.File>}
+     */
     const getAllFiles = () => {
       if (!allFiles) {
         allFiles = this.store.peekAll('file');
@@ -168,12 +188,30 @@ export default Service.extend({
    *   have been triggered to be reloaded.
    */
   async setRequirements(consumer, ...requirements) {
+    const currentConsumerRequirements = this.consumerRequirementsMap.get(consumer);
+    if (
+      currentConsumerRequirements &&
+      requirements &&
+      requirements.length === currentConsumerRequirements.length &&
+      _.isEqual([...currentConsumerRequirements].sort(), [...requirements].sort())
+    ) {
+      // optimize out setting the same requirements for consumer
+      return;
+    }
+
     const richRequirements = this.filterOutBasicRequirements(requirements);
     if (_.isEmpty(richRequirements)) {
       this.consumerRequirementsMap.delete(consumer);
       return;
     }
     const filesToUpdate = this.getFilesToUpdate(richRequirements);
+    // TODO: VFS-11252 optimize invocation of updatePropertiesCache:
+    // - make two sets: of completely new requirements and completely deleted
+    // - updatePropertiesCache with false for deleted ones and with true for only new
+    if (currentConsumerRequirements) {
+      this.updatePropertiesCache(false, ...currentConsumerRequirements);
+    }
+    this.updatePropertiesCache(true, ...richRequirements);
     this.consumerRequirementsMap.set(consumer, richRequirements);
     return await allSettled(filesToUpdate.map(file => {
       return file.reload();
@@ -186,7 +224,11 @@ export default Service.extend({
    * @returns {void}
    */
   deregisterRequirements(consumer) {
-    this.consumerRequirementsMap.delete(consumer);
+    const currentConsumerRequirements = this.consumerRequirementsMap.get(consumer);
+    if (currentConsumerRequirements) {
+      this.updatePropertiesCache(false, ...currentConsumerRequirements);
+      this.consumerRequirementsMap.delete(consumer);
+    }
   },
 
   /**
@@ -242,15 +284,34 @@ export default Service.extend({
       }
       // search for at least one property in new requirement that does not occur
       // in current requirements
-      const equalConditionCurrentReqs = currentRequirements.filter(currentReq =>
-        currentReq.conditionEquals(newReq)
-      );
-      const equalConditionPropertiesSet = new Set(
-        _.flatten(equalConditionCurrentReqs.map(req => req.properties))
-      );
-      for (const newProperty of newReq.properties) {
-        if (!equalConditionPropertiesSet.has(newProperty)) {
-          return true;
+      let equalConditionPropertiesMap;
+      switch (newReq.getQueryType()) {
+        case 'parentId':
+          equalConditionPropertiesMap = this.propertiesForParentId[newReq.parentId];
+          break;
+        case 'fileGri':
+          equalConditionPropertiesMap = this.propertiesForFileGri[newReq.fileGri];
+          break;
+        default: {
+          const equalConditionCurrentReqs = currentRequirements.filter(currentReq =>
+            currentReq.conditionEquals(newReq)
+          );
+          const equalConditionPropertiesSet = new Set(
+            _.flatten(equalConditionCurrentReqs.map(req => req.properties))
+          );
+          for (const newProperty of newReq.properties) {
+            if (!equalConditionPropertiesSet.has(newProperty)) {
+              return true;
+            }
+          }
+        }
+        break;
+      }
+      if (equalConditionPropertiesMap) {
+        for (const newProperty of newReq.properties) {
+          if (!equalConditionPropertiesMap.get(newProperty)) {
+            return true;
+          }
         }
       }
       return false;
@@ -340,5 +401,55 @@ export default Service.extend({
       }
     }
     return _.uniq(attributes);
+  },
+
+  /**
+   * Updates properties cache when adding or removing requirements.
+   * @private
+   * @param {boolean} isAdding Use `true` when requiements are added and `false` when
+   *   requirements are removed from registry.
+   * @param {...FileRequirement} requirement
+   */
+  updatePropertiesCache(isAdding, ...requirements) {
+    if (_.isEmpty(requirements)) {
+      return;
+    }
+    for (const req of requirements) {
+      switch (req.getQueryType()) {
+        case 'parentId':
+          this.changeCounterCache({
+            cacheName: 'propertiesForParentId',
+            properties: req.properties,
+            key: req.parentId,
+            diff: isAdding ? 1 : -1,
+          });
+          break;
+        case 'fileGri':
+          this.changeCounterCache({
+            cacheName: 'propertiesForFileGri',
+            properties: req.properties,
+            key: req.fileGri,
+            diff: isAdding ? 1 : -1,
+          });
+          break;
+        default:
+          break;
+      }
+    }
+  },
+
+  /**
+   * Modifies selected properties counter in cache by diff.
+   * @param {'propertiesForParentId'|'propertiesForFileGri'} cacheName
+   * @param {string} key Either `fileGri` or `parentId`.
+   * @param {Array<FileModel.Property>} properties
+   * @param {-1|1} diff
+   */
+  changeCounterCache({ cacheName, key, properties, diff }) {
+    const propertyMap = (this[cacheName][key] ??= new Map());
+    for (const property of properties) {
+      const prev = propertyMap.get(property);
+      propertyMap.set(property, (prev ?? 0) + diff);
+    }
   },
 });

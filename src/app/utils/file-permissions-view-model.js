@@ -31,10 +31,13 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { translateFileType } from 'onedata-gui-common/utils/file';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
   OwnerInjector,
   I18n,
+  FileConsumerMixin,
   createDataProxyMixin('spaceUsers', { type: 'array' }),
   createDataProxyMixin('spaceGroups', { type: 'array' }),
   createDataProxyMixin('acls', { type: 'array' }),
@@ -81,6 +84,29 @@ export default EmberObject.extend(...mixins, {
   readonlyTip: '',
 
   //#region state
+
+  /**
+   * @override
+   */
+  fileRequirements: computed('files.[]', function fileRequirements() {
+    const properties = Object.freeze([
+      'owner',
+      'metadataIsProtected',
+      'hasParent',
+      'type',
+      'posixPermissions',
+      'activePermissionsType',
+    ]);
+    return this.files.map(file => new FileRequirement({
+      fileGri: get(file, 'id'),
+      properties,
+    }));
+  }),
+
+  /**
+   * @override
+   */
+  usedFiles: reads('files'),
 
   /**
    * @type {FilePermissionsType}

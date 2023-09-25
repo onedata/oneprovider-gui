@@ -109,6 +109,17 @@ export default BaseTabModel.extend({
   /**
    * @override
    */
+  destroy() {
+    try {
+      this.viewModel?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  /**
+   * @override
+   */
   checkClose() {
     return this.viewModel.checkClose();
   },
