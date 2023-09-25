@@ -23,27 +23,34 @@ export const qosSummaryAspect = 'qos_summary';
 export const datasetSummaryAspect = 'dataset_summary';
 export const storageLocationInfoAspect = 'storage_locations';
 
+/**
+ * Specifies runtime-created relations that base only on file ID, so can be created
+ * without any other relation ID, and backend can save data not sending their exact
+ * GRIs.
+ */
+export const fileRelations = Object.freeze([
+  { name: 'acl', aspect: 'acl' },
+  { name: 'distribution', aspect: 'distribution' },
+  { name: 'fileQosSummary', aspect: qosSummaryAspect },
+  { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
+  { name: 'storageLocationInfo', aspect: storageLocationInfoAspect },
+  // NOTE: currently recallRootId should be already set when doing ls++
+  // to create valid relations; if this cointraint will to be changed,
+  // a re-implementation will be needed
+  {
+    name: 'archiveRecallInfo',
+    idSource: 'recallRootId',
+    aspect: archiveRecallInfoAspect,
+  },
+  {
+    name: 'archiveRecallState',
+    idSource: 'recallRootId',
+    aspect: archiveRecallStateAspect,
+  },
+]);
+
 export default Serializer.extend({
-  fileRelations: computed(() => [
-    { name: 'acl', aspect: 'acl' },
-    { name: 'distribution', aspect: 'distribution' },
-    { name: 'fileQosSummary', aspect: qosSummaryAspect },
-    { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
-    { name: 'storageLocationInfo', aspect: storageLocationInfoAspect },
-    // NOTE: currently recallRootId should be already set when doing ls++
-    // to create valid relations; if this cointraint will to be changed,
-    // a re-implementation will be needed
-    {
-      name: 'archiveRecallInfo',
-      idSource: 'recallRootId',
-      aspect: archiveRecallInfoAspect,
-    },
-    {
-      name: 'archiveRecallState',
-      idSource: 'recallRootId',
-      aspect: archiveRecallStateAspect,
-    },
-  ]),
+  fileRelations,
 
   /**
    * Keys of this objects are keys in hash to be converted.

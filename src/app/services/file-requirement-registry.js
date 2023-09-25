@@ -82,14 +82,14 @@ export default Service.extend({
   /**
    * A cache mapping parent ID to set of all properties that are required by requirements
    * with `parentId` condition.
-   * @type {Object<string, Map<FileModel.Property, number>>}
+   * @type {Object<string, Object<FileModel.Property, number>>}
    */
   propertiesForParentId: undefined,
 
   /**
    * A cache mapping file GRI to set of all properties that are required by requirements
    * with `fileGri` condition.
-   * @type {Object<string, Map<FileModel.Property, number>>}
+   * @type {Object<string, Object<FileModel.Property, number>>}
    */
   propertiesForFileGri: undefined,
 
@@ -309,7 +309,7 @@ export default Service.extend({
       }
       if (equalConditionPropertiesMap) {
         for (const newProperty of newReq.properties) {
-          if (!equalConditionPropertiesMap.get(newProperty)) {
+          if (!equalConditionPropertiesMap[newProperty]) {
             return true;
           }
         }
@@ -446,10 +446,10 @@ export default Service.extend({
    * @param {-1|1} diff
    */
   changeCounterCache({ cacheName, key, properties, diff }) {
-    const propertyMap = (this[cacheName][key] ??= new Map());
+    const propertyMap = (this[cacheName][key] ??= {});
     for (const property of properties) {
-      const prev = propertyMap.get(property);
-      propertyMap.set(property, (prev ?? 0) + diff);
+      const prev = propertyMap[property];
+      propertyMap[property] = (prev ?? 0) + diff;
     }
   },
 });

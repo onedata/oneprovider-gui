@@ -12,7 +12,7 @@ import { get, set, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
-import {
+import FileModel, {
   entityType as fileEntityType,
   getFileGri,
   dirSizeStatsTimeSeriesNameGenerators,
@@ -25,6 +25,8 @@ import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import FileQuery from 'oneprovider-gui/utils/file-query';
 import { pullPrivateFileAttributes } from 'oneprovider-gui/utils/file-model';
+import { serializedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
+import { fileRelations } from 'oneprovider-gui/serializers/file';
 
 /**
  * @typedef {Object} FileEntryTimeSeriesCollections
@@ -98,8 +100,27 @@ const symlinkTargetAttrsAspect = 'symlink_target';
 const recallLogAspect = 'archive_recall_log';
 const fileModelName = 'file';
 
-const belongsToIdAttrSet = new Set(['parentId', 'ownerId', 'providerId', 'archiveId']);
-const hasManyIdAttrSet = new Set(['shares']);
+/**
+ * Set of relations that are created in serializer, so they should not be pushed into
+ * store as a data.
+ * @type {Set}
+ */
+const fileIdRelationNameSet = new Set(fileRelations.map(relationSpec =>
+  relationSpec.name
+));
+const belongsToIdAttrSet = new Set();
+FileModel.eachRelationship((propertyName, relationshipDefinition) => {
+  if (
+    relationshipDefinition.kind === 'belongsTo' &&
+    !fileIdRelationNameSet.has(propertyName)
+  ) {
+    belongsToIdAttrSet.add(`${propertyName}Id`);
+  }
+});
+const hasManyPropertyToAttrMapping = {
+  shares: 'shareRecords',
+};
+const hasManyIdAttrSet = new Set(Object.values(hasManyPropertyToAttrMapping));
 
 function serializeBelongsToProperty(record, targetAttrName) {
   const propertyName = _.trimEnd(targetAttrName, 'Id');
@@ -107,9 +128,7 @@ function serializeBelongsToProperty(record, targetAttrName) {
 }
 
 function serializeHasManyProperty(record, targetAttrName) {
-  const propertyName = {
-    shares: 'shareRecords',
-  } [targetAttrName];
+  const propertyName = hasManyPropertyToAttrMapping[targetAttrName];
   return record.hasMany(propertyName).ids().map(gri => parseGri(gri).entityId);
 }
 
@@ -396,8 +415,12 @@ export default Service.extend({
             data[attribute] = serializeBelongsToProperty(currentRecord, attribute);
           } else if (hasManyIdAttrSet.has(attribute)) {
             data[attribute] = serializeHasManyProperty(currentRecord, attribute);
+          } else if (attribute === 'type') {
+            // Not possible, because type is a basic property, but checking just-in-case.
+            data[attribute] = serializedFileTypes[propertyValue];
           } else {
             // Copy data as-is, because the property wasn't specially deserialized.
+            // TODO: VFS-11252 check if array properties are correctly serialized
             data[attribute] = propertyValue;
           }
           return data;
