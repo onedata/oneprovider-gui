@@ -7,7 +7,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { resolve, allSettled, all as allFulfilled, hash as hashFulfilled, hashSettled } from 'rsvp';
+import { allSettled, all as allFulfilled, hash as hashFulfilled, hashSettled } from 'rsvp';
 import { get, set, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
