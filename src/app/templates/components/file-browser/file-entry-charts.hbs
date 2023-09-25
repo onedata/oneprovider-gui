@@ -7,13 +7,7 @@
 {{else}}
   {{#promise-proxy-container proxy=loadingProxy}}
     <div class="current-size-section">
-      {{#if isSpaceRootDir}}
-        <div class="alert alert-info root-dir-alert">
-          {{one-icon icon="browser-info"}}
-          <div class="text">{{tt this "currentSize.spaceDirIncludesArchives"}}</div>
-        </div>
-      {{/if}}
-      <h2 class="current-size-header">
+       <h2 class="current-size-header">
         {{tt this "currentSize.header"}}
         <span class={{concat-classes
           "extra-info"
@@ -60,14 +54,14 @@
           </li>
           <li class="property-row property-physical-size">
             <span class="property-label">
-              {{tt this "currentSize.fileCounters.physicalSizeLabel"}}:
+              {{tt this "currentSize.fileCounters.totalPhysicalSizeLabel"}}:
             </span>
             <span class="property-value">
-              {{bytes-to-string physicalSize}}
-              {{#if physicalSizeExtraInfo}}
-                <span class="extra-info">({{physicalSizeExtraInfo}}&nbsp;B)</span>
+              {{bytes-to-string totalPhysicalSize}}
+              {{#if totalPhysicalSizeExtraInfo}}
+                <span class="extra-info">({{totalPhysicalSizeExtraInfo}}&nbsp;B)</span>
               {{/if}}
-              {{one-label-tip title=(tt this "currentSize.physicalSizeTip")}}
+              {{one-label-tip title=(tt this "currentSize.totalPhysicalSizeTip")}}
             </span>
           </li>
         </ul>
@@ -94,12 +88,14 @@
         }}
       {{/if}}
     {{/if}}
-    {{one-time-series-charts-section
-      class="historical-size-section"
-      sectionSpec=dashboardSpec.rootSection
-      externalDataSources=chartsExternalDataSources
-      onGetTimeSeriesSchemas=(action "getTimeSeriesSchemas")
-      onQueryBatcherFetchData=(action "queryBatcherFetchData")
-    }}
+    {{#if areChartsRendered}}
+      {{one-time-series-charts-section
+        class="historical-size-section"
+        sectionSpec=dashboardSpec.rootSection
+        externalDataSources=chartsExternalDataSources
+        onGetTimeSeriesSchemas=(action "getTimeSeriesSchemas")
+        onQueryBatcherFetchData=(action "queryBatcherFetchData")
+      }}
+    {{/if}}
   {{/promise-proxy-container}}
 {{/if}}

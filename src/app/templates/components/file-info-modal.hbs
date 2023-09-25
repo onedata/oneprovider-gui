@@ -274,18 +274,6 @@
           {{/if}}
         </ul>
       {{/promise-proxy-container}}
-    {{else if (eq activeTab "size")}}
-      {{#if isSizeStatsDisabled}}
-        {{file-browser/fb-no-dir-statistics
-          getProvidersUrl=(action "getProvidersUrl")
-        }}
-      {{else}}
-        {{file-browser/file-entry-charts
-          space=space
-          file=file
-          dirStatsServiceState=dirStatsServiceState
-        }}
-      {{/if}}
     {{else if (eq activeTab "apiSamples")}}
       {{#promise-proxy-container
         proxy=apiSamplesProxy

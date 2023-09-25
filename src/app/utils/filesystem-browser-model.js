@@ -45,7 +45,7 @@ export const commonActionIcons = Object.freeze({
   permissions: 'browser-permissions',
   shares: 'browser-share',
   qos: 'qos',
-  distribution: 'browser-distribution',
+  distribution: 'provider',
 });
 
 const availableButtonNames = Object.freeze([

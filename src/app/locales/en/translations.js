@@ -37,6 +37,7 @@ import archiveContentCount from './components/archive-content-count';
 import archiveState from './components/archive-state';
 import archiveDetailsModal from './components/archive-details-modal';
 import fileInfoModal from './components/file-info-modal';
+import fileSize from './components/file-size';
 import fileMetadata from './components/file-metadata';
 import filePermissions from './components/file-permissions';
 import fileShares from './components/file-shares';
@@ -109,6 +110,7 @@ const translations = {
     archiveState,
     archiveDetailsModal,
     fileInfoModal,
+    fileSize,
     fileMetadata,
     filePermissions,
     fileShares,
