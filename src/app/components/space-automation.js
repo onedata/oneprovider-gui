@@ -326,7 +326,7 @@ export default Component.extend(...mixins, {
   async findNonEmptyCollection() {
     try {
       for (const collectionName of prioritisedBasicTabs) {
-        const collectionTransfers = await this.workflowManager
+        const collectionWorkflows = await this.workflowManager
           .getAtmWorkflowExecutionSummariesForSpace(
             this.space,
             collectionName,
@@ -334,7 +334,7 @@ export default Component.extend(...mixins, {
             1,
             0,
           );
-        if (collectionTransfers.array.length) {
+        if (collectionWorkflows.array.length) {
           return collectionName;
         }
       }

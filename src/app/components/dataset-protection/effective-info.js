@@ -9,6 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { conditional, or, raw } from 'ember-awesome-macros';
+import { defineProperty } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import protectionIcons from 'oneprovider-gui/utils/dataset-protection/protection-icons';
@@ -38,6 +39,12 @@ export default Component.extend(I18n, {
   mode: 'file',
 
   /**
+   * @virtual optional
+   * @type {PromiseObject<Models.FileDatasetSummary>}
+   */
+  fileDatasetSummaryProxy: undefined,
+
+  /**
    * Mapping of protection type (data or metadata) to name of icon representing it
    * @type {Object}
    */
@@ -47,18 +54,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   fileType: or('file.type', raw('file')),
-
-  /**
-   * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
-   */
-  fileDatasetSummaryProxy: computedRelationProxy(
-    'file',
-    'fileDatasetSummary',
-    Object.freeze({
-      reload: true,
-      computedRelationErrorProperty: 'fileDatasetSummaryLoadError',
-    })
-  ),
 
   /**
    * @type {ComputedProperty<Models.FileDatasetSummary>}
@@ -86,4 +81,26 @@ export default Component.extend(I18n, {
     'fileDatasetSummary.metadataIsProtected',
     'file.metadataIsProtected',
   ),
+
+  /**
+   * @override
+   */
+  init() {
+    this._super(...arguments);
+
+    if (!this.fileDatasetSummaryProxy) {
+      defineProperty(
+        this,
+        'fileDatasetSummaryProxy',
+        computedRelationProxy(
+          'file',
+          'fileDatasetSummary',
+          Object.freeze({
+            reload: true,
+            computedRelationErrorProperty: 'fileDatasetSummaryLoadError',
+          })
+        )
+      );
+    }
+  },
 });

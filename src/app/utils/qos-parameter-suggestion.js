@@ -8,7 +8,7 @@
 
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { raw, or, and, array } from 'ember-awesome-macros';
+import { raw, or, and, array, writable } from 'ember-awesome-macros';
 
 /**
  * @implements {QueryProperty}
@@ -33,21 +33,32 @@ export default EmberObject.extend({
   numberValues: undefined,
 
   /**
+   * One of: stringOptions, numberOptions, mixedOptions
+   * @virtual optional
+   * @type {ComputedProperty<string>}
+   */
+  type: writable(or(
+    'injectedType',
+    and('stringValues.length', 'numberValues.length', raw('mixedOptions')),
+    and('numberValues.length', raw('numberOptions')),
+    raw('stringOptions'),
+  ), {
+    set(value) {
+      return this.injectedType = value;
+    },
+  }),
+
+  /**
+   * @type {string | null}
+   */
+  injectedType: null,
+
+  /**
    * Key that should be displayed in GUI - by default is the same as key,
    * but in some cases a special key should be used
    * @type {ComputedProperty<String>|String}
    */
   displayedKey: reads('key'),
-
-  /**
-   * One of: stringOptions, numberOptions, mixedOptions
-   * @type {ComputedProperty<string>}
-   */
-  type: or(
-    and('stringValues.length', 'numberValues.length', raw('mixedOptions')),
-    and('numberValues.length', raw('numberOptions')),
-    raw('stringOptions'),
-  ),
 
   /**
    * @type {ComputedProperty<Array<String>>}
