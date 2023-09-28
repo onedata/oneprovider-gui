@@ -3,7 +3,7 @@
     <div
       onclick={{action "buttonClicked" button}}
       class={{concat-classes
-        "fb-toolbar-button"
+        "fb-toolbar-button clickable"
         (if button.disabled "disabled")
         (if (contains button highlightedToolbarButtons) "text-success")
         button.class

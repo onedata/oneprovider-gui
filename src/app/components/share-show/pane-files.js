@@ -229,11 +229,11 @@ export default Component.extend(...mixins, {
     return ShareFilesystemBrowserModel
       .extend({
         share: reads('paneFiles.share'),
+        isOwnerVisible: false,
       })
       .create({
         paneFiles: this,
         ownerSource: this,
-        isOwnerVisible: false,
         openInfo: this.openInfoModal.bind(this),
       });
   },
