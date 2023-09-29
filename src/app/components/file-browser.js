@@ -201,6 +201,7 @@ export default Component.extend(I18n, {
   spaceId: reads('space.entityId'),
 
   /**
+   * Is overridable only for test purposes
    * @type {ComputedProperty<SpacePrivileges>}
    */
   spacePrivileges: writable(or(
