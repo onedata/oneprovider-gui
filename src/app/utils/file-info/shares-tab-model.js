@@ -86,6 +86,7 @@ export default BaseTabModel.extend({
     raw('without-footer'),
   ),
 
+  // FIXME: custom property use
   /**
    * @type {ComputedProperty<number>}
    */

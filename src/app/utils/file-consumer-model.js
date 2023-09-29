@@ -11,6 +11,7 @@ import EmberObject, { computed, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { reads } from '@ember/object/computed';
+import isFileRecord from 'oneprovider-gui/utils/is-file-record';
 
 export default EmberObject.extend(OwnerInjector, {
   fileRequirementRegistry: service(),
@@ -28,7 +29,7 @@ export default EmberObject.extend(OwnerInjector, {
 
   usedFiles: computed('consumerUsedFiles', function usedFiles() {
     return this.consumerUsedFiles?.filter(file => {
-      if (!file?.constructor?.modelName === 'file') {
+      if (!isFileRecord(file)) {
         console.warn(
           `file-consumer-model: one of file consumer usedFiles is not a file: "${file}", consumer:`,
           this.consumer,
@@ -74,7 +75,7 @@ export default EmberObject.extend(OwnerInjector, {
   },
 
   registerUsedFiles() {
-    if (!Array.isArray(this.usedFiles)) {
+    if (!Array.isArray(this.usedFiles) || !this.usedFiles.length) {
       this.fileRecordRegistry.deregisterFiles(this.consumer);
       return;
     }

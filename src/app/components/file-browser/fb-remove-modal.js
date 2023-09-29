@@ -94,6 +94,8 @@ export default Component.extend(I18n, {
    */
   filesToRemoveCount: reads('files.length'),
 
+  // FIXME: custom property use
+
   /**
    * @type {ComputedProperty<Number>}
    */

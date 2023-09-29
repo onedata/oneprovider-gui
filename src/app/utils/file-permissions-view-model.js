@@ -85,6 +85,7 @@ export default EmberObject.extend(...mixins, {
 
   //#region state
 
+  // FIXME: custom property use
   /**
    * @override
    */

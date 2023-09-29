@@ -121,6 +121,14 @@ export const RuntimeProperties = Mixin.create({
     }
   }),
 
+  spaceEntityId: computed('entityId', function spaceEntityId() {
+    return getSpaceIdFromGuid(this.get('entityId'));
+  }),
+
+  internalFileId: computed('entityId', function internalFileId() {
+    return getInternalFileIdFromGuid(this.get('entityId'));
+  }),
+
   //#endregion
 
   //#region custom runtime properties
@@ -141,14 +149,6 @@ export const RuntimeProperties = Mixin.create({
 
   isArchiveRootDir: computed(function isArchiveRootDir() {
     return Boolean(this.belongsTo('archive').id());
-  }),
-
-  spaceEntityId: computed('entityId', function spaceEntityId() {
-    return getSpaceIdFromGuid(this.get('entityId'));
-  }),
-
-  internalFileId: computed('entityId', function internalFileId() {
-    return getInternalFileIdFromGuid(this.get('entityId'));
   }),
 
   /**
@@ -378,6 +378,8 @@ export default Model.extend(
     fileQosSummary: belongsTo('file-qos-summary'),
     fileDatasetSummary: belongsTo('file-dataset-summary'),
     storageLocationInfo: belongsTo('storage-location-info'),
+    archiveRecallInfo: belongsTo('archive-recall-info'),
+    archiveRecallState: belongsTo('archive-recall-state'),
 
     //#endregion
 
@@ -456,8 +458,6 @@ export default Model.extend(
      */
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
-    archiveRecallInfo: belongsTo('archive-recall-info'),
-    archiveRecallState: belongsTo('archive-recall-state'),
 
     /**
      * Relation to archive model if this file is a root dir of archive.

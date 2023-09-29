@@ -167,7 +167,6 @@ export default Component.extend(...mixins, {
   // TODO: VFS-11252 make global file updater registry, because many components would
   // need to update individual files data - as in this components, where the qos-tab-model
   // updates files when modal is opened
-  // TODO: VFS-11252 add more needed properties or move to other class
   /**
    * @override
    * @implements {Mixins.FileConsumer}
@@ -177,7 +176,7 @@ export default Component.extend(...mixins, {
     // general, hardlinks, size, apiSamples - these tabs are displayed only when single
     // file is diplayed.
     if (this.files?.length === 1) {
-      const properties = ['size', 'owner', 'mtime', 'shareRecords'];
+      const properties = ['size', 'owner', 'mtime', 'hardlinksCount'];
       return this.files.map(file => new FileRequirement({
         fileGri: get(file, 'id'),
         properties,
@@ -272,9 +271,10 @@ export default Component.extend(...mixins, {
     'availableFileLinkTypes',
     'typeTranslation',
     'previewMode',
+    'file.{type,cdmiObjectId}',
     function availableFileLinkModels() {
       if (
-        !this.file?.type ||
+        !this.get('file.type') ||
         !this.availableFileLinkTypes ||
         // TODO: VFS-11156 Implement shared files global URLs
         this.previewMode
@@ -284,7 +284,7 @@ export default Component.extend(...mixins, {
       return this.availableFileLinkTypes.map(fileLinkType => ({
         type: fileLinkType,
         url: this.appProxy.callParent('getFileGoToUrl', {
-          fileId: this.file.cdmiObjectId,
+          fileId: this.get('file.cdmiObjectId'),
           fileAction: fileLinkType,
         }),
         label: this.t(`fileLinkLabel.${fileLinkType}`),

@@ -27,6 +27,7 @@ export default BrowserListPoller.extend({
    */
   dir: reads('browserModel.dir'),
 
+  // FIXME: custom property use
   isRecalling: computed('dir.recallingMembership', function isRecalling() {
     return this.dir?.recallingMembership === 'direct' ||
       this.dir?.recallingMembership === 'ancestor';

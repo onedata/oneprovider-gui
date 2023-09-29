@@ -38,6 +38,7 @@ export default FbTableRowStatusBar.extend({
 
   isSymlink: reads('fileRowModel.isSymlink'),
 
+  // FIXME: custom property use
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   isShared: reads('file.isShared'),

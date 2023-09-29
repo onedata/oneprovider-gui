@@ -20,6 +20,9 @@ import FileInArchive from 'oneprovider-gui/utils/file-in-archive';
 import { allSettled } from 'rsvp';
 import ArchiveFilesystemBrowserListPoller from 'oneprovider-gui/utils/archive-filesystem-browser-list-poller';
 
+// FIXME: bug: jeśli jesteśmy w tej przeglądarce i jest katalog rootowy spejsa, to
+// ma on nazwę archive_<id> zamiast ładnej z wrappera
+
 const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnInfo',
@@ -170,6 +173,7 @@ export default FilesystemBrowserModel.extend({
    */
   externalSymlinkModal: null,
 
+  // FIXME: custom property use
   isOnlyArchiveRootSelected: and(
     'isOnlyCurrentDirSelected',
     'dir.isArchiveRootDir',

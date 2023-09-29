@@ -34,6 +34,7 @@ export default Component.extend(I18n, {
    */
   aboutTimeType: 'present',
 
+  // FIXME: custom property use
   isViewForOtherForbidden: computed(
     'file.{type,posixPermissions}',
     function isViewForOtherForbidden() {

@@ -50,6 +50,7 @@ export default Service.extend({
    * @returns {String} token for managing registered watcher (see
    *   `ArchiveRecallStateManagerEntry`)
    */
+  // FIXME: custom property use
   watchRecall(file) {
     const recallRootId = get(file, 'recallRootId');
     const watchersRegistry = this.get('watchersRegistry');

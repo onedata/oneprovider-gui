@@ -67,6 +67,7 @@ export default Component.extend(I18n, {
 
   effFileType: reads('effFile.type'),
 
+  // FIXME: custom property use
   effFileSize: reads('effFile.size'),
 
   isSizeShown: or(

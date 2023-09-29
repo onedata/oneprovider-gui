@@ -62,6 +62,7 @@ export default Component.extend(I18n, {
       'onCancelInvoked',
       'onClose',
     );
+    // FIXME: custom property use
     try {
       const recallRootId = get(file, 'recallRootId');
       const cancelResult = await fileManager.cancelRecall(recallRootId);

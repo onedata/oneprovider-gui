@@ -82,6 +82,7 @@ export default EmberObject.extend(...mixins, {
    */
   dirsNumber: array.length('filesOfTypeDir'),
 
+  // FIXME: custom property use
   /**
    * @type {Ember.ComputedProperty<number>}
    * if array is empty, the sum is 0

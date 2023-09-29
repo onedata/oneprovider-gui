@@ -308,6 +308,7 @@ export default Service.extend(I18n, {
       resumable,
     } = this.getProperties('targetDirectory', 'resumable');
 
+    // FIXME: custom property use
     if (get(targetDirectory, 'dataIsProtected')) {
       resumableFiles.forEach(resumableFile => resumableFile.cancel());
       return;

@@ -13,6 +13,7 @@ const emptyValue = null;
 
 export default function recallingPercentageProgress(file) {
   const recallingMembership = file && get(file, 'recallingMembership');
+  // FIXME: custom property use
   const isRecallInfoApplicable = Boolean(file && (
     get(file, 'isRecalled') ||
     recallingMembership === 'direct' ||

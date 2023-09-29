@@ -211,6 +211,8 @@ export default Component.extend(I18n, {
     }
   )),
 
+  // FIXME: custom property use
+
   recallRootFileProxy: promise.object(computed(
     'file.recallRootId',
     function recallRootFileProxy() {

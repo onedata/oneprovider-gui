@@ -120,6 +120,7 @@ export default BaseTabModel.extend({
     });
   }),
 
+  // FIXME: custom property use
   /**
    * @type {ComputedProperty<boolean>}
    */

@@ -667,6 +667,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     }
     const file = await this.fileManager.getFileById(fileId);
     const target = get(file, 'symlinkTargetFile');
+    // FIXME: custom property use
     const {
       cdmiObjectId: targetCdmiObjectId,
       type: targetType,

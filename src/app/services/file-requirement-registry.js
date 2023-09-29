@@ -60,13 +60,15 @@ export default Service.extend({
    */
   basicProperties: Object.freeze([
     'conflictingName',
-    'originalName',
     'effFile',
-    'symlinkValue',
     'fileId',
     'hasParent',
+    'internalFileId',
     'name',
+    'originalName',
     'parent',
+    'spaceEntityId',
+    'symlinkValue',
     'type',
   ]),
 
@@ -109,6 +111,11 @@ export default Service.extend({
     this.set('consumerRequirementsMap', new Map());
     this.set('propertiesForParentId', {});
     this.set('propertiesForFileGri', {});
+    // FIXME: debug code
+    ((name) => {
+      window[name] = this;
+      console.log(`window.${name}`, window[name]);
+    })('debug_file_requirement_registry');
   },
 
   /**

@@ -149,6 +149,7 @@ export default Component.extend(I18n, {
     raw(undefined)
   ),
 
+  // FIXME: custom property use
   isViewForOtherForbiddenProxy: promise.object(computed(
     'share.rootFile.{type,posixPermissions}',
     async function isViewForOtherForbiddenProxy() {

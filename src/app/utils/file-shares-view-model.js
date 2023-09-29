@@ -43,6 +43,7 @@ export default EmberObject.extend(...mixins, {
    */
   file: undefined,
 
+  // FIXME: custom property use
   sharesProxy: reads('file.shareRecords'),
 
   shares: reads('sharesProxy.content'),

@@ -86,6 +86,7 @@ export default FbTableRowColumns.extend(I18n, {
     }
   ),
 
+  // FIXME: custom property use
   /**
    * @type {ComputedProperty<PromiseObject<Models.User>>}
    */

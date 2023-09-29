@@ -158,9 +158,8 @@ export default OneEmbeddedComponent.extend(
       }
       return [
         new FileRequirement({
-          debug: 'content-file-browser',
           fileGri: this.dirGri,
-          properties: ['parent', 'type', 'effFile'],
+          properties: ['dataIsProtected'],
         }),
       ];
     }),
@@ -179,6 +178,8 @@ export default OneEmbeddedComponent.extend(
     dirGri: computed('dirEntityId', function dirGri() {
       return getFileGri(this.dirEntityId, 'private');
     }),
+
+    // FIXME: custom property use
 
     /**
      * @type {ComputedProperty<Boolean>}

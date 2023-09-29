@@ -141,6 +141,7 @@ export default EmberObject.extend(...mixins, {
    * True if any file metadata is protected.
    * @type {ComputedProperty<Boolean>}
    */
+  // FIXME: custom property use
   metadataIsProtected: bool('file.metadataIsProtected'),
 
   /**

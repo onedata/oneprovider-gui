@@ -36,6 +36,7 @@ export const propertyToAttributesMap = Object.freeze({
   metadataIsProtectedByDataset: 'effDatasetProtectionFlags',
   originalName: ['conflictingName', 'name'],
   recallingMembership: 'recallRootId',
+  recallingMembershipProxy: 'recallRootId',
   spaceEntityId: 'fileId',
 });
 

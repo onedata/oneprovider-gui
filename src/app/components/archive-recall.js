@@ -18,10 +18,13 @@ import { guidFor } from '@ember/object/internals';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { defer } from 'rsvp';
 import { debounce } from '@ember/runloop';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
   I18n,
   ItemBrowserContainerBase,
+  FileConsumerMixin,
 ];
 
 /**
@@ -80,6 +83,27 @@ export default Component.extend(...mixins, {
    * @type {ArchiveRecallComponentOptions}
    */
   options: Object.freeze({}),
+
+  /**
+   * @override
+   */
+  fileRequirements: computed('targetRecallParent.effFile', function fileRequirements() {
+    const effRecallParent = this.get('targetRecallParent.effFile');
+    if (!effRecallParent) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: get(effRecallParent, 'id'),
+        properties: ['recallingMembershipProxy'],
+      }),
+    ];
+  }),
+
+  usedFiles: computed('targetRecallParent.effFile', function usedFiles() {
+    const effRecallParent = this.get('targetRecallParent.effFile');
+    return effRecallParent ? [effRecallParent] : [];
+  }),
 
   //#region state
 
@@ -214,6 +238,8 @@ export default Component.extend(...mixins, {
       return null;
     }
   )),
+
+  // FIXME: custom property use
 
   browserValidationErrorProxy: promise.object(computed(
     'targetRecallParent.effFile.recallingMembershipProxy',

@@ -65,6 +65,8 @@ export default Component.extend(I18n, {
    */
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
 
+  // FIXME: custom property use
+
   /**
    * Note: fileDatasetSummary can be updated more frequently, so if is already available
    * then use its protection value.

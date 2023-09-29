@@ -157,17 +157,20 @@ export default Service.extend({
   throttledDirChildrenRefreshCallbacks: computed(() => ({})),
 
   /**
-   * @param {String} fileId
+   * @param {string} fileId
    * @param {Object} options
    * @param {'private'|'public'} [options.scope='private']
-   * @param {Boolean} [options.reload=false] a `findRecord` option
-   * @param {Boolean} [options.backgroundReload=false] a `findRecord` option
+   * @param {boolean} [options.reload=false] A `findRecord` option.
+   * @param {boolean} [options.backgroundReload=false] A `findRecord` option.
+   * @param {Array<FileModel.Property>} [options.extraAttributes] Additional attributes
+   *   added to required attributes when making request.
    * @returns {Promise<Models.File>}
    */
   async getFileById(fileId, {
     scope = 'private',
     reload = false,
     backgroundReload = false,
+    extraAttributes,
   } = {}) {
     const store = this.get('store');
     const fileGri = getFileGri(fileId, scope);
@@ -175,6 +178,9 @@ export default Service.extend({
     const attributes = this.fileRequirementRegistry.getRequiredAttributes(
       requirementQuery
     );
+    if (Array.isArray(extraAttributes) && extraAttributes.length) {
+      attributes.push(..._.without(extraAttributes, attributes));
+    }
     if (scope === 'public') {
       pullPrivateFileAttributes(attributes);
     }
@@ -532,6 +538,7 @@ export default Service.extend({
     return this.copyOrMoveFile(file, parentDirEntityId, 'move');
   },
 
+  // FIXME: custom property use
   async copyOrMoveFile(file, parentDirEntityId, operation) {
     const name = get(file, 'name') || 'unknown';
     const entityId = get(file, 'entityId');
@@ -1179,6 +1186,7 @@ export default Service.extend({
    * @param {Models.File} file
    * @return {Promise}
    */
+  // FIXME: custom property use
   async refreshRelatedFiles(file) {
     if (!file) {
       return;

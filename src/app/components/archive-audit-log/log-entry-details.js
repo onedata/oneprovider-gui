@@ -40,6 +40,8 @@ const mixins = [
   PerfectScrollbarMixin,
 ];
 
+// FIXME: potencjalnie może używać property, ale raczej tylko basic
+
 export default Component.extend(...mixins, {
   layout,
   classNames: ['log-entry-details', 'archive-log-entry-details'],

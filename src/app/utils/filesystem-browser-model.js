@@ -30,6 +30,7 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
+import isFileRecord from 'oneprovider-gui/utils/is-file-record';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -279,6 +280,105 @@ export default BaseBrowserModel.extend(...mixins, {
   browserPersistedConfigurationKey: 'filesystem',
 
   /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed(
+    // TODO: 11252 Try checking isVisible instead isEnabled
+    'dir',
+    `columnsConfiguration.columns.{${columnsRequirementsDependencies}}`,
+    function fileRequirements() {
+      if (!this.dir) {
+        return [];
+      }
+      const parentDirGri = get(this.dir, 'id');
+      const parentDirId = get(this.dir, 'entityId');
+      const basicProperties = [
+        'conflictingName',
+        'name',
+        'parent',
+        'type',
+        'index',
+      ];
+      // Properties that are needed by nested components - added here for requirements
+      // to be available before rows are rendered (which could cause records reload,
+      // it requirements wouldn't be prepared earlier).
+      if (!this.previewMode) {
+        // file-features component
+        if (this.fileFeatures.includes('effDatasetMembership')) {
+          basicProperties.push(
+            'effDatasetMembership',
+            'dataIsProtected',
+            'metadataIsProtected',
+          );
+        }
+        if (this.fileFeatures.includes('effQosMembership')) {
+          basicProperties.push('effQosMembership');
+        }
+        // FIXME: disabled for debug
+        // if (this.fileFeatures.includes('recallingMembership')) {
+        //   basicProperties.push('recallingMembership');
+        // }
+
+        // table-row-status-bar component
+        basicProperties.push(
+          'isShared',
+        );
+      }
+      const listedFilesProperties = [...basicProperties];
+      const columns = this.columnsConfiguration.columns;
+      if (columns.size?.isEnabled) {
+        listedFilesProperties.push('size');
+      }
+      if (columns.modification?.isEnabled) {
+        listedFilesProperties.push('mtime');
+      }
+      if (columns.owner?.isEnabled) {
+        listedFilesProperties.push('owner');
+      }
+      if (columns.replication?.isEnabled) {
+        listedFilesProperties.push('localReplicationRate');
+      }
+      if (columns.qos?.isEnabled) {
+        listedFilesProperties.push('qosStatus');
+      }
+      const parentDirRequirement = new FileRequirement({
+        properties: basicProperties,
+        fileGri: parentDirGri,
+      });
+      const listingRequirement = new FileRequirement({
+        properties: listedFilesProperties,
+        parentId: parentDirId,
+      });
+      return [parentDirRequirement, listingRequirement];
+    },
+  ),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFiles: computed(
+    'dir',
+    'itemsArray.sourceArray.[]',
+    function usedFiles() {
+      const resultUsedFiles = [];
+      // Checking if dir and items are files, because dir and itemsArray are read from
+      // fb-table, which could have items not yet updated.
+      if (this.dir && isFileRecord(this.dir)) {
+        resultUsedFiles.push(this.dir);
+      }
+      if (this.itemsArray) {
+        const listedFiles = this.itemsArray.sourceArray.filter(item =>
+          isFileRecord(item)
+        );
+        resultUsedFiles.push(...listedFiles);
+      }
+      return resultUsedFiles;
+    },
+  ),
+
+  /**
    * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
    * context menu.
    * @type {string}
@@ -315,7 +415,7 @@ export default BaseBrowserModel.extend(...mixins, {
 
   //#endregion
 
-  // #region Action buttons
+  //#region Action buttons
 
   btnBagitUpload: computed(
     'spacePrivileges.scheduleAtmWorkflowExecutions',
@@ -345,6 +445,7 @@ export default BaseBrowserModel.extend(...mixins, {
     }
   ),
 
+  // FIXME: custom property use
   btnUpload: computed(
     'dir.{dataIsProtected,isRecalling}',
     function btnUpload() {
@@ -1130,71 +1231,6 @@ export default BaseBrowserModel.extend(...mixins, {
         );
       }
     }
-  ),
-
-  /**
-   * @override
-   * @implements {Mixins.FileConsumer}
-   */
-  fileRequirements: computed(
-    // TODO: 11252 Try checking isVisible instead isEnabled
-    'dir',
-    `columnsConfiguration.columns.{${columnsRequirementsDependencies}}`,
-    function fileRequirements() {
-      if (!this.dir) {
-        return [];
-      }
-      const parentDirGri = get(this.dir, 'id');
-      const parentDirId = get(this.dir, 'entityId');
-      const basicProperties = [
-        'conflictingName',
-        'name',
-        'parent',
-        'type',
-        'index',
-      ];
-      // Properties that are needed by nested components - added here for requirements
-      // to be available before rows are rendered (which could cause records reload,
-      // it requirements wouldn't be prepared earlier).
-      if (!this.previewMode) {
-        basicProperties.push(
-          // file-features component
-          'dataIsProtected',
-          'metadataIsProtected',
-          'effDatasetMembership',
-          'effQosMembership',
-          'recallingMembership',
-          // table-row-status-bar component
-          'isShared',
-        );
-      }
-      const listedFilesProperties = [...basicProperties];
-      const columns = this.columnsConfiguration.columns;
-      if (columns.size?.isEnabled) {
-        listedFilesProperties.push('size');
-      }
-      if (columns.modification?.isEnabled) {
-        listedFilesProperties.push('mtime');
-      }
-      if (columns.owner?.isEnabled) {
-        listedFilesProperties.push('owner');
-      }
-      if (columns.replication?.isEnabled) {
-        listedFilesProperties.push('localReplicationRate');
-      }
-      if (columns.qos?.isEnabled) {
-        listedFilesProperties.push('qosStatus');
-      }
-      const parentDirRequirement = new FileRequirement({
-        properties: basicProperties,
-        fileGri: parentDirGri,
-      });
-      const listingRequirement = new FileRequirement({
-        properties: listedFilesProperties,
-        parentId: parentDirId,
-      });
-      return [parentDirRequirement, listingRequirement];
-    },
   ),
 
   /**

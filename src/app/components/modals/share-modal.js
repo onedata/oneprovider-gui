@@ -199,6 +199,7 @@ export default Component.extend(I18n, {
         }
         try {
           await file.reload();
+          // FIXME: custom property use
           await file.hasMany('shareRecords');
         } finally {
           this.onSubmitted?.();

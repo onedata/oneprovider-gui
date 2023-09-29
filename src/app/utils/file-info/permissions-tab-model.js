@@ -89,6 +89,7 @@ export default BaseTabModel.extend({
     raw(null),
   ),
 
+  // FIXME: custom property use
   /**
    * @type {ComputedProperty<boolean>}
    */

@@ -39,6 +39,7 @@ import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
+// FIXME: custom property use - verify
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
@@ -240,43 +241,6 @@ export default Component.extend(...mixins, {
    * @type {boolean}
    */
   headerVisible: undefined,
-
-  /**
-   * @override
-   * @implements {Mixins.FileConsumer}
-   */
-  fileRequirements: computed(
-    'dir.id',
-    function fileRequirements() {
-      if (!this.dir) {
-        return [];
-      }
-      return [
-        new FileRequirement({
-          fileGri: get(this.dir, 'id'),
-          properties: [
-            'effFile',
-            'type',
-          ],
-        }),
-      ];
-    }
-  ),
-
-  /**
-   * @override
-   * @implements {Mixins.FileConsumer}
-   */
-  usedFiles: computed(
-    'dir',
-    'filesArray.sourceArray.[]',
-    function usedFiles() {
-      const listedFiles = this.filesArray.sourceArray.filter(item =>
-        item && get(item, 'id')
-      );
-      return [this.dir, ...listedFiles];
-    },
-  ),
 
   headRowComponentName: or(
     'browserModel.headRowComponentName',
