@@ -15,7 +15,7 @@
  */
 
 import EmberObject from '@ember/object';
-import { conditional, not, raw } from 'ember-awesome-macros';
+import { writable, conditional, not, raw, eq } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -125,13 +125,27 @@ export default EmberObject.extend(...mixins, {
   modalClass: '',
 
   /**
+   * @virtual optional
    * @type {ComputedProperty<boolean>}
    */
-  isVisible: conditional(
-    'isSupportingMultiFiles',
-    raw(true),
-    not('fileInfoModal.isMultiFile')
-  ),
+  isVisible: writable(conditional(
+    eq('injectedIsVisible', raw(null)),
+    conditional(
+      'isSupportingMultiFiles',
+      raw(true),
+      not('fileInfoModal.isMultiFile')
+    ),
+    'injectedIsVisible'
+  ), {
+    set(value) {
+      return this.injectedIsVisible = value;
+    },
+  }),
+
+  /**
+   * @type {boolean | null}
+   */
+  injectedIsVisible: null,
 
   /**
    * Invoked by file info modal when it wants to close the current tab.
