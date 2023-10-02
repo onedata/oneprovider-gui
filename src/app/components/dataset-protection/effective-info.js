@@ -10,10 +10,18 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { conditional, or, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
+import { computed } from '@ember/object';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import protectionIcons from 'oneprovider-gui/utils/dataset-protection/protection-icons';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   classNames: [
     'modal-header-effective-info',
     'header-tags-container',
@@ -36,6 +44,30 @@ export default Component.extend(I18n, {
    * @virtual optional
    */
   mode: 'file',
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('file.id'),
+        properties: ['dataIsProtected', 'metadataIsProtected'],
+      }),
+    ];
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFiles: computed('file', function usedFiles() {
+    return this.file ? [this.file] : [];
+  }),
 
   /**
    * Mapping of protection type (data or metadata) to name of icon representing it
@@ -64,8 +96,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.FileDatasetSummary>}
    */
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
-
-  // FIXME: custom property use
 
   /**
    * Note: fileDatasetSummary can be updated more frequently, so if is already available

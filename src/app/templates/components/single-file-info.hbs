@@ -52,8 +52,7 @@
     <li class="property-row">
       <span class="property-label">{{tt this "mtime"}}:</span>
       <span class="download-file-modification property-value">
-        {{!-- FIXME: custom property use --}}
-        {{date-format file.mtime format="dateWithMinutes" blank="—"}}
+        {{date-format mtime format="dateWithMinutes" blank="—"}}
       </span>
     </li>
   </ul>

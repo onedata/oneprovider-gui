@@ -21,6 +21,8 @@ import resolveFilePath, { stringifyFilePath, dirSeparator } from 'oneprovider-gu
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
  * @typedef {'scheduled'|'pending'|'cancelling'|'cancelled'|'succeeded'|'failed'} FileRecallProcessStatus
@@ -56,7 +58,12 @@ export function isValidFileRecallProcessStatus(status) {
  * @property {string} isLocal true if this is the same provider as currently used
  */
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   tagName: '',
 
   i18n: service(),
@@ -85,6 +92,30 @@ export default Component.extend(I18n, {
    * @type {() => void}
    */
   onClose: notImplementedIgnore,
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('file.id'),
+        properties: ['recallingMembership', 'recallRootId'],
+      }),
+    ];
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFiles: computed('file', function usedFiles() {
+    return this.file ? [this.file] : [];
+  }),
 
   //#region state
 
@@ -210,8 +241,6 @@ export default Component.extend(I18n, {
       return datasetManager.getBrowsableDataset(dataset);
     }
   )),
-
-  // FIXME: custom property use
 
   recallRootFileProxy: promise.object(computed(
     'file.recallRootId',

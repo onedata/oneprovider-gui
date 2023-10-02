@@ -86,6 +86,7 @@ export default Component.extend(...mixins, {
 
   /**
    * @override
+   * @implements {Mixins.FileConsumer}
    */
   fileRequirements: computed('targetRecallParent.effFile', function fileRequirements() {
     const effRecallParent = this.get('targetRecallParent.effFile');
@@ -100,6 +101,10 @@ export default Component.extend(...mixins, {
     ];
   }),
 
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
   usedFiles: computed('targetRecallParent.effFile', function usedFiles() {
     const effRecallParent = this.get('targetRecallParent.effFile');
     return effRecallParent ? [effRecallParent] : [];
@@ -238,8 +243,6 @@ export default Component.extend(...mixins, {
       return null;
     }
   )),
-
-  // FIXME: custom property use
 
   browserValidationErrorProxy: promise.object(computed(
     'targetRecallParent.effFile.recallingMembershipProxy',

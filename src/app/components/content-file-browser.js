@@ -179,8 +179,6 @@ export default OneEmbeddedComponent.extend(
       return getFileGri(this.dirEntityId, 'private');
     }),
 
-    // FIXME: custom property use
-
     /**
      * @type {ComputedProperty<Boolean>}
      */

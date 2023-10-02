@@ -16,8 +16,15 @@ import { hash as hashFulfilled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   classNames: ['single-file-info', 'details-with-icon'],
 
   appProxy: service('appProxy'),
@@ -56,6 +63,30 @@ export default Component.extend(I18n, {
   onLinkClicked: notImplementedIgnore,
 
   /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('file.id'),
+        properties: ['size', 'mtime'],
+      }),
+    ];
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFiles: computed('file', function usedFiles() {
+    return this.file ? [this.file] : [];
+  }),
+
+  /**
    * Frame name, where Onezone link should be opened
    * @type {String}
    */
@@ -67,8 +98,9 @@ export default Component.extend(I18n, {
 
   effFileType: reads('effFile.type'),
 
-  // FIXME: custom property use
   effFileSize: reads('effFile.size'),
+
+  mtime: reads('file.mtime'),
 
   isSizeShown: or(
     eq('effFileType', raw(LegacyFileType.Regular)),

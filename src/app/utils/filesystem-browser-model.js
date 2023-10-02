@@ -315,10 +315,9 @@ export default BaseBrowserModel.extend(...mixins, {
         if (this.fileFeatures.includes('effQosMembership')) {
           basicProperties.push('effQosMembership');
         }
-        // FIXME: disabled for debug
-        // if (this.fileFeatures.includes('recallingMembership')) {
-        //   basicProperties.push('recallingMembership');
-        // }
+        if (this.fileFeatures.includes('recallingMembership')) {
+          basicProperties.push('recallingMembership');
+        }
 
         // table-row-status-bar component
         basicProperties.push(
