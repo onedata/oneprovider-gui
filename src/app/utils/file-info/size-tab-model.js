@@ -169,6 +169,7 @@ export default BaseTabModel.extend({
       this.viewModel?.destroy();
       this.set('viewModel', FileSizeViewModel.create({
         ownerSource: this,
+        tabModel: this,
         file: this.file,
         space: this.space,
         dirStatsServiceState: this.dirStatsServiceState,

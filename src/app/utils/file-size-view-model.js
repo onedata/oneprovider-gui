@@ -7,7 +7,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, observer, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { eq, getBy } from 'ember-awesome-macros';
@@ -24,6 +24,12 @@ const mixins = [
 
 export default EmberObject.extend(...mixins, {
   fileManager: service(),
+
+  /**
+   * @virtual
+   * @type {Utils.FileInfo.SizeTabModel}
+   */
+  tabModel: undefined,
 
   /**
    * @virtual
@@ -57,6 +63,11 @@ export default EmberObject.extend(...mixins, {
   activeTab: SpaceSizeStatsType.All,
 
   /**
+   * @type {number}
+   */
+  latestDirSizeStatsUpdaterInterval: 5000,
+
+  /**
    * @type {boolean}
    */
   dirStatsNotReady: false,
@@ -65,6 +76,11 @@ export default EmberObject.extend(...mixins, {
    * @type {Looper}
    */
   completeLatestDirSizeStatsValuesUpdater: undefined,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isActive: reads('tabModel.isActive'),
 
   /**
    * @type {ComputedProperty<string>}
@@ -119,6 +135,12 @@ export default EmberObject.extend(...mixins, {
    */
   totalPhysicalSize: getBy('completeTotalPhysicalSizes', 'activeTab'),
 
+  isActiveObserver: observer('isActive', function isActiveObserver() {
+    const newUpdateInterval = this.isActive ?
+      this.latestDirSizeStatsUpdaterInterval : null;
+    set(this.completeLatestDirSizeStatsValuesUpdater, 'interval', newUpdateInterval);
+  }),
+
   /**
    * @override
    */
@@ -126,8 +148,8 @@ export default EmberObject.extend(...mixins, {
     this._super(...arguments);
 
     const completeLatestDirSizeStatsValuesUpdater = Looper.create({
-      immediate: false,
-      interval: 5000,
+      immediate: true,
+      interval: null,
     });
     completeLatestDirSizeStatsValuesUpdater.on('tick', () =>
       this.updateCompleteLatestDirSizeStatsValuesProxy({ replace: true })
@@ -137,6 +159,7 @@ export default EmberObject.extend(...mixins, {
       'completeLatestDirSizeStatsValuesUpdater',
       completeLatestDirSizeStatsValuesUpdater
     );
+    this.isActiveObserver();
   },
 
   /**
