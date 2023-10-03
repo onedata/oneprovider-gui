@@ -1190,8 +1190,8 @@ export default OnedataGraphMock.extend({
     const files = this.get('mockBackend.entityRecords.file');
     const originalFile = files.findBy('entityId', fileEntityId);
     const hardlinks = [originalFile];
-    if (get(originalFile, 'hardlinksCount') > 1) {
-      hardlinks.push(files.without(originalFile).findBy('hardlinksCount', 2));
+    if (get(originalFile, 'hardlinkCount') > 1) {
+      hardlinks.push(files.without(originalFile).findBy('hardlinkCount', 2));
     }
     return hardlinks.compact().mapBy('id');
   },

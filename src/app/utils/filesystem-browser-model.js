@@ -293,58 +293,60 @@ export default BaseBrowserModel.extend(...mixins, {
       }
       const parentDirGri = get(this.dir, 'id');
       const parentDirId = get(this.dir, 'entityId');
-      const basicProperties = [
-        'conflictingName',
-        'name',
-        'parent',
-        'type',
-        'index',
-      ];
+      const basicPropertySet = new Set();
+
       // Properties that are needed by nested components - added here for requirements
       // to be available before rows are rendered (which could cause records reload,
       // it requirements wouldn't be prepared earlier).
       if (!this.previewMode) {
         // file-features component
         if (this.fileFeatures.includes('effDatasetMembership')) {
-          basicProperties.push(
-            'effDatasetMembership',
-            'dataIsProtected',
-            'metadataIsProtected',
-          );
+          basicPropertySet
+            .add('effDatasetMembership')
+            .add('dataIsProtected')
+            .add('metadataIsProtected');
         }
         if (this.fileFeatures.includes('effQosMembership')) {
-          basicProperties.push('effQosMembership');
+          basicPropertySet.add('effQosMembership');
         }
         if (this.fileFeatures.includes('recallingMembership')) {
-          basicProperties.push('recallingMembership');
+          basicPropertySet.add('recallingMembership');
         }
 
         // table-row-status-bar component
-        basicProperties.push(
-          'isShared',
-        );
+        basicPropertySet.add('isShared');
       }
-      const listedFilesProperties = [...basicProperties];
+
+      const basicProperties = [...basicPropertySet.values()];
+      const listedFilesPropertySet = new Set([
+        ...basicProperties,
+        // table-row-status-bar component
+        'activePermissionsType',
+        'posixPermissions',
+        'shareRecords',
+        'isShared',
+      ]);
       const columns = this.columnsConfiguration.columns;
       if (columns.size?.isEnabled) {
-        listedFilesProperties.push('size');
+        listedFilesPropertySet.add('size');
       }
       if (columns.modification?.isEnabled) {
-        listedFilesProperties.push('mtime');
+        listedFilesPropertySet.add('mtime');
       }
       if (columns.owner?.isEnabled) {
-        listedFilesProperties.push('owner');
+        listedFilesPropertySet.add('owner');
       }
       if (columns.replication?.isEnabled) {
-        listedFilesProperties.push('localReplicationRate');
+        listedFilesPropertySet.add('localReplicationRate');
       }
       if (columns.qos?.isEnabled) {
-        listedFilesProperties.push('qosStatus');
+        listedFilesPropertySet.add('qosStatus');
       }
       const parentDirRequirement = new FileRequirement({
         properties: basicProperties,
         fileGri: parentDirGri,
       });
+      const listedFilesProperties = [...listedFilesPropertySet.values()];
       const listingRequirement = new FileRequirement({
         properties: listedFilesProperties,
         parentId: parentDirId,

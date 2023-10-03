@@ -253,7 +253,7 @@ describe('Integration | Component | file-info-modal', function () {
     await givenDefaultStubs(this);
     this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 1,
+      hardlinkCount: 1,
     });
 
     await renderComponent();
@@ -265,7 +265,7 @@ describe('Integration | Component | file-info-modal', function () {
     await givenDefaultStubs(this);
     this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 2,
+      hardlinkCount: 2,
     });
 
     await renderComponent();
@@ -304,10 +304,10 @@ describe('Integration | Component | file-info-modal', function () {
     await givenDefaultStubs(this);
     this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 2,
+      hardlinkCount: 2,
     });
     Object.assign(this.get('fileHardlinksResult'), {
-      hardlinksCount: 2,
+      hardlinkCount: 2,
       hardlinks: [{
         entityId: 'f1',
         name: 'abc',
@@ -343,10 +343,10 @@ describe('Integration | Component | file-info-modal', function () {
     await givenDefaultStubs(this);
     this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 2,
+      hardlinkCount: 2,
     });
     Object.assign(this.get('fileHardlinksResult'), {
-      hardlinksCount: 4,
+      hardlinkCount: 4,
       hardlinks: [{
         entityId: 'f1',
         name: 'abc',
@@ -379,10 +379,10 @@ describe('Integration | Component | file-info-modal', function () {
     await givenDefaultStubs(this);
     this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 2,
+      hardlinkCount: 2,
     });
     Object.assign(this.get('fileHardlinksResult'), {
-      hardlinksCount: 2,
+      hardlinkCount: 2,
       hardlinks: [],
       errors: [{
         id: 'unauthorized',
@@ -410,7 +410,7 @@ describe('Integration | Component | file-info-modal', function () {
     await givenDefaultStubs(this);
     this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 2,
+      hardlinkCount: 2,
       size: Math.pow(1024, 3),
     });
 
@@ -802,7 +802,7 @@ async function givenDefaultStubs(testCase) {
   await givenDummySpace(testCase);
   givenQosTabDisabled(testCase);
   const fileHardlinksResult = testCase.set('fileHardlinksResult', {
-    hardlinksCount: 1,
+    hardlinkCount: 1,
     hardlinks: [],
     errors: [{ id: 'forbidden' }],
   });

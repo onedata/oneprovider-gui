@@ -12,7 +12,6 @@ import { run } from '@ember/runloop';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import { set } from '@ember/object';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
-import _ from 'lodash';
 
 describe('Integration | Component | filesystem-browser/file-features', function () {
   const { afterEach } = setupRenderingTest();

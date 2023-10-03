@@ -1,4 +1,4 @@
-{{#if (and (not previewMode) (gt hardlinksCount 1))}}
+{{#if (and (not previewMode) (gt hardlinkCount 1))}}
   <div
     class="file-status-tag file-status-hardlinks {{if disabled "file-status-tag-disabled"}}"
     {{action
@@ -9,7 +9,7 @@
       bubbles=(bool disabled)
     }}
   >
-    {{tt this "status.hardlinks" hardlinksCount=hardlinksCount}}
+    {{tt this "status.hardlinks" hardlinkCount=hardlinkCount}}
   </div>
 {{/if}}
 {{#if (and (not previewMode) (not isSymlink) isShared)}}

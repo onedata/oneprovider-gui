@@ -359,7 +359,7 @@ export default EmberObject.extend(...mixins, {
       safeExec(this, function setAliasedValueProperty() {
         this.set(currentName, this[originalName]);
       });
-      if (file && get(file, 'hardlinksCount') > 1) {
+      if (file && get(file, 'hardlinkCount') > 1) {
         this.fileManager.fileParentRefresh(file);
       }
     } catch (error) {

@@ -51,7 +51,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   });
 
   it('does not render "hard links" file tag, when hardlinks count equals 1', async function () {
-    this.set('file', createFile({ hardlinksCount: 1 }));
+    this.set('file', createFile({ hardlinkCount: 1 }));
 
     await renderComponent(this);
 
@@ -59,7 +59,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   });
 
   it('renders "hard links" file tag, when hardlinks count equals 2', async function () {
-    this.set('file', createFile({ hardlinksCount: 2 }));
+    this.set('file', createFile({ hardlinkCount: 2 }));
 
     await renderComponent(this);
 

@@ -713,7 +713,7 @@ export default EmberObject.extend(...mixins, {
       this.globalNotify.backendError(this.t('modifyingPermissions'), errors[0]);
       throw errors;
     } finally {
-      const hardlinkedFile = files.find(file => get(file, 'hardlinksCount') > 1);
+      const hardlinkedFile = files.find(file => get(file, 'hardlinkCount') > 1);
       if (hardlinkedFile) {
         this.fileManager.fileParentRefresh(hardlinkedFile);
       }

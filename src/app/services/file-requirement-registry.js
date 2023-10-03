@@ -220,8 +220,17 @@ export default Service.extend({
     }
     this.updatePropertiesCache(true, ...richRequirements);
     this.consumerRequirementsMap.set(consumer, richRequirements);
-    return await allSettled(filesToUpdate.map(file => {
-      return file.reload();
+    return await allSettled(filesToUpdate.map(async (file) => {
+      try {
+        return await file.reload();
+      } catch (error) {
+        console.error(
+          'Failed to reload file after updating file requirements - record data may be incomplete now.',
+          file,
+          error
+        );
+        throw error;
+      }
     }));
   },
 

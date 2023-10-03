@@ -28,7 +28,7 @@ export const possibleFileProperties = Object.freeze([
   'effQosMembership',
   'fileDatasetSummary',
   'fileQosSummary',
-  'hardlinksCount',
+  'hardlinkCount',
   'hasMetadata',
   'index',
   'localReplicationRate',

@@ -176,11 +176,13 @@ export default Component.extend(...mixins, {
     // general, hardlinks, size, apiSamples - these tabs are displayed only when single
     // file is diplayed.
     if (this.files?.length === 1) {
-      const properties = ['size', 'owner', 'mtime', 'hardlinksCount'];
+      const properties = ['size', 'owner', 'mtime', 'hardlinkCount'];
       return this.files.map(file => new FileRequirement({
         fileGri: get(file, 'id'),
         properties,
       }));
+    } else {
+      return [];
     }
   }),
 
@@ -498,9 +500,9 @@ export default Component.extend(...mixins, {
 
   fileSize: reads('file.size'),
 
-  hardlinksCount: or('file.hardlinksCount', raw(1)),
+  hardlinkCount: or('file.hardlinkCount', raw(1)),
 
-  hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
+  hardlinksLimitExceeded: gt('hardlinkCount', 'hardlinksLimit'),
 
   hardlinksFetchError: computed(
     'fileHardlinks.errors',
@@ -573,7 +575,7 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<boolean>}
    */
   isHardlinksTabVisible: and(
-    gt('hardlinksCount', raw(1)),
+    gt('hardlinkCount', raw(1)),
     not('isMultiFile'),
   ),
 
@@ -684,11 +686,11 @@ export default Component.extend(...mixins, {
   builtInTabItems: computed(
     'hardlinksLimitExceeded',
     'hardlinksLimit',
-    'hardlinksCount',
+    'hardlinkCount',
     function builtInTabItems() {
-      const hardlinksCount = this.hardlinksLimitExceeded ?
+      const hardlinkCount = this.hardlinksLimitExceeded ?
         `${this.hardlinksLimit}+` :
-        this.hardlinksCount;
+        this.hardlinkCount;
 
       return {
         /** @type {FileInfoTabItem} */
@@ -701,7 +703,7 @@ export default Component.extend(...mixins, {
         hardlinks: {
           id: 'hardlinks',
           name: this.t('tabs.hardlinks.tabTitle'),
-          statusNumber: hardlinksCount,
+          statusNumber: hardlinkCount,
         },
 
         /** @type {FileInfoTabItem} */
@@ -789,7 +791,7 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  hardlinksAutoUpdater: observer('file.hardlinksCount', function hardlinksAutoUpdater() {
+  hardlinksAutoUpdater: observer('file.hardlinkCount', function hardlinksAutoUpdater() {
     this.updateFileHardlinksProxy();
   }),
 
@@ -841,7 +843,7 @@ export default Component.extend(...mixins, {
       // of tabs.
       next(() => resolvePromise(
         fileManager.getFileHardlinks(this.get('file.entityId'), hardlinksLimit)
-        .then((({ hardlinksCount, hardlinks, errors }) =>
+        .then((({ hardlinkCount, hardlinks, errors }) =>
           allFulfilled(hardlinks.map(hardlinkFile =>
             resolveFilePath(hardlinkFile)
             .then(path => stringifyFilePath(path))
@@ -855,7 +857,7 @@ export default Component.extend(...mixins, {
               path,
             }))
           )).then(newHardlinks => ({
-            hardlinksCount,
+            hardlinkCount,
             hardlinks: newHardlinks,
             errors,
           }))

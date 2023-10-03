@@ -611,7 +611,7 @@ export default Service.extend({
       hardlinksIds.map(hardlinkId =>
         this.getFileById(parseGri(hardlinkId).entityId))
     ).then(results => ({
-      hardlinksCount: hardlinksIds.length,
+      hardlinkCount: hardlinksIds.length,
       hardlinks: results.filterBy('state', 'fulfilled').mapBy('value'),
       errors: results.filterBy('state', 'rejected').mapBy('reason'),
     }));
@@ -636,13 +636,13 @@ export default Service.extend({
       );
     }
     if (isRecordA && isRecordB) {
-      const hardlinksCountA = get(fileRecordOrIdA, 'hardlinksCount');
-      const hardlinksCountB = get(fileRecordOrIdB, 'hardlinksCount');
+      const hardlinkCountA = get(fileRecordOrIdA, 'hardlinkCount');
+      const hardlinkCountB = get(fileRecordOrIdB, 'hardlinkCount');
       // checking if both counts are greater than 1 because data can be out of sync with
       // backend
       if (
-        hardlinksCountA && hardlinksCountA <= 1 &&
-        hardlinksCountB && hardlinksCountB <= 1
+        hardlinkCountA && hardlinkCountA <= 1 &&
+        hardlinkCountB && hardlinkCountB <= 1
       ) {
         return false;
       }
@@ -1191,7 +1191,7 @@ export default Service.extend({
     if (!file) {
       return;
     }
-    if (get(file, 'hardlinksCount') > 1) {
+    if (get(file, 'hardlinkCount') > 1) {
       this.fileParentRefresh(file);
     }
     if (get(file, 'type') === 'dir') {

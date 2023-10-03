@@ -396,7 +396,7 @@ export default Model.extend(
     size: attr('number'),
     posixPermissions: attr('string'),
     hasMetadata: attr('boolean'),
-    hardlinksCount: attr('number', { defaultValue: 1 }),
+    hardlinkCount: attr('number', { defaultValue: 1 }),
     localReplicationRate: attr('number'),
 
     /**

@@ -28,7 +28,7 @@ export const possibleFileRawAttributes = Object.freeze([
   'effProtectionFlags',
   'effQosMembership',
   'fileId',
-  'hardlinksCount',
+  'hardlinkCount',
   'hasMetadata',
   'index',
   'isFullyReplicated',
