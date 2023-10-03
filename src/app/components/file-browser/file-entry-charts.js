@@ -441,9 +441,9 @@ export default Component.extend(...mixins, {
               sourceSpec: {
                 externalSourceName: 'chartData',
                 externalSourceParameters: {
-                  timeSeriesNameGenerator: timeSeriesNameGenerators.sizeOnStorage,
+                  timeSeriesNameGenerator: timeSeriesNameGenerators.physicalSize,
                   metricNames: this.metricNamesForTimeSeries
-                    ?.[timeSeriesNameGenerators.sizeOnStorage] ?? [],
+                    ?.[timeSeriesNameGenerators.physicalSize] ?? [],
                 },
               },
             },
