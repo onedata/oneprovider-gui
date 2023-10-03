@@ -547,9 +547,9 @@ export default Component.extend(...mixins, {
 
   filePathProxy: promise.object(computed(
     'file.{parent.name,name}',
-    function filePathPromise() {
-      return resolveFilePath(this.file)
-        .then(path => stringifyFilePath(path));
+    async function filePathPromise() {
+      const path = await resolveFilePath(this.file);
+      return stringifyFilePath(path);
     }
   )),
 
