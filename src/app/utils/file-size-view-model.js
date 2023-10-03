@@ -27,12 +27,6 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Utils.FileInfo.SizeTabModel}
-   */
-  tabModel: undefined,
-
-  /**
-   * @virtual
    * @type {Models.Space}
    */
   space: undefined,
@@ -48,6 +42,12 @@ export default EmberObject.extend(...mixins, {
    * @type {DirStatsServiceState}
    */
   dirStatsServiceState: undefined,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  isActive: undefined,
 
   /**
    * @virtual
@@ -76,11 +76,6 @@ export default EmberObject.extend(...mixins, {
    * @type {Looper}
    */
   completeLatestDirSizeStatsValuesUpdater: undefined,
-
-  /**
-   * @type {ComputedProperty<boolean>}
-   */
-  isActive: reads('tabModel.isActive'),
 
   /**
    * @type {ComputedProperty<string>}

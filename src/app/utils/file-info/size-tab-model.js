@@ -167,13 +167,15 @@ export default BaseTabModel.extend({
     'getProvidersUrl',
     function viewModelSetter() {
       this.viewModel?.destroy();
-      this.set('viewModel', FileSizeViewModel.create({
+      this.set('viewModel', FileSizeViewModel.extend({
+        isActive: reads('sizeTabModel.isActive'),
+      }).create({
         ownerSource: this,
-        tabModel: this,
         file: this.file,
         space: this.space,
         dirStatsServiceState: this.dirStatsServiceState,
         getProvidersUrl: this.getProvidersUrl,
+        sizeTabModel: this,
       }));
     }
   ),
