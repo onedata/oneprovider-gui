@@ -10,9 +10,16 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   tagName: '',
 
   fileManager: service(),
@@ -43,6 +50,30 @@ export default Component.extend(I18n, {
   onClose: notImplementedIgnore,
 
   /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('file.id'),
+        properties: ['recallRootId'],
+      }),
+    ];
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFiles: computed('file', function usedFiles() {
+    return this.file ? [this.file] : [];
+  }),
+
+  /**
    * The promise resolves or rejects as `fileManager.cancelRecall` request.
    * @returns {Promise}
    */
@@ -62,7 +93,6 @@ export default Component.extend(I18n, {
       'onCancelInvoked',
       'onClose',
     );
-    // FIXME: custom property use
     try {
       const recallRootId = get(file, 'recallRootId');
       const cancelResult = await fileManager.cancelRecall(recallRootId);
