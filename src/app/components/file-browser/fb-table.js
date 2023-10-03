@@ -39,9 +39,6 @@ import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
-// FIXME: custom property use - verify
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
-import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
  * API object exposed by `fb-table` component, be used to control the component and read
@@ -53,7 +50,6 @@ const defaultIsItemDisabled = () => false;
 
 const mixins = [
   I18n,
-  FileConsumerMixin,
 ];
 
 export default Component.extend(...mixins, {
