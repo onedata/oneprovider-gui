@@ -30,6 +30,8 @@ import backendifyName, {
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
  * @typedef {Object} ShareModalOptions
@@ -37,7 +39,12 @@ import globals from 'onedata-gui-common/utils/globals';
  * @property {() => void} onClose
  */
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   tagName: '',
 
   i18n: service(),
@@ -61,6 +68,30 @@ export default Component.extend(I18n, {
    * @type {ShareModalOptions}
    */
   modalOptions: undefined,
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('file.id'),
+        properties: ['shareRecords'],
+      }),
+    ];
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFiles: computed('file', function usedFiles() {
+    return this.file ? [this.file] : [];
+  }),
 
   //#region state
 
@@ -199,7 +230,6 @@ export default Component.extend(I18n, {
         }
         try {
           await file.reload();
-          // FIXME: custom property use
           await file.hasMany('shareRecords');
         } finally {
           this.onSubmitted?.();

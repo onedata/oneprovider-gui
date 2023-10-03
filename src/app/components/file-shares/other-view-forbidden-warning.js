@@ -65,7 +65,6 @@ export default Component.extend(...mixins, {
    */
   aboutTimeType: 'present',
 
-  // FIXME: custom property use
   isViewForOtherForbidden: computed(
     'file.{type,posixPermissions}',
     function isViewForOtherForbidden() {

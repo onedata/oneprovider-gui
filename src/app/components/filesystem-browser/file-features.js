@@ -199,7 +199,6 @@ export default Component.extend(...mixins, {
     'archiveRecallState'
   ),
 
-  // FIXME: custom property use
   recallingPercent: computed(
     'file.{recallingMembership,archiveRecallState.bytesCopied,archiveRecallInfo.totalByteSize}',
     function recallingPercent() {

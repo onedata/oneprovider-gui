@@ -1,6 +1,8 @@
 /**
  * Filesystem-specific browser table columns.
  *
+ * All file requirements are managed by FilesystemBrowserModel (`browserModel`).
+ *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -86,7 +88,6 @@ export default FbTableRowColumns.extend(I18n, {
     }
   ),
 
-  // FIXME: custom property use
   /**
    * @type {ComputedProperty<PromiseObject<Models.User>>}
    */
