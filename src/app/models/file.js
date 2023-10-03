@@ -225,6 +225,7 @@ export const RuntimeProperties = Mixin.create({
 
   /**
    * Not empty when file is a symlink and points to an accessible file.
+   * Set by `FileManager.resolveSymlinks`.
    * @type {Models.File|undefined}
    */
   symlinkTargetFile: undefined,

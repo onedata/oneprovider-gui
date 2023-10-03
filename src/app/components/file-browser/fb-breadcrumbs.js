@@ -212,7 +212,7 @@ export default Component.extend(
       return this.checkWidthOnResize();
     },
 
-    // FIXME: custom property use
+    // FIXME: custom property use - advanced
 
     /**
      * @override

@@ -18,7 +18,15 @@ import { bool, sum, array, and, raw } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 
-export default Component.extend(I18n, {
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   tagName: '',
 
   fileManager: service(),
@@ -62,6 +70,30 @@ export default Component.extend(I18n, {
   onFilesRemoved: undefined,
 
   /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('files', function fileRequirements() {
+    if (!this.files) {
+      return [];
+    }
+    return this.files.map(file =>
+      new FileRequirement({
+        fileGri: get(file, 'id'),
+        properties: ['sharesCount', 'size', 'mtime'],
+      }),
+    );
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFiles: computed('files', function usedFiles() {
+    return this.files ?? [];
+  }),
+
+  /**
    * @type {ComputedProperty<Models.File>}
    */
   firstFile: reads('files.firstObject'),
@@ -93,8 +125,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Number>}
    */
   filesToRemoveCount: reads('files.length'),
-
-  // FIXME: custom property use
 
   /**
    * @type {ComputedProperty<Number>}
