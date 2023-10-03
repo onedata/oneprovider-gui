@@ -41,6 +41,7 @@
       {{/if}}
       {{#each transfers as |transfer|}}
         {{space-transfers/transfer-row
+          class="clickable"
           record=(transfer-table-record
             transfer=transfer
             transfers=transfers

@@ -58,7 +58,7 @@
           {{/one-webui-popover}}
         {{/if}}
         <div
-          class="input-group-addon input-group-addon-text url-type-info-trigger truncate input-group-addon-left {{unless typeInfoTriggerText "input-group-addon-icon"}}"
+          class="input-group-addon input-group-addon-text url-type-info-trigger truncate input-group-addon-left clickable {{unless typeInfoTriggerText "input-group-addon-icon"}}"
           {{action (mut urlTypeInfoOpened) (not urlTypeInfoOpened)}}
         >
           {{#if typeInfoTriggerText}}
