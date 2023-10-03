@@ -63,6 +63,7 @@ export const possibleFileProperties = Object.freeze([
   'metadataIsProtectedByDataset',
   'originalName',
   'recallingMembership',
+  'recallingMembershipProxy',
   'sharesCount',
   'spaceEntityId',
 ]);
