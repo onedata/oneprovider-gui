@@ -11,7 +11,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import { get, computed } from '@ember/object';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
@@ -69,9 +69,7 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: computed('file', function usedFiles() {
-    return this.file ? [this.file] : [];
-  }),
+  usedFileGris: computedSingleUsedFileGri('file'),
 
   /**
    * The promise resolves or rejects as `fileManager.cancelRecall` request.

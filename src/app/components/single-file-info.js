@@ -16,7 +16,7 @@ import { hash as hashFulfilled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
@@ -82,9 +82,7 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: computed('file', function usedFiles() {
-    return this.file ? [this.file] : [];
-  }),
+  usedFileGris: computedSingleUsedFileGri('file'),
 
   /**
    * Frame name, where Onezone link should be opened

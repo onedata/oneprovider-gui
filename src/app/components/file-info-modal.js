@@ -36,7 +36,7 @@ import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
 import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
 import { guidFor } from '@ember/object/internals';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
@@ -190,7 +190,7 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: reads('files'),
+  usedFileGris: computedMultiUsedFileGris('files'),
 
   /**
    * @type {FileInfoTabId}

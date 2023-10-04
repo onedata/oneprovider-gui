@@ -18,7 +18,7 @@ import { guidFor } from '@ember/object/internals';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { defer } from 'rsvp';
 import { debounce } from '@ember/runloop';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
@@ -105,10 +105,7 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: computed('targetRecallParent.effFile', function usedFiles() {
-    const effRecallParent = this.get('targetRecallParent.effFile');
-    return effRecallParent ? [effRecallParent] : [];
-  }),
+  usedFileGris: computedSingleUsedFileGri('targetRecallParent.effFile'),
 
   //#region state
 

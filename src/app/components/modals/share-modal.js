@@ -30,7 +30,7 @@ import backendifyName, {
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
@@ -89,9 +89,7 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: computed('file', function usedFiles() {
-    return this.file ? [this.file] : [];
-  }),
+  usedFileGris: computedSingleUsedFileGri('file'),
 
   //#region state
 

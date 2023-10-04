@@ -9,7 +9,6 @@
 import { get } from '@ember/object';
 import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 
-// FIXME: custom property use
 export default function isPosixViewForbidden(file, octalNumber) {
   const posixPermissions = get(file, 'posixPermissions');
   if (!posixPermissions) {

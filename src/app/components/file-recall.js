@@ -21,7 +21,7 @@ import resolveFilePath, { stringifyFilePath, dirSeparator } from 'oneprovider-gu
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
@@ -113,9 +113,7 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: computed('file', function usedFiles() {
-    return this.file ? [this.file] : [];
-  }),
+  usedFileGris: computedSingleUsedFileGri('file'),
 
   //#region state
 

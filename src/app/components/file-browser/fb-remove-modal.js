@@ -17,8 +17,7 @@ import { inject as service } from '@ember/service';
 import { bool, sum, array, and, raw } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
-
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
@@ -89,9 +88,7 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: computed('files', function usedFiles() {
-    return this.files ?? [];
-  }),
+  usedFileGris: computedMultiUsedFileGris('files'),
 
   /**
    * @type {ComputedProperty<Models.File>}

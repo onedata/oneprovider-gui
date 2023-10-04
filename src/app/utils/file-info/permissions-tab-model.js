@@ -11,7 +11,7 @@ import { computed, get } from '@ember/object';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
 import { conditional, raw, array } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
@@ -109,9 +109,7 @@ export default BaseTabModel.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: computed('files', function usedFiles() {
-    return this.files ?? [];
-  }),
+  usedFileGris: computedMultiUsedFileGris('files'),
 
   statusTag: conditional(
     'isAnyFileWithAcl',

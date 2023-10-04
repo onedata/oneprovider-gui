@@ -1,12 +1,12 @@
 /**
- * A mixin that adds auto-registering of declared `fileRequirements` and `usedFiles`
+ * A mixin that adds auto-registering of declared `fileRequirements` and `usedFileGris`
  * into `FileRequirementRegistry` and `FileRecordRegistry` services.
  *
  * The mixin should be implemented by entities (components, etc.) that use files and need
  * non-basic properties (see `basicProperties` property of the `FileRequirementRegistry`
  * service) and want the used files to be auto-updated when requirements are changed.
- * To achieve that, you should implemenent `fileRequirements` and `usedFiles` to return
- * array of requirements and files accordingly.
+ * To achieve that, you should implemenent `fileRequirements` and `usedFileGris` to return
+ * array of requirements and file GRIs accordingly.
  *
  * The object implementing this mixin should have an owner. The mixin adds internal
  * `fileConsumerModel` that handles collections changes to register requirements and
@@ -19,6 +19,7 @@
 
 import Mixin from '@ember/object/mixin';
 import FileConsumerModel from 'oneprovider-gui/utils/file-consumer-model';
+import { get, computed } from '@ember/object';
 
 export default Mixin.create({
   /**
@@ -29,19 +30,15 @@ export default Mixin.create({
 
   /**
    * @virtual optional
-   * @type {Array<Models.File>}
+   * @type {Array<string>}
    */
-  usedFiles: undefined,
+  usedFileGris: undefined,
 
   /**
    * @type {Utils.FileConsumerModel}
    */
   fileConsumerModel: undefined,
 
-  /**
-   * @override
-   * @type {Array<FileRequirement>}
-   */
   init() {
     this._super(...arguments);
     this.fileConsumerModel = FileConsumerModel.create({
@@ -61,3 +58,18 @@ export default Mixin.create({
     }
   },
 });
+
+export function computedSingleUsedFileGri(singleFileProperty) {
+  return computed(singleFileProperty, function usedFileGris() {
+    const usedFileGri = this[singleFileProperty] && this.get(`${singleFileProperty}.id`);
+    return usedFileGri ? [usedFileGri] : [];
+  });
+}
+
+export function computedMultiUsedFileGris(fileArrayProperty) {
+  return computed(fileArrayProperty, function usedFileGris() {
+    const usedFileGris = this[fileArrayProperty] &&
+      this[fileArrayProperty].map(file => get(file, 'id'));
+    return usedFileGris ?? [];
+  });
+}

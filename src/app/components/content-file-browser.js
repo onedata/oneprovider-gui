@@ -30,6 +30,7 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { getFileGri } from 'oneprovider-gui/models/file';
+import { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -168,11 +169,8 @@ export default OneEmbeddedComponent.extend(
      * @override
      * @implements {Mixins.FileConsumer}
      */
-    usedFiles: computed('dir', function usedFiles() {
-      if (!this.dir) {
-        return [];
-      }
-      return [this.dir];
+    usedFileGris: computed('dirGri', function usedFileGris() {
+      return this.dirGri ? [this.dirGri] : [];
     }),
 
     dirGri: computed('dirEntityId', function dirGri() {

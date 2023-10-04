@@ -361,7 +361,7 @@ export default BaseBrowserModel.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: computed(
+  usedFileGris: computed(
     'dir',
     'itemsArray.sourceArray.[]',
     function usedFiles() {
@@ -377,7 +377,7 @@ export default BaseBrowserModel.extend(...mixins, {
         );
         resultUsedFiles.push(...listedFiles);
       }
-      return resultUsedFiles;
+      return resultUsedFiles.map(file => get(file, 'id'));
     },
   ),
 

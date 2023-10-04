@@ -119,7 +119,7 @@ export default Service.extend(...mixins, {
    * @override
    * @type {Array<Models.File>}
    */
-  usedFiles: Object.freeze([]),
+  usedFileGris: Object.freeze([]),
 
   knownEntityRecordsKeys: Object.freeze([
     'archive',
@@ -270,11 +270,11 @@ export default Service.extend(...mixins, {
   },
 
   updateUsedFiles() {
-    const usedFiles = this.knownFileRecordsKeys.reduce((resultFiles, key) => {
-      resultFiles.push(...this.entityRecords[key]);
-      return resultFiles;
+    const usedFileGris = this.knownFileRecordsKeys.reduce((resultFileGris, key) => {
+      resultFileGris.push(...this.entityRecords[key].get('id'));
+      return resultFileGris;
     }, []);
-    this.set('usedFiles', usedFiles);
+    this.set('usedFileGris', usedFileGris);
   },
 
   createListRecord(store, type, records) {

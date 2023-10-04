@@ -45,7 +45,7 @@ import includesAll from 'onedata-gui-common/utils/includes-all';
  * Consumers that needs these properties.
  * @typedef {Object} FileConsumer
  * @property {Array<Utils.FileRequirement>} fileRequirements
- * @property {Array<Models.File>} usedFiles
+ * @property {Array<Models.File>} usedFileGris
  */
 
 export default Service.extend({

@@ -13,7 +13,7 @@ import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import protectionIcons from 'oneprovider-gui/utils/dataset-protection/protection-icons';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
@@ -65,9 +65,7 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: computed('file', function usedFiles() {
-    return this.file ? [this.file] : [];
-  }),
+  usedFileGris: computedSingleUsedFileGri('file'),
 
   /**
    * Mapping of protection type (data or metadata) to name of icon representing it

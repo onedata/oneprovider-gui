@@ -2,7 +2,7 @@
  * Single share of space on list
  *
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -16,8 +16,16 @@ import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   globalNotify: service(),
   globalClipboard: service(),
 
@@ -55,6 +63,39 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   startRenameShare: notImplementedThrow,
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('rootFileGri', function fileRequirements() {
+    if (!this.rootFileGri) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.rootFileGri,
+        properties: ['posixPermissions'],
+      }),
+    ];
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computed('rootFileGri', function usedFileGris() {
+    return this.rootFileGri ? [this.rootFileGri] : [];
+  }),
+
+  rootFileGri: computed('share', function rootFileGri() {
+    return this.share?.belongsTo('rootFile').id();
+  }),
+
+  rootFileProxy: computedRelationProxy(
+    'share',
+    'rootFile'
+  ),
 
   /**
    * Frame name, where Onezone share link should be opened
@@ -149,21 +190,20 @@ export default Component.extend(I18n, {
     raw(undefined)
   ),
 
-  // FIXME: custom property use
   isViewForOtherForbiddenProxy: promise.object(computed(
-    'share.rootFile.{type,posixPermissions}',
+    'rootFileProxy.content.{type,posixPermissions}',
     async function isViewForOtherForbiddenProxy() {
-      const file = await this.get('share.rootFile');
+      const rootFile = await this.rootFileProxy;
       const octalNumber = 2;
-      return isPosixViewForbidden(file, octalNumber);
+      return isPosixViewForbidden(rootFile, octalNumber);
     }
   )),
 
   forbiddenTooltipTextProxy: promise.object(computed(
-    'share.rootFile.type',
+    'rootFileProxy.content.type',
     async function forbiddenTooltipTextProxy() {
-      const sharedFile = await this.get('share.rootFile');
-      if (get(sharedFile, 'type') === 'file') {
+      const rootFile = await this.rootFileProxy;
+      if (get(rootFile, 'type') === 'file') {
         return this.t('warning.file');
       } else {
         return this.t('warning.dir');

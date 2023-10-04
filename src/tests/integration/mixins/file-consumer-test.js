@@ -10,6 +10,7 @@ import { lookupService } from '../../helpers/stub-service';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import _ from 'lodash';
 import { all as allFulfilled } from 'rsvp';
+import { get } from '@ember/object';
 
 const BaseDummyComponentClass = Component.extend(FileConsumerMixin, {
   layout: hbs `<span>dummy consumer</span>`,
@@ -106,13 +107,14 @@ describe('Integration | Mixin | file-consumer', function () {
   it('registers file records on inserting and deregisters on destroying',
     async function () {
       const store = lookupService(this, 'store');
-      const usedFiles = await allFulfilled(
+      const files = await allFulfilled(
         _.range(1).map(i => store.createRecord('file', { name: `file-${i}` }).save())
       );
-      this.set('usedFiles', usedFiles);
+      const usedFileGris = files.map(file => get(file, 'id'));
+      this.set('usedFileGris', usedFileGris);
       const DummyComponentClass = BaseDummyComponentClass.extend({
         /** @override */
-        usedFiles,
+        usedFileGris,
       });
       this.set('isVisible', false);
       this.owner.register('component:dummy-component', DummyComponentClass);
@@ -125,19 +127,19 @@ describe('Integration | Mixin | file-consumer', function () {
 
       // before component inserting
       expect(fileRecordRegistry.getRegisteredFiles())
-        .to.not.contain(usedFiles[0]);
+        .to.not.contain(files[0]);
 
       // after component inserting
       this.set('isVisible', true);
       await waitForRender();
       expect(fileRecordRegistry.getRegisteredFiles())
-        .to.contain(usedFiles[0]);
+        .to.contain(files[0]);
 
       // after component removing
       this.set('isVisible', false);
       await waitForRender();
       expect(fileRecordRegistry.getRegisteredFiles())
-        .to.not.contain(usedFiles[0]);
+        .to.not.contain(files[0]);
     }
   );
 
@@ -147,10 +149,10 @@ describe('Integration | Mixin | file-consumer', function () {
       const files = await allFulfilled(
         _.range(4).map(i => store.createRecord('file', { name: `file-${i}` }).save())
       );
-      this.set('usedFiles', files.slice(0, 2));
+      this.set('usedFileGris', files.slice(0, 2).map(file => file.get('id')));
       const fileRecordRegistry = lookupService(this, 'file-record-registry');
       await render(hbs`
-        {{base-dummy-component usedFiles=usedFiles}}
+        {{base-dummy-component usedFileGris=usedFileGris}}
       `);
 
       // original files
@@ -158,7 +160,7 @@ describe('Integration | Mixin | file-consumer', function () {
         .to.deep.equal([files[0], files[1]].sort());
 
       // changing files
-      this.set('usedFiles', files.slice(2, 4));
+      this.set('usedFileGris', files.slice(2, 4).map(file => file.get('id')));
       await waitForRender();
       expect(fileRecordRegistry.getRegisteredFiles().sort(), 'changed')
         .to.deep.equal([files[2], files[3]].sort());
