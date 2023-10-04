@@ -89,9 +89,9 @@ export default EmberObject.extend(
       const fileDistribution = this.get('fileDistribution');
       let fileSizeMax = 0;
       for (const elem in fileDistribution) {
-        const logicalSize = get(fileDistribution[elem], 'logicalSize');
-        if (logicalSize) {
-          fileSizeMax = Math.max(fileSizeMax, logicalSize);
+        const virtualSize = get(fileDistribution[elem], 'virtualSize');
+        if (virtualSize) {
+          fileSizeMax = Math.max(fileSizeMax, virtualSize);
         }
       }
       return fileSizeMax;
