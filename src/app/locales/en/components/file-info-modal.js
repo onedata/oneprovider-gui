@@ -7,6 +7,7 @@ export default {
   name: '{{type}} name',
   path: '{{type}} location',
   storageLocations: 'Physical locations',
+  storageLocationsTooltip: 'Locations on different storage backends where the data is stored.',
   showMore: 'Show more physical locations',
   symlinkTargetPath: 'Symbolic link target path',
   unknownSpaceInSymlink: 'unknown space',

@@ -203,7 +203,7 @@
   .table.table-info.table-file-info {
     td.property-name {
       padding-left: 0;
-      width: 11em;
+      width: 9em;
       @media (max-width: $screen-xs-max) {
         width: auto;
       }
@@ -215,6 +215,12 @@
       }
     }
     .file-info-row-storage-location {
+      .storage-location-info-icon-container {
+        vertical-align: middle;
+      }
+      .storage-location-info-icon {
+        opacity: 0.4;
+      }
       td.property-name.with-input-sm {
         padding-top: 20px;
       }
