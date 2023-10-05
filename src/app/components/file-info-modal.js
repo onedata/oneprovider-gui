@@ -792,7 +792,9 @@ export default Component.extend(...mixins, {
   ),
 
   hardlinksAutoUpdater: observer('file.hardlinkCount', function hardlinksAutoUpdater() {
-    this.updateFileHardlinksProxy();
+    if (this.activeTab === 'hardlinks') {
+      this.updateFileHardlinksProxy();
+    }
   }),
 
   storageLocationsAutoUpdater: observer(

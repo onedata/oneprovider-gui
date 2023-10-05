@@ -271,7 +271,7 @@ export default Service.extend(...mixins, {
 
   updateUsedFiles() {
     const usedFileGris = this.knownFileRecordsKeys.reduce((resultFileGris, key) => {
-      resultFileGris.push(...this.entityRecords[key].get('id'));
+      resultFileGris.push(...this.entityRecords[key].map(file => file.get('id')));
       return resultFileGris;
     }, []);
     this.set('usedFileGris', usedFileGris);
