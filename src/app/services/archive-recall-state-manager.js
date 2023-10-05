@@ -15,7 +15,7 @@
  * See `util:archive-recall-state-watcher` for details.
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -23,6 +23,7 @@ import Service from '@ember/service';
 import ArchiveRecallStateWatcher from 'oneprovider-gui/utils/archive-recall-state-watcher';
 import { v4 as uuid } from 'ember-uuid';
 import { get } from '@ember/object';
+import config from 'ember-get-config';
 
 /**
  * @typedef {Object} ArchiveRecallStateManagerEntry
@@ -33,11 +34,22 @@ import { get } from '@ember/object';
  */
 
 export default Service.extend({
+  //#region configuration
+
+  areWarningsFatal: config.environment !== 'production',
+
+  //#endregion
+
+  //#region state
+
   /**
    * Initialized on init.
-   * @type {Map<String, ArchiveRecallStateManagerEntry>}
+   * Maps: recall root ID (File ID) -> ArchiveRecallStateManagerEntry
+   * @type {Map<string, ArchiveRecallStateManagerEntry>}
    */
   watchersRegistry: null,
+
+  //#endregion
 
   init() {
     this._super(...arguments);
@@ -45,13 +57,16 @@ export default Service.extend({
   },
 
   /**
+   * The `file` must have a `recallRootId` property requirement.
    * @public
    * @param {Models.File} file
-   * @returns {String} token for managing registered watcher (see
-   *   `ArchiveRecallStateManagerEntry`)
+   * @returns {string|undefined} Token for managing registered watcher (see
+   *   `ArchiveRecallStateManagerEntry`) or `undefined` if the file cannot be registered.
    */
-  // FIXME: custom property use
   watchRecall(file) {
+    if (!this.assertValidFile(file, 'watchRecall')) {
+      return;
+    }
     const recallRootId = get(file, 'recallRootId');
     const watchersRegistry = this.get('watchersRegistry');
     let entry = watchersRegistry.get(recallRootId);
@@ -77,10 +92,13 @@ export default Service.extend({
   /**
    * @public
    * @param {Models.File} file
-   * @param {String} token for managing registered watcher (see
+   * @param {string} token Token for managing registered watcher (see
    *   `ArchiveRecallStateManagerEntry`)
    */
   unwatchRecall(file, token) {
+    if (!this.assertValidFile(file, 'watchRecall')) {
+      return;
+    }
     const recallRootId = get(file, 'recallRootId');
     if (!token) {
       throw new Error(
@@ -123,5 +141,25 @@ export default Service.extend({
       ownerSource: this,
       targetFile: file,
     });
+  },
+
+  /**
+   * @private
+   * @param {Models.File} file
+   * @param {string} operationName
+   * @returns {boolean}
+   */
+  assertValidFile(file, operationName) {
+    if (!get(file, 'recallRootId')) {
+      const message =
+        `Tried to invoke "${operationName}" with a file without recallRootId, ignoring. You may have forgotten to add the "recallRootId" property requirement to file or try to operate on the file that is not recalled.`;
+      if (this.areWarningsFatal) {
+        throw new Error(message);
+      } else {
+        console.warn(message);
+      }
+      return false;
+    }
+    return true;
   },
 });

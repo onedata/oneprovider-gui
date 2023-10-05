@@ -3,6 +3,8 @@ import { describe, it, beforeEach } from 'mocha';
 import { setupTest } from 'ember-mocha';
 import sinon from 'sinon';
 import { get } from '@ember/object';
+import { lookupService } from '../../helpers/stub-service';
+import clearStoreAfterEach from '../../helpers/clear-store';
 
 class WatcherMock {
   start() {}
@@ -11,6 +13,7 @@ class WatcherMock {
 
 describe('Unit | service | archive-recall-state-manager', function () {
   setupTest();
+  clearStoreAfterEach();
 
   beforeEach(function () {
     this.service = this.owner.lookup('service:archive-recall-state-manager');
@@ -107,4 +110,37 @@ describe('Unit | service | archive-recall-state-manager', function () {
 
     expect(startWatcherStub).to.be.calledOnce;
   });
+
+  it('throws error in test environment if file does not have recallRootId', async function () {
+    const store = lookupService(this, 'store');
+    const file1 = store.createRecord('file', {});
+
+    let catchedError;
+    try {
+      this.service.watchRecall(file1);
+    } catch (error) {
+      catchedError = error;
+    }
+
+    expect(catchedError).to.be.ok;
+    expect(String(catchedError)).to.match(/Tried to invoke "watchRecall"/);
+  });
+
+  it('does not throw error in if "areWarningsFatal" is false if file does not have recallRootId',
+    async function () {
+      const store = lookupService(this, 'store');
+      const file1 = store.createRecord('file', {});
+      this.service.set('areWarningsFatal', false);
+
+      let catchedError;
+      let methodResult;
+      try {
+        methodResult = this.service.watchRecall(file1);
+      } catch (error) {
+        catchedError = error;
+      }
+
+      expect(catchedError).to.be.undefined;
+      expect(methodResult).to.be.undefined;
+    });
 });

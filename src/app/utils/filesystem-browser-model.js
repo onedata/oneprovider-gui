@@ -310,7 +310,9 @@ export default BaseBrowserModel.extend(...mixins, {
           basicPropertySet.add('effQosMembership');
         }
         if (this.fileFeatures.includes('recallingMembership')) {
-          basicPropertySet.add('recallingMembership');
+          basicPropertySet
+            .add('recallingMembership')
+            .add('recallRootId');
         }
 
         // table-row-status-bar component
