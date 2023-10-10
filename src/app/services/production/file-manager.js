@@ -2,7 +2,7 @@
  * Provides model functions related to files and directories.
  *
  * @author Michał Borzęcki, Jakub Liput
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @copyright (C) 2019-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,7 +12,7 @@ import { get, set, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
-import FileModel, {
+import {
   entityType as fileEntityType,
   getFileGri,
   dirSizeStatsTimeSeriesNameGenerators,
@@ -26,7 +26,12 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import FileQuery from 'oneprovider-gui/utils/file-query';
 import { pullPrivateFileAttributes } from 'oneprovider-gui/utils/file-model';
 import { serializedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
-import { fileRelations } from 'oneprovider-gui/serializers/file';
+import {
+  isBelongsToProperty,
+  isHasManyProperty,
+  serializeBelongsToProperty,
+  serializeHasManyProperty,
+} from 'oneprovider-gui/serializers/file';
 
 /**
  * @typedef {Object} FileEntryTimeSeriesCollections
@@ -99,38 +104,6 @@ const childrenAttrsAspect = 'children';
 const symlinkTargetAttrsAspect = 'symlink_target';
 const recallLogAspect = 'archive_recall_log';
 const fileModelName = 'file';
-
-/**
- * Set of relations that are created in serializer, so they should not be pushed into
- * store as a data.
- * @type {Set}
- */
-const fileIdRelationNameSet = new Set(fileRelations.map(relationSpec =>
-  relationSpec.name
-));
-const belongsToIdAttrSet = new Set();
-FileModel.eachRelationship((propertyName, relationshipDefinition) => {
-  if (
-    relationshipDefinition.kind === 'belongsTo' &&
-    !fileIdRelationNameSet.has(propertyName)
-  ) {
-    belongsToIdAttrSet.add(`${propertyName}Id`);
-  }
-});
-const hasManyPropertyToAttrMapping = {
-  shares: 'shareRecords',
-};
-const hasManyIdAttrSet = new Set(Object.values(hasManyPropertyToAttrMapping));
-
-function serializeBelongsToProperty(record, targetAttrName) {
-  const propertyName = _.trimEnd(targetAttrName, 'Id');
-  return record.relationEntityId(propertyName);
-}
-
-function serializeHasManyProperty(record, targetAttrName) {
-  const propertyName = hasManyPropertyToAttrMapping[targetAttrName];
-  return record.hasMany(propertyName).ids().map(gri => parseGri(gri).entityId);
-}
 
 export default Service.extend({
   store: service(),
@@ -417,9 +390,9 @@ export default Service.extend({
         );
         currentAdditionalData = additionalAttributes.reduce((data, attribute) => {
           const propertyValue = get(currentRecord, attribute);
-          if (belongsToIdAttrSet.has(attribute)) {
+          if (isBelongsToProperty(attribute)) {
             data[attribute] = serializeBelongsToProperty(currentRecord, attribute);
-          } else if (hasManyIdAttrSet.has(attribute)) {
+          } else if (isHasManyProperty(attribute)) {
             data[attribute] = serializeHasManyProperty(currentRecord, attribute);
           } else if (attribute === 'type') {
             // Not possible, because type is a basic property, but checking just-in-case.

@@ -147,10 +147,6 @@ export const RuntimeProperties = Mixin.create({
 
   isShared: bool('sharesCount'),
 
-  isArchiveRootDir: computed(function isArchiveRootDir() {
-    return Boolean(this.belongsTo('archive').id());
-  }),
-
   /**
    * Membership of running archive recall process:
    * - direct - if the file is a target (root) for recall process
@@ -338,6 +334,13 @@ export default Model.extend(
      */
 
     /**
+     * The same as `entityId`.
+     * Currently a GUID of the file - not to be confused with `fileId` used in REST
+     * context, which is a CDMI Object ID.
+     */
+    fileId: attr('string'),
+
+    /**
      * If there is a filename conflict between providers (two files with the same name,
      * but created on different providers) this property contains a base of file name.
      * Eg. we have two files with the same name created on providers with ids "a123" and
@@ -395,9 +398,13 @@ export default Model.extend(
     index: attr('string'),
     size: attr('number'),
     posixPermissions: attr('string'),
-    hasMetadata: attr('boolean'),
+    hasCustomMetadata: attr('boolean'),
     hardlinkCount: attr('number', { defaultValue: 1 }),
     localReplicationRate: attr('number'),
+    isFullyReplicatedLocally: attr('boolean'),
+    path: attr('string'),
+    displayGid: attr('number'),
+    displayUid: attr('number'),
 
     /**
      * @type {ComputedProperty<QosStatus>}
@@ -435,11 +442,20 @@ export default Model.extend(
     recallRootId: attr('string'),
 
     /**
-     * Modification time in UNIX timestamp format.
+     * Modification time (last time a file’s contents were modified) in UNIX
+     * timestamp format.
      */
     mtime: attr('number'),
 
+    /**
+     * Access time (last time a file was accessed) in UNIX timestamp format.
+     */
     atime: attr('number'),
+
+    /**
+     * Change time (last time some metadata related to the file was changed) in UNIX
+     * timestamp format.
+     */
     ctime: attr('number'),
 
     /**

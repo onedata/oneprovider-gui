@@ -496,7 +496,7 @@ export default Service.extend(...mixins, {
           name: names[i],
           type: 'dir',
           mtime: timestamp + i * 3600,
-          hasMetadata: false,
+          hasCustomMetadata: false,
           effQosMembership: i < 2 && 'direct' ||
             i < 4 && 'ancestor' ||
             'none',
@@ -1210,7 +1210,7 @@ export default Service.extend(...mixins, {
           index: name,
           type: isSymlink ? 'symlink' : 'file',
           posixPermissions: (i > 10 && i < 12 && !isSymlink) ? '333' : '777',
-          hasMetadata: i < 5,
+          hasCustomMetadata: i < 5,
           effQosMembership,
           effDatasetMembership: 'none',
           effProtectionFlags: [],
@@ -1287,7 +1287,7 @@ export default Service.extend(...mixins, {
     return Object.assign({
       type: 'file',
       posixPermissions: '777',
-      hasMetadata: false,
+      hasCustomMetadata: false,
       effQosMembership: 'none',
       effDatasetMembership: 'none',
       effProtectionFlags: [],

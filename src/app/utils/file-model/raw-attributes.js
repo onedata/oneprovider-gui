@@ -17,6 +17,7 @@ import _ from 'lodash';
  * @type {Array<File.RawAttribute>}
  */
 export const possibleFileRawAttributes = Object.freeze([
+  'acl', // currently not used by frontend, which has an ACL relation
   'activePermissionsType',
   'archiveId',
   'atime',
@@ -29,20 +30,21 @@ export const possibleFileRawAttributes = Object.freeze([
   'effQosMembership',
   'fileId',
   'hardlinkCount',
-  'hasMetadata',
+  'hasCustomMetadata',
   'index',
-  'isFullyReplicated',
+  'isFullyReplicatedLocally',
   'isDeleted',
   'localReplicationRate',
   'mtime',
   'name',
-  'ownerId',
-  'parentId',
+  'ownerUserId',
+  'parentFileId',
+  'path',
   'posixPermissions',
-  'providerId',
+  'originProviderId',
   'qosStatus',
   'recallRootId',
-  'shares',
+  'directShareIds',
   'size',
   'storageGroupId',
   'storageUserId',
@@ -53,16 +55,20 @@ export const possibleFileRawAttributes = Object.freeze([
 ]);
 
 export const sharedFileRawAttributes = Object.freeze([
+  'activePermissionsType',
   'atime',
+  'conflictingName',
   'ctime',
+  'directShareIds',
   'fileId',
+  'hasCustomMetadata',
   'index',
   'mtime',
   'name',
-  'parentId',
+  'parentFileId',
   'posixPermissions',
-  'shares',
   'size',
+  'symlinkValue',
   'type',
   // NOTE: there are also special attributes "xattr.*" for getting specific xattrs of file
   // record but its support is not implemented in frontend yet.

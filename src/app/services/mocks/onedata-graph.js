@@ -1243,7 +1243,7 @@ function recordToChildData(record) {
     'type',
     'size',
     'posixPermissions',
-    'hasMetadata',
+    'hasCustomMetadata',
     'effQosMembership',
     'effDatasetMembership',
     'effProtectionFlags',
@@ -1251,10 +1251,10 @@ function recordToChildData(record) {
     'activePermissionsType'
   ), {
     fileId: get(record, 'entityId'),
-    shares: hasManyEntityIds(record, 'shareRecords'),
-    parentId: belongsToEntityId(record, 'parent'),
-    ownerId: belongsToEntityId(record, 'owner'),
-    providerId: belongsToEntityId(record, 'provider'),
+    directShareIds: hasManyEntityIds(record, 'shareRecords'),
+    parentFileId: belongsToEntityId(record, 'parent'),
+    ownerUserId: belongsToEntityId(record, 'owner'),
+    originProviderId: belongsToEntityId(record, 'provider'),
   });
 }
 

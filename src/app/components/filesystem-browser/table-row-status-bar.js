@@ -108,7 +108,7 @@ export default FbTableRowStatusBar.extend({
     }
   ),
 
-  hasMetadata: reads('file.hasMetadata'),
+  hasCustomMetadata: reads('file.hasCustomMetadata'),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
 });

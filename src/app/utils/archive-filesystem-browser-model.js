@@ -174,6 +174,7 @@ export default FilesystemBrowserModel.extend({
   externalSymlinkModal: null,
 
   // FIXME: custom property use
+  // FIXME: file.archive is to remove
   isOnlyArchiveRootSelected: and(
     'isOnlyCurrentDirSelected',
     'dir.isArchiveRootDir',

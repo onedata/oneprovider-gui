@@ -11,11 +11,11 @@
  * @typedef {typeof possibleFileProperties[number]} FileModel.Property
  */
 
+// FIXME: sync with new attributes
 export const possibleFileProperties = Object.freeze([
   // model properties
   'acl',
   'activePermissionsType',
-  'archive',
   'archiveRecallInfo',
   'archiveRecallState',
   'atime',
@@ -29,7 +29,7 @@ export const possibleFileProperties = Object.freeze([
   'fileDatasetSummary',
   'fileQosSummary',
   'hardlinkCount',
-  'hasMetadata',
+  'hasCustomMetadata',
   'index',
   'localReplicationRate',
   'mtime',
@@ -55,7 +55,6 @@ export const possibleFileProperties = Object.freeze([
   'effFile',
   'hasParent',
   'internalFileId',
-  'isArchiveRootDir',
   'isRecalled',
   'isRecalling',
   'isShared',

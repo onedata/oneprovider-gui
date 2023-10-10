@@ -70,7 +70,7 @@ export default BaseTabModel.extend({
    * @override
    */
   statusIcon: conditional(
-    'hasMetadata',
+    'hasCustomMetadata',
     raw('checkbox-filled'),
     raw(undefined),
   ),
@@ -79,7 +79,7 @@ export default BaseTabModel.extend({
    * @override
    */
   tabClass: conditional(
-    'hasMetadata',
+    'hasCustomMetadata',
     raw('tab-status-success'),
     raw(undefined),
   ),
@@ -124,7 +124,7 @@ export default BaseTabModel.extend({
   /**
    * @type {ComputedProperty<boolean>}
    */
-  hasMetadata: reads('file.hasMetadata'),
+  hasCustomMetadata: reads('file.hasCustomMetadata'),
 
   /**
    * @override

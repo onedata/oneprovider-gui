@@ -30,7 +30,6 @@ describe('Unit | Service | file-requirement-registry', function () {
       // computed properties with single dependent attribute
       'dataIsProtected',
       'metadataIsProtected',
-      'isArchiveRootDir',
       // computed properties with mutiple dependent attributes
       'originalName',
       'effFile',
@@ -44,7 +43,6 @@ describe('Unit | Service | file-requirement-registry', function () {
       'parentId',
       'providerId',
       'effProtectionFlags',
-      'archiveId',
       'conflictingName',
       'type',
       'symlinkValue',

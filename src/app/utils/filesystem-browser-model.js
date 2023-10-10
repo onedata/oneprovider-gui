@@ -328,7 +328,7 @@ export default BaseBrowserModel.extend(...mixins, {
         'shareRecords',
         'isShared',
         'hardlinkCount',
-        'hasMetadata',
+        'hasCustomMetadata',
       ]);
       const columns = this.columnsConfiguration.columns;
       if (columns.size?.isEnabled) {
