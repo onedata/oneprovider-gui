@@ -377,7 +377,12 @@ export default Model.extend(
      * the file ID.
      */
 
+    /**
+     * There is also an `acl` raw property available to get with file data from backend,
+     * but currently we only use relation that async get acl record.
+     */
     acl: belongsTo('acl'),
+
     distribution: belongsTo('file-distribution'),
     fileQosSummary: belongsTo('file-qos-summary'),
     fileDatasetSummary: belongsTo('file-dataset-summary'),
@@ -463,9 +468,6 @@ export default Model.extend(
      */
     activePermissionsType: attr('string'),
 
-    storageGroupId: attr('string'),
-    storageUserId: attr('string'),
-
     shareRecords: hasMany('share'),
 
     /**
@@ -475,12 +477,6 @@ export default Model.extend(
      */
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
-
-    /**
-     * Relation to archive model if this file is a root dir of archive.
-     * @type {Models.Archive}
-     */
-    archive: belongsTo('archive'),
 
     //#endregion
   }
