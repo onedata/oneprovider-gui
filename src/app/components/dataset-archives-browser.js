@@ -320,7 +320,11 @@ export default Component.extend(...mixins, {
         return null;
       }
       if (resolverResult.result === 'resolve') {
-        return resolverResult.dir;
+        if (await this.isArchiveRootDir(resolverResult.dir)) {
+          return await this.archiveRootDirProxy;
+        } else {
+          return resolverResult.dir;
+        }
       } else {
         if (resolverResult.url) {
           parentAppNavigation.openUrl(resolverResult.url, true);
@@ -589,13 +593,12 @@ export default Component.extend(...mixins, {
    * @returns {Promise<Models.File|Object>}
    */
   async getFileById(fileId) {
-    const fileManager = this.get('fileManager');
-    const archive = this.get('archive') || await this.get('archiveProxy');
+    const archive = this.archive || await this.archiveProxy;
     const archiveRootDirId = archive.relationEntityId('rootDir');
     if (!fileId || fileId === archiveRootDirId) {
-      return this.get('archiveRootDirProxy');
+      return this.archiveRootDirProxy;
     } else {
-      return fileManager.getFileById(fileId, { scope: 'private' });
+      return this.fileManager.getFileById(fileId, { scope: 'private' });
     }
   },
 
@@ -755,7 +758,8 @@ export default Component.extend(...mixins, {
         if (item.relationEntityId('parent') === archiveRootDirId) {
           // file browser: it's a direct child of archive root dir
           // return wrapped archive root dir (for special name and parent)
-          return this.get('archiveRootDirProxy');
+          const browsableArchiveRootDir = await this.archiveRootDirProxy;
+          return browsableArchiveRootDir;
         } else {
           // file browser: inside archive filesystem
           return get(item, 'parent');
@@ -775,6 +779,13 @@ export default Component.extend(...mixins, {
       // dataset (root of breadcrumbs) or something unknown - stop iteration
       return null;
     }
+  },
+
+  async isArchiveRootDir(item) {
+    const lastResolvedArchive = this.archive;
+    const archive = lastResolvedArchive || await this.archiveProxy;
+    const archiveRootDirId = archive?.relationEntityId('rootDir');
+    return get(item, 'entityId') === archiveRootDirId;
   },
 
   async updateDirEntityId(itemId) {

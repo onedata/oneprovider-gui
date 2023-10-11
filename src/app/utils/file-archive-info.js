@@ -263,7 +263,7 @@ export function getDatasetIdFromDirName(dirName) {
 
 /**
  * @param {Array<{name: string}>} filePath
- * @returns {boolean}
+ * @returns {string}
  */
 export function getArchiveIdFromPath(filePath) {
   const lastIndex = filePath.length - 1;
@@ -278,4 +278,12 @@ export function getArchiveIdFromPath(filePath) {
  */
 export function getArchiveRelativeFilePath(path) {
   return path.slice(archiveDirPathPosition + 1);
+}
+
+/**
+ * @param {Array<{name: string}>} filePath
+ * @returns {string}
+ */
+export function isArchiveRootDir(filePath) {
+  return getIsInArchivePath(filePath) && filePath.length === archiveDirPathPosition;
 }
