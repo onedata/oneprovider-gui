@@ -31,7 +31,6 @@ export default BrowsableWrapper.extend({
    */
   content: alias('file'),
 
-  // FIXME: file.archive is to remove
   /**
    * @type ComputedProperty<Boolean>
    */
@@ -42,7 +41,6 @@ export default BrowsableWrapper.extend({
    */
   archiveCreating: conditional(
     equal('archive.metaState', raw('creating')),
-    // FIXME: file.archive is to remove
     conditional('isArchiveRootDir', raw('direct'), raw('ancestor')),
     raw('none'),
   ),
@@ -52,7 +50,6 @@ export default BrowsableWrapper.extend({
    */
   archiveFailed: conditional(
     equal('archive.metaState', raw('failed')),
-    // FIXME: file.archive is to remove
     conditional('isArchiveRootDir', raw('direct'), raw('ancestor')),
     raw('none'),
   ),
@@ -62,7 +59,6 @@ export default BrowsableWrapper.extend({
    */
   archiveCancelled: conditional(
     equal('archive.metaState', raw('cancelled')),
-    // FIXME: file.archive is to remove
     conditional('isArchiveRootDir', raw('direct'), raw('ancestor')),
     raw('none'),
   ),
