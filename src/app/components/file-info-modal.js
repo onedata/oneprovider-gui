@@ -38,6 +38,7 @@ import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-mode
 import { guidFor } from '@ember/object/internals';
 import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 
 const mixins = [
   I18n,
@@ -549,8 +550,18 @@ export default Component.extend(...mixins, {
 
   filePathProxy: promise.object(computed(
     'file.{parent.name,name}',
-    async function filePathPromise() {
+    async function filePathProxy() {
       const path = await resolveFilePath(this.file);
+      if (
+        this.space &&
+        get(path[0], 'entityId') !== this.space.relationEntityId('rootDir')
+      ) {
+        const fileArchiveInfo = FileArchiveInfo.create({ file: this.file });
+        const isInArchive = await fileArchiveInfo.isInArchiveProxy;
+        if (isInArchive) {
+          path.unshift(await get(this.space, 'rootDir'));
+        }
+      }
       return stringifyFilePath(path);
     }
   )),
