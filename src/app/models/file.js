@@ -49,8 +49,8 @@ export function getFileGri(fileId, scope) {
 export const dirSizeStatsTimeSeriesNameGenerators = {
   regFileAndLinkCount: 'reg_file_and_link_count',
   dirCount: 'dir_count',
-  totalSize: 'total_size',
-  sizeOnStorage: 'storage_use_',
+  totalSize: 'virtual_size',
+  physicalSize: 'physical_size_',
 };
 
 export const RuntimeProperties = Mixin.create({

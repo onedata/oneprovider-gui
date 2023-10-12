@@ -7,14 +7,13 @@
  */
 
 import Component from '@ember/component';
-import { get, computed, getProperties } from '@ember/object';
+import { get, computed, getProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import Looper from 'onedata-gui-common/utils/looper';
 import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
 import {
   dirSizeStatsTimeSeriesNameGenerators as timeSeriesNameGenerators,
@@ -22,8 +21,9 @@ import {
 import { hashSettled, hash as hashFulfilled, all as allFulfilled } from 'rsvp';
 import { formatNumber } from 'onedata-gui-common/helpers/format-number';
 import { htmlSafe } from '@ember/string';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { or, raw, eq } from 'ember-awesome-macros';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { next } from '@ember/runloop';
 
 const mixins = [
   I18n,
@@ -47,21 +47,44 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Models.File}
+   * @type {Utils.FileSizeViewModel}
    */
-  file: undefined,
+  viewModel: undefined,
 
   /**
-   * @virtual
-   * @type {Models.Space}
+   * Properties:
+   * - directoriesCountColor: string
+   * - regAndLinksCountColor: string
+   * - bytesColor: string
+   * @type {Object}
    */
-  space: undefined,
+  seriesColorsConfig: undefined,
 
   /**
-   * @virtual
-   * @type {DirStatsServiceState}
+   * @type {boolean}
    */
-  dirStatsServiceState: undefined,
+  areSizeStatsExpanded: false,
+
+  /**
+   * Flag used to trigger charts rerender.
+   * @type {boolean}
+   */
+  areChartsRendered: true,
+
+  /**
+   * @type {ComputedProperty<Models.File>}
+   */
+  file: reads('viewModel.file'),
+
+  /**
+   * @type {ComputedProperty<Models.Space>}
+   */
+  space: reads('viewModel.space'),
+
+  /**
+   * @type {ComputedProperty<DirStatsServiceState>}
+   */
+  dirStatsServiceState: reads('viewModel.dirStatsServiceState'),
 
   /**
    * @type {string}
@@ -74,28 +97,19 @@ export default Component.extend(...mixins, {
   colorGenerator: computed(() => new ColorGenerator()),
 
   /**
-   * Properties:
-   * - directoriesCountColor: string
-   * - regAndLinksCountColor: string
-   * - bytesColor: string
-   * @type {Object}
+   * @type {ComputedProperty<boolean>}
    */
-  seriesColorsConfig: undefined,
+  dirStatsNotReady: reads('viewModel.dirStatsNotReady'),
 
   /**
-   * @type {Looper}
+   * @type {ComputedProperty<DirCurrentSizeStats | undefined>}
    */
-  latestDirSizeStatsValuesUpdater: undefined,
+  latestDirSizeStatsValues: reads('viewModel.latestDirSizeStatsValues'),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<number | undefined>}
    */
-  areSizeStatsExpanded: false,
-
-  /**
-   * @type {Boolean}
-   */
-  dirStatsNotReady: false,
+  totalPhysicalSize: reads('viewModel.totalPhysicalSize'),
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -123,7 +137,7 @@ export default Component.extend(...mixins, {
    */
   loadingProxy: promise.object(promise.all(
     'timeSeriesCollectionSchemaProxy',
-    'latestDirSizeStatsValuesProxy',
+    'viewModel.completeLatestDirSizeStatsValuesProxy',
   )),
 
   /**
@@ -427,9 +441,9 @@ export default Component.extend(...mixins, {
               sourceSpec: {
                 externalSourceName: 'chartData',
                 externalSourceParameters: {
-                  timeSeriesNameGenerator: timeSeriesNameGenerators.sizeOnStorage,
+                  timeSeriesNameGenerator: timeSeriesNameGenerators.physicalSize,
                   metricNames: this.metricNamesForTimeSeries
-                    ?.[timeSeriesNameGenerators.sizeOnStorage] ?? [],
+                    ?.[timeSeriesNameGenerators.physicalSize] ?? [],
                 },
               },
             },
@@ -701,23 +715,22 @@ export default Component.extend(...mixins, {
   ),
 
   /**
-   * @type {ComputedProperty<number>}
-   */
-  physicalSize: computed('latestDirSizeStatsValues', function physicalSize() {
-    return Object.values(this.latestDirSizeStatsValues || {}).reduce((acc, stats) => {
-      return acc + (stats.physicalSize ?? 0);
-    }, 0);
-  }),
-
-  /**
    * @type {ComputedProperty<string>}
    */
-  physicalSizeExtraInfo: computed('physicalSize', function physicalSizeExtraInfo() {
-    if (this.physicalSize >= 1024) {
-      return formatNumber(this.physicalSize);
-    } else {
-      return '';
+  totalPhysicalSizeExtraInfo: computed(
+    'totalPhysicalSize',
+    function totalPhysicalSizeExtraInfo() {
+      if (this.totalPhysicalSize >= 1024) {
+        return formatNumber(this.totalPhysicalSize);
+      } else {
+        return '';
+      }
     }
+  ),
+
+  statsTypeObserver: observer('viewModel.activeTab', function statsTypeObserver() {
+    this.set('areChartsRendered', false);
+    next(() => safeExec(this, () => this.set('areChartsRendered', true)));
   }),
 
   /**
@@ -727,35 +740,11 @@ export default Component.extend(...mixins, {
     this._super(...arguments);
 
     const colorGenerator = this.colorGenerator;
-    const seriesColorsConfig = {
+    this.set('seriesColorsConfig', {
       regAndLinksCountColor: colorGenerator.generateColorForKey('regAndLinksCount'),
       directoriesCountColor: colorGenerator.generateColorForKey('directoriesCount'),
       bytesColor: colorGenerator.generateColorForKey('bytes'),
-    };
-
-    const latestDirSizeStatsValuesUpdater = Looper.create({
-      immediate: false,
-      interval: 5000,
     });
-    latestDirSizeStatsValuesUpdater.on('tick', () =>
-      this.updateLatestDirSizeStatsValuesProxy({ replace: true })
-    );
-
-    this.setProperties({
-      seriesColorsConfig,
-      latestDirSizeStatsValuesUpdater,
-    });
-  },
-
-  /**
-   * @override
-   */
-  willDestroyElement() {
-    try {
-      this.latestDirSizeStatsValuesUpdater?.destroy();
-    } finally {
-      this._super(...arguments);
-    }
   },
 
   /**
@@ -860,8 +849,8 @@ export default Component.extend(...mixins, {
     const providers = await get(providerList, 'list');
     const allProvidersLayouts = await hashSettled(providers.reduce((acc, provider) => {
       const providerId = get(provider, 'entityId');
-      acc[providerId] = this.fileManager
-        .getDirSizeStatsTimeSeriesCollectionLayout(this.fileId, providerId);
+      acc[providerId] =
+        this.viewModel.getDirSizeStatsTimeSeriesCollectionLayout(providerId);
       return acc;
     }, {}));
     return Object.keys(allProvidersLayouts).reduce((acc, providerId) => {
@@ -870,24 +859,6 @@ export default Component.extend(...mixins, {
       }
       return acc;
     }, {});
-  },
-
-  /**
-   * @override
-   * @returns {Promise<DirCurrentSizeStats>}
-   */
-  async fetchLatestDirSizeStatsValues() {
-    try {
-      const result = await this.fileManager.getDirCurrentSizeStats(this.fileId);
-      safeExec(this, () => this.set('dirStatsNotReady', false));
-      return result;
-    } catch (error) {
-      const dirStatsNotReady = error?.id === 'dirStatsNotReady';
-      safeExec(this, () => this.set('dirStatsNotReady', dirStatsNotReady));
-      if (!dirStatsNotReady) {
-        throw error;
-      }
-    }
   },
 
   actions: {
@@ -909,8 +880,7 @@ export default Component.extend(...mixins, {
         windowLimit: batchedQuery.windowLimit,
       };
 
-      const slice = await this.fileManager.getDirSizeStatsTimeSeriesCollectionSlice(
-        this.fileId,
+      const slice = await this.viewModel.getDirSizeStatsTimeSeriesCollectionSlice(
         batchedQuery.collectionRef,
         queryParams
       );

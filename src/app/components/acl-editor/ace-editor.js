@@ -288,7 +288,7 @@ export default Component.extend(I18n, {
       action: () => this.get('onRemove')(),
       title: this.t('remove'),
       class: 'remove-action',
-      icon: 'remove',
+      icon: 'browser-delete',
     };
   }),
 

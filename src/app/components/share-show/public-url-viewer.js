@@ -15,7 +15,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { inject as service } from '@ember/service';
 
 export const iconForUrlType = {
-  share: 'share',
+  share: 'browser-share',
   handle: 'globe-cursor',
   rest: 'rest',
 };

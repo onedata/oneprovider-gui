@@ -19,7 +19,7 @@ export default {
   unknownError: 'Unknown error',
   processStatus: 'Status',
   labelTips: {
-    recallingProvider: 'Oneprovider that is performing the recall. In the process, the archive data will be copied to its storages.',
+    recallingProvider: 'Oneprovider that is performing the recall. In the process, the archive data will be copied to its storage backend supporting the space.',
     targetPath: 'Path to the root {{fileType}} of this recall.',
     relativePath: 'Relative path to this {{fileType}} from the root directory of this recall.',
     filesFailed: 'Number of files or directories which failed to be recalled due to errors.',

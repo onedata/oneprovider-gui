@@ -24,13 +24,23 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
 import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
+export const SpaceSizeStatsType = Object.freeze({
+  All: 'all',
+  RegularData: 'regularData',
+  Archives: 'archives',
+  Trash: 'trash',
+});
+
 /**
- * @typedef {Object} FileEntryTimeSeriesCollections
- * @param {Array<string>} dir_count
- * @param {Array<string>} incarnation
- * @param {Array<string>} reg_file_and_link_count
- * @param {Array<string>} storage_use_<id>
- * @param {Array<string>} total_size
+ * @typedef {'all'|'regularData'|'archives'|'trash'} SpaceSizeStatsType
+ */
+
+/**
+ * @typedef {Object} SpaceCurrentSizeStats
+ * @property {DirCurrentSizeStats} all
+ * @property {DirCurrentSizeStats} regularData
+ * @property {DirCurrentSizeStats} archives
+ * @property {DirCurrentSizeStats} trash
  */
 
 /**
@@ -48,8 +58,8 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
  * @property {number} regFileAndLinkCount
  * @property {number} dirCount
  * @property {number} logicalSize
- * @property {number} physicalSize
- * @property {Object<string, Object<string, number>>} physicalSizePerStorage
+ * @property {number} totalPhysicalSize
+ * @property {Object<string, number>} physicalSizePerStorage
  *   mapping storageId -> (physical size on storage)
  */
 
@@ -599,6 +609,38 @@ export default Service.extend({
   },
 
   /**
+   * @param {string} spaceId
+   * @param {string} providerId
+   * @param {SpaceSizeStatsType} statsType
+   * @param {{reload: boolean}} [options]
+   * @returns {Promise<TimeSeriesCollectionLayout>}
+   */
+  async getSpaceSizeStatsTimeSeriesCollectionLayout(
+    spaceId,
+    providerId,
+    statsType,
+    options,
+  ) {
+    const space = await this.spaceManager.getSpace(spaceId);
+    const rootDirId = space.relationEntityId('rootDir');
+    const archivesDirId = get(space, 'archivesDirId');
+    const trashDirId = get(space, 'trashDirId');
+    const getLayout = (dirId) => this.getDirSizeStatsTimeSeriesCollectionLayout(
+      dirId,
+      providerId,
+      statsType,
+      options
+    );
+    if (statsType === SpaceSizeStatsType.Archives) {
+      return getLayout(archivesDirId);
+    } else if (statsType === SpaceSizeStatsType.Trash) {
+      return getLayout(trashDirId);
+    } else {
+      return getLayout(rootDirId);
+    }
+  },
+
+  /**
    * @param {string} fileId
    * @param {string} providerId
    * @param {TimeSeriesCollectionSliceQueryParams} queryParams
@@ -607,6 +649,143 @@ export default Service.extend({
   async getDirSizeStatsTimeSeriesCollectionSlice(fileId, providerId, queryParams) {
     const requestGri = dirSizeStatsGri(fileId, providerId);
     return this.timeSeriesManager.getTimeSeriesCollectionSlice(requestGri, queryParams);
+  },
+
+  /**
+   *
+   * @param {string} spaceId
+   * @param {string} providerId
+   * @param {SpaceSizeStatsType} statsType
+   * @param {TimeSeriesCollectionSliceQueryParams} queryParams
+   * @returns {Promise<TimeSeriesCollectionSlice>}
+   */
+  async getSpaceSizeStatsTimeSeriesCollectionSlice(
+    spaceId,
+    providerId,
+    statsType,
+    queryParams
+  ) {
+    const space = await this.spaceManager.getSpace(spaceId);
+    const rootDirId = space.relationEntityId('rootDir');
+    const archivesDirId = get(space, 'archivesDirId');
+    const trashDirId = get(space, 'trashDirId');
+    const getStats = (dirId) => this.getDirSizeStatsTimeSeriesCollectionSlice(
+      dirId,
+      providerId,
+      queryParams
+    );
+    if (statsType === SpaceSizeStatsType.All) {
+      return getStats(rootDirId);
+    } else if (statsType === SpaceSizeStatsType.Archives) {
+      return getStats(archivesDirId);
+    } else if (statsType === SpaceSizeStatsType.Trash) {
+      return getStats(trashDirId);
+    }
+
+    // To calculate regular data stats, we need to calculate `all - archives - trash`.
+    const [allStats, archivesStats, trashStats] = await allFulfilled([
+      getStats(rootDirId),
+      getStats(archivesDirId),
+      getStats(trashDirId),
+    ]);
+    const result = {};
+    // Iterate over all series
+    for (const seriesName in allStats) {
+      result[seriesName] = {};
+      // Iterate over all metrics in every series
+      for (const metricName in allStats[seriesName]) {
+        const metricsToSubtract = [
+          archivesStats[seriesName]?.[metricName]?.reverse() ?? [],
+          trashStats[seriesName]?.[metricName]?.reverse() ?? [],
+        ];
+        const regularDataMetric =
+          _.cloneDeep(allStats[seriesName][metricName])?.reverse() ?? [];
+        result[seriesName][metricName] = regularDataMetric;
+        if (!regularDataMetric.length) {
+          continue;
+        }
+        const oldestTimestamp = regularDataMetric[0].timestamp;
+        for (const metricToSubtract of metricsToSubtract) {
+          if (!metricToSubtract.length) {
+            continue;
+          }
+          let idxOfFirstPoint = 0;
+          while (metricToSubtract[idxOfFirstPoint + 1]?.timestamp <= oldestTimestamp) {
+            idxOfFirstPoint++;
+          }
+          metricToSubtract.splice(0, idxOfFirstPoint);
+          if (idxOfFirstPoint === 0 && metricToSubtract[0].timestamp > oldestTimestamp) {
+            metricToSubtract.unshift({
+              timestamp: oldestTimestamp,
+              value: 0,
+              firstMeasurementTimestamp: null,
+              lastMeasurementTimestamp: null,
+            });
+          }
+
+          // In the loop below we calculate new regular data values by
+          // subtracting `metricToSubtract` points from "all" metrics. Points in
+          // regular data and in metric to subtract can have different
+          // timestamps. Hence we insert any missing timestamp in
+          // regularData/metricToSubtract in every iteration.
+          let idxInRegularDataMetric = 0;
+          let idxInSubtractMetric = 0;
+          // eslint-disable-next-line no-constant-condition
+          while (true) {
+            const currentRegularPoint =
+              _.cloneDeep(regularDataMetric[idxInRegularDataMetric]);
+            // Subtract points. Using Math.min to avoid reaching negative values
+            regularDataMetric[idxInRegularDataMetric].value -= Math.min(
+              metricToSubtract[idxInSubtractMetric].value,
+              regularDataMetric[idxInRegularDataMetric].value
+            );
+            // Possible points for next iteration
+            const nextPointInRegular = regularDataMetric[idxInRegularDataMetric + 1];
+            const nextPointInSubtract = metricToSubtract[idxInSubtractMetric + 1];
+            if (!nextPointInRegular && !nextPointInSubtract) {
+              // Reached end of both arrays - stop iteration.
+              break;
+            } else if (
+              !nextPointInRegular ||
+              (
+                nextPointInSubtract &&
+                nextPointInRegular.timestamp > nextPointInSubtract.timestamp
+              )
+            ) {
+              // Regular data has no points left or its next point is newer that
+              // the next point in `metricToSubtract`. We need to create new point
+              // in regular data.
+              regularDataMetric.splice(idxInRegularDataMetric + 1, 0, {
+                ...currentRegularPoint,
+                timestamp: nextPointInSubtract.timestamp,
+                firstMeasurementTimestamp: null,
+                lastMeasurementTimestamp: null,
+              });
+            } else if (
+              !nextPointInSubtract ||
+              (
+                nextPointInRegular &&
+                nextPointInSubtract.timestamp > nextPointInRegular.timestamp
+              )
+            ) {
+              // `metricToSubtract` has no points left or its next point is newer that
+              // the next point in regular data. We need to create new point
+              // in `metricToSubtract`.
+              metricToSubtract.splice(idxInSubtractMetric + 1, 0, {
+                ...metricToSubtract[idxInSubtractMetric],
+                timestamp: nextPointInRegular.timestamp,
+                firstMeasurementTimestamp: null,
+                lastMeasurementTimestamp: null,
+              });
+            }
+            idxInRegularDataMetric++;
+            idxInSubtractMetric++;
+          }
+        }
+        regularDataMetric.reverse();
+      }
+    }
+    return result;
   },
 
   /**
@@ -638,7 +817,7 @@ export default Service.extend({
       dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount,
       dirSizeStatsTimeSeriesNameGenerators.dirCount,
       dirSizeStatsTimeSeriesNameGenerators.totalSize,
-      dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage,
+      dirSizeStatsTimeSeriesNameGenerators.physicalSize,
     ];
 
     const neededMetrics = neededTimeSeriesNameGenerators
@@ -662,7 +841,7 @@ export default Service.extend({
         const staticTimeSeries = neededTimeSeriesNameGenerators.slice(0, 3);
         const perStorageTimeSeriesCandidates = Object.keys(collectionLayout)
           .filter((tsName) =>
-            tsName.startsWith(dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage)
+            tsName.startsWith(dirSizeStatsTimeSeriesNameGenerators.physicalSize)
           );
         const perStorageTimeSeries = (await allFulfilled(
           perStorageTimeSeriesCandidates.map((tsName) => {
@@ -677,7 +856,7 @@ export default Service.extend({
         staticTimeSeries.forEach((tsName) => layout[tsName] = [neededMetrics[tsName]]);
         perStorageTimeSeries.forEach((tsName) =>
           layout[tsName] = [
-            neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage],
+            neededMetrics[dirSizeStatsTimeSeriesNameGenerators.physicalSize],
           ]
         );
 
@@ -706,7 +885,7 @@ export default Service.extend({
           const storageId = getStorageIdFromSizeOnStorageTSName(tsName);
           const sizeOnStorage = result
             ?.[tsName]
-            ?.[neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage]]
+            ?.[neededMetrics[dirSizeStatsTimeSeriesNameGenerators.physicalSize]]
             ?.[0]?.value ?? 0;
           const normalizedSizeOnStorage = Number.isFinite(sizeOnStorage) ?
             sizeOnStorage : 0;
@@ -720,7 +899,7 @@ export default Service.extend({
           ],
           dirCount: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.dirCount],
           logicalSize: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.totalSize],
-          physicalSize: totalPhysicalSize,
+          totalPhysicalSize,
           physicalSizePerStorage,
         };
       })();
@@ -747,6 +926,92 @@ export default Service.extend({
     } else {
       return result;
     }
+  },
+
+  /**
+   * @param {string} spaceId
+   * @returns {Promise<SpaceCurrentSizeStats | null>}
+   */
+  async getSpaceCurrentSizeStats(spaceId) {
+    const space = await this.spaceManager.getSpace(spaceId);
+    const rootDirId = space.relationEntityId('rootDir');
+    const archivesDirId = get(space, 'archivesDirId');
+    const trashDirId = get(space, 'trashDirId');
+
+    const resultStats = await hashFulfilled({
+      [SpaceSizeStatsType.All]: this.getDirCurrentSizeStats(rootDirId),
+      [SpaceSizeStatsType.Archives]: this.getDirCurrentSizeStats(archivesDirId),
+      [SpaceSizeStatsType.Trash]: this.getDirCurrentSizeStats(trashDirId),
+    });
+    const availableStatTypes = Object.keys(resultStats);
+    resultStats[SpaceSizeStatsType.RegularData] =
+      Object.keys(resultStats[SpaceSizeStatsType.All])
+      .reduce((regularData, providerId) => {
+        // If for some type of stats in some provider is not present, then something
+        // bad happened (race with (un)support?). It's safe to just omit him.
+        if (availableStatTypes.find((type) => !resultStats[type][providerId])) {
+          console.warn(
+            `Could not load all stats for space ${spaceId} and provider ${providerId} due to unknown issue.`
+          );
+          return regularData;
+        }
+
+        // If for some type of stats some provider returned error, then regularData
+        // stat for that provider should also represent an error.
+        const providerErrors = availableStatTypes
+          .filter((type) => resultStats[type][providerId].type === 'error')
+          .map((type) => resultStats[type][providerId].error);
+        if (providerErrors.length) {
+          regularData[providerId] = {
+            type: 'error',
+            error: providerErrors.find(Boolean) ?? providerErrors[0],
+          };
+          return regularData;
+        }
+
+        regularData[providerId] = {
+          type: 'result',
+        };
+
+        ['regFileAndLinkCount', 'dirCount', 'logicalSize', 'totalPhysicalSize']
+        .forEach((valueType) => {
+          regularData[providerId][valueType] = Math.max(
+            resultStats[SpaceSizeStatsType.All][providerId][valueType] -
+            resultStats[SpaceSizeStatsType.Archives][providerId][valueType] -
+            resultStats[SpaceSizeStatsType.Trash][providerId][valueType],
+            0
+          );
+        });
+        regularData[providerId].physicalSizePerStorage =
+          Object.keys(
+            resultStats[SpaceSizeStatsType.All][providerId].physicalSizePerStorage
+          )
+          .reduce((physicalSizePerStorage, storageId) => {
+            physicalSizePerStorage[storageId] =
+              resultStats[SpaceSizeStatsType.All][providerId]
+              .physicalSizePerStorage[storageId];
+            if (
+              resultStats[SpaceSizeStatsType.Archives][providerId]
+              .physicalSizePerStorage[storageId]
+            ) {
+              physicalSizePerStorage[storageId] -=
+                resultStats[SpaceSizeStatsType.Archives][providerId]
+                .physicalSizePerStorage[storageId];
+            }
+            if (resultStats[SpaceSizeStatsType.Trash][providerId]
+              .physicalSizePerStorage[storageId]
+            ) {
+              physicalSizePerStorage[storageId] -=
+                resultStats[SpaceSizeStatsType.Trash][providerId]
+                .physicalSizePerStorage[storageId];
+            }
+            return physicalSizePerStorage;
+          }, {});
+
+        return regularData;
+      }, {});
+
+    return resultStats;
   },
 
   /**
@@ -939,5 +1204,5 @@ function normalizeRecallAuditLogEntryContent(content) {
 }
 
 function getStorageIdFromSizeOnStorageTSName(tsName) {
-  return tsName.slice(dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage.length);
+  return tsName.slice(dirSizeStatsTimeSeriesNameGenerators.physicalSize.length);
 }

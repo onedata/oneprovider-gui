@@ -148,6 +148,11 @@ export default EmberObject.extend(...mixins, {
   injectedIsVisible: null,
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isActive: eq('fileInfoModal.activeTab', 'tabId'),
+
+  /**
    * Invoked by file info modal when it wants to close the current tab.
    * Return true to allow tab close.
    * Return false to cancel closing the file info modal.

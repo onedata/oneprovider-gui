@@ -1,0 +1,25 @@
+<div class="btn-group-tabs stats-type-tabs">
+  {{#bs-button-group
+    class="stats-type-selector with-scroll-shadow"
+    value=viewModel.activeTab
+    type="radio"
+    onChange=(action "changeTab") as |bg|
+  }}
+    {{#each statsTypes as |type|}}
+      {{#bg.button
+        type="default"
+        class=(concat-classes
+          "btn-sm"
+          "stats-type-btn"
+          (concat "stats-type-btn-" type)
+        )
+        value=type
+      }}
+        <span class="tab-name">{{tt this (concat "tabs." type)}}</span>
+        <small class="tab-total-physical-size">
+          ({{or (bytes-to-string (get viewModel.completeTotalPhysicalSizes type)) "?"}})
+        </small>
+      {{/bg.button}}
+    {{/each}}
+  {{/bs-button-group}}
+</div>

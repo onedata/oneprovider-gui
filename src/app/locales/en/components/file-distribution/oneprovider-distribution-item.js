@@ -16,7 +16,7 @@ export default {
   evictionStart: 'Evict redundant data blocks on this Oneprovider.',
   disabledReplicationSingleOneprovider: 'Replication' + disabledActionSingleOneprovider,
   disabledReplicationIsComplete: 'Cannot schedule replication as all file block are already on this Oneprovider.',
-  disabledReplicationReadonly: 'Cannot schedule replication as all supporting storages of this Oneprovider are readonly.',
+  disabledReplicationReadonly: 'Cannot schedule replication as all supporting storage backends of this Oneprovider are readonly.',
   disabledMigrationSingleOneprovider: 'Migration' + disabledActionSingleOneprovider,
   disabledMigrationIsEmpty: 'Cannot schedule migration as there are no file blocks on this Oneprovider.',
   disabledEvictionSingleOneprovider: 'Eviction' + disabledActionSingleOneprovider,
