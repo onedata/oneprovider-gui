@@ -9,8 +9,16 @@
 import BrowserListPoller, { defaultPollInterval } from 'oneprovider-gui/utils/browser-list-poller';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
+import FileConsumerMixin, {
+  computedSingleUsedFileGri,
+} from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
-export default BrowserListPoller.extend({
+const mixins = [
+  FileConsumerMixin,
+];
+
+export default BrowserListPoller.extend(...mixins, {
   /**
    * @override
    */
@@ -23,13 +31,31 @@ export default BrowserListPoller.extend({
   }),
 
   /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedSingleUsedFileGri('dir'),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('dir', function fileRequirements() {
+    if (!this.dir) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('dir.id'),
+        properties: ['isRecalling'],
+      }),
+    ];
+  }),
+
+  /**
    * @type {ComputedProperty<Models.File|undefined>}
    */
   dir: reads('browserModel.dir'),
 
-  // FIXME: custom property use
-  isRecalling: computed('dir.recallingMembership', function isRecalling() {
-    return this.dir?.recallingMembership === 'direct' ||
-      this.dir?.recallingMembership === 'ancestor';
-  }),
+  isRecalling: reads('dir.isRecalling'),
 });

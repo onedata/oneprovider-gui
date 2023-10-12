@@ -1,6 +1,8 @@
 /**
  * Gets percentage (floored to integer) progress of recall process.
- * *NOTE:* `archiveRecallState` and `archiveRecallInfo` should be resolved.
+ *
+ * **NOTE:** the file needs to have loaded custom properties: 'recallingMembership' and
+ * 'isRecalled', and `archiveRecallState` and `archiveRecallInfo` should be resolved.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
@@ -13,7 +15,6 @@ const emptyValue = null;
 
 export default function recallingPercentageProgress(file) {
   const recallingMembership = file && get(file, 'recallingMembership');
-  // FIXME: custom property use
   const isRecallInfoApplicable = Boolean(file && (
     get(file, 'isRecalled') ||
     recallingMembership === 'direct' ||

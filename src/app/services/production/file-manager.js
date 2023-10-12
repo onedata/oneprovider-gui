@@ -511,7 +511,11 @@ export default Service.extend({
     return this.copyOrMoveFile(file, parentDirEntityId, 'move');
   },
 
-  // FIXME: custom property use
+  /**
+   * This method needs a custom property `size` to be loaded in file.
+   * @param {Models.File} file
+   * @returns {Models.User}
+   */
   async copyOrMoveFile(file, parentDirEntityId, operation) {
     const name = get(file, 'name') || 'unknown';
     const entityId = get(file, 'entityId');
@@ -525,6 +529,11 @@ export default Service.extend({
         targetParentGuid: parentDirEntityId,
         targetName: name,
       });
+      // FIXME: albo dodam size do basic properties, albo ten pollForFileAfterOperation
+      // stanie się czymś co będzie sobie rejestrować wymaganie, a potem wyrejestrowywać
+      // musi mieć Consumera w takim razie... musi stać się obiektem
+      // zapytać Staszka, czy size jest lekkie
+      // jeszcze jest możliwość, żeby file stało się consumerem... wtedy jeśli current operation będzie czymś, to będzie miało wymaganie size
       this.pollForFileAfterOperation(
         getFileAttempts,
         getFileInterval,
@@ -1139,6 +1148,11 @@ export default Service.extend({
     );
   },
 
+  /**
+   * This method needs a custom property `owner` to be loaded in file.
+   * @param {Models.File} file
+   * @returns {Models.User}
+   */
   async getFileOwner(file) {
     // Allowing file to not have relationEntityId beacuse some integration tests
     // are using not-fully-mocked files

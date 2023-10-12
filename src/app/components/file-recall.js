@@ -104,7 +104,7 @@ export default Component.extend(...mixins, {
     return [
       new FileRequirement({
         fileGri: this.get('file.id'),
-        properties: ['recallingMembership', 'recallRootId'],
+        properties: ['recallingMembership', 'recallRootId', 'isRecalled'],
       }),
     ];
   }),

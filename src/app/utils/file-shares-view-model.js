@@ -2,7 +2,7 @@
  * Model and logic for file-shares components
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -13,9 +13,14 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { bool } from 'ember-awesome-macros';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import FileConsumerMixin, {
+  computedSingleUsedFileGri,
+} from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
   OwnerInjector,
+  FileConsumerMixin,
   I18n,
 ];
 
@@ -43,7 +48,28 @@ export default EmberObject.extend(...mixins, {
    */
   file: undefined,
 
-  // FIXME: custom property use
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedSingleUsedFileGri('file'),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('file.id'),
+        properties: ['shareRecords'],
+      }),
+    ];
+  }),
+
   sharesProxy: reads('file.shareRecords'),
 
   shares: reads('sharesProxy.content'),

@@ -117,7 +117,6 @@ export default BaseTabModel.extend(...mixins, {
     raw(null),
   ),
 
-  // FIXME: custom property use
   /**
    * @type {ComputedProperty<boolean>}
    */

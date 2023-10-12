@@ -29,7 +29,7 @@ export const possibleFileRawAttributes = Object.freeze([
   'effDatasetProtectionFlags',
   'effProtectionFlags',
   'effQosMembership',
-  'fileId',
+  'fileId', // consumed by serializer and available as entityId in record
   'hardlinkCount',
   'hasCustomMetadata',
   'index',

@@ -334,13 +334,6 @@ export default Model.extend(
      */
 
     /**
-     * The same as `entityId`.
-     * Currently a GUID of the file - not to be confused with `fileId` used in REST
-     * context, which is a CDMI Object ID.
-     */
-    fileId: attr('string'),
-
-    /**
      * If there is a filename conflict between providers (two files with the same name,
      * but created on different providers) this property contains a base of file name.
      * Eg. we have two files with the same name created on providers with ids "a123" and

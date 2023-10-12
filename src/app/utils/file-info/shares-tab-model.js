@@ -2,7 +2,7 @@
  * Tab model for showing file-shares in file-info-modal
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,7 +12,16 @@ import { reads } from '@ember/object/computed';
 import FileSharesViewModel from 'oneprovider-gui/utils/file-shares-view-model';
 import { conditional, raw } from 'ember-awesome-macros';
 
-export default BaseTabModel.extend({
+import FileConsumerMixin, {
+  computedSingleUsedFileGri,
+} from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+
+const mixins = [
+  FileConsumerMixin,
+];
+
+export default BaseTabModel.extend(...mixins, {
   /**
    * @override
    */
@@ -86,7 +95,28 @@ export default BaseTabModel.extend({
     raw('without-footer'),
   ),
 
-  // FIXME: custom property use
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedSingleUsedFileGri('file'),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('file.id'),
+        properties: ['sharesCount'],
+      }),
+    ];
+  }),
+
   /**
    * @type {ComputedProperty<number>}
    */

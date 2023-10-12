@@ -97,6 +97,7 @@ export default BaseBrowserModel.extend(...mixins, {
   uploadManager: service(),
   workflowManager: service(),
   modalManager: service(),
+  media: service(),
 
   /**
    * @override
@@ -293,7 +294,12 @@ export default BaseBrowserModel.extend(...mixins, {
       }
       const parentDirGri = get(this.dir, 'id');
       const parentDirId = get(this.dir, 'entityId');
-      const basicPropertySet = new Set();
+      const basicPropertySet = new Set([
+        // needed by some buttons to be configured
+        // dataIsProtected is also needed by FilesystemBrowser::EmptyDir component
+        'dataIsProtected',
+        'isRecalling',
+      ]);
 
       // Properties that are needed by nested components - added here for requirements
       // to be available before rows are rendered (which could cause records reload,
@@ -330,22 +336,31 @@ export default BaseBrowserModel.extend(...mixins, {
         'hardlinkCount',
         'hasCustomMetadata',
       ]);
-      const columns = this.columnsConfiguration.columns;
-      if (columns.size?.isEnabled) {
-        listedFilesPropertySet.add('size');
+      if (this.media.isMobile) {
+        // File details always shown in mobile mode,
+        // see FilesystemBrowser::TableRowMobileSecondaryInfo component.
+        listedFilesPropertySet
+          .add('size')
+          .add('mtime');
+      } else {
+        const columns = this.columnsConfiguration.columns;
+        if (columns.size?.isEnabled) {
+          listedFilesPropertySet.add('size');
+        }
+        if (columns.modification?.isEnabled) {
+          listedFilesPropertySet.add('mtime');
+        }
+        if (columns.owner?.isEnabled) {
+          listedFilesPropertySet.add('owner');
+        }
+        if (columns.replication?.isEnabled) {
+          listedFilesPropertySet.add('localReplicationRate');
+        }
+        if (columns.qos?.isEnabled) {
+          listedFilesPropertySet.add('qosStatus');
+        }
       }
-      if (columns.modification?.isEnabled) {
-        listedFilesPropertySet.add('mtime');
-      }
-      if (columns.owner?.isEnabled) {
-        listedFilesPropertySet.add('owner');
-      }
-      if (columns.replication?.isEnabled) {
-        listedFilesPropertySet.add('localReplicationRate');
-      }
-      if (columns.qos?.isEnabled) {
-        listedFilesPropertySet.add('qosStatus');
-      }
+
       const parentDirRequirement = new FileRequirement({
         properties: basicProperties,
         fileGri: parentDirGri,
@@ -450,7 +465,6 @@ export default BaseBrowserModel.extend(...mixins, {
     }
   ),
 
-  // FIXME: custom property use
   btnUpload: computed(
     'dir.{dataIsProtected,isRecalling}',
     function btnUpload() {

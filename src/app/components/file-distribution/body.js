@@ -1,6 +1,9 @@
 /**
  * Main content for file distribution view (distribution components).
  *
+ * NOTE: file custom attributes for this component are declared in
+ * FileDistributionViewModel.
+ *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

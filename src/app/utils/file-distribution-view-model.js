@@ -16,9 +16,14 @@ import { raw, array, sum, gt } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { getOwner } from '@ember/application';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
+import FileConsumerMixin, {
+  computedMultiUsedFileGris,
+} from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
   OwnerInjector,
+  FileConsumerMixin,
   I18n,
   createDataProxyMixin('oneproviders', { type: 'array' }),
 ];
@@ -45,6 +50,28 @@ export default EmberObject.extend(...mixins, {
    * @type {Array<Models.File>}
    */
   files: undefined,
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedMultiUsedFileGris('files'),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('files', function fileRequirements() {
+    if (!this.files) {
+      return [];
+    }
+    return this.files.map(file =>
+      new FileRequirement({
+        fileGri: get(file, 'id'),
+        properties: ['size'],
+      }),
+    );
+  }),
 
   //#region state
 
@@ -82,7 +109,6 @@ export default EmberObject.extend(...mixins, {
    */
   dirsNumber: array.length('filesOfTypeDir'),
 
-  // FIXME: custom property use
   /**
    * @type {Ember.ComputedProperty<number>}
    * if array is empty, the sum is 0

@@ -85,7 +85,6 @@ export default EmberObject.extend(...mixins, {
 
   //#region state
 
-  // FIXME: custom property use
   /**
    * @override
    */
@@ -93,8 +92,6 @@ export default EmberObject.extend(...mixins, {
     const properties = Object.freeze([
       'owner',
       'metadataIsProtected',
-      'hasParent',
-      'type',
       'posixPermissions',
       'activePermissionsType',
     ]);
