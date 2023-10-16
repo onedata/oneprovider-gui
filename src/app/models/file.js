@@ -207,10 +207,6 @@ export const RuntimeProperties = Mixin.create({
 
   isRecalled: computedLastProxyContent('isRecalledProxy'),
 
-  sharesCount: computed('shareRecords', function sharesCount() {
-    return this.hasMany('shareRecords')?.ids().length;
-  }),
-
   //#endregion
 
   //#region runtime record state
@@ -403,6 +399,7 @@ export default Model.extend(
     path: attr('string'),
     displayGid: attr('number'),
     displayUid: attr('number'),
+    sharesCount: attr('number'),
 
     /**
      * @type {ComputedProperty<QosStatus>}

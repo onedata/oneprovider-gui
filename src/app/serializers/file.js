@@ -198,8 +198,7 @@ export default Serializer.extend({
     const parsedGri = parseGri(hash.gri);
     const scope = hash.scope || parsedGri.scope;
     const entityId = parsedGri.entityId;
-    // FIXME: może być dublowane przez property sharesCount w file
-    hash.sharesCount = hash.directShareIds ? hash.directShareIds.length : 0;
+    hash.sharesCount = hash.directShareIds?.length ?? 0;
     this.normalizeRelations(hash, scope);
     this.normalizeVirtualRelations(hash, entityId, scope);
     return hash;
