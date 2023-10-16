@@ -14,10 +14,9 @@
  */
 export const propertyToAttributesMap = Object.freeze({
   // attributes normalized by serializer to create ember-data relations
-  archive: 'archiveId',
   owner: 'ownerUserId',
   parent: 'parentFileId',
-  provider: 'providerId',
+  provider: 'originProviderId',
   shareRecords: 'directShareIds',
 
   // runtime properties

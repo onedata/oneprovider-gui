@@ -41,7 +41,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       'posixPermissions',
       'directShareIds',
       'parentFileId',
-      'providerId',
+      'originProviderId',
       'effProtectionFlags',
       'conflictingName',
       'type',

@@ -102,12 +102,10 @@ export function createSpaceRootDir(spaceId = defaultSpaceId) {
 }
 
 export function createOnedataArchivesRootDir(spaceId = defaultSpaceId) {
-  const spaceRootDir = createSpaceRootDir(spaceId);
   return createFile({
     entityId: createEntityId('special_dir', spaceId),
     name: '.__onedata__archive',
     type: 'dir',
-    parentObject: spaceRootDir,
   });
 }
 
