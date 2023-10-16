@@ -39,8 +39,8 @@ describe('Unit | Service | file-requirement-registry', function () {
       'name',
       'size',
       'posixPermissions',
-      'shares',
-      'parentId',
+      'directShareIds',
+      'parentFileId',
       'providerId',
       'effProtectionFlags',
       'conflictingName',
@@ -62,7 +62,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       });
       const req2 = new FileRequirement({
         parentId: 'p2',
-        properties: ['size'],
+        properties: ['path'],
       });
       const req31 = new FileRequirement({
         parentId: 'p3',
@@ -98,7 +98,7 @@ describe('Unit | Service | file-requirement-registry', function () {
     });
     const req2 = new FileRequirement({
       parentId: 'p2',
-      properties: ['size'],
+      properties: ['path'],
     });
     const req31 = new FileRequirement({
       parentId: 'p2',
@@ -108,24 +108,25 @@ describe('Unit | Service | file-requirement-registry', function () {
       parentId: 'p3',
       properties: ['acl'],
     });
-    const query = new FileQuery({
+    const queryForParent2 = new FileQuery({
       parentId: 'p2',
     });
     await service.setRequirements(consumer1, req1);
     await service.setRequirements(consumer2, req2);
     await service.setRequirements(consumer3, req31, req32);
 
-    const resultAttrs = service.getRequiredAttributes(query).sort();
+    const resultAttrs = service.getRequiredAttributes(queryForParent2).sort();
 
     expect(resultAttrs).to.deep.equal([
-      'size',
+      'path',
       // additional attributes added always by default
-      'fileId',
-      'type',
-      'parentId',
-      'symlinkValue',
       'conflictingName',
+      'fileId',
       'name',
+      'parentFileId',
+      'size',
+      'symlinkValue',
+      'type',
     ].sort());
   });
 
@@ -186,7 +187,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       });
       const req3 = new FileRequirement({
         fileGri: 'file.a3.instance:private',
-        properties: ['size'],
+        properties: ['path'],
       });
       // an old condition with the same properties
       const newReq1 = new FileRequirement({
@@ -245,7 +246,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       });
       const req3 = new FileRequirement({
         fileGri: get(fileMap.a3, 'id'),
-        properties: ['size'],
+        properties: ['path'],
       });
       // an old condition with the same properties
       const newReq1 = new FileRequirement({
@@ -306,7 +307,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       });
       const req3 = new FileRequirement({
         fileGri: get(fileMap.a3, 'id'),
-        properties: ['size'],
+        properties: ['path'],
       });
       // an old condition with the same properties
       const newReq1 = new FileRequirement({

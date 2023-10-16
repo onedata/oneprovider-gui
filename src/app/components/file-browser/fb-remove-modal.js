@@ -79,7 +79,8 @@ export default Component.extend(...mixins, {
     return this.files.map(file =>
       new FileRequirement({
         fileGri: get(file, 'id'),
-        properties: ['sharesCount', 'size', 'mtime'],
+        // TODO: VFS-11449 optional file size fetch
+        properties: ['sharesCount', 'mtime'],
       }),
     );
   }),

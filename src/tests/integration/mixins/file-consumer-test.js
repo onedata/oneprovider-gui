@@ -32,7 +32,7 @@ describe('Integration | Mixin | file-consumer', function () {
           'name',
           'type',
           'mtime',
-          'size',
+          'path',
         ],
       });
       const fileRequirements = [requirement];

@@ -340,7 +340,7 @@ export default BaseBrowserModel.extend(...mixins, {
         // File details always shown in mobile mode,
         // see FilesystemBrowser::TableRowMobileSecondaryInfo component.
         listedFilesPropertySet
-          .add('size')
+          // TODO: VFS-11449 optional file size fetch
           .add('mtime');
       } else {
         const columns = this.columnsConfiguration.columns;

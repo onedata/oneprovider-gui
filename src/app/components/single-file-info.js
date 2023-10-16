@@ -71,9 +71,10 @@ export default Component.extend(...mixins, {
       return [];
     }
     return [
+      // TODO: VFS-11449 optional file size fetch
       new FileRequirement({
         fileGri: this.get('file.id'),
-        properties: ['size', 'mtime'],
+        properties: ['mtime'],
       }),
     ];
   }),

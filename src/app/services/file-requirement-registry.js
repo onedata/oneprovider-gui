@@ -67,6 +67,8 @@ export default Service.extend({
     'name',
     'originalName',
     'parent',
+    // TODO: VFS-11449 optional file size fetch
+    'size',
     'spaceEntityId',
     'symlinkValue',
     'type',

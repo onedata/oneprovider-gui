@@ -177,7 +177,8 @@ export default Component.extend(...mixins, {
     // general, hardlinks, size, apiSamples - these tabs are displayed only when single
     // file is diplayed.
     if (this.files?.length === 1) {
-      const properties = ['size', 'owner', 'mtime', 'hardlinkCount'];
+      // TODO: VFS-11449 optional file size fetch
+      const properties = ['owner', 'mtime', 'hardlinkCount'];
       return this.files.map(file => new FileRequirement({
         fileGri: get(file, 'id'),
         properties,
