@@ -229,4 +229,19 @@ export default EmberObject.extend(...mixins, {
       this.set('columnsOrder', columnsOrderList);
     }
   },
+
+  moveColumn(columnName, newIndex) {
+    const columnsOrder = this.columnsOrder;
+    const indexOfColumn = columnsOrder.indexOf(columnName);
+    let index = newIndex;
+
+    if (indexOfColumn === -1 || newIndex > columnsOrder.length) {
+      return;
+    }
+    const element = columnsOrder.splice(indexOfColumn, 1)[0];
+    if (indexOfColumn < newIndex) {
+      index -= 1;
+    }
+    columnsOrder.splice(index, 0, element);
+  },
 });

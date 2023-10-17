@@ -1,29 +1,30 @@
 .webui-popover-columns-configuration {
+  .webui-popover-content {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 6px;
+  }
   .columns-list {
     padding: 0;
     margin: 0;
     list-style-type: none;
 
-    .column {
+    .column-configuration-checkbox .draggable-object {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: $padding-base-vertical;
       position: relative;
 
-      &:first-of-type .move-up-button,
-      &:last-of-type .move-down-button {
+      .disabled-icon {
         opacity: 0.2;
         cursor: auto;
-      }
-
-      &:hover .arrows-container {
-        visibility: visible;
       }
 
       .arrows-container {
         display: flex;
         cursor: pointer;
+        align-items: center;
 
         @media (hover: none) {
           visibility: visible;
@@ -43,6 +44,10 @@
         display: inline-flex;
         flex-grow: 1;
         padding-right: 2.2em;
+
+        @media (hover: hover) {
+          padding-right: 0;
+        }
 
         .checkbox-label {
           position: relative;
@@ -68,10 +73,33 @@
         padding-left: 0.35em;
         cursor: pointer;
       }
+      .oneicon-drag {
+        visibility: hidden;
+      }
+      @media (hover: hover) {
+        &:hover .oneicon-drag {
+          visibility: visible;
+          opacity: 0.6;
+          cursor: pointer;
+        }
+      }
+
+      .oneicon-drag {
+        padding-right: 2px;
+      }
     }
 
     .one-checkbox, .checkbox-label {
       vertical-align: middle;
+    }
+  }
+  .draggable-object-target {
+    height: 10px;
+
+    &.accepts-drag {
+      border: 1px dashed darken($color-one-gray-sand, 10%);
+      background-color: rgba($color-one-gray-sand, 0.75);
+      border-radius: $border-radius-small;
     }
   }
 }

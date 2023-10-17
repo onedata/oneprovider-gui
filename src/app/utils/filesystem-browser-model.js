@@ -1618,4 +1618,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }).hiddenPromise;
     }
   },
+
+  disableUploadArea() {
+    this.uploadManager.unsignUploadBrowse();
+  },
+
+  enableUploadArea() {
+    this.uploadManager.assignUploadDrop(this.uploadManager.dropElement);
+
+  },
 });

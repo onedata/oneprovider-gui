@@ -7,22 +7,14 @@
  */
 
 import Component from '@ember/component';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { inject as service } from '@ember/service';
 import { trySet, computed } from '@ember/object';
 import { next } from '@ember/runloop';
 import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
 import { reads } from '@ember/object/computed';
+import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 
-export default Component.extend(I18n, {
+export default Component.extend({
   classNames: ['columns-configuration-popover'],
-
-  i18n: service(),
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.columnsConfigurationPopover',
 
   /**
    * @virtual
@@ -35,6 +27,18 @@ export default Component.extend(I18n, {
    * @type {Utils.ColumnsConfiguration}
    */
   columnsConfiguration: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  dragStartAction: notImplementedWarn,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  dragEndAction: notImplementedWarn,
 
   /**
    * @virtual optional
@@ -113,5 +117,10 @@ export default Component.extend(I18n, {
         this.applyCurrentColumnsOrder();
       }
     },
+    acceptDraggedElement(index, draggedElement) {
+      this.columnsConfiguration.moveColumn(draggedElement.columnName, index + 1);
+      this.applyCurrentColumnsOrder();
+    },
+
   },
 });

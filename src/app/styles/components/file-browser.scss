@@ -61,6 +61,7 @@
     }
   }
   .fb-table {
+    --color-drag: #ddd;
     td.multiline {
       vertical-align: middle;
       padding-top: 8px;
@@ -69,6 +70,56 @@
     }
     th.fb-table-secondary-col {
       width: var(--column-width, 200px);
+      position: relative;
+      padding: 0;
+    }
+
+    th.fb-table-secondary-col.border-true, th.fb-table-col-files.border-true {
+      border-right: 2px solid #8ca7d9;
+
+      .triangle {
+        position: absolute;
+        top: 61px;
+        right: -9px;
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+
+        border-bottom: 11px solid #8ca7d9;
+        z-index: 2;
+      }
+    }
+
+    th.fb-table-secondary-col.border-solid:not(.border-true),
+    th.fb-table-col-files.border-solid:not(.border-true) {
+      border-right: 2px dashed var(--color-drag);
+    }
+    th.fb-table-secondary-col:hover .column-move-icon{
+      @media (hover: hover) {
+        visibility: visible;
+        cursor: pointer;
+      }
+    }
+    .draggable-object-target {
+      position: absolute;
+      width: 20px;
+
+      opacity: 0.6;
+      height: 63px;
+      right: -10px;
+      top: 0;
+      z-index: 1;
+    }
+    .column-move-icon {
+      vertical-align: middle;
+      visibility: hidden;
+      position: absolute;
+      left: -15px;
+      top: 3px;
+    }
+    .column-name {
+      position: relative;
     }
   }
 }

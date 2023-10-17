@@ -1,4 +1,9 @@
-<th class="fb-table-col-files" colspan={{if (media "isMobile") "2" "1"}}>
+<th
+  class={{concat "fb-table-col-files"
+  (if isHasBorder " border-solid")}}
+  colspan={{if (media "isMobile") "2" "1"}}
+  ondrop={{action "dropAction" i}}
+>
   <div class="fb-table-first-col-container">
     <div class="table-header-text">{{tt this "files"}}</div>
     {{!--
@@ -16,14 +21,29 @@
     </div>
     <div class="table-header-status-bar">{{yield}}</div>
   </div>
+  {{one-draggable-object-target
+    dragOverAction=(action "dragOverAction")
+    dragOutAction=(action "dragOutAction")
+  }}
+  <div class="triangle"></div>
 </th>
-{{#each columnsConfiguration.columnsOrder as |columnName|}}
+{{#each columnsConfiguration.columnsOrder as |columnName i|}}
   {{#if (get columnsConfiguration (concat "columns." columnName ".isVisible"))}}
     <th
-      class={{concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"}}
+      class={{
+        concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"
+        (if isHasBorder " border-solid")
+      }}
       style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
+      ondrop={{action "dropAction" i}}
+      draggable=true
+      ondragstart={{action "dragAction" columnName}}
+      ondragend={{action "dragEndAction"}}
     >
-      {{tt this columnName}}
+      <span class="column-name">
+        {{one-icon icon="drag" class="column-move-icon"}}
+        {{tt this columnName}}
+      </span>
       {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
         {{#one-icon icon="browser-info" class="column-info-icon"}}
           {{one-tooltip
@@ -31,10 +51,17 @@
           }}
         {{/one-icon}}
       {{/if}}
+      {{one-draggable-object-target
+        dragOverAction=(action "dragOverAction")
+        dragOutAction=(action "dragOutAction")
+      }}
+      <div class="triangle"></div>
     </th>
   {{/if}}
 {{/each}}
 {{!-- hide actions th to make space for jump-control (see also colspan in first th) --}}
 {{columns-configuration-cell
   columnsConfiguration=columnsConfiguration
+  dragStartAction=(action "dragStart")
+  dragEndAction=(action "dragEnd")
 }}
