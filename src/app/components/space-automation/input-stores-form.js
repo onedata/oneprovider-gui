@@ -400,7 +400,7 @@ export default Component.extend(I18n, {
       switch (record?.constructor?.modelName) {
         case 'file':
           return {
-            file_id: record.cdmiObjectId,
+            fileId: record.cdmiObjectId,
           };
         case 'dataset':
           return {

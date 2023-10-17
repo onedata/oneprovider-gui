@@ -113,7 +113,7 @@ export default Component.extend(I18n, {
       switch (atmWorkflowInputDataSource) {
         case 'filesSelection':
           return atmWorkflowInputDataArray.map(file => ({
-            file_id: get(file, 'cdmiObjectId'),
+            fileId: get(file, 'cdmiObjectId'),
           }));
         default:
           return null;
