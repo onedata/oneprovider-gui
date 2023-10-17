@@ -470,4 +470,27 @@ export default Service.extend({
       propertyMap[property] = (prev ?? 0) + diff;
     }
   },
+
+  /**
+   * Adds property requirements to the registry only for lifetime of a callback execution
+   * for specific files.
+   * @param {Function} callback
+   * @param {Array<FileModel.Property>} properties
+   * @param {...string} fileGris
+   */
+  async requireTemporaryAsync(callback, properties, ...fileGris) {
+    const consumer = { temporaryConsumer: true };
+    try {
+      this.fileRecordRegistry.setFileGris(consumer, ...fileGris);
+      const requirements = fileGris.map(fileGri => new FileRequirement({
+        fileGri,
+        properties,
+      }));
+      await this.setRequirements(consumer, ...requirements);
+      await callback();
+    } finally {
+      this.deregisterRequirements(consumer);
+      this.fileRecordRegistry.deregisterFileGris(consumer);
+    }
+  },
 });

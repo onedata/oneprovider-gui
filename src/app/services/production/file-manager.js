@@ -529,11 +529,6 @@ export default Service.extend({
         targetParentGuid: parentDirEntityId,
         targetName: name,
       });
-      // FIXME: albo dodam size do basic properties, albo ten pollForFileAfterOperation
-      // stanie się czymś co będzie sobie rejestrować wymaganie, a potem wyrejestrowywać
-      // musi mieć Consumera w takim razie... musi stać się obiektem
-      // zapytać Staszka, czy size jest lekkie
-      // jeszcze jest możliwość, żeby file stało się consumerem... wtedy jeśli current operation będzie czymś, to będzie miało wymaganie size
       this.pollForFileAfterOperation(
         getFileAttempts,
         getFileInterval,
@@ -1171,19 +1166,26 @@ export default Service.extend({
    * files (including dirs) that will be affected by that change, eg. changing QoS
    * requirements.
    * @param {Models.File} file
-   * @return {Promise}
+   * @return {Promise<Array<PromiseSettledResult>>}
    */
-  // FIXME: custom property use
   async refreshRelatedFiles(file) {
     if (!file) {
       return;
     }
-    if (get(file, 'hardlinkCount') > 1) {
-      this.fileParentRefresh(file);
-    }
+    const promises = [];
+    promises.push(
+      this.fileRequirementRegistry.requireTemporaryAsync(async () => {
+        if (get(file, 'hardlinkCount') > 1) {
+          await this.fileParentRefresh(file);
+        }
+      }, ['hardlinkCount'], get(file, 'id'))
+    );
     if (get(file, 'type') === 'dir') {
-      this.dirChildrenRefresh(get(file, 'entityId'));
+      promises.push(
+        this.dirChildrenRefresh(get(file, 'entityId'))
+      );
     }
+    await allSettled(promises);
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service

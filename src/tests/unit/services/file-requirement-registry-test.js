@@ -10,6 +10,7 @@ import { clearStoreAfterEach } from '../../helpers/clear-store';
 import { get } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
 import sinon from 'sinon';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 describe('Unit | Service | file-requirement-registry', function () {
   setupTest();
@@ -341,6 +342,85 @@ describe('Unit | Service | file-requirement-registry', function () {
       expect(reloadSpyMap.a2, 'a2').to.be.calledOnce;
       expect(reloadSpyMap.a3, 'a3').to.be.not.called;
       expect(reloadSpyMap.b1, 'b1').to.be.calledOnce;
+    }
+  );
+
+  it('requireTemporaryAsync adds requirements to the registry only for time of async callback execution',
+    async function () {
+      const fileRequirementRegistry = lookupService(this, 'file-requirement-registry');
+      const fileRecordRegistry = lookupService(this, 'file-record-registry');
+      const store = lookupService(this, 'store');
+      let callbackExecuted = false;
+      const fileId = 'file-1';
+      const file = await store.createRecord('file', {
+        id: getFileGri(fileId, 'private'),
+        name: 'file.txt',
+      }).save();
+      const fileReloadSpy = sinon.spy(file, 'reload');
+      const fileGri = get(file, 'id');
+      const fileQuery = new FileQuery({
+        fileGri,
+      });
+      expect(fileRequirementRegistry.getRequiredAttributes(fileQuery))
+        .to.not.contain('mtime');
+      expect(fileRecordRegistry.getRegisteredFiles())
+        .to.not.contain(file);
+
+      fileReloadSpy.resetHistory();
+      await fileRequirementRegistry.requireTemporaryAsync(async () => {
+        expect(fileReloadSpy).to.have.been.calledOnce;
+        expect(fileRequirementRegistry.getRequiredAttributes(fileQuery))
+          .to.contain('mtime');
+        expect(fileRecordRegistry.getRegisteredFiles())
+          .to.contain(file);
+        // simulate some async operation
+        await sleep(10);
+        callbackExecuted = true;
+      }, ['mtime'], fileGri);
+
+      expect(callbackExecuted, 'callback has been executed').to.be.true;
+      expect(fileRequirementRegistry.getRequiredAttributes(fileQuery))
+        .to.not.contain('mtime');
+      expect(fileRecordRegistry.getRegisteredFiles())
+        .to.not.contain(file);
+    }
+  );
+
+  it('requireTemporaryAsync removes requirements if the callback throws error',
+    async function () {
+      const fileRequirementRegistry = lookupService(this, 'file-requirement-registry');
+      const fileRecordRegistry = lookupService(this, 'file-record-registry');
+      const store = lookupService(this, 'store');
+      let callbackThrewError = false;
+      const fileId = 'file-1';
+      const file = await store.createRecord('file', {
+        id: getFileGri(fileId, 'private'),
+        name: 'file.txt',
+      }).save();
+      const fileGri = get(file, 'id');
+      const fileQuery = new FileQuery({
+        fileGri,
+      });
+      expect(fileRequirementRegistry.getRequiredAttributes(fileQuery))
+        .to.not.contain('mtime');
+      expect(fileRecordRegistry.getRegisteredFiles())
+        .to.not.contain(file);
+
+      try {
+        await fileRequirementRegistry.requireTemporaryAsync(async () => {
+          // simulate some async operation
+          await sleep(10);
+          throw new Error('mock error');
+        }, ['mtime'], fileGri);
+      } catch {
+        callbackThrewError = true;
+      } finally {
+        expect(callbackThrewError, 'callback has threw an error').to.be.true;
+        expect(fileRequirementRegistry.getRequiredAttributes(fileQuery))
+          .to.not.contain('mtime');
+        expect(fileRecordRegistry.getRegisteredFiles())
+          .to.not.contain(file);
+      }
     }
   );
 });

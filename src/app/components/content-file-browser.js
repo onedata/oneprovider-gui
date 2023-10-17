@@ -30,7 +30,6 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { getFileGri } from 'oneprovider-gui/models/file';
-import { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 
 export default OneEmbeddedComponent.extend(
   I18n,

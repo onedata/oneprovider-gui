@@ -43,7 +43,7 @@ export const possibleFileRawAttributes = Object.freeze([
   'path',
   'posixPermissions',
   'qosStatus',
-  'recallRootId', // FIXME: maybe name to refactor
+  'recallRootId', // FIXME: name will be changed to recallRootFileId in backend
   'size',
   'symlinkValue',
   'type',

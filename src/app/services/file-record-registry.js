@@ -123,7 +123,6 @@ export default Service.extend({
   },
 
   /**
-   * // FIXME: fileGri
    * @public
    * @param {FileConsumer} consumer
    * @returns {Set<Models.File>}
