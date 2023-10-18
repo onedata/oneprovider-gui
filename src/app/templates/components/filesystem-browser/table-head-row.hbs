@@ -1,8 +1,9 @@
 <th
-  class={{concat "fb-table-col-files"
-  (if isHasBorder " border-solid")}}
+  class={{concat-classes
+    "fb-table-col-files"
+    (if isShowBorder "border-dashed")
+  }}
   colspan={{if (media "isMobile") "2" "1"}}
-  ondrop={{action "dropAction" -1}}
 >
   <div class="fb-table-first-col-container">
     <div class="table-header-text">{{tt this "files"}}</div>
@@ -21,21 +22,24 @@
     </div>
     <div class="table-header-status-bar">{{yield}}</div>
   </div>
-  {{one-draggable-object-target
-    dragOverAction=(action "dragOverAction")
-    dragOutAction=(action "dragOutAction")
-  }}
+  <div
+    class="draggable-area"
+    ondragover={{action "dragOverAction"}}
+    ondragleave={{action "dragOutAction"}}
+    ondrop={{action "dropAction" -1}}
+  >
+  </div>
   <div class="triangle"></div>
 </th>
 {{#each columnsConfiguration.columnsOrder as |columnName i|}}
   {{#if (get columnsConfiguration (concat "columns." columnName ".isVisible"))}}
     <th
-      class={{
-        concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"
-        (if isHasBorder " border-solid")
+      class={{concat-classes
+        (concat "fb-table-col-" columnName)
+        "fb-table-secondary-col hidden-xs"
+        (if isShowBorder " border-dashed")
       }}
       style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
-      ondrop={{action "dropAction" i}}
       draggable=true
       ondragstart={{action "dragAction" columnName}}
       ondragend={{action "dragEndAction"}}
@@ -51,10 +55,13 @@
           }}
         {{/one-icon}}
       {{/if}}
-      {{one-draggable-object-target
-        dragOverAction=(action "dragOverAction")
-        dragOutAction=(action "dragOutAction")
-      }}
+      <div
+        class="draggable-area"
+        ondragover={{action "dragOverAction"}}
+        ondragleave={{action "dragOutAction"}}
+        ondrop={{action "dropAction" i}}
+      >
+      </div>
       <div class="triangle"></div>
     </th>
   {{/if}}

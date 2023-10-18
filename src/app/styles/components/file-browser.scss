@@ -74,7 +74,7 @@
       padding: 0;
     }
 
-    .fb-table-head-row th.border-true, th.border-true {
+    .fb-table-head-row th.border-solid, th.border-solid {
       border-right: 2px solid #8ca7d9;
 
       .triangle {
@@ -91,8 +91,8 @@
       }
     }
 
-    th.border-solid:not(.border-true),
-    th.border-solid:not(.border-true) {
+    th.border-dashed:not(.border-solid),
+    th.border-dashed:not(.border-solid) {
       border-right: 2px dashed var(--color-drag);
     }
     th:hover .column-move-icon{
@@ -101,7 +101,7 @@
         cursor: pointer;
       }
     }
-    .draggable-object-target {
+    .draggable-area {
       position: absolute;
       width: 20px;
 

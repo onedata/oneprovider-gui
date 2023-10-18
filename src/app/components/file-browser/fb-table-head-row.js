@@ -25,48 +25,51 @@ export default Component.extend(I18n, {
    */
   columnsConfiguration: reads('browserModel.columnsConfiguration'),
 
-  isHasBorder: false,
+  /**
+   * @type {boolean}
+   */
+  isShowBorder: false,
 
-  elem: undefined,
+  /**
+   * @type {Object}
+   */
+  lastActiveDropOverElem: undefined,
 
   didInsertElement() {
     this._super(...arguments);
     this.browserModel.columnsConfiguration.checkColumnsVisibility();
   },
 
+  moveColumn(index, columnName) {
+    this.columnsConfiguration.moveColumn(columnName, index);
+    this.columnsConfiguration.saveColumnsOrder();
+    this.columnsConfiguration.checkColumnsVisibility();
+    this.columnsConfiguration.notifyPropertyChange('columnsOrder');
+  },
+
   actions: {
-    acceptDraggedElement(index, draggedElement) {
-      this.columnsConfiguration.moveColumn(draggedElement.columnName, index + 1);
-      this.columnsConfiguration.saveColumnsOrder();
-      this.columnsConfiguration.checkColumnsVisibility();
-      this.columnsConfiguration.notifyPropertyChange('columnsOrder');
-    },
     dragAction(columnName, event) {
       event.dataTransfer.setData('text', columnName);
-      this.set('isHasBorder', true);
+      this.set('isShowBorder', true);
     },
     dragEndAction() {
-      this.set('isHasBorder', false);
+      this.set('isShowBorder', false);
     },
     dropAction(index, event) {
-      event.preventDefault();
-
       const columnName = event.dataTransfer.getData('text');
-      this.columnsConfiguration.moveColumn(columnName, index + 1);
-      this.columnsConfiguration.saveColumnsOrder();
-      this.columnsConfiguration.checkColumnsVisibility();
-      this.columnsConfiguration.notifyPropertyChange('columnsOrder');
-      event.target.closest('th').classList.remove('border-true');
-      this.set('isHasBorder', false);
+      this.moveColumn(index + 1, columnName);
+      event.target.closest('th').classList.remove('border-solid');
+      this.set('isShowBorder', false);
     },
     dragOverAction(event) {
-      const elem = event.target.closest('th');
-      elem.classList.add('border-true');
+      event.preventDefault();
+      const lastActiveDropOverElem = event.target.closest('th');
+      lastActiveDropOverElem.classList.add('border-solid');
 
-      this.set('elem', elem);
+      this.set('lastActiveDropOverElem', lastActiveDropOverElem);
     },
     dragOutAction() {
-      this.elem.classList.remove('border-true');
+      this.lastActiveDropOverElem.classList.remove('border-solid');
     },
 
     dragStart() {
