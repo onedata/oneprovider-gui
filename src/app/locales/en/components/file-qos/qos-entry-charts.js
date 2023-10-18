@@ -12,11 +12,11 @@ export default {
   titles: {
     inbound: {
       content: 'Inbound',
-      tip: 'Statistics concerning incoming data transfers for current Oneprovider (<strong>{{currentProviderName}}</strong>). Shows bytes written per each local storage that supports the space (i.e. per transfer target storage) and the total number of transferred files.',
+      tip: 'Statistics concerning incoming data transfers for current Oneprovider (<strong>{{currentProviderName}}</strong>). Shows bytes written per each local storage backend that supports the space (i.e. per transfer target storage backend) and the total number of transferred files.',
     },
     outbound: {
       content: 'Outbound',
-      tip: 'Statistics concerning incoming data transfers for current Oneprovider (<strong>{{currentProviderName}}</strong>). Shows bytes downloaded from remote Oneproviders, per each remote storage from which the data was fetched (i.e. per transfer source storage).',
+      tip: 'Statistics concerning incoming data transfers for current Oneprovider (<strong>{{currentProviderName}}</strong>). Shows bytes downloaded from remote Oneproviders, per each remote storage backend from which the data was fetched (i.e. per transfer source storage backend).',
     },
   },
   axes: {

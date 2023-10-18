@@ -1334,8 +1334,8 @@ export default Service.extend(...mixins, {
     // and each provider corresponds to storage 1:1 by their array index
     const providers = this.entityRecords.provider;
     const storages = this.entityRecords.storage;
-    const logicalSize = 10000;
-    const physicalSize = logicalSize / storages.length;
+    const virtualSize = 10000;
+    const physicalSize = virtualSize / storages.length;
     const distributionPerProvider = {};
     for (let i = 0; i < providers.length; ++i) {
       const providerId = get(providers[i], 'entityId');
@@ -1353,7 +1353,7 @@ export default Service.extend(...mixins, {
         },
       };
       const providerDistribution = {
-        logicalSize,
+        virtualSize,
         success: true,
         distributionPerStorage,
       };

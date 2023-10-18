@@ -1,6 +1,6 @@
 export default {
-  matchingStoragesNone: 'No storages match',
-  matchingStoragesSingle: 'storage matches',
-  matchingStoragesPlural: 'storages match',
+  matchingStoragesNone: 'No storage backends match',
+  matchingStoragesSingle: 'storage backend matches',
+  matchingStoragesPlural: 'storage backends match',
   providedBy: 'provided by',
 };

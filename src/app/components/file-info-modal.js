@@ -609,15 +609,6 @@ export default Component.extend(...mixins, {
     },
   ),
 
-  // TODO: VFS-9628 this is a temporary list of tabs moved from separate modals
-  specialFileTabs: Object.freeze([
-    'metadata',
-    'permissions',
-    'shares',
-    'qos',
-    'distribution',
-  ]),
-
   // TODO: VFS-9628 will contain all tab models after refactor
   allTabModels: collect(
     'tabModels.size',

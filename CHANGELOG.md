@@ -6,6 +6,9 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11418 Fixed wrong file size in data distribution modal
+* VFS-11385 Turned off stats model fetching when not on dir size stats info tab
+* VFS-11392 Updated directory size stats metric names
 * VFS-11251 Removed unused oneicons
 * VFS-11207 Added separate dir size stats in space root dir for archives and trash
 * VFS-10939 Fixed copying from provider popover in firefox

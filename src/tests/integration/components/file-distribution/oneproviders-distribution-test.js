@@ -33,7 +33,7 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
     fileDistribution: {
       providerkrk: {
         success: successOnKrakow,
-        logicalSize: 1024,
+        virtualSize: 1024,
         distributionPerStorage: {
           storage: type === 'dir' ? { physicalSize: normalizedOnKrakowDir } : {
             blocksPercentage: normalizedOnKrakow,
@@ -47,7 +47,7 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
       },
       providerpar: {
         success: successOnParis,
-        logicalSize: 1024,
+        virtualSize: 1024,
         distributionPerStorage: {
           storage: type === 'dir' ? { physicalSize: normalizedOnParis } : {
             blocksPercentage: normalizedOnParis,

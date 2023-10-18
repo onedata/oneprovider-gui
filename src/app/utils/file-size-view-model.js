@@ -7,7 +7,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, observer, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { eq, getBy } from 'ember-awesome-macros';
@@ -45,6 +45,12 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @virtual
+   * @type {boolean}
+   */
+  isActive: undefined,
+
+  /**
+   * @virtual
    * @type {({ providerId: string }) => string}
    */
   getProvidersUrl: undefined,
@@ -55,6 +61,11 @@ export default EmberObject.extend(...mixins, {
    * @type {SpaceSizeStatsType}
    */
   activeTab: SpaceSizeStatsType.All,
+
+  /**
+   * @type {number}
+   */
+  latestDirSizeStatsUpdaterInterval: 5000,
 
   /**
    * @type {boolean}
@@ -119,6 +130,12 @@ export default EmberObject.extend(...mixins, {
    */
   totalPhysicalSize: getBy('completeTotalPhysicalSizes', 'activeTab'),
 
+  isActiveObserver: observer('isActive', function isActiveObserver() {
+    const newUpdateInterval = this.isActive ?
+      this.latestDirSizeStatsUpdaterInterval : null;
+    set(this.completeLatestDirSizeStatsValuesUpdater, 'interval', newUpdateInterval);
+  }),
+
   /**
    * @override
    */
@@ -126,8 +143,8 @@ export default EmberObject.extend(...mixins, {
     this._super(...arguments);
 
     const completeLatestDirSizeStatsValuesUpdater = Looper.create({
-      immediate: false,
-      interval: 5000,
+      immediate: true,
+      interval: null,
     });
     completeLatestDirSizeStatsValuesUpdater.on('tick', () =>
       this.updateCompleteLatestDirSizeStatsValuesProxy({ replace: true })
@@ -137,6 +154,7 @@ export default EmberObject.extend(...mixins, {
       'completeLatestDirSizeStatsValuesUpdater',
       completeLatestDirSizeStatsValuesUpdater
     );
+    this.isActiveObserver();
   },
 
   /**
