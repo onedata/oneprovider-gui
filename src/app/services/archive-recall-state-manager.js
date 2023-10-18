@@ -23,7 +23,6 @@ import Service from '@ember/service';
 import ArchiveRecallStateWatcher from 'oneprovider-gui/utils/archive-recall-state-watcher';
 import { v4 as uuid } from 'ember-uuid';
 import { get } from '@ember/object';
-import config from 'ember-get-config';
 
 /**
  * @typedef {Object} ArchiveRecallStateManagerEntry
@@ -36,7 +35,11 @@ import config from 'ember-get-config';
 export default Service.extend({
   //#region configuration
 
-  areWarningsFatal: config.environment !== 'production',
+  // TODO: VFS-11462 leaving a directory being recalled always causes parent directory
+  // to be unwatched, so there is always error on unwatching - enable `areWarningsFatal`
+  // when this will be fixed
+  // areWarningsFatal: config.environment !== 'production',
+  areWarningsFatal: false,
 
   //#endregion
 
