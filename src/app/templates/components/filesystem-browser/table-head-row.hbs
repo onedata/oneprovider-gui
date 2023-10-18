@@ -2,7 +2,7 @@
   class={{concat "fb-table-col-files"
   (if isHasBorder " border-solid")}}
   colspan={{if (media "isMobile") "2" "1"}}
-  ondrop={{action "dropAction" i}}
+  ondrop={{action "dropAction" -1}}
 >
   <div class="fb-table-first-col-container">
     <div class="table-header-text">{{tt this "files"}}</div>
@@ -62,6 +62,6 @@
 {{!-- hide actions th to make space for jump-control (see also colspan in first th) --}}
 {{columns-configuration-cell
   columnsConfiguration=columnsConfiguration
-  dragStartAction=(action "dragStart")
-  dragEndAction=(action "dragEnd")
+  dragStartAction=(if (not isShareRoot) (action "dragStart"))
+  dragEndAction=(if (not isShareRoot) (action "dragEnd"))
 }}

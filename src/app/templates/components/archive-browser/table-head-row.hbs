@@ -1,11 +1,39 @@
-<th class="fb-table-col-archives">{{tt this "archives"}}</th>
-{{#each columnsConfiguration.columnsOrder as |columnName|}}
+<th
+  class={{
+    concat "fb-table-col-archives"
+    (if isHasBorder " border-solid")
+  }}
+  ondrop={{action "dropAction" -1}}
+>
+  {{tt this "archives"}}
+  {{one-draggable-object-target
+    dragOverAction=(action "dragOverAction")
+    dragOutAction=(action "dragOutAction")
+  }}
+  <div class="triangle"></div>
+</th>
+{{#each columnsConfiguration.columnsOrder as |columnName i|}}
   {{#if (get columnsConfiguration (concat "columns." columnName ".isVisible"))}}
     <th
-      class={{concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"}}
+      class={{
+        concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"
+        (if isHasBorder " border-solid")
+      }}
       style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
+      ondrop={{action "dropAction" i}}
+      draggable=true
+      ondragstart={{action "dragAction" columnName}}
+      ondragend={{action "dragEndAction"}}
     >
-      {{tt this columnName}}
+      <span class="column-name">
+        {{one-icon icon="drag" class="column-move-icon"}}
+        {{tt this columnName}}
+      </span>
+      {{one-draggable-object-target
+        dragOverAction=(action "dragOverAction")
+        dragOutAction=(action "dragOutAction")
+      }}
+      <div class="triangle"></div>
     </th>
   {{/if}}
 {{/each}}

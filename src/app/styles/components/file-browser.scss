@@ -74,7 +74,7 @@
       padding: 0;
     }
 
-    th.fb-table-secondary-col.border-true, th.fb-table-col-files.border-true {
+    .fb-table-head-row th.border-true, th.border-true {
       border-right: 2px solid #8ca7d9;
 
       .triangle {
@@ -91,11 +91,11 @@
       }
     }
 
-    th.fb-table-secondary-col.border-solid:not(.border-true),
-    th.fb-table-col-files.border-solid:not(.border-true) {
+    th.border-solid:not(.border-true),
+    th.border-solid:not(.border-true) {
       border-right: 2px dashed var(--color-drag);
     }
-    th.fb-table-secondary-col:hover .column-move-icon{
+    th:hover .column-move-icon{
       @media (hover: hover) {
         visibility: visible;
         cursor: pointer;

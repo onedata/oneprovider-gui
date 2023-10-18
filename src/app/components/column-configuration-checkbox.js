@@ -49,10 +49,14 @@ export default Component.extend(I18n, {
       return this.moveColumnUp(columnName);
     },
     dragStartAction() {
-      this.dragStartAction();
+      if (this.dragStartAction) {
+        return this.dragStartAction();
+      }
     },
     dragEndAction() {
-      this.dragEndAction();
+      if (this.dragEndAction) {
+        return this.dragEndAction();
+      }
     },
   },
 });

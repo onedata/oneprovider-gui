@@ -42,12 +42,10 @@ export default Component.extend(I18n, {
       this.columnsConfiguration.notifyPropertyChange('columnsOrder');
     },
     dragAction(columnName, event) {
-      this.browserModel.disableUploadArea();
       event.dataTransfer.setData('text', columnName);
       this.set('isHasBorder', true);
     },
     dragEndAction() {
-      this.browserModel.enableUploadArea();
       this.set('isHasBorder', false);
     },
     dropAction(index, event) {

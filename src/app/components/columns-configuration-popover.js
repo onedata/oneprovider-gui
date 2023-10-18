@@ -11,7 +11,7 @@ import { trySet, computed } from '@ember/object';
 import { next } from '@ember/runloop';
 import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
 import { reads } from '@ember/object/computed';
-import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend({
   classNames: ['columns-configuration-popover'],
@@ -32,13 +32,13 @@ export default Component.extend({
    * @virtual
    * @type {Function}
    */
-  dragStartAction: notImplementedWarn,
+  dragStartAction: notImplementedIgnore,
 
   /**
    * @virtual
    * @type {Function}
    */
-  dragEndAction: notImplementedWarn,
+  dragEndAction: notImplementedIgnore,
 
   /**
    * @virtual optional
