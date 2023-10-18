@@ -794,4 +794,12 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     cache.datasetDetailsById[datasetId] = result;
     return result;
   },
+
+  /**
+   * @param {string} storeInstanceId
+   * @returns {Promise<string>} download url
+   */
+  getAuditLogDownloadUrl(storeInstanceId) {
+    return this.workflowManager.getAuditLogDownloadUrl(storeInstanceId);
+  },
 });
