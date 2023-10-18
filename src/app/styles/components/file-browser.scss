@@ -61,7 +61,6 @@
     }
   }
   .fb-table {
-    --color-drag: #ddd;
     td.multiline {
       vertical-align: middle;
       padding-top: 8px;
@@ -75,7 +74,7 @@
     }
 
     .fb-table-head-row th.border-solid, th.border-solid {
-      border-right: 2px solid #8ca7d9;
+      border-right: 2px solid lighten($color-one-blue-gray, 20%);
 
       .triangle {
         position: absolute;
@@ -86,14 +85,14 @@
         border-left: 8px solid transparent;
         border-right: 8px solid transparent;
 
-        border-bottom: 11px solid #8ca7d9;
+        border-bottom: 11px solid lighten($color-one-blue-gray, 20%);
         z-index: 2;
       }
     }
 
     th.border-dashed:not(.border-solid),
     th.border-dashed:not(.border-solid) {
-      border-right: 2px dashed var(--color-drag);
+      border-right: 2px dashed $table-border-color;
     }
     th:hover .column-move-icon{
       @media (hover: hover) {
@@ -115,11 +114,14 @@
       vertical-align: middle;
       visibility: hidden;
       position: absolute;
-      left: -15px;
-      top: 3px;
+      left: -1.2em;
+      top: 0.2em;
     }
     .column-name {
       position: relative;
+    }
+    .column-move-icon {
+      opacity: 0.6;
     }
   }
 }

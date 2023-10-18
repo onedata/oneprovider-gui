@@ -1,8 +1,8 @@
 .webui-popover-columns-configuration {
   .webui-popover-content {
-    padding-top: 6px;
-    padding-bottom: 6px;
-    padding-left: 6px;
+    padding-top: $padding-xs-horizontal;
+    padding-bottom: $padding-xs-horizontal;
+    padding-left: $padding-xs-horizontal;
   }
   .columns-list {
     padding: 0;
@@ -73,19 +73,19 @@
         padding-left: 0.35em;
         cursor: pointer;
       }
-      .oneicon-drag {
+      .column-move-icon {
         visibility: hidden;
       }
       @media (hover: hover) {
-        &:hover .oneicon-drag {
+        &:hover .column-move-icon {
           visibility: visible;
           opacity: 0.6;
           cursor: pointer;
         }
       }
 
-      .oneicon-drag {
-        padding-right: 2px;
+      .column-move-icon {
+        padding-right: 0.2em;
       }
     }
 

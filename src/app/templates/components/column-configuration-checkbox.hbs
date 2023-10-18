@@ -3,7 +3,7 @@
   dragStartHook=(action "dragStartAction")
   dragEndHook=(action "dragEndAction")
 }}
-  {{one-icon icon="drag"}}
+  {{one-icon icon="drag" class="column-move-icon"}}
   {{one-checkbox
     inputId=(concat elementId "-" columnName "Checkbox")
     checked=(get columnValue "isEnabled")
