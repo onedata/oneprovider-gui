@@ -8,8 +8,8 @@ export default {
   disabledStatsInfo: 'Directory statistics are disabled. Click for more information.',
   qosStatusHint: {
     pending: 'Pending – data replication is still ongoing',
-    fulfilled: 'Fulfilled – desired number of replicas have been created on matching storages and their contents are up-to-date',
-    impossible: 'Impossible – there are not enough storages matching the expression to meet the required number of replicas',
+    fulfilled: 'Fulfilled – desired number of replicas have been created on matching storage backends and their contents are up-to-date',
+    impossible: 'Impossible – there are not enough storage backends matching the expression to meet the required number of replicas',
     error: 'Cannot evaluate requirement status',
     noQos: 'There are no QoS requirements defined for this {{fileType}}',
   },

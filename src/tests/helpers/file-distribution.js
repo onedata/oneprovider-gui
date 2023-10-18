@@ -158,14 +158,14 @@ export default class FileDistributionHelper {
     const distribution = await this.store.createRecord('file-distribution', {
       distributionPerProvider: {
         krakow_id: {
-          logicalSize: 100,
+          virtualSize: 100,
           success: true,
           distributionPerStorage: {
             krakow_storage_id: { ...fullStorageDistribution },
           },
         },
         paris_id: {
-          logicalSize: 100,
+          virtualSize: 100,
           success: true,
           distributionPerStorage: {
             paris_storage_id: { ...emptyStorageDistribution },

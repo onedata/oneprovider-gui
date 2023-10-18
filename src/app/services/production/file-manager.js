@@ -33,15 +33,6 @@ import {
   serializeHasManyProperty,
 } from 'oneprovider-gui/serializers/file';
 
-/**
- * @typedef {Object} FileEntryTimeSeriesCollections
- * @param {Array<string>} dir_count
- * @param {Array<string>} incarnation
- * @param {Array<string>} reg_file_and_link_count
- * @param {Array<string>} storage_use_<id>
- * @param {Array<string>} total_size
- */
-
 export const SpaceSizeStatsType = Object.freeze({
   All: 'all',
   RegularData: 'regularData',
@@ -907,7 +898,7 @@ export default Service.extend({
       dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount,
       dirSizeStatsTimeSeriesNameGenerators.dirCount,
       dirSizeStatsTimeSeriesNameGenerators.totalSize,
-      dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage,
+      dirSizeStatsTimeSeriesNameGenerators.physicalSize,
     ];
 
     const neededMetrics = neededTimeSeriesNameGenerators
@@ -931,7 +922,7 @@ export default Service.extend({
         const staticTimeSeries = neededTimeSeriesNameGenerators.slice(0, 3);
         const perStorageTimeSeriesCandidates = Object.keys(collectionLayout)
           .filter((tsName) =>
-            tsName.startsWith(dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage)
+            tsName.startsWith(dirSizeStatsTimeSeriesNameGenerators.physicalSize)
           );
         const perStorageTimeSeries = (await allFulfilled(
           perStorageTimeSeriesCandidates.map((tsName) => {
@@ -946,7 +937,7 @@ export default Service.extend({
         staticTimeSeries.forEach((tsName) => layout[tsName] = [neededMetrics[tsName]]);
         perStorageTimeSeries.forEach((tsName) =>
           layout[tsName] = [
-            neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage],
+            neededMetrics[dirSizeStatsTimeSeriesNameGenerators.physicalSize],
           ]
         );
 
@@ -975,7 +966,7 @@ export default Service.extend({
           const storageId = getStorageIdFromSizeOnStorageTSName(tsName);
           const sizeOnStorage = result
             ?.[tsName]
-            ?.[neededMetrics[dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage]]
+            ?.[neededMetrics[dirSizeStatsTimeSeriesNameGenerators.physicalSize]]
             ?.[0]?.value ?? 0;
           const normalizedSizeOnStorage = Number.isFinite(sizeOnStorage) ?
             sizeOnStorage : 0;
@@ -1307,5 +1298,5 @@ function normalizeRecallAuditLogEntryContent(content) {
 }
 
 function getStorageIdFromSizeOnStorageTSName(tsName) {
-  return tsName.slice(dirSizeStatsTimeSeriesNameGenerators.sizeOnStorage.length);
+  return tsName.slice(dirSizeStatsTimeSeriesNameGenerators.physicalSize.length);
 }

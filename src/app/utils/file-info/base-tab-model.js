@@ -15,7 +15,7 @@
  */
 
 import EmberObject from '@ember/object';
-import { conditional, not, raw } from 'ember-awesome-macros';
+import { conditional, not, raw, eq } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -132,6 +132,11 @@ export default EmberObject.extend(...mixins, {
     raw(true),
     not('fileInfoModal.isMultiFile')
   ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isActive: eq('fileInfoModal.activeTab', 'tabId'),
 
   /**
    * Invoked by file info modal when it wants to close the current tab.

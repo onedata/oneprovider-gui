@@ -30,7 +30,7 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 /**
  * @typedef {Object} OneproviderDistribution Contains info about distribution of
  *   some file on specified Oneprovider
- * @property {number} logicalSize Logical size of file/dir as seen by this provider.
+ * @property {number} virtualSize Virtual size of file/dir as seen by this provider.
  * @property {boolean} success Indicates whether fetching file distribution for this
  *   provider was successful.
  * @property {Object} distributionPerStorage Maps storageId -> StorageDistribution

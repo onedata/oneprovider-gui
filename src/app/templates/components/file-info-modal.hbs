@@ -71,6 +71,7 @@
             <tr class="file-info-row-storage-location">
               <td class="property-name with-input{{if smallContent "-sm"}}">
                 {{tt this "storageLocations"}}
+                {{one-label-tip title=(tt this "storageLocationsTooltip")}}
               </td>
               <td class="property-value">
                 {{#promise-proxy-container
