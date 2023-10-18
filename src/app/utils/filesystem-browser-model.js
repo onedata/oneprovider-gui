@@ -31,6 +31,7 @@ import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 import isFileRecord from 'oneprovider-gui/utils/is-file-record';
+import _ from 'lodash';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -211,6 +212,13 @@ export default BaseBrowserModel.extend(...mixins, {
   isDirSizeAlwaysHidden: false,
 
   /**
+   * If provided - names of the columns in this array will be disabled (always hidden).
+   * @vitual optional
+   * @type {Array<ColumnName>}
+   */
+  disabledColumns: undefined,
+
+  /**
    * @override
    */
   rowComponentName: 'filesystem-browser/table-row',
@@ -285,15 +293,76 @@ export default BaseBrowserModel.extend(...mixins, {
    * @implements {Mixins.FileConsumer}
    */
   fileRequirements: computed(
-    // TODO: 11252 Try checking isVisible instead isEnabled
+    // TODO: VFS-11252 Try checking isVisible instead isEnabled
     'dir',
-    `columnsConfiguration.columns.{${columnsRequirementsDependencies}}`,
+    'parentDirRequirement',
+    'listingRequirement',
     function fileRequirements() {
       if (!this.dir) {
         return [];
       }
+      return [this.parentDirRequirement, this.listingRequirement].filter(Boolean);
+    },
+  ),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computed(
+    'dir',
+    'itemsArray.sourceArray.[]',
+    function usedFileGris() {
+      const resultUsedFiles = [];
+      // Checking if dir and items are files, because dir and itemsArray are read from
+      // fb-table, which could have items not yet updated.
+      if (this.dir && isFileRecord(this.dir)) {
+        resultUsedFiles.push(this.dir);
+      }
+      if (this.itemsArray) {
+        const listedFiles = this.itemsArray.sourceArray.filter(item =>
+          isFileRecord(item)
+        );
+        resultUsedFiles.push(...listedFiles);
+      }
+      return resultUsedFiles.map(file => get(file, 'id'));
+    },
+  ),
+
+  parentDirRequirement: computed(
+    'dir',
+    'browserFilesProperties',
+    function parentDirRequirement() {
+      if (!this.dir) {
+        return;
+      }
       const parentDirGri = get(this.dir, 'id');
+      return new FileRequirement({
+        properties: this.browserFilesProperties,
+        fileGri: parentDirGri,
+      });
+    }
+  ),
+
+  listingRequirement: computed(
+    'dir',
+    'listedFilesProperties',
+    function parentDirRequirement() {
+      if (!this.dir) {
+        return;
+      }
       const parentDirId = get(this.dir, 'entityId');
+      return new FileRequirement({
+        properties: this.listedFilesProperties,
+        parentId: parentDirId,
+      });
+    }
+  ),
+
+  browserFilesProperties: computed(
+    'previewMode',
+    'fileFeatures',
+    function browserBasicProperties() {
       const basicPropertySet = new Set([
         // needed by some buttons to be configured
         // dataIsProtected is also needed by FilesystemBrowser::EmptyDir component
@@ -325,9 +394,19 @@ export default BaseBrowserModel.extend(...mixins, {
         basicPropertySet.add('isShared');
       }
 
-      const basicProperties = [...basicPropertySet.values()];
+      return [...basicPropertySet.values()];
+    }
+  ),
+
+  // FIXME: nowe computedy są prawdopodobnie uruchamiane zbyt często
+
+  listedFilesProperties: computed(
+    'media.isMobile',
+    'browserFilesProperties',
+    `columnsConfiguration.columns.{${columnsRequirementsDependencies}}`,
+    function listedFilesProperties() {
       const listedFilesPropertySet = new Set([
-        ...basicProperties,
+        ...this.browserFilesProperties,
         // table-row-status-bar component
         'activePermissionsType',
         'posixPermissions',
@@ -360,42 +439,8 @@ export default BaseBrowserModel.extend(...mixins, {
           listedFilesPropertySet.add('qosStatus');
         }
       }
-
-      const parentDirRequirement = new FileRequirement({
-        properties: basicProperties,
-        fileGri: parentDirGri,
-      });
-      const listedFilesProperties = [...listedFilesPropertySet.values()];
-      const listingRequirement = new FileRequirement({
-        properties: listedFilesProperties,
-        parentId: parentDirId,
-      });
-      return [parentDirRequirement, listingRequirement];
-    },
-  ),
-
-  /**
-   * @override
-   * @implements {Mixins.FileConsumer}
-   */
-  usedFileGris: computed(
-    'dir',
-    'itemsArray.sourceArray.[]',
-    function usedFiles() {
-      const resultUsedFiles = [];
-      // Checking if dir and items are files, because dir and itemsArray are read from
-      // fb-table, which could have items not yet updated.
-      if (this.dir && isFileRecord(this.dir)) {
-        resultUsedFiles.push(this.dir);
-      }
-      if (this.itemsArray) {
-        const listedFiles = this.itemsArray.sourceArray.filter(item =>
-          isFileRecord(item)
-        );
-        resultUsedFiles.push(...listedFiles);
-      }
-      return resultUsedFiles.map(file => get(file, 'id'));
-    },
+      return [...listedFilesPropertySet.values()];
+    }
   ),
 
   /**
@@ -1256,44 +1301,57 @@ export default BaseBrowserModel.extend(...mixins, {
    * @override
    */
   createColumnsConfiguration() {
-    const columns = {
-      size: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 140,
-      }),
-      modification: EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 180,
-      }),
-      replication: EmberObject.create({
-        isVisible: false,
-        isEnabled: false,
-        width: 160,
-      }),
-      qos: EmberObject.create({
-        isVisible: false,
-        isEnabled: false,
-        width: 100,
-      }),
-    };
-    const columnsOrder = ['size', 'modification', 'replication', 'qos'];
-    if (this.isOwnerVisible) {
-      columns.owner = EmberObject.create({
-        isVisible: true,
-        isEnabled: true,
-        width: 200,
-      });
-      columnsOrder.push('owner');
+    const columnsOrder = _.without(
+      ['size', 'modification', 'owner', 'replication', 'qos'],
+      ...(this.disabledColumns ?? [])
+    );
+    const columns = {};
+    for (const columnName of columnsOrder) {
+      switch (columnName) {
+        case 'size':
+          columns.size = EmberObject.create({
+            isVisible: true,
+            isEnabled: true,
+            width: 140,
+          });
+          break;
+        case 'modification':
+          columns.modification = EmberObject.create({
+            isVisible: true,
+            isEnabled: true,
+            width: 180,
+          });
+          break;
+        case 'owner':
+          columns.owner = EmberObject.create({
+            isVisible: true,
+            isEnabled: true,
+            width: 200,
+          });
+          break;
+        case 'replication':
+          columns.replication = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
+            width: 160,
+          });
+          break;
+        case 'qos':
+          columns.qos = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
+            width: 100,
+          });
+          break;
+        default:
+          break;
+      }
     }
-    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
     return ColumnsConfiguration.create({
       configurationType: this.browserPersistedConfigurationKey,
       columns,
       columnsOrder,
       firstColumnWidth: 380,
-      tableThead: elementFbTableThead,
     });
   },
 

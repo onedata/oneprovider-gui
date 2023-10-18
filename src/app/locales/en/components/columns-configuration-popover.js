@@ -2,7 +2,7 @@ import archiveFilesystem from './columns-configuration-popover/archive-filesyste
 import archive from './columns-configuration-popover/archive';
 import dataset from './columns-configuration-popover/dataset';
 import filesystem from './columns-configuration-popover/filesystem';
-import sharedFilesystem from './columns-configuration-popover/shared-filesystem';
+import shareFilesystem from './columns-configuration-popover/share-filesystem';
 import transfer from './columns-configuration-popover/transfer';
 
 export default {
@@ -13,6 +13,6 @@ export default {
   archive,
   dataset,
   filesystem,
-  sharedFilesystem,
+  shareFilesystem,
   transfer,
 };

@@ -8,10 +8,13 @@
  */
 
 import FilesystemBrowserModel from './filesystem-browser-model';
-import { promise, raw } from 'ember-awesome-macros';
+import { promise, raw, eq } from 'ember-awesome-macros';
 import { resolve } from 'rsvp';
-import EmberObject from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+
+export const shareRootId = 'shareRoot';
 
 export default FilesystemBrowserModel.extend({
   /**
@@ -38,7 +41,67 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  browserPersistedConfigurationKey: 'sharedFilesystem',
+  disabledColumns: Object.freeze(['owner', 'replication', 'qos']),
+
+  /**
+   * @override
+   */
+  browserPersistedConfigurationKey: 'shareFilesystem',
+
+  /**
+   * @override
+   */
+  listingRequirement: computed(
+    'dir',
+    'listedFilesProperties',
+    'rootFileGri',
+    'isInVirtualShareDir',
+    function listingRequirement() {
+      if (this.isInVirtualShareDir) {
+        // return new FileRequirement({
+        //   properties: this.listedFilesProperties,
+        //   parentId: null,
+        // });
+
+        // const rootParentId = get(this.share, 'rootFile.content')
+        //   ?.relationEntityId('parent');
+        // FIXME: parent będzie zawsze nullowy, dlaczego nie można ustawić tutaj fileGri?
+        // if (rootParentId) {
+        console.log('---------- adding requirement');
+        return new FileRequirement({
+          properties: this.listedFilesProperties,
+          fileGri: this.rootFileGri,
+        });
+        // }
+      } else {
+        return this._super(...arguments);
+      }
+    }
+  ),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computed(
+    'dir',
+    'itemsArray.sourceArray.[]',
+    'isInVirtualShareDir',
+    'rootFileGri',
+    function usedFileGris() {
+      if (this.isInVirtualShareDir) {
+        return this.rootFileGri ? [this.rootFileGri] : [];
+      } else {
+        return this._super(...arguments);
+      }
+    },
+  ),
+
+  isInVirtualShareDir: eq('dir.entityId', raw(shareRootId)),
+
+  rootFileGri: computed('share', function rootFileGri() {
+    return this.share.belongsTo('rootFile').id();
+  }),
 
   /**
    * @override
@@ -56,8 +119,8 @@ export default FilesystemBrowserModel.extend({
       if (size <= 0 || offset < 0) {
         return createEmptyFetchChildrenResponse();
       } else {
-        return this.share.rootFile
-          .then(rootFile => ({ childrenRecords: [rootFile], isLast: true }));
+        const rootFile = await get(this.share, 'rootFile');
+        return { childrenRecords: [rootFile], isLast: true };
       }
     } else if (startIndex === array.get('sourceArray.lastObject.index')) {
       return createEmptyFetchChildrenResponse();
@@ -69,9 +132,12 @@ export default FilesystemBrowserModel.extend({
   },
 });
 
-export const shareRootId = 'shareRoot';
-
 export const ShareRootDirClass = EmberObject.extend({
+  /** @virtual {string} */
+  name: undefined,
+  /** @virtual {string} */
+  shareRootId: undefined,
+
   id: shareRootId,
   entityId: shareRootId,
   type: LegacyFileType.Directory,

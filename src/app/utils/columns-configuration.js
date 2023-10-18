@@ -3,6 +3,9 @@
  * The columns order and column enabled state is saved in the local storage.
  * The visibility of columns depends of browser window size and changes dynamically.
  *
+ * The object is typically created in base browser model init using `create` and
+ * then the `mount` is invoked with table head element when the element is rendered.
+ *
  * @author Agnieszka Warchoł
  * @copyright (C) 2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -124,7 +127,6 @@ export default EmberObject.extend(...mixins, {
     this._super(...arguments);
     this.attachWindowResizeHandler();
     this.loadColumnsConfigFromLocalStorage();
-    this.checkColumnsVisibility();
   },
 
   /**
@@ -140,6 +142,17 @@ export default EmberObject.extend(...mixins, {
    */
   onWindowResize() {
     return this.checkColumnsVisibility();
+  },
+
+  /**
+   * @param {HTMLElement} tableThead
+   */
+  mount(tableThead) {
+    if (!tableThead) {
+      return;
+    }
+    this.set('tableThead', tableThead);
+    this.checkColumnsVisibility();
   },
 
   /**

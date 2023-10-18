@@ -65,6 +65,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   infoIconActionName: 'archiveProperties',
 
   /**
+   * @override
+   */
+  disabledColumns: Object.freeze(['owner']),
+
+  /**
    * One of: attached, detached.
    * Which state tree of datasets is displayed.
    * @type {ComputedProperty<String>}
@@ -693,13 +698,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }),
     };
     const columnsOrder = ['state', 'incremental', 'creator'];
-    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
     return ColumnsConfiguration.create({
       configurationType: this.browserPersistedConfigurationKey,
       columns,
       columnsOrder,
       firstColumnWidth: 350,
-      tableThead: elementFbTableThead,
     });
   },
 

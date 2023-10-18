@@ -1,5 +1,5 @@
 /**
- * Base wrapper for various modesl that adds API for browser components.
+ * Base wrapper for various models that adds API for browser components.
  *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
