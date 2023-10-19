@@ -88,48 +88,71 @@ describe('Unit | Service | file-requirement-registry', function () {
     }
   );
 
-  it('getRequiredAttributes returns attributes for given requirements (parentId) using query', async function () {
-    const service = this.owner.lookup('service:file-requirement-registry');
-    const consumer1 = { name: 'c1' };
-    const consumer2 = { name: 'c2' };
-    const consumer3 = { name: 'c3' };
-    const req1 = new FileRequirement({
-      parentId: 'p1',
-      properties: ['name', 'ctime', 'mtime'],
-    });
-    const req2 = new FileRequirement({
-      parentId: 'p2',
-      properties: ['path'],
-    });
-    const req31 = new FileRequirement({
-      parentId: 'p2',
-      properties: ['originalName'],
-    });
-    const req32 = new FileRequirement({
-      parentId: 'p3',
-      properties: ['acl'],
-    });
-    const queryForParent2 = new FileQuery({
-      parentId: 'p2',
-    });
-    await service.setRequirements(consumer1, req1);
-    await service.setRequirements(consumer2, req2);
-    await service.setRequirements(consumer3, req31, req32);
+  it('getRequiredAttributes returns attributes for fileGri requirements including parent attributes using query',
+    async function () {
+      const service = this.owner.lookup('service:file-requirement-registry');
+      const store = lookupService(this, 'store');
+      const parent = await store.createRecord('file', {
+        id: getFileGri('parent_id'),
+      }).save();
+      const file = await store.createRecord('file', {
+        id: getFileGri('file_id'),
+        parent,
+      }).save();
+      const consumer = { name: 'c1' };
+      const reqGri = new FileRequirement({
+        fileGri: get(file, 'id'),
+        properties: ['mtime'],
+      });
+      const reqParent = new FileRequirement({
+        parentId: get(parent, 'entityId'),
+        properties: ['ctime'],
+      });
+      const query = new FileQuery({
+        fileGri: get(file, 'id'),
+      });
+      await service.setRequirements(consumer, reqGri, reqParent);
 
-    const resultAttrs = service.getRequiredAttributes(queryForParent2).sort();
+      const resultAttrs = service.getRequiredAttributes(query);
 
-    expect(resultAttrs).to.deep.equal([
-      'path',
-      // additional attributes added always by default
-      'conflictingName',
-      'fileId',
-      'name',
-      'parentFileId',
-      'size',
-      'symlinkValue',
-      'type',
-    ].sort());
-  });
+      expect(resultAttrs, 'includes fileGri attrs').to.include('mtime');
+      expect(resultAttrs, 'includes parentId attrs').to.include('ctime');
+    }
+  );
+
+  it('getRequiredAttributes returns attributes for fileGri requirements not including parent attributes with "addParentAttributes" option using query',
+    async function () {
+      const service = this.owner.lookup('service:file-requirement-registry');
+      const store = lookupService(this, 'store');
+      const parent = await store.createRecord('file', {
+        id: getFileGri('parent_id'),
+      }).save();
+      const file = await store.createRecord('file', {
+        id: getFileGri('file_id'),
+        parent,
+      }).save();
+      const consumer = { name: 'c1' };
+      const reqGri = new FileRequirement({
+        fileGri: get(file, 'id'),
+        properties: ['mtime'],
+      });
+      const reqParent = new FileRequirement({
+        parentId: get(parent, 'entityId'),
+        properties: ['ctime'],
+      });
+      const query = new FileQuery({
+        fileGri: get(file, 'id'),
+      });
+      await service.setRequirements(consumer, reqGri, reqParent);
+
+      const resultAttrs = service.getRequiredAttributes(query, {
+        addParentAttributes: false,
+      });
+
+      expect(resultAttrs, 'includes fileGri attrs').to.include('mtime');
+      expect(resultAttrs, 'does not include parentId attrs').to.not.include('ctime');
+    }
+  );
 
   it('getRequiredAttributes returns attributes registered only using parent-queries for parent query',
     async function () {
@@ -173,6 +196,49 @@ describe('Unit | Service | file-requirement-registry', function () {
       expect(resultAttrs).to.not.contain('ctime');
     },
   );
+
+  it('getRequiredAttributes returns attributes for given requirements (parentId) using query', async function () {
+    const service = this.owner.lookup('service:file-requirement-registry');
+    const consumer1 = { name: 'c1' };
+    const consumer2 = { name: 'c2' };
+    const consumer3 = { name: 'c3' };
+    const req1 = new FileRequirement({
+      parentId: 'p1',
+      properties: ['name', 'ctime', 'mtime'],
+    });
+    const req2 = new FileRequirement({
+      parentId: 'p2',
+      properties: ['path'],
+    });
+    const req31 = new FileRequirement({
+      parentId: 'p2',
+      properties: ['originalName'],
+    });
+    const req32 = new FileRequirement({
+      parentId: 'p3',
+      properties: ['acl'],
+    });
+    const queryForParent2 = new FileQuery({
+      parentId: 'p2',
+    });
+    await service.setRequirements(consumer1, req1);
+    await service.setRequirements(consumer2, req2);
+    await service.setRequirements(consumer3, req31, req32);
+
+    const resultAttrs = service.getRequiredAttributes(queryForParent2).sort();
+
+    expect(resultAttrs).to.deep.equal([
+      'path',
+      // additional attributes added always by default
+      'conflictingName',
+      'fileId',
+      'name',
+      'parentFileId',
+      'size',
+      'symlinkValue',
+      'type',
+    ].sort());
+  });
 
   it('private method getAbsentRequirementSet gets requirements that add new properties for consumer files',
     async function () {

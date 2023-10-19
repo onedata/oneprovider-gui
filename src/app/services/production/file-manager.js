@@ -375,13 +375,14 @@ export default Service.extend({
         // on the list, so the special attributes are preserved in records with the latest
         // values.
         const additionalAttributes = _.difference(
-          // TODO: 11252 could be optimized to get required attributes without doing
-          // heuristics to get requirements for parent - because we will reject parent
-          // requirements anyway
+          // Optimized to get required attributes without doing heuristics to get
+          // requirements for parent - because we will reject parent requirements anyway.
           this.fileRequirementRegistry.getRequiredAttributes(
             new FileQuery({
               fileGri: get(currentRecord, 'id'),
-            }),
+            }), {
+              addParentAttributes: false,
+            }
           ),
           effAttributes,
         );
@@ -396,7 +397,6 @@ export default Service.extend({
             data[attribute] = serializedFileTypes[propertyValue];
           } else {
             // Copy data as-is, because the property wasn't specially deserialized.
-            // TODO: VFS-11252 check if array properties are correctly serialized
             data[attribute] = propertyValue;
           }
           return data;

@@ -165,7 +165,7 @@ export default Component.extend(...mixins, {
    */
   getProvidersUrl: notImplementedIgnore,
 
-  // TODO: VFS-11252 make global file updater registry, because many components would
+  // TODO: VFS-11470 make global file updater registry, because many components would
   // need to update individual files data - as in this components, where the qos-tab-model
   // updates files when modal is opened
   /**

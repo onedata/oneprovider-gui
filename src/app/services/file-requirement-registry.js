@@ -32,6 +32,7 @@ import _ from 'lodash';
 import { get, computed } from '@ember/object';
 import { allSettled } from 'rsvp';
 import includesAll from 'onedata-gui-common/utils/includes-all';
+import FileQuery from 'oneprovider-gui/utils/file-query';
 
 /**
  * A GUI entity (might be a component, service, anything that is "living" during runtime)
@@ -121,18 +122,37 @@ export default Service.extend({
   },
 
   /**
+   * @typedef GetRequiredAttributesOptions
+   * @property {boolean} addParentAttributes It true, when resolving attributes for
+   *   fileGri FileQuery, requirements specified for the file parent will be added. The
+   *   file should be present in the store to do that (because we know its parent).
+   */
+
+  /**
    * Gets attributes required for the queries. Checks:
    * - exact query matching with requirement query (GRI-GRI, parent-parent),
-   * - if the already loaded file matches some parent condition using GRI query,
-   * - if the already loaded file matches some GRI condition using parent query.
+   * - if the already loaded file matches some parent condition using GRI query.
    *
    * Uses all already loaded files from store to perform non-exact query matching.
    *
    * @public
-   * @param {...Utils.FileQuery} queries
+   * @param {...FileQuery|[...FileQuery, GetRequiredAttributesOptions]} args FileQuery
+   *   objects and **optional** options object at the end.
    * @returns {Array<File.RawAttribute>}
    */
-  getRequiredAttributes(...queries) {
+  getRequiredAttributes(...args) {
+    const lastArg = args[args.length - 1];
+    let queries;
+    /** @type {GetRequiredAttributesOptions} */
+    const options = {
+      addParentAttributes: true,
+    };
+    if (!(lastArg instanceof FileQuery) && typeof lastArg === 'object') {
+      Object.assign(options, lastArg);
+      queries = args.slice(0, args.length - 1);
+    } else {
+      queries = args;
+    }
     const matchingRequirements = [];
     let remainRequirements = this.getRequirements();
     let allFiles;
@@ -160,7 +180,7 @@ export default Service.extend({
         break;
       }
 
-      if (queryType === 'fileGri') {
+      if (options.addParentAttributes && queryType === 'fileGri') {
         // Select requirements for known files that have the parent matching
         const file = getAllFiles().find(file =>
           file && get(file, 'id') === query.fileGri
