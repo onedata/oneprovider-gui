@@ -587,26 +587,13 @@ export default Component.extend(...mixins, {
 
   init() {
     this._super(...arguments);
-    const {
-      fileManager,
-      registerApi,
-      api,
-      loadingIconFileIds,
-      filesArray,
-    } = this.getProperties(
-      'fileManager',
-      'registerApi',
-      'api',
-      'loadingIconFileIds',
-      'filesArray'
-    );
-    if (!loadingIconFileIds) {
+    if (!this.loadingIconFileIds) {
       this.set('loadingIconFileIds', A());
     }
-    fileManager.registerRefreshHandler(this);
-    registerApi(api);
-    if (get(filesArray, 'initialJumpIndex')) {
-      get(filesArray, 'initialLoad').then(() => {
+    this.fileManager.registerRefreshHandler(this);
+    this.registerApi(this.api);
+    if (get(this.filesArray, 'initialJumpIndex')) {
+      get(this.filesArray, 'initialLoad').then(() => {
         this.selectedItemsForJumpObserver();
       });
     }

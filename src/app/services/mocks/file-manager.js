@@ -3,7 +3,7 @@
  * For properties description see non-mocked `services/production/file-manager`
  *
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -11,22 +11,21 @@ import ProductionFileManager from '../production/file-manager';
 import { inject as service } from '@ember/service';
 import { Promise } from 'rsvp';
 import { get } from '@ember/object';
+import { getFileGri } from 'oneprovider-gui/models/file';
 
 export default ProductionFileManager.extend({
   onedataGraph: service(),
+  store: service(),
 
   /**
    * @override
    */
-  pushChildrenAttrsToStore({ childrenAttrs }) {
-    try {
-      return childrenAttrs.map(attr => {
-        const fileId = get(attr, 'fileId');
-        return this.getFileById(fileId);
-      });
-    } catch (error) {
-      throw error;
-    }
+  pushChildrenAttrsToStore({ childrenAttrs, scope }) {
+    const store = this.store;
+    return childrenAttrs.map((attr) => {
+      const fileGri = getFileGri(get(attr, 'fileId'), scope);
+      return store.peekRecord('file', fileGri);
+    }).filter(Boolean);
   },
 
   getFileDownloadUrl() {
