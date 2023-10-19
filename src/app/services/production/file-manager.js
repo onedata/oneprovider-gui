@@ -368,6 +368,12 @@ export default Service.extend({
         if (currentRecord.currentState.stateName === 'root.deleted.inFlight') {
           return currentRecord;
         }
+        // Record data is typically pushed to store when files listing is being done. The
+        // list fetch is done with attributes registered with requirements matching the
+        // parent of the list, but some files could need individual special attributes to
+        // be fetched. We do not want to fetch these special attributes for all the files
+        // on the list, so the special attributes are preserved in records with the latest
+        // values.
         const additionalAttributes = _.difference(
           // TODO: 11252 could be optimized to get required attributes without doing
           // heuristics to get requirements for parent - because we will reject parent

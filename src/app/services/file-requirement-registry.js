@@ -426,7 +426,7 @@ export default Service.extend({
    * @private
    * @param {boolean} isAdding Use `true` when requiements are added and `false` when
    *   requirements are removed from registry.
-   * @param {...FileRequirement} requirement
+   * @param {...FileRequirement} requirements
    */
   updatePropertiesCache(isAdding, ...requirements) {
     if (_.isEmpty(requirements)) {

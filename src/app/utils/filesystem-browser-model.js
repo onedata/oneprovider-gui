@@ -399,7 +399,7 @@ export default BaseBrowserModel.extend(...mixins, {
     }
   ),
 
-  // FIXME: nowe computedy są prawdopodobnie uruchamiane zbyt często
+  // TODO: VFS-11460 Optimize number of invoked usedFileGris and fileRequirements
 
   listedFilesProperties: computed(
     'media.isMobile',
@@ -1516,7 +1516,7 @@ export default BaseBrowserModel.extend(...mixins, {
    * @override
    */
   fetchDirChildren(dirId, ...fetchArgs) {
-    // TODO: VFS-11252 It might be invoked too often - make benchmarks / fix
+    // TODO: VFS-11460 It might be invoked too often - make benchmarks / fix
     // force fileRequirements change
     this.fileConsumerModel.fileRequirementsObserver();
     return this.fileManager

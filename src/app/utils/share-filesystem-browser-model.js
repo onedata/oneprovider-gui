@@ -58,16 +58,6 @@ export default FilesystemBrowserModel.extend({
     'isInVirtualShareDir',
     function listingRequirement() {
       if (this.isInVirtualShareDir) {
-        // return new FileRequirement({
-        //   properties: this.listedFilesProperties,
-        //   parentId: null,
-        // });
-
-        // const rootParentId = get(this.share, 'rootFile.content')
-        //   ?.relationEntityId('parent');
-        // FIXME: parent będzie zawsze nullowy, dlaczego nie można ustawić tutaj fileGri?
-        // if (rootParentId) {
-        console.log('---------- adding requirement');
         return new FileRequirement({
           properties: this.listedFilesProperties,
           fileGri: this.rootFileGri,

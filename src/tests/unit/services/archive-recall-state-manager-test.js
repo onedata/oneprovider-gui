@@ -111,20 +111,21 @@ describe('Unit | service | archive-recall-state-manager', function () {
     expect(startWatcherStub).to.be.calledOnce;
   });
 
-  it('throws error in test environment if file does not have recallRootId', async function () {
-    const store = lookupService(this, 'store');
-    const file1 = store.createRecord('file', {});
+  // TODO: VFS-11462 error throwing is currently disabled - see ArchiveRecallStateManager
+  // it('throws error in test environment if file does not have recallRootId', async function () {
+  //   const store = lookupService(this, 'store');
+  //   const file1 = store.createRecord('file', {});
 
-    let catchedError;
-    try {
-      this.service.watchRecall(file1);
-    } catch (error) {
-      catchedError = error;
-    }
+  //   let catchedError;
+  //   try {
+  //     this.service.watchRecall(file1);
+  //   } catch (error) {
+  //     catchedError = error;
+  //   }
 
-    expect(catchedError).to.be.ok;
-    expect(String(catchedError)).to.match(/Tried to invoke "watchRecall"/);
-  });
+  //   expect(catchedError).to.be.ok;
+  //   expect(String(catchedError)).to.match(/Tried to invoke "watchRecall"/);
+  // });
 
   it('does not throw error in if "areWarningsFatal" is false if file does not have recallRootId',
     async function () {
