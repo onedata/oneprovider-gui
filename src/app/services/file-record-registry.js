@@ -42,11 +42,6 @@ export default Service.extend({
   init() {
     this._super(...arguments);
     this.set('fileGriConsumerMap', new Map());
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_file_record_registry');
   },
 
   /**

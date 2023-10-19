@@ -111,14 +111,11 @@ export default Service.extend({
 
   init() {
     this._super(...arguments);
-    this.set('consumerRequirementsMap', new Map());
-    this.set('propertiesForParentId', {});
-    this.set('propertiesForFileGri', {});
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_file_requirement_registry');
+    this.setProperties({
+      consumerRequirementsMap: new Map(),
+      propertiesForParentId: {},
+      propertiesForFileGri: {},
+    });
   },
 
   /**
@@ -234,7 +231,7 @@ export default Service.extend({
       return;
     }
     const filesToUpdate = this.getFilesToUpdate(richRequirements);
-    // TODO: VFS-11252 optimize invocation of updatePropertiesCache:
+    // TODO: VFS-11471 optimize invocation of updatePropertiesCache:
     // - make two sets: of completely new requirements and completely deleted
     // - updatePropertiesCache with false for deleted ones and with true for only new
     if (currentConsumerRequirements) {
