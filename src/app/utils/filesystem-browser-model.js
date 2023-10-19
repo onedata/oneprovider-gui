@@ -77,13 +77,15 @@ const availableButtonNames = Object.freeze([
   'btnDelete',
 ]);
 
+const columnRequirementsEnableProperty = 'isVisible';
+
 const columnsRequirementsDependencies = [
   'size',
   'modification',
   'owner',
   'replication',
   'qos',
-].map(columnName => `${columnName}.isEnabled`).join(',');
+].map(columnName => `${columnName}.${columnRequirementsEnableProperty}`).join(',');
 
 const mixins = [
   FileConsumerMixin,
@@ -293,7 +295,6 @@ export default BaseBrowserModel.extend(...mixins, {
    * @implements {Mixins.FileConsumer}
    */
   fileRequirements: computed(
-    // TODO: VFS-11252 Try checking isVisible instead isEnabled
     'dir',
     'parentDirRequirement',
     'listingRequirement',
@@ -423,19 +424,19 @@ export default BaseBrowserModel.extend(...mixins, {
           .add('mtime');
       } else {
         const columns = this.columnsConfiguration.columns;
-        if (columns.size?.isEnabled) {
+        if (columns.size?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('size');
         }
-        if (columns.modification?.isEnabled) {
+        if (columns.modification?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('mtime');
         }
-        if (columns.owner?.isEnabled) {
+        if (columns.owner?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('owner');
         }
-        if (columns.replication?.isEnabled) {
+        if (columns.replication?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('localReplicationRate');
         }
-        if (columns.qos?.isEnabled) {
+        if (columns.qos?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('qosStatus');
         }
       }
