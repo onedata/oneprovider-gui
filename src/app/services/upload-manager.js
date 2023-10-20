@@ -68,6 +68,16 @@ export default Service.extend(I18n, {
   dropElement: undefined,
 
   /**
+   * @type {(event: Object) => void}
+   */
+  startDragFun: undefined,
+
+  /**
+   * @type {(event: Object) => void}
+   */
+  endDragFun: undefined,
+
+  /**
    * Mapping space -> Resumable
    */
   resumablePerSpaceMap: computed(() => new Map()),
@@ -499,9 +509,6 @@ export default Service.extend(I18n, {
     });
   },
 
-  startDragFun: undefined,
-  endDragFun: undefined,
-
   /**
    * Makes `dropElement` a target for drag-n-drop upload
    * @param {HTMLElement} dropElement
@@ -531,7 +538,7 @@ export default Service.extend(I18n, {
     dropElement.addEventListener('drop', endDrag);
   },
 
-  unsignUploadBrowse() {
+  unassignUploadBrowse() {
     this.get('resumable').unAssignDrop(this.dropElement);
     const dropElement = this.dropElement;
 

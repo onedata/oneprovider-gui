@@ -5,7 +5,7 @@
 }}
   {{one-icon icon="drag" class="column-move-icon"}}
   {{one-checkbox
-    inputId=(concat elementId "-" columnName "Checkbox")
+    inputId=inputId
     checked=(get columnValue "isEnabled")
     update=(action "checkboxChanged" columnName)
     class=(concat-classes
@@ -14,7 +14,7 @@
     )
   }}
   <label
-    for={{concat elementId "-" columnName "Checkbox"}}
+    for={{inputId}}
     class="column-name-label"
   >
     <span class="one-label checkbox-label">
@@ -36,9 +36,9 @@
     >
       {{one-icon
         icon="move-down"
-        class=(if isDisabledMoveDownIcon "disabled-icon")
+        class=(if isMoveDownIconDisabled "disabled-icon")
       }}
-      {{#if (and (not isDisabledMoveDownIcon) arrowTooltipVisible)}}
+      {{#if (and (not isMoveDownIconDisabled) isArrowTooltipVisible)}}
         {{one-tooltip title=(tt this "moveDown")}}
       {{/if}}
     </span>
@@ -48,9 +48,9 @@
     >
       {{one-icon
         icon="move-up"
-        class=(if isDisabledMoveUpIcon "disabled-icon")
+        class=(if isMoveUpIconDisabled "disabled-icon")
       }}
-      {{#if (and (not isDisabledMoveUpIcon) arrowTooltipVisible)}}
+      {{#if (and (not isMoveUpIconDisabled) isArrowTooltipVisible)}}
         {{one-tooltip title=(tt this "moveUp")}}
       {{/if}}
     </span>

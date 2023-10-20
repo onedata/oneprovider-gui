@@ -73,6 +73,10 @@
       padding: 0;
     }
 
+    th:not(.border-dashed) {
+      border-right: 2px solid transparent;
+    }
+
     .fb-table-head-row th.border-solid, th.border-solid {
       border-right: 2px solid lighten($color-one-blue-gray, 20%);
 
@@ -90,14 +94,13 @@
       }
     }
 
-    th.border-dashed:not(.border-solid),
     th.border-dashed:not(.border-solid) {
       border-right: 2px dashed $table-border-color;
     }
     th:hover .column-move-icon{
       @media (hover: hover) {
         visibility: visible;
-        cursor: pointer;
+        cursor: grab;
       }
     }
     .draggable-area {
@@ -114,8 +117,8 @@
       vertical-align: middle;
       visibility: hidden;
       position: absolute;
-      left: -1.2em;
-      top: 0.2em;
+      left: -1.5em;
+      top: 0.3em;
     }
     .column-name {
       position: relative;

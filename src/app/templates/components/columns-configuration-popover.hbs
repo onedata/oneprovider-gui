@@ -14,13 +14,13 @@
           action=(action "acceptDraggedElement" -1)
         }}
         {{#each columnsConfiguration.columnsOrder as |columnName index|}}
-          {{column-configuration-checkbox
+          {{columns-configuration-popover/column-item
             columnName=columnName
             columnValue=(get columnsConfiguration.columns columnName)
             translationKey=translationKey
-            isDisabledMoveUpIcon=(eq index 0)
-            isDisabledMoveDownIcon=(eq index lastIndexColumn)
-            arrowTooltipVisible=arrowTooltipVisible
+            isMoveUpIconDisabled=(eq index 0)
+            isMoveDownIconDisabled=(eq index lastIndexColumn)
+            isArrowTooltipVisible=isArrowTooltipVisible
             checkboxChanged=(action "checkboxChanged")
             moveColumnDown=(action "moveColumnDown")
             moveColumnUp=(action "moveColumnUp")

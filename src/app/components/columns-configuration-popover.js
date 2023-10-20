@@ -61,7 +61,7 @@ export default Component.extend({
   /**
    * @type {boolean}
    */
-  arrowTooltipVisible: true,
+  isArrowTooltipVisible: true,
 
   /**
    * @type {Boolean}
@@ -80,8 +80,8 @@ export default Component.extend({
     // workaround to bug in firefox
     // tooltip not disappeared after click and move element
     if (this.isInFirefox) {
-      this.set('arrowTooltipVisible', false);
-      next(() => trySet(this, 'arrowTooltipVisible', true));
+      this.set('isArrowTooltipVisible', false);
+      next(() => trySet(this, 'isArrowTooltipVisible', true));
     }
   },
 

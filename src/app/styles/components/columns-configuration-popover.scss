@@ -9,7 +9,7 @@
     margin: 0;
     list-style-type: none;
 
-    .column-configuration-checkbox .draggable-object {
+    .column-item .draggable-object {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -79,8 +79,8 @@
       @media (hover: hover) {
         &:hover .column-move-icon {
           visibility: visible;
-          opacity: 0.6;
-          cursor: pointer;
+          opacity: $disabled-opacity;
+          cursor: grab;
         }
       }
 

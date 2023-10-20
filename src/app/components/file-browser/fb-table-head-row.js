@@ -28,7 +28,7 @@ export default Component.extend(I18n, {
   /**
    * @type {boolean}
    */
-  isShowBorder: false,
+  isDropBorderShown: false,
 
   /**
    * @type {Object}
@@ -50,16 +50,16 @@ export default Component.extend(I18n, {
   actions: {
     dragAction(columnName, event) {
       event.dataTransfer.setData('text', columnName);
-      this.set('isShowBorder', true);
+      this.set('isDropBorderShown', true);
     },
     dragEndAction() {
-      this.set('isShowBorder', false);
+      this.set('isDropBorderShown', false);
     },
     dropAction(index, event) {
       const columnName = event.dataTransfer.getData('text');
       this.moveColumn(index + 1, columnName);
       event.target.closest('th').classList.remove('border-solid');
-      this.set('isShowBorder', false);
+      this.set('isDropBorderShown', false);
     },
     dragOverAction(event) {
       event.preventDefault();
@@ -68,7 +68,7 @@ export default Component.extend(I18n, {
 
       this.set('lastActiveDropOverElem', lastActiveDropOverElem);
     },
-    dragOutAction() {
+    dragLeaveAction() {
       this.lastActiveDropOverElem.classList.remove('border-solid');
     },
 

@@ -1620,11 +1620,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   },
 
   disableUploadArea() {
-    this.uploadManager.unsignUploadBrowse();
+    this.uploadManager.unassignUploadBrowse();
   },
 
   enableUploadArea() {
     this.uploadManager.assignUploadDrop(this.uploadManager.dropElement);
-
   },
 });

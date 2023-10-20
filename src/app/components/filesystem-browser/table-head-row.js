@@ -105,13 +105,13 @@ export default FbTableHeadRow.extend(...mixins, {
       }
       event.dataTransfer.setData('text', columnName);
 
-      this.set('isShowBorder', true);
+      this.set('isDropBorderShown', true);
     },
     dragEndAction() {
       if (!this.isShareRoot) {
         this.browserModel.enableUploadArea();
       }
-      this.set('isShowBorder', false);
+      this.set('isDropBorderShown', false);
     },
   },
 });

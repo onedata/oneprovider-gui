@@ -152,7 +152,7 @@ export default EmberObject.extend(...mixins, {
     this.checkColumnsVisibility();
     const enabledColumns = [];
     for (const columName of this.columnsOrder) {
-      if (this.columns[columName].isEnabled) {
+      if (this.columns[columName]?.isEnabled) {
         enabledColumns.push(columName);
       }
     }
@@ -176,17 +176,20 @@ export default EmberObject.extend(...mixins, {
     remainingWidth -= this.lastColumnWidth;
     let hiddenColumnsCount = 0;
     for (const columName of this.columnsOrder) {
-      if (this.columns[columName].isEnabled) {
-        if (remainingWidth >= this.columns[columName].width) {
-          remainingWidth -= this.columns[columName].width;
-          this.set(`columns.${columName}.isVisible`, true);
+      const column = this.columns[columName];
+      if (column) {
+        if (column.isEnabled) {
+          if (remainingWidth >= column.width) {
+            remainingWidth -= column.width;
+            this.set(`columns.${columName}.isVisible`, true);
+          } else {
+            this.set(`columns.${columName}.isVisible`, false);
+            hiddenColumnsCount += 1;
+            remainingWidth = 0;
+          }
         } else {
           this.set(`columns.${columName}.isVisible`, false);
-          hiddenColumnsCount += 1;
-          remainingWidth = 0;
         }
-      } else {
-        this.set(`columns.${columName}.isVisible`, false);
       }
     }
     if (this.hiddenColumnsCount !== hiddenColumnsCount) {
@@ -216,7 +219,6 @@ export default EmberObject.extend(...mixins, {
     if (columnsOrderList) {
       for (const columName of columnsOrderList) {
         if (!this.columnsOrder.includes(columName)) {
-          console.log(columName);
           const index = columnsOrderList.indexOf(columName);
           columnsOrderList.splice(index, 1);
         }

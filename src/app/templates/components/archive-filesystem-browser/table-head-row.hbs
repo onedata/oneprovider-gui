@@ -1,7 +1,7 @@
 <th
   class={{concat-classes
     "fb-table-col-files"
-    (if isShowBorder "border-dashed")
+    (if isDropBorderShown "border-dashed")
   }}
 >
   <div class="fb-table-first-col-container">
@@ -19,7 +19,7 @@
   <div
     class="draggable-area"
     ondragover={{action "dragOverAction"}}
-    ondragleave={{action "dragOutAction"}}
+    ondragleave={{action "dragLeaveAction"}}
     ondrop={{action "dropAction" -1}}
   >
   </div>
@@ -30,8 +30,9 @@
     <th
       class={{concat-classes
         (concat "fb-table-col-" columnName)
-        "fb-table-secondary-col hidden-xs"
-        (if isShowBorder " border-dashed")
+        "fb-table-secondary-col"
+        "hidden-xs"
+        (if isDropBorderShown "border-dashed")
       }}
       style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
       draggable=true
@@ -45,7 +46,7 @@
       <div
         class="draggable-area"
         ondragover={{action "dragOverAction"}}
-        ondragleave={{action "dragOutAction"}}
+        ondragleave={{action "dragLeaveAction"}}
         ondrop={{action "dropAction" i}}
       >
       </div>
