@@ -39,6 +39,8 @@ import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
  * API object exposed by `fb-table` component, be used to control the component and read
@@ -50,6 +52,7 @@ const defaultIsItemDisabled = () => false;
 
 const mixins = [
   I18n,
+  FileConsumerMixin,
 ];
 
 export default Component.extend(...mixins, {
@@ -181,6 +184,32 @@ export default Component.extend(...mixins, {
   openFile: notImplementedIgnore,
 
   /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed(
+    'dir',
+    function fileRequirements() {
+      if (!this.dir) {
+        return [];
+      }
+      const parentDirId = get(this.dir, 'entityId');
+      return new FileRequirement({
+        properties: [
+          'index',
+        ],
+        parentId: parentDirId,
+      });
+    },
+  ),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedSingleUsedFileGri('dir'),
+
+  /**
    * Element attribute binding.
    * Allows to listen for keyboard events.
    */
@@ -307,10 +336,10 @@ export default Component.extend(...mixins, {
       this.get('filesArray.sourceArray').mapBy('originalName'),
       name => name,
     );
-    const test = Object.entries(namesCount)
+    const namesUsedMultipleTimes = Object.entries(namesCount)
       .filter(([, count]) => count > 1)
       .map(([name]) => name);
-    return test;
+    return namesUsedMultipleTimes;
   }),
 
   listLoadState: reads('browserModel.listLoadState'),

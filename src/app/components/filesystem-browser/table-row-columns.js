@@ -63,7 +63,10 @@ export default FbTableRowColumns.extend(I18n, {
       'browserModel.isDirSizeAlwaysHidden',
       eq('file.effFile.type', raw(LegacyFileType.Directory))
     ),
-    eq('file.effFile.size', raw(null))
+    or(
+      eq('file.effFile.size', raw(null)),
+      eq('file.effFile.size', raw(undefined)),
+    )
   ),
 
   /**
@@ -154,7 +157,7 @@ export default FbTableRowColumns.extend(I18n, {
     'file.effFile.localReplicationRate',
     'isSmallReplicationRate',
     function percentageReplication() {
-      const localReplicationRate = this.file.effFile.localReplicationRate;
+      const localReplicationRate = this.get('file.effFile.localReplicationRate');
       if (isNaN(localReplicationRate) || (localReplicationRate === null)) {
         return null;
       }
