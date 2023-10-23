@@ -77,15 +77,15 @@ const availableButtonNames = Object.freeze([
   'btnDelete',
 ]);
 
-const columnRequirementsEnableProperty = 'isVisible';
-
 const columnsRequirementsDependencies = [
   'size',
   'modification',
   'owner',
   'replication',
   'qos',
-].map(columnName => `${columnName}.${columnRequirementsEnableProperty}`).join(',');
+].map(columnName =>
+  `${columnName}.isEnabled,${columnName}.isVisible`
+).join(',');
 
 const mixins = [
   FileConsumerMixin,
@@ -407,6 +407,7 @@ export default BaseBrowserModel.extend(...mixins, {
     'media.isMobile',
     'browserFilesProperties',
     `columnsConfiguration.columns.{${columnsRequirementsDependencies}}`,
+    'columnsConfiguration.isMounted',
     function listedFilesProperties() {
       const listedFilesPropertySet = new Set([
         ...this.browserFilesProperties,
@@ -425,6 +426,8 @@ export default BaseBrowserModel.extend(...mixins, {
           // TODO: VFS-11449 optional file size fetch
           .add('mtime');
       } else {
+        const columnRequirementsEnableProperty = this.columnsConfiguration.isMounted ?
+          'isVisible' : 'isEnabled';
         const columns = this.columnsConfiguration.columns;
         if (columns.size?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('size');
