@@ -39,15 +39,12 @@ import _ from 'lodash';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
-import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { getFileGri } from 'oneprovider-gui/models/file';
 
 const mixins = [
   I18n,
   ContentSpaceBaseMixin,
   ItemBrowserContainerBase,
-  FileConsumerMixin,
 ];
 
 export default OneEmbeddedComponent.extend(...mixins, {
@@ -143,34 +140,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
    * @type {Function}
    */
   containerScrollTop: notImplementedIgnore,
-
-  /**
-   * @override
-   * @implements {Mixins.FileConsumer}
-   */
-  fileRequirements: computed(
-    'dirId',
-    function fileRequirements() {
-      if (!this.dirId) {
-        return [];
-      }
-      return [
-        new FileRequirement({
-          parentId: this.dirId,
-          // needed to jump to file
-          properties: ['index'],
-        }),
-      ];
-    }
-  ),
-
-  /**
-   * @override
-   * @implements {Mixins.FileConsumer}
-   */
-  usedFileGris: computed('dirGri', function usedFileGris() {
-    return this.dirGri ? [this.dirGri] : [];
-  }),
 
   /**
    * Reference to browser API registered by internal component (if available).

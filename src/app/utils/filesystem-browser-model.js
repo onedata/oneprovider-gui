@@ -365,6 +365,7 @@ export default BaseBrowserModel.extend(...mixins, {
     'fileFeatures',
     function browserBasicProperties() {
       const basicPropertySet = new Set([
+        'index',
         // needed by some buttons to be configured
         // dataIsProtected is also needed by FilesystemBrowser::EmptyDir component
         'dataIsProtectedByDataset',
