@@ -27,11 +27,15 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import sleep from 'onedata-gui-common/utils/sleep';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { getFileGri } from 'oneprovider-gui/models/file';
 
 const mixins = [
   I18n,
   ItemBrowserContainerBase,
   InfoModalBrowserSupport,
+  FileConsumerMixin,
 ];
 
 export default Component.extend(...mixins, {
@@ -172,6 +176,28 @@ export default Component.extend(...mixins, {
   filesystemBrowserModelOptions: Object.freeze({}),
 
   /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: reads('selectedFileGris'),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('selectedFileGris', function fileRequirements() {
+    if (!this.selectedFileGris) {
+      return [];
+    }
+    return this.selectedFileGris.map(fileGri =>
+      new FileRequirement({
+        fileGri,
+        properties: ['index'],
+      })
+    );
+  }),
+
+  /**
    * @implements ArchiveBrowserModel.spaceDatasetsViewState
    */
   attachmentState: reads('browsableDataset.state'),
@@ -227,6 +253,18 @@ export default Component.extend(...mixins, {
   archivesToShowSettings: null,
 
   //#endregion action modals state
+
+  selectedFileGris: computed(
+    'dirId',
+    'selectedIds',
+    function selectedFileGris() {
+      if (!this.dirId || !Array.isArray(this.selectedIds)) {
+        return [];
+      }
+      return this.selectedIds.map(fileId => {
+        return getFileGri(fileId, 'private');
+      });
+    }),
 
   spaceId: reads('space.entityId'),
 
