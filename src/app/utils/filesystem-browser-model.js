@@ -367,6 +367,7 @@ export default BaseBrowserModel.extend(...mixins, {
       const basicPropertySet = new Set([
         // needed by some buttons to be configured
         // dataIsProtected is also needed by FilesystemBrowser::EmptyDir component
+        'dataIsProtectedByDataset',
         'dataIsProtected',
         'isRecalling',
       ]);
