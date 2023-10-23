@@ -112,6 +112,7 @@ export default EmberObject.extend(...mixins, {
     return [
       new FileRequirement({
         fileGri: this.get('file.id'),
+        // FIXME: podejrzane
         properties: ['metadataIsProtected', 'hardlinkCount'],
       }),
     ];

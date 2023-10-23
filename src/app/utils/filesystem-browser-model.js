@@ -366,12 +366,15 @@ export default BaseBrowserModel.extend(...mixins, {
     function browserBasicProperties() {
       const basicPropertySet = new Set([
         'index',
+      ]);
+      if (!this.previewMode) {
         // needed by some buttons to be configured
         // dataIsProtected is also needed by FilesystemBrowser::EmptyDir component
-        'dataIsProtectedByDataset',
-        'dataIsProtected',
-        'isRecalling',
-      ]);
+        basicPropertySet
+          .add('dataIsProtectedByDataset')
+          .add('dataIsProtected')
+          .add('isRecalling');
+      }
 
       // Properties that are needed by nested components - added here for requirements
       // to be available before rows are rendered (which could cause records reload,
@@ -414,11 +417,14 @@ export default BaseBrowserModel.extend(...mixins, {
         // table-row-status-bar component
         'activePermissionsType',
         'posixPermissions',
-        'shareRecords',
-        'isShared',
-        'hardlinkCount',
         'hasCustomMetadata',
       ]);
+      if (!this.previewMode) {
+        listedFilesPropertySet
+          .add('hardslinkCount')
+          .add('shareRecords')
+          .add('isShared');
+      }
       if (this.media.isMobile) {
         // File details always shown in mobile mode,
         // see FilesystemBrowser::TableRowMobileSecondaryInfo component.
@@ -1422,7 +1428,7 @@ export default BaseBrowserModel.extend(...mixins, {
     this.changeJumpControlValue('');
     // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
     // if using selector inside filesystem browser
-    this.get('uploadManager').changeTargetDirectory(targetDir);
+    this.registerUploadDirectory(targetDir);
   },
 
   /**
@@ -1451,7 +1457,7 @@ export default BaseBrowserModel.extend(...mixins, {
         );
       }
     }
-    uploadManager.changeTargetDirectory(dir);
+    this.registerUploadDirectory(dir);
   },
 
   /**
@@ -1526,6 +1532,10 @@ export default BaseBrowserModel.extend(...mixins, {
     this.fileConsumerModel.fileRequirementsObserver();
     return this.fileManager
       .fetchDirChildren(dirId, this.previewMode ? 'public' : 'private', ...fetchArgs);
+  },
+
+  registerUploadDirectory(targetDir) {
+    this.uploadManager.changeTargetDirectory(this.previewMode ? null : targetDir);
   },
 
   /**

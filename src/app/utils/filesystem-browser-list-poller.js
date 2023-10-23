@@ -13,6 +13,7 @@ import FileConsumerMixin, {
   computedSingleUsedFileGri,
 } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { conditional, raw } from 'ember-awesome-macros';
 
 const mixins = [
   FileConsumerMixin,
@@ -34,23 +35,31 @@ export default BrowserListPoller.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFileGris: computedSingleUsedFileGri('dir'),
+  usedFileGris: conditional(
+    'browserModel.previewMode',
+    raw([]),
+    computedSingleUsedFileGri('dir')
+  ),
 
   /**
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  fileRequirements: computed('dir', function fileRequirements() {
-    if (!this.dir) {
-      return [];
+  fileRequirements: computed(
+    'browserModel.previewMode',
+    'dir',
+    function fileRequirements() {
+      if (!this.dir || this.browserModel?.previewMode) {
+        return [];
+      }
+      return [
+        new FileRequirement({
+          fileGri: this.get('dir.id'),
+          properties: ['isRecalling'],
+        }),
+      ];
     }
-    return [
-      new FileRequirement({
-        fileGri: this.get('dir.id'),
-        properties: ['isRecalling'],
-      }),
-    ];
-  }),
+  ),
 
   /**
    * @type {ComputedProperty<Models.File|undefined>}
