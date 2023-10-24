@@ -352,7 +352,7 @@ export default BaseBrowserModel.extend(...mixins, {
       if (!this.dir) {
         return;
       }
-      const parentDirId = get(this.dir, 'entityId');
+      const parentDirId = this.get('dir.effFile.entityId') || this.get('dir.entityId');
       return new FileRequirement({
         properties: this.listedFilesProperties,
         parentId: parentDirId,
