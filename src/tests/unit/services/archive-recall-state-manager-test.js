@@ -21,11 +21,11 @@ describe('Unit | service | archive-recall-state-manager', function () {
       .returns(new WatcherMock());
   });
 
-  it('initializes single recall watcher for multiple requests with single recallRootId', function () {
-    const recallRootId = '123';
-    const file1 = { recallRootId };
-    const file2 = { recallRootId };
-    const file3 = { recallRootId };
+  it('initializes single recall watcher for multiple requests with single archiveRecallRootFileId', function () {
+    const archiveRecallRootFileId = '123';
+    const file1 = { archiveRecallRootFileId };
+    const file2 = { archiveRecallRootFileId };
+    const file3 = { archiveRecallRootFileId };
 
     this.service.watchRecall(file1);
     this.service.watchRecall(file2);
@@ -34,14 +34,14 @@ describe('Unit | service | archive-recall-state-manager', function () {
     const watchersRegistry = get(this.service, 'watchersRegistry');
     expect(this.createWatcherObjectStub).to.have.been.calledOnce;
     expect(this.createWatcherObjectStub).to.have.been.calledWith(file1);
-    expect(watchersRegistry).to.be.a('map').that.has.key(recallRootId);
+    expect(watchersRegistry).to.be.a('map').that.has.key(archiveRecallRootFileId);
     expect(watchersRegistry).to.have.lengthOf(1);
   });
 
   it('initializes separate recall watchers for multiple requests with various ids', function () {
-    const file1 = { recallRootId: 'rr1' };
-    const file2 = { recallRootId: 'rr2' };
-    const file3 = { recallRootId: 'rr3' };
+    const file1 = { archiveRecallRootFileId: 'rr1' };
+    const file2 = { archiveRecallRootFileId: 'rr2' };
+    const file3 = { archiveRecallRootFileId: 'rr3' };
 
     this.service.watchRecall(file1);
     this.service.watchRecall(file2);
@@ -57,7 +57,7 @@ describe('Unit | service | archive-recall-state-manager', function () {
   });
 
   it('does not remove recall watcher if not all generated watch tokens were used to unwatch', function () {
-    const file = { recallRootId: 'rr1' };
+    const file = { archiveRecallRootFileId: 'rr1' };
 
     const token1 = this.service.watchRecall(file);
     this.service.watchRecall(file);
@@ -69,7 +69,7 @@ describe('Unit | service | archive-recall-state-manager', function () {
   });
 
   it('removes recall watcher if all generated tokens were used to unwatch for single file', function () {
-    const file = { recallRootId: 'rr1' };
+    const file = { archiveRecallRootFileId: 'rr1' };
 
     const token1 = this.service.watchRecall(file);
     const token2 = this.service.watchRecall(file);
@@ -82,7 +82,7 @@ describe('Unit | service | archive-recall-state-manager', function () {
   });
 
   it('calls destroy on watcher when removing watcher from registry', function () {
-    const file = { recallRootId: 'rr1' };
+    const file = { archiveRecallRootFileId: 'rr1' };
     this.createWatcherObjectStub.reset();
     const destroyWatcherStub = sinon.stub();
     const fakeWatcher = Object.assign(new WatcherMock(), {
@@ -97,7 +97,7 @@ describe('Unit | service | archive-recall-state-manager', function () {
   });
 
   it('calls start on watcher when adding watcher to registry', function () {
-    const file = { recallRootId: 'rr1' };
+    const file = { archiveRecallRootFileId: 'rr1' };
     this.createWatcherObjectStub.reset();
     const startWatcherStub = sinon.stub();
     const fakeWatcher = Object.assign(new WatcherMock(), {
@@ -112,7 +112,7 @@ describe('Unit | service | archive-recall-state-manager', function () {
   });
 
   // TODO: VFS-11462 error throwing is currently disabled - see ArchiveRecallStateManager
-  // it('throws error in test environment if file does not have recallRootId', async function () {
+  // it('throws error in test environment if file does not have archiveRecallRootFileId', async function () {
   //   const store = lookupService(this, 'store');
   //   const file1 = store.createRecord('file', {});
 
@@ -127,7 +127,7 @@ describe('Unit | service | archive-recall-state-manager', function () {
   //   expect(String(catchedError)).to.match(/Tried to invoke "watchRecall"/);
   // });
 
-  it('does not throw error in if "areWarningsFatal" is false if file does not have recallRootId',
+  it('does not throw error in if "areWarningsFatal" is false if file does not have archiveRecallRootFileId',
     async function () {
       const store = lookupService(this, 'store');
       const file1 = store.createRecord('file', {});

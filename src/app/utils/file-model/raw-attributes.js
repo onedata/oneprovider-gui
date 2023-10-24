@@ -19,16 +19,17 @@ import _ from 'lodash';
 export const possibleFileRawAttributes = Object.freeze([
   'acl', // currently not used by frontend, which has an ACL relation
   'activePermissionsType',
+  'archiveRecallRootFileId',
   'atime',
   'conflictingName',
   'ctime',
   'directShareIds',
   'displayGid',
   'displayUid',
-  'effDatasetMembership',
+  'effDatasetInheritancePath',
   'effDatasetProtectionFlags',
   'effProtectionFlags',
-  'effQosMembership',
+  'effQosInheritancePath',
   'fileId', // consumed by serializer and available as entityId in record
   'hardlinkCount',
   'hasCustomMetadata',
@@ -42,8 +43,7 @@ export const possibleFileRawAttributes = Object.freeze([
   'parentFileId',
   'path',
   'posixPermissions',
-  'qosStatus',
-  'recallRootId', // FIXME: name will be changed to recallRootFileId in backend
+  'qosStatusAggregate',
   'size',
   'symlinkValue',
   'type',

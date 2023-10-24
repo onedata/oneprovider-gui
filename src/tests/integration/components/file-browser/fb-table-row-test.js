@@ -113,7 +113,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('shows qos tag with inherited icon after inherited icon click if file has effective qos, but not direct',
     async function () {
       this.set('file', createFile({
-        effQosMembership: 'ancestor',
+        effQosInheritancePath: 'ancestor',
       }));
 
       await renderComponent(this);
@@ -126,7 +126,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('shows dataset tag with inherited icon after inherited icon click if file has an effective dataset, but not direct',
     async function () {
       this.set('file', createFile({
-        effDatasetMembership: 'ancestor',
+        effDatasetInheritancePath: 'ancestor',
       }));
 
       await renderComponent(this);
@@ -139,7 +139,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
 
   it('renders dataset tag without inherited icon if file has direct dataset', async function () {
     this.set('file', createFile({
-      effDatasetMembership: 'direct',
+      effDatasetInheritancePath: 'direct',
     }));
 
     await renderComponent(this);
@@ -152,7 +152,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     async function () {
       this.set('spacePrivileges.view', false);
       this.set('file', createFile({
-        effDatasetMembership: 'direct',
+        effDatasetInheritancePath: 'direct',
       }));
 
       await renderComponent(this);
@@ -165,7 +165,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('renders dataset tag as enabled if file has dataset and has space_view privileges', async function () {
     this.set('spacePrivileges.view', true);
     this.set('file', createFile({
-      effDatasetMembership: 'direct',
+      effDatasetInheritancePath: 'direct',
     }));
 
     await renderComponent(this);
@@ -179,7 +179,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     async function () {
       this.set('spacePrivileges.viewQos', false);
       this.set('file', createFile({
-        effQosMembership: 'direct',
+        effQosInheritancePath: 'direct',
       }));
 
       await renderComponent(this);
@@ -192,7 +192,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('renders qos tag as enabled if file has direct qos and has space_view_qos privileges', async function () {
     this.set('spacePrivileges.viewQos', true);
     this.set('file', createFile({
-      effQosMembership: 'direct',
+      effQosInheritancePath: 'direct',
     }));
 
     await renderComponent(this);
@@ -295,7 +295,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
         file: createFile({
           type,
           effProtectionFlags: ['data_protection'],
-          effDatasetMembership: 'ancestor',
+          effDatasetInheritancePath: 'ancestor',
         }),
       }
     );
@@ -307,7 +307,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
         file: createFile({
           type,
           effProtectionFlags: ['metadata_protection'],
-          effDatasetMembership: 'ancestor',
+          effDatasetInheritancePath: 'ancestor',
         }),
       }
     );
@@ -319,7 +319,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
         file: createFile({
           type,
           effProtectionFlags: ['data_protection', 'metadata_protection'],
-          effDatasetMembership: 'ancestor',
+          effDatasetInheritancePath: 'ancestor',
         }),
       }
     );
@@ -336,7 +336,7 @@ function testProtectedFlag(flagTypes) {
   it(description, async function () {
     this.set(
       'file',
-      createFile({ effProtectionFlags, effDatasetMembership: 'ancestor' })
+      createFile({ effProtectionFlags, effDatasetInheritancePath: 'ancestor' })
     );
 
     await renderComponent(this);

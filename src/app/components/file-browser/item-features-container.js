@@ -3,7 +3,7 @@
  * provides container for displaying feature tags with hidden information about inherited
  * features and an "expand" button for displaying full information.
  *
- * For example: a file have `effQosMembership` property with `directAndAncestor`
+ * For example: a file have `effQosInheritancePath` property with `directAndAncestor`
  * membership. Initially we want to show only direct "QoS" tag and rest of inherited
  * info collapsed into "expand" button. When user clicks the expand button, full
  * features inheritance information is shown on tags.
@@ -23,6 +23,13 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { defineProperty } from '@ember/object';
 
 /**
+ * A source from which the feature of file comes from. Typically used by backend for
+ * `*InheritancePath` properties.
+ * - `none` - the file has not this feature at all
+ * - `direct` - the feature is applied directly on this file
+ * - `directAndAncestor` - the feature is both directly applied on the file and some
+ *   ancestor of the file has feature of the same type, so result is a sum of these
+ * - `ancestor` - the feature is applied on the file only by some ancestor, not directly
  * @typedef {'none'|'direct'|'directAndAncestor'|'ancestor'} ItemFeatureMembership
  */
 
@@ -32,7 +39,7 @@ import { defineProperty } from '@ember/object';
 
 /**
  * @typedef {String|Object} ItemFeatureSpec
- * @description A key of feature of the item like `effQosMembership` or object with
+ * @description A key of feature of the item like `effQosInheritancePath` or object with
  *   additional display configuration for feature. If the feature is specified (like
  *   aforementioned `effQosMembeship`), a browser item (eg. file) provide a property with
  *   that name and one of values: `'none'`, `'direct'`, `'directAndAncestor`` o

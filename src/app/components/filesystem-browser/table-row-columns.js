@@ -111,7 +111,7 @@ export default FbTableRowColumns.extend(I18n, {
   /**
    * @type {ComputedProperty<QosStatus>}
    */
-  qosStatus: reads('file.effFile.qosStatus'),
+  qosStatus: reads('file.effFile.qosStatusAggregate'),
 
   /**
    * @type {ComputedProperty<SpacePrivileges>}

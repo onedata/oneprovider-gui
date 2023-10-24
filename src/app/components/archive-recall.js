@@ -96,7 +96,7 @@ export default Component.extend(...mixins, {
     return [
       new FileRequirement({
         fileGri: get(effRecallParent, 'id'),
-        properties: ['recallingMembershipProxy'],
+        properties: ['recallingInheritancePathProxy'],
       }),
     ];
   }),
@@ -242,11 +242,11 @@ export default Component.extend(...mixins, {
   )),
 
   browserValidationErrorProxy: promise.object(computed(
-    'targetRecallParent.effFile.recallingMembershipProxy',
+    'targetRecallParent.effFile.recallingInheritancePathProxy',
     async function browserValidationError() {
-      const recallingMembership =
-        await this.get('targetRecallParent.effFile.recallingMembershipProxy');
-      if (recallingMembership && recallingMembership !== 'none') {
+      const recallingInheritancePath =
+        await this.get('targetRecallParent.effFile.recallingInheritancePathProxy');
+      if (recallingInheritancePath && recallingInheritancePath !== 'none') {
         return this.t('browserValidation.recalling');
       }
 

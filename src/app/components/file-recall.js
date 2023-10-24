@@ -104,7 +104,7 @@ export default Component.extend(...mixins, {
     return [
       new FileRequirement({
         fileGri: this.get('file.id'),
-        properties: ['recallingMembership', 'recallRootId', 'isRecalled'],
+        properties: ['recallingInheritancePath', 'archiveRecallRootFileId', 'isRecalled'],
       }),
     ];
   }),
@@ -241,7 +241,7 @@ export default Component.extend(...mixins, {
   )),
 
   recallRootFileProxy: promise.object(computed(
-    'file.recallRootId',
+    'file.archiveRecallRootFileId',
     function recallRootFileProxy() {
       const {
         file,
@@ -250,7 +250,7 @@ export default Component.extend(...mixins, {
         'fileManager',
         'file',
       );
-      return fileManager.getFileById(get(file, 'recallRootId'));
+      return fileManager.getFileById(get(file, 'archiveRecallRootFileId'));
     }
   )),
 
@@ -379,7 +379,7 @@ export default Component.extend(...mixins, {
   recallingPercent: computed(
     'archiveRecallInfo.totalByteSize',
     'archiveRecallState.bytesCopied',
-    'file.recallingMembership',
+    'file.recallingInheritancePath',
     function recallingPercent() {
       const file = this.get('file');
       return recallingPercentageProgress(file);

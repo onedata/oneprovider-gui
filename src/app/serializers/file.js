@@ -35,17 +35,17 @@ export const fileRelations = Object.freeze([
   { name: 'fileQosSummary', aspect: qosSummaryAspect },
   { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
   { name: 'storageLocationInfo', aspect: storageLocationInfoAspect },
-  // NOTE: currently recallRootId should be already set when doing ls++
+  // NOTE: currently archiveRecallRootFileId should be already set when doing ls++
   // to create valid relations; if this cointraint will to be changed,
   // a re-implementation will be needed
   {
     name: 'archiveRecallInfo',
-    idSource: 'recallRootId',
+    idSource: 'archiveRecallRootFileId',
     aspect: archiveRecallInfoAspect,
   },
   {
     name: 'archiveRecallState',
-    idSource: 'recallRootId',
+    idSource: 'archiveRecallRootFileId',
     aspect: archiveRecallStateAspect,
   },
 ]);

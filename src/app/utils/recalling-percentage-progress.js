@@ -1,7 +1,7 @@
 /**
  * Gets percentage (floored to integer) progress of recall process.
  *
- * **NOTE:** the file needs to have loaded custom properties: 'recallingMembership' and
+ * **NOTE:** the file needs to have loaded custom properties: 'recallingInheritancePath' and
  * 'isRecalled', and `archiveRecallState` and `archiveRecallInfo` should be resolved.
  *
  * @author Jakub Liput
@@ -14,11 +14,11 @@ import { get } from '@ember/object';
 const emptyValue = null;
 
 export default function recallingPercentageProgress(file) {
-  const recallingMembership = file && get(file, 'recallingMembership');
+  const recallingInheritancePath = file && get(file, 'recallingInheritancePath');
   const isRecallInfoApplicable = Boolean(file && (
     get(file, 'isRecalled') ||
-    recallingMembership === 'direct' ||
-    recallingMembership === 'ancestor'
+    recallingInheritancePath === 'direct' ||
+    recallingInheritancePath === 'ancestor'
   ));
   if (!isRecallInfoApplicable) {
     return emptyValue;

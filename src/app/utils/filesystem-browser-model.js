@@ -381,19 +381,19 @@ export default BaseBrowserModel.extend(...mixins, {
       // it requirements wouldn't be prepared earlier).
       if (!this.previewMode) {
         // file-features component
-        if (this.fileFeatures.includes('effDatasetMembership')) {
+        if (this.fileFeatures.includes('effDatasetInheritancePath')) {
           basicPropertySet
-            .add('effDatasetMembership')
+            .add('effDatasetInheritancePath')
             .add('dataIsProtected')
             .add('metadataIsProtected');
         }
-        if (this.fileFeatures.includes('effQosMembership')) {
-          basicPropertySet.add('effQosMembership');
+        if (this.fileFeatures.includes('effQosInheritancePath')) {
+          basicPropertySet.add('effQosInheritancePath');
         }
-        if (this.fileFeatures.includes('recallingMembership')) {
+        if (this.fileFeatures.includes('recallingInheritancePath')) {
           basicPropertySet
-            .add('recallingMembership')
-            .add('recallRootId');
+            .add('recallingInheritancePath')
+            .add('archiveRecallRootFileId');
         }
 
         // table-row-status-bar component
@@ -448,7 +448,7 @@ export default BaseBrowserModel.extend(...mixins, {
           listedFilesPropertySet.add('localReplicationRate');
         }
         if (columns.qos?.[columnRequirementsEnableProperty]) {
-          listedFilesPropertySet.add('qosStatus');
+          listedFilesPropertySet.add('qosStatusAggregate');
         }
       }
       return [...listedFilesPropertySet.values()];
@@ -1263,8 +1263,8 @@ export default BaseBrowserModel.extend(...mixins, {
       const selectedItems = this.get('selectedItems');
       return selectedItems && selectedItems.length === 1 && (
         get(selectedItems[0], 'isRecalled') ||
-        get(selectedItems[0], 'recallingMembership') === 'ancestor' ||
-        get(selectedItems[0], 'recallingMembership') === 'direct'
+        get(selectedItems[0], 'recallingInheritancePath') === 'ancestor' ||
+        get(selectedItems[0], 'recallingInheritancePath') === 'direct'
       );
     }
   ),

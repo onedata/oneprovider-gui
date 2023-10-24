@@ -60,7 +60,7 @@ export default Component.extend(...mixins, {
     return [
       new FileRequirement({
         fileGri: this.get('file.id'),
-        properties: ['recallRootId'],
+        properties: ['archiveRecallRootFileId'],
       }),
     ];
   }),
@@ -92,8 +92,8 @@ export default Component.extend(...mixins, {
       'onClose',
     );
     try {
-      const recallRootId = get(file, 'recallRootId');
-      const cancelResult = await fileManager.cancelRecall(recallRootId);
+      const archiveRecallRootFileId = get(file, 'archiveRecallRootFileId');
+      const cancelResult = await fileManager.cancelRecall(archiveRecallRootFileId);
       onCancelInvoked();
       return cancelResult;
     } catch (error) {

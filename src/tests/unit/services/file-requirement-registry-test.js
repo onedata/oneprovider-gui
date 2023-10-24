@@ -246,7 +246,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       const consumer1 = { name: 'c1' };
       const req1 = new FileRequirement({
         fileGri: 'file.a1.instance:private',
-        properties: ['posixPermissions', 'qosStatus'],
+        properties: ['posixPermissions', 'qosStatusAggregate'],
       });
       const req2 = new FileRequirement({
         fileGri: 'file.a2.instance:private',
@@ -259,12 +259,12 @@ describe('Unit | Service | file-requirement-registry', function () {
       // an old condition with the same properties
       const newReq1 = new FileRequirement({
         fileGri: 'file.a1.instance:private',
-        properties: ['posixPermissions', 'qosStatus'],
+        properties: ['posixPermissions', 'qosStatusAggregate'],
       });
       // a new condition with the same properties
       const newReq2 = new FileRequirement({
         fileGri: 'file.b1.instance:private',
-        properties: ['posixPermissions', 'qosStatus'],
+        properties: ['posixPermissions', 'qosStatusAggregate'],
       });
       // a weaker requirement for old condition (req2)
       const newReq3 = new FileRequirement({
@@ -305,7 +305,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       const consumer1 = { name: 'c1' };
       const req1 = new FileRequirement({
         fileGri: get(fileMap.a1, 'id'),
-        properties: ['posixPermissions', 'qosStatus'],
+        properties: ['posixPermissions', 'qosStatusAggregate'],
       });
       const req2 = new FileRequirement({
         fileGri: get(fileMap.a2, 'id'),
@@ -318,12 +318,12 @@ describe('Unit | Service | file-requirement-registry', function () {
       // an old condition with the same properties
       const newReq1 = new FileRequirement({
         fileGri: get(fileMap.a1, 'id'),
-        properties: ['posixPermissions', 'qosStatus'],
+        properties: ['posixPermissions', 'qosStatusAggregate'],
       });
       // a new condition with the same properties
       const newReq2 = new FileRequirement({
         fileGri: get(fileMap.b1, 'id'),
-        properties: ['posixPermissions', 'qosStatus'],
+        properties: ['posixPermissions', 'qosStatusAggregate'],
       });
       // a weaker requirement for old condition (req2)
       const newReq3 = new FileRequirement({
@@ -366,7 +366,7 @@ describe('Unit | Service | file-requirement-registry', function () {
       const consumer1 = { name: 'c1' };
       const req1 = new FileRequirement({
         fileGri: get(fileMap.a1, 'id'),
-        properties: ['posixPermissions', 'qosStatus'],
+        properties: ['posixPermissions', 'qosStatusAggregate'],
       });
       const req2 = new FileRequirement({
         fileGri: get(fileMap.a2, 'id'),
@@ -379,12 +379,12 @@ describe('Unit | Service | file-requirement-registry', function () {
       // an old condition with the same properties
       const newReq1 = new FileRequirement({
         fileGri: get(fileMap.a1, 'id'),
-        properties: ['posixPermissions', 'qosStatus'],
+        properties: ['posixPermissions', 'qosStatusAggregate'],
       });
       // a new condition with the same properties
       const newReq2 = new FileRequirement({
         fileGri: get(fileMap.b1, 'id'),
-        properties: ['posixPermissions', 'qosStatus'],
+        properties: ['posixPermissions', 'qosStatusAggregate'],
       });
       // a weaker requirement for old condition (req2)
       const newReq3 = new FileRequirement({

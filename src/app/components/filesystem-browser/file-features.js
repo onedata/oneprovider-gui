@@ -23,9 +23,9 @@ import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/model
 import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
 
 export const defaultFilesystemFeatures = Object.freeze([
-  'effDatasetMembership',
-  'effQosMembership',
-  'recallingMembership',
+  'effDatasetInheritancePath',
+  'effQosInheritancePath',
+  'recallingInheritancePath',
 ]);
 
 const mixins = Object.freeze([
@@ -200,7 +200,7 @@ export default Component.extend(...mixins, {
   ),
 
   recallingPercent: computed(
-    'file.{recallingMembership,archiveRecallState.bytesCopied,archiveRecallInfo.totalByteSize}',
+    'file.{recallingInheritancePath,archiveRecallState.bytesCopied,archiveRecallInfo.totalByteSize}',
     function recallingPercent() {
       return recallingPercentageProgress(this.get('file'));
     }
@@ -224,9 +224,9 @@ export default Component.extend(...mixins, {
     }
   }),
 
-  recallingMembershipObserver: observer(
-    'item.recallingMembership',
-    function recallingMembershipObserver() {
+  recallingInheritancePathObserver: observer(
+    'item.recallingInheritancePath',
+    function recallingInheritancePathObserver() {
       this.tryDestroyRecallWatcher();
       this.tryCreateRecallWatcher();
     }
@@ -251,8 +251,11 @@ export default Component.extend(...mixins, {
       // watcher already registered for this component
       return;
     }
-    const recallingMembership = item && get(item, 'recallingMembership');
-    if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
+    const recallingInheritancePath = item && get(item, 'recallingInheritancePath');
+    if (
+      recallingInheritancePath === 'direct' ||
+      recallingInheritancePath === 'ancestor'
+    ) {
       const archiveRecallWatcherToken =
         archiveRecallStateManager.watchRecall(item);
       this.set('archiveRecallWatcherToken', archiveRecallWatcherToken);

@@ -124,7 +124,7 @@ export default FilesystemBrowserModel.extend({
    * @override
    */
   fileFeatures: Object.freeze([
-    ..._.without(defaultFilesystemFeatures, 'effDatasetMembership'),
+    ..._.without(defaultFilesystemFeatures, 'effDatasetInheritancePath'),
     Object.freeze({ key: 'archiveCreating', noticeLevel: 'warning' }),
     Object.freeze({ key: 'archiveCancelled', noticeLevel: 'warning' }),
     Object.freeze({ key: 'archiveFailed', noticeLevel: 'danger' }),

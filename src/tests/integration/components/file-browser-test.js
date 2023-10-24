@@ -487,10 +487,10 @@ describe('Integration | Component | file-browser (main component)', function () 
           this.set('spacePrivileges', { view: true });
         });
 
-        ['ancestor', 'direct', 'directAndAncestor'].forEach(effQosMembership => {
-          it(`displays functional qos tag in table header if current dir has "${effQosMembership}" qos`,
+        ['ancestor', 'direct', 'directAndAncestor'].forEach(effQosInheritancePath => {
+          it(`displays functional qos tag in table header if current dir has "${effQosInheritancePath}" qos`,
             async function () {
-              this.set('dir.effQosMembership', effQosMembership);
+              this.set('dir.effQosInheritancePath', effQosInheritancePath);
               this.set('spacePrivileges', { view: true, viewQos: true });
               const openInfo = sinon.spy();
               this.set('openInfo', openInfo);
@@ -504,7 +504,7 @@ describe('Integration | Component | file-browser (main component)', function () 
               expect(headStatusBar, 'head status bar').to.have.length(1);
               expect(qosTagGroup, 'qos tag').to.have.length(1);
               expect(qosTagGroup[0]).to.contain.text('QoS');
-              if (['ancestor', 'directAndAncestor'].includes(effQosMembership)) {
+              if (['ancestor', 'directAndAncestor'].includes(effQosInheritancePath)) {
                 const inheritanceIcon = qosTagGroup[0].querySelectorAll(
                   '.oneicon-inheritance'
                 );
@@ -520,7 +520,7 @@ describe('Integration | Component | file-browser (main component)', function () 
 
         it('does not display qos tag in table header if current dir has none qos membership',
           async function () {
-            this.set('dir.effQosMembership', 'none');
+            this.set('dir.effQosInheritancePath', 'none');
 
             await renderComponent(this);
 
@@ -533,7 +533,7 @@ describe('Integration | Component | file-browser (main component)', function () 
 
         it('displays functional dataset tag in table header if current dir has direct dataset',
           async function () {
-            this.set('dir.effDatasetMembership', 'direct');
+            this.set('dir.effDatasetInheritancePath', 'direct');
             const openDatasets = sinon.spy();
             this.set('openDatasets', openDatasets);
 
@@ -553,7 +553,7 @@ describe('Integration | Component | file-browser (main component)', function () 
 
         it('does not display functional dataset tag in table header if current dir has "none" dataset membership',
           async function () {
-            this.set('dir.effDatasetMembership', 'none');
+            this.set('dir.effDatasetInheritancePath', 'none');
             const openDatasets = sinon.spy();
             this.set('openDatasets', openDatasets);
 
@@ -685,7 +685,7 @@ function testOpenDatasetsModal(openDescription, openFunction) {
   it(`invokes datasets modal opening when ${openDescription}`, async function () {
     const openDatasets = sinon.spy();
     this.set('openDatasets', openDatasets);
-    this.set('item1.effDatasetMembership', 'direct');
+    this.set('item1.effDatasetInheritancePath', 'direct');
 
     await renderComponent(this);
 

@@ -60,7 +60,7 @@ export default Service.extend({
   },
 
   /**
-   * The `file` must have a `recallRootId` property requirement.
+   * The `file` must have an `archiveRecallRootFileId` property requirement.
    * @public
    * @param {Models.File} file
    * @returns {string|undefined} Token for managing registered watcher (see
@@ -70,23 +70,23 @@ export default Service.extend({
     if (!this.assertValidFile(file, 'watchRecall')) {
       return;
     }
-    const recallRootId = get(file, 'recallRootId');
+    const archiveRecallRootFileId = get(file, 'archiveRecallRootFileId');
     const watchersRegistry = this.get('watchersRegistry');
-    let entry = watchersRegistry.get(recallRootId);
+    let entry = watchersRegistry.get(archiveRecallRootFileId);
     let watcher;
     if (!entry) {
       entry = {
         tokens: new Set(),
         watcher: null,
       };
-      watchersRegistry.set(recallRootId, entry);
+      watchersRegistry.set(archiveRecallRootFileId, entry);
     }
     if (!entry.watcher) {
       watcher = this.createWatcherObject(file);
       entry.watcher = watcher;
       entry.watcher.start();
     }
-    watcher = watcher || watchersRegistry.get(recallRootId).watcher;
+    watcher = watcher || watchersRegistry.get(archiveRecallRootFileId).watcher;
     const token = uuid();
     entry.tokens.add(token);
     return token;
@@ -102,14 +102,14 @@ export default Service.extend({
     if (!this.assertValidFile(file, 'watchRecall')) {
       return;
     }
-    const recallRootId = get(file, 'recallRootId');
+    const archiveRecallRootFileId = get(file, 'archiveRecallRootFileId');
     if (!token) {
       throw new Error(
         'service:archive-recall-state-manager#unwatchRecall: token must not be empty'
       );
     }
     const watchersRegistry = this.get('watchersRegistry');
-    const entry = watchersRegistry.get(recallRootId);
+    const entry = watchersRegistry.get(archiveRecallRootFileId);
     if (!entry || !entry.tokens.has(token)) {
       return;
     }
@@ -118,7 +118,7 @@ export default Service.extend({
       if (entry.watcher) {
         entry.watcher.destroy();
       }
-      watchersRegistry.delete(recallRootId);
+      watchersRegistry.delete(archiveRecallRootFileId);
     }
   },
 
@@ -128,9 +128,9 @@ export default Service.extend({
    * @returns {ArchiveRecallStateWatcher|null}
    */
   getWatcher(file) {
-    const recallRootId = get(file, 'recallRootId');
+    const archiveRecallRootFileId = get(file, 'archiveRecallRootFileId');
     const watchersRegistry = this.get('watchersRegistry');
-    const entry = watchersRegistry.get(recallRootId);
+    const entry = watchersRegistry.get(archiveRecallRootFileId);
     return entry && entry.watcher || null;
   },
 
@@ -153,9 +153,9 @@ export default Service.extend({
    * @returns {boolean}
    */
   assertValidFile(file, operationName) {
-    if (!get(file, 'recallRootId')) {
+    if (!get(file, 'archiveRecallRootFileId')) {
       const message =
-        `Tried to invoke "${operationName}" with a file without recallRootId, ignoring. You may have forgotten to add the "recallRootId" property requirement to file or try to operate on the file that is not recalled.`;
+        `Tried to invoke "${operationName}" with a file without archiveRecallRootFileId, ignoring. You may have forgotten to add the "archiveRecallRootFileId" property requirement to file or try to operate on the file that is not recalled.`;
       if (this.areWarningsFatal) {
         throw new Error(message);
       } else {

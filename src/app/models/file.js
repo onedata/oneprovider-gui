@@ -152,17 +152,17 @@ export const RuntimeProperties = Mixin.create({
    * - direct - if the file is a target (root) for recall process
    * - ancestor - if the file is a descendant of root for recall process (as above)
    * - none - none of above or the associated recall process finished
-   * @type {ComputedProperty<PromiseObject<null|'none'|'direct'|'ancestor'>>}
+   * @type {ComputedProperty<PromiseObject<Exclude<ItemFeatureMembership, 'directAndAncestor'|null>>>}
    */
-  recallingMembershipProxy: promise.object(computed(
-    'recallRootId',
+  recallingInheritancePathProxy: promise.object(computed(
+    'archiveRecallRootFileId',
     'archiveRecallInfo.finishTime',
-    async function recallingMembershipProxy() {
+    async function recallingInheritancePathProxy() {
       const {
-        recallRootId,
+        archiveRecallRootFileId,
         entityId,
-      } = this.getProperties('recallRootId', 'entityId');
-      if (recallRootId) {
+      } = this.getProperties('archiveRecallRootFileId', 'entityId');
+      if (archiveRecallRootFileId) {
         const archiveRecallInfoContent = await this.get('archiveRecallInfo');
         if (
           archiveRecallInfoContent &&
@@ -170,7 +170,7 @@ export const RuntimeProperties = Mixin.create({
         ) {
           return 'none';
         } else {
-          return recallRootId === entityId ? 'direct' : 'ancestor';
+          return archiveRecallRootFileId === entityId ? 'direct' : 'ancestor';
         }
       } else {
         return 'none';
@@ -179,21 +179,21 @@ export const RuntimeProperties = Mixin.create({
   )),
 
   /**
-   * @type {ComputedProperty<null|'none'|'direct'|'ancestor'>}
+   * @type {ComputedProperty<Exclude<ItemFeatureMembership, 'directAndAncestor'|null>>}
    */
-  recallingMembership: computedLastProxyContent('recallingMembershipProxy'),
+  recallingInheritancePath: computedLastProxyContent('recallingInheritancePathProxy'),
 
   isRecalling: or(
-    eq('recallingMembership', raw('direct')),
-    eq('recallingMembership', raw('ancestor')),
+    eq('recallingInheritancePath', raw('direct')),
+    eq('recallingInheritancePath', raw('ancestor')),
   ),
 
   isRecalledProxy: promise.object(computed(
-    'recallRootId',
+    'archiveRecallRootFileId',
     'archiveRecallInfo.finishTime',
-    async function recallingMembershipProxy() {
-      const recallRootId = this.get('recallRootId');
-      if (recallRootId) {
+    async function recallingInheritancePathProxy() {
+      const archiveRecallRootFileId = this.get('archiveRecallRootFileId');
+      if (archiveRecallRootFileId) {
         const archiveRecallInfoContent = await this.get('archiveRecallInfo');
         return Boolean(
           archiveRecallInfoContent &&
@@ -404,17 +404,17 @@ export default Model.extend(
     /**
      * @type {ComputedProperty<QosStatus>}
      */
-    qosStatus: attr('string'),
+    qosStatusAggregate: attr('string'),
 
     /**
-     * Possible values: none, direct, ancestor, directAndAncestor
+     * @type {ComputedProperty<ItemFeatureMembership>}
      */
-    effQosMembership: attr('string', { defaultValue: 'none' }),
+    effQosInheritancePath: attr('string', { defaultValue: 'none' }),
 
     /**
-     * Possible values: none, direct, ancestor, directAndAncestor
+     * @type {ComputedProperty<ItemFeatureMembership>}
      */
-    effDatasetMembership: attr('string', { defaultValue: 'none' }),
+    effDatasetInheritancePath: attr('string', { defaultValue: 'none' }),
 
     /**
      * Effective protection flags inherited from attached ancestor dataset flags.
@@ -434,7 +434,7 @@ export default Model.extend(
      * root. Null or empty otherwise.
      * @type {ComputedProperty<string>}
      */
-    recallRootId: attr('string'),
+    archiveRecallRootFileId: attr('string'),
 
     /**
      * Modification time (last time a file’s contents were modified) in UNIX

@@ -1103,15 +1103,15 @@ export default Service.extend({
 
   /**
    * Begins a procedure of cancelling archive recall process that has root in
-   * file with `recallRootId` entity ID.
-   * @param {string} recallRootId
+   * file with `archiveRecallRootFileId` entity ID.
+   * @param {string} archiveRecallRootFileId
    * @returns {Promise<Object|null>} stop recall response or null if file is not a part
    *   of recalled tree
    */
-  async cancelRecall(recallRootId) {
+  async cancelRecall(archiveRecallRootFileId) {
     const requestGri = gri({
       entityType: fileEntityType,
-      entityId: recallRootId,
+      entityId: archiveRecallRootFileId,
       aspect: cancelRecallAspect,
     });
     return this.get('onedataGraph').request({
@@ -1123,14 +1123,14 @@ export default Service.extend({
 
   /**
    * Loads recall process logs for specific recall root.
-   * @param {string} recallRootId
+   * @param {string} archiveRecallRootFileId
    * @param {AuditLogListingParams} listingParams
    * @returns {Promise<AuditLogEntriesPage<RecallAuditLogEntryContent>>}
    */
-  async getRecallLogs(recallRootId, listingParams) {
+  async getRecallLogs(archiveRecallRootFileId, listingParams) {
     const requestGri = gri({
       entityType: fileEntityType,
-      entityId: recallRootId,
+      entityId: archiveRecallRootFileId,
       aspect: recallLogAspect,
     });
     return await this.get('auditLogManager').getAuditLogEntries(
