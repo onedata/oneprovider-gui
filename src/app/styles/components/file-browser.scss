@@ -73,17 +73,19 @@
       padding: 0;
     }
 
-    th:not(.border-dashed) {
+    th {
       border-right: 2px solid transparent;
     }
 
-    .fb-table-head-row th.border-solid, th.border-solid {
-      border-right: 2px solid lighten($color-one-blue-gray, 20%);
+    th.border-dashed.border-solid {
+      border-right-style: solid;
+      border-right-color: lighten($color-one-blue-gray, 20%);
 
-      .triangle {
+      .draggable-area::after {
+        content: '';
         position: absolute;
         top: 61px;
-        right: -9px;
+        right: 1px;
         width: 0;
         height: 0;
         border-left: 8px solid transparent;
@@ -94,8 +96,9 @@
       }
     }
 
-    th.border-dashed:not(.border-solid) {
-      border-right: 2px dashed $table-border-color;
+    th.border-dashed {
+      border-right-style: dashed;
+      border-right-color: $table-border-color;
     }
     th:hover .column-move-icon{
       @media (hover: hover) {
@@ -117,8 +120,8 @@
       vertical-align: middle;
       visibility: hidden;
       position: absolute;
-      left: -1.5em;
-      top: 0.3em;
+      left: -1.35em;
+      top: 0.25em;
     }
     .column-name {
       position: relative;

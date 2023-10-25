@@ -94,7 +94,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {ComputedProperty<string>}
    */
-  inputId: computed('columnName', function inputId() {
+  checkboxInputId: computed('columnName', function checkboxInputId() {
     return `${this.elementId}-${this.columnName}Checkbox`;
   }),
 

@@ -2,7 +2,14 @@
   .webui-popover-content {
     padding-top: $padding-xs-horizontal;
     padding-bottom: $padding-xs-horizontal;
-    padding-left: $padding-xs-horizontal;
+    @media (hover: hover) {
+      padding-left: $padding-xs-horizontal;
+    }
+  }
+  @media (hover: none) {
+    .column-move-icon {
+      display: none;
+    }
   }
   .columns-list {
     padding: 0;

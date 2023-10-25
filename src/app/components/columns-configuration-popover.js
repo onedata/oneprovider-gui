@@ -12,9 +12,12 @@ import { next } from '@ember/runloop';
 import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { inject as service } from '@ember/service';
 
 export default Component.extend({
   classNames: ['columns-configuration-popover'],
+
+  dragDrop: service(),
 
   /**
    * @virtual
@@ -73,6 +76,17 @@ export default Component.extend({
    */
   translationKey: reads('columnsConfiguration.translationKey'),
 
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isTargetForDrop: computed(
+    'dragDrop.draggedElementModel',
+    function isTargetForDrop() {
+      const draggedElementModel = this.dragDrop.draggedElementModel;
+      return draggedElementModel?.element.classList.contains('column-item');
+    }
+  ),
+
   applyCurrentColumnsOrder() {
     this.columnsConfiguration.saveColumnsOrder();
     this.columnsConfiguration.checkColumnsVisibility();
@@ -121,6 +135,8 @@ export default Component.extend({
       this.columnsConfiguration.moveColumn(draggedElement.columnName, index + 1);
       this.applyCurrentColumnsOrder();
     },
-
+    validateDragEvent() {
+      return this.get('isTargetForDrop');
+    },
   },
 });

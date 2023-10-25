@@ -48,34 +48,34 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    dragAction(columnName, event) {
+    headingDragAction(columnName, event) {
       event.dataTransfer.setData('text', columnName);
       this.set('isDropBorderShown', true);
     },
-    dragEndAction() {
+    headingDragEndAction() {
       this.set('isDropBorderShown', false);
     },
-    dropAction(index, event) {
+    headingDropAction(index, event) {
       const columnName = event.dataTransfer.getData('text');
       this.moveColumn(index + 1, columnName);
       event.target.closest('th').classList.remove('border-solid');
       this.set('isDropBorderShown', false);
     },
-    dragOverAction(event) {
+    headingDragOverAction(event) {
       event.preventDefault();
       const lastActiveDropOverElem = event.target.closest('th');
       lastActiveDropOverElem.classList.add('border-solid');
 
       this.set('lastActiveDropOverElem', lastActiveDropOverElem);
     },
-    dragLeaveAction() {
+    headingDragLeaveAction() {
       this.lastActiveDropOverElem.classList.remove('border-solid');
     },
 
-    dragStart() {
+    checkboxDragStart() {
       this.browserModel.disableUploadArea();
     },
-    dragEnd() {
+    checkboxDragEnd() {
       this.browserModel.enableUploadArea();
     },
   },

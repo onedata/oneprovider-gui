@@ -12,6 +12,7 @@
       <ul class="columns-list">
         {{one-draggable-object-target
           action=(action "acceptDraggedElement" -1)
+          validateDragEvent=(action "validateDragEvent")
         }}
         {{#each columnsConfiguration.columnsOrder as |columnName index|}}
           {{columns-configuration-popover/column-item
@@ -29,6 +30,7 @@
           }}
           {{one-draggable-object-target
             action=(action "acceptDraggedElement" index)
+            validateDragEvent=(action "validateDragEvent")
           }}
         {{/each}}
       </ul>

@@ -24,12 +24,11 @@
   </div>
   <div
     class="draggable-area"
-    ondragover={{action "dragOverAction"}}
-    ondragleave={{action "dragLeaveAction"}}
-    ondrop={{action "dropAction" -1}}
+    ondragover={{action "headingDragOverAction"}}
+    ondragleave={{action "headingDragLeaveAction"}}
+    ondrop={{action "headingDropAction" -1}}
   >
   </div>
-  <div class="triangle"></div>
 </th>
 {{#each columnsConfiguration.columnsOrder as |columnName i|}}
   {{#if (get columnsConfiguration (concat "columns." columnName ".isVisible"))}}
@@ -42,8 +41,8 @@
       }}
       style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
       draggable=true
-      ondragstart={{action "dragAction" columnName}}
-      ondragend={{action "dragEndAction"}}
+      ondragstart={{action "headingDragAction" columnName}}
+      ondragend={{action "headingDragEndAction"}}
     >
       <span class="column-name">
         {{one-icon icon="drag" class="column-move-icon"}}
@@ -58,18 +57,17 @@
       {{/if}}
       <div
         class="draggable-area"
-        ondragover={{action "dragOverAction"}}
-        ondragleave={{action "dragLeaveAction"}}
-        ondrop={{action "dropAction" i}}
+        ondragover={{action "headingDragOverAction"}}
+        ondragleave={{action "headingDragLeaveAction"}}
+        ondrop={{action "headingDropAction" i}}
       >
       </div>
-      <div class="triangle"></div>
     </th>
   {{/if}}
 {{/each}}
 {{!-- hide actions th to make space for jump-control (see also colspan in first th) --}}
 {{columns-configuration-cell
   columnsConfiguration=columnsConfiguration
-  dragStartAction=(if (not isShareRoot) (action "dragStart"))
-  dragEndAction=(if (not isShareRoot) (action "dragEnd"))
+  dragStartAction=(if (not isShareRoot) (action "checkboxDragStart"))
+  dragEndAction=(if (not isShareRoot) (action "checkboxDragEnd"))
 }}

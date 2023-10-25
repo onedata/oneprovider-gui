@@ -204,10 +204,12 @@ export default EmberObject.extend(...mixins, {
     );
     const enabledColumnsList = enabledColumns?.split(',');
 
-    const columnsOrder = globals.localStorage.getItem(
+    const columnsOrderFromLocalStorage = globals.localStorage.getItem(
       `${this.persistedConfigurationKey}.columnsOrder`
     );
-    const columnsOrderList = columnsOrder?.split(',');
+    const columnsOrderListFromLocalStorage = columnsOrderFromLocalStorage?.split(',');
+
+    const columnsOrderList = [];
 
     if (enabledColumnsList) {
       for (const columName in this.columns) {
@@ -216,11 +218,10 @@ export default EmberObject.extend(...mixins, {
         );
       }
     }
-    if (columnsOrderList) {
-      for (const columName of columnsOrderList) {
-        if (!this.columnsOrder.includes(columName)) {
-          const index = columnsOrderList.indexOf(columName);
-          columnsOrderList.splice(index, 1);
+    if (columnsOrderListFromLocalStorage) {
+      for (const columName of columnsOrderListFromLocalStorage) {
+        if (this.columnsOrder.includes(columName)) {
+          columnsOrderList.push(columName);
         }
       }
       for (const columName of this.columnsOrder) {

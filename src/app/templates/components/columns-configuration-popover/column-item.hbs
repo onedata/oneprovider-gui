@@ -5,7 +5,7 @@
 }}
   {{one-icon icon="drag" class="column-move-icon"}}
   {{one-checkbox
-    inputId=inputId
+    inputId=checkboxInputId
     checked=(get columnValue "isEnabled")
     update=(action "checkboxChanged" columnName)
     class=(concat-classes
@@ -14,7 +14,7 @@
     )
   }}
   <label
-    for={{inputId}}
+    for={{checkboxInputId}}
     class="column-name-label"
   >
     <span class="one-label checkbox-label">

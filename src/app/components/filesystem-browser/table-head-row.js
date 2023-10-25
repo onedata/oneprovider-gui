@@ -99,7 +99,7 @@ export default FbTableHeadRow.extend(...mixins, {
     changeJumpControlValue(value) {
       this.get('browserModel').changeJumpControlValue(value);
     },
-    dragAction(columnName, event) {
+    headingDragAction(columnName, event) {
       if (!this.isShareRoot) {
         this.browserModel.disableUploadArea();
       }
@@ -107,7 +107,7 @@ export default FbTableHeadRow.extend(...mixins, {
 
       this.set('isDropBorderShown', true);
     },
-    dragEndAction() {
+    headingDragEndAction() {
       if (!this.isShareRoot) {
         this.browserModel.enableUploadArea();
       }
