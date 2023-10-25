@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11252 Added optional file attributes fetching; enabled QoS and Replication columns in file browser
+* VFS-11242 Added downloading automation audit log content
 * VFS-11418 Fixed wrong file size in data distribution modal
 * VFS-11385 Turned off stats model fetching when not on dir size stats info tab
 * VFS-11392 Updated directory size stats metric names
