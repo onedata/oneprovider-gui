@@ -25,8 +25,58 @@ export default Component.extend(I18n, {
    */
   columnsConfiguration: reads('browserModel.columnsConfiguration'),
 
+  /**
+   * @type {boolean}
+   */
+  isDropBorderShown: false,
+
+  /**
+   * @type {Object}
+   */
+  lastActiveDropOverElem: undefined,
+
   didInsertElement() {
     this._super(...arguments);
     this.browserModel.columnsConfiguration.checkColumnsVisibility();
+  },
+
+  moveColumn(index, columnName) {
+    this.columnsConfiguration.moveColumn(columnName, index);
+    this.columnsConfiguration.saveColumnsOrder();
+    this.columnsConfiguration.checkColumnsVisibility();
+    this.columnsConfiguration.notifyPropertyChange('columnsOrder');
+  },
+
+  actions: {
+    headingDragAction(columnName, event) {
+      event.dataTransfer.setData('text', columnName);
+      this.set('isDropBorderShown', true);
+    },
+    headingDragEndAction() {
+      this.set('isDropBorderShown', false);
+    },
+    headingDropAction(index, event) {
+      const columnName = event.dataTransfer.getData('text');
+      this.moveColumn(index + 1, columnName);
+      event.target.closest('th').classList.remove('border-solid');
+      this.set('isDropBorderShown', false);
+    },
+    headingDragOverAction(event) {
+      event.preventDefault();
+      const lastActiveDropOverElem = event.target.closest('th');
+      lastActiveDropOverElem.classList.add('border-solid');
+
+      this.set('lastActiveDropOverElem', lastActiveDropOverElem);
+    },
+    headingDragLeaveAction() {
+      this.lastActiveDropOverElem.classList.remove('border-solid');
+    },
+
+    checkboxDragStart() {
+      this.browserModel.disableUploadArea();
+    },
+    checkboxDragEnd() {
+      this.browserModel.enableUploadArea();
+    },
   },
 });
