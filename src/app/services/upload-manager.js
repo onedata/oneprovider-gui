@@ -101,6 +101,16 @@ export default Service.extend(...mixins, {
   //#endregion
 
   /**
+   * @type {(event: Object) => void}
+   */
+  startDragFun: undefined,
+
+  /**
+   * @type {(event: Object) => void}
+   */
+  endDragFun: undefined,
+
+  /**
    * Mapping space -> Resumable
    */
   resumablePerSpaceMap: computed(() => new Map()),
@@ -538,10 +548,6 @@ export default Service.extend(...mixins, {
    * @returns {undefined}
    */
   assignUploadDrop(dropElement) {
-    if (dropElement === this.get('dropElement')) {
-      return;
-    }
-
     this.set('dropElement', dropElement);
     this.get('resumable').assignDrop(dropElement);
 
@@ -556,11 +562,23 @@ export default Service.extend(...mixins, {
         dropElement.classList.remove('file-drag');
       }
     };
+    this.set('startDragFun', startDrag);
+    this.set('endDragFun', endDrag);
 
     dropElement.addEventListener('dragenter', startDrag);
     dropElement.addEventListener('dragleave', endDrag);
     dropElement.addEventListener('dragend', endDrag);
     dropElement.addEventListener('drop', endDrag);
+  },
+
+  unassignUploadBrowse() {
+    this.get('resumable').unAssignDrop(this.dropElement);
+    const dropElement = this.dropElement;
+
+    dropElement.removeEventListener('dragenter', this.startDragFun);
+    dropElement.removeEventListener('dragleave', this.endDragFun);
+    dropElement.removeEventListener('dragend', this.endDragFun);
+    dropElement.removeEventListener('drop', this.endDragFun);
   },
 
   /**

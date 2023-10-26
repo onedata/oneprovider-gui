@@ -61,6 +61,9 @@
     }
   }
   .fb-table {
+    .fb-files-table {
+      border-collapse: separate;
+    }
     td.multiline {
       vertical-align: middle;
       padding-top: 8px;
@@ -69,6 +72,65 @@
     }
     th.fb-table-secondary-col {
       width: var(--column-width, 200px);
+      position: relative;
+      padding: 0;
+    }
+
+    th {
+      border-right: 2px solid transparent;
+    }
+
+    th.border-dashed.border-solid {
+      border-right-style: solid;
+      border-right-color: lighten($color-one-blue-gray, 20%);
+
+      .draggable-area::after {
+        content: '';
+        position: absolute;
+        top: 61px;
+        right: 1px;
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+
+        border-bottom: 11px solid lighten($color-one-blue-gray, 20%);
+        z-index: 2;
+      }
+    }
+
+    th.border-dashed {
+      border-right-style: dashed;
+      border-right-color: $table-border-color;
+    }
+    th:hover .column-move-icon{
+      @media (hover: hover) {
+        visibility: visible;
+        cursor: grab;
+      }
+    }
+    .draggable-area {
+      position: absolute;
+      width: 20px;
+
+      opacity: 0.6;
+      height: 63px;
+      right: -10px;
+      top: 0;
+      z-index: 1;
+    }
+    .column-move-icon {
+      vertical-align: middle;
+      visibility: hidden;
+      position: absolute;
+      left: -1.35em;
+      top: 0.25em;
+    }
+    .column-name {
+      position: relative;
+    }
+    .column-move-icon {
+      opacity: 0.6;
     }
   }
 }

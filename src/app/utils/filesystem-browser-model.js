@@ -1827,4 +1827,12 @@ export default BaseBrowserModel.extend(...mixins, {
       }).hiddenPromise;
     }
   },
+
+  disableUploadArea() {
+    this.uploadManager.unassignUploadBrowse();
+  },
+
+  enableUploadArea() {
+    this.uploadManager.assignUploadDrop(this.uploadManager.dropElement);
+  },
 });

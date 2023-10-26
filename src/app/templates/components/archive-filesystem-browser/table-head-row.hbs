@@ -1,4 +1,9 @@
-<th class="fb-table-col-files">
+<th
+  class={{concat-classes
+    "fb-table-col-files"
+    (if isDropBorderShown "border-dashed")
+  }}
+>
   <div class="fb-table-first-col-container">
     <div class="table-header-text">{{tt this "files"}}</div>
     {{#if renderArchiveDipSwitch}}
@@ -11,21 +16,46 @@
     <div class="spacer"></div>
     <div class="table-header-status-bar">{{yield}}</div>
   </div>
+  <div
+    class="draggable-area"
+    ondragover={{action "headingDragOverAction"}}
+    ondragleave={{action "headingDragLeaveAction"}}
+    ondrop={{action "headingDropAction" -1}}
+  >
+  </div>
 </th>
-{{#each columnsConfiguration.columnsOrder as |columnName|}}
+{{#each columnsConfiguration.columnsOrder as |columnName i|}}
   {{#if (get columnsConfiguration (concat "columns." columnName ".isVisible"))}}
     <th
-      class={{concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"}}
+      class={{concat-classes
+        (concat "fb-table-col-" columnName)
+        "fb-table-secondary-col"
+        "hidden-xs"
+        (if isDropBorderShown "border-dashed")
+      }}
       style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
+      draggable=true
+      ondragstart={{action "headingDragAction" columnName}}
+      ondragend={{action "headingDragEndAction"}}
     >
-      {{tt this columnName}}
-      {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
-        {{#one-icon icon="browser-info" class="column-info-icon"}}
-          {{one-tooltip
-            title=(tt this (concat columnName "Tooltip") oneprovider=currentProviderName)
-          }}
-        {{/one-icon}}
-      {{/if}}
+      <span class="column-name">
+        {{one-icon icon="drag" class="column-move-icon"}}
+        {{tt this columnName}}
+        {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
+          {{#one-icon icon="browser-info" class="column-info-icon"}}
+            {{one-tooltip
+              title=(tt this (concat columnName "Tooltip") oneprovider=currentProviderName)
+            }}
+          {{/one-icon}}
+        {{/if}}
+      </span>
+      <div
+        class="draggable-area"
+        ondragover={{action "headingDragOverAction"}}
+        ondragleave={{action "headingDragLeaveAction"}}
+        ondrop={{action "headingDropAction" i}}
+      >
+      </div>
     </th>
   {{/if}}
 {{/each}}
