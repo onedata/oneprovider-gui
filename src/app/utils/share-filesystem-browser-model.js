@@ -62,7 +62,6 @@ export default FilesystemBrowserModel.extend({
           properties: this.listedFilesProperties,
           fileGri: this.rootFileGri,
         });
-        // }
       } else {
         return this._super(...arguments);
       }

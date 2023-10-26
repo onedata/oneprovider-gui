@@ -172,13 +172,16 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  fileRequirements: computed('files.[]', function fileRequirements() {
+  fileRequirements: computed('previewMode', 'files.[]', function fileRequirements() {
     // Requirements only for tabs that are implemented in file-info-modal:
     // general, hardlinks, size, apiSamples - these tabs are displayed only when single
     // file is diplayed.
     if (this.files?.length === 1) {
       // TODO: VFS-11449 optional file size fetch
-      const properties = ['owner', 'mtime', 'hardlinkCount'];
+      const properties = ['mtime'];
+      if (!this.previewMode) {
+        properties.push('owner', 'hardlinkCount');
+      }
       return this.files.map(file => new FileRequirement({
         fileGri: get(file, 'id'),
         properties,

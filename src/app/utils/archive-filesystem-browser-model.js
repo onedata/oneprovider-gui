@@ -172,7 +172,7 @@ export default FilesystemBrowserModel.extend({
 
   isOnlyArchiveRootSelected: and(
     'isOnlyCurrentDirSelected',
-    computed(function isCurrentDirArchiveRoot() {
+    computed('dirId', 'archive', function isCurrentDirArchiveRoot() {
       return this.dirId === this.archive.relationEntityId('rootDir');
     }),
   ),

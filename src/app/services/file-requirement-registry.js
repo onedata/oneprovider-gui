@@ -491,11 +491,11 @@ export default Service.extend({
   /**
    * Adds property requirements to the registry only for lifetime of a callback execution
    * for specific files.
-   * @param {Function} callback
    * @param {Array<FileModel.Property>} properties
-   * @param {...string} fileGris
+   * @param {Array<string>} fileGris
+   * * @param {Function} callback
    */
-  async requireTemporaryAsync(callback, properties, ...fileGris) {
+  async requireTemporaryAsync(fileGris, properties, callback) {
     const consumer = { temporaryConsumer: true };
     try {
       this.fileRecordRegistry.setFileGris(consumer, ...fileGris);

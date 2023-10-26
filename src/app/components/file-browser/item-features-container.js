@@ -24,7 +24,7 @@ import { defineProperty } from '@ember/object';
 
 /**
  * A source from which the feature of file comes from. Typically used by backend for
- * `*InheritancePath` properties.
+ * `InheritancePath` properties.
  * - `none` - the file has not this feature at all
  * - `direct` - the feature is applied directly on this file
  * - `directAndAncestor` - the feature is both directly applied on the file and some

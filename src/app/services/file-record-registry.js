@@ -110,7 +110,7 @@ export default Service.extend({
   getRegisteredFiles() {
     return _.compact([...this.fileGriConsumerMap.keys()].map(fileGri => {
       const file = this.store.peekRecord('file', fileGri);
-      if (!file || file.isDestroyed || file.isDestroying) {
+      if (!file || file.isDestroyed || file.isDestroying || file.isDeleted) {
         return null;
       }
       return file;

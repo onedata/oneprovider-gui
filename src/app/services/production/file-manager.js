@@ -1171,11 +1171,15 @@ export default Service.extend({
     }
     const promises = [];
     promises.push(
-      this.fileRequirementRegistry.requireTemporaryAsync(async () => {
-        if (get(file, 'hardlinkCount') > 1) {
-          await this.fileParentRefresh(file);
+      this.fileRequirementRegistry.requireTemporaryAsync(
+        [get(file, 'id')],
+        ['hardlinkCount'],
+        async () => {
+          if (get(file, 'hardlinkCount') > 1) {
+            await this.fileParentRefresh(file);
+          }
         }
-      }, ['hardlinkCount'], get(file, 'id'))
+      )
     );
     if (get(file, 'type') === 'dir') {
       promises.push(

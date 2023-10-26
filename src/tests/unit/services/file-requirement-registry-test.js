@@ -433,16 +433,20 @@ describe('Unit | Service | file-requirement-registry', function () {
         .to.not.contain(file);
 
       fileReloadSpy.resetHistory();
-      await fileRequirementRegistry.requireTemporaryAsync(async () => {
-        expect(fileReloadSpy).to.have.been.calledOnce;
-        expect(fileRequirementRegistry.getRequiredAttributes(fileQuery))
-          .to.contain('mtime');
-        expect(fileRecordRegistry.getRegisteredFiles())
-          .to.contain(file);
-        // simulate some async operation
-        await sleep(10);
-        callbackExecuted = true;
-      }, ['mtime'], fileGri);
+      await fileRequirementRegistry.requireTemporaryAsync(
+        [fileGri],
+        ['mtime'],
+        async () => {
+          expect(fileReloadSpy).to.have.been.calledOnce;
+          expect(fileRequirementRegistry.getRequiredAttributes(fileQuery))
+            .to.contain('mtime');
+          expect(fileRecordRegistry.getRegisteredFiles())
+            .to.contain(file);
+          // simulate some async operation
+          await sleep(10);
+          callbackExecuted = true;
+        }
+      );
 
       expect(callbackExecuted, 'callback has been executed').to.be.true;
       expect(fileRequirementRegistry.getRequiredAttributes(fileQuery))
@@ -473,11 +477,15 @@ describe('Unit | Service | file-requirement-registry', function () {
         .to.not.contain(file);
 
       try {
-        await fileRequirementRegistry.requireTemporaryAsync(async () => {
-          // simulate some async operation
-          await sleep(10);
-          throw new Error('mock error');
-        }, ['mtime'], fileGri);
+        await fileRequirementRegistry.requireTemporaryAsync(
+          [fileGri],
+          ['mtime'],
+          async () => {
+            // simulate some async operation
+            await sleep(10);
+            throw new Error('mock error');
+          }
+        );
       } catch {
         callbackThrewError = true;
       } finally {

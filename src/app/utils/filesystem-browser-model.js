@@ -363,7 +363,7 @@ export default BaseBrowserModel.extend(...mixins, {
   browserFilesProperties: computed(
     'previewMode',
     'fileFeatures',
-    function browserBasicProperties() {
+    function browserFilesProperties() {
       const basicPropertySet = new Set([
         'index',
       ]);
@@ -421,7 +421,7 @@ export default BaseBrowserModel.extend(...mixins, {
       ]);
       if (!this.previewMode) {
         listedFilesPropertySet
-          .add('hardslinkCount')
+          .add('hardlinkCount')
           .add('shareRecords')
           .add('isShared');
       }
