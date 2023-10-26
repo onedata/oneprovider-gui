@@ -10,54 +10,28 @@
       exceptSelector=triggerSelector
     }}
       <ul class="columns-list">
+        {{one-draggable-object-target
+          action=(action "acceptDraggedElement" -1)
+          validateDragEvent=(action "validateDragEvent")
+        }}
         {{#each columnsConfiguration.columnsOrder as |columnName index|}}
-          <li class="column">
-            {{one-checkbox
-              inputId=(concat elementId "-" columnName "Checkbox")
-              checked=(get (get columnsConfiguration.columns columnName) "isEnabled")
-              update=(action "checkboxChanged" columnName)
-              class=(concat-classes
-                "filter-column-checkbox"
-                (concat columnName "-checkbox")
-              )
-            }}
-            <label
-              for={{concat elementId "-" columnName "Checkbox"}}
-              class="column-name-label"
-            >
-              <span class="one-label checkbox-label">
-                <span>{{tt this (concat translationKey "." columnName)}}</span>
-                {{#if (and
-                  (not (get (get columnsConfiguration.columns columnName) "isVisible"))
-                  (get (get columnsConfiguration.columns columnName) "isEnabled")
-                )}}
-                  {{#one-icon icon="no-view"}}
-                    {{one-tooltip title=(tt this "noViewTip")}}
-                  {{/one-icon}}
-                {{/if}}
-              </span>
-            </label>
-            <div class="arrows-container">
-              <span
-                class="move-down-button"
-                onClick={{action "moveColumnDown" columnName}}
-              >
-                {{one-icon icon="move-down"}}
-                {{#if (and (not-eq index lastIndexColumn) arrowTooltipVisible)}}
-                  {{one-tooltip title=(tt this "moveDown")}}
-                {{/if}}
-              </span>
-              <span
-                class="move-up-button"
-                onClick={{action "moveColumnUp" columnName}}
-              >
-                {{one-icon icon="move-up"}}
-                {{#if (and (not-eq index 0) arrowTooltipVisible)}}
-                  {{one-tooltip title=(tt this "moveUp")}}
-                {{/if}}
-              </span>
-            </div>
-          </li>
+          {{columns-configuration-popover/column-item
+            columnName=columnName
+            columnValue=(get columnsConfiguration.columns columnName)
+            translationKey=translationKey
+            isMoveUpIconDisabled=(eq index 0)
+            isMoveDownIconDisabled=(eq index lastIndexColumn)
+            isArrowTooltipVisible=isArrowTooltipVisible
+            checkboxChanged=(action "checkboxChanged")
+            moveColumnDown=(action "moveColumnDown")
+            moveColumnUp=(action "moveColumnUp")
+            dragStartAction=dragStartAction
+            dragEndAction=dragEndAction
+          }}
+          {{one-draggable-object-target
+            action=(action "acceptDraggedElement" index)
+            validateDragEvent=(action "validateDragEvent")
+          }}
         {{/each}}
       </ul>
     {{/click-outside}}

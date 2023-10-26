@@ -24,6 +24,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
+import _ from 'lodash';
 
 export default Service.extend({
   store: service(),
@@ -31,71 +32,72 @@ export default Service.extend({
   //#region state
 
   /**
-   * @type {Map<Models.File, Set<FileConsumer>>}
+   * Maps file GRI to set of its FileConsumers.
+   * @type {Map<string, Set<FileConsumer>>}
    */
-  fileConsumerMap: undefined,
+  fileGriConsumerMap: undefined,
 
   //#endregion
 
   init() {
     this._super(...arguments);
-    this.set('fileConsumerMap', new Map());
+    this.set('fileGriConsumerMap', new Map());
   },
 
   /**
    * @public
    * @param {FileConsumer} consumer
-   * @param {...Models.File} files
+   * @param {...string} fileGris
    * @returns {void}
    */
-  setFiles(consumer, ...files) {
-    const currentConsumerFiles = this.getFilesForConsumer(consumer);
-    const filesToDeregister = [];
-    const filesToRegister = [];
+  setFileGris(consumer, ...fileGris) {
+    const currentConsumerFileGris = this.getFileGrisForConsumer(consumer);
+    const fileGrisToDeregister = [];
+    const fileGrisToRegister = [];
 
     // Will deregister files that are not in the new files.
-    for (const currentFile of currentConsumerFiles) {
-      if (!files.includes(currentFile)) {
-        filesToDeregister.push(currentFile);
+    for (const currentFileGri of currentConsumerFileGris) {
+      if (!fileGris.includes(currentFileGri)) {
+        fileGrisToDeregister.push(currentFileGri);
       }
     }
     // Will register only files that are not in the current files.
-    for (const newFile of files) {
-      if (!currentConsumerFiles.has(newFile)) {
-        filesToRegister.push(newFile);
+    for (const newFile of fileGris) {
+      if (!currentConsumerFileGris.has(newFile)) {
+        fileGrisToRegister.push(newFile);
       }
     }
 
-    if (filesToDeregister.length) {
-      this.deregisterFiles(consumer, ...filesToDeregister);
+    if (fileGrisToDeregister.length) {
+      this.deregisterFileGris(consumer, ...fileGrisToDeregister);
     }
-    for (const file of filesToRegister) {
-      this.addToMap(file, consumer);
+    for (const fileGri of fileGrisToRegister) {
+      this.addToMap(fileGri, consumer);
     }
   },
 
   /**
    * @public
    * @param {FileConsumer} consumer
-   * @param {...Models.File} files
+   * @param {...string} fileGris
    * @returns {void}
    */
-  deregisterFiles(consumer, ...files) {
-    if (files.length) {
-      for (const file of files) {
-        const consumers = this.fileConsumerMap.get(file);
+  deregisterFileGris(consumer, ...fileGris) {
+    if (fileGris.length) {
+      for (const file of fileGris) {
+        const consumers = this.fileGriConsumerMap.get(file);
         if (consumers) {
           consumers.delete(consumer);
           if (!consumers.size) {
-            this.fileConsumerMap.delete(file);
+            this.fileGriConsumerMap.delete(file);
           }
         }
       }
     } else {
-      for (const [file, consumers] of this.fileConsumerMap) {
+      for (const [file, consumers] of this.fileGriConsumerMap) {
         consumers.delete(consumer);
         if (!consumers.size) {
-          this.fileConsumerMap.delete(file);
+          this.fileGriConsumerMap.delete(file);
         }
       }
     }
@@ -106,7 +108,13 @@ export default Service.extend({
    * @returns {Array<Models.File>}
    */
   getRegisteredFiles() {
-    return [...this.fileConsumerMap.keys()];
+    return _.compact([...this.fileGriConsumerMap.keys()].map(fileGri => {
+      const file = this.store.peekRecord('file', fileGri);
+      if (!file || file.isDestroyed || file.isDestroying || file.isDeleted) {
+        return null;
+      }
+      return file;
+    }));
   },
 
   /**
@@ -114,28 +122,28 @@ export default Service.extend({
    * @param {FileConsumer} consumer
    * @returns {Set<Models.File>}
    */
-  getFilesForConsumer(consumer) {
-    const files = new Set();
-    for (const [file, consumers] of this.fileConsumerMap.entries()) {
+  getFileGrisForConsumer(consumer) {
+    const fileGris = new Set();
+    for (const [fileGri, consumers] of this.fileGriConsumerMap.entries()) {
       if (consumers.has(consumer)) {
-        files.add(file);
+        fileGris.add(fileGri);
       }
     }
-    return files;
+    return fileGris;
   },
 
   /**
    * @private
    * @param {FileConsumer} consumer
-   * @param {Models.File} file
+   * @param {string} fileGri
    * @returns {void}
    */
-  addToMap(file, consumer) {
+  addToMap(fileGri, consumer) {
     /** @type Set<FileConsumer> */
-    let consumers = this.fileConsumerMap.get(file);
+    let consumers = this.fileGriConsumerMap.get(fileGri);
     if (!consumers) {
       consumers = new Set();
-      this.fileConsumerMap.set(file, consumers);
+      this.fileGriConsumerMap.set(fileGri, consumers);
     }
     consumers.add(consumer);
   },

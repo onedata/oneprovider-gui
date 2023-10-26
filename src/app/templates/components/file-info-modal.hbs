@@ -130,41 +130,48 @@
               </td>
             </tr>
           {{/if}}
-          <tr class="file-info-row-gui-url">
-            <td class="property-name with-input-sm">{{tt this "fileLink" type=typeTranslation}}</td>
-            <td class="property-value">
-              {{#each availableFileLinkModels as |fileLinkModel|}}
-                <div class="clipboard-line sm file-link-clipboard-line">
-                  <div class="input-group input-group-sm">
-                    <div
-                      class="input-group-addon input-group-addon-text file-link-group-addon truncate input-group-addon-left"
-                    >
-                      <div class="file-link-group-addon-inner">
-                        <span>{{fileLinkModel.label}}</span>
-                        {{one-label-tip title=fileLinkModel.tip}}
+          {{#if availableFileLinkModels.length}}
+            <tr class="file-info-row-gui-url">
+              <td class="property-name with-input-sm">
+                {{tt this "fileLink" type=typeTranslation}}
+              </td>
+              <td class="property-value">
+                {{#each availableFileLinkModels as |fileLinkModel|}}
+                  <div class="clipboard-line sm file-link-clipboard-line">
+                    <div class="input-group input-group-sm">
+                      <div
+                        class="input-group-addon input-group-addon-text file-link-group-addon truncate input-group-addon-left"
+                      >
+                        <div class="file-link-group-addon-inner">
+                          <span>{{fileLinkModel.label}}</span>
+                          {{one-label-tip title=fileLinkModel.tip}}
+                        </div>
                       </div>
+                      <input
+                        type="text"
+                        class={{concat-classes
+                          "file-link-clipboard-line-input clipboard-input form-control input-sm"
+                          (concat fileLinkModel.type "-file-link-clipboard-line-input")
+                        }}
+                        value={{fileLinkModel.url}}
+                        readonly
+                      >
                     </div>
-                    <input
-                      type="text"
-                      class={{concat-classes
-                        "file-link-clipboard-line-input clipboard-input form-control input-sm"
-                        (concat fileLinkModel.type "-file-link-clipboard-line-input")
-                      }}
-                      value={{fileLinkModel.url}}
-                      readonly
-                    >
+                    {{#one-copy-button
+                      class="clipboard-btn clipboard-btn-input"
+                      clipboardTarget=(local-selector
+                        modalId
+                        (concat "." fileLinkModel.type "-file-link-clipboard-line-input")
+                      )
+                    }}
+                      <div class="copy-btn-background"></div>
+                      {{one-icon class="copy-btn-icon" icon="browser-copy"}}
+                    {{/one-copy-button}}
                   </div>
-                  {{#one-copy-button
-                    class="clipboard-btn clipboard-btn-input"
-                    clipboardTarget=(local-selector modalId (concat "." fileLinkModel.type "-file-link-clipboard-line-input"))
-                  }}
-                    <div class="copy-btn-background"></div>
-                    {{one-icon class="copy-btn-icon" icon="browser-copy"}}
-                  {{/one-copy-button}}
-                </div>
-              {{/each}}
-            </td>
-          </tr>
+                {{/each}}
+              </td>
+            </tr>
+          {{/if}}
           <tr id={{cdmiRowId}} class="file-info-row-cdmi-object-id">
             <td class="property-name with-input">
               {{tt this "cdmiObjectId"}}
@@ -262,11 +269,11 @@
           {{/each}}
           {{#if (and
             (gt fileHardlinks.hardlinks.length 0)
-            (lt fileHardlinks.hardlinks.length fileHardlinks.hardlinksCount)
+            (lt fileHardlinks.hardlinks.length fileHardlinks.hardlinkCount)
           )}}
             <li class="file-hardlink extra-hardlink-description">
               <em>{{tt this "tabs.hardlinks.andNMoreYouHaveNoAccess"
-                count=(sub fileHardlinks.hardlinksCount fileHardlinks.hardlinks.length)
+                count=(sub fileHardlinks.hardlinkCount fileHardlinks.hardlinks.length)
               }}</em>
               {{#if hardlinksFetchError}}
                 {{one-label-tip title=hardlinksFetchError}}

@@ -6,14 +6,16 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11252 Added optional file attributes fetching; enabled QoS and Replication columns in file browser
+* VFS-11125 Added draggable modify order of columns in file browser
 * VFS-11242 Added downloading automation audit log content
 * VFS-11418 Fixed wrong file size in data distribution modal
 * VFS-11385 Turned off stats model fetching when not on dir size stats info tab
 * VFS-11392 Updated directory size stats metric names
 * VFS-11251 Removed unused oneicons
 * VFS-11207 Added separate dir size stats in space root dir for archives and trash
-* VFS-10939 Fixed copying from provider popover in firefox
-* VFS-11312 Fix showing jump to file input
+* VFS-10939 Fixed copying from provider popover in Firefox
+* VFS-11312 Fixed showing "jump to file" input
 * VFS-11268 Added error handling for file data push to store on fetching files list
 * VFS-11224 Added jumping to items in exception store
 * VFS-10696 Added setting for modifying the order of columns in the transfers table

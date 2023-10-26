@@ -1,6 +1,8 @@
 /**
  * Implementation of status part of table row part for filesystem-browser.
  *
+ * All file requirements are managed by FilesystemBrowserModel (`browserModel`).
+ *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -13,10 +15,6 @@ import { reads } from '@ember/object/computed';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { inject as service } from '@ember/service';
 import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
-
-// TODO: VFS-11252 Decide how we could omit specifying file requirements when
-// the component is used multiple times and it is always used in the browser. Not using
-// FileConsumer for this component separately in this version
 
 export default FbTableRowStatusBar.extend({
   classNames: ['filesystem-table-row-status-bar'],
@@ -38,7 +36,7 @@ export default FbTableRowStatusBar.extend({
 
   isSymlink: reads('fileRowModel.isSymlink'),
 
-  hardlinksCount: or('file.hardlinksCount', raw(1)),
+  hardlinkCount: or('file.hardlinkCount', raw(1)),
 
   isShared: reads('file.isShared'),
 
@@ -106,7 +104,7 @@ export default FbTableRowStatusBar.extend({
     }
   ),
 
-  hasMetadata: reads('file.hasMetadata'),
+  hasCustomMetadata: reads('file.hasCustomMetadata'),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
 });

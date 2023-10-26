@@ -119,7 +119,7 @@ export default Service.extend(...mixins, {
    * @override
    * @type {Array<Models.File>}
    */
-  usedFiles: Object.freeze([]),
+  usedFileGris: Object.freeze([]),
 
   knownEntityRecordsKeys: Object.freeze([
     'archive',
@@ -270,11 +270,11 @@ export default Service.extend(...mixins, {
   },
 
   updateUsedFiles() {
-    const usedFiles = this.knownFileRecordsKeys.reduce((resultFiles, key) => {
-      resultFiles.push(...this.entityRecords[key]);
-      return resultFiles;
+    const usedFileGris = this.knownFileRecordsKeys.reduce((resultFileGris, key) => {
+      resultFileGris.push(...this.entityRecords[key].map(file => file.get('id')));
+      return resultFileGris;
     }, []);
-    this.set('usedFiles', usedFiles);
+    this.set('usedFileGris', usedFileGris);
   },
 
   createListRecord(store, type, records) {
@@ -496,8 +496,8 @@ export default Service.extend(...mixins, {
           name: names[i],
           type: 'dir',
           mtime: timestamp + i * 3600,
-          hasMetadata: false,
-          effQosMembership: i < 2 && 'direct' ||
+          hasCustomMetadata: false,
+          effQosInheritancePath: i < 2 && 'direct' ||
             i < 4 && 'ancestor' ||
             'none',
           parent: null,
@@ -709,7 +709,7 @@ export default Service.extend(...mixins, {
       datasets[i] = ancestorDataset;
       // effProtectionFlags must be set before createDatasetSummary
       setProperties(ancestorFile, {
-        effDatasetMembership: 'direct',
+        effDatasetInheritancePath: 'direct',
         effProtectionFlags: effProtectionFlags,
       });
       const datasetSummary = await this.createDatasetSummary(
@@ -731,7 +731,7 @@ export default Service.extend(...mixins, {
     const emptyDirProtection = Object.freeze(['data_protection']);
     setProperties(emptyDir, {
       effProtectionFlags: emptyDirProtection,
-      effDatasetMembership: 'direct',
+      effDatasetInheritancePath: 'direct',
     });
     await emptyDir.save();
     const emptyDirDataset = await this.createDataset(emptyDir, {
@@ -751,7 +751,7 @@ export default Service.extend(...mixins, {
     for (let i = 2; i <= 5; ++i) {
       const file = files[i];
       let effProtectionFlags;
-      const effDatasetMembership = i >= 3 && i <= 5 && 'direct' ||
+      const effDatasetInheritancePath = i >= 3 && i <= 5 && 'direct' ||
         i >= 2 && i <= 6 && 'directAndAncestor' ||
         'none';
       if (i === 2) {
@@ -764,12 +764,12 @@ export default Service.extend(...mixins, {
         effProtectionFlags = [];
       }
       setProperties(file, {
-        effDatasetMembership,
+        effDatasetInheritancePath,
         effProtectionFlags,
       });
       if (
-        effDatasetMembership === 'direct' ||
-        effDatasetMembership === 'directAndAncestor'
+        effDatasetInheritancePath === 'direct' ||
+        effDatasetInheritancePath === 'directAndAncestor'
       ) {
         const dataset = await this.createDataset(file, {
           parent: null,
@@ -1049,7 +1049,7 @@ export default Service.extend(...mixins, {
     this.set('entityRecords.archiveRecallState', [archiveRecallState]);
     await archiveRecallInfo.save();
     await allFulfilled([chainRootDir, ...chainDirs].map(dir => {
-      set(dir, 'recallRootId', chainDirId);
+      set(dir, 'archiveRecallRootFileId', chainDirId);
       set(dir, 'archiveRecallInfo', archiveRecallInfo);
       set(dir, 'archiveRecallState', archiveRecallState);
       return dir.save();
@@ -1147,7 +1147,7 @@ export default Service.extend(...mixins, {
           index: name,
           type: 'dir',
           mtime: timestamp + i * 3600,
-          hardlinksCount: 1,
+          hardlinkCount: 1,
           posixPermissions: '777',
           parent,
           owner,
@@ -1201,7 +1201,7 @@ export default Service.extend(...mixins, {
         const entityId = generateFileEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name = `file-${String(i).padStart(4, '0')}`;
-        const effQosMembership = i > 3 && i < 8 && 'direct' ||
+        const effQosInheritancePath = i > 3 && i < 8 && 'direct' ||
           i > 6 && i < 10 && 'ancestor' ||
           'none';
         return store.createRecord('file', {
@@ -1210,13 +1210,13 @@ export default Service.extend(...mixins, {
           index: name,
           type: isSymlink ? 'symlink' : 'file',
           posixPermissions: (i > 10 && i < 12 && !isSymlink) ? '333' : '777',
-          hasMetadata: i < 5,
-          effQosMembership,
-          effDatasetMembership: 'none',
+          hasCustomMetadata: i < 5,
+          effQosInheritancePath,
+          effDatasetInheritancePath: 'none',
           effProtectionFlags: [],
           size: isSymlink ? 20 : i * 1000000,
           mtime: timestamp + i * 3600,
-          hardlinksCount: i % 5 === 0 ? 2 : 1,
+          hardlinkCount: i % 5 === 0 ? 2 : 1,
           parent,
           owner,
           distribution: isSymlink ? undefined : distribution,
@@ -1287,13 +1287,13 @@ export default Service.extend(...mixins, {
     return Object.assign({
       type: 'file',
       posixPermissions: '777',
-      hasMetadata: false,
-      effQosMembership: 'none',
-      effDatasetMembership: 'none',
+      hasCustomMetadata: false,
+      effQosInheritancePath: 'none',
+      effDatasetInheritancePath: 'none',
       effProtectionFlags: [],
       size: 1024 * 1024,
       mtime: timestamp,
-      hardlinksCount: 0,
+      hardlinkCount: 0,
       distribution: distribution,
       fileQosSummary: fileQosSummary,
       fileDatasetSummary: emptyDatasetSummary,

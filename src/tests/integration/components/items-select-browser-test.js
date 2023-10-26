@@ -40,13 +40,13 @@ describe('Integration | Component | items-select-browser', function () {
 async function renderComponent(testCase) {
   if (!testCase.get('selectorModel')) {
     const store = lookupService(testCase, 'store');
-    const rootDir = store.createRecord('file', {
+    const rootDir = await store.createRecord('file', {
       name: 'Test root',
       id: getFileGri('test_root_dir'),
-    });
-    const space = store.createRecord('space', {
+    }).save();
+    const space = await store.createRecord('space', {
       rootDir,
-    });
+    }).save();
     const selectorModel = FilesystemModel.create({
       ownerSource: testCase.owner,
       constraintSpec: {

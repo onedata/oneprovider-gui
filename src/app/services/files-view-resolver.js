@@ -85,7 +85,6 @@ export default Service.extend({
           try {
             dir = await file.getRelation('parent', {
               allowNull: true,
-              requiredProperties: ['parent', 'type', 'effFile'],
             });
           } catch (error) {
             return this.generateFallbackResponse(fallbackDir);
@@ -118,7 +117,6 @@ export default Service.extend({
             await fileManager.getFileById(selectedIds[0], { scope });
           const parent = await firstSelectedFile.getRelation('parent', {
             allowNull: true,
-            requiredProperties: ['parent', 'type', 'effFile'],
           });
           if (!parent) {
             return this.generateFallbackResponse(fallbackDir);

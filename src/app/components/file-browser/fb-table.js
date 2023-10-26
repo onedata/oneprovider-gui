@@ -39,8 +39,6 @@ import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
-import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
  * API object exposed by `fb-table` component, be used to control the component and read
@@ -52,7 +50,6 @@ const defaultIsItemDisabled = () => false;
 
 const mixins = [
   I18n,
-  FileConsumerMixin,
 ];
 
 export default Component.extend(...mixins, {
@@ -241,43 +238,6 @@ export default Component.extend(...mixins, {
    */
   headerVisible: undefined,
 
-  /**
-   * @override
-   * @implements {Mixins.FileConsumer}
-   */
-  fileRequirements: computed(
-    'dir.id',
-    function fileRequirements() {
-      if (!this.dir) {
-        return [];
-      }
-      return [
-        new FileRequirement({
-          fileGri: get(this.dir, 'id'),
-          properties: [
-            'effFile',
-            'type',
-          ],
-        }),
-      ];
-    }
-  ),
-
-  /**
-   * @override
-   * @implements {Mixins.FileConsumer}
-   */
-  usedFiles: computed(
-    'dir',
-    'filesArray.sourceArray.[]',
-    function usedFiles() {
-      const listedFiles = this.filesArray.sourceArray.filter(item =>
-        item && get(item, 'id')
-      );
-      return [this.dir, ...listedFiles];
-    },
-  ),
-
   headRowComponentName: or(
     'browserModel.headRowComponentName',
     raw('file-browser/fb-table-head-row')
@@ -347,10 +307,10 @@ export default Component.extend(...mixins, {
       this.get('filesArray.sourceArray').mapBy('originalName'),
       name => name,
     );
-    const test = Object.entries(namesCount)
+    const namesUsedMultipleTimes = Object.entries(namesCount)
       .filter(([, count]) => count > 1)
       .map(([name]) => name);
-    return test;
+    return namesUsedMultipleTimes;
   }),
 
   listLoadState: reads('browserModel.listLoadState'),
@@ -627,26 +587,13 @@ export default Component.extend(...mixins, {
 
   init() {
     this._super(...arguments);
-    const {
-      fileManager,
-      registerApi,
-      api,
-      loadingIconFileIds,
-      filesArray,
-    } = this.getProperties(
-      'fileManager',
-      'registerApi',
-      'api',
-      'loadingIconFileIds',
-      'filesArray'
-    );
-    if (!loadingIconFileIds) {
+    if (!this.loadingIconFileIds) {
       this.set('loadingIconFileIds', A());
     }
-    fileManager.registerRefreshHandler(this);
-    registerApi(api);
-    if (get(filesArray, 'initialJumpIndex')) {
-      get(filesArray, 'initialLoad').then(() => {
+    this.fileManager.registerRefreshHandler(this);
+    this.registerApi(this.api);
+    if (get(this.filesArray, 'initialJumpIndex')) {
+      get(this.filesArray, 'initialLoad').then(() => {
         this.selectedItemsForJumpObserver();
       });
     }

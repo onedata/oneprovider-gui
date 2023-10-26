@@ -34,8 +34,9 @@ describe('Unit | Adapter | onedata-websocket', function () {
         // attributes added by default
         'conflictingName',
         'fileId',
-        'parentId',
+        'parentFileId',
         'name',
+        'size',
         'type',
         'symlinkValue',
         // attributes from requirement1

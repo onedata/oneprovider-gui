@@ -70,6 +70,12 @@ export default Service.extend({
     return this.getRecord(getGri(entityId, { scope }));
   },
 
+  /**
+   * @param {Models.File} file
+   * @param {string} expression
+   * @param {number} replicasNum
+   * @returns {Promise<Models.QosRequirement>}
+   */
   async createQosRequirement(file, expression, replicasNum) {
     try {
       return await this.get('store').createRecord('qosRequirement', {
@@ -89,7 +95,7 @@ export default Service.extend({
   async removeQosRequirement(qosRequirement) {
     const filePromise = get(qosRequirement, 'file');
     try {
-      return qosRequirement.destroyRecord();
+      return await qosRequirement.destroyRecord();
     } finally {
       const file = await filePromise;
       if (file) {

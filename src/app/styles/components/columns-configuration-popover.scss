@@ -1,29 +1,37 @@
 .webui-popover-columns-configuration {
+  .webui-popover-content {
+    padding-top: $padding-xs-horizontal;
+    padding-bottom: $padding-xs-horizontal;
+    @media (hover: hover) {
+      padding-left: $padding-xs-horizontal;
+    }
+  }
+  @media (hover: none) {
+    .column-move-icon {
+      display: none;
+    }
+  }
   .columns-list {
     padding: 0;
     margin: 0;
     list-style-type: none;
 
-    .column {
+    .column-item .draggable-object {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: $padding-base-vertical;
       position: relative;
 
-      &:first-of-type .move-up-button,
-      &:last-of-type .move-down-button {
+      .disabled-icon {
         opacity: 0.2;
         cursor: auto;
-      }
-
-      &:hover .arrows-container {
-        visibility: visible;
       }
 
       .arrows-container {
         display: flex;
         cursor: pointer;
+        align-items: center;
 
         @media (hover: none) {
           visibility: visible;
@@ -43,6 +51,10 @@
         display: inline-flex;
         flex-grow: 1;
         padding-right: 2.2em;
+
+        @media (hover: hover) {
+          padding-right: 0;
+        }
 
         .checkbox-label {
           position: relative;
@@ -68,10 +80,33 @@
         padding-left: 0.35em;
         cursor: pointer;
       }
+      .column-move-icon {
+        visibility: hidden;
+      }
+      @media (hover: hover) {
+        &:hover .column-move-icon {
+          visibility: visible;
+          opacity: $disabled-opacity;
+          cursor: grab;
+        }
+      }
+
+      .column-move-icon {
+        padding-right: 0.2em;
+      }
     }
 
     .one-checkbox, .checkbox-label {
       vertical-align: middle;
+    }
+  }
+  .draggable-object-target {
+    height: 10px;
+
+    &.accepts-drag {
+      border: 1px dashed darken($color-one-gray-sand, 10%);
+      background-color: rgba($color-one-gray-sand, 0.75);
+      border-radius: $border-radius-small;
     }
   }
 }

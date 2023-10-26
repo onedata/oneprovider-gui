@@ -27,8 +27,6 @@ export default Component.extend(I18n, {
    */
   i18nPrefix: 'components.fileBrowser.fbToolbar',
 
-  dir: undefined,
-
   /**
    * @virtual
    */

@@ -24,7 +24,6 @@ import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { htmlSafe } from '@ember/string';
 import { isEmpty, and, eq, raw } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
 import dom from 'onedata-gui-common/utils/dom';
 
 /**
@@ -216,25 +215,8 @@ export default Component.extend(
      * @override
      */
     async fetchDirPath() {
-      const {
-        dir,
-        rootDir,
-        archiveManager,
-      } = this.getProperties('dir', 'rootDir', 'archiveManager');
-      let dirPath = await resolveFilePath(dir, this.resolveFileParent.bind(this));
-      dirPath = rootDir ? cutDirsPath(dirPath, rootDir) : dirPath;
-      for (let i = 0; i < get(dirPath, 'length'); ++i) {
-        const currentDir = dirPath[i];
-        if (currentDir && get(currentDir, 'isArchiveRootDir')) {
-          const browsableArchive =
-            await archiveManager.getBrowsableArchive(currentDir.relationEntityId('archive'));
-          dirPath[i] = BrowsableArchiveRootDir.create({
-            content: currentDir,
-            browsableArchive,
-          });
-          break;
-        }
-      }
+      let dirPath = await resolveFilePath(this.dir, this.resolveFileParent.bind(this));
+      dirPath = this.rootDir ? cutDirsPath(dirPath, this.rootDir) : dirPath;
       return dirPath;
     },
 
@@ -276,22 +258,17 @@ export default Component.extend(
     },
 
     async resolveFileParent(item) {
-      const {
-        parentsCache,
-        resolveFileParentFun,
-        getItemByIdFun,
-      } = this.getProperties('parentsCache', 'resolveFileParentFun', 'getItemByIdFun');
       if (
         typeof getItemByIdFun === 'function' &&
-        getItemByIdFun !== notImplementedReject
+        this.getItemByIdFun !== notImplementedReject
       ) {
-        const parentId = parentsCache && parentsCache[get(item, 'entityId')];
+        const parentId = this.parentsCache?.[get(item, 'entityId')];
         if (parentId) {
-          return getItemByIdFun(parentId);
+          return this.getItemByIdFun(parentId);
         }
       }
 
-      return resolveFileParentFun(item);
+      return this.resolveFileParentFun(item);
     },
 
     checkWidth(noAnimation) {

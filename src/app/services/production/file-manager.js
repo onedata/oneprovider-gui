@@ -2,7 +2,7 @@
  * Provides model functions related to files and directories.
  *
  * @author Michał Borzęcki, Jakub Liput
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @copyright (C) 2019-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,7 +12,7 @@ import { get, set, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
-import FileModel, {
+import {
   entityType as fileEntityType,
   getFileGri,
   dirSizeStatsTimeSeriesNameGenerators,
@@ -26,7 +26,12 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import FileQuery from 'oneprovider-gui/utils/file-query';
 import { pullPrivateFileAttributes } from 'oneprovider-gui/utils/file-model';
 import { serializedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
-import { fileRelations } from 'oneprovider-gui/serializers/file';
+import {
+  isBelongsToProperty,
+  isHasManyProperty,
+  serializeBelongsToProperty,
+  serializeHasManyProperty,
+} from 'oneprovider-gui/serializers/file';
 
 export const SpaceSizeStatsType = Object.freeze({
   All: 'all',
@@ -91,38 +96,6 @@ const symlinkTargetAttrsAspect = 'symlink_target';
 const recallLogAspect = 'archive_recall_log';
 const fileModelName = 'file';
 
-/**
- * Set of relations that are created in serializer, so they should not be pushed into
- * store as a data.
- * @type {Set}
- */
-const fileIdRelationNameSet = new Set(fileRelations.map(relationSpec =>
-  relationSpec.name
-));
-const belongsToIdAttrSet = new Set();
-FileModel.eachRelationship((propertyName, relationshipDefinition) => {
-  if (
-    relationshipDefinition.kind === 'belongsTo' &&
-    !fileIdRelationNameSet.has(propertyName)
-  ) {
-    belongsToIdAttrSet.add(`${propertyName}Id`);
-  }
-});
-const hasManyPropertyToAttrMapping = {
-  shares: 'shareRecords',
-};
-const hasManyIdAttrSet = new Set(Object.values(hasManyPropertyToAttrMapping));
-
-function serializeBelongsToProperty(record, targetAttrName) {
-  const propertyName = _.trimEnd(targetAttrName, 'Id');
-  return record.relationEntityId(propertyName);
-}
-
-function serializeHasManyProperty(record, targetAttrName) {
-  const propertyName = hasManyPropertyToAttrMapping[targetAttrName];
-  return record.hasMany(propertyName).ids().map(gri => parseGri(gri).entityId);
-}
-
 export default Service.extend({
   store: service(),
   onedataRpc: service(),
@@ -148,17 +121,20 @@ export default Service.extend({
   throttledDirChildrenRefreshCallbacks: computed(() => ({})),
 
   /**
-   * @param {String} fileId
+   * @param {string} fileId
    * @param {Object} options
    * @param {'private'|'public'} [options.scope='private']
-   * @param {Boolean} [options.reload=false] a `findRecord` option
-   * @param {Boolean} [options.backgroundReload=false] a `findRecord` option
+   * @param {boolean} [options.reload=false] A `findRecord` option.
+   * @param {boolean} [options.backgroundReload=false] A `findRecord` option.
+   * @param {Array<FileModel.Property>} [options.extraAttributes] Additional attributes
+   *   added to required attributes when making request.
    * @returns {Promise<Models.File>}
    */
   async getFileById(fileId, {
     scope = 'private',
     reload = false,
     backgroundReload = false,
+    extraAttributes,
   } = {}) {
     const store = this.get('store');
     const fileGri = getFileGri(fileId, scope);
@@ -166,6 +142,9 @@ export default Service.extend({
     const attributes = this.fileRequirementRegistry.getRequiredAttributes(
       requirementQuery
     );
+    if (Array.isArray(extraAttributes) && extraAttributes.length) {
+      attributes.push(..._.without(extraAttributes, attributes));
+    }
     if (scope === 'public') {
       pullPrivateFileAttributes(attributes);
     }
@@ -389,29 +368,35 @@ export default Service.extend({
         if (currentRecord.currentState.stateName === 'root.deleted.inFlight') {
           return currentRecord;
         }
+        // Record data is typically pushed to store when files listing is being done. The
+        // list fetch is done with attributes registered with requirements matching the
+        // parent of the list, but some files could need individual special attributes to
+        // be fetched. We do not want to fetch these special attributes for all the files
+        // on the list, so the special attributes are preserved in records with the latest
+        // values.
         const additionalAttributes = _.difference(
-          // TODO: 11252 could be optimized to get required attributes without doing
-          // heuristics to get requirements for parent - because we will reject parent
-          // requirements anyway
+          // Optimized to get required attributes without doing heuristics to get
+          // requirements for parent - because we will reject parent requirements anyway.
           this.fileRequirementRegistry.getRequiredAttributes(
             new FileQuery({
               fileGri: get(currentRecord, 'id'),
-            }),
+            }), {
+              addParentAttributes: false,
+            }
           ),
           effAttributes,
         );
         currentAdditionalData = additionalAttributes.reduce((data, attribute) => {
           const propertyValue = get(currentRecord, attribute);
-          if (belongsToIdAttrSet.has(attribute)) {
+          if (isBelongsToProperty(attribute)) {
             data[attribute] = serializeBelongsToProperty(currentRecord, attribute);
-          } else if (hasManyIdAttrSet.has(attribute)) {
+          } else if (isHasManyProperty(attribute)) {
             data[attribute] = serializeHasManyProperty(currentRecord, attribute);
           } else if (attribute === 'type') {
             // Not possible, because type is a basic property, but checking just-in-case.
             data[attribute] = serializedFileTypes[propertyValue];
           } else {
             // Copy data as-is, because the property wasn't specially deserialized.
-            // TODO: VFS-11252 check if array properties are correctly serialized
             data[attribute] = propertyValue;
           }
           return data;
@@ -523,6 +508,11 @@ export default Service.extend({
     return this.copyOrMoveFile(file, parentDirEntityId, 'move');
   },
 
+  /**
+   * This method needs a custom property `size` to be loaded in file.
+   * @param {Models.File} file
+   * @returns {Models.User}
+   */
   async copyOrMoveFile(file, parentDirEntityId, operation) {
     const name = get(file, 'name') || 'unknown';
     const entityId = get(file, 'entityId');
@@ -595,7 +585,7 @@ export default Service.extend({
       hardlinksIds.map(hardlinkId =>
         this.getFileById(parseGri(hardlinkId).entityId))
     ).then(results => ({
-      hardlinksCount: hardlinksIds.length,
+      hardlinkCount: hardlinksIds.length,
       hardlinks: results.filterBy('state', 'fulfilled').mapBy('value'),
       errors: results.filterBy('state', 'rejected').mapBy('reason'),
     }));
@@ -620,13 +610,13 @@ export default Service.extend({
       );
     }
     if (isRecordA && isRecordB) {
-      const hardlinksCountA = get(fileRecordOrIdA, 'hardlinksCount');
-      const hardlinksCountB = get(fileRecordOrIdB, 'hardlinksCount');
+      const hardlinkCountA = get(fileRecordOrIdA, 'hardlinkCount');
+      const hardlinkCountB = get(fileRecordOrIdB, 'hardlinkCount');
       // checking if both counts are greater than 1 because data can be out of sync with
       // backend
       if (
-        hardlinksCountA && hardlinksCountA <= 1 &&
-        hardlinksCountB && hardlinksCountB <= 1
+        hardlinkCountA && hardlinkCountA <= 1 &&
+        hardlinkCountB && hardlinkCountB <= 1
       ) {
         return false;
       }
@@ -1113,15 +1103,15 @@ export default Service.extend({
 
   /**
    * Begins a procedure of cancelling archive recall process that has root in
-   * file with `recallRootId` entity ID.
-   * @param {string} recallRootId
+   * file with `archiveRecallRootFileId` entity ID.
+   * @param {string} archiveRecallRootFileId
    * @returns {Promise<Object|null>} stop recall response or null if file is not a part
    *   of recalled tree
    */
-  async cancelRecall(recallRootId) {
+  async cancelRecall(archiveRecallRootFileId) {
     const requestGri = gri({
       entityType: fileEntityType,
-      entityId: recallRootId,
+      entityId: archiveRecallRootFileId,
       aspect: cancelRecallAspect,
     });
     return this.get('onedataGraph').request({
@@ -1133,14 +1123,14 @@ export default Service.extend({
 
   /**
    * Loads recall process logs for specific recall root.
-   * @param {string} recallRootId
+   * @param {string} archiveRecallRootFileId
    * @param {AuditLogListingParams} listingParams
    * @returns {Promise<AuditLogEntriesPage<RecallAuditLogEntryContent>>}
    */
-  async getRecallLogs(recallRootId, listingParams) {
+  async getRecallLogs(archiveRecallRootFileId, listingParams) {
     const requestGri = gri({
       entityType: fileEntityType,
-      entityId: recallRootId,
+      entityId: archiveRecallRootFileId,
       aspect: recallLogAspect,
     });
     return await this.get('auditLogManager').getAuditLogEntries(
@@ -1150,6 +1140,11 @@ export default Service.extend({
     );
   },
 
+  /**
+   * This method needs a custom property `owner` to be loaded in file.
+   * @param {Models.File} file
+   * @returns {Models.User}
+   */
   async getFileOwner(file) {
     // Allowing file to not have relationEntityId beacuse some integration tests
     // are using not-fully-mocked files
@@ -1168,18 +1163,30 @@ export default Service.extend({
    * files (including dirs) that will be affected by that change, eg. changing QoS
    * requirements.
    * @param {Models.File} file
-   * @return {Promise}
+   * @return {Promise<Array<PromiseSettledResult>>}
    */
   async refreshRelatedFiles(file) {
     if (!file) {
       return;
     }
-    if (get(file, 'hardlinksCount') > 1) {
-      this.fileParentRefresh(file);
-    }
+    const promises = [];
+    promises.push(
+      this.fileRequirementRegistry.requireTemporaryAsync(
+        [get(file, 'id')],
+        ['hardlinkCount'],
+        async () => {
+          if (get(file, 'hardlinkCount') > 1) {
+            await this.fileParentRefresh(file);
+          }
+        }
+      )
+    );
     if (get(file, 'type') === 'dir') {
-      this.dirChildrenRefresh(get(file, 'entityId'));
+      promises.push(
+        this.dirChildrenRefresh(get(file, 'entityId'))
+      );
     }
+    await allSettled(promises);
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service

@@ -31,7 +31,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { translateFileType } from 'onedata-gui-common/utils/file';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
@@ -92,8 +92,6 @@ export default EmberObject.extend(...mixins, {
     const properties = Object.freeze([
       'owner',
       'metadataIsProtected',
-      'hasParent',
-      'type',
       'posixPermissions',
       'activePermissionsType',
     ]);
@@ -105,8 +103,9 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @override
+   * @implements {Mixins.FileConsumer}
    */
-  usedFiles: reads('files'),
+  usedFileGris: computedMultiUsedFileGris('files'),
 
   /**
    * @type {FilePermissionsType}
@@ -712,7 +711,7 @@ export default EmberObject.extend(...mixins, {
       this.globalNotify.backendError(this.t('modifyingPermissions'), errors[0]);
       throw errors;
     } finally {
-      const hardlinkedFile = files.find(file => get(file, 'hardlinksCount') > 1);
+      const hardlinkedFile = files.find(file => get(file, 'hardlinkCount') > 1);
       if (hardlinkedFile) {
         this.fileManager.fileParentRefresh(hardlinkedFile);
       }

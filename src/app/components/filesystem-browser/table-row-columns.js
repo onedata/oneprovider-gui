@@ -1,6 +1,8 @@
 /**
  * Filesystem-specific browser table columns.
  *
+ * All file requirements are managed by FilesystemBrowserModel (`browserModel`).
+ *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -61,7 +63,10 @@ export default FbTableRowColumns.extend(I18n, {
       'browserModel.isDirSizeAlwaysHidden',
       eq('file.effFile.type', raw(LegacyFileType.Directory))
     ),
-    eq('file.effFile.size', raw(null))
+    or(
+      eq('file.effFile.size', raw(null)),
+      eq('file.effFile.size', raw(undefined)),
+    )
   ),
 
   /**
@@ -106,7 +111,7 @@ export default FbTableRowColumns.extend(I18n, {
   /**
    * @type {ComputedProperty<QosStatus>}
    */
-  qosStatus: reads('file.effFile.qosStatus'),
+  qosStatus: reads('file.effFile.qosStatusAggregate'),
 
   /**
    * @type {ComputedProperty<SpacePrivileges>}
@@ -152,7 +157,7 @@ export default FbTableRowColumns.extend(I18n, {
     'file.effFile.localReplicationRate',
     'isSmallReplicationRate',
     function percentageReplication() {
-      const localReplicationRate = this.file.effFile.localReplicationRate;
+      const localReplicationRate = this.get('file.effFile.localReplicationRate');
       if (isNaN(localReplicationRate) || (localReplicationRate === null)) {
         return null;
       }

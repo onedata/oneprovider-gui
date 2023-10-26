@@ -7,7 +7,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { computed, observer } from '@ember/object';
+import EmberObject, { observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { reads } from '@ember/object/computed';
@@ -24,20 +24,9 @@ export default EmberObject.extend(OwnerInjector, {
 
   fileRequirements: reads('consumer.fileRequirements'),
 
-  consumerUsedFiles: reads('consumer.usedFiles'),
+  consumerUsedFileGris: reads('consumer.usedFileGris'),
 
-  usedFiles: computed('consumerUsedFiles', function usedFiles() {
-    return this.consumerUsedFiles?.filter(file => {
-      if (!file?.constructor?.modelName === 'file') {
-        console.warn(
-          `file-consumer-model: one of file consumer usedFiles is not a file: "${file}", consumer:`,
-          this.consumer,
-        );
-        return false;
-      }
-      return !file.isDestroyed && !file.isDestroying;
-    });
-  }),
+  usedFileGris: reads('consumerUsedFileGris'),
 
   fileRequirementsObserver: observer(
     'fileRequirements',
@@ -47,7 +36,7 @@ export default EmberObject.extend(OwnerInjector, {
   ),
 
   usedFilesObserver: observer(
-    'usedFiles',
+    'usedFileGris',
     function usedFilesObserver() {
       this.registerUsedFiles();
     }
@@ -74,13 +63,13 @@ export default EmberObject.extend(OwnerInjector, {
   },
 
   registerUsedFiles() {
-    if (!Array.isArray(this.usedFiles)) {
-      this.fileRecordRegistry.deregisterFiles(this.consumer);
+    if (!Array.isArray(this.usedFileGris) || !this.usedFileGris.length) {
+      this.fileRecordRegistry.deregisterFileGris(this.consumer);
       return;
     }
-    this.fileRecordRegistry.setFiles(
+    this.fileRecordRegistry.setFileGris(
       this.consumer,
-      ...this.usedFiles
+      ...this.usedFileGris
     );
   },
 
@@ -90,7 +79,7 @@ export default EmberObject.extend(OwnerInjector, {
   willDestroy() {
     try {
       this.fileRequirementRegistry.deregisterRequirements(this.consumer);
-      this.fileRecordRegistry.deregisterFiles(this.consumer);
+      this.fileRecordRegistry.deregisterFileGris(this.consumer);
     } finally {
       this._super(...arguments);
     }

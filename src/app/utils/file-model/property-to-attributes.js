@@ -14,28 +14,27 @@
  */
 export const propertyToAttributesMap = Object.freeze({
   // attributes normalized by serializer to create ember-data relations
-  archive: 'archiveId',
-  owner: 'ownerId',
-  parent: 'parentId',
-  provider: 'providerId',
-  shareRecords: 'shares',
+  owner: 'ownerUserId',
+  parent: 'parentFileId',
+  provider: 'originProviderId',
+  shareRecords: 'directShareIds',
 
   // runtime properties
   cdmiObjectId: 'fileId',
   dataIsProtected: 'effProtectionFlags',
   dataIsProtectedByDataset: 'effDatasetProtectionFlags',
   effFile: ['type', 'symlinkValue'],
-  hasParent: 'parentId',
+  hasParent: 'parentFileId',
   internalFileId: 'fileId',
-  isArchiveRootDir: 'archiveId',
-  isRecalled: 'recallRootId',
-  isRecalling: 'recallRootId',
-  isShared: 'shares',
-  sharesCount: 'shares',
+  isRecalled: 'archiveRecallRootFileId',
+  isRecalling: 'archiveRecallRootFileId',
+  isShared: 'directShareIds',
+  sharesCount: 'directShareIds',
   metadataIsProtected: 'effProtectionFlags',
   metadataIsProtectedByDataset: 'effDatasetProtectionFlags',
   originalName: ['conflictingName', 'name'],
-  recallingMembership: 'recallRootId',
+  recallingInheritancePath: 'archiveRecallRootFileId',
+  recallingInheritancePathProxy: 'archiveRecallRootFileId',
   spaceEntityId: 'fileId',
 });
 

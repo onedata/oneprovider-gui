@@ -32,6 +32,7 @@ import _ from 'lodash';
 import { get, computed } from '@ember/object';
 import { allSettled } from 'rsvp';
 import includesAll from 'onedata-gui-common/utils/includes-all';
+import FileQuery from 'oneprovider-gui/utils/file-query';
 
 /**
  * A GUI entity (might be a component, service, anything that is "living" during runtime)
@@ -45,7 +46,7 @@ import includesAll from 'onedata-gui-common/utils/includes-all';
  * Consumers that needs these properties.
  * @typedef {Object} FileConsumer
  * @property {Array<Utils.FileRequirement>} fileRequirements
- * @property {Array<Models.File>} usedFiles
+ * @property {Array<Models.File>} usedFileGris
  */
 
 export default Service.extend({
@@ -60,13 +61,17 @@ export default Service.extend({
    */
   basicProperties: Object.freeze([
     'conflictingName',
-    'originalName',
     'effFile',
-    'symlinkValue',
     'fileId',
     'hasParent',
+    'internalFileId',
     'name',
+    'originalName',
     'parent',
+    // TODO: VFS-11449 optional file size fetch
+    'size',
+    'spaceEntityId',
+    'symlinkValue',
     'type',
   ]),
 
@@ -106,24 +111,45 @@ export default Service.extend({
 
   init() {
     this._super(...arguments);
-    this.set('consumerRequirementsMap', new Map());
-    this.set('propertiesForParentId', {});
-    this.set('propertiesForFileGri', {});
+    this.setProperties({
+      consumerRequirementsMap: new Map(),
+      propertiesForParentId: {},
+      propertiesForFileGri: {},
+    });
   },
+
+  /**
+   * @typedef GetRequiredAttributesOptions
+   * @property {boolean} addParentAttributes It true, when resolving attributes for
+   *   fileGri FileQuery, requirements specified for the file parent will be added. The
+   *   file should be present in the store to do that (because we know its parent).
+   */
 
   /**
    * Gets attributes required for the queries. Checks:
    * - exact query matching with requirement query (GRI-GRI, parent-parent),
-   * - if the already loaded file matches some parent condition using GRI query,
-   * - if the already loaded file matches some GRI condition using parent query.
+   * - if the already loaded file matches some parent condition using GRI query.
    *
    * Uses all already loaded files from store to perform non-exact query matching.
    *
    * @public
-   * @param {...Utils.FileQuery} queries
+   * @param {...FileQuery|[...FileQuery, GetRequiredAttributesOptions]} args FileQuery
+   *   objects and **optional** options object at the end.
    * @returns {Array<File.RawAttribute>}
    */
-  getRequiredAttributes(...queries) {
+  getRequiredAttributes(...args) {
+    const lastArg = args[args.length - 1];
+    let queries;
+    /** @type {GetRequiredAttributesOptions} */
+    const options = {
+      addParentAttributes: true,
+    };
+    if (!(lastArg instanceof FileQuery) && typeof lastArg === 'object') {
+      Object.assign(options, lastArg);
+      queries = args.slice(0, args.length - 1);
+    } else {
+      queries = args;
+    }
     const matchingRequirements = [];
     let remainRequirements = this.getRequirements();
     let allFiles;
@@ -151,7 +177,7 @@ export default Service.extend({
         break;
       }
 
-      if (queryType === 'fileGri') {
+      if (options.addParentAttributes && queryType === 'fileGri') {
         // Select requirements for known files that have the parent matching
         const file = getAllFiles().find(file =>
           file && get(file, 'id') === query.fileGri
@@ -205,7 +231,7 @@ export default Service.extend({
       return;
     }
     const filesToUpdate = this.getFilesToUpdate(richRequirements);
-    // TODO: VFS-11252 optimize invocation of updatePropertiesCache:
+    // TODO: VFS-11471 optimize invocation of updatePropertiesCache:
     // - make two sets: of completely new requirements and completely deleted
     // - updatePropertiesCache with false for deleted ones and with true for only new
     if (currentConsumerRequirements) {
@@ -213,8 +239,17 @@ export default Service.extend({
     }
     this.updatePropertiesCache(true, ...richRequirements);
     this.consumerRequirementsMap.set(consumer, richRequirements);
-    return await allSettled(filesToUpdate.map(file => {
-      return file.reload();
+    return await allSettled(filesToUpdate.map(async (file) => {
+      try {
+        return await file.reload();
+      } catch (error) {
+        console.error(
+          'Failed to reload file after updating file requirements - record data may be incomplete now.',
+          file,
+          error
+        );
+        throw error;
+      }
     }));
   },
 
@@ -408,7 +443,7 @@ export default Service.extend({
    * @private
    * @param {boolean} isAdding Use `true` when requiements are added and `false` when
    *   requirements are removed from registry.
-   * @param {...FileRequirement} requirement
+   * @param {...FileRequirement} requirements
    */
   updatePropertiesCache(isAdding, ...requirements) {
     if (_.isEmpty(requirements)) {
@@ -450,6 +485,29 @@ export default Service.extend({
     for (const property of properties) {
       const prev = propertyMap[property];
       propertyMap[property] = (prev ?? 0) + diff;
+    }
+  },
+
+  /**
+   * Adds property requirements to the registry only for lifetime of a callback execution
+   * for specific files.
+   * @param {Array<FileModel.Property>} properties
+   * @param {Array<string>} fileGris
+   * * @param {Function} callback
+   */
+  async requireTemporaryAsync(fileGris, properties, callback) {
+    const consumer = { temporaryConsumer: true };
+    try {
+      this.fileRecordRegistry.setFileGris(consumer, ...fileGris);
+      const requirements = fileGris.map(fileGri => new FileRequirement({
+        fileGri,
+        properties,
+      }));
+      await this.setRequirements(consumer, ...requirements);
+      await callback();
+    } finally {
+      this.deregisterRequirements(consumer);
+      this.fileRecordRegistry.deregisterFileGris(consumer);
     }
   },
 });

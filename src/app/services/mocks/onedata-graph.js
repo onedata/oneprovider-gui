@@ -1190,8 +1190,8 @@ export default OnedataGraphMock.extend({
     const files = this.get('mockBackend.entityRecords.file');
     const originalFile = files.findBy('entityId', fileEntityId);
     const hardlinks = [originalFile];
-    if (get(originalFile, 'hardlinksCount') > 1) {
-      hardlinks.push(files.without(originalFile).findBy('hardlinksCount', 2));
+    if (get(originalFile, 'hardlinkCount') > 1) {
+      hardlinks.push(files.without(originalFile).findBy('hardlinkCount', 2));
     }
     return hardlinks.compact().mapBy('id');
   },
@@ -1243,18 +1243,18 @@ function recordToChildData(record) {
     'type',
     'size',
     'posixPermissions',
-    'hasMetadata',
-    'effQosMembership',
-    'effDatasetMembership',
+    'hasCustomMetadata',
+    'effQosInheritancePath',
+    'effDatasetInheritancePath',
     'effProtectionFlags',
     'mtime',
     'activePermissionsType'
   ), {
     fileId: get(record, 'entityId'),
-    shares: hasManyEntityIds(record, 'shareRecords'),
-    parentId: belongsToEntityId(record, 'parent'),
-    ownerId: belongsToEntityId(record, 'owner'),
-    providerId: belongsToEntityId(record, 'provider'),
+    directShareIds: hasManyEntityIds(record, 'shareRecords'),
+    parentFileId: belongsToEntityId(record, 'parent'),
+    ownerUserId: belongsToEntityId(record, 'owner'),
+    originProviderId: belongsToEntityId(record, 'provider'),
   });
 }
 

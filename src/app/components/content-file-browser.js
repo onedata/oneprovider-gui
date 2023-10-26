@@ -152,28 +152,34 @@ export default OneEmbeddedComponent.extend(
      * @override
      * @implements {Mixins.FileConsumer}
      */
-    fileRequirements: computed('dirGri', function fileRequirements() {
-      if (!this.dirGri) {
-        return [];
+    fileRequirements: computed(
+      'dirEntityId',
+      'dirGri',
+      function fileRequirements() {
+        // when dirGri is available, then dirEntityId also should be
+        if (!this.dirGri) {
+          return [];
+        }
+        return [
+          new FileRequirement({
+            fileGri: this.dirGri,
+            properties: ['dataIsProtected'],
+          }),
+          new FileRequirement({
+            parentId: this.dirEntityId,
+            // needed to jump to file
+            properties: ['index'],
+          }),
+        ];
       }
-      return [
-        new FileRequirement({
-          debug: 'content-file-browser',
-          fileGri: this.dirGri,
-          properties: ['parent', 'type', 'effFile'],
-        }),
-      ];
-    }),
+    ),
 
     /**
      * @override
      * @implements {Mixins.FileConsumer}
      */
-    usedFiles: computed('dir', function usedFiles() {
-      if (!this.dir) {
-        return [];
-      }
-      return [this.dir];
+    usedFileGris: computed('dirGri', function usedFileGris() {
+      return this.dirGri ? [this.dirGri] : [];
     }),
 
     dirGri: computed('dirEntityId', function dirGri() {

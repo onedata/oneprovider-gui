@@ -36,8 +36,9 @@ import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
 import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
 import { guidFor } from '@ember/object/internals';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 
 const mixins = [
   I18n,
@@ -164,24 +165,29 @@ export default Component.extend(...mixins, {
    */
   getProvidersUrl: notImplementedIgnore,
 
-  // TODO: VFS-11252 make global file updater registry, because many components would
+  // TODO: VFS-11470 make global file updater registry, because many components would
   // need to update individual files data - as in this components, where the qos-tab-model
   // updates files when modal is opened
-  // TODO: VFS-11252 add more needed properties or move to other class
   /**
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  fileRequirements: computed('files.[]', function fileRequirements() {
+  fileRequirements: computed('previewMode', 'files.[]', function fileRequirements() {
     // Requirements only for tabs that are implemented in file-info-modal:
     // general, hardlinks, size, apiSamples - these tabs are displayed only when single
     // file is diplayed.
     if (this.files?.length === 1) {
-      const properties = ['size', 'owner', 'mtime', 'shareRecords'];
+      // TODO: VFS-11449 optional file size fetch
+      const properties = ['mtime'];
+      if (!this.previewMode) {
+        properties.push('owner', 'hardlinkCount');
+      }
       return this.files.map(file => new FileRequirement({
         fileGri: get(file, 'id'),
         properties,
       }));
+    } else {
+      return [];
     }
   }),
 
@@ -189,7 +195,7 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFiles: reads('files'),
+  usedFileGris: computedMultiUsedFileGris('files'),
 
   /**
    * @type {FileInfoTabId}
@@ -272,9 +278,10 @@ export default Component.extend(...mixins, {
     'availableFileLinkTypes',
     'typeTranslation',
     'previewMode',
+    'file.{type,cdmiObjectId}',
     function availableFileLinkModels() {
       if (
-        !this.file?.type ||
+        !this.get('file.type') ||
         !this.availableFileLinkTypes ||
         // TODO: VFS-11156 Implement shared files global URLs
         this.previewMode
@@ -284,7 +291,7 @@ export default Component.extend(...mixins, {
       return this.availableFileLinkTypes.map(fileLinkType => ({
         type: fileLinkType,
         url: this.appProxy.callParent('getFileGoToUrl', {
-          fileId: this.file.cdmiObjectId,
+          fileId: this.get('file.cdmiObjectId'),
           fileAction: fileLinkType,
         }),
         label: this.t(`fileLinkLabel.${fileLinkType}`),
@@ -498,9 +505,9 @@ export default Component.extend(...mixins, {
 
   fileSize: reads('file.size'),
 
-  hardlinksCount: or('file.hardlinksCount', raw(1)),
+  hardlinkCount: or('file.hardlinkCount', raw(1)),
 
-  hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
+  hardlinksLimitExceeded: gt('hardlinkCount', 'hardlinksLimit'),
 
   hardlinksFetchError: computed(
     'fileHardlinks.errors',
@@ -547,9 +554,19 @@ export default Component.extend(...mixins, {
 
   filePathProxy: promise.object(computed(
     'file.{parent.name,name}',
-    function filePathPromise() {
-      return resolveFilePath(this.file)
-        .then(path => stringifyFilePath(path));
+    async function filePathProxy() {
+      const path = await resolveFilePath(this.file);
+      if (
+        this.space &&
+        get(path[0], 'entityId') !== this.space.relationEntityId('rootDir')
+      ) {
+        const fileArchiveInfo = FileArchiveInfo.create({ file: this.file });
+        const isInArchive = await fileArchiveInfo.isInArchiveProxy;
+        if (isInArchive) {
+          path.unshift(await get(this.space, 'rootDir'));
+        }
+      }
+      return stringifyFilePath(path);
     }
   )),
 
@@ -573,7 +590,7 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<boolean>}
    */
   isHardlinksTabVisible: and(
-    gt('hardlinksCount', raw(1)),
+    gt('hardlinkCount', raw(1)),
     not('isMultiFile'),
   ),
 
@@ -675,11 +692,11 @@ export default Component.extend(...mixins, {
   builtInTabItems: computed(
     'hardlinksLimitExceeded',
     'hardlinksLimit',
-    'hardlinksCount',
+    'hardlinkCount',
     function builtInTabItems() {
-      const hardlinksCount = this.hardlinksLimitExceeded ?
+      const hardlinkCount = this.hardlinksLimitExceeded ?
         `${this.hardlinksLimit}+` :
-        this.hardlinksCount;
+        this.hardlinkCount;
 
       return {
         /** @type {FileInfoTabItem} */
@@ -692,7 +709,7 @@ export default Component.extend(...mixins, {
         hardlinks: {
           id: 'hardlinks',
           name: this.t('tabs.hardlinks.tabTitle'),
-          statusNumber: hardlinksCount,
+          statusNumber: hardlinkCount,
         },
 
         /** @type {FileInfoTabItem} */
@@ -780,8 +797,10 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  hardlinksAutoUpdater: observer('file.hardlinksCount', function hardlinksAutoUpdater() {
-    this.updateFileHardlinksProxy();
+  hardlinksAutoUpdater: observer('file.hardlinkCount', function hardlinksAutoUpdater() {
+    if (this.activeTab === 'hardlinks') {
+      this.updateFileHardlinksProxy();
+    }
   }),
 
   storageLocationsAutoUpdater: observer(
@@ -832,7 +851,7 @@ export default Component.extend(...mixins, {
       // of tabs.
       next(() => resolvePromise(
         fileManager.getFileHardlinks(this.get('file.entityId'), hardlinksLimit)
-        .then((({ hardlinksCount, hardlinks, errors }) =>
+        .then((({ hardlinkCount, hardlinks, errors }) =>
           allFulfilled(hardlinks.map(hardlinkFile =>
             resolveFilePath(hardlinkFile)
             .then(path => stringifyFilePath(path))
@@ -846,7 +865,7 @@ export default Component.extend(...mixins, {
               path,
             }))
           )).then(newHardlinks => ({
-            hardlinksCount,
+            hardlinkCount,
             hardlinks: newHardlinks,
             errors,
           }))

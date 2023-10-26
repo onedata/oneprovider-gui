@@ -1,6 +1,8 @@
 /**
  * Container for tags representing features that can be direct or inherited for file.
  *
+ * All file requirements are managed by FilesystemBrowserModel (`browserModel`).
+ *
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -10,7 +12,7 @@ import Component from '@ember/component';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { raw, or, not, collect, conditional, and } from 'ember-awesome-macros';
+import { or, not } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { computed, observer, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
@@ -19,18 +21,15 @@ import { htmlSafe } from '@ember/string';
 import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percentage-progress';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
-import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
-import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 export const defaultFilesystemFeatures = Object.freeze([
-  'effDatasetMembership',
-  'effQosMembership',
-  'recallingMembership',
+  'effDatasetInheritancePath',
+  'effQosInheritancePath',
+  'recallingInheritancePath',
 ]);
 
 const mixins = Object.freeze([
   I18n,
-  FileConsumerMixin,
 ]);
 
 export default Component.extend(...mixins, {
@@ -80,48 +79,6 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<Array<String>>}
    */
   features: reads('browserModel.fileFeatures'),
-
-  // TODO: VFS-11252 Decide how we could omit specifying file requirements when
-  // the component is used multiple times and it is always used in browser
-  /**
-   * If set to true, FileConsumer management is disabled in this component and should be
-   * managed externally (eg. by BrowserModel).
-   */
-  isFileConsumerDisabled: false,
-
-  /**
-   * @override
-   */
-  fileRequirements: conditional(
-    'isFileConsumerDisabled',
-    raw([]),
-    computed('item', function fileRequirements() {
-      if (!this.item) {
-        return [];
-      }
-      return [
-        new FileRequirement({
-          fileGri: this.get('item.id'),
-          properties: [
-            'dataIsProtected',
-            'metadataIsProtected',
-            'effDatasetMembership',
-            'effQosMembership',
-            'recallingMembership',
-          ],
-        }),
-      ];
-    })
-  ),
-
-  /**
-   * @override
-   */
-  usedFiles: conditional(
-    and(not('isFileConsumerDisabled'), 'item'),
-    collect('item'),
-    collect(),
-  ),
 
   file: reads('item'),
 
@@ -243,7 +200,7 @@ export default Component.extend(...mixins, {
   ),
 
   recallingPercent: computed(
-    'file.{recallingMembership,archiveRecallState.bytesCopied,archiveRecallInfo.totalByteSize}',
+    'file.{recallingInheritancePath,archiveRecallState.bytesCopied,archiveRecallInfo.totalByteSize}',
     function recallingPercent() {
       return recallingPercentageProgress(this.get('file'));
     }
@@ -267,9 +224,9 @@ export default Component.extend(...mixins, {
     }
   }),
 
-  recallingMembershipObserver: observer(
-    'item.recallingMembership',
-    function recallingMembershipObserver() {
+  recallingInheritancePathObserver: observer(
+    'item.recallingInheritancePath',
+    function recallingInheritancePathObserver() {
       this.tryDestroyRecallWatcher();
       this.tryCreateRecallWatcher();
     }
@@ -294,8 +251,11 @@ export default Component.extend(...mixins, {
       // watcher already registered for this component
       return;
     }
-    const recallingMembership = item && get(item, 'recallingMembership');
-    if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
+    const recallingInheritancePath = item && get(item, 'recallingInheritancePath');
+    if (
+      recallingInheritancePath === 'direct' ||
+      recallingInheritancePath === 'ancestor'
+    ) {
       const archiveRecallWatcherToken =
         archiveRecallStateManager.watchRecall(item);
       this.set('archiveRecallWatcherToken', archiveRecallWatcherToken);

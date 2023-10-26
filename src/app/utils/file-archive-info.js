@@ -3,7 +3,7 @@
  * dataset. Info is currently obtained in a hacky way, because backend lacks API.
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -17,11 +17,11 @@ import { all as allFulfilled } from 'rsvp';
 
 export const oneArchivesRootDirName = '.__onedata__archive';
 
-export const oneArchivesRootPathPosition = 1;
+export const oneArchivesRootPathPosition = 0;
 
-export const datasetDirPathPosition = 2;
+export const datasetDirPathPosition = 1;
 
-export const archiveDirPathPosition = 3;
+export const archiveDirPathPosition = 2;
 
 export default EmberObject.extend(OwnerInjector, {
   datasetManager: service(),
@@ -88,6 +88,9 @@ export default EmberObject.extend(OwnerInjector, {
     async function archiveIdProxy() {
       const filePath = await this.filePathProxy;
       if (!isArray(filePath)) {
+        return null;
+      }
+      if (!(await this.isInArchiveProxy)) {
         return null;
       }
       return getArchiveIdFromPath(filePath);
@@ -243,7 +246,7 @@ export function getIsInArchivePath(filePath) {
   if (!isArray(filePath)) {
     return false;
   }
-  const lastIndex = get(filePath, 'length') - 1;
+  const lastIndex = filePath.length - 1;
   return lastIndex >= archiveDirPathPosition &&
     get(filePath[oneArchivesRootPathPosition], 'name') === oneArchivesRootDirName;
 }
@@ -260,10 +263,10 @@ export function getDatasetIdFromDirName(dirName) {
 
 /**
  * @param {Array<{name: string}>} filePath
- * @returns {boolean}
+ * @returns {string}
  */
 export function getArchiveIdFromPath(filePath) {
-  const lastIndex = get(filePath, 'length') - 1;
+  const lastIndex = filePath.length - 1;
   const name = lastIndex >= archiveDirPathPosition &&
     get(filePath[archiveDirPathPosition], 'name') || null;
   return getArchiveIdFromDirName(name);
@@ -275,4 +278,12 @@ export function getArchiveIdFromPath(filePath) {
  */
 export function getArchiveRelativeFilePath(path) {
   return path.slice(archiveDirPathPosition + 1);
+}
+
+/**
+ * @param {Array<{name: string}>} filePath
+ * @returns {string}
+ */
+export function isArchiveRootDir(filePath) {
+  return getIsInArchivePath(filePath) && filePath.length === archiveDirPathPosition;
 }

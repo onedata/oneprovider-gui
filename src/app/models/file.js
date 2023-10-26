@@ -121,6 +121,14 @@ export const RuntimeProperties = Mixin.create({
     }
   }),
 
+  spaceEntityId: computed('entityId', function spaceEntityId() {
+    return getSpaceIdFromGuid(this.get('entityId'));
+  }),
+
+  internalFileId: computed('entityId', function internalFileId() {
+    return getInternalFileIdFromGuid(this.get('entityId'));
+  }),
+
   //#endregion
 
   //#region custom runtime properties
@@ -139,34 +147,22 @@ export const RuntimeProperties = Mixin.create({
 
   isShared: bool('sharesCount'),
 
-  isArchiveRootDir: computed(function isArchiveRootDir() {
-    return Boolean(this.belongsTo('archive').id());
-  }),
-
-  spaceEntityId: computed('entityId', function spaceEntityId() {
-    return getSpaceIdFromGuid(this.get('entityId'));
-  }),
-
-  internalFileId: computed('entityId', function internalFileId() {
-    return getInternalFileIdFromGuid(this.get('entityId'));
-  }),
-
   /**
    * Membership of running archive recall process:
    * - direct - if the file is a target (root) for recall process
    * - ancestor - if the file is a descendant of root for recall process (as above)
    * - none - none of above or the associated recall process finished
-   * @type {ComputedProperty<PromiseObject<null|'none'|'direct'|'ancestor'>>}
+   * @type {ComputedProperty<PromiseObject<Exclude<ItemFeatureMembership, 'directAndAncestor'|null>>>}
    */
-  recallingMembershipProxy: promise.object(computed(
-    'recallRootId',
+  recallingInheritancePathProxy: promise.object(computed(
+    'archiveRecallRootFileId',
     'archiveRecallInfo.finishTime',
-    async function recallingMembershipProxy() {
+    async function recallingInheritancePathProxy() {
       const {
-        recallRootId,
+        archiveRecallRootFileId,
         entityId,
-      } = this.getProperties('recallRootId', 'entityId');
-      if (recallRootId) {
+      } = this.getProperties('archiveRecallRootFileId', 'entityId');
+      if (archiveRecallRootFileId) {
         const archiveRecallInfoContent = await this.get('archiveRecallInfo');
         if (
           archiveRecallInfoContent &&
@@ -174,7 +170,7 @@ export const RuntimeProperties = Mixin.create({
         ) {
           return 'none';
         } else {
-          return recallRootId === entityId ? 'direct' : 'ancestor';
+          return archiveRecallRootFileId === entityId ? 'direct' : 'ancestor';
         }
       } else {
         return 'none';
@@ -183,21 +179,21 @@ export const RuntimeProperties = Mixin.create({
   )),
 
   /**
-   * @type {ComputedProperty<null|'none'|'direct'|'ancestor'>}
+   * @type {ComputedProperty<Exclude<ItemFeatureMembership, 'directAndAncestor'|null>>}
    */
-  recallingMembership: computedLastProxyContent('recallingMembershipProxy'),
+  recallingInheritancePath: computedLastProxyContent('recallingInheritancePathProxy'),
 
   isRecalling: or(
-    eq('recallingMembership', raw('direct')),
-    eq('recallingMembership', raw('ancestor')),
+    eq('recallingInheritancePath', raw('direct')),
+    eq('recallingInheritancePath', raw('ancestor')),
   ),
 
   isRecalledProxy: promise.object(computed(
-    'recallRootId',
+    'archiveRecallRootFileId',
     'archiveRecallInfo.finishTime',
-    async function recallingMembershipProxy() {
-      const recallRootId = this.get('recallRootId');
-      if (recallRootId) {
+    async function recallingInheritancePathProxy() {
+      const archiveRecallRootFileId = this.get('archiveRecallRootFileId');
+      if (archiveRecallRootFileId) {
         const archiveRecallInfoContent = await this.get('archiveRecallInfo');
         return Boolean(
           archiveRecallInfoContent &&
@@ -211,10 +207,6 @@ export const RuntimeProperties = Mixin.create({
 
   isRecalled: computedLastProxyContent('isRecalledProxy'),
 
-  sharesCount: computed('shareRecords', function sharesCount() {
-    return this.hasMany('shareRecords')?.ids().length;
-  }),
-
   //#endregion
 
   //#region runtime record state
@@ -225,6 +217,7 @@ export const RuntimeProperties = Mixin.create({
 
   /**
    * Not empty when file is a symlink and points to an accessible file.
+   * Set by `FileManager.resolveSymlinks`.
    * @type {Models.File|undefined}
    */
   symlinkTargetFile: undefined,
@@ -373,11 +366,18 @@ export default Model.extend(
      * the file ID.
      */
 
+    /**
+     * There is also an `acl` raw property available to get with file data from backend,
+     * but currently we only use relation that async get acl record.
+     */
     acl: belongsTo('acl'),
+
     distribution: belongsTo('file-distribution'),
     fileQosSummary: belongsTo('file-qos-summary'),
     fileDatasetSummary: belongsTo('file-dataset-summary'),
     storageLocationInfo: belongsTo('storage-location-info'),
+    archiveRecallInfo: belongsTo('archive-recall-info'),
+    archiveRecallState: belongsTo('archive-recall-state'),
 
     //#endregion
 
@@ -392,24 +392,29 @@ export default Model.extend(
     index: attr('string'),
     size: attr('number'),
     posixPermissions: attr('string'),
-    hasMetadata: attr('boolean'),
-    hardlinksCount: attr('number', { defaultValue: 1 }),
+    hasCustomMetadata: attr('boolean'),
+    hardlinkCount: attr('number', { defaultValue: 1 }),
     localReplicationRate: attr('number'),
+    isFullyReplicatedLocally: attr('boolean'),
+    path: attr('string'),
+    displayGid: attr('number'),
+    displayUid: attr('number'),
+    sharesCount: attr('number'),
 
     /**
      * @type {ComputedProperty<QosStatus>}
      */
-    qosStatus: attr('string'),
+    qosStatusAggregate: attr('string'),
 
     /**
-     * Possible values: none, direct, ancestor, directAndAncestor
+     * @type {ComputedProperty<ItemFeatureMembership>}
      */
-    effQosMembership: attr('string', { defaultValue: 'none' }),
+    effQosInheritancePath: attr('string', { defaultValue: 'none' }),
 
     /**
-     * Possible values: none, direct, ancestor, directAndAncestor
+     * @type {ComputedProperty<ItemFeatureMembership>}
      */
-    effDatasetMembership: attr('string', { defaultValue: 'none' }),
+    effDatasetInheritancePath: attr('string', { defaultValue: 'none' }),
 
     /**
      * Effective protection flags inherited from attached ancestor dataset flags.
@@ -429,23 +434,29 @@ export default Model.extend(
      * root. Null or empty otherwise.
      * @type {ComputedProperty<string>}
      */
-    recallRootId: attr('string'),
+    archiveRecallRootFileId: attr('string'),
 
     /**
-     * Modification time in UNIX timestamp format.
+     * Modification time (last time a file’s contents were modified) in UNIX
+     * timestamp format.
      */
     mtime: attr('number'),
 
+    /**
+     * Access time (last time a file was accessed) in UNIX timestamp format.
+     */
     atime: attr('number'),
+
+    /**
+     * Change time (last time some metadata related to the file was changed) in UNIX
+     * timestamp format.
+     */
     ctime: attr('number'),
 
     /**
      * One of: `posix`, `acl`. Cannot be modified
      */
     activePermissionsType: attr('string'),
-
-    storageGroupId: attr('string'),
-    storageUserId: attr('string'),
 
     shareRecords: hasMany('share'),
 
@@ -456,14 +467,6 @@ export default Model.extend(
      */
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
-    archiveRecallInfo: belongsTo('archive-recall-info'),
-    archiveRecallState: belongsTo('archive-recall-state'),
-
-    /**
-     * Relation to archive model if this file is a root dir of archive.
-     * @type {Models.Archive}
-     */
-    archive: belongsTo('archive'),
 
     //#endregion
   }
