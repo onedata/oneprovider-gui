@@ -61,6 +61,9 @@
     }
   }
   .fb-table {
+    .fb-files-table {
+      border-collapse: separate;
+    }
     td.multiline {
       vertical-align: middle;
       padding-top: 8px;
