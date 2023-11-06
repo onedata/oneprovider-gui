@@ -93,6 +93,7 @@
     table-layout: auto;
     thead {
       th {
+        position: relative;
         border-bottom-width: 1px;
         .oneicon {
           vertical-align: middle;
@@ -124,6 +125,63 @@
         min-width: 180px;
       }
     }
+  }
+
+  th {
+    border-right: 2px solid transparent;
+  }
+
+  th.border-dashed.border-solid {
+    border-right-style: solid;
+    border-right-color: lighten($color-one-blue-gray, 20%);
+
+    .draggable-area::after {
+      content: '';
+      position: absolute;
+      top: 56px;
+      right: -1px;
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+
+      border-bottom: 11px solid lighten($color-one-blue-gray, 20%);
+      z-index: 2;
+    }
+  }
+
+  th.border-dashed {
+    border-right-style: dashed;
+    border-right-color: $table-border-color;
+  }
+  th:hover .column-move-icon{
+    @media (hover: hover) {
+      visibility: visible;
+      cursor: grab;
+    }
+  }
+  .draggable-area {
+    position: absolute;
+    width: 16px;
+
+    opacity: 0.6;
+    height: 63px;
+    right: -8px;
+    top: 0;
+    z-index: 1;
+  }
+  .column-move-icon {
+    vertical-align: middle;
+    visibility: hidden;
+    position: absolute;
+    left: -1em;
+    top: 0.2em;
+  }
+  .column-name {
+    position: relative;
+  }
+  .column-move-icon {
+    opacity: 0.6;
   }
 }
 
