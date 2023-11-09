@@ -24,6 +24,12 @@ import { inject as service } from '@ember/service';
 import { sum } from 'ember-awesome-macros';
 import isDirectlyClicked from 'onedata-gui-common/utils/is-directly-clicked';
 import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
+import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
+
+const mixins = [
+  I18n,
+  DragAndDropColumnOrderMixin,
+];
 
 const allColumnNames = [
   'path',
@@ -45,12 +51,12 @@ const allColumnWidth = {
   destination: 200,
   scheduledAt: 150,
   startedAt: 150,
-  finishedAt: 150,
-  processed: 100,
-  replicated: 100,
-  evicted: 90,
+  finishedAt: 155,
+  processed: 110,
+  replicated: 115,
+  evicted: 95,
   type: 80,
-  status: 80,
+  status: 85,
 };
 
 const tableExcludedColumnNames = {
@@ -60,7 +66,7 @@ const tableExcludedColumnNames = {
   ended: ['scheduledAt'],
 };
 
-export default Component.extend(I18n, {
+export default Component.extend(...mixins, {
   classNames: ['transfers-table', 'one-infinite-list'],
 
   globalNotify: service(),
