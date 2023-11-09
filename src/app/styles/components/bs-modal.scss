@@ -157,6 +157,11 @@
     border-top: 1px solid;
     border-top-color: transparent;
     border-radius: 0;
+
+    &.modal-full {
+      // We need to override modal-full height, as it has its custom height defined.
+      height: 100%;
+    }
   }
 }
 
