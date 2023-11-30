@@ -674,17 +674,25 @@ export default EmberObject.extend(...mixins, {
     const files = this.files;
     try {
       await this.saveAllPermissions();
-      await this.updateAclsProxy({ replace: true });
       this.globalNotify.success(this.t('permissionsModifySuccess'));
       this.clearEditedPermissionsTypes();
     } catch (errors) {
       if (errors.length > 1) {
         errors.slice(1).forEach(error =>
-          console.error('save file permissions', error)
+          console.error('save file permissions failed', error)
         );
       }
       this.globalNotify.backendError(this.t('modifyingPermissions'), errors[0]);
       throw errors;
+    }
+    try {
+      await this.updateAclsProxy({ replace: true });
+    } catch (errors) {
+      if (errors.length > 1) {
+        errors.slice(1).forEach(error =>
+          console.error('refreshing file permissions failed', error)
+        );
+      }
     } finally {
       const hardlinkedFile = files.find(file => get(file, 'hardlinksCount') > 1);
       if (hardlinkedFile) {

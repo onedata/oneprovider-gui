@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11573 Fixed wrong error message on failed ACL settings reloading
 * VFS-11405 Added draggable modify order of columns in transfers table
 * VFS-11125 Added draggable modify order of columns in file browser
 * VFS-11242 Added downloading automation audit log content
