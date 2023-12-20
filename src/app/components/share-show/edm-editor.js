@@ -26,7 +26,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {string}
    */
-  xml: undefined,
+  xmlValue: undefined,
 
   /**
    * @virtual
@@ -57,6 +57,13 @@ export default Component.extend(I18n, {
   //#region configuration
 
   /**
+   * Initial values of: 'title', 'creator' and 'date' fields.
+   * @virtual optional
+   * @type {Object}
+   */
+  initialData: Object.freeze({}),
+
+  /**
    * @virtual optional
    * @type {boolean}
    */
@@ -78,7 +85,7 @@ export default Component.extend(I18n, {
 
   //#endregion
 
-  isEmpty: not('xml'),
+  isEmpty: not('xmlValue'),
 
   isSubmitDisabled: bool('submitDisabledReason'),
 
@@ -93,6 +100,25 @@ export default Component.extend(I18n, {
     ),
     raw(null),
   ),
+
+  init() {
+    this._super(...arguments);
+    // FIXME: debug code
+    ((name) => {
+      window[name] = this;
+      console.log(`window.${name}`, window[name]);
+    })('debug_edm_editor');
+  },
+
+  /**
+   * @override
+   */
+  didInsertElement() {
+    this._super(...arguments);
+    if (!this.xmlValue) {
+      this.onUpdateXml(generateDefaultXML(this.initialData));
+    }
+  },
 
   setupAceEditor(aceEditor) {
     this.set('aceEditor', aceEditor);
@@ -109,7 +135,7 @@ export default Component.extend(I18n, {
   },
 
   submit() {
-    return this.onSubmit(this.xml);
+    return this.onSubmit(this.xmlValue);
   },
 
   actions: {
@@ -130,3 +156,51 @@ export default Component.extend(I18n, {
     },
   },
 });
+
+/**
+ * @param {Object} data
+ * @param {string} data.title
+ * @param {string} data.creator
+ * @param {string} data.date
+ * @param {string} data.shareUrl
+ * @param {string} [data.organization]
+ * @returns
+ */
+function generateDefaultXML(data) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:adms="http://www.w3.org/ns/adms#"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:crm="http://www.cidoc-crm.org/rdfs/cidoc_crm/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:doap="http://usefulinc.com/ns/doap#"
+    xmlns:ebucore="http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#"
+    xmlns:edm="http://www.europeana.eu/schemas/edm/"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:odrl="http://www.w3.org/ns/odrl/2/"
+    xmlns:ore="http://www.openarchives.org/ore/terms/"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:rdaGr2="http://rdvocab.info/ElementsGr2/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:svcs="http://rdfs.org/sioc/services#"
+    xmlns:wgs84="http://www.w3.org/2003/01/geo/wgs84_pos#"
+    xmlns:xalan="http://xml.apache.org/xalan">
+    <edm:ProvidedCHO rdf:about="#exampleMet0">
+        <dc:title>${data.title}</dc:title>
+        <dc:language>en</dc:language>
+        <dc:type>dataset</dc:type>
+        <edm:type>TEXT</edm:type>
+        <dc:creator>${data.creator}</dc:creator>
+        <dc:date>${data.date}</dc:date>
+    </edm:ProvidedCHO>
+    <ore:Aggregation rdf:about="#exampleMet0_AGG">
+        <edm:aggregatedCHO rdf:resource="#exampleMet0"/>
+        <edm:dataProvider>${data.organization || data.creator}</edm:dataProvider>
+        <edm:isShownAt rdf:resource="${data.shareUrl}"/>
+        <edm:provider>${data.organization || data.creator}</edm:provider>
+        <edm:rights rdf:resource="http://rightsstatements.org/vocab/NoC-OKLR/1.0/"/>
+    </ore:Aggregation>
+</rdf:RDF>`;
+}

@@ -81,27 +81,31 @@
               </div>
             {{/content-info}}
           {{/carousel.slide}}
-          {{#carousel.slide slideId="createMetadata" class="full-height"}}
-            {{#if (eq selectedMetadataType MetadataType.Edm)}}
-              {{!-- FIXME: refaktor: wyciągnąć submit poza oba edytory? --}}
-              {{share-show/edm-editor
-                class="full-height"
-                xml=xml
-                handleService=selectedHandleService
-                onUpdateXml=(action "updateXml")
-                onSubmit=(action "submit")
-                onBack=(action "back")
-              }}
-            {{else if (eq selectedMetadataType MetadataType.Dc)}}
-              {{!-- FIXME: ticket do refaktoru nazw: open-data-... -> dublin-core-...? --}}
-              {{share-show/open-data-editor
-                xml=xml
-                initialData=initialData
-                handleService=selectedHandleService
-                onUpdateXml=(action "updateXml")
-                onSubmit=(action "submit")
-                onBack=(action "back")
-              }}
+          {{#carousel.slide slideId="createMetadata" class="full-height" as |slide|}}
+            {{log "slied" slide slide.state}}
+            {{#if (eq slide.state "active-from-right")}}
+              {{#if (eq selectedMetadataType MetadataType.Edm)}}
+                {{!-- FIXME: refaktor: wyciągnąć submit poza oba edytory? --}}
+                {{share-show/edm-editor
+                  class="full-height"
+                  xmlValue=xml
+                  initialData=initialData
+                  handleService=selectedHandleService
+                  onUpdateXml=(action "updateXml")
+                  onSubmit=(action "submit")
+                  onBack=(action "back")
+                }}
+              {{else if (eq selectedMetadataType MetadataType.Dc)}}
+                {{!-- FIXME: ticket do refaktoru nazw: open-data-... -> dublin-core-...? --}}
+                {{share-show/open-data-editor
+                  xml=xml
+                  initialData=initialData
+                  handleService=selectedHandleService
+                  onUpdateXml=(action "updateXml")
+                  onSubmit=(action "submit")
+                  onBack=(action "back")
+                }}
+              {{/if}}
             {{/if}}
           {{/carousel.slide}}
         {{/one-carousel}}

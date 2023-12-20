@@ -36,6 +36,12 @@ export default Component.extend(I18n, {
   share: undefined,
 
   /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
    * Current XML content od Dublin Core Metadata.
    * @type {String}
    */
@@ -89,6 +95,8 @@ export default Component.extend(I18n, {
       creator: this.get('currentUser.userProxy.content.name'),
       description: '',
       date: moment().format('YYYY-MM-DD'),
+      organizationName: this.get('space.organizationName'),
+      shareUrl: this.get('share.publicUrl'),
     };
   }),
 
