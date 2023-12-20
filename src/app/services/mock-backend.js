@@ -38,6 +38,7 @@ import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-sto
 import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
+  exampleEdmMetadata,
 } from 'oneprovider-gui/utils/mock-data';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
@@ -47,6 +48,7 @@ import {
   atmWorkflowExecutionPhases,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 import globals from 'onedata-gui-common/utils/globals';
+import { MetadataType } from 'oneprovider-gui/models/handle';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -376,12 +378,16 @@ export default Service.extend({
     const handlePrivate = store.createRecord('handle', {
       url: 'http://hdl.handle.net/21.T15999/zppPvhg',
       handleService: this.get('entityRecords.handleService')[0],
-      metadataString: exampleDublinCore,
+      // FIXME: testing
+      metadataString: exampleEdmMetadata,
+      metadataPrefix: MetadataType.Edm,
     });
     const handlePublic = store.createRecord('handle', {
       url: 'http://hdl.handle.net/21.T15999/zppPvhg',
       handleService: null,
-      metadataString: exampleDublinCore,
+      // FIXME: testing
+      metadataString: exampleEdmMetadata,
+      metadataPrefix: MetadataType.Edm,
     });
     const spaceId = this.get('entityRecords.space.0.entityId');
     const shares = ['private', 'public'].map(scope => {

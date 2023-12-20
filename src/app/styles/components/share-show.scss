@@ -197,6 +197,25 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       margin-bottom: 1em;
     }
   }
+
+  // Open Data logo commonly used by metadata presenters
+  .col-open-data-logo {
+    .open-data-logo {
+      $open-data-logo-size: 200px;
+      position: sticky;
+      top: calc(50% + #{$share-show-content-padding-horizontal});
+      height: $open-data-logo-size;
+      width: 100%;
+      background-image: url($root-url + 'images/open-data.svg');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: contain;
+      transition: all 0.2s ease;
+      @media (max-height: #{$share-show-content-header-height-public + $share-show-public-footer-height + $open-data-logo-size}) {
+        display: none;
+      }
+    }
+  }
 }
 
 @import './share-show/header-management';
@@ -208,3 +227,4 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
 @import './share-show/markdown-editor';
 @import './share-show/edm-editor';
 @import './share-show/metadata-editor-footer';
+@import './share-show/pane-opendata';

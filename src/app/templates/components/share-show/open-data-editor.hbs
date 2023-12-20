@@ -8,7 +8,7 @@
     <h1 class="section-name">
       {{tt this (if (media "isMobile") "common.metadataMobile" "common.metadata")}}
       {{#if (media "isMobile")}}
-        {{one-label-tip title=(tt this "common.metadataPublicHeaderTip")}}
+        {{one-label-tip title=(tt this "common.metadataPublicHeaderTip.dc")}}
       {{/if}}
     </h1>
     {{share-show/open-data-mode-switch mode=mode onModeChange=(action changeMode)}}

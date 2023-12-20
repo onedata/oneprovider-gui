@@ -10,10 +10,17 @@
   .metadata-editor-footer {
     margin-top: 1.5em;
   }
+  &.readonly {
+    h1.main-header {
+      margin-bottom: 1em;
+    }
+  }
 }
 
 .share-show {
   .edm-editor {
+    // a fill-flex-using column is added in share-show, because of layout we need this
+    flex-direction: row;
     .metadata-editor-footer {
       .row-submit {
         // remove container padding added in share-show

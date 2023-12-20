@@ -8,12 +8,12 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { not, and, raw, or, bool } from 'ember-awesome-macros';
+import { not, and, raw, or, bool, conditional } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   classNames: ['edm-editor', 'open-data-metadata-editor', 'form-group'],
-  classNameBindings: ['isValid::has-error'],
+  classNameBindings: ['isValid::has-error', 'readonly:readonly'],
 
   /**
    * @override
@@ -69,12 +69,6 @@ export default Component.extend(I18n, {
    */
   readonly: false,
 
-  /**
-   * Classname added to columns to center the form content, as it is too wide
-   * @type {String}
-   */
-  colClassname: 'col-xs-12 col-md-8 col-centered',
-
   //#endregion
 
   //#region state
@@ -89,6 +83,16 @@ export default Component.extend(I18n, {
 
   isSubmitDisabled: bool('submitDisabledReason'),
 
+  /**
+   * Classname added to columns to center the form content, as it is too wide
+   * @type {String}
+   */
+  colClassname: conditional(
+    'readonly',
+    raw('col-xs-12 col-md-8 col-lg-7'),
+    raw('col-xs-12 col-md-8 col-centered'),
+  ),
+
   submitDisabledReason: or(
     and(
       'isEmpty',
@@ -100,10 +104,6 @@ export default Component.extend(I18n, {
     ),
     raw(null),
   ),
-
-  init() {
-    this._super(...arguments);
-  },
 
   /**
    * @override

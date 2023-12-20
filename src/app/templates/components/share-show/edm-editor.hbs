@@ -1,17 +1,22 @@
 
 <div class={{concat-classes "col-edm-editor full-height" colClassname}}>
-  <h1 class="section-name">
+  <h1 class="section-name main-header">
     {{tt this "header"}}
+    {{#if readonly}}
+      {{one-label-tip title=(tt this "readonlyHeaderTip")}}
+    {{/if}}
   </h1>
-  <p>
-    {{tt this "metadataEditorIntro"}}
-    {{tt this "typeMetadata.type"}}
-    <a href="https://pro.europeana.eu/page/edm-documentation" target="_blank">
-      {{tt this "typeMetadata.edm"}}
-    </a>
-    {{tt this "typeMetadata.metadataBelow"}}
-    {{one-label-tip title=(tt this "introTip")}}
-  </p>
+  {{#unless readonly}}
+    <p>
+      {{tt this "metadataEditorIntro"}}
+      {{tt this "typeMetadata.type"}}
+      <a href="https://pro.europeana.eu/page/edm-documentation" target="_blank">
+        {{tt this "typeMetadata.edm"}}
+      </a>
+      {{tt this "typeMetadata.metadataBelow"}}
+      {{one-label-tip title=(tt this "introTip")}}
+    </p>
+  {{/unless}}
   {{ember-ace
     class="ember-ace ember-ace-edm-source"
     editorClass="full-height"
@@ -28,11 +33,19 @@
     ready=(action "aceEditorReady")
     update=(action "sourceChanged")
   }}
-  {{share-show/metadata-editor-footer
-    isSubmitDisabled=isSubmitDisabled
-    submitButtonTip=submitDisabledReason
-    handleService=handleService
-    onCancel=(action "back")
-    onSubmit=(action "submit")
-  }}
+  {{#unless readonly}}
+    {{share-show/metadata-editor-footer
+      isSubmitDisabled=isSubmitDisabled
+      submitButtonTip=submitDisabledReason
+      handleService=handleService
+      onCancel=(action "back")
+      onSubmit=(action "submit")
+    }}
+  {{/unless}}
 </div>
+{{#if readonly}}
+  <div class="hidden-xs hidden-sm col-md-4 col-lg-5 col-open-data-logo">
+    <div class="open-data-logo">
+    </div>
+  </div>
+{{/if}}

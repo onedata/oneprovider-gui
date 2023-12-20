@@ -143,18 +143,21 @@ export default Component.extend(I18n, {
     this.loadXml();
   },
 
-  loadXml() {
-    return this.get('handleProxy').then(handle => {
-      safeExec(this, () => {
-        if (handle) {
-          const metadataString = get(handle, 'metadataString');
-          if (metadataString) {
-            this.set('xml', metadataString);
-          } else {
-            this.set('noMetadata', true);
-          }
+  async loadXml() {
+    const handle = await this.handleProxy;
+    safeExec(this, () => {
+      if (handle) {
+        const metadataString = get(handle, 'metadataString');
+        const metadataPrefix = get(handle, 'metadataPrefix');
+        if (metadataString) {
+          this.setProperties({
+            xml: metadataString,
+            selectedMetadataType: metadataPrefix,
+          });
+        } else {
+          this.set('noMetadata', true);
         }
-      });
+      }
     });
   },
 

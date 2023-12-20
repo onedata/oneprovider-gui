@@ -1,11 +1,25 @@
 {{#promise-proxy-container proxy=handleProxy}}
   {{#if handle}}
-    {{share-show/open-data-preview
-      class="fill-flex-using-column"
-      xml=xml
-      handleUrl=handle.url
-      handleServiceName=handle.handleService.name
-    }}
+    {{#if xml}}
+      {{#if (eq selectedMetadataType MetadataType.Edm)}}
+        {{share-show/edm-editor
+          class="fill-flex-using-column"
+          xmlValue=xml
+          readonly=true
+        }}
+      {{else}}
+        {{share-show/open-data-preview
+          class="fill-flex-using-column"
+          xml=xml
+          handleUrl=handle.url
+          handleServiceName=handle.handleService.name
+        }}
+      {{/if}}
+    {{else}}
+      <p class="no-metadata-info">
+        {{tt this "noMetadata"}}
+      </p>
+    {{/if}}
   {{else}}
     {{#promise-proxy-container proxy=handleServicesProxy}}
       {{#if handleServices.length}}
@@ -85,7 +99,6 @@
             {{log "slied" slide slide.state}}
             {{#if (eq slide.state "active-from-right")}}
               {{#if (eq selectedMetadataType MetadataType.Edm)}}
-                {{!-- FIXME: refaktor: wyciągnąć submit poza oba edytory? --}}
                 {{share-show/edm-editor
                   class="full-height"
                   xmlValue=xml
