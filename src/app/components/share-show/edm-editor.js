@@ -168,25 +168,16 @@ export default Component.extend(I18n, {
  */
 function generateDefaultXML(data) {
   return `<?xml version="1.0" encoding="UTF-8"?>
-<rdf:RDF xmlns:adms="http://www.w3.org/ns/adms#"
-    xmlns:cc="http://creativecommons.org/ns#"
-    xmlns:crm="http://www.cidoc-crm.org/rdfs/cidoc_crm/"
+
+<!-- Example EDM XML content - replace it with the detailed metadata. -->
+<!-- Refer to the documentation of EDM at https://pro.europeana.eu/page/edm-documentation -->
+
+<rdf:RDF
     xmlns:dc="http://purl.org/dc/elements/1.1/"
-    xmlns:dcterms="http://purl.org/dc/terms/"
-    xmlns:doap="http://usefulinc.com/ns/doap#"
-    xmlns:ebucore="http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#"
     xmlns:edm="http://www.europeana.eu/schemas/edm/"
-    xmlns:foaf="http://xmlns.com/foaf/0.1/"
-    xmlns:odrl="http://www.w3.org/ns/odrl/2/"
     xmlns:ore="http://www.openarchives.org/ore/terms/"
-    xmlns:owl="http://www.w3.org/2002/07/owl#"
-    xmlns:rdaGr2="http://rdvocab.info/ElementsGr2/"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-    xmlns:svcs="http://rdfs.org/sioc/services#"
-    xmlns:wgs84="http://www.w3.org/2003/01/geo/wgs84_pos#"
-    xmlns:xalan="http://xml.apache.org/xalan">
+>
     <edm:ProvidedCHO rdf:about="#exampleMet0">
         <dc:title>${data.title}</dc:title>
         <dc:language>en</dc:language>
