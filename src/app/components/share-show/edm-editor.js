@@ -103,11 +103,6 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_edm_editor');
   },
 
   /**
@@ -163,7 +158,7 @@ export default Component.extend(I18n, {
  * @param {string} data.creator
  * @param {string} data.date
  * @param {string} data.shareUrl
- * @param {string} [data.organization]
+ * @param {string} [data.organizationName]
  * @returns
  */
 function generateDefaultXML(data) {
@@ -188,9 +183,9 @@ function generateDefaultXML(data) {
     </edm:ProvidedCHO>
     <ore:Aggregation rdf:about="#exampleMet0_AGG">
         <edm:aggregatedCHO rdf:resource="#exampleMet0"/>
-        <edm:dataProvider>${data.organization || data.creator}</edm:dataProvider>
+        <edm:dataProvider>${data.organizationName || data.creator}</edm:dataProvider>
         <edm:isShownAt rdf:resource="${data.shareUrl}"/>
-        <edm:provider>${data.organization || data.creator}</edm:provider>
+        <edm:provider>${data.organizationName || data.creator}</edm:provider>
         <edm:rights rdf:resource="http://rightsstatements.org/vocab/NoC-OKLR/1.0/"/>
     </ore:Aggregation>
 </rdf:RDF>`;
