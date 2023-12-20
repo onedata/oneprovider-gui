@@ -2,7 +2,7 @@
  * Backend operation for handles and handle services
  *
  * @author Jakub Liput
- * @copyright (C) 2020-2021 ACK CYFRONET AGH
+ * @copyright (C) 2020-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -19,8 +19,23 @@ export default Service.extend({
       .then(effHandleServiceList => get(effHandleServiceList, 'list'));
   },
 
-  createHandle(share, handleServiceId, metadataString) {
-    const handle = this.get('store').createRecord('handle', {
+  /**
+   *
+   * @param {Object} options
+   * @param {Models.Share} options.share
+   * @param {string} options.handleServiceId
+   * @param {string} options.metadataString
+   * @param {HandleModel.MetadataType} options.metadataPrefix
+   * @returns {Models.Handle}
+   */
+  async createHandle({
+    share,
+    handleServiceId,
+    metadataString,
+    metadataPrefix = 'oai_dc',
+  } = {}) {
+    const handle = this.store.createRecord('handle', {
+      metadataPrefix,
       metadataString,
       _meta: {
         additionalData: {
@@ -29,15 +44,12 @@ export default Service.extend({
         },
       },
     });
-    return handle.save()
-      .then(() => share.reload())
-      .then(() => {
-        if (!get(share, 'handle.content')) {
-          set(share, 'handle', handle);
-          return share.save().then(() => handle);
-        } else {
-          return handle;
-        }
-      });
+    await handle.save();
+    await share.reload();
+    if (!get(share, 'handle.content')) {
+      set(share, 'handle', handle);
+      await share.save();
+    }
+    return handle;
   },
 });

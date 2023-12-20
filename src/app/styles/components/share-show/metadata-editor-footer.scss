@@ -1,0 +1,14 @@
+.metadata-editor-footer {
+  .col-submit-center {
+    display: flex;
+    justify-content: center;
+  }
+  .row-submit {
+    margin-top: 2em;
+    @media (max-width: 450px) {
+      .hidden-custom-xs {
+        display: none;
+      }
+    }
+  }
+}

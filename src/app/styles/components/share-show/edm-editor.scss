@@ -1,0 +1,24 @@
+.edm-editor {
+  .col-edm-editor {
+    display: flex;
+    flex-direction: column;
+  }
+  .ember-ace-edm-source {
+    flex-grow: 1;
+    flex-basis: 180px;
+  }
+  .metadata-editor-footer {
+    margin-top: 1.5em;
+  }
+}
+
+.share-show {
+  .edm-editor {
+    .metadata-editor-footer {
+      .row-submit {
+        // remove container padding added in share-show
+        margin-bottom: -$content-col-padding;
+      }
+    }
+  }
+}

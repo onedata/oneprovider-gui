@@ -46,6 +46,9 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     // overflow cannot be hidden, because of sticky elements inside
     overflow: visible;
   }
+  .metadata-type-text {
+    margin-top: 1.6em;
+  }
 
   @media (max-width: $share-show-tabs-stack-width) {
     .bs-tab-onedata.tab-share-show-mode .nav-tabs.nav > li > a {
@@ -183,6 +186,17 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     margin-left: -$content-col-padding;
     margin-right: -$content-col-padding;
   }
+  .open-data-metadata-editor {
+    h1 {
+      @include font-semibold;
+      font-size: 1.6em;
+    }
+    h2 {
+      @include font-semibold;
+      font-size: 1.3em;
+      margin-bottom: 1em;
+    }
+  }
 }
 
 @import './share-show/header-management';
@@ -192,3 +206,5 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
 @import './share-show/open-data-editor';
 @import './share-show/open-data-preview';
 @import './share-show/markdown-editor';
+@import './share-show/edm-editor';
+@import './share-show/metadata-editor-footer';

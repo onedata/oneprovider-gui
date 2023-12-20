@@ -1,8 +1,8 @@
 /**
- * Open Data editor with visual (form) and XML (text) modes.
+ * Dublin Core metadata editor with visual (form) and XML (text) modes.
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -14,14 +14,14 @@ import plainCopy from 'onedata-gui-common/utils/plain-copy';
 import { A } from '@ember/array';
 import { dcElements } from 'oneprovider-gui/utils/dublin-core-xml-parser';
 import _ from 'lodash';
-import { isEmpty, array } from 'ember-awesome-macros';
+import { isEmpty, array, or } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import OpenData from './-open-data';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default OpenData.extend(I18n, {
-  classNames: ['open-data-editor'],
+  classNames: ['open-data-editor', 'open-data-metadata-editor'],
 
   globalNotify: service(),
 
@@ -43,13 +43,19 @@ export default OpenData.extend(I18n, {
    * @virtual
    * @type {(xml: String, handleServiceId: String) => Promise}
    */
-  submit: undefined,
+  onSubmit: undefined,
+
+  /**
+   * @virtual
+   * @type {() => void}
+   */
+  onBack: undefined,
 
   /**
    * @virtual
    * @type {Function}
    */
-  updateXml: notImplementedIgnore,
+  onUpdateXml: notImplementedIgnore,
 
   /**
    * Classname added to columns to center the form content, as it is too wide
@@ -72,9 +78,9 @@ export default OpenData.extend(I18n, {
   metadataGroupAddListSorted: array.sort('metadataGroupAddList'),
 
   /**
-   * @type {ComputedProperty<Bolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  submitDisabled: isEmpty('handleService'),
+  submitDisabled: or('parserError', isEmpty('handleService')),
 
   xmlObserver: observer('xml', function xmlObserver() {
     const xml = this.get('xml');
@@ -91,7 +97,7 @@ export default OpenData.extend(I18n, {
   }),
 
   modeObserver: observer('mode', function modeObserver() {
-    this.get('updateXml')(this.getXml());
+    this.onUpdateXml(this.getXml());
   }),
 
   init() {
@@ -139,24 +145,18 @@ export default OpenData.extend(I18n, {
       const values = get(group, 'values');
       set(values, String(index), value);
     },
-    submit() {
-      const {
-        submit,
-        updateXml,
-        handleService,
-        globalNotify,
-      } = this.getProperties('submit', 'updateXml', 'handleService', 'globalNotify');
+    async submit() {
       const currentXml = this.getXml();
-      updateXml(currentXml);
+      this.onUpdateXml(currentXml);
       this.set('formDisabled', true);
-      return submit(currentXml, get(handleService, 'entityId'))
-        .catch(error => {
-          globalNotify.backendError(this.t('editor.publishingData'), error);
-          throw error;
-        })
-        .finally(() => {
-          safeExec(this, 'set', 'formDisabled');
-        });
+      try {
+        await this.onSubmit(currentXml);
+      } catch (error) {
+        this.globalNotify.backendError(this.t('editor.publishingData'), error);
+        throw error;
+      } finally {
+        safeExec(this, 'set', 'formDisabled', false);
+      }
     },
     addEntry(type) {
       const group = this.get('groupedEntries').findBy('type', type);
@@ -180,6 +180,12 @@ export default OpenData.extend(I18n, {
         type,
         values: [''],
       }));
+    },
+    back() {
+      this.onBack();
+    },
+    updateXml(value) {
+      this.onUpdateXml(value);
     },
   },
 });

@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11540 Added support for publishing Open Data with Europeana Data Model metadata (raw XML editor)
 * VFS-11573 Fixed wrong error message on failed ACL settings reloading
 * VFS-11405 Added draggable modify order of columns in transfers table
 * VFS-11125 Added draggable modify order of columns in file browser

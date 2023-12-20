@@ -118,7 +118,7 @@
       <div class="form-group open-data-xml-form-group {{if parserError "has-error"}}">
         <textarea
           value={{xml}}
-          oninput={{action updateXml value="target.value"}}
+          oninput={{action "updateXml" value="target.value"}}
           placeholder={{tt this "editor.xmlTextareaPlaceholder"}}
           disabled={{formDisabled}}
           class="no-resize code-textarea open-data-xml-textarea form-control"
@@ -136,38 +136,11 @@
   {{/one-carousel}}
 </div>
 
-<div class={{concat-classes colClassname "col-open-data-editor-additional"}}>
-  {{#if handleService}}
-    <p class="row-publish-info">
-      {{tt this "editor.publishInfo"
-        handleServiceName=handleService.name
-        handleServiceId=handleService.entityId
-      }}
-    </p>
-  {{/if}}
-  <div class="row row-submit">
-    <div class="col-xs-12 col-centered col-submit-center btn-toolbar">
-      {{#bs-button
-        class="btn-back"
-        type="default"
-        disabled=formDisabled
-        onClick=(action back)
-      }}
-        {{one-icon icon="arrow-left" class="hidden-custom-xs"}}
-        <span class="text">
-          {{tt this "editor.back"}}
-        </span>
-      {{/bs-button}}
-      {{#one-button
-        type="primary"
-        buttonType="submit"
-        onClick=(action "submit")
-        disabled=submitDisabled
-        class="btn-submit"
-      }}
-        {{tt this "editor.publish"}}
-        <span class="hidden-custom-xs">{{tt this "editor.asOpenData"}}</span>
-      {{/one-button}}
-    </div>
-  </div>
-</div>
+{{share-show/metadata-editor-footer
+  class=(concat-classes colClassname "col-open-data-editor-additional")
+  handleService=handleService
+  isCancelDisabled=formDisabled
+  isSubmitDisabled=submitDisabled
+  onCancel=(action "back")
+  onSubmit=(action "submit")
+}}

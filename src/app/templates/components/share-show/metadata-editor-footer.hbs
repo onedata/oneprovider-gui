@@ -1,0 +1,37 @@
+{{#if handleService}}
+  <p class="row-publish-info">
+    {{tt this "publishInfo"
+      handleServiceName=handleService.name
+      handleServiceId=handleService.entityId
+    }}
+  </p>
+{{/if}}
+<div class="row row-submit">
+  <div class="col-xs-12 col-centered col-submit-center btn-toolbar">
+    {{#bs-button
+      class="btn-back"
+      type="warning"
+      disabled=isCancelDisabled
+      onClick=(action "cancel")
+    }}
+      <span class="text">
+        {{tt this "cancel"}}
+      </span>
+    {{/bs-button}}
+    <div class="btn-tooltip-container">
+      {{#one-button
+        type="primary"
+        buttonType="submit"
+        onClick=(action "submit")
+        disabled=isSubmitDisabled
+        class="btn-submit"
+      }}
+        {{tt this "publish"}}
+        <span class="hidden-custom-xs">{{tt this "asOpenData"}}</span>
+      {{/one-button}}
+      {{#if submitButtonTip}}
+        {{one-tooltip title=submitButtonTip}}
+      {{/if}}
+    </div>
+  </div>
+</div>

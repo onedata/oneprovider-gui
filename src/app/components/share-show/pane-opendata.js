@@ -2,7 +2,7 @@
  * Content for "opendata" tab for single share
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -13,9 +13,10 @@ import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import moment from 'moment';
-import { conditional, raw } from 'ember-awesome-macros';
+import { conditional, raw, not, or, eq } from 'ember-awesome-macros';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { MetadataType } from 'oneprovider-gui/models/handle';
 
 export default Component.extend(I18n, {
   classNames: ['share-show-pane-opendata', 'pane-opendata', 'row'],
@@ -44,6 +45,29 @@ export default Component.extend(I18n, {
    * @type {Models.HandleService}
    */
   selectedHandleService: undefined,
+
+  /**
+   * @type {PaneOpenData.MetadataType}
+   */
+  selectedMetadataType: undefined,
+
+  /**
+   * Imported for access in the template.
+   * @type {Object<string, MetadataType>}
+   */
+  MetadataType,
+
+  /**
+   * @type {Array<PaneOpenData.MetadataType>}
+   */
+  metadataTypes: Object.freeze([MetadataType.Dc, MetadataType.Edm]),
+
+  isEdmMetadataType: eq('selectedMetadataType', raw(MetadataType.Edm)),
+
+  isWelcomeProceedDisabled: or(
+    not('selectedHandleService'),
+    not('selectedMetadataType')
+  ),
 
   /**
    * @type {ComputedProperty<String>}
@@ -126,26 +150,25 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    submit(xml, handleServiceId) {
-      const {
-        share,
-        handleManager,
-      } = this.getProperties('share', 'handleManager');
-      return handleManager.createHandle(share, handleServiceId, xml)
-        .then(() => {
-          safeExec(this, 'loadXml');
-        });
-    },
-    xmlChanged(xml) {
-      this.set('xml', xml);
-    },
-    toggleEditorMode() {
-      const editorMode = this.get('editorMode');
-      const newMode = (editorMode === 'visual') ? 'xml' : 'visual';
-      this.set('editorMode', newMode);
+    async submit(xml) {
+      if (!this.selectedMetadataType || !this.selectedHandleService) {
+        throw new Error('no selectedMetadataType or selectedHandleService specified');
+      }
+      await this.handleManager.createHandle({
+        share: this.share,
+        metadataPrefix: this.selectedMetadataType,
+        metadataString: xml,
+        handleServiceId: get(this.selectedHandleService, 'entityId'),
+      });
+      safeExec(this, 'loadXml');
     },
     back() {
-      this.set('publishOpenDataStarted', false);
+      this.setProperties({
+        publishOpenDataStarted: false,
+        xml: undefined,
+        selectedHandleService: undefined,
+        selectedMetadataType: undefined,
+      });
     },
     updateXml(xml) {
       this.set('xml', xml);

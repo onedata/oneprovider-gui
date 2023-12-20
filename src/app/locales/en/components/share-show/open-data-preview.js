@@ -1,3 +1,3 @@
 export default {
-  noMetadata: 'This dataset has no Dublin Core metadata attached.',
+  noMetadata: 'This dataset has no metadata attached.',
 };

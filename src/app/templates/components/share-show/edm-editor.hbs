@@ -1,0 +1,38 @@
+
+<div class={{concat-classes "col-edm-editor full-height" colClassname}}>
+  <h1 class="section-name">
+    {{tt this "header"}}
+  </h1>
+  <p>
+    {{tt this "metadataEditorIntro"}}
+    {{tt this "typeMetadata.type"}}
+    <a href="https://pro.europeana.eu/page/edm-documentation" target="_blank">
+      {{tt this "typeMetadata.edm"}}
+    </a>
+    {{tt this "typeMetadata.metadataBelow"}}
+    {{one-label-tip title=(tt this "introTip")}}
+  </p>
+  {{ember-ace
+    class="ember-ace ember-ace-edm-source"
+    editorClass="full-height"
+    value=xmlValue
+    worker="ace/mode/xml_worker"
+    mode="ace/mode/xml"
+    theme="ace/theme/textmate"
+    tabSize=2
+    useWrapMode=true
+    highlightActiveLine=true
+    showLineNumbers=true
+    showPrintMargin=false
+    readOnly=readonly
+    ready=(action "aceEditorReady")
+    update=(action "sourceChanged")
+  }}
+  {{share-show/metadata-editor-footer
+    isSubmitDisabled=isSubmitDisabled
+    submitButtonTip=submitDisabledReason
+    handleService=handleService
+    onCancel=(action "back")
+    onSubmit=(action "submit")
+  }}
+</div>

@@ -2,15 +2,15 @@
   .one-carousel-slide[data-one-carousel-slide-id=xml] {
     padding-right: $open-data-remove-col-width;
   }
-  
+
   .col-open-data-editor-additional {
     padding-right: $open-data-remove-col-width;
   }
-  
+
   .row-metadata-form.no-entries + .row-metadata-group-add {
     margin-top: 20px;
   }
-  
+
   .metadata-group {
     margin-top: 1em;
     .metadata-group-header {
@@ -62,18 +62,6 @@
   }
   .row-metadata-group-add, .row-publish-info {
     margin-top: 3em;
-  }
-  .row-submit {
-    margin-top: 2em;
-    @media (max-width: 450px) {
-      .hidden-custom-xs {
-        display: none;
-      }
-    }
-  }
-  .col-submit-center {
-    display: flex;
-    justify-content: center;
   }
   .open-data-xml-form-group {
     margin-bottom: 0;

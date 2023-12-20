@@ -12,7 +12,7 @@
         {{#one-carousel
           activeSlideId=activeSlideOfCreator
           animated=false
-          class="opendata-one-carousel"
+          class="opendata-one-carousel full-height"
           as |carousel|
         }}
           {{#carousel.slide slideId="welcome"}}
@@ -22,7 +22,7 @@
               text=(tt this "publishWelcome.content")
               buttonAction=(action (mut publishOpenDataStarted) true)
               buttonLabel=(tt this "publishWelcome.publishButton")
-              buttonDisabled=(not selectedHandleService)
+              buttonDisabled=isWelcomeProceedDisabled
             }}
               <p>
                 {{tt this "publishWelcome.handleServiceText"}}
@@ -52,17 +52,57 @@
                   </div>
                 {{/one-dropdown}}
               </div>
+              <p class="metadata-type-text">
+                {{tt this "publishWelcome.metadataTypeText"}}
+                {{#one-label-tip tooltipClass="tooltip-lg tooltip-text-left"}}
+                  <p>{{tt this "publishWelcome.metadataTypeMore.intro"}}</p>
+                  <p>{{tt this "publishWelcome.metadataTypeMore.dublinCore"}}</p>
+                  <p>{{tt this "publishWelcome.metadataTypeMore.edm"}}</p>
+                  <p>{{tt this "publishWelcome.metadataTypeMore.outro"}}</p>
+                {{/one-label-tip}}
+              </p>
+              <div class="row row-metadata-type-select">
+                {{#one-dropdown
+                  triggerClass="select-metadata-type"
+                  dropdownClass="select-metadata-type"
+                  placeholder=(tt this "publishWelcome.selectMetadataTypePlaceholder")
+                  selected=selectedMetadataType
+                  options=metadataTypes
+                  searchEnabled=false
+                  onchange=(action (mut selectedMetadataType))
+                  as |metadataType|
+                }}
+                  <div class="option-container">
+                    {{#truncated-string}}
+                      {{tt this (concat "publishWelcome.metadataTypes." metadataType)}}
+                    {{/truncated-string}}
+                  </div>
+                {{/one-dropdown}}
+              </div>
             {{/content-info}}
           {{/carousel.slide}}
-          {{#carousel.slide slideId="createMetadata"}}
-            {{share-show/open-data-editor
-              xml=xml
-              initialData=initialData
-              handleService=selectedHandleService
-              updateXml=(action "updateXml")
-              submit=(action "submit")
-              back=(action "back")
-            }}
+          {{#carousel.slide slideId="createMetadata" class="full-height"}}
+            {{#if (eq selectedMetadataType MetadataType.Edm)}}
+              {{!-- FIXME: refaktor: wyciągnąć submit poza oba edytory? --}}
+              {{share-show/edm-editor
+                class="full-height"
+                xml=xml
+                handleService=selectedHandleService
+                onUpdateXml=(action "updateXml")
+                onSubmit=(action "submit")
+                onBack=(action "back")
+              }}
+            {{else if (eq selectedMetadataType MetadataType.Dc)}}
+              {{!-- FIXME: ticket do refaktoru nazw: open-data-... -> dublin-core-...? --}}
+              {{share-show/open-data-editor
+                xml=xml
+                initialData=initialData
+                handleService=selectedHandleService
+                onUpdateXml=(action "updateXml")
+                onSubmit=(action "submit")
+                onBack=(action "back")
+              }}
+            {{/if}}
           {{/carousel.slide}}
         {{/one-carousel}}
       {{else}}
