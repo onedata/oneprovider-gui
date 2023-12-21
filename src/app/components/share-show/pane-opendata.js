@@ -42,7 +42,7 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
-   * Current XML content od Dublin Core Metadata.
+   * Current XML content of Open Data metadata.
    * @type {String}
    */
   xml: undefined,
@@ -85,8 +85,9 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * Default data for Dublin Core form.
-   * No dependent keys, because it is computed once.
+   * Data for generating default XML metadata. It can be intepreted in various ways
+   * by the specific metadata editor (eg. Dublin Core, EDM)
+   * No dependent keys, because it should be computed once.
    * @type {ComputedProperty<Object>}
    */
   initialData: computed(function initialData() {

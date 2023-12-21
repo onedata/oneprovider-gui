@@ -10,4 +10,5 @@ export default {
   moreElements: 'Add more elements...',
   back: 'Back',
   xmlParserError: 'XML is not valid',
+  metadataTextMore: 'Handle metadata is expressed in a unified format called Dublin Core. It is based on XML, but you can use the visual editor below to generate it. Provide as much detailed information as possible about your dataset, which will make it easier to be found and utilized. The metadata will be registered alongside the persistent identifier and visible in Open Data indexing services.',
 };

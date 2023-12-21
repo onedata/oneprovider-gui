@@ -23,8 +23,7 @@ export default {
   metadataMobile: 'Metadata',
   metadataPublicHeaderTip: {
     dc: createPublicHeaderTip('Dublin Core'),
-    edm: createPublicHeaderTip('European Data Model'),
+    edm: createPublicHeaderTip('Europeana Data Model'),
   },
-  metadataTextMore: 'Handle metadata is expressed in a unified format called Dublin Core. It is based on XML, but you can use the visual editor below to generate it. Provide as much detailed information as possible about your dataset, which will make it easier to be found and utilized. The metadata will be registered alongside the persistent identifier and visible in Open Data indexing services.',
   metadataEditorIntro: 'Handle metadata is used to index the dataset in Open Data search engines and provide additional information for its consumers.',
 };

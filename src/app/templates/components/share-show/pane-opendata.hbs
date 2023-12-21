@@ -96,7 +96,6 @@
             {{/content-info}}
           {{/carousel.slide}}
           {{#carousel.slide slideId="createMetadata" class="full-height" as |slide|}}
-            {{log "slied" slide slide.state}}
             {{#if (eq slide.state "active-from-right")}}
               {{#if (eq selectedMetadataType MetadataType.Edm)}}
                 {{share-show/edm-editor

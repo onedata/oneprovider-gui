@@ -1,5 +1,5 @@
 /**
- * Edit or view XML of European Data Model
+ * Edit or view XML of Europeana Data Model
  *
  * @author Jakub Liput
  * @copyright (C) 2023 ACK CYFRONET AGH
