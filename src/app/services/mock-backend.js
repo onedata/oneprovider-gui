@@ -37,7 +37,8 @@ import {
 import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-store';
 import {
   exampleMarkdownLong as exampleMarkdown,
-  exampleDublinCore,
+  // FIXME: temporarily using EDM
+  // exampleDublinCore,
   exampleEdmMetadata,
 } from 'oneprovider-gui/utils/mock-data';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';

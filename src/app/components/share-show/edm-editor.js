@@ -143,6 +143,7 @@ export default Component.extend(I18n, {
       }
       this.onUpdateXml(value);
     },
+    // TODO: VFS-11645 Ask for unsaved changed when cancelling and chaning view
     back() {
       this.onBack();
     },

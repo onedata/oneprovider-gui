@@ -6,6 +6,9 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
+// TODO: VFS-11646 Change name of "open-data-*" components to "dublin-core-*" or something
+// because now we have multiple open data metadata editors.
+
 import EmberObject, { get, set, computed, observer } from '@ember/object';
 import dcXmlGenerator from 'oneprovider-gui/utils/dublin-core-xml-generator';
 import dublinCoreXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
@@ -97,6 +100,8 @@ export default OpenData.extend(I18n, {
   }),
 
   modeObserver: observer('mode', function modeObserver() {
+    // TODO: VFS-11646 Do replace the whole XML - replace only changed parts to not
+    // destroy the unsupported parts of XML.
     this.onUpdateXml(this.getXml());
   }),
 
@@ -181,6 +186,7 @@ export default OpenData.extend(I18n, {
         values: [''],
       }));
     },
+    // TODO: VFS-11645 Ask for unsaved changed when cancelling and chaning view
     back() {
       this.onBack();
     },
