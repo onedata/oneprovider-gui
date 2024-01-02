@@ -37,7 +37,7 @@
     "resumablejs": "git+https://github.com/23/resumable.js.git#2d5e06b3ed3c4ead0550a0d5a52536016b02b04b",
     "round10": "1.0.3",
     "showdown": "1.9.1",
-    "smoothscroll-polyfill": "git+https://github.com/michalborzecki/smoothscroll.git#d875d528259e928aa815afd1fc46fb91c18d7282",
+    "smoothscroll-polyfill": "git+https://github.com/michalborzecki/smoothscroll.git#71c605f7345165c4d1f6d9d1de7c2bcc8bca0a78",
     "spin.js": "4.1.1",
     "split-grid": "1.0.11"
   },
