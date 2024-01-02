@@ -6,9 +6,9 @@ export default {
     content: '<p>This shared data collection can be converted to an Open Data record. To do so, you must have access to an Open Data handle service, which is typically configured by the managers in your organization or a Onezone admin.</p><p>Upon conversion, the record will be assigned a persistent identifier (e.g. PID or DOI) and exposed for discovery by Open Data indexes via the OAI PMH protocol. This process will make your data collection globally and publicly available; anyone will be able to find it in Open Data indexes. To make it findable and comprehensible, in the next step provide as much information as possible in the metadata that will be attached to this record.</p>',
     selectHandleServicePlaceholder: 'Choose a handle service...',
     selectMetadataTypePlaceholder: 'Choose a metadata type...',
-    handleServiceText: 'Choose the handle service that will register the record and provide the public identifier:',
+    handleServiceText: 'Choose the handle service that will register the record and provide the public identifier',
     handleServiceTextMore: 'Handle service is used as a mediator to register a persistent identifier for your data collection. Handle services are typically configured by the managers in your organization or a Onezone admin, who can add members (users or groups) and grant them the privileges to publish new records.',
-    metadataTypeText: 'Choose the metadata type for the record:',
+    metadataTypeText: 'Choose the metadata type for the record',
     metadataTypeMore: {
       // FIXME: nowy tekst, użyte "handle"
       intro: 'Handle metadata provides detailed information about the Open Data record for its consumers and is used for indexing in Open Data search engines. Onedata supports expressing the metadata in the following formats:',

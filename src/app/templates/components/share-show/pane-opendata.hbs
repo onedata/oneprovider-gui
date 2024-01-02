@@ -31,7 +31,10 @@
         }}
           {{#carousel.slide slideId="welcome"}}
             {{#content-info
-              class="scroll-breakpoint-800 fill-flex-using-column content-info-publish-open-data-welcome"
+              class=(concat-classes
+                "fill-flex-using-column content-info-publish-open-data-welcome"
+                (if media.isMobile "scroll-breakpoint-900" "scroll-breakpoint-800")
+              )
               header=(tt this "publishWelcome.title")
               text=(tt this "publishWelcome.content")
               buttonAction=(action (mut publishOpenDataStarted) true)
