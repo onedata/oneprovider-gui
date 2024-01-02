@@ -1,23 +1,16 @@
-import openDataCommon from './open-data-common';
+import openDataCommon, { editorHeaderTipCommon } from './open-data-common';
 
-const {
-  metadataEditorIntro,
-  metadataPublicHeaderTip: {
-    edm: edmReadonlyTip,
-  },
-} = openDataCommon;
+const metadataEditorIntro = openDataCommon.metadataEditorIntro;
+const edmReadonlyTip = openDataCommon.metadataPublicHeaderTip.edm;
+const edmIntroExtra = openDataCommon.metadataEditorIntroExtra.edm;
 
 export default {
-  header: 'Europeana Data Model Metadata',
+  header: 'Europeana Data Model (EDM) metadata',
   metadataEditorIntro,
   // using a non-breaking hyphen Unicode in the text below
-  introTip: 'You have chosen the XML‑based <strong>Europeana Data Model</strong> format to express your metadata. Provide as much detailed information as possible about your dataset, which will make it easier to be found and utilized. The metadata will be registered alongside the persistent identifier and visible in Open Data indexing services.',
+  introTip: `${editorHeaderTipCommon} The visual editor for EDM metadata is not yet implemented.`,
   readonlyHeaderTip: edmReadonlyTip,
-  typeMetadata: {
-    type: 'Type',
-    edm: 'Europeana Data Model',
-    metadataBelow: 'metadata below.',
-  },
+  introExtra: edmIntroExtra,
   submitDisabledReason: {
     empty: 'Metadata must not be empty.',
     invalid: 'Metadata XML is not valid.',

@@ -166,7 +166,11 @@ function generateDefaultXML(data) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- Example EDM XML content - replace it with the detailed metadata. -->
-<!-- Refer to the documentation of EDM at https://pro.europeana.eu/page/edm-documentation -->
+<!-- Refer to the documentation of EDM at the following links: -->
+<!-- https://pro.europeana.eu/page/edm-documentation -->
+<!-- https://europeana.atlassian.net/wiki/spaces/EF/pages/2165440526/Namespaces -->
+<!-- https://europeana.atlassian.net/wiki/spaces/EF/pages/987791389/EDM+-+Mapping+guidelines -->
+<!-- https://europeana.atlassian.net/wiki/spaces/EF/pages/1969258498/Metadata+Tier+A -->
 
 <rdf:RDF
     xmlns:dc="http://purl.org/dc/elements/1.1/"

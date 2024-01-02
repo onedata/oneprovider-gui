@@ -18,7 +18,10 @@
 {{#unless (media "isMobile")}}
   <div class={{concat-classes colClassname "col-open-data-editor-additional"}}>
     <p class="metadata-text">
-      {{tt this "editor.metadataText"}}
+      {{tt this "common.metadataEditorIntro"}}
+    </p>
+    <p class="metadata-text">
+      {{tt this "common.metadataEditorIntroExtra.dc"}}
       {{one-label-tip title=(tt this "editor.metadataTextMore")}}
     </p>
   </div>

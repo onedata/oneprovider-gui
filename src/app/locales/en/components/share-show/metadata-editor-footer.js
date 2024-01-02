@@ -1,5 +1,5 @@
 export default {
-  publishInfo: 'The dataset will be made available to the public using <strong>{{handleServiceName}}</strong> handle service (ID: <code>{{handleServiceId}}</code>). The unique identifier and the public link will be automatically assigned. <strong>Please keep in mind that once published, your dataset should not be removed.</strong>',
+  publishInfo: 'This record will be made available to the public using <strong>{{handleServiceName}}</strong> handle service (ID: <code>{{handleServiceId}}</code>). The unique, persistent identifier, serving as a public URL, will be automatically generated and assigned to the record. <strong>Once published, the data collection should not be removed!</strong>',
   cancel: 'Cancel',
   publish: 'Publish',
   asOpenData: 'as Open Data',

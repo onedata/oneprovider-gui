@@ -37,9 +37,9 @@ import {
 import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-store';
 import {
   exampleMarkdownLong as exampleMarkdown,
-  // FIXME: temporarily using EDM
-  // exampleDublinCore,
-  exampleEdmMetadata,
+  // Leaving the the commented import for easy switching between metadata types
+  // exampleDublinCore as exampleMetadata,
+  exampleEdmMetadata as exampleMetadata,
 } from 'oneprovider-gui/utils/mock-data';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
@@ -379,15 +379,13 @@ export default Service.extend({
     const handlePrivate = store.createRecord('handle', {
       url: 'http://hdl.handle.net/21.T15999/zppPvhg',
       handleService: this.get('entityRecords.handleService')[0],
-      // FIXME: testing
-      metadataString: exampleEdmMetadata,
-      metadataPrefix: MetadataType.Edm,
+      metadataString: exampleMetadata,
+      metadataPrefix: MetadataType.Dc,
     });
     const handlePublic = store.createRecord('handle', {
       url: 'http://hdl.handle.net/21.T15999/zppPvhg',
       handleService: null,
-      // FIXME: testing
-      metadataString: exampleEdmMetadata,
+      metadataString: exampleMetadata,
       metadataPrefix: MetadataType.Edm,
     });
     const spaceId = this.get('entityRecords.space.0.entityId');
