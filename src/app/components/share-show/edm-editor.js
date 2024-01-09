@@ -171,6 +171,7 @@ function generateDefaultXML(data) {
 <!-- https://europeana.atlassian.net/wiki/spaces/EF/pages/2165440526/Namespaces -->
 <!-- https://europeana.atlassian.net/wiki/spaces/EF/pages/987791389/EDM+-+Mapping+guidelines -->
 <!-- https://europeana.atlassian.net/wiki/spaces/EF/pages/1969258498/Metadata+Tier+A -->
+<!-- https://pro.europeana.eu/files/Europeana_Professional/Share_your_data/Technical_requirements/EDM_Documentation/EDM_Definition_v5.2.8_102017.pdf -->
 
 <rdf:RDF
     xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -188,9 +189,9 @@ function generateDefaultXML(data) {
     </edm:ProvidedCHO>
     <ore:Aggregation rdf:about="#exampleMet0_AGG">
         <edm:aggregatedCHO rdf:resource="#exampleMet0"/>
-        <edm:dataProvider>${data.organizationName || data.creator}</edm:dataProvider>
+        <edm:dataProvider>Example Organization</edm:dataProvider>
         <edm:isShownAt rdf:resource="${data.shareUrl}"/>
-        <edm:provider>${data.organizationName || data.creator}</edm:provider>
+        <edm:provider>Example Organization</edm:provider>
         <edm:rights rdf:resource="http://rightsstatements.org/vocab/NoC-OKLR/1.0/"/>
     </ore:Aggregation>
 </rdf:RDF>`;

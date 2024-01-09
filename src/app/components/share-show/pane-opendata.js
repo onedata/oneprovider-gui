@@ -96,8 +96,6 @@ export default Component.extend(I18n, {
       creator: this.get('currentUser.userProxy.content.name'),
       description: '',
       date: moment().format('YYYY-MM-DD'),
-      // FIXME: there is no space.organizationName in op-worker yet - consult to add this or remove from this code
-      organizationName: this.get('space.organizationName'),
       shareUrl: this.get('share.publicUrl'),
     };
   }),

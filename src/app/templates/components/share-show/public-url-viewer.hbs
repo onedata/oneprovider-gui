@@ -30,11 +30,12 @@
               (not compactUrlTypeSelectorOpened)
             }}
           >
-            <div class="inline-icon-container compact-url-type-selector-icon">
-              {{one-icon icon=selectedUrlTypeIcon}}
-            </div>
-            <div class="inline-icon-container input-group-addon-icon compact-url-type-selector-arrow">
-              {{one-icon icon=(if compactUrlTypeSelectorOpened "arrow-up" "arrow-down")}}
+            <div class="compact-url-type-selector-container">
+              {{one-icon class="compact-url-type-selector-icon" icon=selectedUrlTypeIcon}}
+              {{one-icon
+                icon=(if compactUrlTypeSelectorOpened "arrow-up" "arrow-down")
+                class="compact-url-type-selector-arrow"
+              }}
             </div>
           </div>
 
@@ -59,18 +60,17 @@
           {{/one-webui-popover}}
         {{/if}}
         <div
-          class="input-group-addon input-group-addon-text url-type-info-trigger truncate input-group-addon-left {{unless typeInfoTriggerText "input-group-addon-icon"}}"
+          class="input-group-addon url-type-info-trigger input-group-addon-left {{if typeInfoTriggerText "input-group-addon-text" "input-group-addon-icon"}}"
           {{action (mut urlTypeInfoOpened) (not urlTypeInfoOpened)}}
         >
-          {{#if typeInfoTriggerText}}
-            <a class="input-handle-service-name black">
-              {{handleServiceProxy.name}}
-            </a>
-          {{else}}
-            <div class="inline-icon-container">
-              {{one-icon icon="browser-info"}}
-            </div>
-          {{/if}}
+          <div class="url-type-info-container">
+            {{one-icon icon="browser-info" class="url-type-info-icon"}}
+            {{#if typeInfoTriggerText}}
+              <a class="input-handle-service-name black truncate">
+                {{handleServiceProxy.name}}
+              </a>
+            {{/if}}
+          </div>
         </div>
         {{#one-webui-popover
           class="url-type-info"

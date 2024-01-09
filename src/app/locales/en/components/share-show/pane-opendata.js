@@ -1,5 +1,8 @@
 import { MetadataType } from 'oneprovider-gui/models/handle';
 
+export const handleServiceTextMore =
+  'Handle service is used as a mediator to register a persistent identifier for your data collection. Handle services are typically configured by the managers in your organization or a Onezone admin, who can add members (users or groups) and grant them the privileges to publish new records.';
+
 export default {
   publishWelcome: {
     title: 'Publish as Open Data',
@@ -7,11 +10,10 @@ export default {
     selectHandleServicePlaceholder: 'Choose a handle service...',
     selectMetadataTypePlaceholder: 'Choose a metadata type...',
     handleServiceText: 'Choose the handle service that will register the record and provide the public identifier',
-    handleServiceTextMore: 'Handle service is used as a mediator to register a persistent identifier for your data collection. Handle services are typically configured by the managers in your organization or a Onezone admin, who can add members (users or groups) and grant them the privileges to publish new records.',
+    handleServiceTextMore,
     metadataTypeText: 'Choose the metadata type for the record',
     metadataTypeMore: {
-      // FIXME: nowy tekst, użyte "handle"
-      intro: 'Handle metadata provides detailed information about the Open Data record for its consumers and is used for indexing in Open Data search engines. Onedata supports expressing the metadata in the following formats:',
+      intro: 'Metadata provides detailed information about the Open Data record for its consumers and is used for indexing in Open Data search engines. Onedata supports the following metadata formats:',
       dublinCore: '<strong>Dublin Core (DC)</strong> – an open, interchangeable metadata standard for describing online resources; it is developed by the Dublin Core Metadata Initiative,',
       edm: '<strong>Europeana Data Model (EDM)</strong> – a standardized data model developed by Europeana, the European digital library; provides a comprehensive and semantically rich framework for describing cultural heritage resources.',
       outro: 'The metadata will be registered alongside the persistent identifier and visible in Open Data indexing services.',
@@ -25,8 +27,7 @@ export default {
   },
   noHandleServices: {
     title: 'No handle services available',
-    // FIXME: użyte "Open Data handles"
-    content: 'You do not have access to any handle service, which is necessary to register Open Data handles. You can either create a new handle service (requires <code>oz_handle_services_create</code> admin privilege), or contact the site administrators and ask for access to an existing handle service.',
+    content: 'You do not have access to any Open Data handle service, which is necessary to register Open Data records. You can either create a new handle service (requires <code>oz_handle_services_create</code> admin privilege), or contact the site administrators and ask for access to an existing handle service.',
   },
   noMetadata: 'This dataset has no metadata attached.',
 };
