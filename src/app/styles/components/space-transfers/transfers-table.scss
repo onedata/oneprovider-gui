@@ -93,6 +93,7 @@
     table-layout: auto;
     thead {
       th {
+        position: relative;
         border-bottom-width: 1px;
         .oneicon {
           vertical-align: middle;

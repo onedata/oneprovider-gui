@@ -62,3 +62,4 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'components/file-common';
 @import 'components/columns-configuration-popover';
 @import 'components/columns-configuration-cell';
+@import 'mixins/drag-and-drop-column-order';
