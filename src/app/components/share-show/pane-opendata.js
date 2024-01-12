@@ -153,8 +153,6 @@ export default Component.extend(I18n, {
             xml: metadataString,
             selectedMetadataType: metadataPrefix,
           });
-        } else {
-          this.set('noMetadata', true);
         }
       }
     });
