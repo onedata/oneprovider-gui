@@ -7,7 +7,6 @@ const edmIntroExtra = openDataCommon.metadataEditorIntroExtra.edm;
 export default {
   header: 'Europeana Data Model (EDM) metadata',
   metadataEditorIntro,
-  // using a non-breaking hyphen Unicode in the text below
   introTip: `${editorHeaderTipCommon} The visual editor for EDM metadata is not yet implemented.`,
   readonlyHeaderTip: edmReadonlyTip,
   introExtra: edmIntroExtra,

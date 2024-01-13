@@ -8,6 +8,7 @@
 
 import Service, { inject as service } from '@ember/service';
 import { get, set } from '@ember/object';
+import { MetadataType } from 'oneprovider-gui/models/handle';
 
 export default Service.extend({
   store: service(),
@@ -32,7 +33,7 @@ export default Service.extend({
     share,
     handleServiceId,
     metadataString,
-    metadataPrefix = 'oai_dc',
+    metadataPrefix = MetadataType.Dc,
   } = {}) {
     const handle = this.store.createRecord('handle', {
       metadataPrefix,
