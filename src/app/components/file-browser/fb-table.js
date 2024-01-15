@@ -291,7 +291,10 @@ export default Component.extend(I18n, {
   selectionCount: reads('selectedItems.length'),
 
   viewTester: computed('contentScroll', function viewTester() {
-    const $contentScroll = $(this.get('contentScroll'));
+    if (!this.contentScroll) {
+      return null;
+    }
+    const $contentScroll = $(this.contentScroll);
     return new ViewTester($contentScroll);
   }),
 
@@ -627,22 +630,18 @@ export default Component.extend(I18n, {
     }
   },
 
-  /**
-   * @override
-   */
-  didInsertElement() {
-    this._super(...arguments);
-    const listWatcher = this.set('listWatcher', this.createListWatcher());
-    listWatcher.scrollHandler();
-  },
+  listWatcherObserver: observer('listWatcher', async function listWatcherObserver() {
+    await waitForRender();
+    this.listWatcher?.scrollHandler();
+  }),
 
   /**
    * @override
    */
   willDestroyElement() {
     try {
-      this.get('listWatcher').destroy();
-      this.get('fileManager').deregisterRefreshHandler(this);
+      this.listWatcher?.destroy();
+      this.fileManager.deregisterRefreshHandler(this);
     } finally {
       this._super(...arguments);
     }
@@ -684,7 +683,7 @@ export default Component.extend(I18n, {
       }
       // wait for render of array fragment containing item to jump
       await sleep(0);
-      listWatcher.scrollHandler();
+      listWatcher?.scrollHandler();
       // wait for fetch prev/next resolve
       await this.get('filesArray').getCurrentExpandPromise();
       // wait for fetch prev/next result render
@@ -976,7 +975,7 @@ export default Component.extend(I18n, {
         filesArray.scheduleTask('fetchPrev').then(result => {
           if (result !== false) {
             // wait for fetched prev render if something more loaded
-            next(() => listWatcher.scrollHandler());
+            next(() => listWatcher?.scrollHandler());
           }
         });
       });
@@ -1021,15 +1020,17 @@ export default Component.extend(I18n, {
     safeExec(this, 'set', 'headerVisible', headerVisible);
   },
 
-  createListWatcher() {
-    const contentScroll = this.get('contentScroll');
+  listWatcher: computed('contentScroll', function listWatcher() {
+    if (!this.contentScroll) {
+      return null;
+    }
     return new ListWatcher(
-      $(contentScroll),
+      $(this.contentScroll),
       '.data-row',
       (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
       '.table-start-row',
     );
-  },
+  }),
 
   clearFilesSelection() {
     return this.get('changeSelectedItems')([]);
