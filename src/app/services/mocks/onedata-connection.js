@@ -17,5 +17,7 @@ export default OnedataConnection.extend({
     transfersHistoryLimitPerFile: 100,
     openfaasAvailable: true,
     bagitUploaderWorkflowSchemaId: null,
+    serviceVersion: '21.02',
+    serviceBuildVersion: 'aabbcc',
   }),
 });
