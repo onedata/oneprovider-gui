@@ -7,22 +7,17 @@
  */
 
 import Component from '@ember/component';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { inject as service } from '@ember/service';
 import { trySet, computed } from '@ember/object';
 import { next } from '@ember/runloop';
 import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
 import { reads } from '@ember/object/computed';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { inject as service } from '@ember/service';
 
-export default Component.extend(I18n, {
+export default Component.extend({
   classNames: ['columns-configuration-popover'],
 
-  i18n: service(),
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.columnsConfigurationPopover',
+  dragDrop: service(),
 
   /**
    * @virtual
@@ -35,6 +30,18 @@ export default Component.extend(I18n, {
    * @type {Utils.ColumnsConfiguration}
    */
   columnsConfiguration: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  dragStartAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  dragEndAction: notImplementedIgnore,
 
   /**
    * @virtual optional
@@ -57,7 +64,7 @@ export default Component.extend(I18n, {
   /**
    * @type {boolean}
    */
-  arrowTooltipVisible: true,
+  isArrowTooltipVisible: true,
 
   /**
    * @type {Boolean}
@@ -69,6 +76,17 @@ export default Component.extend(I18n, {
    */
   translationKey: reads('columnsConfiguration.translationKey'),
 
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isTargetForDrop: computed(
+    'dragDrop.draggedElementModel',
+    function isTargetForDrop() {
+      const draggedElementModel = this.dragDrop.draggedElementModel;
+      return draggedElementModel?.element.classList.contains('column-item');
+    }
+  ),
+
   applyCurrentColumnsOrder() {
     this.columnsConfiguration.saveColumnsOrder();
     this.columnsConfiguration.checkColumnsVisibility();
@@ -76,8 +94,8 @@ export default Component.extend(I18n, {
     // workaround to bug in firefox
     // tooltip not disappeared after click and move element
     if (this.isInFirefox) {
-      this.set('arrowTooltipVisible', false);
-      next(() => trySet(this, 'arrowTooltipVisible', true));
+      this.set('isArrowTooltipVisible', false);
+      next(() => trySet(this, 'isArrowTooltipVisible', true));
     }
   },
 
@@ -112,6 +130,13 @@ export default Component.extend(I18n, {
         columnsOrder[indexOfColumn] = columnToSwitch;
         this.applyCurrentColumnsOrder();
       }
+    },
+    acceptDraggedElement(index, draggedElement) {
+      this.columnsConfiguration.moveColumn(draggedElement.columnName, index + 1);
+      this.applyCurrentColumnsOrder();
+    },
+    validateDragEvent() {
+      return this.get('isTargetForDrop');
     },
   },
 });

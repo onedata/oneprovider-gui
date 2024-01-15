@@ -483,6 +483,23 @@ export default Service.extend({
   },
 
   /**
+   * @param {string} atmStoreInstanceId
+   * @returns {Promise<string>} download url
+   */
+  async getAuditLogDownloadUrl(atmStoreInstanceId) {
+    const storeContentGri = gri({
+      entityType: atmStoreEntityType,
+      entityId: atmStoreInstanceId,
+      aspect: 'dump_download_url',
+    });
+    return (await this.onedataGraph.request({
+      gri: storeContentGri,
+      operation: 'get',
+      subscribe: false,
+    })).atmStoreDumpDownloadUrl;
+  },
+
+  /**
    * @returns {PromiseArray<Models.AtmWorkflowSchema>}
    */
   getAllKnownAtmWorkflowSchemas() {

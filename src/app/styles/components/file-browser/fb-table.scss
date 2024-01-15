@@ -93,9 +93,11 @@
     }
   }
 
+  .data-row {
+    height: 61px;
+  }
   .data-row td.special-row-cell, td.special-row-cell {
     position: relative;
-    height: 61px;
     &.loading-row-cell {
       height: 76px;
     }

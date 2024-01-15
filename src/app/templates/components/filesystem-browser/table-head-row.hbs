@@ -1,4 +1,10 @@
-<th class="fb-table-col-files" colspan={{if (media "isMobile") "2" "1"}}>
+<th
+  class={{concat-classes
+    "fb-table-col-files"
+    (if isDropBorderShown "border-dashed")
+  }}
+  colspan={{if (media "isMobile") "2" "1"}}
+>
   <div class="fb-table-first-col-container">
     <div class="table-header-text">{{tt this "files"}}</div>
     {{!--
@@ -16,14 +22,32 @@
     </div>
     <div class="table-header-status-bar">{{yield}}</div>
   </div>
+  <div
+    class="draggable-area"
+    ondragover={{action "headingDragOverAction"}}
+    ondragleave={{action "headingDragLeaveAction"}}
+    ondrop={{action "headingDropAction" 0}}
+  >
+  </div>
 </th>
-{{#each columnsConfiguration.columnsOrder as |columnName|}}
+{{#each columnsConfiguration.columnsOrder as |columnName i|}}
   {{#if (get columnsConfiguration (concat "columns." columnName ".isVisible"))}}
     <th
-      class={{concat "fb-table-col-" columnName " fb-table-secondary-col hidden-xs"}}
+      class={{concat-classes
+        (concat "fb-table-col-" columnName)
+        "fb-table-secondary-col"
+        "hidden-xs"
+        (if isDropBorderShown "border-dashed")
+      }}
       style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
+      draggable=true
+      ondragstart={{action "headingDragAction" columnName}}
+      ondragend={{action "headingDragEndAction"}}
     >
-      {{tt this columnName}}
+      <span class="column-name">
+        {{one-icon icon="drag" class="column-move-icon"}}
+        {{tt this columnName}}
+      </span>
       {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
         {{#one-icon icon="browser-info" class="column-info-icon"}}
           {{one-tooltip
@@ -31,10 +55,19 @@
           }}
         {{/one-icon}}
       {{/if}}
+      <div
+        class="draggable-area"
+        ondragover={{action "headingDragOverAction"}}
+        ondragleave={{action "headingDragLeaveAction"}}
+        ondrop={{action "headingDropAction" (add i 1)}}
+      >
+      </div>
     </th>
   {{/if}}
 {{/each}}
 {{!-- hide actions th to make space for jump-control (see also colspan in first th) --}}
 {{columns-configuration-cell
   columnsConfiguration=columnsConfiguration
+  dragStartAction=(if (not isShareRoot) (action "checkboxDragStart"))
+  dragEndAction=(if (not isShareRoot) (action "checkboxDragEnd"))
 }}
