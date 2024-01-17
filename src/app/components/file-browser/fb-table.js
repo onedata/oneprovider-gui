@@ -364,6 +364,18 @@ export default Component.extend(I18n, {
     }
   ),
 
+  listWatcher: computed('contentScroll', function listWatcher() {
+    if (!this.contentScroll) {
+      return null;
+    }
+    return new ListWatcher(
+      $(this.contentScroll),
+      '.data-row',
+      (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
+      '.table-start-row',
+    );
+  }),
+
   /**
    * When replacing chunks array gets expanded on beginning (items are unshifted into
    * array), we need to compensate scroll because new content is added on top.
@@ -584,6 +596,11 @@ export default Component.extend(I18n, {
     }
   ),
 
+  listWatcherObserver: observer('listWatcher', async function listWatcherObserver() {
+    await waitForRender();
+    this.listWatcher?.scrollHandler();
+  }),
+
   init() {
     this._super(...arguments);
     const {
@@ -609,6 +626,7 @@ export default Component.extend(I18n, {
         this.selectedItemsForJumpObserver();
       });
     }
+    this.listWatcherObserver();
   },
 
   /**
@@ -629,11 +647,6 @@ export default Component.extend(I18n, {
       openFile(selectedItems[0]);
     }
   },
-
-  listWatcherObserver: observer('listWatcher', async function listWatcherObserver() {
-    await waitForRender();
-    this.listWatcher?.scrollHandler();
-  }),
 
   /**
    * @override
@@ -1019,18 +1032,6 @@ export default Component.extend(I18n, {
     }
     safeExec(this, 'set', 'headerVisible', headerVisible);
   },
-
-  listWatcher: computed('contentScroll', function listWatcher() {
-    if (!this.contentScroll) {
-      return null;
-    }
-    return new ListWatcher(
-      $(this.contentScroll),
-      '.data-row',
-      (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
-      '.table-start-row',
-    );
-  }),
 
   clearFilesSelection() {
     return this.get('changeSelectedItems')([]);
