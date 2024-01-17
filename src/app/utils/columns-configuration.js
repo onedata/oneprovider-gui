@@ -152,7 +152,7 @@ export default EmberObject.extend(...mixins, {
     this.checkColumnsVisibility();
     const enabledColumns = [];
     for (const columName of this.columnsOrder) {
-      if (this.columns[columName].isEnabled) {
+      if (this.columns[columName]?.isEnabled) {
         enabledColumns.push(columName);
       }
     }
@@ -176,17 +176,20 @@ export default EmberObject.extend(...mixins, {
     remainingWidth -= this.lastColumnWidth;
     let hiddenColumnsCount = 0;
     for (const columName of this.columnsOrder) {
-      if (this.columns[columName].isEnabled) {
-        if (remainingWidth >= this.columns[columName].width) {
-          remainingWidth -= this.columns[columName].width;
-          this.set(`columns.${columName}.isVisible`, true);
+      const column = this.columns[columName];
+      if (column) {
+        if (column.isEnabled) {
+          if (remainingWidth >= column.width) {
+            remainingWidth -= column.width;
+            this.set(`columns.${columName}.isVisible`, true);
+          } else {
+            this.set(`columns.${columName}.isVisible`, false);
+            hiddenColumnsCount += 1;
+            remainingWidth = 0;
+          }
         } else {
           this.set(`columns.${columName}.isVisible`, false);
-          hiddenColumnsCount += 1;
-          remainingWidth = 0;
         }
-      } else {
-        this.set(`columns.${columName}.isVisible`, false);
       }
     }
     if (this.hiddenColumnsCount !== hiddenColumnsCount) {
@@ -201,10 +204,12 @@ export default EmberObject.extend(...mixins, {
     );
     const enabledColumnsList = enabledColumns?.split(',');
 
-    const columnsOrder = globals.localStorage.getItem(
+    const columnsOrderFromLocalStorage = globals.localStorage.getItem(
       `${this.persistedConfigurationKey}.columnsOrder`
     );
-    const columnsOrderList = columnsOrder?.split(',');
+    const columnsOrderListFromLocalStorage = columnsOrderFromLocalStorage?.split(',');
+
+    const columnsOrderList = [];
 
     if (enabledColumnsList) {
       for (const columName in this.columns) {
@@ -213,12 +218,10 @@ export default EmberObject.extend(...mixins, {
         );
       }
     }
-    if (columnsOrderList) {
-      for (const columName of columnsOrderList) {
-        if (!this.columnsOrder.includes(columName)) {
-          console.log(columName);
-          const index = columnsOrderList.indexOf(columName);
-          columnsOrderList.splice(index, 1);
+    if (columnsOrderListFromLocalStorage) {
+      for (const columName of columnsOrderListFromLocalStorage) {
+        if (this.columnsOrder.includes(columName)) {
+          columnsOrderList.push(columName);
         }
       }
       for (const columName of this.columnsOrder) {
@@ -228,5 +231,20 @@ export default EmberObject.extend(...mixins, {
       }
       this.set('columnsOrder', columnsOrderList);
     }
+  },
+
+  moveColumn(columnName, newIndex) {
+    const columnsOrder = this.columnsOrder;
+    const indexOfColumn = columnsOrder.indexOf(columnName);
+    let index = newIndex;
+
+    if (indexOfColumn === -1 || newIndex > columnsOrder.length) {
+      return;
+    }
+    const element = columnsOrder.splice(indexOfColumn, 1)[0];
+    if (indexOfColumn < newIndex) {
+      index -= 1;
+    }
+    columnsOrder.splice(index, 0, element);
   },
 });

@@ -9,8 +9,14 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads } from '@ember/object/computed';
+import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  DragAndDropColumnOrderMixin,
+];
+
+export default Component.extend(...mixins, {
   tagName: 'tr',
   classNames: ['fb-table-head-row'],
 
@@ -28,5 +34,14 @@ export default Component.extend(I18n, {
   didInsertElement() {
     this._super(...arguments);
     this.browserModel.columnsConfiguration.checkColumnsVisibility();
+  },
+
+  actions: {
+    checkboxDragStart() {
+      this.browserModel.disableUploadArea();
+    },
+    checkboxDragEnd() {
+      this.browserModel.enableUploadArea();
+    },
   },
 });

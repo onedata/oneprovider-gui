@@ -99,5 +99,19 @@ export default FbTableHeadRow.extend(...mixins, {
     changeJumpControlValue(value) {
       this.get('browserModel').changeJumpControlValue(value);
     },
+    headingDragAction(columnName, event) {
+      if (!this.isShareRoot) {
+        this.browserModel.disableUploadArea();
+      }
+      event.dataTransfer.setData('text', columnName);
+
+      this.set('isDropBorderShown', true);
+    },
+    headingDragEndAction() {
+      if (!this.isShareRoot) {
+        this.browserModel.enableUploadArea();
+      }
+      this.set('isDropBorderShown', false);
+    },
   },
 });
