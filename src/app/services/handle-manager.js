@@ -2,12 +2,12 @@
  * Backend operation for handles and handle services
  *
  * @author Jakub Liput
- * @copyright (C) 2020-2023 ACK CYFRONET AGH
+ * @copyright (C) 2020-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Service, { inject as service } from '@ember/service';
-import { get, set } from '@ember/object';
+import { get } from '@ember/object';
 import { MetadataType } from 'oneprovider-gui/models/handle';
 
 export default Service.extend({
@@ -47,10 +47,6 @@ export default Service.extend({
     });
     await handle.save();
     await share.reload();
-    if (!get(share, 'handle.content')) {
-      set(share, 'handle', handle);
-      await share.save();
-    }
     return handle;
   },
 });
