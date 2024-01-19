@@ -108,20 +108,26 @@ export default Component.extend(...mixins, {
    * @virtual optional
    * @type {(archiveId: String) => (Promise|undefined)}
    */
-  onUpdateArchiveId: computed(function onUpdateArchiveId() {
-    return (archiveId) => {
-      this.set('archiveId', archiveId);
-    };
+  onUpdateArchiveId: computed({
+    get() {
+      return this.customOnUpdateArchiveId || this.defaultOnUpdateArchiveId;
+    },
+    set(key, value) {
+      return this.customOnUpdateArchiveId = value;
+    },
   }),
 
   /**
    * @virtual optional
-   * @type {(fileId: String) => (Promise|undefined)}
+   * @type {(archiveId: String) => (Promise|undefined)}
    */
-  onUpdateDirId: computed(function onUpdateDirId() {
-    return (dirId) => {
-      this.set('dirId', dirId);
-    };
+  onUpdateDirId: computed({
+    get() {
+      return this.customOnUpdateDirId || this.defaultOnUpdateDirId;
+    },
+    set(key, value) {
+      return this.customOnUpdateDirId = value;
+    },
   }),
 
   /**
@@ -170,6 +176,16 @@ export default Component.extend(...mixins, {
    * @virtual optional
    */
   filesystemBrowserModelOptions: Object.freeze({}),
+
+  /**
+   * @type {Function|undefined}
+   */
+  customOnUpdateArchiveId: undefined,
+
+  /**
+   * @type {(archiveId: String) => (Promise|undefined)}
+   */
+  customOnUpdateDirId: undefined,
 
   /**
    * @implements ArchiveBrowserModel.spaceDatasetsViewState
@@ -234,6 +250,24 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<SpacePrivileges>}
    */
   spacePrivileges: reads('space.privileges'),
+
+  /**
+   * @type {ComputedProperty<Function>}
+   */
+  defaultOnUpdateArchiveId: computed(function defaultOnUpdateArchiveId() {
+    return (archiveId) => {
+      this.set('archiveId', archiveId);
+    };
+  }),
+
+  /**
+   * @type {ComputedProperty<(fileId: String) => (Promise|undefined)>}
+   */
+  defaultOnUpdateDirId: computed(function defaultOnUpdateDirId() {
+    return (dirId) => {
+      this.set('dirId', dirId);
+    };
+  }),
 
   /**
    * One of: archives, files.

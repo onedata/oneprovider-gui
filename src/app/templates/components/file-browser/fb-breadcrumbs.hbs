@@ -3,7 +3,7 @@
     <div class="fb-breadcrumbs-dir fb-breadcrumbs-element {{if (eq i 0) "fb-breadcrumbs-dir-root"}}">
       <a
         {{action "changeDir" item.file}}
-        class="fb-breadcrumbs-dir-link fb-breadcrumbs-dir-name"
+        class="fb-breadcrumbs-dir-link fb-breadcrumbs-dir-name clickable"
         data-dir-guid={{item.file.entityId}}
       >
         {{#if (eq i 0)}}

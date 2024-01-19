@@ -91,7 +91,6 @@ export default EmberObject.extend({
 
   destroy() {
     try {
-      this.set('_interval', undefined);
       const _watcher = this.get('_watcher');
       if (_watcher) {
         this.get('_watcher').destroy();
