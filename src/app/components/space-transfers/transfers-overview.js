@@ -218,15 +218,11 @@ export default Component.extend(I18n, {
       '_mobileMode'
     );
     let sticky;
-    if (_mobileMode) {
-      sticky = false;
-    } else {
-      const contentScroll = globals.document.getElementById('content-scroll');
-      if (contentScroll) {
-        sticky = this.get('overviewExpanded') ?
-          (contentScroll.scrollTop !== 0) :
-          (initialHandlerTop - contentScrollTop <= contentScroll.scrollTop);
-      }
+    const contentScroll = globals.document.getElementById('content-scroll');
+    if (contentScroll) {
+      sticky = this.get('overviewExpanded') ?
+        (contentScroll.scrollTop !== 0) :
+        (initialHandlerTop - contentScrollTop <= contentScroll.scrollTop);
     }
     if (!sticky && stickyOverview) {
       this.set('overviewExpanded', false);

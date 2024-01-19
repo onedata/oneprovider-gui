@@ -1,24 +1,86 @@
 <div class="row loadable-row row-transfers-data-container">
   {{#promise-proxy-container proxy=providersProxy}}
     {{#if isSupportedByOngoingProvider}}
-      {{space-transfers/transfers-overview
-        space=space
-        providers=providers
-        destinationProviderIds=destinationProviderIds
-        sourceProviderIds=sourceProviderIds
-        providersColors=providersColors
-      }}
-      <div class="row row-transfers-tables">
-        {{space-transfers/tables-container
-          providers=providers
-          providersColors=providersColors
-          space=space
-          fileId=fileId
-          tab=tab
-          changeListTab=(action "changeListTab")
-          closeFileTab=(action "closeFileTab")
+      {{#if (or (lt windowWidth 1845) (lt windowHeight 800))}}
+        {{#bs-tab
+          fade=false
+          class="bs-tab bs-tab-onedata bs-tab-modern transfers-tab"
+          customTabs=true
+          activeId="transfers-tab-pane"
+          as |tab|
         }}
-      </div>
+          {{#bs-nav type="tabs" class="throughput-tabs" as |nav|}}
+            {{#nav.item active=(eq transferType "list")}}
+              <a class="nav-link" role="tab" {{action (mut transferType) "list"}}>
+                {{tt this "transferJobsHistory"}}
+              </a>
+            {{/nav.item}}
+            {{#nav.item active=(eq transferType "map")}}
+              <a class="nav-link" role="tab" {{action (mut transferType) "map"}}>
+                {{tt this "providersMapOfDist"}}
+              </a>
+            {{/nav.item}}
+            {{#nav.item active=(eq transferType "chart")}}
+              <a class="nav-link" role="tab" {{action (mut transferType) "chart"}}>
+                {{tt this "providersThroughput"}}
+              </a>
+            {{/nav.item}}
+          {{/bs-nav}}
+          <div class="tab-content no-vertical-padding">
+            {{#tab.pane elementId="transfers-tab-pane"}}
+              {{#if (eq transferType "list")}}
+                {{space-transfers/tables-container
+                  providers=providers
+                  providersColors=providersColors
+                  space=space
+                  fileId=fileId
+                  tab=tab
+                  changeListTab=(action "changeListTab")
+                  closeFileTab=(action "closeFileTab")
+                }}
+              {{else if (eq transferType "map")}}
+                <div class="row loadable-row col-providers-map row-providers-map-inner">
+                  {{space-transfers/providers-map
+                    space=space
+                    providersColors=providersColors
+                    zoomOnScroll=false
+                  }}
+                </div>
+              {{else}}
+                <div class="row loadable-row">
+                  {{space-transfers/throughput-chart
+                    space=space
+                    providers=providers
+                    providersColors=providersColors
+                  }}
+                </div>
+              {{/if}}
+            {{/tab.pane}}
+          </div>
+        {{/bs-tab}}
+      {{else}}
+        {{space-transfers/transfers-overview
+          space=space
+          providers=providers
+          destinationProviderIds=destinationProviderIds
+          sourceProviderIds=sourceProviderIds
+          providersColors=providersColors
+        }}
+        <div class="row row-transfers-tables">
+          <h2>
+            {{tt this "transferJobsHistory"}}
+          </h2>
+          {{space-transfers/tables-container
+            providers=providers
+            providersColors=providersColors
+            space=space
+            fileId=fileId
+            tab=tab
+            changeListTab=(action "changeListTab")
+            closeFileTab=(action "closeFileTab")
+          }}
+        </div>
+      {{/if}}
     {{else}}
       {{resource-load-error message=(tt this "notSupportedByProvider")}}
     {{/if}}

@@ -16,6 +16,8 @@ import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import globals from 'onedata-gui-common/utils/globals';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default Component.extend(I18n, {
   classNames: ['space-transfers', 'row'],
@@ -59,6 +61,21 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   tab: undefined,
+
+  /**
+   * @type {number}
+   */
+  windowWidth: undefined,
+
+  /**
+   * @type {number}
+   */
+  windowHeight: undefined,
+
+  /**
+   * @type {string}
+   */
+  transferType: 'list',
 
   /**
    * @type {ComputedProperty<Utils.ColorGenerator>}
@@ -135,11 +152,37 @@ export default Component.extend(I18n, {
     this._spaceChanged(true);
   },
 
+  didInsertElement() {
+    this._super(...arguments);
+    this.set('windowWidth', globals.window.innerWidth);
+    this.set('windowHeight', globals.window.innerHeight);
+    $(globals.window).on(
+      this.eventName('resize'),
+      () => safeExec(this, () => {
+        this.onResize();
+      })
+    );
+  },
+
+  onResize() {
+    this.set('windowWidth', globals.window.innerWidth);
+    this.set('windowHeight', globals.window.innerHeight);
+  },
+
   _spaceChanged(isInit = false) {
     if (!isInit) {
       // file tab should not be persisted, because it is probably from other space
       this.get('closeFileTab')();
     }
+  },
+
+  /**
+   * Event name for jQuery associated with this component
+   * @param {string} type type, aka. `eventName` (eg. scroll)
+   * @returns {string}
+   */
+  eventName(type) {
+    return `${type}.${this.elementId}`;
   },
 
   actions: {

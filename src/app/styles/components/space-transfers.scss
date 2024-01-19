@@ -6,6 +6,7 @@ $space-transfers-gray: #B6BAC0;
 @import './space-transfers/providers-map';
 @import './space-transfers/transfer-details';
 @import './space-transfers/transfers-table-container';
+@import './space-transfers/throughput-chart';
 
 .space-transfers {
   $-table-border-color: $main-border-color;
@@ -300,6 +301,10 @@ $space-transfers-gray: #B6BAC0;
         }
       }
     }
+  }
+
+  .col-providers-map {
+    height: 510px;
   }
 }
 

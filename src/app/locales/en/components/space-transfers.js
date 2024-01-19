@@ -4,9 +4,12 @@ import transferChart from './space-transfers/transfer-chart';
 import transfersTable from './space-transfers/transfers-table';
 import transferDetails from './space-transfers/transfer-details';
 import fileTransfersTableContainer from './space-transfers/file-transfers-table-container';
+import throughputChart from './space-transfers/throughput-chart';
 
 export default {
   transferJobsHistory: 'Transfer jobs history',
+  providersMapOfDist: 'Ongoing transfers map',
+  providersThroughput: 'Oneproviders throughput',
   waitingTransfers: 'Waiting',
   ongoingTransfers: 'Ongoing',
   endedTransfers: 'Ended',
@@ -59,4 +62,5 @@ export default {
   throughputDistribution,
   transfersOverview,
   fileTransfersTableContainer,
+  throughputChart,
 };
