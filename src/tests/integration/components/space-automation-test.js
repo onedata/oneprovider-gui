@@ -7,7 +7,6 @@ import { lookupService } from '../../helpers/stub-service';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { resolve, Promise } from 'rsvp';
-import { set } from '@ember/object';
 import { getSlide } from '../../helpers/one-carousel';
 import sinon from 'sinon';
 import { suppressRejections } from '../../helpers/suppress-rejections';
@@ -55,18 +54,23 @@ describe('Integration | Component | space-automation', function () {
       reload: async () => atmWorkflowExecution,
       lanes: [],
     };
-    set(lookupService(this, 'current-user'), 'userProxy', promiseObject(resolve({
-      effAtmInventoryList: promiseObject(resolve({
-        list: promiseArray(resolve([atmInventory])),
-      })),
-    })));
+    sinon.stub(lookupService(this, 'current-user'), 'getCurrentUserRecord').returns(
+      promiseObject(resolve({
+        effAtmInventoryList: promiseObject(resolve({
+          list: promiseArray(resolve([atmInventory])),
+        })),
+      }))
+    );
     const workflowManager = lookupService(this, 'workflow-manager');
     sinon.stub(workflowManager, 'getAtmWorkflowSchemaById')
       .callsFake(atmWorkflowSchemaId =>
         resolve(atmWorkflowSchemas.findBy('entityId', atmWorkflowSchemaId))
       );
     sinon.stub(workflowManager, 'getAtmWorkflowExecutionSummariesForSpace')
-      .resolves([]);
+      .resolves({
+        array: [],
+        isLast: true,
+      });
     const getAtmWorkflowExecutionByIdStub = sinon.stub(
       workflowManager,
       'getAtmWorkflowExecutionById'

@@ -25,14 +25,16 @@
         <span class="item-icon-container">
           {{one-icon icon="group-invite" class="item-icon"}}
         </span>
-        {{#power-select
-          triggerClass="add-user-group-ace-trigger"
-          dropdownClass="add-user-group-ace-dropdown"
-          options=subjectsList
-          onchange=(action "addEntitySelected")
-          placeholder=(tt this "addUserOrGroup")
-          searchField="name"
-          as |entity|}}
+        <OneDropdown
+          @triggerClass="add-user-group-ace-trigger"
+          @dropdownClass="add-user-group-ace-dropdown"
+          @options={{subjectsList}}
+          @onChange={{action "addEntitySelected"}}
+          @placeholder={{tt this "addUserOrGroup"}}
+          @searchEnabled={{true}}
+          @searchField="name"
+          as |entity|
+        >
           <div class="option-container" data-entity-id={{entity.entityId}}>
             {{#truncated-string}}
               {{one-icon icon=(or entity.constructor.modelName entity.equivalentType)}}
@@ -41,7 +43,7 @@
               </span>
             {{/truncated-string}}
           </div>
-        {{/power-select}}
+        </OneDropdown>
       {{/listItem.header}}
     {{/list.item}}
   {{/unless}}

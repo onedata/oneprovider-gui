@@ -3,7 +3,7 @@
 </h1>
 {{#if (and canCreateArchive (not datasetIsDetached))}}
   <h2 class="empty-dir-text dir-box-text">
-    <a class="empty-archives-create-action" {{action "openCreateArchiveModal"}}>
+    <a class="empty-archives-create-action clickable" {{action "openCreateArchiveModal"}}>
       <div class="inline-icon-container bind-right-text">
         {{one-icon icon="browser-archive-add"}}
       </div>&nbsp;{{tt this "createArchive"}}

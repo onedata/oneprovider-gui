@@ -5,14 +5,17 @@
 {{#unless archivesLinkDisabled}}
   <h2 class="empty-dir-text dir-box-text">
     {{#if rootDirId}}
-      <a class="empty-dataset-manage-archives-action nowrap" {{action "openArchivesView"}}>
+      <a
+        class="empty-dataset-manage-archives-action nowrap clickable"
+        {{action "openArchivesView"}}
+      >
         <div class="inline-icon-container bind-right-text">
           {{one-icon icon="browser-archive"}}
         </div>&nbsp;{{tt this "manageArchives"}}
       </a>
       {{tt this "or"}}
       <a
-        class="empty-dataset-browse-link nowrap"
+        class="empty-dataset-browse-link nowrap clickable"
         href={{browseDirectoryHref}}
         target={{navigateOnezoneTarget}}
       >
@@ -23,7 +26,7 @@
       {{tt this (if rootDirId "rootDirectoryInBrowser" "spaceRootInBrowser")}}
     {{else}}
       <a
-        class="empty-dataset-browse-link"
+        class="empty-dataset-browse-link clickable"
         href={{browseDirectoryHref}}
         target={{navigateOnezoneTarget}}
       >
