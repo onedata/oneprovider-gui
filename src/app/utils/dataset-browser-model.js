@@ -205,7 +205,7 @@ export default BaseBrowserModel.extend(I18n, {
     'attachmentState',
     'spacePrivileges.manageDatasets',
     function btnChangeState() {
-      return this.createItemBrowserAction(BrowserChangeStateAction, {
+      return this.createItemBrowserAction(CustomAttachmentChangeStateAction, {
         attachmentState: this.attachmentState,
         spacePrivileges: this.spacePrivileges,
         browserModel: this,
@@ -369,6 +369,14 @@ export default BaseBrowserModel.extend(I18n, {
     const url = getDataUrl({ fileId: null, selected: [fileId] });
     return globals.window.open(url, navigateDataTarget);
   },
+});
+
+/**
+ * ChangeStateAction without `attachmentState`, because it is injected by
+ * DatasetBrowserModel.
+ */
+const CustomAttachmentChangeStateAction = BrowserChangeStateAction.extend({
+  attachmentState: null,
 });
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
