@@ -58,7 +58,9 @@ export default ArrayProxy.extend({
       atmWorkflowSchemaListsProxy.forEach(list =>
         atmWorkflowSchemasArray.push(...list.toArray())
       );
-      return atmWorkflowSchemasArray;
+      return await onlyFulfilledValues(atmWorkflowSchemasArray.map(((atmWorkflowSchema) =>
+        get(atmWorkflowSchema, 'atmInventory').then(() => atmWorkflowSchema)
+      )));
     }
   )),
 

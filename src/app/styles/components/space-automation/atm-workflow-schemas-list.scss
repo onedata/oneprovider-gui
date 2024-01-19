@@ -13,6 +13,17 @@
     padding-bottom: 1em;
   }
 
+  .workflow-schema-name-section .separator {
+    display: inline-block;
+    transform: translateY(-0.1em);
+    font-size: $font-size-small;
+    color: $text-muted;
+
+    &::before {
+      content: '|';
+    }
+  }
+
   .workflow-schema-name {
     @include font-semibold();
   }
