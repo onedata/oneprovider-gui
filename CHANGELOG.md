@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11667 Added version to documentation links
 * VFS-11617 Upgraded EmberJS to v3.12.4
 * VFS-10649 Added complex charts dashboard editor to the automation GUI
 * VFS-11573 Fixed wrong error message on failed ACL settings reloading
