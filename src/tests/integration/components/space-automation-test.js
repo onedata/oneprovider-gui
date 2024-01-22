@@ -20,6 +20,7 @@ describe('Integration | Component | space-automation', function () {
     const space = {
       entityId: 'space1',
     };
+    const atmInventory = {};
     const atmWorkflowSchemas = [{
       entityId: 'workflow1',
       name: 'workflow 1',
@@ -40,12 +41,11 @@ describe('Integration | Component | space-automation', function () {
       },
       isCompatible: true,
       isLoaded: true,
+      atmInventory: promiseObject(resolve(atmInventory)),
     }];
-    const atmInventory = {
-      atmWorkflowSchemaList: promiseObject(resolve({
-        list: promiseArray(resolve(atmWorkflowSchemas)),
-      })),
-    };
+    atmInventory.atmWorkflowSchemaList = promiseObject(resolve({
+      list: promiseArray(resolve(atmWorkflowSchemas)),
+    }));
     const atmWorkflowExecution = {
       entityId: 'execution1',
       space: promiseObject(resolve(space)),

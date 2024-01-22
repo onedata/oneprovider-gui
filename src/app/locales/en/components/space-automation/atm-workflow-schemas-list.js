@@ -1,4 +1,5 @@
 export default {
+  searchPlaceholder: 'Search by name, summary, description or inventory name...',
   noWorkflows: 'Your list of workflows is empty.',
   noWorkflowsInSearch: 'There are no workflows that match your search.',
   listEntry: {

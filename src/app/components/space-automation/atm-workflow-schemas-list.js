@@ -8,8 +8,8 @@
 
 import Component from '@ember/component';
 import { promise } from 'ember-awesome-macros';
-import { computed, get, getProperties } from '@ember/object';
-import { sort } from '@ember/object/computed';
+import EmberObject, { computed, get } from '@ember/object';
+import { reads, sort, gt } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import config from 'ember-get-config';
@@ -17,14 +17,6 @@ import { debounce } from '@ember/runloop';
 import { doesDataSpecFitToStoreWrite } from 'onedata-gui-common/utils/atm-workflow/store-config';
 
 const typingActionDebouce = config.timing.typingActionDebouce;
-
-/**
- * @typedef {Object} AtmWorkflowSchemasListEntry
- * @property {Model.AtmWorkflowSchema} atmWorkflowSchema
- * @property {RevisionNumber[]} revisionNumbersMatchingInput
- * @property {String} name
- * @property {boolean} isLoaded
- */
 
 export default Component.extend(I18n, {
   classNames: ['atm-workflow-schemas-list'],
@@ -57,7 +49,11 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<String>}
    */
-  listEntriesSorting: Object.freeze(['hasRevisionMatchingInput.length:desc', 'name']),
+  listEntriesSorting: Object.freeze([
+    'hasRevisionMatchingInput:desc',
+    'name',
+    'globalConflictLabel',
+  ]),
 
   /**
    * @type {ComputedProperty<PromiseArray<Models.AtmWorkflowSchema>>}
@@ -70,7 +66,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Array<AtmWorkflowSchemasListEntry>>}
    */
   listEntries: computed(
-    'atmWorkflowSchemasProxy.content.@each.{revisionRegistry,isLoaded,name}',
+    'atmWorkflowSchemasProxy.content.@each.{revisionRegistry,isCompatible}',
     'requiredInputStoreSpec',
     function listEntries() {
       const {
@@ -83,11 +79,10 @@ export default Component.extend(I18n, {
           atmWorkflowSchema,
           requiredInputStoreSpec
         );
-        return Object.assign({
+        return AtmWorkflowSchemasListEntry.create({
           atmWorkflowSchema,
           revisionNumbersMatchingInput,
-          hasRevisionMatchingInput: revisionNumbersMatchingInput.length > 0,
-        }, getProperties(atmWorkflowSchema, 'name', 'isLoaded'));
+        });
       });
     }
   ),
@@ -97,7 +92,7 @@ export default Component.extend(I18n, {
    */
   filteredListEntries: computed(
     'searchValue',
-    'listEntries.@each.{name,isLoaded}',
+    'listEntries.@each.{name,summary,collectedDescriptions,atmInventoryName,isLoaded}',
     function filteredListEntries() {
       const {
         listEntries,
@@ -105,12 +100,23 @@ export default Component.extend(I18n, {
       } = this.getProperties('listEntries', 'searchValue');
       const normalizedSearchValue = searchValue.trim().toLowerCase();
 
-      return listEntries.filter(({ name, isLoaded }) => {
+      return listEntries.filter(({
+        name,
+        summary,
+        collectedDescriptions,
+        atmInventoryName,
+        isLoaded,
+      }) => {
         if (!isLoaded) {
           return false;
         }
-        const normalizedName = (name || '').trim().toLowerCase();
-        return normalizedName.includes(normalizedSearchValue);
+        const stringsToSearchIn = [
+          name,
+          summary,
+          ...collectedDescriptions,
+          atmInventoryName,
+        ].filter(Boolean).map((str) => str.trim().toLowerCase());
+        return stringsToSearchIn.some((str) => str.includes(normalizedSearchValue));
       });
     }
   ),
@@ -124,7 +130,7 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * This computed has no dependecies, because we need to wait only for the first fetch.
+   * This computed has no dependencies, because we need to wait only for the first fetch.
    * User will never change, additional inventories and workflows will be added on-the-fly.
    * @type {ComputedProperty<PromiseObject>}
    */
@@ -156,4 +162,60 @@ export default Component.extend(I18n, {
       debounce(this, 'set', 'searchValue', newValue, typingActionDebouce);
     },
   },
+});
+
+const AtmWorkflowSchemasListEntry = EmberObject.extend({
+  /**
+   * @virtual
+   * @type {Model.AtmWorkflowSchema}
+   */
+  atmWorkflowSchema: undefined,
+
+  /**
+   * @virtual
+   * @type {RevisionNumber[]}
+   */
+  revisionNumbersMatchingInput: undefined,
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  name: reads('atmWorkflowSchema.name'),
+
+  /**
+   * @type {ComputedProperty<string | undefined>}
+   */
+  globalConflictLabel: reads('atmWorkflowSchema.globalConflictLabel'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  summary: reads('atmWorkflowSchema.summary'),
+
+  /**
+   * @type {ComputedProperty<Array<string>>}
+   */
+  collectedDescriptions: computed(
+    'atmWorkflowSchema.revisionRegistry',
+    function collectedDescriptions() {
+      return Object.values(this.get('atmWorkflowSchema.revisionRegistry') ?? {})
+        .map((revision) => revision?.description || undefined)
+        .filter(Boolean)
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string | undefined>}
+   */
+  atmInventoryName: reads('atmWorkflowSchema.atmInventory.name'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isLoaded: reads('atmWorkflowSchema.isLoaded'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasRevisionMatchingInput: gt('revisionNumbersMatchingInput.length', 0),
 });
