@@ -5,6 +5,7 @@ import { render, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import sinon from 'sinon';
 import Service from '@ember/service';
+import { set } from '@ember/object';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
@@ -67,11 +68,11 @@ describe('Integration | Component | space-transfers', function () {
     registerService(this, 'transferManager', TransferManager);
     registerService(this, 'store', Store);
     registerService(this, 'errorExtractor', ErrorExtractor);
+    set(lookupService(this, 'guiContext'), 'clusterId', providerId);
     this.setProperties({
       space,
       fileId,
       defaultTab,
-      providerId,
       transferManager: lookupService(this, 'transferManager'),
       store: lookupService(this, 'store'),
       actions: {
@@ -98,7 +99,6 @@ describe('Integration | Component | space-transfers', function () {
       space=space
       fileId=undefined
       defaultTab=defaultTab
-      providerId=providerId
       resetQueryParams=(action resetQueryParams)
       changeListTab=(action changeListTab)
       closeFileTab=(action closeFileTab)
@@ -137,7 +137,6 @@ describe('Integration | Component | space-transfers', function () {
       space=space
       fileId=fileId
       tab=tab
-      providerId=providerId
       resetQueryParams=(action resetQueryParams)
       changeListTab=(action changeListTab)
       closeFileTab=(action closeFileTab)
@@ -174,7 +173,6 @@ describe('Integration | Component | space-transfers', function () {
       await render(hbs `<div id="content-scroll">{{space-transfers
         space=space
         defaultTab=defaultTab
-        providerId=providerId
         resetQueryParams=(action resetQueryParams)
         changeListTab=(action changeListTab)
         closeFileTab=(action closeFileTab)
@@ -208,7 +206,6 @@ describe('Integration | Component | space-transfers', function () {
         space=space
         defaultTab=defaultTab
         fileId=fileId
-        providerId=providerId
         resetQueryParams=(action resetQueryParams)
         changeListTab=(action changeListTab)
         closeFileTab=(action closeFileTab)

@@ -33,6 +33,7 @@
         {{/if}}
         {{#each atmWorkflowExecutionSummaries as |atmWorkflowExecutionSummary|}}
           {{space-automation/atm-workflow-executions-table/workflow-row
+            class="clickable"
             atmWorkflowExecutionSummary=atmWorkflowExecutionSummary
             columns=columns
             onSelect=onAtmWorkflowExecutionSelect

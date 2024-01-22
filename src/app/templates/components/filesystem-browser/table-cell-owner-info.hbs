@@ -2,7 +2,7 @@
   {{#truncated-string class="file-owner-line"}}
     <span
       class={{concat-classes
-        "file-owner-fullname"
+        "file-owner-fullname clickable"
         (if hasUnderline "has-underline")
       }}
       {{action "toggleUserInfo" bubbles=false}}
@@ -15,7 +15,7 @@
   {{#if owner.username}}
     {{#truncated-string class="file-owner-line"}}
       <span
-        class="file-owner-username"
+        class="file-owner-username clickable"
         {{action "toggleUserInfo" bubbles=false}}
         onmouseover={{action "changeIconHover" true}}
         onmouseout={{action "changeIconHover" false}}

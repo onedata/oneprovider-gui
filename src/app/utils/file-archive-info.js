@@ -8,7 +8,7 @@
  */
 
 import EmberObject, { computed, get } from '@ember/object';
-import { promise } from 'ember-awesome-macros';
+import { promise, or, writable } from 'ember-awesome-macros';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { isArray } from '@ember/array';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
@@ -36,12 +36,26 @@ export default EmberObject.extend(OwnerInjector, {
 
   /**
    * An array of file objects that makes an absolute path to file.
+   * @virtual optional
    * @type {Array<Models.File>} array of file-like objects
    */
-  filePathProxy: promise.object(computed('file.parent', function filePathProxy() {
-    const file = this.get('file');
-    return file && resolveFilePath(file);
-  })),
+  filePathProxy: writable(
+    or(
+      'injectedFilePathProxy',
+      promise.object(computed('file.parent', function filePathProxy() {
+        const file = this.get('file');
+        return file && resolveFilePath(file);
+      }))
+    ), {
+      set(value) {
+        return this.injectedFilePathProxy = value;
+      },
+    }),
+
+  /**
+   * @type {PromiseObject<Array<Models.File>> | null}
+   */
+  injectedFilePathProxy: null,
 
   isInArchiveProxy: promise.object(computed(
     'filePathProxy',

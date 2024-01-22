@@ -10,6 +10,7 @@
       <div
         class={{concat-classes
           "file-status-tag-group recalling-file-status-tag-group"
+          (unless effRecallingDisabled "clickable")
           (if (eq displayed.recallingMembership.membership "ancestor")
             "file-status-tag-group-fully-inherited"
           )
@@ -63,6 +64,7 @@
     <div
       class={{concat-classes
         "file-status-tag-group dataset-file-status-tag-group"
+        (unless effDatasetDisabled "clickable")
         (if (eq displayed.effDatasetMembership.membership "ancestor")
           "file-status-tag-group-fully-inherited"
         )
@@ -131,6 +133,7 @@
     <div
       class={{concat-classes
         "file-status-tag-group qos-file-status-tag-group"
+        (unless effQosDisabled "clickable")
         (if (eq displayed.effQosMembership.membership "ancestor")
           "file-status-tag-group-fully-inherited"
         )
