@@ -60,6 +60,7 @@ export default Component.extend(I18n, {
 
   fileManager: service(),
   i18n: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -824,6 +825,7 @@ export default Component.extend(I18n, {
     // should be the same as $refresh-transition-duration in fb-table.scss
     const fadeTime = 300;
     if (this.refreshStarted) {
+      this.globalNotify.info('fb-table refresh refresh already started, aborting');
       return;
     }
     this.browserModel.onTableWillRefresh();
