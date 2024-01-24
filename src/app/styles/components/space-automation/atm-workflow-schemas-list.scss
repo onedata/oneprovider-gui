@@ -13,14 +13,24 @@
     padding-bottom: 1em;
   }
 
+  .workflow-schema-name-section {
+    display: flex;
+    align-items: center;
+
+    > * {
+      line-height: 1;
+    }
+  }
+
   .workflow-schema-name-section .separator {
     display: inline-block;
-    transform: translateY(-0.1em);
-    font-size: $font-size-small;
-    color: $text-muted;
+    font-size: 80%;
+    margin-left: 1em;
+    margin-right: 1em;
 
     &::before {
-      content: '|';
+      content: '';
+      border-left: 1px solid $main-border-color;
     }
   }
 

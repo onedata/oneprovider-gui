@@ -200,7 +200,7 @@ const AtmWorkflowSchemasListEntry = EmberObject.extend({
     function collectedDescriptions() {
       return Object.values(this.get('atmWorkflowSchema.revisionRegistry') ?? {})
         .map((revision) => revision?.description || undefined)
-        .filter(Boolean)
+        .filter(Boolean);
     }
   ),
 
