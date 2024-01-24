@@ -35,7 +35,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * Global colors for each provider
-   * @type {ComputedProperty <Object>}
+   * @type {ComputedProperty<Object>}
    */
   providersColors: undefined,
 

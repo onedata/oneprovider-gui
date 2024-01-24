@@ -75,7 +75,7 @@ export default Component.extend(I18n, {
   /**
    * @type {string}
    */
-  transferType: 'list',
+  transfersTabType: 'list',
 
   /**
    * @type {ComputedProperty<Utils.ColorGenerator>}

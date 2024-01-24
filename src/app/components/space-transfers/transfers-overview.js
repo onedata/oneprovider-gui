@@ -90,12 +90,6 @@ export default Component.extend(I18n, {
    */
   throughputTransferType: 'all',
 
-  /**
-   * Set in `updateMobileMode`
-   * @type {Boolean}
-   */
-  _mobileMode: false,
-
   stickyOverviewChanged: observer('stickyOverview', function stickyOverviewChanged() {
     this.changeStyle();
     this.changeStickyOverviewStyle();
@@ -143,7 +137,6 @@ export default Component.extend(I18n, {
   },
 
   onResize() {
-    this.updateMobileMode();
     this.computeSticky();
     this.changeStyle();
     this.changeStickyOverviewStyle();
@@ -210,12 +203,10 @@ export default Component.extend(I18n, {
       initialHandlerTop,
       contentScrollTop,
       stickyOverview,
-      _mobileMode,
     } = this.getProperties(
       'initialHandlerTop',
       'contentScrollTop',
       'stickyOverview',
-      '_mobileMode'
     );
     let sticky;
     const contentScroll = globals.document.getElementById('content-scroll');
@@ -237,16 +228,6 @@ export default Component.extend(I18n, {
    */
   eventName(type) {
     return `${type}.${this.elementId}`;
-  },
-
-  /**
-   * Window resize event handler.
-   * @type {Ember.ComputedProperty<Function>}
-   */
-  updateMobileMode() {
-    const innerWidth = globals.window.innerWidth;
-    const innerHeight = globals.window.innerHeight;
-    this.set('_mobileMode', innerWidth < 1320 || innerHeight < 580);
   },
 
   actions: {

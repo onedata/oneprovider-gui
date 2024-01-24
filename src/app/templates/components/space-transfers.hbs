@@ -9,26 +9,26 @@
           activeId="transfers-tab-pane"
           as |bsTab|
         }}
-          {{#bs-nav type="tabs" class="throughput-tabs" as |nav|}}
-            {{#nav.item active=(eq transferType "list")}}
-              <a class="nav-link" role="tab" {{action (mut transferType) "list"}}>
+          {{#bs-nav type="tabs" class="transfers-tabs" as |nav|}}
+            {{#nav.item active=(eq transfersTabType "list")}}
+              <a class="nav-link" role="tab" {{action (mut transfersTabType) "list"}}>
                 {{tt this "transferJobsHistory"}}
               </a>
             {{/nav.item}}
-            {{#nav.item active=(eq transferType "map")}}
-              <a class="nav-link" role="tab" {{action (mut transferType) "map"}}>
+            {{#nav.item active=(eq transfersTabType "map")}}
+              <a class="nav-link" role="tab" {{action (mut transfersTabType) "map"}}>
                 {{tt this "providersMapOfDist"}}
               </a>
             {{/nav.item}}
-            {{#nav.item active=(eq transferType "chart")}}
-              <a class="nav-link" role="tab" {{action (mut transferType) "chart"}}>
+            {{#nav.item active=(eq transfersTabType "chart")}}
+              <a class="nav-link" role="tab" {{action (mut transfersTabType) "chart"}}>
                 {{tt this "providersThroughput"}}
               </a>
             {{/nav.item}}
           {{/bs-nav}}
           <div class="tab-content no-vertical-padding">
             {{#bsTab.pane elementId="transfers-tab-pane"}}
-              {{#if (eq transferType "list")}}
+              {{#if (eq transfersTabType "list")}}
                 {{space-transfers/tables-container
                   providers=providers
                   providersColors=providersColors
@@ -38,7 +38,7 @@
                   changeListTab=(action "changeListTab")
                   closeFileTab=(action "closeFileTab")
                 }}
-              {{else if (eq transferType "map")}}
+              {{else if (eq transfersTabType "map")}}
                 <div class="row loadable-row col-providers-map providers-map-container row-providers-map-inner">
                   {{space-transfers/providers-map
                     space=space
