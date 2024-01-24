@@ -18,7 +18,7 @@
     {{subjectName}}
     {{#if (not subject.name)}}
       {{#if identifier}}
-        ({{tt this "id"}}: <code>{{identifier}}</code>)
+        ({{tt this "id"}}: <code class="subject-identifier">{{identifier}}</code>)
       {{/if}}
       <OneLabelTip @title={{tt this "aceNotAccessible"
         subject=(tt this (concat "aceSubjects." subjectType))
