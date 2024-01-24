@@ -1,7 +1,7 @@
 <div class="row loadable-row row-transfers-data-container">
   {{#promise-proxy-container proxy=providersProxy}}
     {{#if isSupportedByOngoingProvider}}
-      {{#if (or (lt windowWidth 1845) (lt windowHeight 800))}}
+      {{#if (or (lt windowWidth 1320) (lt windowHeight 800))}}
         {{#bs-tab
           fade=false
           class="bs-tab bs-tab-onedata bs-tab-modern transfers-tab"
@@ -39,7 +39,7 @@
                   closeFileTab=(action "closeFileTab")
                 }}
               {{else if (eq transferType "map")}}
-                <div class="row loadable-row col-providers-map row-providers-map-inner">
+                <div class="row loadable-row col-providers-map providers-map-container row-providers-map-inner">
                   {{space-transfers/providers-map
                     space=space
                     providersColors=providersColors
@@ -47,7 +47,7 @@
                   }}
                 </div>
               {{else}}
-                <div class="row loadable-row">
+                <div class="row loadable-row throughput-chart-container">
                   {{space-transfers/throughput-chart
                     space=space
                     providers=providers

@@ -17,10 +17,11 @@
     background-color: $color-one-white;
     display: flex;
     justify-content: space-between;
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .row-expand-handler {
+    position: relative;
     opacity: 0;
     display: block;
     width: calc(100% + #{$content-col-padding * 2});

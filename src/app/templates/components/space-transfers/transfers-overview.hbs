@@ -1,6 +1,6 @@
 <div class="row row-active-transfers {{if stickyOverview "sticky"}}" style={{stickyOverviewStyle}} onclick={{action "stickyFocused"}}>
   <div class="row-overview">
-    <div class="col-xs-12 col-md-6 col-providers-map map-column">
+    <div class="col-providers-map map-column">
       <h2>
         {{tt this "providersMapOfDist"}}
       </h2>
@@ -12,7 +12,7 @@
         }}
       </div>
     </div>
-    <div class="col-xs-12 col-md-5 col-throughput-pie-chart">
+    <div class="col-throughput-pie-chart">
       <h2><span class="one-label">{{tt this "title"}}</span></h2>
       <div class="row loadable-row">
         {{space-transfers/throughput-chart
@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  <div class="col-xs-12 row-expand-handler hidden-sm" {{action "toggleOverview"}}>
+  <div class="row-expand-handler hidden-sm" {{action "toggleOverview"}}>
     <span class="toggle-expand left {{if overviewExpanded "opened"}}">
       {{one-icon class="toggle-icon" icon="arrow-down"}}
     </span>
