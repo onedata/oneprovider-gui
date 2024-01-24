@@ -7,7 +7,7 @@
           class="bs-tab bs-tab-onedata bs-tab-modern transfers-tab"
           customTabs=true
           activeId="transfers-tab-pane"
-          as |tab|
+          as |bsTab|
         }}
           {{#bs-nav type="tabs" class="throughput-tabs" as |nav|}}
             {{#nav.item active=(eq transferType "list")}}
@@ -27,7 +27,7 @@
             {{/nav.item}}
           {{/bs-nav}}
           <div class="tab-content no-vertical-padding">
-            {{#tab.pane elementId="transfers-tab-pane"}}
+            {{#bsTab.pane elementId="transfers-tab-pane"}}
               {{#if (eq transferType "list")}}
                 {{space-transfers/tables-container
                   providers=providers
@@ -55,7 +55,7 @@
                   }}
                 </div>
               {{/if}}
-            {{/tab.pane}}
+            {{/bsTab.pane}}
           </div>
         {{/bs-tab}}
       {{else}}
