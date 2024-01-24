@@ -163,7 +163,10 @@
   }
   .unknown-subject-name {
     font-style: italic;
-    color: $main-text-color-disabled;
+    .one-label-tip {
+      line-height: 0;
+      margin-left: 0.5em;
+    }
   }
 }
 

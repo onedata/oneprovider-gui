@@ -508,11 +508,11 @@ export default EmberObject.extend(...mixins, {
           subject = users.findBy('entityId', identifier);
           subjectType = 'user';
         }
-        subject = this.stripSubject(subject);
+        subject = subject ? this.stripSubject(subject) : null;
         return _.assign({ subject, subjectType }, ace);
       });
     });
-    return allFulfilled(aclPromises);
+    return allFulfilled(aclPromises.filter(Boolean));
   },
 
   stripSubject(record) {

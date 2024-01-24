@@ -16,6 +16,14 @@
     (if (not subject.name) "unknown-subject-name")
   }}>
     {{subjectName}}
+    {{#if (not subject.name)}}
+      {{#if identifier}}
+        ({{tt this "id"}}: <code>{{identifier}}</code>)
+      {{/if}}
+      <OneLabelTip @title={{tt this "aceNotAccessible"
+        subject=(tt this (concat "aceSubjects." subjectType))
+      }} />
+    {{/if}}
   </span>
   {{#status-toolbar class="hidden-xs" as |toolbar|}}
     {{#each statusIcons key="icon" as |status|}}

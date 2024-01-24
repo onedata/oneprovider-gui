@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11601 Fixed showing Access Control Entries for subjects that are no longer member of a space
 * VFS-11667 Added version to documentation links
 * VFS-11617 Upgraded EmberJS to v3.12.4
 * VFS-10649 Added complex charts dashboard editor to the automation GUI
