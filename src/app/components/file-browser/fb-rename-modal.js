@@ -88,6 +88,6 @@ export default FbSetNameModal.extend(I18n, {
 
 function refreshFile(file, fileManager, parentEntityId) {
   return file.reload().then(() =>
-    fileManager.dirChildrenRefresh(parentEntityId)
+    fileManager.dirChildrenRefresh(parentEntityId, { forced: true })
   );
 }

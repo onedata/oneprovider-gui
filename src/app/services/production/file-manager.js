@@ -452,7 +452,7 @@ export default Service.extend({
     } finally {
       const file = await this.getFileByName(parentDirEntityId, name);
       if (file) {
-        this.dirChildrenRefresh(parentDirEntityId);
+        this.dirChildrenRefresh(parentDirEntityId, { forced: true });
         set(file, 'isCopyingMovingStop', true);
       }
     }
@@ -1081,7 +1081,7 @@ export default Service.extend({
       this.fileParentRefresh(file);
     }
     if (get(file, 'type') === 'dir') {
-      this.dirChildrenRefresh(get(file, 'entityId'));
+      this.dirChildrenRefresh(get(file, 'entityId'), { forced: true });
     }
   },
 
@@ -1130,11 +1130,14 @@ export default Service.extend({
   /**
    * Invokes request for refresh in all known file browser tables
    * @param {Array<object>} parentDirEntityId
+   * @param {Object} options
+   * @param {boolean} options.forced It set to true - the refresh will be added to
+   *   processing queue even if there is already another refresh in the processing queue.
    * @returns {Array<object>}
    */
-  dirChildrenRefresh(parentDirEntityId) {
+  dirChildrenRefresh(parentDirEntityId, { forced = false, animated = false } = {}) {
     return allSettled(this.get('fileTableComponents').map(fbTable =>
-      fbTable.onDirChildrenRefresh(parentDirEntityId)
+      fbTable.onDirChildrenRefresh(parentDirEntityId, { forced, animated })
     ));
   },
 
