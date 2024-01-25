@@ -5,7 +5,7 @@
   )
   open=open
   size="xl"
-  modalId=modalId
+  id=modalId
   backdropClose=true
   keyboard=true
   onHide=(action "close")
@@ -108,7 +108,7 @@
                   )}}
                     <div class="storage-locations-expand">
                       <a
-                        class="toggle-expand"
+                        class="toggle-expand clickable"
                         onClick={{action "toggleStorageLocations"}}
                       >
                         {{tt this "showMore"}}

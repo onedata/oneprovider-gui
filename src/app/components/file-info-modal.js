@@ -22,6 +22,7 @@ import {
   bool,
   equal,
   not,
+  writable,
 } from 'ember-awesome-macros';
 import EmberObject, { computed, get, set, getProperties, observer } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -292,12 +293,13 @@ export default Component.extend(...mixins, {
   apiSamples: reads('apiSamplesProxy.content'),
 
   /**
+   * Is writable for testing purposes
    * @type {PromiseObject<Models.StorageLocationInfo>}
    */
-  storageLocationsProxy: computedRelationProxy(
+  storageLocationsProxy: writable(computedRelationProxy(
     'file',
     'storageLocationInfo'
-  ),
+  ), (value) => value),
 
   /**
    * @type {PromiseObject<Models.Provider>}

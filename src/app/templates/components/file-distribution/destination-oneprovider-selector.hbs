@@ -16,24 +16,25 @@
       </div>
     </div>
   {{/one-arrow}}
-  {{#power-select
-    triggerClass="small target-oneprovider-selector"
-    dropdownClass="small target-oneprovider-dropdown"
-    placeholder=(tt this "selectTargetDropdownPlaceholder")
-    disabled=(not canSelectOneprovider)
-    options=oneprovidersDropdownOptions
-    selected=destinationOneproviderItem
-    onchange=(action "selectOneprovider")
-    searchField="name"
-    searchEnabled=true
-    as |item|}}
+  <OneDropdown
+    @triggerClass="small target-oneprovider-selector"
+    @dropdownClass="small target-oneprovider-dropdown"
+    @placeholder={{tt this "selectTargetDropdownPlaceholder"}}
+    @disabled={{not canSelectOneprovider}}
+    @options={{oneprovidersDropdownOptions}}
+    @selected={{destinationOneproviderItem}}
+    @onChange={{action "selectOneprovider"}}
+    @searchField="name"
+    @searchEnabled={{true}}
+    as |item|
+  >
     {{#truncated-string}}
       <div class="inline-icon-container">
         {{one-icon icon="provider"}}
       </div>
       <span class="oneprovider-name">{{item.text}}</span>
     {{/truncated-string}}
-  {{/power-select}}
+  </OneDropdown>
 </div>
 <div class="btn-toolbar">
   {{#bs-button onClick=onCancel disabled=(not canCancel) size="sm"}}
