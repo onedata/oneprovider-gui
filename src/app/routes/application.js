@@ -10,7 +10,6 @@ import { inject as service } from '@ember/service';
 import OnedataApplicationRoute from 'onedata-gui-common/routes/application';
 import DevelopmentModelRouteMixin from 'onedata-gui-websocket-client/mixins/routes/development-model';
 import UnifiedGuiController from 'onedata-gui-common/utils/unified-gui-controller';
-import globals from 'onedata-gui-common/utils/globals';
 
 export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   onedataWebsocket: service(),
