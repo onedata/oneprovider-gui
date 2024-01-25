@@ -846,14 +846,11 @@ export default Component.extend(I18n, {
     if (this.refreshDefer) {
       if (forced) {
         await this.refreshDefer.promise;
-        console.log('FIXME: POSTPONED refresh');
         return this.refresh(animated, forced);
       } else {
-        console.log('FIXME: NON-FORCED refresh');
         return await this.refreshDefer.promise;
       }
     }
-    console.log('FIXME: WILL refresh');
     this.browserModel.onTableWillRefresh();
     if (!animated) {
       return await this.refreshFileList(forced);

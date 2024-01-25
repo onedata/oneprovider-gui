@@ -33,7 +33,6 @@ export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
 
   async beforeModel() {
     const superPromise = this._super(...arguments);
-    globals.window.globalNotify = this.globalNotify;
     if (UnifiedGuiController.shouldRedirectToOnezone()) {
       const providerId = this.get('providerManager').getCurrentProviderId();
       const path = `#/onedata/providers/${providerId}`;

@@ -1131,7 +1131,7 @@ export default Service.extend({
    * Invokes request for refresh in all known file browser tables
    * @param {Array<object>} parentDirEntityId
    * @param {Object} options
-   * @param {boolean} options.forced It set to true - the refresh will be added to
+   * @param {boolean} options.forced If set to true - the refresh will be added to
    *   processing queue even if there is already another refresh in the processing queue.
    * @returns {Array<object>}
    */
