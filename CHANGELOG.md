@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-10168 Improved UX of the workflow selector — showing inventory name and additional conflict labels
+* VFS-11620 Added jVectorMap 2.0.5 to own public files
 * VFS-11667 Added version to documentation links
 * VFS-11617 Upgraded EmberJS to v3.12.4
 * VFS-10649 Added complex charts dashboard editor to the automation GUI
