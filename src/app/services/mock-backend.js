@@ -1414,6 +1414,7 @@ export default Service.extend({
             },
           },
           isCompatible: idx !== 2,
+          atmInventory,
         }).save();
         inventoryAtmWorkflowSchemas.push(atmWorkflowSchema);
       }
