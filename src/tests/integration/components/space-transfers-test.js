@@ -142,7 +142,7 @@ describe('Integration | Component | space-transfers', function () {
       closeFileTab=(action closeFileTab)
     }}</div>`);
 
-    expect(find('.row-transfers-tables'), '.row-transfers-tables').to
+    expect(find('.tables-container'), '.tables-container').to
       .exist;
     expect(findRecord).to.have.been.calledOnce;
     expect(findRecord).to.have.been.calledWith('file', expectedFileGri);

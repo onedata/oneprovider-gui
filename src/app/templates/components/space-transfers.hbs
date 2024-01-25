@@ -11,17 +11,29 @@
         }}
           {{#bs-nav type="tabs" class="transfers-tabs" as |nav|}}
             {{#nav.item active=(eq transfersTabType "list")}}
-              <a class="nav-link" role="tab" {{action (mut transfersTabType) "list"}}>
+              <a
+                class="nav-link transfer-jobs-history-tab"
+                role="tab"
+                {{action (mut transfersTabType) "list"}}
+              >
                 {{tt this "transferJobsHistory"}}
               </a>
             {{/nav.item}}
             {{#nav.item active=(eq transfersTabType "map")}}
-              <a class="nav-link" role="tab" {{action (mut transfersTabType) "map"}}>
+              <a
+                class="nav-link providers-map-tab"
+                role="tab"
+                {{action (mut transfersTabType) "map"}}
+              >
                 {{tt this "providersMapOfDist"}}
               </a>
             {{/nav.item}}
             {{#nav.item active=(eq transfersTabType "chart")}}
-              <a class="nav-link" role="tab" {{action (mut transfersTabType) "chart"}}>
+              <a
+                class="nav-link providers-throughput-tab"
+                role="tab"
+                {{action (mut transfersTabType) "chart"}}
+              >
                 {{tt this "providersThroughput"}}
               </a>
             {{/nav.item}}
