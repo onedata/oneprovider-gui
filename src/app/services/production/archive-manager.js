@@ -141,7 +141,7 @@ export default Service.extend({
         const datasetId = dataset && get(dataset, 'entityId');
         await allFulfilled([
           dataset.reload(),
-          fileManager.dirChildrenRefresh(datasetId),
+          fileManager.dirChildrenRefresh(datasetId, { forced: true }),
         ]);
       } catch (error) {
         console.error(
@@ -296,7 +296,7 @@ export default Service.extend({
       subscribe: false,
     });
     try {
-      fileManager.dirChildrenRefresh(get(targetDir, 'entityId'));
+      fileManager.dirChildrenRefresh(get(targetDir, 'entityId'), { forced: true });
     } catch (error) {
       console.warn(
         'service:archive-manager#recallArchive: refreshing dirs view failed',

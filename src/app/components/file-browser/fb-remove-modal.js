@@ -258,7 +258,11 @@ export default Component.extend(I18n, {
           await this.onFilesRemoved?.(removedFiles);
         }
 
-        await fileManager.dirChildrenRefresh(get(parentDir, 'entityId'));
+        await fileManager.dirChildrenRefresh(
+          get(parentDir, 'entityId'), {
+            forced: true,
+          }
+        );
         onHide.bind(this)(true, results);
       } finally {
         safeExec(this, 'set', 'processing', false);
