@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11513 Fixed not working items list reload when it is executed concurrently with other reload
+* VFS-11601 Fixed showing Access Control Entries for subjects that are no longer member of a space
 * VFS-10168 Improved UX of the workflow selector — showing inventory name and additional conflict labels
 * VFS-11620 Added jVectorMap 2.0.5 to own public files
 * VFS-11667 Added version to documentation links
