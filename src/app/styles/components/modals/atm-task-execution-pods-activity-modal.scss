@@ -110,11 +110,6 @@
     width: 100%;
   }
 
-  h2 {
-    @include font-semibold();
-    text-transform: none;
-  }
-
   .events-table-placeholder {
     margin: auto;
     font-size: 130%;
