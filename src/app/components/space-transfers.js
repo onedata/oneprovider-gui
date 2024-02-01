@@ -18,8 +18,14 @@ import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import globals from 'onedata-gui-common/utils/globals';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  WindowResizeHandler,
+];
+
+export default Component.extend(...mixins, {
   classNames: ['space-transfers', 'row'],
   i18n: service(),
   guiContext: service(),
@@ -149,6 +155,7 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
+    this.attachWindowResizeHandler();
     this._spaceChanged(true);
   },
 
@@ -156,15 +163,17 @@ export default Component.extend(I18n, {
     this._super(...arguments);
     this.set('windowWidth', globals.window.innerWidth);
     this.set('windowHeight', globals.window.innerHeight);
-    $(globals.window).on(
-      this.eventName('resize'),
-      () => safeExec(this, () => {
-        this.onResize();
-      })
-    );
   },
 
-  onResize() {
+  /**
+   * @override
+   */
+  willDestroy() {
+    this._super(...arguments);
+    this.detachWindowResizeHandler();
+  },
+
+  onWindowResize() {
     this.set('windowWidth', globals.window.innerWidth);
     this.set('windowHeight', globals.window.innerHeight);
   },

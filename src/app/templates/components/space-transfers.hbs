@@ -16,7 +16,12 @@
                 role="tab"
                 {{action (mut transfersTabType) "list"}}
               >
-                {{tt this "transferJobsHistory"}}
+                {{tt this
+                  (if (lt windowWidth 650)
+                    "transferJobsHistoryShort"
+                    "transferJobsHistory"
+                  )
+                }}
               </a>
             {{/nav.item}}
             {{#nav.item active=(eq transfersTabType "map")}}
@@ -25,7 +30,12 @@
                 role="tab"
                 {{action (mut transfersTabType) "map"}}
               >
-                {{tt this "providersMapOfDist"}}
+                {{tt this
+                  (if (lt windowWidth 650)
+                    "providersMapOfDistShort"
+                    "providersMapOfDist"
+                  )
+                }}
               </a>
             {{/nav.item}}
             {{#nav.item active=(eq transfersTabType "chart")}}
@@ -34,7 +44,12 @@
                 role="tab"
                 {{action (mut transfersTabType) "chart"}}
               >
-                {{tt this "providersThroughput"}}
+                {{tt this
+                  (if (lt windowWidth 650)
+                    "providersThroughputShort"
+                    "providersThroughput"
+                  )
+                }}
               </a>
             {{/nav.item}}
           {{/bs-nav}}

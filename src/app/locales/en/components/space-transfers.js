@@ -8,8 +8,11 @@ import throughputChart from './space-transfers/throughput-chart';
 
 export default {
   transferJobsHistory: 'Transfer jobs history',
+  transferJobsHistoryShort: 'Jobs',
   providersMapOfDist: 'Ongoing transfers map',
+  providersMapOfDistShort: 'Map',
   providersThroughput: 'Oneproviders throughput',
+  providersThroughputShort: 'Throughput',
   waitingTransfers: 'Waiting',
   ongoingTransfers: 'Ongoing',
   endedTransfers: 'Ended',
