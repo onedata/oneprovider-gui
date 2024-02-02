@@ -43,7 +43,7 @@ export const possibleFileRawAttributes = Object.freeze([
   'parentFileId',
   'path',
   'posixPermissions',
-  'qosStatusAggregate',
+  'aggregateQosStatus',
   'size',
   'symlinkValue',
   'type',

@@ -43,7 +43,7 @@ export const possibleFileProperties = Object.freeze([
   'path',
   'posixPermissions',
   'provider',
-  'qosStatusAggregate',
+  'aggregateQosStatus',
   'shareRecords',
   'size',
   'storageLocationInfo',

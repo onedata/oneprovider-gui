@@ -467,7 +467,7 @@ export default Model.extend(
     /**
      * @type {ComputedProperty<QosStatus>}
      */
-    qosStatusAggregate: attr('string'),
+    aggregateQosStatus: attr('string'),
 
     /**
      * @type {ComputedProperty<ItemFeatureMembership>}

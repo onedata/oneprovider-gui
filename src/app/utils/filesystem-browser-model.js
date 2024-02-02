@@ -448,7 +448,7 @@ export default BaseBrowserModel.extend(...mixins, {
           listedFilesPropertySet.add('localReplicationRate');
         }
         if (columns.qos?.[columnRequirementsEnableProperty]) {
-          listedFilesPropertySet.add('qosStatusAggregate');
+          listedFilesPropertySet.add('aggregateQosStatus');
         }
       }
       return [...listedFilesPropertySet.values()];
