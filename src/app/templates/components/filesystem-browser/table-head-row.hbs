@@ -26,7 +26,7 @@
     class="draggable-area"
     ondragover={{action "headingDragOverAction"}}
     ondragleave={{action "headingDragLeaveAction"}}
-    ondrop={{action "headingDropAction" -1}}
+    ondrop={{action "headingDropAction" 0}}
   >
   </div>
 </th>
@@ -59,7 +59,7 @@
         class="draggable-area"
         ondragover={{action "headingDragOverAction"}}
         ondragleave={{action "headingDragLeaveAction"}}
-        ondrop={{action "headingDropAction" i}}
+        ondrop={{action "headingDropAction" (add i 1)}}
       >
       </div>
     </th>

@@ -7,6 +7,16 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11252 Added optional file attributes fetching; enabled QoS and Replication columns in file browser
+* VFS-11594 Fixed popovers broken position after their content size change
+* VFS-11513 Fixed not working items list reload when it is executed concurrently with other reload
+* VFS-11601 Fixed showing Access Control Entries for subjects that are no longer member of a space
+* VFS-10168 Improved UX of the workflow selector — showing inventory name and additional conflict labels
+* VFS-11620 Added jVectorMap 2.0.5 to own public files
+* VFS-11667 Added version to documentation links
+* VFS-11617 Upgraded EmberJS to v3.12.4
+* VFS-10649 Added complex charts dashboard editor to the automation GUI
+* VFS-11573 Fixed wrong error message on failed ACL settings reloading
+* VFS-11405 Added draggable modify order of columns in transfers table
 * VFS-11125 Added draggable modify order of columns in file browser
 * VFS-11242 Added downloading automation audit log content
 * VFS-11418 Fixed wrong file size in data distribution modal

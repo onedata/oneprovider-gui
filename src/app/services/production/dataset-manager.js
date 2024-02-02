@@ -219,7 +219,7 @@ export default Service.extend({
     ];
     if (get(dataset, 'rootFileType') === 'dir') {
       promises.push(
-        fileManager.dirChildrenRefresh(get(dataset, 'entityId'))
+        fileManager.dirChildrenRefresh(get(dataset, 'entityId'), { forced: true })
       );
     }
     await allSettled(promises);
@@ -235,7 +235,7 @@ export default Service.extend({
     if (get(file, 'type') === 'dir') {
       // dirChildrenRefresh refreshes also currently opened dir
       promises.push(
-        fileManager.dirChildrenRefresh(get(file, 'entityId'))
+        fileManager.dirChildrenRefresh(get(file, 'entityId'), { forced: true })
       );
     }
     await allSettled(promises);

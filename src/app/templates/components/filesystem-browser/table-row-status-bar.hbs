@@ -14,7 +14,7 @@
 {{/if}}
 {{#if (and (not previewMode) (not isSymlink) isShared)}}
   <div
-    class="file-status-tag-group"
+    class="file-status-tag-group {{if (not disabled) "clickable"}}"
     {{action
       (if disabled
         (no-action)
@@ -55,7 +55,7 @@
 {{/if}}
 {{#if (and (not isSymlink) hasCustomMetadata)}}
   <div
-    class="file-status-tag file-status-metadata {{if disabled "file-status-tag-disabled"}}"
+    class="file-status-tag file-status-metadata {{if disabled "file-status-tag-disabled" "clickable"}}"
     {{action
       (if disabled
         (no-action)
@@ -73,6 +73,7 @@
       "file-status-tag file-status-acl"
       (if previewMode "file-status-tag-warning")
       (if disabled "file-status-tag-disabled")
+      (if (not (or disabled previewMode)) "clickable")
     }}
     {{action
       (if (or disabled previewMode)

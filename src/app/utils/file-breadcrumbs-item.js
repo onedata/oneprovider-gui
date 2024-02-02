@@ -1,6 +1,3 @@
-import EmberObject from '@ember/object';
-import { reads, not } from '@ember/object/computed';
-
 /**
  * An envelope Ember Class for `FileBreadcrumbs`.
  *
@@ -8,6 +5,9 @@ import { reads, not } from '@ember/object/computed';
  * @copyright (C) 2016-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
+
+import EmberObject, { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 
 /**
  * @class
@@ -22,11 +22,29 @@ const FileBreadcrumbsItem = EmberObject.extend({
   file: null,
 
   /**
-   * @virtual
+   * @virtual optional
+   * @type {boolean}
+   */
+  isRoot: computed('file.hasParent', {
+    get() {
+      return this.injectedIsRoot ?? !this.file?.hasParent;
+    },
+    set(key, value) {
+      return this.injectedIsRoot = value;
+    },
+  }),
+
+  /**
+   * @virtual optional
    * Set to true if this item is an ellipsis
    * @type {boolean}
    */
   isEllipsis: undefined,
+
+  /**
+   * @type {boolean | null}
+   */
+  injectedIsRoot: null,
 
   /**
    * A name of item displayed in breadcrumbs.
@@ -38,8 +56,6 @@ const FileBreadcrumbsItem = EmberObject.extend({
   name: reads('file.name'),
 
   extraName: reads('file.extraName'),
-
-  isRoot: not('file.hasParent'),
 });
 
 export default FileBreadcrumbsItem;

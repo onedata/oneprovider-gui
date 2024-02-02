@@ -182,15 +182,25 @@ export default Service.extend(...mixins, {
    * Is an object where key is model name and values are arrays with records.
    * Contains also special collections:
    * - chainDir - files records that are chained directories
+   * @type {Object}
    */
-  entityRecords: computed(() => ({})),
+  entityRecords: undefined,
 
   /**
    * WARNING: Will be initialized only after generating development model.
    * Contains mapping:
    * symlink entityId -> linked file entityId
+   * @type {Object}
    */
-  symlinkMap: computed(() => ({})),
+  symlinkMap: undefined,
+
+  init() {
+    this._super(...arguments);
+    this.setProperties({
+      entityRecords: {},
+      symlinkMap: {},
+    });
+  },
 
   async generateDevelopmentModel() {
     const store = this.get('store');
@@ -335,8 +345,7 @@ export default Service.extend(...mixins, {
       fileDatasetSummary: null,
       symlinkValue: `./${get(targetDir, 'name')}`,
     });
-    const symlinkMap = this.get('symlinkMap');
-    symlinkMap[get(symlinkDir, 'entityId')] = get(targetDir, 'entityId');
+    this.symlinkMap[get(symlinkDir, 'entityId')] = get(targetDir, 'entityId');
     return symlinkDir.save();
   },
 
@@ -1460,6 +1469,7 @@ export default Service.extend(...mixins, {
             },
           },
           isCompatible: idx !== 2,
+          atmInventory,
         }).save();
         inventoryAtmWorkflowSchemas.push(atmWorkflowSchema);
       }

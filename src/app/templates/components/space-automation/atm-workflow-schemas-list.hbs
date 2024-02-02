@@ -1,7 +1,11 @@
 {{#promise-proxy-container proxy=dataLoadingProxy}}
   <div class="form-group-light search-form-group">
     <div class="input-group with-icon-addon">
-      {{search-bar search=(action "changeSearchValue") class="form-control"}}
+      {{search-bar
+        placeholder=(tt this "searchPlaceholder")
+        search=(action "changeSearchValue")
+        class="form-control"
+      }}
       <div class="input-group-addon">
         {{one-icon icon="search"}}
       </div>

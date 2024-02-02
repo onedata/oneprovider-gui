@@ -533,11 +533,11 @@ export default EmberObject.extend(...mixins, {
           subject = users.findBy('entityId', identifier);
           subjectType = 'user';
         }
-        subject = this.stripSubject(subject);
+        subject = subject ? this.stripSubject(subject) : null;
         return _.assign({ subject, subjectType }, ace);
       });
     });
-    return allFulfilled(aclPromises);
+    return allFulfilled(aclPromises.filter(Boolean));
   },
 
   stripSubject(record) {
@@ -699,17 +699,25 @@ export default EmberObject.extend(...mixins, {
     const files = this.files;
     try {
       await this.saveAllPermissions();
-      await this.updateAclsProxy({ replace: true });
       this.globalNotify.success(this.t('permissionsModifySuccess'));
       this.clearEditedPermissionsTypes();
     } catch (errors) {
       if (errors.length > 1) {
         errors.slice(1).forEach(error =>
-          console.error('save file permissions', error)
+          console.error('save file permissions failed', error)
         );
       }
       this.globalNotify.backendError(this.t('modifyingPermissions'), errors[0]);
       throw errors;
+    }
+    try {
+      await this.updateAclsProxy({ replace: true });
+    } catch (errors) {
+      if (errors.length > 1) {
+        errors.slice(1).forEach(error =>
+          console.error('refreshing file permissions failed', error)
+        );
+      }
     } finally {
       const hardlinkedFile = files.find(file => get(file, 'hardlinkCount') > 1);
       if (hardlinkedFile) {

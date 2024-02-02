@@ -163,7 +163,14 @@
   }
   .unknown-subject-name {
     font-style: italic;
-    color: $main-text-color-disabled;
+    code.subject-identifier {
+      // background is not clipped using standard list item text truncating
+      background: none;
+    }
+    .one-label-tip {
+      line-height: 0;
+      margin-left: 0.5em;
+    }
   }
 }
 

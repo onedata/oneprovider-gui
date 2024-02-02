@@ -13,7 +13,7 @@ import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { notEmpty, not, raw, collect, and, or, equal, conditional } from 'ember-awesome-macros';
+import { notEmpty, not, raw, collect, and, or, equal, conditional, writable } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -201,12 +201,13 @@ export default Component.extend(I18n, {
   spaceId: reads('space.entityId'),
 
   /**
+   * Is overridable only for test purposes
    * @type {ComputedProperty<SpacePrivileges>}
    */
-  spacePrivileges: or(
+  spacePrivileges: writable(or(
     'space.privileges',
     Object.freeze({}),
-  ),
+  ), (value) => value),
 
   /**
    * Initialized in init.
@@ -246,6 +247,8 @@ export default Component.extend(I18n, {
    * @type {PromiseArray<Object>} array proxy of browsable objects (eg. file)
    */
   selectedItemsForJumpProxy: undefined,
+
+  contentScroll: undefined,
 
   selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
 
@@ -547,10 +550,6 @@ export default Component.extend(I18n, {
 
   isOnlyCurrentDirSelected: reads('browserModel.isOnlyCurrentDirSelected'),
 
-  contentScroll: computed(function contentScroll() {
-    return globals.document.getElementById('content-scroll');
-  }),
-
   containerScrollTop: computed('contentScroll', function containerScrollTop() {
     const contentScroll = this.get('contentScroll');
     return (position, isDelta = false) => {
@@ -677,6 +676,10 @@ export default Component.extend(I18n, {
 
   didInsertElement() {
     this._super(...arguments);
+
+    if (!this.contentScroll) {
+      this.set('contentScroll', globals.document.getElementById('content-scroll'));
+    }
 
     globals.document.body.addEventListener(
       'click',

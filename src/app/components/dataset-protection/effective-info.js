@@ -9,6 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { conditional, or, raw } from 'ember-awesome-macros';
+import { defineProperty } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
@@ -46,6 +47,12 @@ export default Component.extend(...mixins, {
   mode: 'file',
 
   /**
+   * @virtual optional
+   * @type {PromiseObject<Models.FileDatasetSummary>}
+   */
+  fileDatasetSummaryProxy: undefined,
+
+  /**
    * @override
    * @implements {Mixins.FileConsumer}
    */
@@ -79,18 +86,6 @@ export default Component.extend(...mixins, {
   fileType: or('file.type', raw('file')),
 
   /**
-   * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
-   */
-  fileDatasetSummaryProxy: computedRelationProxy(
-    'file',
-    'fileDatasetSummary',
-    Object.freeze({
-      reload: true,
-      computedRelationErrorProperty: 'fileDatasetSummaryLoadError',
-    })
-  ),
-
-  /**
    * @type {ComputedProperty<Models.FileDatasetSummary>}
    */
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
@@ -116,4 +111,26 @@ export default Component.extend(...mixins, {
     'fileDatasetSummary.metadataIsProtected',
     'file.metadataIsProtected',
   ),
+
+  /**
+   * @override
+   */
+  init() {
+    this._super(...arguments);
+
+    if (!this.fileDatasetSummaryProxy) {
+      defineProperty(
+        this,
+        'fileDatasetSummaryProxy',
+        computedRelationProxy(
+          'file',
+          'fileDatasetSummary',
+          Object.freeze({
+            reload: true,
+            computedRelationErrorProperty: 'fileDatasetSummaryLoadError',
+          })
+        )
+      );
+    }
+  },
 });

@@ -1,15 +1,31 @@
-<table class="table one-table one-infinite-list">
+<table class="table one-table one-infinite-list drag-and-drop-column-order">
   <thead class="transfers-table-thead">
     <tr>
-      {{#each visibleColumns as |column|}}
+      {{#each visibleColumns as |column i|}}
         <th
           class={{concat-classes
             (concat "transfers-table-col-" column.id)
             column.className
+            (if isDropBorderShown "border-dashed")
           }}
           style={{get columnsConfiguration.columnsStyle column.id}}
+          draggable={{not-eq i 0}}
+          ondragstart={{action "headingDragAction" column.id}}
+          ondragend={{action "headingDragEndAction"}}
         >
-          {{tt this column.id}}
+          <span class="column-name">
+            {{#if (not-eq i 0)}}
+              {{one-icon icon="drag" class="column-move-icon"}}
+            {{/if}}
+            {{tt this column.id}}
+          </span>
+          <div
+            class="draggable-area"
+            ondragover={{action "headingDragOverAction"}}
+            ondragleave={{action "headingDragLeaveAction"}}
+            ondrop={{action "headingDropAction" i}}
+          >
+          </div>
         </th>
       {{/each}}
       {{columns-configuration-cell
@@ -41,6 +57,7 @@
       {{/if}}
       {{#each transfers as |transfer|}}
         {{space-transfers/transfer-row
+          class="clickable"
           record=(transfer-table-record
             transfer=transfer
             transfers=transfers

@@ -9,7 +9,7 @@
 
 import EmberObject from '@ember/object';
 import Looper from 'onedata-gui-common/utils/looper';
-import { conditional, raw, and, not } from 'ember-awesome-macros';
+import { conditional, raw, and, not, writable } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
@@ -72,11 +72,11 @@ export default EmberObject.extend(OwnerInjector, {
     }
     const looper = Looper
       .extend({
-        interval: conditional(
-          'browserListPoller.isPollingEnabled',
+        interval: writable(conditional(
+          and('browserListPoller.isPollingEnabled', not('isDestroyed')),
           'browserListPoller.pollInterval',
           raw(0),
-        ),
+        ), (value) => value),
       })
       .create({
         browserListPoller: this,

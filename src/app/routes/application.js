@@ -15,6 +15,7 @@ export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   onedataWebsocket: service(),
   mockBackend: service(),
   providerManager: service(),
+  globalNotify: service(),
 
   /**
    * @override

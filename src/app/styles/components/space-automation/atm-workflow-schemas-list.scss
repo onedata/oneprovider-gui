@@ -13,6 +13,27 @@
     padding-bottom: 1em;
   }
 
+  .workflow-schema-name-section {
+    display: flex;
+    align-items: center;
+
+    > * {
+      line-height: 1;
+    }
+  }
+
+  .workflow-schema-name-section .separator {
+    display: inline-block;
+    font-size: 80%;
+    margin-left: 1em;
+    margin-right: 1em;
+
+    &::before {
+      content: '';
+      border-left: 1px solid $main-border-color;
+    }
+  }
+
   .workflow-schema-name {
     @include font-semibold();
   }

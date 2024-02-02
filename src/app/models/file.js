@@ -44,7 +44,7 @@ import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { bool, array, promise, or, eq, raw } from 'ember-awesome-macros';
+import { bool, array, promise, or, eq, raw, writable } from 'ember-awesome-macros';
 import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
@@ -93,16 +93,30 @@ export const RuntimeProperties = Mixin.create({
    * the same file (as normal file can be treated as a "symlink to itself").
    * @type {Models.File}
    */
-  effFile: computed('type', 'symlinkTargetFile', function effFile() {
-    const {
-      type,
-      symlinkTargetFile,
-    } = this.getProperties('type', 'symlinkTargetFile');
-    return type === 'symlink' ? symlinkTargetFile : this;
+  effFile: computed('type', 'symlinkTargetFile', {
+    get() {
+      const {
+        type,
+        symlinkTargetFile,
+      } = this.getProperties('type', 'symlinkTargetFile');
+      return type === 'symlink' ? symlinkTargetFile : this;
+    },
+    // Setting is available only for testing purposes
+    set(key, value) {
+      return value;
+    },
   }),
 
-  hasParent: computed(function hasParent() {
-    return Boolean(this.belongsTo('parent').id());
+  /**
+   * Writable only for testing purposes
+   */
+  hasParent: computed({
+    get() {
+      return Boolean(this.belongsTo('parent').id());
+    },
+    set(key, value) {
+      return value;
+    },
   }),
 
   /**
@@ -111,14 +125,22 @@ export const RuntimeProperties = Mixin.create({
    */
   originalName: or('conflictingName', 'name'),
 
-  cdmiObjectId: computed('entityId', function cdmiObjectId() {
-    try {
-      return guidToCdmiObjectId(this.get('entityId'));
-    } catch (error) {
-      console.trace();
-      console.error(error);
-      return 'error';
-    }
+  /**
+   * Writable only for testing purposes
+   */
+  cdmiObjectId: computed('entityId', {
+    get() {
+      try {
+        return guidToCdmiObjectId(this.get('entityId'));
+      } catch (error) {
+        console.trace();
+        console.error(error);
+        return 'error';
+      }
+    },
+    set(key, value) {
+      return value;
+    },
   }),
 
   spaceEntityId: computed('entityId', function spaceEntityId() {
@@ -258,6 +280,47 @@ export const RuntimeProperties = Mixin.create({
   isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
 
   //#endregion
+
+  isArchiveRootDir: computed(function isArchiveRootDir() {
+    return Boolean(this.belongsTo('archive').id());
+  }),
+
+  /**
+   * Membership of running archive recall process:
+   * - direct - if the file is a target (root) for recall process
+   * - ancestor - if the file is a descendant of root for recall process (as above)
+   * - none - none of above or the associated recall process finished
+   * Writable only for testing.
+   * @type {ComputedProperty<PromiseObject<null|'none'|'direct'|'ancestor'>>}
+   */
+  recallingMembershipProxy: writable(promise.object(computed(
+    'recallRootId',
+    'archiveRecallInfo.finishTime',
+    async function recallingMembershipProxy() {
+      const {
+        recallRootId,
+        entityId,
+      } = this.getProperties('recallRootId', 'entityId');
+      if (recallRootId) {
+        const archiveRecallInfoContent = await this.get('archiveRecallInfo');
+        if (
+          archiveRecallInfoContent &&
+          get(archiveRecallInfoContent, 'finishTime')
+        ) {
+          return 'none';
+        } else {
+          return recallRootId === entityId ? 'direct' : 'ancestor';
+        }
+      } else {
+        return 'none';
+      }
+    }
+  )), (value) => value),
+
+  /**
+   * @type {ComputedProperty<null|'none'|'direct'|'ancestor'>}
+   */
+  recallingMembership: computedLastProxyContent('recallingMembershipProxy'),
 
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size

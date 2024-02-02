@@ -133,14 +133,14 @@ export default Component.extend(
 
     extraNameTooltipClass: 'tooltip-lg tooltip-text-left',
 
-    areItemsEmpty: isEmpty('filteredBreadcrumbsItemsProxy'),
-
     /**
      * Style assigned to current directory button - needed for truncating.
      * Set in `checkWidth` method.
      * @type {SafeString}
      */
-    lastItemStyle: computed(() => htmlSafe('')),
+    lastItemStyle: undefined,
+
+    areItemsEmpty: isEmpty('filteredBreadcrumbsItemsProxy'),
 
     /**
      * @type {boolean}
@@ -194,6 +194,9 @@ export default Component.extend(
 
     init() {
       this._super(...arguments);
+      if (!this.lastItemStyle) {
+        this.set('lastItemStyle', htmlSafe(''));
+      }
       this.updateDirPathProxy();
     },
 

@@ -88,6 +88,18 @@ $color-qos-status-pending: $color-one-warning;
     font-size: $font-size-small;
     // this class is so custom, because of need of aligning icon to right on desktop
     // and to left on mobile
+
+    .expression-clipboard-btn {
+      border: 0;
+      background: transparent;
+      color: $color-one-mint;
+      padding: 0;
+
+      &:hover {
+        color: darken($color-one-mint, 20%);
+      }
+    }
+
     &.qos-expression-copy-subheader {
       @media (min-width: $screen-xs-min) {
         margin-right: -0.3em;

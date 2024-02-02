@@ -66,7 +66,9 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       }
       it(`shows collapsed inherited tag if "${feature}" feature is "${membership}" in collapsed mode`,
         async function () {
-          await this.createItemWithRecallData({
+          await this.createItemWithRecallData(feature === 'recallingMembership' ? {
+            recallingMembershipProxy: promiseObject(resolve(membership)),
+          } : {
             [feature]: membership,
           });
 
@@ -86,7 +88,7 @@ describe('Integration | Component | filesystem-browser/file-features', function 
     await this.createItemWithRecallData({
       effDatasetInheritancePath: 'direct',
       effQosInheritancePath: 'direct',
-      recallingInheritancePath: 'direct',
+      recallingInheritancePath: promiseObject(resolve('direct')),
     });
 
     await render(hbs `{{filesystem-browser/file-features
@@ -105,7 +107,7 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       await this.createItemWithRecallData({
         effDatasetInheritancePath: membership,
         effQosInheritancePath: membership,
-        recallingInheritancePath: membership,
+        recallingInheritancePath: promiseObject(resolve(membership)),
       });
 
       await render(hbs `{{filesystem-browser/file-features
@@ -178,7 +180,7 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       await this.createItemWithRecallData({
         effDatasetInheritancePath: 'ancestor',
         effQosInheritancePath: 'ancestor',
-        recallingInheritancePath: 'ancestor',
+        recallingInheritancePath: promiseObject(resolve('ancestor')),
       });
 
       await render(hbs `{{filesystem-browser/file-features
@@ -245,7 +247,7 @@ describe('Integration | Component | filesystem-browser/file-features', function 
     it(`displays "${text}" text on ${tag} tag`, async function () {
       if (tag === 'recalling') {
         await this.createItemWithRecallData({
-          [feature]: 'direct',
+          recallingMembershipProxy: promiseObject(resolve('direct')),
         });
       } else {
         await this.createItem({

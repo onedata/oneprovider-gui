@@ -3,7 +3,26 @@
 </div>
 <div class="content-section">
   <div class="workflow-schema-details">
-    <div class="workflow-schema-name">{{atmWorkflowSchema.name}}</div>
+    <div class="workflow-schema-name-section">
+      <span class="workflow-schema-name">
+        {{name-conflict
+          item=atmWorkflowSchema
+          conflictLabelProperty="globalConflictLabel"
+        }}
+      </span>
+      <span class="separator"></span>
+      <span class="workflow-schema-inventory-name text-muted">
+        {{#if atmWorkflowSchema.atmInventory}}
+          {{name-conflict item=atmWorkflowSchema.atmInventory}}
+        {{else}}
+          —
+        {{/if}}
+        {{one-tooltip title=(tt this
+          (if atmWorkflowSchema.atmInventory.name "inventory" "unknownInventory")
+          atmInventoryName=atmWorkflowSchema.atmInventory.name
+        )}}
+      </span>
+    </div>
     {{#if atmWorkflowSchema.summary}}
       <div class="workflow-schema-summary">{{atmWorkflowSchema.summary}}</div>
     {{/if}}
