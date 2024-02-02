@@ -20,7 +20,6 @@ import {
   notEqual,
   collect,
   bool,
-  equal,
   not,
   writable,
 } from 'ember-awesome-macros';
