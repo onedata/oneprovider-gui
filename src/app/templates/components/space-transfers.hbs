@@ -56,15 +56,22 @@
           <div class="tab-content no-vertical-padding">
             {{#bsTab.pane elementId="transfers-tab-pane"}}
               {{#if (eq transfersTabType "list")}}
-                {{space-transfers/tables-container
-                  providers=providers
-                  providersColors=providersColors
-                  space=space
-                  fileId=fileId
-                  tab=tab
-                  changeListTab=(action "changeListTab")
-                  closeFileTab=(action "closeFileTab")
-                }}
+                <div
+                  class={{concat-classes
+                    "providers-table"
+                    (if (gt windowWidth 650) "providers-container-border")
+                  }}
+                >
+                  {{space-transfers/tables-container
+                    providers=providers
+                    providersColors=providersColors
+                    space=space
+                    fileId=fileId
+                    tab=tab
+                    changeListTab=(action "changeListTab")
+                    closeFileTab=(action "closeFileTab")
+                  }}
+                </div>
               {{else if (eq transfersTabType "map")}}
                 <div class="row loadable-row col-providers-map providers-map-container row-providers-map-inner">
                   {{space-transfers/providers-map
@@ -74,7 +81,12 @@
                   }}
                 </div>
               {{else}}
-                <div class="row loadable-row throughput-chart-container">
+                <div
+                  class={{concat-classes
+                    "row loadable-row throughput-chart-container"
+                    (if (gt windowWidth 650) "providers-container-border")
+                  }}
+                >
                   {{space-transfers/throughput-chart
                     space=space
                     providers=providers

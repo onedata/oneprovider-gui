@@ -12,7 +12,10 @@
       padding-bottom: 0;
     }
   }
-
+  .sticky .row-overview {
+    padding-bottom: $padding-base-vertical;
+    padding-top: $padding-base-vertical;
+  }
   .row-overview {
     background-color: $color-one-white;
     display: flex;
@@ -39,7 +42,6 @@
   }
 
   .col-providers-map {
-    height: 547.391px;
     @media (max-width: $screen-sm-max) {
       margin-bottom: $padding-large-vertical;
     }
@@ -63,14 +65,9 @@
     }
   }
 
-  .col-providers-map, .col-throughput-pie-chart {
-    background-color: $block-background-transparent-color;
-    border: 1px solid $block-border-transparent-color;
-    border-radius: $border-radius-base;
-    padding: 0 1em 1em 1em;
-
-    @media (min-width: $screen-md-min) {
-      width: 49%;
+  @media (min-width: $screen-md-min) {
+    .col-providers-map, .throughput-chart-container {
+      width: calc(50% - $padding-small-horizontal);
     }
   }
 }
