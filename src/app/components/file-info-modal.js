@@ -273,6 +273,11 @@ export default Component.extend(...mixins, {
   availableFileLinkTypes: Object.freeze(['show', 'download']),
 
   /**
+   * @type {boolean}
+   */
+  areStorageLocationsExpanded: false,
+
+  /**
    * @type {ComputedProperty<Array<FileInfoModal.FileLinkModel>>}
    */
   availableFileLinkModels: computed(
@@ -386,11 +391,6 @@ export default Component.extend(...mixins, {
     'currentProviderProxy',
     'currentProviderLocationsProxy',
   )),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  areStorageLocationsExpanded: equal('currentProviderLocationsProxy.length', 0),
 
   /**
    * @type {PromiseObject<Ember.Array<Object>|null>}
@@ -817,6 +817,11 @@ export default Component.extend(...mixins, {
     const initialTab = this.initialTab;
     const visibleTabs = this.visibleTabs;
     this.set('activeTab', visibleTabs.includes(initialTab) ? initialTab : visibleTabs[0]);
+    this.currentProviderLocationsProxy.then(currentProviderLocations => {
+      if (currentProviderLocations.length === 0 && !this.areStorageLocationsExpanded) {
+        this.set('areStorageLocationsExpanded', true);
+      }
+    });
   },
 
   willDestroyElement() {
