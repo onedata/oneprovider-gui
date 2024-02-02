@@ -92,16 +92,20 @@ export default Component.extend({
   rawSchema: computed(
     'atmWorkflowSchemaSnapshotProxy.revisionRegistry',
     function rawSchema() {
+      const name = this.get('atmWorkflowSchemaSnapshotProxy.name');
       const revisionRegistry =
         this.get('atmWorkflowSchemaSnapshotProxy.revisionRegistry');
       const revision = Object.values(revisionRegistry || {})[0];
       if (revision) {
-        return getProperties(
-          revision,
-          'lanes',
-          'stores',
-          'dashboardSpec'
-        );
+        return {
+          name: name,
+          ...getProperties(
+            revision,
+            'lanes',
+            'stores',
+            'dashboardSpec'
+          ),
+        };
       }
     }
   ),
