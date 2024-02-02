@@ -88,7 +88,7 @@ describe('Integration | Component | filesystem-browser/file-features', function 
     await this.createItemWithRecallData({
       effDatasetInheritancePath: 'direct',
       effQosInheritancePath: 'direct',
-      recallingInheritancePath: promiseObject(resolve('direct')),
+      recallingInheritancePathProxy: promiseObject(resolve('direct')),
     });
 
     await render(hbs `{{filesystem-browser/file-features
@@ -107,7 +107,7 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       await this.createItemWithRecallData({
         effDatasetInheritancePath: membership,
         effQosInheritancePath: membership,
-        recallingInheritancePath: promiseObject(resolve(membership)),
+        recallingInheritancePathProxy: promiseObject(resolve(membership)),
       });
 
       await render(hbs `{{filesystem-browser/file-features
@@ -180,7 +180,7 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       await this.createItemWithRecallData({
         effDatasetInheritancePath: 'ancestor',
         effQosInheritancePath: 'ancestor',
-        recallingInheritancePath: promiseObject(resolve('ancestor')),
+        recallingInheritancePathProxy: promiseObject(resolve('ancestor')),
       });
 
       await render(hbs `{{filesystem-browser/file-features
