@@ -263,7 +263,7 @@ export default Service.extend(...mixins, {
       })
     );
     await allFulfilled(fillSpacePromises);
-    await this.pushProviderListIntoSpaces(listRecords);
+    await this.pushListsIntoSpaces(listRecords);
     await this.pushSpaceListIntoProviders(listRecords);
     await this.createAndAddShare(store);
     await this.createAndAddQos(store);
@@ -611,37 +611,45 @@ export default Service.extend(...mixins, {
       });
   },
 
-  // TODO: space provider / provider space lists method can be unified
-
-  createSpaceProviderLists(providerList, spaceList) {
-    const store = this.get('store');
-    return allFulfilled(spaceList.map(space => {
-      return this.createListRecord(store, 'provider', providerList).then(
+  createListPropertyInRecords(
+    records,
+    relationRecords,
+    relationModelName,
+    listName
+  ) {
+    return allFulfilled(records.map(record => {
+      return this.createListRecord(this.store, relationModelName, relationRecords).then(
         listRecord => {
-          space.set('providerList', listRecord);
-          return space.save();
+          record.set(listName, listRecord);
+          return record.save();
         });
     }));
   },
 
-  pushProviderListIntoSpaces(listRecords) {
+  async pushListsIntoSpaces(listRecords) {
     const providersPromise = listRecords.provider.get('list');
     const spacesPromise = listRecords.space.get('list');
-    return allFulfilled([providersPromise, spacesPromise])
-      .then(([providerList, spaceList]) =>
-        this.createSpaceProviderLists(providerList, spaceList)
-      );
+    const [providerList, spaceList] = await allFulfilled([
+      providersPromise,
+      spacesPromise,
+    ]);
+    await this.createListPropertyInRecords(
+      spaceList,
+      providerList,
+      'provider',
+      'providerList'
+    );
+    await this.createListPropertyInRecords(spaceList, [], 'user', 'effUserList');
+    await this.createListPropertyInRecords(spaceList, [], 'group', 'effGroupList');
   },
 
   createProviderSpaceLists(providerList, spaceList) {
-    const store = this.get('store');
-    return allFulfilled(providerList.map(provider => {
-      return this.createListRecord(store, 'space', spaceList).then(
-        listRecord => {
-          provider.set('spaceList', listRecord);
-          return provider.save();
-        });
-    }));
+    return this.createListPropertyInRecords(
+      providerList,
+      spaceList,
+      'space',
+      'spaceList'
+    );
   },
 
   pushSpaceListIntoProviders(listRecords) {
