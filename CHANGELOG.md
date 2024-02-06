@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11726 Fixed broken selection in archives browser after using breadcrumbs menu
+* VFS-11608 Added resource subheaders to modals in automation
 * VFS-11594 Fixed popovers broken position after their content size change
 * VFS-11513 Fixed not working items list reload when it is executed concurrently with other reload
 * VFS-11601 Fixed showing Access Control Entries for subjects that are no longer member of a space
