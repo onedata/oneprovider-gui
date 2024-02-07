@@ -189,7 +189,12 @@ export default EmberObject.extend(...mixins, {
   },
 
   checkColumnsVisibility() {
-    const width = this.tableThead ? dom.width(this.tableThead) : this.defaultTableWidth;
+    const tableContainer = this.tableThead?.parentElement?.parentElement;
+    const tableContainerWidth = tableContainer ? dom.width(tableContainer) : 0;
+    const tableHeadWidth = this.tableThead ? dom.width(this.tableThead) : 0;
+    const elementWidth = tableContainerWidth ?
+      Math.min(tableContainerWidth, tableHeadWidth) : tableHeadWidth;
+    const width = elementWidth || this.defaultTableWidth;
     let remainingWidth = width - this.firstColumnWidth;
     remainingWidth -= this.lastColumnWidth;
     let hiddenColumnsCount = 0;
