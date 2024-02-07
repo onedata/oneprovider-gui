@@ -702,7 +702,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       configurationType: this.browserPersistedConfigurationKey,
       columns,
       columnsOrder,
-      firstColumnWidth: 350,
+      firstColumnWidth: 200,
     });
   },
 
