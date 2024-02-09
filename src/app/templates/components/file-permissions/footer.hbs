@@ -1,8 +1,14 @@
 {{#if reviewRulesTip}}
   <div class="pre-submit-info pre-submit-info-review">
-    <OneIcon class="review-warning-icon" @icon="sign-warning-rounded" />
+    <OneIcon class="message-type-icon review-warning-icon" @icon="sign-warning-rounded" />
     <span class="review-text">{{tt this "reviewRules"}}</span>
     <OneLabelTip @title={{reviewRulesTip}} />
+  </div>
+{{/if}}
+{{#if isCurrentUserSpaceOwner}}
+  <div class="pre-submit-info pre-submit-info-owner">
+    <OneIcon class="message-type-icon info-icon" @icon="sign-info-rounded" />
+    <span class="review-text">{{tt this "ownerInfo"}}</span>
   </div>
 {{/if}}
 <FilePermissions::SubmitButtons viewModel={{viewModel}} />

@@ -10,6 +10,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { translateFileType } from 'onedata-gui-common/utils/file';
 
 const mixins = [
@@ -32,11 +33,13 @@ export default Component.extend(...mixins, {
    */
   viewModel: undefined,
 
+  isCurrentUserSpaceOwner: reads('viewModel.space.currentUserIsOwner'),
+
   isLackOfAclEditorPermissions: computed(
     'viewModel.{hasAclEditorPermissions,acl.length}',
     function isLackOfAclEditorPermissions() {
-      // FIXME: sprawdzać czy jestem ownerem spejsa?
-      return this.viewModel.acl?.length && !this.viewModel.hasAclEditorPermissions;
+      return this.viewModel.acl?.length &&
+        !this.viewModel.hasAclEditorPermissions;
     }
   ),
 
