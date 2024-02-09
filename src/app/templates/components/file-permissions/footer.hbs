@@ -1,3 +1,8 @@
-{{file-permissions/submit-buttons
-  viewModel=viewModel
-}}
+{{#if reviewRulesTip}}
+  <div class="pre-submit-info pre-submit-info-review">
+    <OneIcon class="review-warning-icon" @icon="sign-warning-rounded" />
+    <span class="review-text">{{tt this "reviewRules"}}</span>
+    <OneLabelTip @title={{reviewRulesTip}} />
+  </div>
+{{/if}}
+<FilePermissions::SubmitButtons viewModel={{viewModel}} />

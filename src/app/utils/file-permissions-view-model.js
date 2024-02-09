@@ -24,13 +24,14 @@ import {
 import { Promise, all as allFulfilled, allSettled, resolve, reject } from 'rsvp';
 import _ from 'lodash';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { translateFileType } from 'onedata-gui-common/utils/file';
+import { numberToTree } from 'oneprovider-gui/utils/acl-permissions-converter';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 
 const mixins = [
   OwnerInjector,
@@ -124,6 +125,13 @@ export default EmberObject.extend(...mixins, {
    * @type {number}
    */
   lastResetTime: undefined,
+
+  /**
+   * If true, current user is considered to have permissions to view and modify ACL in
+   * editor. It is set by default to true, because first computation is asynchronical.
+   * @type {boolean}
+   */
+  hasAclEditorPermissions: true,
 
   //#endregion
 
@@ -515,6 +523,74 @@ export default EmberObject.extend(...mixins, {
     return allFulfilled(aclPromises.filter(Boolean));
   },
 
+  /**
+   * @param {Array<Ace>} acl
+   * @returns {boolean}
+   */
+  async computeHasAclEditorPermissions(acl) {
+    // FIXME: jeśli to jest space owner to od razu true
+    // current user group list is needed to check group permissions
+    await get(this.currentUser.user, 'effGroupList');
+    // FIXME: trzeba dorobić obsługę DENY? sprawdzić algorytm
+    // FIXME: napisać testy
+    return this.files.every(file => {
+      return acl.some(ace =>
+          this.isAceWithUserAclPermission(file, ace, 'read_acl')
+        ) &&
+        acl.some(ace =>
+          this.isAceWithUserAclPermission(file, ace, 'change_acl')
+        );
+    });
+  },
+
+  /**
+   * @param {Ace} ace
+   * @param {'read_acl'|'change_acl'} permission
+   * @returns {boolean}
+   */
+  isAceWithUserAclPermission(file, ace, permission) {
+    if (ace.aceType !== 'ALLOW') {
+      return false;
+    }
+
+    if (ace.subjectType === 'user') {
+      if (ace.identifier === 'OWNER@') {
+        if (file.relationEntityId('owner') !== this.currentUser.userId) {
+          return false;
+        }
+      } else {
+        if (ace.identifier !== this.currentUser.userId) {
+          return false;
+        }
+      }
+    }
+
+    if (
+      ace.subjectType === 'group' &&
+      !this.isUserEffMemberOfGroupId(this.currentUser.user, ace.identifier)
+    ) {
+      return false;
+    }
+    // FIXME: unnecessary variable
+    const isGranted = numberToTree(ace.aceMask, get(file, 'type')).acl[permission];
+    return isGranted;
+  },
+
+  /**
+   * Needs `user.effGroupList` to be loaded!
+   * @param {Models.User} user
+   * @param {string} groupId
+   * @returns {boolean}
+   */
+  isUserEffMemberOfGroupId(user, groupId) {
+    const groupList = get(user, 'effGroupList.content');
+    if (!groupList) {
+      return undefined;
+    }
+    const groupsGris = groupList.hasMany('list').ids();
+    return groupsGris.some(gri => groupId === parseGri(gri).entityId);
+  },
+
   stripSubject(record) {
     return getProperties(record, 'name', 'isSystemSubject');
   },
@@ -551,8 +627,16 @@ export default EmberObject.extend(...mixins, {
     } = this.getProperties('aclsProxy', 'acl');
     if (!acl) {
       await aclsProxy;
-      safeExec(this, 'setAclFromInitial');
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
+      this.setAclFromInitial();
     }
+    (async () => {
+      const hasAclEditorPermissions =
+        await this.computeHasAclEditorPermissions(this.acl);
+      this.set('hasAclEditorPermissions', hasAclEditorPermissions);
+    })();
   },
 
   /**
@@ -593,6 +677,10 @@ export default EmberObject.extend(...mixins, {
   onAclChanged(acl) {
     this.set('acl', acl);
     this.markPermissionsTypeAsEdited('acl');
+    (async () => {
+      const hasAclEditorPermissions = await this.computeHasAclEditorPermissions(acl);
+      this.set('hasAclEditorPermissions', hasAclEditorPermissions);
+    })();
   },
 
   /**

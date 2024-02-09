@@ -35,6 +35,25 @@
     }
   }
 }
+.file-permissions-footer {
+  .pre-submit-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1em;
+  }
+  .review-text {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
+  .one-label-tip {
+    line-height: 0;
+  }
+  .review-warning-icon {
+    color: $color-one-warning;
+    font-size: 1.2em;
+  }
+}
 .webui-popover-permissions-hint-info {
   width: 40em;
   max-width: calc(100vw - $content-col-padding);
