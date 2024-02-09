@@ -16,4 +16,11 @@ export default {
     noChanges: 'No unsaved changes',
     posixInvalid: 'Entered POSIX permissions are invalid – please correct',
   },
+  aclPermissionsWarningModal: {
+    header: 'Warning',
+    no: 'Cancel',
+    yes: 'Proceed',
+  },
+  lackOfAclPermissionsWarning: 'Specified ACL rules <strong>deny you the right to read/change the ACL rules</strong>. You should grant these rights in one of the entries that matches yourself, otherwise, you will no longer be able to view or manage permissions of the {{itemType}}.',
+  selectedItems: 'selected items',
 };

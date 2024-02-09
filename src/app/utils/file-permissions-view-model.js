@@ -755,6 +755,52 @@ export default EmberObject.extend(...mixins, {
     });
   },
 
+  // FIXME: move up
+  isLackOfAclEditorPermissions: computed(
+    'hasAclEditorPermissions',
+    'acl.length',
+    function isLackOfAclEditorPermissions() {
+      return this.acl?.length &&
+        !this.hasAclEditorPermissions;
+    }
+  ),
+
+  lackOfAclEditorPermissionsText: computed(
+    'isLackOfAclEditorPermissions',
+    'files',
+    function lackOfAclEditorPermissionsText() {
+      const files = this.files;
+      const itemType = files.length === 1 ?
+        translateFileType(this.i18n, get(files[0], 'type')) :
+        this.t('selectedItems');
+      return this.t('lackOfAclPermissionsWarning', { itemType });
+    }
+  ),
+
+  async submit() {
+    if (this.isLackOfAclEditorPermissions) {
+      return this.showAclPermissionsWarningModal();
+    } else {
+      return this.save();
+    }
+  },
+
+  async showAclPermissionsWarningModal() {
+    return this.modalManager.show('question-modal', {
+      headerIcon: 'sign-warning-rounded',
+      headerText: this.t('aclPermissionsWarningModal.header'),
+      descriptionParagraphs: [{
+        text: this.lackOfAclEditorPermissionsText,
+      }],
+      yesButtonText: this.t('aclPermissionsWarningModal.yes'),
+      yesButtonType: 'danger',
+      noButtonText: this.t('aclPermissionsWarningModal.no'),
+      onSubmit: async () => {
+        return await this.save();
+      },
+    }).hiddenPromise;
+  },
+
   async save() {
     if (this.isSaveDisabled) {
       return;
