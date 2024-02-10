@@ -2,7 +2,7 @@
  * Shows and allows edit file/directory permissions
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,6 +12,7 @@ import { inject as service } from '@ember/service';
 import { equal, raw, conditional, not, or, and } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import { computed, get } from '@ember/object';
 
 const mixins = [
   I18n,
@@ -21,6 +22,7 @@ export default Component.extend(...mixins, {
   classNames: ['file-permissions-body'],
 
   i18n: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -70,6 +72,11 @@ export default Component.extend(...mixins, {
   isMultiFile: reads('viewModel.isMultiFile'),
 
   owner: reads('viewModel.ownerProxy.content'),
+
+  isAclForbiddenError: computed('aclsProxy.reason', function isAclForbiddenError() {
+    const reason = this.aclsProxy && get(this.aclsProxy, 'reason');
+    return Boolean(reason) && this.errorExtractor.getType(reason) === 'forbidden';
+  }),
 
   /**
    * @type {Object}

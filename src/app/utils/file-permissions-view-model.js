@@ -765,15 +765,28 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
+  itemTypeText: computed('files.[]', function itemTypeText() {
+    return this.files.length === 1 ?
+      translateFileType(this.i18n, get(this.files[0], 'type')) :
+      this.t('selectedItems');
+  }),
+
   lackOfAclEditorPermissionsText: computed(
     'isLackOfAclEditorPermissions',
-    'files',
+    'itemTypeText',
     function lackOfAclEditorPermissionsText() {
-      const files = this.files;
-      const itemType = files.length === 1 ?
-        translateFileType(this.i18n, get(files[0], 'type')) :
-        this.t('selectedItems');
-      return this.t('lackOfAclPermissionsWarning', { itemType });
+      return this.t('lackOfAclPermissionsWarning', { itemType: this.itemTypeText });
+    }
+  ),
+
+  forbiddenAclEditorText: computed(
+    'itemTypeText',
+    'files.[]',
+    function forbiddenAclEditorText() {
+      const itemType = this.files.length === 1 ?
+        this.t('forbiddenMessageItemType.' + get(this.files[0], 'type')) :
+        this.t('forbiddenMessageItemType.multi');
+      return this.t('forbiddenAclEditor', { itemType });
     }
   ),
 

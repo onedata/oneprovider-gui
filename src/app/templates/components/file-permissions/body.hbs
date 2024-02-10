@@ -47,42 +47,49 @@
   class=(unless aclViewActive "hidden")
 }}
   {{#unless (eq filesType "mixed")}}
-    {{#promise-proxy-container
-      tagName="div"
-      class="loadable-row"
-      proxy=aclsProxy
-    }}
-      {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}
-        {{#if effectiveReadonly}}
-          <div class="alert alert-info alert-simple-info">
-            {{tt this "differentAclReadonly"}}
-          </div>
-        {{else}}
-          <div class="alert alert-warning alert-simple-info">
-            {{tt this "differentAcl"}}
-            {{#unless aclCompatible}}
-              <div class="row alert-simple-info-btn">
-                {{#bs-button
-                  class="btn btn-warning btn-sm open-acl-editor"
-                  onClick=(action "acceptAclIncompatibility")}}
-                  {{tt this "editAnyway"}}
-                {{/bs-button}}
-              </div>
-            {{/unless}}
-          </div>
-        {{/if}}
-      {{/if}}
-      {{acl-editor
-        users=spaceUsers
-        groups=spaceGroups
-        systemSubjects=systemSubjects
-        acl=acl
-        context=filesType
-        readonly=effectiveReadonly
-        class=(unless aclCompatible "hidden")
-        onChange=(action "aclChanged")
+    {{#if isAclForbiddenError}}
+      <ResourceLoadError
+        @type="forbidden"
+        @message={{viewModel.forbiddenAclEditorText}}
+      />
+    {{else}}
+      {{#promise-proxy-container
+        tagName="div"
+        class="loadable-row"
+        proxy=aclsProxy
       }}
-    {{/promise-proxy-container}}
+        {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}
+          {{#if effectiveReadonly}}
+            <div class="alert alert-info alert-simple-info">
+              {{tt this "differentAclReadonly"}}
+            </div>
+          {{else}}
+            <div class="alert alert-warning alert-simple-info">
+              {{tt this "differentAcl"}}
+              {{#unless aclCompatible}}
+                <div class="row alert-simple-info-btn">
+                  {{#bs-button
+                    class="btn btn-warning btn-sm open-acl-editor"
+                    onClick=(action "acceptAclIncompatibility")}}
+                    {{tt this "editAnyway"}}
+                  {{/bs-button}}
+                </div>
+              {{/unless}}
+            </div>
+          {{/if}}
+        {{/if}}
+        {{acl-editor
+          users=spaceUsers
+          groups=spaceGroups
+          systemSubjects=systemSubjects
+          acl=acl
+          context=filesType
+          readonly=effectiveReadonly
+          class=(unless aclCompatible "hidden")
+          onChange=(action "aclChanged")
+        }}
+      {{/promise-proxy-container}}
+    {{/if}}
   {{else if effectiveReadonly}}
     <div class="alert alert-info">
       {{tt this "noAclDueToMixedFileTypesReadonly"}}

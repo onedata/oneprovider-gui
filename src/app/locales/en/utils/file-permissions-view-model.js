@@ -22,5 +22,12 @@ export default {
     yes: 'Proceed',
   },
   lackOfAclPermissionsWarning: 'Specified ACL rules <strong>deny you the right to read/change the ACL rules</strong>. You should grant these rights in one of the entries that matches yourself, otherwise, you will no longer be able to view or manage permissions of the {{itemType}}.',
+  forbiddenAclEditor: 'The current ACL rules for {{itemType}} deny you the right to view the ACL rules.',
   selectedItems: 'selected items',
+  forbiddenMessageItemType: {
+    file: 'this file',
+    dir: 'this directory',
+    symlink: 'this symbolic link',
+    multi: 'the selected items',
+  },
 };
