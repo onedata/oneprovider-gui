@@ -222,22 +222,22 @@ describe('Integration | Component | file-permissions/body', function () {
     }
   );
 
-  it('unhides POSIX editor when clicking on "Edit anyway" from "different alert"', async function () {
+  it('unhides POSIX editor when clicking on clear button from "different alert"', async function () {
     const helper = new Helper(this);
     await helper.givenDifferentPosix();
     await helper.renderBody();
 
-    await helper.whenEditAnywayIsClicked();
+    await helper.whenClearPermissionsIsClicked();
 
     helper.thenExpectVisiblePosixEditor();
   });
 
-  it('unhides ACL editor when clicking on "Edit anyway" from "different alert"', async function () {
+  it('unhides ACL editor when clicking on clear button from "different alert"', async function () {
     const helper = new Helper(this);
     await helper.givenDifferentAcl();
     await helper.renderBody();
 
-    await helper.whenEditAnywayIsClicked();
+    await helper.whenClearPermissionsIsClicked();
 
     helper.thenExpectVisibleAclEditor();
   });

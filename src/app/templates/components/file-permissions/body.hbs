@@ -29,7 +29,7 @@
         {{tt this "differentPosix"}}
         <div class="row alert-simple-info-btn">
           {{#bs-button
-            class="btn btn-warning btn-sm open-posix-editor"
+            class="btn btn-warning btn-sm open-posix-editor clear-permissions-btn"
             onClick=(action "acceptPosixIncompatibility")
           }}
             {{tt this "clearPosix"}}
@@ -81,7 +81,7 @@
                 {{tt this "differentAcl"}}
                 <div class="row alert-simple-info-btn">
                   {{#bs-button
-                    class="btn btn-warning btn-sm open-acl-editor"
+                    class="btn btn-warning btn-sm open-acl-editor clear-permissions-btn"
                     onClick=(action "acceptAclIncompatibility")
                   }}
                     {{tt this "clearAcl"}}

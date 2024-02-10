@@ -159,10 +159,10 @@ export default class FilePermissionsHelper {
     ]);
   }
 
-  async whenEditAnywayIsClicked() {
-    const editAnyway = findByText('Edit anyway', 'button');
-    expect(editAnyway, 'edit anyway button').exists;
-    await click(editAnyway);
+  async whenClearPermissionsIsClicked() {
+    const clearPermissions = find('.clear-permissions-btn');
+    expect(clearPermissions, 'clear permissions button').exists;
+    await click(clearPermissions);
   }
 
   thenExpectVisiblePosixEditor() {
