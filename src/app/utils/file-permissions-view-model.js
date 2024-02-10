@@ -437,6 +437,40 @@ export default EmberObject.extend(...mixins, {
     )
   ),
 
+  isLackOfAclEditorPermissions: computed(
+    'hasAclEditorPermissions',
+    'acl.length',
+    function isLackOfAclEditorPermissions() {
+      return this.acl?.length &&
+        !this.hasAclEditorPermissions;
+    }
+  ),
+
+  itemTypeText: computed('files.[]', function itemTypeText() {
+    return this.files.length === 1 ?
+      translateFileType(this.i18n, get(this.files[0], 'type')) :
+      this.t('selectedItems');
+  }),
+
+  lackOfAclEditorPermissionsText: computed(
+    'isLackOfAclEditorPermissions',
+    'itemTypeText',
+    function lackOfAclEditorPermissionsText() {
+      return this.t('lackOfAclPermissionsWarning', { itemType: this.itemTypeText });
+    }
+  ),
+
+  forbiddenAclEditorText: computed(
+    'itemTypeText',
+    'files.[]',
+    function forbiddenAclEditorText() {
+      const itemType = this.files.length === 1 ?
+        this.t('forbiddenMessageItemType.' + get(this.files[0], 'type')) :
+        this.t('forbiddenMessageItemType.multi');
+      return this.t('forbiddenAclEditor', { itemType });
+    }
+  ),
+
   init() {
     this._super(...arguments);
     this.clearEditedPermissionsTypes();
@@ -755,41 +789,6 @@ export default EmberObject.extend(...mixins, {
     });
   },
 
-  // FIXME: move up
-  isLackOfAclEditorPermissions: computed(
-    'hasAclEditorPermissions',
-    'acl.length',
-    function isLackOfAclEditorPermissions() {
-      return this.acl?.length &&
-        !this.hasAclEditorPermissions;
-    }
-  ),
-
-  itemTypeText: computed('files.[]', function itemTypeText() {
-    return this.files.length === 1 ?
-      translateFileType(this.i18n, get(this.files[0], 'type')) :
-      this.t('selectedItems');
-  }),
-
-  lackOfAclEditorPermissionsText: computed(
-    'isLackOfAclEditorPermissions',
-    'itemTypeText',
-    function lackOfAclEditorPermissionsText() {
-      return this.t('lackOfAclPermissionsWarning', { itemType: this.itemTypeText });
-    }
-  ),
-
-  forbiddenAclEditorText: computed(
-    'itemTypeText',
-    'files.[]',
-    function forbiddenAclEditorText() {
-      const itemType = this.files.length === 1 ?
-        this.t('forbiddenMessageItemType.' + get(this.files[0], 'type')) :
-        this.t('forbiddenMessageItemType.multi');
-      return this.t('forbiddenAclEditor', { itemType });
-    }
-  ),
-
   async submit() {
     if (this.isLackOfAclEditorPermissions) {
       return this.showAclPermissionsWarningModal();
@@ -854,6 +853,13 @@ export default EmberObject.extend(...mixins, {
       selectedPermissionsType: this.initialActivePermissionsType,
       posixPermissions: this.initialPosixPermissions,
     });
+    if (!this.filesHaveCompatibleAcl) {
+      this.set('isAclIncompatibilityAccepted', false);
+    }
+    if (!this.filesHaveCompatiblePosixPermissions) {
+      this.set('isPosixPermissionsIncompatibilityAccepted', false);
+    }
+    // FIXME: to samo co wyżej tylko dla posix? przetestować
     this.setAclFromInitial();
     this.clearEditedPermissionsTypes();
   },

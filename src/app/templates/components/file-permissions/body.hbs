@@ -19,17 +19,23 @@
     </div>
   {{else}}
     <div class="alert alert-warning alert-simple-info">
-      {{tt this "differentPosix"}}
-      {{#unless posixPermissionsCompatible}}
+      {{#if viewModel.isPosixPermissionsIncompatibilityAccepted}}
+        <div class="row">{{tt this "differentPosixCleared.info"}}</div>
+        <ul>
+          <li>{{tt this "differentPosixCleared.discardInfo"}}</li>
+          <li>{{tt this "differentPosixCleared.saveInfo"}}</li>
+        </ul>
+      {{else}}
+        {{tt this "differentPosix"}}
         <div class="row alert-simple-info-btn">
           {{#bs-button
             class="btn btn-warning btn-sm open-posix-editor"
             onClick=(action "acceptPosixIncompatibility")
           }}
-            {{tt this "editAnyway"}}
+            {{tt this "clearPosix"}}
           {{/bs-button}}
         </div>
-      {{/unless}}
+      {{/if}}
     </div>
   {{/if}}
 {{/if}}
@@ -65,16 +71,23 @@
             </div>
           {{else}}
             <div class="alert alert-warning alert-simple-info">
-              {{tt this "differentAcl"}}
-              {{#unless aclCompatible}}
+              {{#if viewModel.isAclIncompatibilityAccepted}}
+                <div class="row">{{tt this "differentAclCleared.info"}}</div>
+                <ul>
+                  <li>{{tt this "differentAclCleared.discardInfo"}}</li>
+                  <li>{{tt this "differentAclCleared.saveInfo"}}</li>
+                </ul>
+              {{else}}
+                {{tt this "differentAcl"}}
                 <div class="row alert-simple-info-btn">
                   {{#bs-button
                     class="btn btn-warning btn-sm open-acl-editor"
-                    onClick=(action "acceptAclIncompatibility")}}
-                    {{tt this "editAnyway"}}
+                    onClick=(action "acceptAclIncompatibility")
+                  }}
+                    {{tt this "clearAcl"}}
                   {{/bs-button}}
                 </div>
-              {{/unless}}
+              {{/if}}
             </div>
           {{/if}}
         {{/if}}
