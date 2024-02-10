@@ -91,14 +91,6 @@ export default Component.extend(...mixins, {
     computedT('owner')
   ),
 
-  isOwnerShown: and(
-    not('previewMode'),
-    or(
-      not('isMultiFile'),
-      'viewModel.filesHaveSameOwner',
-    )
-  ),
-
   actions: {
     acceptPosixIncompatibility() {
       this.viewModel.acceptPosixIncompatibility();

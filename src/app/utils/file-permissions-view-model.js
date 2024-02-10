@@ -303,6 +303,21 @@ export default EmberObject.extend(...mixins, {
     raw('posixPermissions')
   ),
 
+  ownersCount: computed(
+    'files.@each.owner',
+    function ownersCount() {
+      /** @type {Set} */
+      const ownerSet = this.files.reduce(
+        (currentOwnerSet, file) => {
+          currentOwnerSet.add(file.relationEntityId('owner'));
+          return currentOwnerSet;
+        },
+        new Set()
+      );
+      return ownerSet.size;
+    }
+  ),
+
   filesHaveSameOwner: computed('files.@each.owner', function filesHaveSameOwner() {
     if (this.files.length === 1) {
       return true;

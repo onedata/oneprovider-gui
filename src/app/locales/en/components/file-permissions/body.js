@@ -29,4 +29,5 @@ export default {
   noAclDueToMixedFileTypes: 'Cannot view ACL of files and directories at the same time. Select only files or only directories to enable ACL editor.',
   noAclDueToMixedFileTypesReadonly: 'Cannot view ACL of files and directories at the same time. Select only files or only directories.',
   owner: 'Owner',
+  multipleOwners: '{{count}} users',
 };
