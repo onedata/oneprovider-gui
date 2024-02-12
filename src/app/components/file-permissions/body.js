@@ -73,6 +73,8 @@ export default Component.extend(...mixins, {
 
   owner: reads('viewModel.ownerProxy.content'),
 
+  space: reads('viewModel.space'),
+
   isAclForbiddenError: computed('aclsProxy.reason', function isAclForbiddenError() {
     const reason = this.aclsProxy && get(this.aclsProxy, 'reason');
     return Boolean(reason) && this.errorExtractor.getType(reason) === 'forbidden';

@@ -30,4 +30,6 @@ export default {
   noAclDueToMixedFileTypesReadonly: 'Cannot view ACL of files and directories at the same time. Select only files or only directories.',
   owner: 'Owner',
   multipleOwners: '{{count}} users',
+  spaceOwner: 'Space owner',
+  spaceOwnerTip: 'As a space owner, you can view and manage POSIX and ACL permissions for any file or directory.',
 };
