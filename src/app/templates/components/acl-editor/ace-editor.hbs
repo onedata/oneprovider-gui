@@ -25,6 +25,11 @@
       }} />
     {{/if}}
   </span>
+  {{#if subject.description}}
+    <span class="system-subject-description">
+      ({{subject.description}})
+    </span>
+  {{/if}}
   {{#status-toolbar class="hidden-xs" as |toolbar|}}
     {{#each statusIcons key="icon" as |status|}}
       {{toolbar.icon icon=status.icon hint=status.tooltipText status=status.stateClass}}

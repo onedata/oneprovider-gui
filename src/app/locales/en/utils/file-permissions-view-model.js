@@ -3,6 +3,11 @@ export default {
   groupSystemSubject: 'owning group',
   everyoneSystemSubject: 'everyone',
   anonymousSystemSubject: 'anonymous',
+  systemSubjectDescription: {
+    group: 'space members',
+    everyone: 'including anonymous',
+    anonymous: 'public share access',
+  },
   readonlyDueToMetadataIsProtected: 'At least one selected element metadata is write protected.',
   readonlyDueToPosixNonOwner: 'You must be the file/directory owner or a space owner to edit POSIX permissions.',
   readonlyDueToBeingRootDir: 'Space root directory permissions cannot be changed.',

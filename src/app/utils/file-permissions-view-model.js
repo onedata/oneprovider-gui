@@ -229,16 +229,19 @@ export default EmberObject.extend(...mixins, {
       entityId: 'GROUP@',
       equivalentType: 'group',
       name: this.t('groupSystemSubject'),
+      description: this.t('systemSubjectDescription.group'),
     }, {
       isSystemSubject: true,
       entityId: 'EVERYONE@',
       equivalentType: 'group',
       name: this.t('everyoneSystemSubject'),
+      description: this.t('systemSubjectDescription.everyone'),
     }, {
       isSystemSubject: true,
       entityId: 'ANONYMOUS@',
       equivalentType: 'user',
       name: this.t('anonymousSystemSubject'),
+      description: this.t('systemSubjectDescription.anonymous'),
     }];
   }),
 
@@ -634,7 +637,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   stripSubject(record) {
-    return getProperties(record, 'name', 'isSystemSubject');
+    return getProperties(record, 'name', 'isSystemSubject', 'description');
   },
 
   acceptPosixIncompatibility() {

@@ -45,6 +45,11 @@
               <span class="text {{if entity.isSystemSubject "system-subject-name"}}">
                 {{entity.name}}
               </span>
+              {{#if entity.description}}
+                <span class="system-subject-description">
+                  ({{entity.description}})
+                </span>
+              {{/if}}
             {{/truncated-string}}
           </div>
         </OneDropdown>
