@@ -9,6 +9,7 @@ export default {
     anonymous: 'public share access',
   },
   readonlyDueToMetadataIsProtected: 'At least one selected element metadata is write protected.',
+  readonlyDueToAclRules: 'Current ACL rules do not allow you to edit ACL.',
   readonlyDueToPosixNonOwner: 'You must be the file/directory owner or a space owner to edit POSIX permissions or initialize ACL rules.',
   readonlyDueToBeingRootDir: 'Space root directory permissions cannot be changed.',
   modifyingPermissions: 'modifying permissions',

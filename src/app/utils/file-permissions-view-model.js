@@ -127,13 +127,22 @@ export default EmberObject.extend(...mixins, {
   lastResetTime: undefined,
 
   /**
-   * If true, current user is considered to have permissions to view and modify ACL in
+   * If true, current user is considered to have permissions to modify ACL in
    * editor. It is set by default to true, because first computation is asynchronical.
    * @type {boolean}
    */
-  hasAclEditorPermissions: true,
+  hasAclChangePermissions: true,
+
+  /**
+   * If true, current user is considered to have permissions to view in the editor.
+   * It is set by default to true, because first computation is asynchronical.
+   * @type {boolean}
+   */
+  hasAclReadPermissions: true,
 
   //#endregion
+
+  hasAclEditorPermissions: and('hasAclReadPermissions', 'hasAclChangePermissions'),
 
   isMultiFile: gt('files.length', 1),
 
@@ -172,6 +181,10 @@ export default EmberObject.extend(...mixins, {
     'isPosixAndNonOwner',
     'fileTypeTextConfig',
     'isAclAndSomePosixNonOwned',
+    'activePermissionsType',
+    'hasReadonlyAclRules',
+    'space.currentUserIsOwner',
+    'selectedPermissionsType',
     function effectiveReadonlyTip() {
       if (this.readonlyTip) {
         return this.readonlyTip;
@@ -181,11 +194,27 @@ export default EmberObject.extend(...mixins, {
         return this.t('readonlyDueToMetadataIsProtected');
       } else if (this.isPosixAndNonOwner || this.isAclAndSomePosixNonOwned) {
         return this.t('readonlyDueToPosixNonOwner');
+      } else if (
+        this.activePermissionsType === 'acl' &&
+        !get(this.space, 'currentUserIsOwner') &&
+        this.hasReadonlyAclRules
+      ) {
+        // Sometimes user can edit POSIX permissions when they does not have ACL
+        // permissions to change ACL.
+        if (this.selectedPermissionsType === 'acl') {
+          return this.t('readonlyDueToAclRules');
+        } else if (this.isNotFilesOrSpaceOwner) {
+          // We need other message, when when user does not have permissions to change ACL
+          // and tries to edit POSIX, but they also cannot to change POSIX.
+          return this.t('readonlyDueToPosixNonOwner');
+        }
       } else {
         return '';
       }
     }
   ),
+
+  hasReadonlyAclRules: not('hasAclViewerPermissions'),
 
   fileTypeTextConfig: computed('files.@each.type', function fileTypeTextConfig() {
     let fileType = get(this.files[0], 'type');
@@ -594,29 +623,49 @@ export default EmberObject.extend(...mixins, {
    * @param {Array<Ace>} acl
    * @returns {boolean}
    */
-  async computeHasAclEditorPermissions(acl) {
+  async computeHasAclChangePermissions(acl) {
     // current user group list is needed to check group permissions
     await get(this.currentUser.user, 'effGroupList');
     return this.files.every(file => {
-      let hasReadAcl;
-      for (const ace of acl) {
-        const readAclPermission = this.evaluateUserAcePermission(file, ace, 'read_acl');
-        if (readAclPermission === 'allow') {
-          hasReadAcl = true;
-          break;
-        } else if (readAclPermission === 'deny') {
-          return false;
-        }
-      }
-      if (!hasReadAcl) {
-        return false;
-      }
       for (const ace of acl) {
         const changeAclPermission =
           this.evaluateUserAcePermission(file, ace, 'change_acl');
         if (changeAclPermission === 'allow') {
           return true;
         } else if (changeAclPermission === 'deny') {
+          return false;
+        }
+      }
+      return false;
+    });
+  },
+
+  async computeHasAclReadPermissions(acl) {
+    // current user group list is needed to check group permissions
+    await get(this.currentUser.user, 'effGroupList');
+    return this.files.every(file => {
+      for (const ace of acl) {
+        const readAclPermission = this.evaluateUserAcePermission(file, ace, 'read_acl');
+        if (readAclPermission === 'allow') {
+          return true;
+        } else if (readAclPermission === 'deny') {
+          return false;
+        }
+      }
+      return false;
+    });
+  },
+
+  async computeHasAclPermissions(acl, aclPermission) {
+    // current user group list is needed to check group permissions
+    await get(this.currentUser.user, 'effGroupList');
+    return this.files.every(file => {
+      for (const ace of acl) {
+        const readAclPermission =
+          this.evaluateUserAcePermission(file, ace, aclPermission);
+        if (readAclPermission === 'allow') {
+          return true;
+        } else if (readAclPermission === 'deny') {
           return false;
         }
       }
@@ -702,11 +751,18 @@ export default EmberObject.extend(...mixins, {
 
   setAclFromInitial() {
     this.set('acl', _.cloneDeep(this.initialAcl));
-    (async () => {
-      const hasAclEditorPermissions =
-        await this.computeHasAclEditorPermissions(this.acl);
-      this.set('hasAclEditorPermissions', hasAclEditorPermissions);
-    })();
+    this.setAclEditorSelfPermissionsState();
+  },
+
+  async setAclEditorSelfPermissionsState() {
+    const hasAclReadPermissions =
+      await this.computeHasAclPermissions(this.acl, 'read_acl');
+    const hasAclChangePermissions =
+      await this.computeHasAclPermissions(this.acl, 'change_acl');
+    this.setProperties({
+      hasAclReadPermissions,
+      hasAclChangePermissions,
+    });
   },
 
   async initAclValuesOnProxyLoad() {
@@ -721,11 +777,6 @@ export default EmberObject.extend(...mixins, {
       }
       this.setAclFromInitial();
     }
-    (async () => {
-      const hasAclEditorPermissions =
-        await this.computeHasAclEditorPermissions(this.acl);
-      this.set('hasAclEditorPermissions', hasAclEditorPermissions);
-    })();
   },
 
   /**
@@ -765,10 +816,7 @@ export default EmberObject.extend(...mixins, {
   onAclChanged(acl) {
     this.set('acl', acl);
     this.markPermissionsTypeAsEdited('acl');
-    (async () => {
-      const hasAclEditorPermissions = await this.computeHasAclEditorPermissions(acl);
-      this.set('hasAclEditorPermissions', hasAclEditorPermissions);
-    })();
+    this.setAclEditorSelfPermissionsState();
   },
 
   /**
