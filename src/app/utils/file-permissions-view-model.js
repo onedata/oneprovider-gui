@@ -179,9 +179,7 @@ export default EmberObject.extend(...mixins, {
       } else if (this.metadataIsProtected) {
         return this.t('readonlyDueToMetadataIsProtected');
       } else if (this.isPosixAndNonOwner) {
-        return this.t('readonlyDueToPosixNonOwner', {
-          fileTypeText: this.fileTypeTextConfig.text,
-        });
+        return this.t('readonlyDueToPosixNonOwner');
       } else {
         return '';
       }
@@ -423,11 +421,6 @@ export default EmberObject.extend(...mixins, {
     ),
     raw(null),
   ),
-
-  isPermissionsTypeSelectorDisabled: bool(and(
-    'effectiveReadonly',
-    equal('activePermissionsType', raw('posix')),
-  )),
 
   isAllFilesOwner: computed('files.@each.owner', function isAllFilesOwner() {
     const currentUserId = this.currentUser.userId;
@@ -702,7 +695,6 @@ export default EmberObject.extend(...mixins, {
    */
   async changeTab(tabId) {
     if (
-      this.isPermissionsTypeSelectorDisabled ||
       tabId === this.selectedPermissionsType ||
       !(await this.checkCurrentTabClose())
     ) {
