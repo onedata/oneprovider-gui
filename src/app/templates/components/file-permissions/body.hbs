@@ -24,19 +24,19 @@
   {{else}}
     <div class="alert alert-warning alert-simple-info">
       {{#if viewModel.isPosixPermissionsIncompatibilityAccepted}}
-        <div class="row">{{tt this "differentPosixCleared.info"}}</div>
+        <div class="row">{{tt this "differentPosixReset.info"}}</div>
         <ul>
-          <li>{{tt this "differentPosixCleared.discardInfo"}}</li>
-          <li>{{tt this "differentPosixCleared.saveInfo"}}</li>
+          <li>{{tt this "differentPosixReset.discardInfo"}}</li>
+          <li>{{tt this "differentPosixReset.saveInfo"}}</li>
         </ul>
       {{else}}
         {{tt this "differentPosix"}}
         <div class="row alert-simple-info-btn">
           {{#bs-button
-            class="btn btn-warning btn-sm open-posix-editor clear-permissions-btn"
+            class="btn btn-warning btn-sm open-posix-editor reset-permissions-btn"
             onClick=(action "acceptPosixIncompatibility")
           }}
-            {{tt this "clearPosix"}}
+            {{tt this "resetPosix"}}
           {{/bs-button}}
         </div>
       {{/if}}
@@ -76,19 +76,19 @@
           {{else}}
             <div class="alert alert-warning alert-simple-info">
               {{#if viewModel.isAclIncompatibilityAccepted}}
-                <div class="row">{{tt this "differentAclCleared.info"}}</div>
+                <div class="row">{{tt this "differentAclReset.info"}}</div>
                 <ul>
-                  <li>{{tt this "differentAclCleared.discardInfo"}}</li>
-                  <li>{{tt this "differentAclCleared.saveInfo"}}</li>
+                  <li>{{tt this "differentAclReset.discardInfo"}}</li>
+                  <li>{{tt this "differentAclReset.saveInfo"}}</li>
                 </ul>
               {{else}}
                 {{tt this "differentAcl"}}
                 <div class="row alert-simple-info-btn">
                   {{#bs-button
-                    class="btn btn-warning btn-sm open-acl-editor clear-permissions-btn"
+                    class="btn btn-warning btn-sm open-acl-editor reset-permissions-btn"
                     onClick=(action "acceptAclIncompatibility")
                   }}
-                    {{tt this "clearAcl"}}
+                    {{tt this "resetAcl"}}
                   {{/bs-button}}
                 </div>
               {{/if}}

@@ -158,10 +158,10 @@ export default class FilePermissionsHelper {
     ]);
   }
 
-  async whenClearPermissionsIsClicked() {
-    const clearPermissions = find('.clear-permissions-btn');
-    expect(clearPermissions, 'clear permissions button').exists;
-    await click(clearPermissions);
+  async whenResetPermissionsIsClicked() {
+    const resetPermissions = find('.reset-permissions-btn');
+    expect(resetPermissions, 'reset permissions button').exists;
+    await click(resetPermissions);
   }
 
   thenExpectVisiblePosixEditor() {

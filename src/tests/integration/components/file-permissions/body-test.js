@@ -227,7 +227,7 @@ describe('Integration | Component | file-permissions/body', function () {
     await helper.givenDifferentPosix();
     await helper.renderBody();
 
-    await helper.whenClearPermissionsIsClicked();
+    await helper.whenResetPermissionsIsClicked();
 
     helper.thenExpectVisiblePosixEditor();
   });
@@ -237,7 +237,7 @@ describe('Integration | Component | file-permissions/body', function () {
     await helper.givenDifferentAcl();
     await helper.renderBody();
 
-    await helper.whenClearPermissionsIsClicked();
+    await helper.whenResetPermissionsIsClicked();
 
     helper.thenExpectVisibleAclEditor();
   });
