@@ -171,6 +171,7 @@ export default EmberObject.extend(...mixins, {
     'metadataIsProtected',
     'isPosixAndNonOwner',
     'fileTypeTextConfig',
+    'isAclAndSomePosixNonOwned',
     function effectiveReadonlyTip() {
       if (this.readonlyTip) {
         return this.readonlyTip;
@@ -178,7 +179,7 @@ export default EmberObject.extend(...mixins, {
         return this.t('readonlyDueToBeingRootDir');
       } else if (this.metadataIsProtected) {
         return this.t('readonlyDueToMetadataIsProtected');
-      } else if (this.isPosixAndNonOwner) {
+      } else if (this.isPosixAndNonOwner || this.isAclAndSomePosixNonOwned) {
         return this.t('readonlyDueToPosixNonOwner');
       } else {
         return '';
@@ -438,6 +439,25 @@ export default EmberObject.extend(...mixins, {
   isPosixAndNonOwner: and(
     equal('activePermissionsType', raw('posix')),
     'isNotFilesOrSpaceOwner',
+  ),
+
+  isAclAndSomePosixNonOwned: computed(
+    'areActivePermissionsTypeTheSame',
+    function isAclAndSomePosixNonOwned() {
+      if (this.areActivePermissionsTypeTheSame) {
+        return false;
+      }
+      const currentUserId = this.currentUser.userId;
+      for (const file of this.files) {
+        if (
+          get(file, 'activePermissionsType') === 'posix' &&
+          file.relationEntityId('owner') !== currentUserId
+        ) {
+          return true;
+        }
+      }
+      return false;
+    }
   ),
 
   isPosixEditorReadonly: or(

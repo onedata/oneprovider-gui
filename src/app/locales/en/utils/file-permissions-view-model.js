@@ -9,7 +9,7 @@ export default {
     anonymous: 'public share access',
   },
   readonlyDueToMetadataIsProtected: 'At least one selected element metadata is write protected.',
-  readonlyDueToPosixNonOwner: 'You must be the file/directory owner or a space owner to edit POSIX permissions.',
+  readonlyDueToPosixNonOwner: 'You must be the file/directory owner or a space owner to edit POSIX permissions or initialize ACL rules.',
   readonlyDueToBeingRootDir: 'Space root directory permissions cannot be changed.',
   modifyingPermissions: 'modifying permissions',
   permissionsModifySuccess: 'Permissions has been modified successfully',
