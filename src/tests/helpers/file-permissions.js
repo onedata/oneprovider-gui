@@ -4,7 +4,6 @@ import { find } from '@ember/test-helpers';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
 import { lookupService } from './stub-service';
 import { all as allFulfilled } from 'rsvp';
-import { findByText } from './find';
 import { click } from '@ember/test-helpers';
 import createSpace from './create-space';
 import DefaultUserHelper from './default-user';
