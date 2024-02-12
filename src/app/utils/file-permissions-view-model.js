@@ -589,7 +589,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
-   * Compute if provided ACL contains permissions needed for current user to view and edit
+   * Compute if provided ACL grants permissions needed for current user to view and edit
    * ACL using the editor.
    * @param {Array<Ace>} acl
    * @returns {boolean}
@@ -597,35 +597,47 @@ export default EmberObject.extend(...mixins, {
   async computeHasAclEditorPermissions(acl) {
     // current user group list is needed to check group permissions
     await get(this.currentUser.user, 'effGroupList');
-    // FIXME: trzeba dorobić obsługę DENY? sprawdzić algorytm
     return this.files.every(file => {
-      return acl.some(ace =>
-          this.isAceWithUserAclPermission(file, ace, 'read_acl')
-        ) &&
-        acl.some(ace =>
-          this.isAceWithUserAclPermission(file, ace, 'change_acl')
-        );
+      let hasReadAcl;
+      for (const ace of acl) {
+        const readAclPermission = this.evaluateUserAcePermission(file, ace, 'read_acl');
+        if (readAclPermission === 'allow') {
+          hasReadAcl = true;
+          break;
+        } else if (readAclPermission === 'deny') {
+          return false;
+        }
+      }
+      if (!hasReadAcl) {
+        return false;
+      }
+      for (const ace of acl) {
+        const changeAclPermission =
+          this.evaluateUserAcePermission(file, ace, 'change_acl');
+        if (changeAclPermission === 'allow') {
+          return true;
+        } else if (changeAclPermission === 'deny') {
+          return false;
+        }
+      }
+      return false;
     });
   },
 
   /**
    * @param {Ace} ace
    * @param {'read_acl'|'change_acl'} permission
-   * @returns {boolean}
+   * @returns {'allow'|'deny'|'none'}
    */
-  isAceWithUserAclPermission(file, ace, permission) {
-    if (ace.aceType !== 'ALLOW') {
-      return false;
-    }
-
+  evaluateUserAcePermission(file, ace, permission) {
     if (ace.subjectType === 'user') {
       if (ace.identifier === 'OWNER@') {
         if (file.relationEntityId('owner') !== this.currentUser.userId) {
-          return false;
+          return 'none';
         }
       } else {
         if (ace.identifier !== this.currentUser.userId) {
-          return false;
+          return 'none';
         }
       }
     }
@@ -637,11 +649,15 @@ export default EmberObject.extend(...mixins, {
       ace.identifier !== 'ANONYMOUS@' &&
       !this.isUserEffMemberOfGroupId(this.currentUser.user, ace.identifier)
     ) {
-      return false;
+      return 'none';
     }
-    // FIXME: unnecessary variable
-    const isGranted = numberToTree(ace.aceMask, get(file, 'type')).acl[permission];
-    return isGranted;
+
+    const isEnabled = numberToTree(ace.aceMask, get(file, 'type')).acl[permission];
+    if (isEnabled) {
+      return ace.aceType === 'ALLOW' ? 'allow' : 'deny';
+    } else {
+      return 'none';
+    }
   },
 
   /**

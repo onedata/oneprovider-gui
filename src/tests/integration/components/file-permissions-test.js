@@ -269,6 +269,29 @@ describe('Integration | Component | file-permissions', function () {
     },
   );
 
+  createSingleFileAclViewWarningTest('GROUP@ DENY and GROUP@ ALLOW ACE',
+    true,
+    async () => {
+      return [{
+          aceType: 'DENY',
+          aceFlags: AceFlagsMasks.IDENTIFIER_GROUP,
+          identifier: 'GROUP@',
+          aceMask: treeToNumber({ acl: { read_acl: true, change_acl: true } }, 'file'),
+          subject: null,
+          subjectType: 'group',
+        },
+        {
+          aceType: 'ALLOW',
+          aceFlags: AceFlagsMasks.IDENTIFIER_GROUP,
+          identifier: 'GROUP@',
+          aceMask: treeToNumber({ acl: { read_acl: true, change_acl: true } }, 'file'),
+          subject: null,
+          subjectType: 'group',
+        },
+      ];
+    },
+  );
+
   //#endregion
 });
 
