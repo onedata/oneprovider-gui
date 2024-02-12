@@ -16,7 +16,11 @@
     {{/list.item}}
   {{else}}
     {{#list.item class="no-ace" as |listItem|}}
-      {{#listItem.header isCollapsible=false}}{{tt this "noAce"}}{{/listItem.header}}
+      {{#listItem.header isCollapsible=false}}
+        {{tt this "noAce"}}
+        <br />
+        <strong>{{tt this "posixPermissionsWillApply"}}</strong>
+      {{/listItem.header}}
     {{/list.item}}
   {{/each}}
   {{#unless readonly}}
