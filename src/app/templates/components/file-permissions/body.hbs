@@ -58,6 +58,7 @@
 }}
   {{#unless (eq filesType "mixed")}}
     {{#if isAclForbiddenError}}
+      {{!-- FIXME: nie wolno nadpisywać typu --}}
       <ResourceLoadError
         @type="forbidden"
         @message={{viewModel.forbiddenAclEditorText}}

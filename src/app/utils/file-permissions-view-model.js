@@ -632,6 +632,9 @@ export default EmberObject.extend(...mixins, {
 
     if (
       ace.subjectType === 'group' &&
+      ace.identifier !== 'EVERYONE@' &&
+      ace.identifier !== 'GROUP@' &&
+      ace.identifier !== 'ANONYMOUS@' &&
       !this.isUserEffMemberOfGroupId(this.currentUser.user, ace.identifier)
     ) {
       return false;

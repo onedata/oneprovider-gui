@@ -227,6 +227,48 @@ describe('Integration | Component | file-permissions', function () {
     },
   );
 
+  createSingleFileAclViewWarningTest('EVERYONE@ ACE',
+    false,
+    async () => {
+      return [{
+        aceType: 'ALLOW',
+        aceFlags: AceFlagsMasks.IDENTIFIER_GROUP,
+        identifier: 'EVERYONE@',
+        aceMask: treeToNumber({ acl: { read_acl: true, change_acl: true } }, 'file'),
+        subject: null,
+        subjectType: 'group',
+      }];
+    },
+  );
+
+  createSingleFileAclViewWarningTest('ANONYMOUS@ ACE',
+    false,
+    async () => {
+      return [{
+        aceType: 'ALLOW',
+        aceFlags: AceFlagsMasks.IDENTIFIER_GROUP,
+        identifier: 'ANONYMOUS@',
+        aceMask: treeToNumber({ acl: { read_acl: true, change_acl: true } }, 'file'),
+        subject: null,
+        subjectType: 'group',
+      }];
+    },
+  );
+
+  createSingleFileAclViewWarningTest('GROUP@ ACE',
+    false,
+    async () => {
+      return [{
+        aceType: 'ALLOW',
+        aceFlags: AceFlagsMasks.IDENTIFIER_GROUP,
+        identifier: 'GROUP@',
+        aceMask: treeToNumber({ acl: { read_acl: true, change_acl: true } }, 'file'),
+        subject: null,
+        subjectType: 'group',
+      }];
+    },
+  );
+
   //#endregion
 });
 
