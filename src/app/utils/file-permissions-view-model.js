@@ -444,7 +444,7 @@ export default EmberObject.extend(...mixins, {
   isAclAndSomePosixNonOwned: computed(
     'areActivePermissionsTypeTheSame',
     function isAclAndSomePosixNonOwned() {
-      if (this.areActivePermissionsTypeTheSame) {
+      if (this.areActivePermissionsTypeTheSame || this.space.currentUserIsOwner) {
         return false;
       }
       const currentUserId = this.currentUser.userId;
