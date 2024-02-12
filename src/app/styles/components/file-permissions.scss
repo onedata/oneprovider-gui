@@ -11,24 +11,6 @@
     justify-content: center;
     margin-top: 0.5em;
     margin-bottom: 0.25em;
-  }
-  .space-owner-info-line {
-    margin-top: 0;
-    align-items: center;
-    + .one-label-tip {
-      margin-left: 0.7em;
-    }
-    .one-label-tip {
-      line-height: 0;
-    }
-    + .file-owner-info-line {
-      margin-top: 1em;
-    }
-  }
-  .space-owner-info-label {
-    font-style: italic;
-  }
-  .file-owner-info-line {
     .owner-info-label {
       margin-right: 0.7em;
     }

@@ -1,11 +1,5 @@
 {{#unless previewMode}}
-  {{#if space.currentUserIsOwner}}
-    <div class="owner-info-line space-owner-info-line">
-      <span class="space-owner-info-label">{{tt this "spaceOwner"}}</span>
-      <OneLabelTip @title={{tt this "spaceOwnerTip"}} />
-    </div>
-  {{/if}}
-  <div class="owner-info-line file-owner-info-line">
+  <div class="owner-info-line">
     <strong class="owner-info-label">{{tt this "owner"}}:</strong>
     {{#if viewModel.filesHaveSameOwner}}
       {{record-info-with-icon
