@@ -569,15 +569,15 @@ export default EmberObject.extend(...mixins, {
   },
 
   /**
+   * Compute if provided ACL contains permissions needed for current user to view and edit
+   * ACL using the editor.
    * @param {Array<Ace>} acl
    * @returns {boolean}
    */
   async computeHasAclEditorPermissions(acl) {
-    // FIXME: jeśli to jest space owner to od razu true
     // current user group list is needed to check group permissions
     await get(this.currentUser.user, 'effGroupList');
     // FIXME: trzeba dorobić obsługę DENY? sprawdzić algorytm
-    // FIXME: napisać testy
     return this.files.every(file => {
       return acl.some(ace =>
           this.isAceWithUserAclPermission(file, ace, 'read_acl')
@@ -663,6 +663,11 @@ export default EmberObject.extend(...mixins, {
 
   setAclFromInitial() {
     this.set('acl', _.cloneDeep(this.initialAcl));
+    (async () => {
+      const hasAclEditorPermissions =
+        await this.computeHasAclEditorPermissions(this.acl);
+      this.set('hasAclEditorPermissions', hasAclEditorPermissions);
+    })();
   },
 
   async initAclValuesOnProxyLoad() {
@@ -869,7 +874,6 @@ export default EmberObject.extend(...mixins, {
     if (!this.filesHaveCompatiblePosixPermissions) {
       this.set('isPosixPermissionsIncompatibilityAccepted', false);
     }
-    // FIXME: to samo co wyżej tylko dla posix? przetestować
     this.setAclFromInitial();
     this.clearEditedPermissionsTypes();
   },
