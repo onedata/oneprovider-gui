@@ -224,15 +224,7 @@ export default EmberObject.extend(...mixins, {
         !get(this.space, 'currentUserIsOwner') &&
         this.hasReadonlyAclRules
       ) {
-        // Sometimes user can edit POSIX permissions when they does not have ACL
-        // permissions to change ACL.
-        if (this.selectedPermissionsType === 'acl') {
-          return this.t('readonlyDueToAclRules');
-        } else if (this.isNotFilesOrSpaceOwner) {
-          // We need other message, when when user does not have permissions to change ACL
-          // and tries to edit POSIX, but they also cannot to change POSIX.
-          return this.t('readonlyDueToPosixNonOwner');
-        }
+        return this.t('readonlyDueToAclRules');
       } else {
         return '';
       }
