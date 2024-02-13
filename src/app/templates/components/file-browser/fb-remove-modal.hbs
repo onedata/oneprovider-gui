@@ -34,7 +34,7 @@
                 {{file-name-conflict file=file}}
               {{/truncated-string}}
               {{#one-label-tip
-                tooltipClass="fb-remove-modal-file-tooltip browsable-items-info-tooltip"
+                tooltipClass="fb-remove-modal-file-tooltip browsable-items-info-tooltip tooltip-lg"
                 class="file-info-tip-trigger item-info-tip-trigger"
                 icon="sign-info-rounded"
               }}
@@ -54,7 +54,7 @@
                   </span>
                   <span class="file-info-value item-info-value delete-file-modification">
                     {{date-format
-                      file.modificationTime
+                      file.mtime
                       format="dateWithMinutes"
                       blank="—"
                     }}

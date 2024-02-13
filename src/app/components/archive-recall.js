@@ -18,10 +18,13 @@ import { guidFor } from '@ember/object/internals';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { defer } from 'rsvp';
 import { debounce } from '@ember/runloop';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
   I18n,
   ItemBrowserContainerBase,
+  FileConsumerMixin,
 ];
 
 /**
@@ -80,6 +83,29 @@ export default Component.extend(...mixins, {
    * @type {ArchiveRecallComponentOptions}
    */
   options: Object.freeze({}),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('targetRecallParent.effFile', function fileRequirements() {
+    const effRecallParent = this.get('targetRecallParent.effFile');
+    if (!effRecallParent) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: get(effRecallParent, 'id'),
+        properties: ['recallingInheritancePathProxy'],
+      }),
+    ];
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedSingleUsedFileGri('targetRecallParent.effFile'),
 
   //#region state
 
@@ -216,11 +242,11 @@ export default Component.extend(...mixins, {
   )),
 
   browserValidationErrorProxy: promise.object(computed(
-    'targetRecallParent.effFile.recallingMembershipProxy',
+    'targetRecallParent.effFile.recallingInheritancePathProxy',
     async function browserValidationError() {
-      const recallingMembership =
-        await this.get('targetRecallParent.effFile.recallingMembershipProxy');
-      if (recallingMembership && recallingMembership !== 'none') {
+      const recallingInheritancePath =
+        await this.get('targetRecallParent.effFile.recallingInheritancePathProxy');
+      if (recallingInheritancePath && recallingInheritancePath !== 'none') {
         return this.t('browserValidation.recalling');
       }
 

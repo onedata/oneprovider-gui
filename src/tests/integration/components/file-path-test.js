@@ -414,8 +414,15 @@ describe('Integration | Component | file-path', function () {
   });
 });
 
-async function renderComponent() {
-  await render(hbs `{{file-path file=file customTip=customTip}}`);
+/**
+ * @param {boolean} waitForPromises If true, await to all promises to be settled after
+ *   render.
+ */
+async function renderComponent(waitForPromises = true) {
+  await render(hbs`{{file-path file=file customTip=customTip}}`);
+  if (waitForPromises) {
+    await settled();
+  }
 }
 
 async function renderInSmallContainer() {

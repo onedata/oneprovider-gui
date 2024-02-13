@@ -56,7 +56,11 @@ import globals from 'onedata-gui-common/utils/globals';
 
 const defaultIsItemDisabled = () => false;
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+];
+
+export default Component.extend(...mixins, {
   classNames: ['fb-table'],
   classNameBindings: [
     'hasEmptyDirClass:empty-dir',
@@ -320,10 +324,10 @@ export default Component.extend(I18n, {
       this.get('filesArray.sourceArray').mapBy('originalName'),
       name => name,
     );
-    const test = Object.entries(namesCount)
+    const namesUsedMultipleTimes = Object.entries(namesCount)
       .filter(([, count]) => count > 1)
       .map(([name]) => name);
-    return test;
+    return namesUsedMultipleTimes;
   }),
 
   listLoadState: reads('browserModel.listLoadState'),
@@ -617,26 +621,13 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    const {
-      fileManager,
-      registerApi,
-      api,
-      loadingIconFileIds,
-      filesArray,
-    } = this.getProperties(
-      'fileManager',
-      'registerApi',
-      'api',
-      'loadingIconFileIds',
-      'filesArray'
-    );
-    if (!loadingIconFileIds) {
+    if (!this.loadingIconFileIds) {
       this.set('loadingIconFileIds', A());
     }
-    fileManager.registerRefreshHandler(this);
-    registerApi(api);
-    if (get(filesArray, 'initialJumpIndex')) {
-      get(filesArray, 'initialLoad').then(() => {
+    this.fileManager.registerRefreshHandler(this);
+    this.registerApi(this.api);
+    if (get(this.filesArray, 'initialJumpIndex')) {
+      get(this.filesArray, 'initialLoad').then(() => {
         this.selectedItemsForJumpObserver();
       });
     }

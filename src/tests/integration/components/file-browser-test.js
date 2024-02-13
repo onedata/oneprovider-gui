@@ -8,7 +8,7 @@ import Service from '@ember/service';
 import sinon from 'sinon';
 import { get } from '@ember/object';
 import Evented from '@ember/object/evented';
-import { resolve } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import sleep from 'onedata-gui-common/utils/sleep';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
@@ -21,6 +21,7 @@ import {
   openFileContextMenu,
 } from '../../helpers/item-browser';
 import globals from 'onedata-gui-common/utils/globals';
+import { getFileGri } from 'oneprovider-gui/models/file';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -46,6 +47,7 @@ describe('Integration | Component | file-browser (main component)', function () 
   beforeEach(function () {
     registerService(this, 'uploadManager', UploadManager);
     registerService(this, 'fileManager', FileManager);
+    this.store = lookupService(this, 'store');
   });
 
   afterEach(function () {
@@ -56,16 +58,16 @@ describe('Integration | Component | file-browser (main component)', function () 
     const entityId = 'deid';
     const name = 'Test directory';
     const filesCount = 3;
-    const dir = {
-      entityId,
+    const dir = this.store.createRecord('file', {
+      id: getFileGri(entityId),
       name,
       type: 'dir',
-      parent: resolve(null),
-    };
+    });
     this.set('dir', dir);
     mockRootFiles({
       testCase: this,
       filesCount,
+      useStore: true,
     });
 
     await renderComponent(this);
@@ -77,26 +79,22 @@ describe('Integration | Component | file-browser (main component)', function () 
     const numberOfDirs = 5;
     const fileScope = 'private';
 
-    const rootDir = {
-      entityId: 'root',
+    const rootDir = this.store.createRecord('file', {
+      id: getFileGri('root'),
       name: 'Some Space',
       index: 'Some Space',
       type: 'dir',
-      parent: resolve(null),
-      hasParent: false,
-    };
+    });
 
-    const dirs = _.range(0, numberOfDirs).map(i => ({
-      entityId: `file-${i}`,
+    const dirs = _.range(0, numberOfDirs).map(i => (this.store.createRecord('file', {
+      id: getFileGri(`file-${i}`),
       name: `Directory ${i}`,
       index: `Directory ${i}`,
       type: 'dir',
-    }));
+    })));
 
     for (let i = 0; i < numberOfDirs; ++i) {
-      dirs[i].parent = resolve(i > 0 ? dirs[i - 1] : rootDir);
-      dirs[i].hasParent = true;
-      dirs[i].effFile = dirs[i];
+      dirs[i].set('parent', i > 0 ? dirs[i - 1] : rootDir);
     }
 
     this.setProperties({
@@ -214,12 +212,11 @@ describe('Integration | Component | file-browser (main component)', function () 
   it('shows empty dir message with working new directory button', async function () {
     const entityId = 'deid';
     const name = 'Test directory';
-    const dir = {
-      entityId,
+    const dir = this.store.createRecord('file', {
+      id: getFileGri(entityId),
       name,
       type: 'dir',
-      parent: resolve(null),
-    };
+    });
     const files = [];
     const fileManager = lookupService(this, 'fileManager');
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
@@ -245,17 +242,16 @@ describe('Integration | Component | file-browser (main component)', function () 
   it('adds file-cut class if file is in clipboard in move mode', async function () {
     const entityId = 'deid';
     const name = 'Test directory';
-    const dir = {
-      entityId,
+    const dir = this.store.createRecord('file', {
+      id: getFileGri(entityId),
       name,
       type: 'dir',
-      parent: resolve(null),
-    };
-    const f1 = {
-      entityId: 'f1',
+    });
+    const f1 = this.store.createRecord('file', {
+      id: getFileGri('f1'),
       name: 'File 1',
       index: 'File 1',
-    };
+    });
     const files = [f1];
     this.set('dir', dir);
     this.setProperties({
@@ -283,14 +279,12 @@ describe('Integration | Component | file-browser (main component)', function () 
 
   it('shows refresh button which invokes refresh file list API action',
     async function () {
-      const dir = {
-        entityId: 'root',
+      const dir = this.store.createRecord('file', {
+        id: getFileGri('root'),
         name: 'Test directory',
         index: 'Test directory',
         type: 'dir',
-        hasParent: false,
-        parent: resolve(null),
-      };
+      });
 
       const dirs = [dir];
 
@@ -344,23 +338,22 @@ describe('Integration | Component | file-browser (main component)', function () 
   // NOTE: use "done" callback for async tests because of bug in ember test framework
   describe('selects using injected file ids', function () {
     it('visible file on list', async function () {
-      const entityId = 'deid';
+      const dirId = 'deid';
+      const dirGri = getFileGri(dirId);
       const name = 'Test directory';
-      const dir = {
-        entityId,
+      const dir = this.store.createRecord('file', {
+        id: dirGri,
         name,
         type: 'dir',
-        parent: resolve(null),
-      };
+      });
       const files = _.range(4).map(i => {
-        const id = `f${i}`;
+        const id = getFileGri(`f${i}`);
         const name = `File ${i}`;
-        return {
+        return this.store.createRecord('file', {
           id,
-          entityId: id,
           name,
           index: name,
-        };
+        });
       });
       const selectedFile = files[1];
       const selectedItemsForJump = [selectedFile];
@@ -372,7 +365,7 @@ describe('Integration | Component | file-browser (main component)', function () 
       const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
 
       fetchDirChildren.withArgs(
-        entityId,
+        dirId,
         sinon.match.any,
         selectedFile.index,
         sinon.match.any,
@@ -385,7 +378,7 @@ describe('Integration | Component | file-browser (main component)', function () 
       await renderComponent(this);
 
       expect(fetchDirChildren).to.have.been.calledWith(
-        entityId,
+        dirId,
         sinon.match.any,
         selectedFile.index,
         sinon.match.any,
@@ -393,28 +386,26 @@ describe('Integration | Component | file-browser (main component)', function () 
       );
       const fileSelected = findAll('.file-selected');
       expect(fileSelected, 'selected file row').to.have.lengthOf(1);
-      expect(fileSelected[0]).to.have.attr('data-row-id', selectedFile.id);
+      expect(fileSelected[0]).to.have.attr('data-row-id', selectedFile.entityId);
     });
 
     it('file that is out of initial list range', async function () {
       const entityId = 'deid';
       const name = 'Test directory';
-      const dir = {
-        entityId,
+      const dir = await createFile(this, {
+        id: getFileGri(entityId),
         name,
         type: 'dir',
-        parent: resolve(null),
-      };
-      const files = _.range(61).map(i => {
-        const id = `f${i}`;
+      });
+      const files = await allFulfilled(_.range(61).map(i => {
+        const entityId = `f${i}`;
         const name = `File ${i}`;
-        return {
-          id,
-          entityId: id,
+        return createFile(this, {
+          entityId,
           name,
           index: name,
-        };
-      });
+        });
+      }));
       const selectedFile = files[60];
       const selectedItemsForJump = [selectedFile];
       this.setProperties({
@@ -426,14 +417,14 @@ describe('Integration | Component | file-browser (main component)', function () 
       fetchDirChildren.withArgs(
         entityId, // dirId
         sinon.match.any, // scope
-        selectedFile.index, // index
+        get(selectedFile, 'index'), // index
         sinon.match.any, // limit
         sinon.match.any // offset
       ).resolves({ childrenRecords: [...files], isLast: true });
       fetchDirChildren.withArgs(
         entityId,
         sinon.match.any,
-        files[60].index,
+        get(files[60], 'index'),
         70,
         -10
       ).resolves({ childrenRecords: files.slice(50, 120), isLast: true });
@@ -458,30 +449,25 @@ describe('Integration | Component | file-browser (main component)', function () 
       );
       const fileSelected = find('.file-selected');
       expect(fileSelected, 'selected file row').to.exist;
-      expect(fileSelected).to.have.attr('data-row-id', selectedFile.id);
+      expect(fileSelected).to.have.attr('data-row-id', selectedFile.entityId);
     });
   });
 
   context('with one item in root directory', function () {
-    beforeEach(function () {
-      const dir = {
-        entityId: 'root',
+    beforeEach(async function () {
+      const dir = await createFile(this, {
+        id: getFileGri('root'),
         name: 'Test directory',
         index: 'Test directory',
         type: 'dir',
-        hasParent: false,
-        parent: resolve(null),
-      };
-      dir.effFile = dir;
+      });
 
-      const item1 = {
-        entityId: 'i1',
+      const item1 = await createFile(this, {
+        id: getFileGri('i1'),
         name: 'A1',
         index: 'A1',
-        hasParent: true,
-        parent: resolve(dir),
-      };
-      item1.effFile = item1;
+        parent: dir,
+      });
 
       this.setProperties({ dir, item1, selectedItems: [] });
       stubSimpleFetch(this, dir, [item1]);
@@ -501,10 +487,10 @@ describe('Integration | Component | file-browser (main component)', function () 
           this.set('spacePrivileges', { view: true });
         });
 
-        ['ancestor', 'direct', 'directAndAncestor'].forEach(effQosMembership => {
-          it(`displays functional qos tag in table header if current dir has "${effQosMembership}" qos`,
+        ['ancestor', 'direct', 'directAndAncestor'].forEach(effQosInheritancePath => {
+          it(`displays functional qos tag in table header if current dir has "${effQosInheritancePath}" qos`,
             async function () {
-              this.set('dir.effQosMembership', effQosMembership);
+              this.set('dir.effQosInheritancePath', effQosInheritancePath);
               this.set('spacePrivileges', { view: true, viewQos: true });
               const openInfo = sinon.spy();
               this.set('openInfo', openInfo);
@@ -518,7 +504,7 @@ describe('Integration | Component | file-browser (main component)', function () 
               expect(headStatusBar, 'head status bar').to.have.length(1);
               expect(qosTagGroup, 'qos tag').to.have.length(1);
               expect(qosTagGroup[0]).to.contain.text('QoS');
-              if (['ancestor', 'directAndAncestor'].includes(effQosMembership)) {
+              if (['ancestor', 'directAndAncestor'].includes(effQosInheritancePath)) {
                 const inheritanceIcon = qosTagGroup[0].querySelectorAll(
                   '.oneicon-inheritance'
                 );
@@ -534,7 +520,7 @@ describe('Integration | Component | file-browser (main component)', function () 
 
         it('does not display qos tag in table header if current dir has none qos membership',
           async function () {
-            this.set('dir.effQosMembership', 'none');
+            this.set('dir.effQosInheritancePath', 'none');
 
             await renderComponent(this);
 
@@ -547,7 +533,7 @@ describe('Integration | Component | file-browser (main component)', function () 
 
         it('displays functional dataset tag in table header if current dir has direct dataset',
           async function () {
-            this.set('dir.effDatasetMembership', 'direct');
+            this.set('dir.effDatasetInheritancePath', 'direct');
             const openDatasets = sinon.spy();
             this.set('openDatasets', openDatasets);
 
@@ -567,7 +553,7 @@ describe('Integration | Component | file-browser (main component)', function () 
 
         it('does not display functional dataset tag in table header if current dir has "none" dataset membership',
           async function () {
-            this.set('dir.effDatasetMembership', 'none');
+            this.set('dir.effDatasetInheritancePath', 'none');
             const openDatasets = sinon.spy();
             this.set('openDatasets', openDatasets);
 
@@ -699,7 +685,7 @@ function testOpenDatasetsModal(openDescription, openFunction) {
   it(`invokes datasets modal opening when ${openDescription}`, async function () {
     const openDatasets = sinon.spy();
     this.set('openDatasets', openDatasets);
-    this.set('item1.effDatasetMembership', 'direct');
+    this.set('item1.effDatasetInheritancePath', 'direct');
 
     await renderComponent(this);
 
@@ -893,8 +879,8 @@ function notStubbed(stubName) {
 
 async function createFile(testCase, data) {
   if (data.entityId) {
-    data.id = `file.${data.entityId}.instance:private`;
-    delete data.entityId;
+    data.id = getFileGri(data.entityId),
+      delete data.entityId;
   }
   return await lookupService(testCase, 'store').createRecord('file', data).save();
 }
@@ -915,25 +901,20 @@ function destroyFakeClock(testCase) {
 }
 
 function whenRootDirectoryHasOneItem(testCase, { itemType = 'file' } = {}) {
-  const dir = {
-    entityId: 'root',
+  const dir = testCase.store.createRecord('file', {
+    id: getFileGri('root'),
     name: 'Test directory',
     index: 'Test directory',
     type: 'dir',
-    hasParent: false,
-    parent: resolve(null),
-  };
-  dir.effFile = dir;
+  });
 
-  const item1 = {
-    entityId: 'i1',
+  const item1 = testCase.store.createRecord('file', {
+    id: getFileGri('i1'),
     name: 'A1',
     index: 'A1',
-    hasParent: true,
     type: itemType,
-    parent: resolve(dir),
-  };
-  item1.effFile = item1;
+    parent: dir,
+  });
 
   testCase.setProperties({ dir, item1, selectedItems: [] });
   stubSimpleFetch(testCase, dir, [item1]);

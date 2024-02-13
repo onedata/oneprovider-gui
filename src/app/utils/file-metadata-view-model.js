@@ -22,6 +22,10 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { assert } from '@ember/debug';
 import { Promise } from 'rsvp';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import FileConsumerMixin, {
+  computedSingleUsedFileGri,
+} from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
  * @typedef {'xattrs'|'json'|'rdf'} FileMetadataType
@@ -49,6 +53,7 @@ const tabStateClassTypes = {
 
 const mixins = [
   OwnerInjector,
+  FileConsumerMixin,
   I18n,
   ...metadataTypes.map(type => createDataProxyMixin(`${type}Original`)),
 ];
@@ -89,6 +94,28 @@ export default EmberObject.extend(...mixins, {
    * @type {String}
    */
   readonlyTip: '',
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedSingleUsedFileGri('file'),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('file.id'),
+        properties: ['metadataIsProtected', 'hardlinkCount'],
+      }),
+    ];
+  }),
 
   metadataTypes: Object.freeze(metadataTypes),
 
@@ -358,7 +385,7 @@ export default EmberObject.extend(...mixins, {
       safeExec(this, function setAliasedValueProperty() {
         this.set(currentName, this[originalName]);
       });
-      if (file && get(file, 'hardlinksCount') > 1) {
+      if (file && get(file, 'hardlinkCount') > 1) {
         this.fileManager.fileParentRefresh(file);
       }
     } catch (error) {

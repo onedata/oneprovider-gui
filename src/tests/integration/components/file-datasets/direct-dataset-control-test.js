@@ -141,7 +141,7 @@ class DirectDatsetControlHelper {
     const file = run(() => this.store.createRecord('file', Object.assign({
       name: 'test-file.txt',
       type: 'file',
-      modificationTime: moment('2020-01-01T06:30:00+00:00').unix(),
+      mtime: moment('2020-01-01T06:30:00+00:00').unix(),
       posixPermissions: '777',
     }, data)));
     await run(async () => file.save());

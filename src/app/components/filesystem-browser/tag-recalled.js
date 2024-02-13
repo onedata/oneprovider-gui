@@ -2,6 +2,9 @@
  * Conditionally display "Recalled" file tag for files that recall from archive
  * have been finished (successfully or not).
  *
+ * NOTE: custom file requiremets must be managed by parent component - see `file` property
+ * note.
+ *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -22,6 +25,13 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.filesystemBrowser.tagRecalled',
 
   /**
+   * NOTE: custom file requiremets must be managed by parent component.
+   * Typically it is done by FilesystemBrowserModel, as this component is used in the
+   * filesystem browser context.
+   *
+   * Used custom properties:
+   * - `isRecalled`
+   *
    * @virtual
    * @type {Models.File}
    */
