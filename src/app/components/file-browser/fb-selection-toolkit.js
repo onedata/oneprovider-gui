@@ -14,7 +14,11 @@ import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { inject as service } from '@ember/service';
 import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
 
-export default Component.extend(I18n, {
+const mixins = Object.freeze([
+  I18n,
+]);
+
+export default Component.extend(...mixins, {
   classNames: ['fb-selection-toolkit'],
   classNameBindings: [
     'isPillVisible:pill-visible:pill-hidden',
@@ -59,16 +63,6 @@ export default Component.extend(I18n, {
    */
   itemsTooltipContent: undefined,
 
-  rememberLastPositiveCount: observer(
-    'itemsCount',
-    function rememberLastPositiveCount() {
-      const itemsCount = this.get('itemsCount');
-      if (itemsCount > 0) {
-        this.set('lastPositiveItemsCount', itemsCount);
-      }
-    }
-  ),
-
   itemsCount: reads('items.length'),
 
   menuButtons: computed(
@@ -84,6 +78,16 @@ export default Component.extend(I18n, {
   ),
 
   isPillVisible: gt('itemsCount', 1),
+
+  rememberLastPositiveCount: observer(
+    'itemsCount',
+    function rememberLastPositiveCount() {
+      const itemsCount = this.get('itemsCount');
+      if (itemsCount > 0) {
+        this.set('lastPositiveItemsCount', itemsCount);
+      }
+    }
+  ),
 
   init() {
     this._super(...arguments);

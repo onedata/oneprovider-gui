@@ -32,10 +32,13 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 import { translateFileType } from 'onedata-gui-common/utils/file';
 import { numberToTree } from 'oneprovider-gui/utils/acl-permissions-converter';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
   OwnerInjector,
   I18n,
+  FileConsumerMixin,
   createDataProxyMixin('spaceUsers', { type: 'array' }),
   createDataProxyMixin('spaceGroups', { type: 'array' }),
   createDataProxyMixin('acls', { type: 'array' }),
@@ -82,6 +85,28 @@ export default EmberObject.extend(...mixins, {
   readonlyTip: '',
 
   //#region state
+
+  /**
+   * @override
+   */
+  fileRequirements: computed('files.[]', function fileRequirements() {
+    const properties = Object.freeze([
+      'owner',
+      'metadataIsProtected',
+      'posixPermissions',
+      'activePermissionsType',
+    ]);
+    return this.files.map(file => new FileRequirement({
+      fileGri: get(file, 'id'),
+      properties,
+    }));
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedMultiUsedFileGris('files'),
 
   /**
    * @type {FilePermissionsType}
@@ -942,7 +967,7 @@ export default EmberObject.extend(...mixins, {
         );
       }
     } finally {
-      const hardlinkedFile = files.find(file => get(file, 'hardlinksCount') > 1);
+      const hardlinkedFile = files.find(file => get(file, 'hardlinkCount') > 1);
       if (hardlinkedFile) {
         this.fileManager.fileParentRefresh(hardlinkedFile);
       }

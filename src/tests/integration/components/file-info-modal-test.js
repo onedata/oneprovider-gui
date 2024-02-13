@@ -1,14 +1,14 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, click, find, findAll, settled } from '@ember/test-helpers';
-import { get } from '@ember/object';
+import { get, defineProperty, computed } from '@ember/object';
 import { hbs } from 'ember-cli-htmlbars';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import OneTooltipHelper from '../../helpers/one-tooltip';
 import { selectChoose, clickTrigger } from 'ember-power-select/test-support/helpers';
-import { Promise, resolve } from 'rsvp';
+import { Promise } from 'rsvp';
 import { findByText } from '../../helpers/find';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
@@ -55,56 +55,49 @@ const owner1 = {
 const exampleCdmiObjectId =
   '0000000000466F8867756964233666396333666230366265366163353530343634616537383831306430656662233732333065663438326234333936376463373332313734373435306535363134';
 
-const fileParentRoot = {
-  name: 'My space',
-  parent: resolve(null),
-  type: 'dir',
-  hasParent: false,
-};
-
-const fileParent3 = {
-  name: 'First',
-  parent: resolve(fileParentRoot),
-  type: 'dir',
-  hasParent: true,
-};
-
-const fileParent2 = {
-  name: 'Second directory',
-  parent: resolve(fileParent3),
-  type: 'dir',
-  hasParent: true,
-};
-
-const fileParent1 = {
-  name: 'Third one',
-  parent: resolve(fileParent2),
-  type: 'dir',
-  hasParent: true,
-  cdmiObjectId: exampleCdmiObjectId,
-  modificationTime: Math.floor(Date.now() / 1000),
-  owner: resolve(owner1),
-};
-
-const file1 = {
-  name: 'Onedata.txt',
-  size: 1.5 * Math.pow(1024, 2),
-  parent: resolve(fileParent1),
-  type: 'file',
-  hasParent: true,
-  cdmiObjectId: exampleCdmiObjectId,
-  modificationTime: Math.floor(Date.now() / 1000),
-  owner: resolve(owner1),
-  posixPermissions: '644',
-  activePermissionsType: 'posix',
-  storageLocations,
-  async getRelation() {
-    return null;
-  },
-};
-
 describe('Integration | Component | file-info-modal', function () {
   const { afterEach } = setupRenderingTest();
+
+  beforeEach(async function () {
+    this.fileParentRoot = await createFile(this, {
+      name: 'My space',
+      type: 'dir',
+    });
+
+    this.fileParent3 = await createFile(this, {
+      name: 'First',
+      parent: this.fileParentRoot,
+      type: 'dir',
+    });
+
+    this.fileParent2 = await createFile(this, {
+      name: 'Second directory',
+      parent: this.fileParent3,
+      type: 'dir',
+    });
+
+    this.fileParent1 = await createFile(this, {
+      name: 'Third one',
+      parent: this.fileParent2,
+      type: 'dir',
+      cdmiObjectId: exampleCdmiObjectId,
+      mtime: Math.floor(Date.now() / 1000),
+      owner: owner1,
+    });
+
+    this.file1 = await createFile(this, {
+      name: 'Onedata.txt',
+      size: 1.5 * Math.pow(1024, 2),
+      parent: this.fileParent1,
+      type: 'file',
+      cdmiObjectId: exampleCdmiObjectId,
+      mtime: Math.floor(Date.now() / 1000),
+      owner: owner1,
+      posixPermissions: '644',
+      activePermissionsType: 'posix',
+      storageLocations,
+    });
+  });
 
   afterEach(function () {
     this.browserModel?.destroy?.();
@@ -114,20 +107,20 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('renders file path asynchronously', async function () {
     await givenDefaultStubs(this);
-    const file = this.set('file', file1);
-    const parent = file.parent;
     let resolveParent;
-    file.parent = new Promise((resolve) => resolveParent = resolve);
+    defineProperty(this.get('file'), 'parent', computed(function () {
+      return new Promise((resolve) => resolveParent = resolve);
+    }));
 
     await renderComponent();
 
     expect(find('.loading-file-path'), 'loading-file-path').to.exist;
-    resolveParent(parent);
+    resolveParent(this.parent1);
     await settled();
     expect(find('.loading-file-path'), 'loading-file-path').to.not.exist;
     expect(
       find('.file-info-row-path .property-value .clipboard-input').value
-    ).to.contain(file1.name);
+    ).to.contain(get(this.get('file'), 'name'));
   });
 
   it('renders owner full name asynchronously', async function () {
@@ -164,10 +157,9 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('does not render symlink target path when file is not symlink', async function () {
     await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
+    this.get('file').setProperties({
       type: 'file',
-      targetPath: 'some/path',
+      symlinkValue: 'some/path',
     });
 
     await renderComponent();
@@ -177,10 +169,9 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('does render symlink target relative path when file is a symlink', async function () {
     await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
+    this.get('file').setProperties({
       type: 'symlink',
-      targetPath: 'some/path',
+      symlinkValue: 'some/path',
     });
 
     await renderComponent();
@@ -192,12 +183,11 @@ describe('Integration | Component | file-info-modal', function () {
   it('renders symlink target absolute path with space name when file is a symlink and space id is known',
     async function () {
       await givenDefaultStubs(this);
+      this.get('file').setProperties({
+        type: 'symlink',
+        symlinkValue: '<__onedata_space_id:space1>/some/path',
+      });
       this.setProperties({
-        file: {
-          ...file1,
-          type: 'symlink',
-          targetPath: '<__onedata_space_id:space1>/some/path',
-        },
         space: await createSpaceModel(this, {
           id: gri({
             entityType: spaceEntityType,
@@ -218,12 +208,11 @@ describe('Integration | Component | file-info-modal', function () {
   it('renders symlink target absolute path  with "unknown space" when file is a symlink and space id is unknown',
     async function () {
       await givenDefaultStubs(this);
+      this.get('file').setProperties({
+        type: 'symlink',
+        symlinkValue: '<__onedata_space_id:space2>/some/path',
+      });
       this.setProperties({
-        file: {
-          ...file1,
-          type: 'symlink',
-          targetPath: '<__onedata_space_id:space2>/some/path',
-        },
         space: await createSpaceModel(this, {
           id: gri({
             entityType: spaceEntityType,
@@ -244,12 +233,11 @@ describe('Integration | Component | file-info-modal', function () {
   it('renders symlink target absolute path with "unknown space" when file is a symlink and space is not provided',
     async function () {
       await givenDefaultStubs(this);
+      this.get('file').setProperties({
+        type: 'symlink',
+        symlinkValue: '<__onedata_space_id:space1>/some/path',
+      });
       this.setProperties({
-        file: {
-          ...file1,
-          type: 'symlink',
-          targetPath: '<__onedata_space_id:space1>/some/path',
-        },
         space: undefined,
         previewMode: true,
       });
@@ -263,10 +251,9 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('does not show hardlink\'s tab when hardlinks count is 1', async function () {
     await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
+    this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 1,
+      hardlinkCount: 1,
     });
 
     await renderComponent();
@@ -276,10 +263,9 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('shows hardlinks tab when hardlinks count is 2', async function () {
     await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
+    this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 2,
+      hardlinkCount: 2,
     });
 
     await renderComponent();
@@ -289,11 +275,12 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('shows api sample tab when previewMode is true', async function () {
     await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
+    this.get('file').setProperties({
       type: 'file',
     });
-    this.set('previewMode', true);
+    this.setProperties({
+      previewMode: true,
+    });
 
     await renderComponent();
     expect(find('.nav-tabs').textContent).to.contain('API');
@@ -301,11 +288,12 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('does not show api sample tab when file type is symlink', async function () {
     await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
+    this.get('file').setProperties({
       type: 'symlink',
     });
-    this.set('previewMode', true);
+    this.setProperties({
+      previewMode: true,
+    });
 
     await renderComponent();
 
@@ -314,13 +302,12 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('shows hardlinks list', async function () {
     await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
+    this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 2,
+      hardlinkCount: 2,
     });
     Object.assign(this.get('fileHardlinksResult'), {
-      hardlinksCount: 2,
+      hardlinkCount: 2,
       hardlinks: [{
         entityId: 'f1',
         name: 'abc',
@@ -354,13 +341,12 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('shows hardlinks partial fetch error', async function () {
     await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
+    this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 2,
+      hardlinkCount: 2,
     });
     Object.assign(this.get('fileHardlinksResult'), {
-      hardlinksCount: 4,
+      hardlinkCount: 4,
       hardlinks: [{
         entityId: 'f1',
         name: 'abc',
@@ -391,13 +377,12 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('shows hardlinks full fetch error', async function () {
     await givenDefaultStubs(this);
-    this.set('file', {
-      ...file1,
+    this.get('file').setProperties({
       type: 'file',
-      hardlinksCount: 2,
+      hardlinkCount: 2,
     });
     Object.assign(this.get('fileHardlinksResult'), {
-      hardlinksCount: 2,
+      hardlinkCount: 2,
       hardlinks: [],
       errors: [{
         id: 'unauthorized',
@@ -423,7 +408,11 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('renders size of file', async function () {
     await givenDefaultStubs(this);
-    this.set('file', Object.assign({}, file1, { size: Math.pow(1024, 3) }));
+    this.get('file').setProperties({
+      type: 'file',
+      hardlinkCount: 2,
+      size: Math.pow(1024, 3),
+    });
 
     await renderComponent();
 
@@ -725,9 +714,8 @@ async function givenDummyFile(testCase) {
     name: 'Onedata.txt',
     size: 1.5 * Math.pow(1024, 2),
     type: 'file',
-    hasParent: true,
     cdmiObjectId: exampleCdmiObjectId,
-    modificationTime: Math.floor(Date.now() / 1000),
+    mtime: Math.floor(Date.now() / 1000),
     posixPermissions: '644',
     activePermissionsType: 'posix',
   });
@@ -814,7 +802,7 @@ async function givenDefaultStubs(testCase) {
   await givenDummySpace(testCase);
   givenQosTabDisabled(testCase);
   const fileHardlinksResult = testCase.set('fileHardlinksResult', {
-    hardlinksCount: 1,
+    hardlinkCount: 1,
     hardlinks: [],
     errors: [{ id: 'forbidden' }],
   });
@@ -839,14 +827,19 @@ async function givenDefaultStubs(testCase) {
       ownerSource: testCase.owner,
     }));
   }
+  if (!testCase.get('file')) {
+    testCase.set('file', testCase.file1);
+  }
 }
 
 async function givenApiSamplesForSharedFile(testCase) {
   const fileApiSamples =
     sinon.stub(lookupService(testCase, 'fileManager'), 'getFileApiSamples')
     .resolves(apiSamples);
+  testCase.get('file').setProperties({
+    type: 'file',
+  });
   testCase.setProperties({
-    file: { type: 'file' },
     previewMode: true,
     fileApiSamples,
   });

@@ -47,6 +47,7 @@ import {
   atmWorkflowExecutionPhases,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 import globals from 'onedata-gui-common/utils/globals';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -106,9 +107,54 @@ const effProtectionFlagSets = [
   ['data_protection', 'metadata_protection'],
 ];
 
-export default Service.extend({
+const mixins = [
+  FileConsumerMixin,
+];
+
+export default Service.extend(...mixins, {
   store: service(),
   archiveManager: service(),
+
+  /**
+   * @override
+   * @type {Array<Models.File>}
+   */
+  usedFileGris: Object.freeze([]),
+
+  knownEntityRecordsKeys: Object.freeze([
+    'archive',
+    'archiveRecallInfo',
+    'archiveRecallState',
+    'atmInventory',
+    'atmInventory',
+    'atmWorkflowExecution',
+    'atmWorkflowExecutionSummary',
+    'atmWorkflowSchema',
+    'chainDir',
+    'dataset',
+    'dir',
+    'file',
+    'fileDatasetSummary',
+    'fileDistribution',
+    'fileQosSummary',
+    'handle',
+    'handleService',
+    'owner',
+    'provider',
+    'rootDir',
+    'space',
+    'spaceRootDir',
+    'storageLocationInfo',
+    'transfer',
+  ]),
+
+  knownFileRecordsKeys: Object.freeze([
+    'chainDir',
+    'dir',
+    'file',
+    'rootDir',
+    'spaceRootDir',
+  ]),
 
   /**
    * WARNING: Will be initialized only after generating development model.
@@ -217,7 +263,7 @@ export default Service.extend({
       })
     );
     await allFulfilled(fillSpacePromises);
-    await this.pushProviderListIntoSpaces(listRecords);
+    await this.pushListsIntoSpaces(listRecords);
     await this.pushSpaceListIntoProviders(listRecords);
     await this.createAndAddShare(store);
     await this.createAndAddQos(store);
@@ -229,7 +275,16 @@ export default Service.extend({
     const effSpaceList = await user.get('effSpaceList');
     const effSpaceListList = await get(effSpaceList, 'list');
     await allFulfilled(effSpaceListList.toArray());
+    this.updateUsedFiles();
     return user;
+  },
+
+  updateUsedFiles() {
+    const usedFileGris = this.knownFileRecordsKeys.reduce((resultFileGris, key) => {
+      resultFileGris.push(...this.entityRecords[key].map(file => file.get('id')));
+      return resultFileGris;
+    }, []);
+    this.set('usedFileGris', usedFileGris);
   },
 
   createListRecord(store, type, records) {
@@ -288,7 +343,7 @@ export default Service.extend({
       distribution: null,
       fileQosSummary: null,
       fileDatasetSummary: null,
-      targetPath: `./${get(targetDir, 'name')}`,
+      symlinkValue: `./${get(targetDir, 'name')}`,
     });
     this.symlinkMap[get(symlinkDir, 'entityId')] = get(targetDir, 'entityId');
     return symlinkDir.save();
@@ -450,8 +505,8 @@ export default Service.extend({
           name: names[i],
           type: 'dir',
           mtime: timestamp + i * 3600,
-          hasMetadata: false,
-          effQosMembership: i < 2 && 'direct' ||
+          hasCustomMetadata: false,
+          effQosInheritancePath: i < 2 && 'direct' ||
             i < 4 && 'ancestor' ||
             'none',
           parent: null,
@@ -556,37 +611,45 @@ export default Service.extend({
       });
   },
 
-  // TODO: space provider / provider space lists method can be unified
-
-  createSpaceProviderLists(providerList, spaceList) {
-    const store = this.get('store');
-    return allFulfilled(spaceList.map(space => {
-      return this.createListRecord(store, 'provider', providerList).then(
+  createListPropertyInRecords(
+    records,
+    relationRecords,
+    relationModelName,
+    listName
+  ) {
+    return allFulfilled(records.map(record => {
+      return this.createListRecord(this.store, relationModelName, relationRecords).then(
         listRecord => {
-          space.set('providerList', listRecord);
-          return space.save();
+          record.set(listName, listRecord);
+          return record.save();
         });
     }));
   },
 
-  pushProviderListIntoSpaces(listRecords) {
+  async pushListsIntoSpaces(listRecords) {
     const providersPromise = listRecords.provider.get('list');
     const spacesPromise = listRecords.space.get('list');
-    return allFulfilled([providersPromise, spacesPromise])
-      .then(([providerList, spaceList]) =>
-        this.createSpaceProviderLists(providerList, spaceList)
-      );
+    const [providerList, spaceList] = await allFulfilled([
+      providersPromise,
+      spacesPromise,
+    ]);
+    await this.createListPropertyInRecords(
+      spaceList,
+      providerList,
+      'provider',
+      'providerList'
+    );
+    await this.createListPropertyInRecords(spaceList, [], 'user', 'effUserList');
+    await this.createListPropertyInRecords(spaceList, [], 'group', 'effGroupList');
   },
 
   createProviderSpaceLists(providerList, spaceList) {
-    const store = this.get('store');
-    return allFulfilled(providerList.map(provider => {
-      return this.createListRecord(store, 'space', spaceList).then(
-        listRecord => {
-          provider.set('spaceList', listRecord);
-          return provider.save();
-        });
-    }));
+    return this.createListPropertyInRecords(
+      providerList,
+      spaceList,
+      'space',
+      'spaceList'
+    );
   },
 
   pushSpaceListIntoProviders(listRecords) {
@@ -663,7 +726,7 @@ export default Service.extend({
       datasets[i] = ancestorDataset;
       // effProtectionFlags must be set before createDatasetSummary
       setProperties(ancestorFile, {
-        effDatasetMembership: 'direct',
+        effDatasetInheritancePath: 'direct',
         effProtectionFlags: effProtectionFlags,
       });
       const datasetSummary = await this.createDatasetSummary(
@@ -685,7 +748,7 @@ export default Service.extend({
     const emptyDirProtection = Object.freeze(['data_protection']);
     setProperties(emptyDir, {
       effProtectionFlags: emptyDirProtection,
-      effDatasetMembership: 'direct',
+      effDatasetInheritancePath: 'direct',
     });
     await emptyDir.save();
     const emptyDirDataset = await this.createDataset(emptyDir, {
@@ -705,7 +768,7 @@ export default Service.extend({
     for (let i = 2; i <= 5; ++i) {
       const file = files[i];
       let effProtectionFlags;
-      const effDatasetMembership = i >= 3 && i <= 5 && 'direct' ||
+      const effDatasetInheritancePath = i >= 3 && i <= 5 && 'direct' ||
         i >= 2 && i <= 6 && 'directAndAncestor' ||
         'none';
       if (i === 2) {
@@ -718,12 +781,12 @@ export default Service.extend({
         effProtectionFlags = [];
       }
       setProperties(file, {
-        effDatasetMembership,
+        effDatasetInheritancePath,
         effProtectionFlags,
       });
       if (
-        effDatasetMembership === 'direct' ||
-        effDatasetMembership === 'directAndAncestor'
+        effDatasetInheritancePath === 'direct' ||
+        effDatasetInheritancePath === 'directAndAncestor'
       ) {
         const dataset = await this.createDataset(file, {
           parent: null,
@@ -1003,7 +1066,7 @@ export default Service.extend({
     this.set('entityRecords.archiveRecallState', [archiveRecallState]);
     await archiveRecallInfo.save();
     await allFulfilled([chainRootDir, ...chainDirs].map(dir => {
-      set(dir, 'recallRootId', chainDirId);
+      set(dir, 'archiveRecallRootFileId', chainDirId);
       set(dir, 'archiveRecallInfo', archiveRecallInfo);
       set(dir, 'archiveRecallState', archiveRecallState);
       return dir.save();
@@ -1101,7 +1164,7 @@ export default Service.extend({
           index: name,
           type: 'dir',
           mtime: timestamp + i * 3600,
-          hardlinksCount: 1,
+          hardlinkCount: 1,
           posixPermissions: '777',
           parent,
           owner,
@@ -1155,7 +1218,7 @@ export default Service.extend({
         const entityId = generateFileEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name = `file-${String(i).padStart(4, '0')}`;
-        const effQosMembership = i > 3 && i < 8 && 'direct' ||
+        const effQosInheritancePath = i > 3 && i < 8 && 'direct' ||
           i > 6 && i < 10 && 'ancestor' ||
           'none';
         return store.createRecord('file', {
@@ -1164,20 +1227,20 @@ export default Service.extend({
           index: name,
           type: isSymlink ? 'symlink' : 'file',
           posixPermissions: (i > 10 && i < 12 && !isSymlink) ? '333' : '777',
-          hasMetadata: i < 5,
-          effQosMembership,
-          effDatasetMembership: 'none',
+          hasCustomMetadata: i < 5,
+          effQosInheritancePath,
+          effDatasetInheritancePath: 'none',
           effProtectionFlags: [],
           size: isSymlink ? 20 : i * 1000000,
           mtime: timestamp + i * 3600,
-          hardlinksCount: i % 5 === 0 ? 2 : 1,
+          hardlinkCount: i % 5 === 0 ? 2 : 1,
           parent,
           owner,
           distribution: isSymlink ? undefined : distribution,
           fileQosSummary: isSymlink ? undefined : fileQosSummary,
           fileDatasetSummary: isSymlink ? undefined : emptyDatasetSummary,
           provider,
-          targetPath: isSymlink ? '../some/file' : undefined,
+          symlinkValue: isSymlink ? '../some/file' : undefined,
           storageLocationInfo: isSymlink ? undefined : storageLocationInfo,
         }).save();
       })))
@@ -1241,18 +1304,18 @@ export default Service.extend({
     return Object.assign({
       type: 'file',
       posixPermissions: '777',
-      hasMetadata: false,
-      effQosMembership: 'none',
-      effDatasetMembership: 'none',
+      hasCustomMetadata: false,
+      effQosInheritancePath: 'none',
+      effDatasetInheritancePath: 'none',
       effProtectionFlags: [],
       size: 1024 * 1024,
       mtime: timestamp,
-      hardlinksCount: 0,
+      hardlinkCount: 0,
       distribution: distribution,
       fileQosSummary: fileQosSummary,
       fileDatasetSummary: emptyDatasetSummary,
       provider,
-      targetPath: undefined,
+      symlinkValue: undefined,
       owner,
       storageLocationInfo,
     }, customData);

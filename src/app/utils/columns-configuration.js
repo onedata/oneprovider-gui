@@ -3,6 +3,9 @@
  * The columns order and column enabled state is saved in the local storage.
  * The visibility of columns depends of browser window size and changes dynamically.
  *
+ * The object is typically created in base browser model init using `create` and
+ * then the `mount` is invoked with table head element when the element is rendered.
+ *
  * @author Agnieszka Warchoł
  * @copyright (C) 2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -11,7 +14,7 @@
 import EmberObject, { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { raw, gt } from 'ember-awesome-macros';
+import { raw, gt, bool } from 'ember-awesome-macros';
 import globals from 'onedata-gui-common/utils/globals';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 import { htmlSafe } from '@ember/string';
@@ -120,11 +123,15 @@ export default EmberObject.extend(...mixins, {
     return styles;
   }),
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isMounted: bool('tableThead'),
+
   init() {
     this._super(...arguments);
     this.attachWindowResizeHandler();
     this.loadColumnsConfigFromLocalStorage();
-    this.checkColumnsVisibility();
   },
 
   /**
@@ -140,6 +147,17 @@ export default EmberObject.extend(...mixins, {
    */
   onWindowResize() {
     return this.checkColumnsVisibility();
+  },
+
+  /**
+   * @param {HTMLElement} tableThead
+   */
+  mount(tableThead) {
+    if (!tableThead) {
+      return;
+    }
+    this.set('tableThead', tableThead);
+    this.checkColumnsVisibility();
   },
 
   /**
@@ -171,7 +189,12 @@ export default EmberObject.extend(...mixins, {
   },
 
   checkColumnsVisibility() {
-    const width = this.tableThead ? dom.width(this.tableThead) : this.defaultTableWidth;
+    const tableContainer = this.tableThead?.parentElement?.parentElement;
+    const tableContainerWidth = tableContainer ? dom.width(tableContainer) : 0;
+    const tableHeadWidth = this.tableThead ? dom.width(this.tableThead) : 0;
+    const elementWidth = tableContainerWidth ?
+      Math.min(tableContainerWidth, tableHeadWidth) : tableHeadWidth;
+    const width = elementWidth || this.defaultTableWidth;
     let remainingWidth = width - this.firstColumnWidth;
     remainingWidth -= this.lastColumnWidth;
     let hiddenColumnsCount = 0;

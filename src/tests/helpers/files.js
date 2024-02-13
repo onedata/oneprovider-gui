@@ -43,7 +43,13 @@ export function generateFileId(entityId) {
 }
 
 // Used in pure filesystem browsers tests.
-export function mockRootFiles({ testCase, files, filesCount, rootDir = null }) {
+export function mockRootFiles({
+  testCase,
+  files,
+  filesCount,
+  rootDir = null,
+  useStore = null,
+}) {
   if (files && filesCount) {
     throw new Error('mockRootFiles: use only one of: files and filesCount');
   }
@@ -56,17 +62,28 @@ export function mockRootFiles({ testCase, files, filesCount, rootDir = null }) {
       const entityId = name;
       const file = {
         id: generateFileId(entityId),
-        entityId,
         name,
         index: name,
         type: 'file',
       };
       file.effFile = file;
+      if (!useStore) {
+        file.entityId = entityId;
+      }
       return file;
     });
   }
+  let createFileUsingSpec;
+  if (useStore) {
+    const store = lookupService(testCase, 'store');
+    createFileUsingSpec = (fileSpec) =>
+      store.createRecord('file', { parent: rootDir, ...fileSpec });
+  } else {
+    createFileUsingSpec = (fileSpec) =>
+      createFile(Object.assign({ parentObject: rootDir }, fileSpec));
+  }
   effFiles = effFiles.map(fileSpec => {
-    return createFile(Object.assign({ parentObject: rootDir }, fileSpec));
+    return createFileUsingSpec(fileSpec);
   });
   const fileManager = lookupService(testCase, 'fileManager');
 
@@ -85,12 +102,10 @@ export function createSpaceRootDir(spaceId = defaultSpaceId) {
 }
 
 export function createOnedataArchivesRootDir(spaceId = defaultSpaceId) {
-  const spaceRootDir = createSpaceRootDir(spaceId);
   return createFile({
     entityId: createEntityId('special_dir', spaceId),
     name: '.__onedata__archive',
     type: 'dir',
-    parentObject: spaceRootDir,
   });
 }
 

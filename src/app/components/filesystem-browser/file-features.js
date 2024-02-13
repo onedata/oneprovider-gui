@@ -1,6 +1,8 @@
 /**
  * Container for tags representing features that can be direct or inherited for file.
  *
+ * All file requirements are managed by FilesystemBrowserModel (`browserModel`).
+ *
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -21,12 +23,16 @@ import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/model
 import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
 
 export const defaultFilesystemFeatures = Object.freeze([
-  'effDatasetMembership',
-  'effQosMembership',
-  'recallingMembership',
+  'effDatasetInheritancePath',
+  'effQosInheritancePath',
+  'recallingInheritancePath',
 ]);
 
-export default Component.extend(I18n, {
+const mixins = Object.freeze([
+  I18n,
+]);
+
+export default Component.extend(...mixins, {
   classNames: ['file-features'],
 
   i18n: service(),
@@ -194,7 +200,7 @@ export default Component.extend(I18n, {
   ),
 
   recallingPercent: computed(
-    'file.{recallingMembership,archiveRecallState.bytesCopied,archiveRecallInfo.totalByteSize}',
+    'file.{recallingInheritancePath,archiveRecallState.bytesCopied,archiveRecallInfo.totalByteSize}',
     function recallingPercent() {
       return recallingPercentageProgress(this.get('file'));
     }
@@ -218,9 +224,9 @@ export default Component.extend(I18n, {
     }
   }),
 
-  recallingMembershipObserver: observer(
-    'item.recallingMembership',
-    function recallingMembershipObserver() {
+  recallingInheritancePathObserver: observer(
+    'item.recallingInheritancePath',
+    function recallingInheritancePathObserver() {
       this.tryDestroyRecallWatcher();
       this.tryCreateRecallWatcher();
     }
@@ -245,8 +251,11 @@ export default Component.extend(I18n, {
       // watcher already registered for this component
       return;
     }
-    const recallingMembership = item && get(item, 'recallingMembership');
-    if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
+    const recallingInheritancePath = item && get(item, 'recallingInheritancePath');
+    if (
+      recallingInheritancePath === 'direct' ||
+      recallingInheritancePath === 'ancestor'
+    ) {
       const archiveRecallWatcherToken =
         archiveRecallStateManager.watchRecall(item);
       this.set('archiveRecallWatcherToken', archiveRecallWatcherToken);

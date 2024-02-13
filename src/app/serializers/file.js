@@ -13,46 +13,54 @@ import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
-import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { get, computed } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
 import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
 import { aspect as archiveRecallStateAspect } from 'oneprovider-gui/models/archive-recall-state';
+import _ from 'lodash';
+import FileModel from 'oneprovider-gui/models/file';
 
 export const qosSummaryAspect = 'qos_summary';
 export const datasetSummaryAspect = 'dataset_summary';
 export const storageLocationInfoAspect = 'storage_locations';
 
+/**
+ * Specifies runtime-created relations that base only on file ID, so can be created
+ * without any other relation ID, and backend can save data not sending their exact
+ * GRIs.
+ */
+export const fileRelations = Object.freeze([
+  { name: 'acl', aspect: 'acl' },
+  { name: 'distribution', aspect: 'distribution' },
+  { name: 'fileQosSummary', aspect: qosSummaryAspect },
+  { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
+  { name: 'storageLocationInfo', aspect: storageLocationInfoAspect },
+  // NOTE: currently archiveRecallRootFileId should be already set when doing ls++
+  // to create valid relations; if this cointraint will to be changed,
+  // a re-implementation will be needed
+  {
+    name: 'archiveRecallInfo',
+    idSource: 'archiveRecallRootFileId',
+    aspect: archiveRecallInfoAspect,
+  },
+  {
+    name: 'archiveRecallState',
+    idSource: 'archiveRecallRootFileId',
+    aspect: archiveRecallStateAspect,
+  },
+]);
+
 export default Serializer.extend({
-  fileRelations: computed(() => [
-    { name: 'acl', aspect: 'acl' },
-    { name: 'distribution', aspect: 'distribution' },
-    { name: 'fileQosSummary', aspect: qosSummaryAspect },
-    { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
-    { name: 'storageLocationInfo', aspect: storageLocationInfoAspect },
-    // NOTE: currently recallRootId should be already set when doing ls++
-    // to create valid relations; if this cointraint will to be changed,
-    // a re-implementation will be needed
-    {
-      name: 'archiveRecallInfo',
-      idSource: 'recallRootId',
-      aspect: archiveRecallInfoAspect,
-    },
-    {
-      name: 'archiveRecallState',
-      idSource: 'recallRootId',
-      aspect: archiveRecallStateAspect,
-    },
-  ]),
+  fileRelations,
 
   /**
    * Keys of this objects are keys in hash to be converted.
    * Every attr normalizer takes an attribute value and returns [targetKey, value] pair.
-   * For example it will convert `parentId` key of hash to `parent`.
+   * For example it will convert `parentFileId` key of hash to `parent`.
    */
   attrNormalizers: computed(function attrNormalizers() {
     return {
-      parentId: (attribute, scope) => [
+      [belongsToPropertyToRawAttribute('parent')]: (attribute, scope) => [
         'parent',
         attribute && gri({
           entityType: fileEntityType,
@@ -61,7 +69,7 @@ export default Serializer.extend({
           scope,
         }),
       ],
-      ownerId: (attribute) => [
+      [belongsToPropertyToRawAttribute('owner')]: (attribute) => [
         'owner',
         attribute === '0' ? null : gri({
           entityType: userEntityType,
@@ -70,7 +78,7 @@ export default Serializer.extend({
           scope: 'shared',
         }),
       ],
-      providerId: (attribute) => [
+      [belongsToPropertyToRawAttribute('provider')]: (attribute) => [
         'provider',
         attribute && gri({
           entityType: providerEntityType,
@@ -79,16 +87,7 @@ export default Serializer.extend({
           scope: 'protected',
         }),
       ],
-      archiveId: (attribute, scope) => [
-        'archive',
-        attribute && gri({
-          entityType: archiveEntityType,
-          entityId: attribute,
-          aspect: 'instance',
-          scope,
-        }),
-      ],
-      shares: (attribute, scope) => [
+      [hasManyPropertyToRawAttribute('shareRecords')]: (attribute, scope) => [
         'shareRecords',
         attribute && attribute.map(id => gri({
           entityType: shareEntityType,
@@ -103,15 +102,21 @@ export default Serializer.extend({
   /**
    * Keys of this objects are keys in hash to be converted.
    * Every attr serializer takes an attribute value and returns [targetKey, value] pair.
-   * For example it will convert `parent` key of hash to `parentId`.
+   * For example it will convert `parent` key of hash to `parentFileId`.
    */
   attrSerializers: computed(function attrSerializers() {
     return ({
-      parent: this.createEntityIdSerializer('parentId'),
-      owner: this.createEntityIdSerializer('ownerId'),
-      provider: this.createEntityIdSerializer('providerId'),
+      parent: this.createEntityIdSerializer(
+        belongsToPropertyToRawAttribute('parent')
+      ),
+      owner: this.createEntityIdSerializer(
+        belongsToPropertyToRawAttribute('owner')
+      ),
+      provider: this.createEntityIdSerializer(
+        belongsToPropertyToRawAttribute('provider')
+      ),
       shareRecords: (attribute) => [
-        'shares',
+        hasManyPropertyToRawAttribute('shareRecords'),
         attribute && attribute.map(gri => parseGri(gri).entityId),
       ],
     });
@@ -147,21 +152,21 @@ export default Serializer.extend({
   },
 
   normalizeRelations(hash, scope) {
-    this.convertForeignKeys(hash, this.get('attrNormalizers'), scope);
+    this.convertForeignKeys(hash, this.attrNormalizers, scope);
   },
 
   serializeRelations(hash, scope) {
-    this.convertForeignKeys(hash, this.get('attrSerializers'), scope);
+    this.convertForeignKeys(hash, this.attrSerializers, scope);
   },
 
   serializeVirtualRelations(hash) {
-    this.get('fileRelations').forEach(({ name }) => {
+    this.fileRelations.forEach(({ name }) => {
       delete hash[name];
     });
   },
 
   normalizeVirtualRelations(hash, fileId, scope) {
-    this.get('fileRelations').forEach(({ name, idSource, entityType, aspect }) => {
+    this.fileRelations.forEach(({ name, idSource, entityType, aspect }) => {
       const entityId = idSource ? hash[idSource] : fileId;
       hash[name] = entityId ?
         this.getRelation({ entityType, entityId, aspect, scope }) : null;
@@ -176,7 +181,7 @@ export default Serializer.extend({
     if (recordGri) {
       // this is record update
       const { entityId, scope } = parseGri(recordGri);
-      hash.guid = entityId;
+      hash.fileId = entityId;
       this.serializeRelations(hash, scope);
       this.serializeVirtualRelations(hash);
     }
@@ -188,12 +193,12 @@ export default Serializer.extend({
       // NOTE: The mock is broken, because it does not include guid and scope properties.
       // "gri" could be replaced here by "id", but virtual relations still does not work
       // properly - in mock, please use setting these relations manually or try to fix it.
-      hash.gri = getFileGri(hash.guid, hash.scope);
+      hash.gri = getFileGri(hash.fileId, hash.scope);
     }
     const parsedGri = parseGri(hash.gri);
     const scope = hash.scope || parsedGri.scope;
     const entityId = parsedGri.entityId;
-    hash.sharesCount = hash.shares ? hash.shares.length : 0;
+    hash.sharesCount = hash.directShareIds?.length ?? 0;
     this.normalizeRelations(hash, scope);
     this.normalizeVirtualRelations(hash, entityId, scope);
     return hash;
@@ -213,3 +218,100 @@ export default Serializer.extend({
     });
   },
 });
+
+/**
+ * @param {FileModel.Property} propertyName
+ * @returns {FileModel.RawAttribute}
+ */
+export function belongsToPropertyToRawAttribute(propertyName) {
+  switch (propertyName) {
+    case 'parent':
+      return 'parentFileId';
+    case 'provider':
+      return 'originProviderId';
+    case 'owner':
+      return 'ownerUserId';
+    default:
+      return `${propertyName}Id`;
+  }
+}
+
+/**
+ * @param {FileModel.Property} propertyName
+ * @returns {FileModel.RawAttribute}
+ */
+export function hasManyPropertyToRawAttribute(propertyName) {
+  switch (propertyName) {
+    case 'shareRecords':
+      return 'directShareIds';
+    default:
+      return propertyName;
+  }
+}
+
+/**
+ * @param {FileModel.RawAttribute} attributeName
+ * @returns {FileModel.Property}
+ */
+export function rawAttributeToBelongsToProperty(attributeName) {
+  switch (attributeName) {
+    case 'parentFileId':
+      return 'parent';
+    case 'originProviderId':
+      return 'provider';
+    case 'ownerUserId':
+      return 'owner';
+    default:
+      return _.trimEnd(attributeName, 'Id');
+  }
+}
+
+/**
+ * Set of relations that are created in serializer, so they should not be pushed into
+ * store as a data.
+ * @type {Set}
+ */
+const fileIdRelationNameSet = new Set(fileRelations.map(relationSpec =>
+  relationSpec.name
+));
+const belongsToIdAttrSet = new Set();
+FileModel.eachRelationship((propertyName, relationshipDefinition) => {
+  if (
+    relationshipDefinition.kind === 'belongsTo' &&
+    !fileIdRelationNameSet.has(propertyName)
+  ) {
+    const rawAttributeName = belongsToPropertyToRawAttribute(propertyName);
+    belongsToIdAttrSet.add(rawAttributeName);
+  }
+});
+
+/**
+ * @param {FileModel.RawAttribute} attributeName
+ * @returns {FileModel.Property}
+ */
+export function rawAttributeToHasManyProperty(attributeName) {
+  switch (attributeName) {
+    case 'directShareIds':
+      return 'shareRecords';
+    default:
+      return attributeName;
+  }
+}
+
+export function isBelongsToProperty(propertyName) {
+  return belongsToIdAttrSet.has(propertyName);
+}
+
+export function isHasManyProperty(propertyName) {
+  return propertyName === 'shareRecords';
+}
+
+export function serializeBelongsToProperty(record, targetAttrName) {
+  const propertyName = rawAttributeToBelongsToProperty(targetAttrName);
+  return record.relationEntityId(propertyName);
+}
+
+export function serializeHasManyProperty(record, targetAttrName) {
+  const propertyName = rawAttributeToHasManyProperty(targetAttrName);
+  return record.hasMany(propertyName).ids().map(gri => parseGri(gri).entityId);
+}

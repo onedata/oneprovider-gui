@@ -3,13 +3,16 @@
  * (eg. action modals, see what is in template).
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2022 ACK CYFRONET AGH
+ * @copyright (C) 2021-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
+import { computed } from '@ember/object';
 import { or, raw } from 'ember-awesome-macros';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
  * @typedef {Object} FilesystemSelectBrowserExtensionModel
@@ -21,7 +24,11 @@ import { or, raw } from 'ember-awesome-macros';
  * @method closeCreateItemModal
  */
 
-export default Component.extend({
+const mixins = [
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   /**
    * @virtual
    * @type {Utils.FilesystemBrowserModel}
@@ -33,6 +40,28 @@ export default Component.extend({
    * @type {Utils.ItemsSelectBrowser.FilesystemModel}
    */
   selectorModel: undefined,
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('dir', function fileRequirements() {
+    if (!this.dir) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('dir.id'),
+        properties: ['dataIsProtected'],
+      }),
+    ];
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedSingleUsedFileGri('dir'),
 
   //#region state
 

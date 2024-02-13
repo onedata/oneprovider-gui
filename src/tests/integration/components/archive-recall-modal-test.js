@@ -13,12 +13,13 @@ import { render, click } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Evented from '@ember/object/evented';
 import Service from '@ember/service';
-import { registerService } from '../../helpers/stub-service';
+import { lookupService, registerService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import { mockRootFiles } from '../../helpers/files';
 import { resolve } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import globals from 'onedata-gui-common/utils/globals';
+import { getFileGri } from 'oneprovider-gui/models/file';
 
 const ArchiveManager = Service.extend({
   async recallArchive() {},
@@ -40,9 +41,10 @@ const FileManager = Service.extend(Evented, {
 describe('Integration | Component | archive-recall-modal', function () {
   setupRenderingTest();
 
-  beforeEach(function () {
+  beforeEach(async function () {
     registerService(this, 'fileManager', FileManager);
     registerService(this, 'archiveManager', ArchiveManager);
+    const store = lookupService(this, 'store');
     this.setProperties({
       open: true,
       space: {
@@ -57,15 +59,14 @@ describe('Integration | Component | archive-recall-modal', function () {
     const entityId = 'deid';
     const name = 'Test directory';
     const filesCount = 3;
-    const dir = {
-      entityId,
+    const dir = await store.createRecord('file', {
+      id: getFileGri(entityId, 'private'),
       name,
       type: 'dir',
-      parent: resolve(null),
-    };
-    const dataset = {
+    }).save();
+    const dataset = await store.createRecord('dataset', {
       name: 'dataset_name',
-    };
+    }).save();
     this.setProperties({
       dir,
       space: {
@@ -76,14 +77,15 @@ describe('Integration | Component | archive-recall-modal', function () {
         },
         rootDir: promiseObject(resolve(dir)),
       },
-      archive: {
+      archive: await store.createRecord('archive', {
         name: 'My archive name',
-        dataset: promiseObject(resolve(dataset)),
-      },
+        dataset,
+      }).save(),
     });
     mockRootFiles({
       testCase: this,
       filesCount,
+      useStore: true,
     });
   });
 

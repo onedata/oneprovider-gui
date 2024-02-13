@@ -21,6 +21,8 @@ import resolveFilePath, { stringifyFilePath, dirSeparator } from 'oneprovider-gu
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 /**
  * @typedef {'scheduled'|'pending'|'cancelling'|'cancelled'|'succeeded'|'failed'} FileRecallProcessStatus
@@ -56,7 +58,12 @@ export function isValidFileRecallProcessStatus(status) {
  * @property {string} isLocal true if this is the same provider as currently used
  */
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   tagName: '',
 
   i18n: service(),
@@ -85,6 +92,28 @@ export default Component.extend(I18n, {
    * @type {() => void}
    */
   onClose: notImplementedIgnore,
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('file.id'),
+        properties: ['recallingInheritancePath', 'archiveRecallRootFileId', 'isRecalled'],
+      }),
+    ];
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedSingleUsedFileGri('file'),
 
   //#region state
 
@@ -133,6 +162,7 @@ export default Component.extend(I18n, {
         'recallingProviderProxy',
         'relativePathProxy',
       );
+
       const result = await hashSettled({
         archive: archiveProxy,
         dataset: datasetProxy,
@@ -211,7 +241,7 @@ export default Component.extend(I18n, {
   )),
 
   recallRootFileProxy: promise.object(computed(
-    'file.recallRootId',
+    'file.archiveRecallRootFileId',
     function recallRootFileProxy() {
       const {
         file,
@@ -220,7 +250,7 @@ export default Component.extend(I18n, {
         'fileManager',
         'file',
       );
-      return fileManager.getFileById(get(file, 'recallRootId'));
+      return fileManager.getFileById(get(file, 'archiveRecallRootFileId'));
     }
   )),
 
@@ -349,7 +379,7 @@ export default Component.extend(I18n, {
   recallingPercent: computed(
     'archiveRecallInfo.totalByteSize',
     'archiveRecallState.bytesCopied',
-    'file.recallingMembership',
+    'file.recallingInheritancePath',
     function recallingPercent() {
       const file = this.get('file');
       return recallingPercentageProgress(file);

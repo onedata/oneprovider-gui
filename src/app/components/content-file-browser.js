@@ -27,12 +27,16 @@ import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-s
 import globals from 'onedata-gui-common/utils/globals';
 import { all as allFulfilled } from 'rsvp';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { getFileGri } from 'oneprovider-gui/models/file';
 
 export default OneEmbeddedComponent.extend(
   I18n,
   ContentSpaceBaseMixin,
   ItemBrowserContainerBase,
-  InfoModalBrowserSupport, {
+  InfoModalBrowserSupport,
+  FileConsumerMixin, {
     classNames: [
       'content-file-browser',
       'content-items-browser',
@@ -145,6 +149,44 @@ export default OneEmbeddedComponent.extend(
     fileActionObserverLock: false,
 
     /**
+     * @override
+     * @implements {Mixins.FileConsumer}
+     */
+    fileRequirements: computed(
+      'dirEntityId',
+      'dirGri',
+      function fileRequirements() {
+        // when dirGri is available, then dirEntityId also should be
+        if (!this.dirGri) {
+          return [];
+        }
+        return [
+          new FileRequirement({
+            fileGri: this.dirGri,
+            properties: ['dataIsProtected'],
+          }),
+          new FileRequirement({
+            parentId: this.dirEntityId,
+            // needed to jump to file
+            properties: ['index'],
+          }),
+        ];
+      }
+    ),
+
+    /**
+     * @override
+     * @implements {Mixins.FileConsumer}
+     */
+    usedFileGris: computed('dirGri', function usedFileGris() {
+      return this.dirGri ? [this.dirGri] : [];
+    }),
+
+    dirGri: computed('dirEntityId', function dirGri() {
+      return getFileGri(this.dirEntityId, 'private');
+    }),
+
+    /**
      * @type {ComputedProperty<Boolean>}
      */
     effUploadDisabled: reads('dir.dataIsProtected'),
@@ -234,9 +276,12 @@ export default OneEmbeddedComponent.extend(
      * NOTE: observing only space, because it should reload initial dir after whole space change
      * @type {PromiseObject<Models.File>}
      */
-    initialDirProxy: promise.object(computed('spaceProxy', async function initialDirProxy() {
-      return this.dirProxy;
-    })),
+    initialDirProxy: promise.object(computed(
+      'spaceProxy',
+      async function initialDirProxy() {
+        return this.dirProxy;
+      }
+    )),
 
     /**
      * Always resolved when `initialDirProxy` settles (no matter if it resolves of rejects).
@@ -312,7 +357,6 @@ export default OneEmbeddedComponent.extend(
           spaceId: spaceEntityId,
         });
         const fallbackDir = await fallbackDirProxy;
-
         const resolverResult = await filesViewResolver.resolveViewOptions({
           dirId: dirEntityId,
           currentFilesViewContext,
@@ -647,5 +691,4 @@ export default OneEmbeddedComponent.extend(
         this.closeAllModals();
       },
     },
-  }
-);
+  });

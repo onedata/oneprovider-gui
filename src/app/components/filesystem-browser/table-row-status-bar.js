@@ -1,6 +1,8 @@
 /**
  * Implementation of status part of table row part for filesystem-browser.
  *
+ * All file requirements are managed by FilesystemBrowserModel (`browserModel`).
+ *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -34,7 +36,7 @@ export default FbTableRowStatusBar.extend({
 
   isSymlink: reads('fileRowModel.isSymlink'),
 
-  hardlinksCount: or('file.hardlinksCount', raw(1)),
+  hardlinkCount: or('file.hardlinkCount', raw(1)),
 
   isShared: reads('file.isShared'),
 
@@ -102,7 +104,7 @@ export default FbTableRowStatusBar.extend({
     }
   ),
 
-  hasMetadata: reads('file.hasMetadata'),
+  hasCustomMetadata: reads('file.hasCustomMetadata'),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
 });

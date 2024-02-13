@@ -5,13 +5,13 @@
   initiallyExpanded=initiallyExpanded
   as |displayed itemWithFeatures|
 }}
-  {{#if (contains "recallingMembership" features)}}
-    {{#if displayed.recallingMembership.isShown}}
+  {{#if (contains "recallingInheritancePath" features)}}
+    {{#if displayed.recallingInheritancePath.isShown}}
       <div
         class={{concat-classes
           "file-status-tag-group recalling-file-status-tag-group"
           (unless effRecallingDisabled "clickable")
-          (if (eq displayed.recallingMembership.membership "ancestor")
+          (if (eq displayed.recallingInheritancePath.membership "ancestor")
             "file-status-tag-group-fully-inherited"
           )
         }}
@@ -24,7 +24,7 @@
             "file-status-tag"
             "file-status-recalling"
             "tag-status-progress"
-            (if (eq displayed.recallingMembership.membership "ancestor")
+            (if (eq displayed.recallingInheritancePath.membership "ancestor")
               "file-status-tag-inherited"
               "file-status-tag-success"
             )
@@ -44,7 +44,7 @@
               <span class="recalling-progress">({{recallingPercent}}%)</span>
             {{/unless}}
           </span>
-          {{#if (eq displayed.recallingMembership.membership "ancestor")}}
+          {{#if (eq displayed.recallingInheritancePath.membership "ancestor")}}
             {{one-icon
               class="tag-icon recalling-inherited-icon inherited-icon"
               icon=inheritedIcon
@@ -60,12 +60,12 @@
       }}
     {{/if}}
   {{/if}}
-  {{#if displayed.effDatasetMembership.isShown}}
+  {{#if displayed.effDatasetInheritancePath.isShown}}
     <div
       class={{concat-classes
         "file-status-tag-group dataset-file-status-tag-group"
         (unless effDatasetDisabled "clickable")
-        (if (eq displayed.effDatasetMembership.membership "ancestor")
+        (if (eq displayed.effDatasetInheritancePath.membership "ancestor")
           "file-status-tag-group-fully-inherited"
         )
       }}
@@ -77,14 +77,14 @@
         class={{concat-classes
           "file-status-tag"
           "file-status-dataset"
-          (if (eq displayed.effDatasetMembership.membership "ancestor")
+          (if (eq displayed.effDatasetInheritancePath.membership "ancestor")
             "file-status-tag-inherited"
           )
           (if effDatasetDisabled "file-status-tag-disabled")
         }}
       >
         <span class="tag-text">{{tt this "status.dataset"}}</span>
-        {{#if (eq displayed.effDatasetMembership.membership "ancestor")}}
+        {{#if (eq displayed.effDatasetInheritancePath.membership "ancestor")}}
           {{one-icon class="dataset-inherited-icon inherited-icon" icon=inheritedIcon}}
           {{one-tooltip title=(tt this "inheritedTip.dataset" fileType=typeText)}}
         {{/if}}
@@ -113,7 +113,7 @@
           {{/if}}
         </div>
       {{/if}}
-      {{#if (eq displayed.effDatasetMembership.membership "directAndAncestor")}}
+      {{#if (eq displayed.effDatasetInheritancePath.membership "directAndAncestor")}}
         <div
           class={{concat-classes
             "file-status-tag file-status-tag-inherited-addon file-status-tag-icon file-status-inherited-addon"
@@ -129,12 +129,12 @@
       {{/if}}
     </div>
   {{/if}}
-  {{#if displayed.effQosMembership.isShown}}
+  {{#if displayed.effQosInheritancePath.isShown}}
     <div
       class={{concat-classes
         "file-status-tag-group qos-file-status-tag-group"
         (unless effQosDisabled "clickable")
-        (if (eq displayed.effQosMembership.membership "ancestor")
+        (if (eq displayed.effQosInheritancePath.membership "ancestor")
           "file-status-tag-group-fully-inherited"
         )
       }}
@@ -146,14 +146,14 @@
         class={{concat-classes
           "file-status-tag"
           "file-status-qos"
-          (if (eq displayed.effQosMembership.membership "ancestor")
+          (if (eq displayed.effQosInheritancePath.membership "ancestor")
             "file-status-tag-inherited"
           )
           (if effQosDisabled "file-status-tag-disabled")
         }}
       >
         <span class="tag-text">{{tt this "status.qos"}}</span>
-        {{#if (eq displayed.effQosMembership.membership "ancestor")}}
+        {{#if (eq displayed.effQosInheritancePath.membership "ancestor")}}
           {{one-icon class="qos-inherited-icon inherited-icon" icon=inheritedIcon}}
           {{one-tooltip title=(tt this "inheritedTip.qos.ancestor")}}
         {{/if}}
@@ -161,7 +161,7 @@
           {{one-tooltip title=hintQosViewForbidden}}
         {{/if}}
       </div>
-      {{#if (eq displayed.effQosMembership.membership "directAndAncestor")}}
+      {{#if (eq displayed.effQosInheritancePath.membership "directAndAncestor")}}
         <div
           class={{concat-classes
             "file-status-tag file-status-tag-inherited-addon file-status-tag-icon file-status-inherited-addon"

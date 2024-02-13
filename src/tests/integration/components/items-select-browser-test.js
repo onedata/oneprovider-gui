@@ -4,11 +4,10 @@ import { setupRenderingTest } from 'ember-mocha';
 import { render, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import { resolve } from 'rsvp';
 import Evented from '@ember/object/evented';
 import Service from '@ember/service';
-import { registerService } from '../../helpers/stub-service';
+import { lookupService, registerService } from '../../helpers/stub-service';
+import { getFileGri } from 'oneprovider-gui/models/file';
 
 const FileManager = Service.extend(Evented, {
   async fetchDirChildren() {
@@ -40,13 +39,14 @@ describe('Integration | Component | items-select-browser', function () {
 
 async function renderComponent(testCase) {
   if (!testCase.get('selectorModel')) {
-    const space = {
-      rootDir: promiseObject(resolve({
-        name: 'Test root',
-        entityId: 'test_root_dir',
-        hasParent: false,
-      })),
-    };
+    const store = lookupService(testCase, 'store');
+    const rootDir = await store.createRecord('file', {
+      name: 'Test root',
+      id: getFileGri('test_root_dir'),
+    }).save();
+    const space = await store.createRecord('space', {
+      rootDir,
+    }).save();
     const selectorModel = FilesystemModel.create({
       ownerSource: testCase.owner,
       constraintSpec: {

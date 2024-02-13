@@ -40,9 +40,9 @@ describe('Integration | Component | filesystem-browser/file-features', function 
     it(`does not show collapsed inherited tag if features are "${membership}" in collapsed mode`,
       async function () {
         await this.createItemWithRecallData({
-          effDatasetMembership: membership,
-          effQosMembership: membership,
-          recallingMembershipProxy: promiseObject(resolve(membership)),
+          effDatasetInheritancePath: membership,
+          effQosInheritancePath: membership,
+          recallingInheritancePathProxy: promiseObject(resolve(membership)),
         });
 
         await render(hbs `{{filesystem-browser/file-features
@@ -56,11 +56,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
 
   ['ancestor', 'directAndAncestor'].forEach(membership => {
     [
-      'effDatasetMembership',
-      'effQosMembership',
-      'recallingMembership',
+      'effDatasetInheritancePath',
+      'effQosInheritancePath',
+      'recallingInheritancePath',
     ].forEach(feature => {
-      if (feature === 'recallingMembership' && membership === 'directAndAncestor') {
+      if (feature === 'recallingInheritancePath' && membership === 'directAndAncestor') {
         // an exception - not used in recalling
         return;
       }
@@ -86,9 +86,9 @@ describe('Integration | Component | filesystem-browser/file-features', function 
 
   it('shows tags with "direct" features in expanded mode', async function () {
     await this.createItemWithRecallData({
-      effDatasetMembership: 'direct',
-      effQosMembership: 'direct',
-      recallingMembershipProxy: promiseObject(resolve('direct')),
+      effDatasetInheritancePath: 'direct',
+      effQosInheritancePath: 'direct',
+      recallingInheritancePathProxy: promiseObject(resolve('direct')),
     });
 
     await render(hbs `{{filesystem-browser/file-features
@@ -105,9 +105,9 @@ describe('Integration | Component | filesystem-browser/file-features', function 
   ['direct', 'directAndAncestor'].forEach(membership => {
     it(`shows tags with "${membership}" features in collapsed mode`, async function () {
       await this.createItemWithRecallData({
-        effDatasetMembership: membership,
-        effQosMembership: membership,
-        recallingMembershipProxy: promiseObject(resolve(membership)),
+        effDatasetInheritancePath: membership,
+        effQosInheritancePath: membership,
+        recallingInheritancePathProxy: promiseObject(resolve(membership)),
       });
 
       await render(hbs `{{filesystem-browser/file-features
@@ -126,8 +126,8 @@ describe('Integration | Component | filesystem-browser/file-features', function 
   it('shows direct tags and collapsed inheritance icon when features are "directAndAncestor" in collapsed mode',
     async function () {
       await this.createItem({
-        effDatasetMembership: 'directAndAncestor',
-        effQosMembership: 'directAndAncestor',
+        effDatasetInheritancePath: 'directAndAncestor',
+        effQosInheritancePath: 'directAndAncestor',
       });
 
       await render(hbs `{{filesystem-browser/file-features
@@ -151,8 +151,8 @@ describe('Integration | Component | filesystem-browser/file-features', function 
   it('shows pill-like direct-ancestor tags without collapsed inheritance icon when features are "directAndAncestor" in expanded mode',
     async function () {
       await this.createItem({
-        effDatasetMembership: 'directAndAncestor',
-        effQosMembership: 'directAndAncestor',
+        effDatasetInheritancePath: 'directAndAncestor',
+        effQosInheritancePath: 'directAndAncestor',
       });
 
       await render(hbs `{{filesystem-browser/file-features
@@ -178,9 +178,9 @@ describe('Integration | Component | filesystem-browser/file-features', function 
   it('shows feature ancestor tags without collapsed inheritance icon when features are "ancestor" in expanded mode',
     async function () {
       await this.createItemWithRecallData({
-        effDatasetMembership: 'ancestor',
-        effQosMembership: 'ancestor',
-        recallingMembershipProxy: promiseObject(resolve('ancestor')),
+        effDatasetInheritancePath: 'ancestor',
+        effQosInheritancePath: 'ancestor',
+        recallingInheritancePathProxy: promiseObject(resolve('ancestor')),
       });
 
       await render(hbs `{{filesystem-browser/file-features
@@ -211,8 +211,8 @@ describe('Integration | Component | filesystem-browser/file-features', function 
     it(`invokes onInvokeItemAction item and actionName="${action}" when clicking on "${tag}" tag`,
       async function () {
         const item = await this.createItem({
-          effDatasetMembership: 'direct',
-          effQosMembership: 'direct',
+          effDatasetInheritancePath: 'direct',
+          effQosInheritancePath: 'direct',
         });
         const onInvokeItemAction = sinon.spy();
         const spacePrivileges = {
@@ -240,9 +240,9 @@ describe('Integration | Component | filesystem-browser/file-features', function 
   });
 
   [
-    { tag: 'dataset', text: 'Dataset', feature: 'effDatasetMembership' },
-    { tag: 'qos', text: 'QoS', feature: 'effQosMembership' },
-    { tag: 'recalling', text: 'Recalling', feature: 'recallingMembership' },
+    { tag: 'dataset', text: 'Dataset', feature: 'effDatasetInheritancePath' },
+    { tag: 'qos', text: 'QoS', feature: 'effQosInheritancePath' },
+    { tag: 'recalling', text: 'Recalling', feature: 'recallingInheritancePath' },
   ].forEach(({ tag, text, feature }) => {
     it(`displays "${text}" text on ${tag} tag`, async function () {
       if (tag === 'recalling') {
@@ -276,8 +276,8 @@ describe('Integration | Component | filesystem-browser/file-features', function 
   // NOTE: "directAndAncestor" not used with recalling feature
   it('changes direct tags into direct-ancestor tags after inheritance tag click', async function () {
     await this.createItem({
-      effDatasetMembership: 'directAndAncestor',
-      effQosMembership: 'directAndAncestor',
+      effDatasetInheritancePath: 'directAndAncestor',
+      effQosInheritancePath: 'directAndAncestor',
     });
 
     await render(hbs `{{filesystem-browser/file-features
@@ -300,8 +300,8 @@ describe('Integration | Component | filesystem-browser/file-features', function 
   it('shows collapsed inherited tag in "inherited" style if there is no feature with custom noticeLevel in collapsed mode',
     async function () {
       await this.createItem({
-        effQosMembership: 'ancestor',
-        effDatasetMembership: 'ancestor',
+        effQosInheritancePath: 'ancestor',
+        effDatasetInheritancePath: 'ancestor',
       });
 
       await render(hbs `{{filesystem-browser/file-features
@@ -485,7 +485,7 @@ describe('Integration | Component | filesystem-browser/file-features', function 
   it('shows collapsed inherited tag in warning style if just one active feature has warning noticeLevel in collapsed mode',
     async function () {
       await this.createItem({
-        effQosMembership: 'ancestor',
+        effQosInheritancePath: 'ancestor',
       });
       whenUsedInArchiveFilesystemBrowser(this, {
         archiveState: 'building',
@@ -509,7 +509,7 @@ describe('Integration | Component | filesystem-browser/file-features', function 
   it('shows collapsed inherited tag in danger style if just one active feature has danger noticeLevel in collapsed mode',
     async function () {
       await this.createItem({
-        effQosMembership: 'ancestor',
+        effQosInheritancePath: 'ancestor',
       });
       whenUsedInArchiveFilesystemBrowser(this, {
         archiveState: 'failed',

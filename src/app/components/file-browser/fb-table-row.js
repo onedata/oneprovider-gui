@@ -25,7 +25,12 @@ function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
 }
 
-export default Component.extend(I18n, FastDoubleClick, {
+const mixins = Object.freeze([
+  I18n,
+  FastDoubleClick,
+]);
+
+export default Component.extend(...mixins, {
   layout,
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],

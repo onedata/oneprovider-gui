@@ -275,7 +275,7 @@ async function renderComponent(testCase) {
 
 function createFile(override = {}, ownerGri = userGri) {
   return Object.assign({
-    modificationTime: moment('2020-01-01T08:50:00+00:00').unix(),
+    mtime: moment('2020-01-01T08:50:00+00:00').unix(),
     posixPermissions: '777',
     type: 'file',
     belongsTo(name) {

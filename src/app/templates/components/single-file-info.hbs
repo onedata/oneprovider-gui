@@ -50,9 +50,9 @@
       </li>
     {{/if}}
     <li class="property-row">
-      <span class="property-label">{{tt this "modificationTime"}}:</span>
+      <span class="property-label">{{tt this "mtime"}}:</span>
       <span class="download-file-modification property-value">
-        {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+        {{date-format mtime format="dateWithMinutes" blank="—"}}
       </span>
     </li>
   </ul>

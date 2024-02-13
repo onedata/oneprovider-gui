@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11607 Improved User Experience of file ACL view
+* VFS-11252 Added optional file attributes fetching; enabled QoS and Replication columns in file browser
 * VFS-11726 Fixed broken selection in archives browser after using breadcrumbs menu
 * VFS-11608 Added resource subheaders to modals in automation
 * VFS-11594 Fixed popovers broken position after their content size change
@@ -26,8 +27,8 @@ CHANGELOG
 * VFS-11392 Updated directory size stats metric names
 * VFS-11251 Removed unused oneicons
 * VFS-11207 Added separate dir size stats in space root dir for archives and trash
-* VFS-10939 Fixed copying from provider popover in firefox
-* VFS-11312 Fix showing jump to file input
+* VFS-10939 Fixed copying from provider popover in Firefox
+* VFS-11312 Fixed showing "jump to file" input
 * VFS-11268 Added error handling for file data push to store on fetching files list
 * VFS-11224 Added jumping to items in exception store
 * VFS-10696 Added setting for modifying the order of columns in the transfers table

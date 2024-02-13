@@ -2,7 +2,7 @@
  * Tab model for showing file-metadata in file-info-modal
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,8 +12,14 @@ import { computed, get } from '@ember/object';
 import { reads, equal } from '@ember/object/computed';
 import FileMetadataViewModel from 'oneprovider-gui/utils/file-metadata-view-model';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
-export default BaseTabModel.extend({
+const mixins = [
+  FileConsumerMixin,
+];
+
+export default BaseTabModel.extend(...mixins, {
   /**
    * @override
    */
@@ -70,7 +76,7 @@ export default BaseTabModel.extend({
    * @override
    */
   statusIcon: conditional(
-    'hasMetadata',
+    'hasCustomMetadata',
     raw('checkbox-filled'),
     raw(undefined),
   ),
@@ -79,7 +85,7 @@ export default BaseTabModel.extend({
    * @override
    */
   tabClass: conditional(
-    'hasMetadata',
+    'hasCustomMetadata',
     raw('tab-status-success'),
     raw(undefined),
   ),
@@ -109,6 +115,28 @@ export default BaseTabModel.extend({
   }),
 
   /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedSingleUsedFileGri('file'),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('file', function fileRequirements() {
+    if (!this.file) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('file.id'),
+        properties: ['hasCustomMetadata'],
+      }),
+    ];
+  }),
+
+  /**
    * @type {ComputedProperty<Utils.FileMetadataViewModel>}
    */
   viewModel: computed('file', 'space', 'previewMode', function viewModel() {
@@ -123,7 +151,7 @@ export default BaseTabModel.extend({
   /**
    * @type {ComputedProperty<boolean>}
    */
-  hasMetadata: reads('file.hasMetadata'),
+  hasCustomMetadata: reads('file.hasCustomMetadata'),
 
   /**
    * @override

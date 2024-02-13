@@ -1,5 +1,9 @@
-{{file-browser/fb-download-modal
-  file=file
-  onHide=(action "closeModal")
-  confirmDownload=(action "download")
-}}
+{{#promise-proxy-container proxy=fileProxy}}
+  {{#if opened}}
+    {{file-browser/fb-download-modal
+      file=fileProxy.content
+      onHide=(action "closeModal")
+      confirmDownload=(action "download")
+    }}
+  {{/if}}
+{{/promise-proxy-container}}
