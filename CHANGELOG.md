@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11607 Improved User Experience of file ACL view
 * VFS-11726 Fixed broken selection in archives browser after using breadcrumbs menu
 * VFS-11608 Added resource subheaders to modals in automation
 * VFS-11594 Fixed popovers broken position after their content size change
