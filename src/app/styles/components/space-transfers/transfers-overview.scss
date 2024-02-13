@@ -10,11 +10,12 @@
       z-index: 2000000001;
       position: fixed;
       padding-bottom: 0;
+
+      .row-overview {
+        padding-bottom: $padding-base-vertical;
+        padding-top: $padding-base-vertical;
+      }
     }
-  }
-  .sticky .row-overview {
-    padding-bottom: $padding-base-vertical;
-    padding-top: $padding-base-vertical;
   }
   .row-overview {
     background-color: $color-one-white;
@@ -47,9 +48,6 @@
     }
   }
 
-  .row-providers-map-inner {
-    height: calc(100% - 49px);
-  }
 
   .sticky {
     .row-expand-handler {

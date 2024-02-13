@@ -16,12 +16,7 @@
                 role="tab"
                 {{action (mut transfersTabType) "list"}}
               >
-                {{tt this
-                  (if (lt windowWidth 650)
-                    "transferJobsHistoryShort"
-                    "transferJobsHistory"
-                  )
-                }}
+                {{tt this (concat "transferJobsHistory" (if areTabLabelsShort "Short"))}}
               </a>
             {{/nav.item}}
             {{#nav.item active=(eq transfersTabType "map")}}
@@ -31,10 +26,7 @@
                 {{action (mut transfersTabType) "map"}}
               >
                 {{tt this
-                  (if (lt windowWidth 650)
-                    "providersMapOfDistShort"
-                    "providersMapOfDist"
-                  )
+                  (if areTabLabelsShort "providersMapOfDistShort" "providersMapOfDist")
                 }}
               </a>
             {{/nav.item}}
@@ -45,22 +37,19 @@
                 {{action (mut transfersTabType) "chart"}}
               >
                 {{tt this
-                  (if (lt windowWidth 650)
-                    "providersThroughputShort"
-                    "providersThroughput"
-                  )
+                  (if areTabLabelsShort "providersThroughputShort" "providersThroughput")
                 }}
               </a>
             {{/nav.item}}
           {{/bs-nav}}
-          <div class="tab-content no-vertical-padding">
+          <div class={{concat-classes "tab-content no-vertical-padding"
+              (if (eq transfersTabType "map") "full-width-map")
+            }}
+          >
             {{#bsTab.pane elementId="transfers-tab-pane"}}
               {{#if (eq transfersTabType "list")}}
                 <div
-                  class={{concat-classes
-                    "providers-table"
-                    (if (gt windowWidth 650) "providers-container-border")
-                  }}
+                  class="providers-table providers-container-border"
                 >
                   {{space-transfers/tables-container
                     providers=providers
@@ -84,7 +73,7 @@
                 <div
                   class={{concat-classes
                     "row loadable-row throughput-chart-container"
-                    (if (gt windowWidth 650) "providers-container-border")
+                    (if (not areTabLabelsShort) "providers-container-border")
                   }}
                 >
                   {{space-transfers/throughput-chart

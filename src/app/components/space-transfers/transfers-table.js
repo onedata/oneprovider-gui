@@ -25,10 +25,13 @@ import { sum } from 'ember-awesome-macros';
 import isDirectlyClicked from 'onedata-gui-common/utils/is-directly-clicked';
 import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
+import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
+import globals from 'onedata-gui-common/utils/globals';
 
 const mixins = [
   I18n,
   DragAndDropColumnOrderMixin,
+  WindowResizeHandler,
 ];
 
 const allColumnNames = [
@@ -169,6 +172,11 @@ export default Component.extend(...mixins, {
    */
   expandedTransferIds: computed(() => A()),
 
+  /**
+   * @type {number}
+   */
+  windowWidth: undefined,
+
   //#endregion
 
   //#region Computed properties
@@ -191,10 +199,15 @@ export default Component.extend(...mixins, {
    */
   visibleColumnNames: computed(
     'transferType',
+    'windowWidth',
     function tableColumnNames() {
       const excludedColumnNames = [
         ...tableExcludedColumnNames[this.get('transferType')],
       ];
+      if (this.windowWidth < 400) {
+        excludedColumnNames.push('type');
+        excludedColumnNames.push('replicated');
+      }
       return _.differenceWith(
         allColumnNames,
         excludedColumnNames
@@ -423,6 +436,7 @@ export default Component.extend(...mixins, {
   init() {
     this._super(...arguments);
     this.registerArrayLoadingHandlers();
+    this.attachWindowResizeHandler();
     this.set('columnsConfiguration', this.createColumnsConfiguration());
   },
 
@@ -432,8 +446,17 @@ export default Component.extend(...mixins, {
   didInsertElement() {
     this._super(...arguments);
     const transfersTableThead = this.element?.querySelector('.transfers-table-thead');
+    this.set('windowWidth', globals.window.innerWidth);
     this.set('columnsConfiguration.tableThead', transfersTableThead);
     this.columnsConfiguration.checkColumnsVisibility();
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    this._super(...arguments);
+    this.detachWindowResizeHandler();
   },
 
   //#region Methods
@@ -509,6 +532,10 @@ export default Component.extend(...mixins, {
       camelize(`fetching-${type}`),
       state === 'started'
     );
+  },
+
+  onWindowResize() {
+    this.set('windowWidth', globals.window.innerWidth);
   },
 
   //#endregion

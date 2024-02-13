@@ -17,7 +17,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import globals from 'onedata-gui-common/utils/globals';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 
 const mixins = [
@@ -149,6 +148,13 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  areTabLabelsShort: computed('windowWidth', function areTabLabelsShort() {
+    return this.windowWidth < 650;
+  }),
+
   spaceChanged: observer('space', function spaceChanged() {
     this._spaceChanged();
   }),
@@ -174,8 +180,10 @@ export default Component.extend(...mixins, {
   },
 
   onWindowResize() {
-    this.set('windowWidth', globals.window.innerWidth);
-    this.set('windowHeight', globals.window.innerHeight);
+    this.setProperties({
+      windowWidth: globals.window.innerWidth,
+      windowHeight: globals.window.innerHeight,
+    });
   },
 
   _spaceChanged(isInit = false) {
