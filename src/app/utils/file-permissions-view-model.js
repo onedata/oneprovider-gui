@@ -34,6 +34,7 @@ import { numberToTree } from 'oneprovider-gui/utils/acl-permissions-converter';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const mixins = [
   OwnerInjector,
@@ -165,6 +166,12 @@ export default EmberObject.extend(...mixins, {
    */
   hasAclReadPermissions: true,
 
+  /**
+   * Read-only state of ACL editor when it is saved.
+   * @type {boolean}
+   */
+  hasReadonlyAclRules: false,
+
   //#endregion
 
   hasAclEditorPermissions: and('hasAclReadPermissions', 'hasAclChangePermissions'),
@@ -230,8 +237,6 @@ export default EmberObject.extend(...mixins, {
       }
     }
   ),
-
-  hasReadonlyAclRules: not('hasAclViewerPermissions'),
 
   fileTypeTextConfig: computed('files.@each.type', function fileTypeTextConfig() {
     let fileType = get(this.files[0], 'type');
@@ -768,7 +773,10 @@ export default EmberObject.extend(...mixins, {
 
   setAclFromInitial() {
     this.set('acl', _.cloneDeep(this.initialAcl));
-    this.setAclEditorSelfPermissionsState();
+    (async () => {
+      await this.setAclEditorSelfPermissionsState();
+      safeExec(this, 'set', 'hasReadonlyAclRules', !this.hasAclChangePermissions);
+    })();
   },
 
   async setAclEditorSelfPermissionsState() {
@@ -840,7 +848,7 @@ export default EmberObject.extend(...mixins, {
    * @private
    * @returns {Promise}
    */
-  saveAllPermissions() {
+  async saveAllPermissions() {
     const {
       acl,
       posixPermissions,
@@ -959,6 +967,7 @@ export default EmberObject.extend(...mixins, {
         );
       }
     } finally {
+      safeExec(this, 'set', 'hasReadonlyAclRules', !this.hasAclChangePermissions);
       const hardlinkedFile = files.find(file => get(file, 'hardlinkCount') > 1);
       if (hardlinkedFile) {
         this.fileManager.fileParentRefresh(hardlinkedFile);
