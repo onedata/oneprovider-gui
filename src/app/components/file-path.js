@@ -150,7 +150,7 @@ export default Component.extend(...mixins, {
     const fontLoadPromise = globals.document.fonts.load(font);
     const timeoutPromise = sleep(3000);
     // Wait either for font load settled (no matter if it fulfilled or rejected)
-    // or timeout occured. Ignore font load error with catch.
+    // or timeout occurred. Ignore font load error with catch.
     try {
       await race([fontLoadPromise, timeoutPromise]);
     } catch {
