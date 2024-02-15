@@ -446,7 +446,7 @@ export default Component.extend(...mixins, {
   didInsertElement() {
     this._super(...arguments);
     const transfersTableThead = this.element?.querySelector('.transfers-table-thead');
-    this.set('windowWidth', globals.window.innerWidth);
+    this.onWindowResize();
     this.set('columnsConfiguration.tableThead', transfersTableThead);
     this.columnsConfiguration.checkColumnsVisibility();
   },
@@ -535,7 +535,7 @@ export default Component.extend(...mixins, {
   },
 
   onWindowResize() {
-    this.set('windowWidth', globals.window.innerWidth);
+    safeExec(this, 'set', 'windowWidth', globals.window.innerWidth);
   },
 
   //#endregion

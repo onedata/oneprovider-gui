@@ -10,11 +10,6 @@
       z-index: 2000000001;
       position: fixed;
       padding-bottom: 0;
-
-      .row-overview {
-        padding-bottom: $padding-base-vertical;
-        padding-top: $padding-base-vertical;
-      }
     }
   }
   .row-overview {
@@ -22,6 +17,8 @@
     display: flex;
     justify-content: space-between;
     flex-direction: row;
+    padding-bottom: $padding-base-vertical;
+    padding-top: $padding-base-vertical;
   }
 
   .row-expand-handler {
@@ -67,5 +64,9 @@
     .col-providers-map, .throughput-chart-container {
       width: calc(50% - $padding-small-horizontal);
     }
+  }
+
+  .row-overview .providers-container-border {
+    padding-top: 0;
   }
 }
