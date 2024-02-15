@@ -341,6 +341,12 @@
   width: auto;
 }
 
+.error-icon {
+  vertical-align: middle;
+  padding-bottom: 1.2em;
+  color: $color-one-orange;
+}
+
 .confirm-subsequent-transfer {
   .btn-toolbar {
     text-align: right;

@@ -19,6 +19,7 @@ export default Component.extend(I18n, {
   classNameBindings: ['neverSynchronized:never-synchronized:synchronized'],
 
   i18n: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -50,6 +51,11 @@ export default Component.extend(I18n, {
   providerId: undefined,
 
   /**
+   * @virtual
+   */
+  errorOnStorage: undefined,
+
+  /**
    * @type {ComputedProperty<boolean>}
    */
   isDataIncomplete: or(
@@ -63,6 +69,15 @@ export default Component.extend(I18n, {
   percentageText: computed('percentageNormalized', function percentageText() {
     const percentage = this.get('percentageNormalized');
     return percentage !== undefined ? `${Math.floor(percentage)}%` : '';
+  }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  errorMessage: computed('errorOnStorage', function errorMessage() {
+    return this.errorExtractor.getMessage(this.errorOnStorage)?.message ||
+      this.errorOnStorage.description ||
+      this.t('unknownError') + ': ' + JSON.stringify(this.errorOnStorage);
   }),
 
   /**
@@ -102,6 +117,6 @@ export default Component.extend(I18n, {
    */
   providersUrl: computed('providerId', function providersUrl() {
     const providerId = this.get('providerId');
-    return this.getProvidersUrl({ oneproviderId: providerId});
+    return this.getProvidersUrl({ oneproviderId: providerId });
   }),
 });

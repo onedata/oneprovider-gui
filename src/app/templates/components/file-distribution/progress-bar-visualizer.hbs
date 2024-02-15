@@ -2,15 +2,26 @@
   <div class="progress-bar-scale-container"></div>
   {{#if isDataIncomplete}}
     <div class="progress-bar-text na-text hidden-xs">
-      <a 
-        href={{providersUrl}} 
-        class="dir-statistics-settings-url navy" 
-        target={{navigateProvidersTarget}}
-      >
-        {{tt this "disableStatistics"}}
-        {{one-icon icon="overview" class="inline-icon-container dir-stats-icon"}}
-        {{one-tooltip title=(tt this "naTip")}}
-      </a>
+      {{#if (and errorOnStorage (eq errorOnStorage.id "dirStatsDisabledForSpace"))}}
+        <a
+          href={{providersUrl}}
+          class="dir-statistics-settings-url navy"
+          target={{navigateProvidersTarget}}
+        >
+          {{tt this "disableStatistics"}}
+          {{one-icon icon="overview" class="inline-icon-container dir-stats-icon"}}
+          {{one-tooltip title=(tt this "naTip")}}
+        </a>
+      {{else if errorOnStorage}}
+        <span>
+          {{tt this "error"}}
+          {{one-icon
+            icon="sign-warning-rounded"
+            class="inline-icon-container error-icon"
+          }}
+          {{one-tooltip title=errorMessage}}
+        </span>
+      {{/if}}
     </div>
     <div class="progress-bar-background"></div>
   {{else}}

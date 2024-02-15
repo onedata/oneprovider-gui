@@ -321,6 +321,21 @@ export default Component.extend(I18n, {
     }
   ),
 
+  errorOnStorage: computed(
+    'isDistributionDataIncomplete',
+    'fileDistributionData.@each.{fileDistribution}',
+    function errorOnStorage() {
+      let error = undefined;
+      this.fileDistributionData.forEach(fileDistDataContainer => {
+        const fileDistribution =
+          fileDistDataContainer.getDistributionForOneprovider(this.oneprovider)
+          .distributionPerStorage[this.storageId];
+        error = fileDistribution?.error;
+      });
+      return error;
+    }
+  ),
+
   /**
    * @type {Ember.ComputedProperty<Object>}
    */
@@ -770,7 +785,7 @@ export default Component.extend(I18n, {
 
   actions: {
     getProvidersUrl(...args) {
-        return this.get('getProvidersUrl')(...args);
+      return this.get('getProvidersUrl')(...args);
     },
   },
 });
