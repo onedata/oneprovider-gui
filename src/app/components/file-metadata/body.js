@@ -21,7 +21,6 @@ export default Component.extend(...mixins, {
   classNames: ['file-metadata-body', 'full-height'],
 
   i18n: service(),
-  fileManager: service(),
 
   /**
    * @override

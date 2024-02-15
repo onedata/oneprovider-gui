@@ -82,23 +82,15 @@ export default Component.extend(I18n, {
   }),
 
   fileArchiveInfoProxy: computed(
-    'dataSourceType',
     'isFileSource',
     'filePath',
     function fileArchiveInfoProxy() {
-      const {
-        isFileSource,
-        filePath,
-      } = this.getProperties(
-        'isFileSource',
-        'filePath',
-      );
-      if (!isFileSource) {
+      if (!this.isFileSource) {
         return null;
       }
       return FileArchiveInfo.create({
         ownerSource: this,
-        filePathProxy: promiseObject(resolve(filePath)),
+        filePathProxy: promiseObject(resolve(this.filePath)),
       });
     }
   ),
@@ -129,7 +121,7 @@ export default Component.extend(I18n, {
 
   displayedDatasetNameProxy: promise.object(computed(
     'fileArchiveInfoProxy',
-    async function displayedDatasetName() {
+    async function displayedDatasetNameProxy() {
       const {
         fileArchiveInfoProxy,
         datasetManager,
@@ -154,7 +146,7 @@ export default Component.extend(I18n, {
 
   displayedArchiveNameProxy: promise.object(computed(
     'fileArchiveInfoProxy',
-    async function displayedDatasetName() {
+    async function displayedArchiveNameProxy() {
       const {
         fileArchiveInfoProxy,
         archiveManager,

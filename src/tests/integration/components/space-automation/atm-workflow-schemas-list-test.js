@@ -90,7 +90,7 @@ describe('Integration | Component | space-automation/atm-workflow-schemas-list',
 
     await renderComponent();
 
-    const workflowEntry = findAll('.list-entry')[1];
+    const workflowEntry = findAll('.list-entry')[3];
 
     expect(workflowEntry).to.have.class('disabled-workflow-schema');
     expect(workflowEntry).to.not.contain('.revisions-table');

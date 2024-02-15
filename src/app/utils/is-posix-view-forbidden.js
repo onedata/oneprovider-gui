@@ -22,5 +22,3 @@ export default function isPosixViewForbidden(file, octalNumber) {
     return !get(entityPermissions, 'read') || !get(entityPermissions, 'execute');
   }
 }
-
-

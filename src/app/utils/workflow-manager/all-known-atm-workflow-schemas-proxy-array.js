@@ -11,6 +11,7 @@ import { getProperties, computed, observer, get } from '@ember/object';
 import { promise } from 'ember-awesome-macros';
 import ArrayProxy from '@ember/array/proxy';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
+import ConflictIdsArray from 'onedata-gui-common/utils/conflict-ids-array';
 
 export default ArrayProxy.extend({
   /**
@@ -58,7 +59,9 @@ export default ArrayProxy.extend({
       atmWorkflowSchemaListsProxy.forEach(list =>
         atmWorkflowSchemasArray.push(...list.toArray())
       );
-      return atmWorkflowSchemasArray;
+      return await onlyFulfilledValues(atmWorkflowSchemasArray.map(((atmWorkflowSchema) =>
+        get(atmWorkflowSchema, 'atmInventory').then(() => atmWorkflowSchema)
+      )));
     }
   )),
 
@@ -71,7 +74,11 @@ export default ArrayProxy.extend({
       } = getProperties(this.get('atmWorkflowSchemasProxy'), 'isFulfilled', 'content');
 
       if (isFulfilled) {
-        this.set('content', content);
+        this.set('content', ConflictIdsArray.create({
+          content,
+          diffProperty: 'entityId',
+          conflictLabelProperty: 'globalConflictLabel',
+        }));
       }
     }
   ),

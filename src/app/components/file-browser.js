@@ -677,33 +677,22 @@ export default Component.extend(I18n, {
   didInsertElement() {
     this._super(...arguments);
 
-    const {
-      element,
-      clickOutsideDeselectHandler,
-      currentDirContextMenuHandler,
-      browserModel,
-    } = this.getProperties(
-      'element',
-      'clickOutsideDeselectHandler',
-      'currentDirContextMenuHandler',
-      'browserModel',
-    );
-
     if (!this.contentScroll) {
       this.set('contentScroll', globals.document.getElementById('content-scroll'));
     }
 
     globals.document.body.addEventListener(
       'click',
-      clickOutsideDeselectHandler
+      this.clickOutsideDeselectHandler
     );
 
-    element.querySelector('.fb-table').addEventListener(
+    this.element.querySelector('.fb-table').addEventListener(
       'contextmenu',
-      currentDirContextMenuHandler
+      this.currentDirContextMenuHandler
     );
 
-    browserModel.onInsertElement();
+    this.browserModel.mount(this.element);
+    this.browserModel.onInsertElement();
   },
 
   willDestroyElement() {

@@ -17,8 +17,15 @@ import { inject as service } from '@ember/service';
 import { bool, sum, array, and, raw } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
+import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Component.extend(...mixins, {
   tagName: '',
 
   fileManager: service(),
@@ -36,13 +43,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {models/File}
+   * @type {Array<Models.File>}
    */
   files: undefined,
 
   /**
    * @virtual
-   * @type {models/File}
+   * @type {Models.File}
    */
   parentDir: undefined,
 
@@ -60,6 +67,29 @@ export default Component.extend(I18n, {
    * @type {(removedFiles: Array<Models.File>) => Promise}
    */
   onFilesRemoved: undefined,
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('files', function fileRequirements() {
+    if (!this.files) {
+      return [];
+    }
+    return this.files.map(file =>
+      new FileRequirement({
+        fileGri: get(file, 'id'),
+        // TODO: VFS-11449 optional file size fetch
+        properties: ['sharesCount', 'mtime'],
+      }),
+    );
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedMultiUsedFileGris('files'),
 
   /**
    * @type {ComputedProperty<Models.File>}
@@ -258,7 +288,11 @@ export default Component.extend(I18n, {
           await this.onFilesRemoved?.(removedFiles);
         }
 
-        await fileManager.dirChildrenRefresh(get(parentDir, 'entityId'));
+        await fileManager.dirChildrenRefresh(
+          get(parentDir, 'entityId'), {
+            forced: true,
+          }
+        );
         onHide.bind(this)(true, results);
       } finally {
         safeExec(this, 'set', 'processing', false);

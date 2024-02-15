@@ -6,8 +6,7 @@ import Service from '@ember/service';
 import sinon from 'sinon';
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import { set } from '@ember/object';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import { resolve } from 'rsvp';
+import { getFileGri } from 'oneprovider-gui/models/file';
 
 const AppProxy = Service.extend({
   callParent() {},
@@ -243,33 +242,33 @@ describe('Unit | Service | files-view-resolver', function () {
   );
 
   it('resolves parent dir for first selected file ID if dirId is not provided', async function () {
+    const store = lookupService(this, 'store');
     const service = this.owner.lookup('service:files-view-resolver');
     const fakeUrl = 'fake_url';
     const appProxy = lookupService(this, 'appProxy');
     const fileManager = lookupService(this, 'fileManager');
     const callParent = sinon.stub(appProxy, 'callParent').returns(fakeUrl);
     const spaceId = 'fake_space_id';
-    const parentDir = {
-      entityId: 'fake_parent_dir_id',
+    const parentDir = await store.createRecord('file', {
+      id: getFileGri('fake_parent_dir_id'),
       name: 'fake_parent_dir',
       type: 'dir',
-      hasParent: false,
-    };
-    const selectedFile1 = {
-      entityId: 'selected1',
+    }).save();
+    const selectedFile1 = await store.createRecord('file', {
+      id: getFileGri('selected1'),
       name: 'selected1_name',
       type: 'file',
-      parent: promiseObject(resolve(parentDir)),
-      hasParent: true,
-    };
-    const selectedFile2 = {
-      entityId: 'selected2',
+      parent: parentDir,
+    }).save();
+    const selectedFile2 = await store.createRecord('file', {
+      id: getFileGri('selected2'),
       name: 'selected2_name',
       type: 'file',
-      parent: promiseObject(resolve(parentDir)),
-      hasParent: true,
-    };
-    const fallbackDir = { entityId: 'fallback_dir_id' };
+      parent: parentDir,
+    }).save();
+    const fallbackDir = await store.createRecord('file', {
+      id: getFileGri('fallback_dir_id'),
+    }).save();
     const parentDirId = parentDir.entityId;
     const selectedDir1Id = selectedFile1.entityId;
     const selectedDir2Id = selectedFile2.entityId;

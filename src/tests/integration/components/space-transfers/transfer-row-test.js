@@ -70,7 +70,7 @@ describe('Integration | Component | space-transfers/transfer-row', function () {
 
   it('renders tooltip with dataset info, archive info and file path on link hover', async function () {
     const path =
-      '/space_name/.__onedata__archive/dataset_archives_ds123/archive_a123/hello/onefile_txt';
+      '/.__onedata__archive/dataset_archives_ds123/archive_a123/hello/onefile_txt';
     this.set('record.transfer.dataSourceName', path);
     const datasetManager = lookupService(this, 'datasetManager');
     const archiveManager = lookupService(this, 'archiveManager');
@@ -92,7 +92,7 @@ describe('Integration | Component | space-transfers/transfer-row', function () {
   it('renders tooltip with dataset ID, archive ID and relative file path if dataset containg file cannot be fetched',
     async function () {
       const path =
-        '/space_name/.__onedata__archive/dataset_archives_ds123/archive_a123/hello/onefile_txt';
+        '/.__onedata__archive/dataset_archives_ds123/archive_a123/hello/onefile_txt';
       this.set('record.transfer.dataSourceName', path);
       const datasetManager = lookupService(this, 'datasetManager');
       const archiveManager = lookupService(this, 'archiveManager');
@@ -121,7 +121,7 @@ describe('Integration | Component | space-transfers/transfer-row', function () {
   it('renders tooltip with dataset name, archive ID and relative file path if archive containg file cannot be fetched',
     async function () {
       const path =
-        '/space_name/.__onedata__archive/dataset_archives_ds123/archive_a123/hello/onefile_txt';
+        '/.__onedata__archive/dataset_archives_ds123/archive_a123/hello/onefile_txt';
       this.set('record.transfer.dataSourceName', path);
       const datasetManager = lookupService(this, 'datasetManager');
       const archiveManager = lookupService(this, 'archiveManager');

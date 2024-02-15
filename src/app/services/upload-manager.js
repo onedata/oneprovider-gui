@@ -22,8 +22,15 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import globals from 'onedata-gui-common/utils/globals';
+import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
-export default Service.extend(I18n, {
+const mixins = [
+  I18n,
+  FileConsumerMixin,
+];
+
+export default Service.extend(...mixins, {
   appProxy: service(),
   fileManager: service(),
   onedataRpc: service(),
@@ -34,6 +41,30 @@ export default Service.extend(I18n, {
    * @override
    */
   i18nPrefix: 'services.uploadManager',
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedSingleUsedFileGri('file'),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('targetDirectory', function fileRequirements() {
+    if (!this.targetDirectory) {
+      return [];
+    }
+    return [
+      new FileRequirement({
+        fileGri: this.get('targetDirectory.id'),
+        properties: ['dataIsProtected'],
+      }),
+    ];
+  }),
+
+  //#region state
 
   /**
    * @type {PromiseObject<string>}
@@ -66,6 +97,8 @@ export default Service.extend(I18n, {
    * @type {HTMLElement}
    */
   dropElement: undefined,
+
+  //#endregion
 
   /**
    * @type {(event: Object) => void}

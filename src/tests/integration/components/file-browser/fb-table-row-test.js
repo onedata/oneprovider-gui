@@ -30,8 +30,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
       firstColumnWidth: 20,
       loadColumnsConfigFromLocalStorage() {
         this.set('columns.modification.isEnabled', true);
-        // TODO: VFS-11089 Uncomment replication tests
-        // this.set('columns.replication.isEnabled', true);
+        this.set('columns.replication.isEnabled', true);
       },
     }));
     this.set('spacePrivileges', { view: true });
@@ -44,7 +43,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('renders modification date', async function () {
     const date = moment('2022-05-18T08:50:00+00:00').unix();
     const dateReadable = /18 May 2022 \d+:50/;
-    this.set('file', createFile({ modificationTime: date }));
+    this.set('file', createFile({ mtime: date }));
 
     await renderComponent(this);
 
@@ -52,7 +51,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   });
 
   it('does not render "hard links" file tag, when hardlinks count equals 1', async function () {
-    this.set('file', createFile({ hardlinksCount: 1 }));
+    this.set('file', createFile({ hardlinkCount: 1 }));
 
     await renderComponent(this);
 
@@ -60,7 +59,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   });
 
   it('renders "hard links" file tag, when hardlinks count equals 2', async function () {
-    this.set('file', createFile({ hardlinksCount: 2 }));
+    this.set('file', createFile({ hardlinkCount: 2 }));
 
     await renderComponent(this);
 
@@ -114,7 +113,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('shows qos tag with inherited icon after inherited icon click if file has effective qos, but not direct',
     async function () {
       this.set('file', createFile({
-        effQosMembership: 'ancestor',
+        effQosInheritancePath: 'ancestor',
       }));
 
       await renderComponent(this);
@@ -127,7 +126,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('shows dataset tag with inherited icon after inherited icon click if file has an effective dataset, but not direct',
     async function () {
       this.set('file', createFile({
-        effDatasetMembership: 'ancestor',
+        effDatasetInheritancePath: 'ancestor',
       }));
 
       await renderComponent(this);
@@ -140,7 +139,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
 
   it('renders dataset tag without inherited icon if file has direct dataset', async function () {
     this.set('file', createFile({
-      effDatasetMembership: 'direct',
+      effDatasetInheritancePath: 'direct',
     }));
 
     await renderComponent(this);
@@ -153,7 +152,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     async function () {
       this.set('spacePrivileges.view', false);
       this.set('file', createFile({
-        effDatasetMembership: 'direct',
+        effDatasetInheritancePath: 'direct',
       }));
 
       await renderComponent(this);
@@ -166,7 +165,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('renders dataset tag as enabled if file has dataset and has space_view privileges', async function () {
     this.set('spacePrivileges.view', true);
     this.set('file', createFile({
-      effDatasetMembership: 'direct',
+      effDatasetInheritancePath: 'direct',
     }));
 
     await renderComponent(this);
@@ -180,7 +179,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     async function () {
       this.set('spacePrivileges.viewQos', false);
       this.set('file', createFile({
-        effQosMembership: 'direct',
+        effQosInheritancePath: 'direct',
       }));
 
       await renderComponent(this);
@@ -193,7 +192,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   it('renders qos tag as enabled if file has direct qos and has space_view_qos privileges', async function () {
     this.set('spacePrivileges.viewQos', true);
     this.set('file', createFile({
-      effQosMembership: 'direct',
+      effQosInheritancePath: 'direct',
     }));
 
     await renderComponent(this);
@@ -203,80 +202,84 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
     expect(tag).to.not.have.class('file-status-tag-disabled');
   });
 
-  // TODO: VFS-11089 Uncomment replication tests
-  // it('renders 100% replication', async function () {
-  //   const replicationRate = 1;
-  //   this.set('file', createFile({ localReplicationRate: replicationRate }));
-  //   const replicationRateText = replicationRate * 100 + '%';
+  it('renders 100% replication', async function () {
+    const replicationRate = 1;
+    this.set('file', createFile({ localReplicationRate: replicationRate }));
+    const replicationRateText = replicationRate * 100 + '%';
+    enableColumn(this, 'replication');
 
-  //   await renderComponent(this);
+    await renderComponent(this);
 
-  //   expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
-  //   expect(find('.replication-bar.full')).to.exist;
-  //   expect(find('.replication-bar').style.width).to.equal('100%');
-  //   expect(find('.remain-background-bar')).to.exist;
-  //   expect(find('.remain-background-bar').style.width).to.equal('0%');
-  // });
+    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+    expect(find('.replication-bar.full')).to.exist;
+    expect(find('.replication-bar').style.width).to.equal('100%');
+    expect(find('.remain-background-bar')).to.exist;
+    expect(find('.remain-background-bar').style.width).to.equal('0%');
+  });
 
-  // it('renders 0% replication', async function () {
-  //   const replicationRate = 0;
-  //   this.set('file', createFile({ localReplicationRate: replicationRate }));
-  //   const replicationRateText = replicationRate * 100 + '%';
+  it('renders 0% replication', async function () {
+    const replicationRate = 0;
+    this.set('file', createFile({ localReplicationRate: replicationRate }));
+    const replicationRateText = replicationRate * 100 + '%';
+    enableColumn(this, 'replication');
 
-  //   await renderComponent(this);
+    await renderComponent(this);
 
-  //   expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
-  //   expect(find('.replication-bar')).to.exist;
-  //   expect(find('.replication-bar').style.width).to.equal('0%');
-  //   expect(find('.remain-background-bar.full')).to.exist;
-  //   expect(find('.remain-background-bar').style.width).to.equal('100%');
-  // });
+    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+    expect(find('.replication-bar')).to.exist;
+    expect(find('.replication-bar').style.width).to.equal('0%');
+    expect(find('.remain-background-bar.full')).to.exist;
+    expect(find('.remain-background-bar').style.width).to.equal('100%');
+  });
 
-  // it('renders 20% replication', async function () {
-  //   const replicationRate = 0.2;
-  //   this.set('file', createFile({ localReplicationRate: replicationRate }));
-  //   const replicationRateText = replicationRate * 100 + '%';
+  it('renders 20% replication', async function () {
+    const replicationRate = 0.2;
+    this.set('file', createFile({ localReplicationRate: replicationRate }));
+    const replicationRateText = replicationRate * 100 + '%';
+    enableColumn(this, 'replication');
 
-  //   await renderComponent(this);
+    await renderComponent(this);
 
-  //   expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
-  //   expect(find('.replication-bar')).to.exist;
-  //   expect(find('.replication-bar.full')).not.to.exist;
-  //   expect(find('.replication-bar').style.width).to.equal('20%');
-  //   expect(find('.remain-background-bar')).to.exist;
-  //   expect(find('.remain-background-bar.full')).not.to.exist;
-  //   expect(find('.remain-background-bar').style.width).to.equal('80%');
-  // });
+    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+    expect(find('.replication-bar')).to.exist;
+    expect(find('.replication-bar.full')).not.to.exist;
+    expect(find('.replication-bar').style.width).to.equal('20%');
+    expect(find('.remain-background-bar')).to.exist;
+    expect(find('.remain-background-bar.full')).not.to.exist;
+    expect(find('.remain-background-bar').style.width).to.equal('80%');
+  });
 
-  // it('renders less than 1% replication', async function () {
-  //   const replicationRate = 0.004;
-  //   this.set('file', createFile({ localReplicationRate: replicationRate }));
+  it('renders less than 1% replication', async function () {
+    const replicationRate = 0.004;
+    this.set('file', createFile({ localReplicationRate: replicationRate }));
+    enableColumn(this, 'replication');
 
-  //   await renderComponent(this);
+    await renderComponent(this);
 
-  //   expect(find('.fb-table-col-replication').textContent.trim()).to.equal('< 1%');
-  //   expect(find('.replication-bar.almost-empty-bar')).to.exist;
-  //   expect(find('.replication-bar.full')).not.to.exist;
-  //   expect(find('.replication-bar').style.width).to.equal('100%');
-  //   expect(find('.remain-background-bar')).to.exist;
-  //   expect(find('.remain-background-bar').style.width).to.equal('0%');
-  // });
+    expect(find('.fb-table-col-replication').textContent.trim()).to.equal('< 1%');
+    expect(find('.replication-bar.almost-empty-bar')).to.exist;
+    expect(find('.replication-bar.full')).not.to.exist;
+    expect(find('.replication-bar').style.width).to.equal('100%');
+    expect(find('.remain-background-bar')).to.exist;
+    expect(find('.remain-background-bar').style.width).to.equal('0%');
+  });
 
-  // it('renders 1% replication', async function () {
-  //   const replicationRate = 0.01;
-  //   this.set('file', createFile({ localReplicationRate: replicationRate }));
-  //   const replicationRateText = replicationRate * 100 + '%';
+  it('renders 1% replication', async function () {
+    const replicationRate = 0.01;
+    this.set('file', createFile({ localReplicationRate: replicationRate }));
+    const replicationRateText = replicationRate * 100 + '%';
+    enableColumn(this, 'replication');
 
-  //   await renderComponent(this);
+    await renderComponent(this);
 
-  //   expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
-  //   expect(find('.replication-bar')).to.exist;
-  //   expect(find('.replication-bar.full')).not.to.exist;
-  //   expect(find('.replication-bar').style.width).to.equal('1%');
-  //   expect(find('.remain-background-bar')).to.exist;
-  //   expect(find('.remain-background-bar.full')).not.to.exist;
-  //   expect(find('.remain-background-bar').style.width).to.equal('99%');
-  // });
+    expect(find('.fb-table-col-replication').textContent.trim()).to.equal(replicationRateText);
+    expect(find('.replication-bar')).to.exist;
+    expect(find('.replication-bar.full')).not.to.exist;
+    expect(find('.replication-bar').style.width).to.equal('1%');
+    expect(find('.remain-background-bar')).to.exist;
+    expect(find('.remain-background-bar.full')).not.to.exist;
+    expect(find('.remain-background-bar').style.width).to.equal('99%');
+  });
 
   testProtectedFlag(['data']);
   testProtectedFlag(['metadata']);
@@ -292,7 +295,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
         file: createFile({
           type,
           effProtectionFlags: ['data_protection'],
-          effDatasetMembership: 'ancestor',
+          effDatasetInheritancePath: 'ancestor',
         }),
       }
     );
@@ -304,7 +307,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
         file: createFile({
           type,
           effProtectionFlags: ['metadata_protection'],
-          effDatasetMembership: 'ancestor',
+          effDatasetInheritancePath: 'ancestor',
         }),
       }
     );
@@ -316,7 +319,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
         file: createFile({
           type,
           effProtectionFlags: ['data_protection', 'metadata_protection'],
-          effDatasetMembership: 'ancestor',
+          effDatasetInheritancePath: 'ancestor',
         }),
       }
     );
@@ -333,7 +336,7 @@ function testProtectedFlag(flagTypes) {
   it(description, async function () {
     this.set(
       'file',
-      createFile({ effProtectionFlags, effDatasetMembership: 'ancestor' })
+      createFile({ effProtectionFlags, effDatasetInheritancePath: 'ancestor' })
     );
 
     await renderComponent(this);
@@ -380,7 +383,7 @@ function checkNoAccessTag({ renders, description, properties }) {
 // TODO: VFS-9850 Use real file model in tests
 function createFile(override = {}, ownerGri = userGri) {
   const data = Object.assign({
-    modificationTime: moment('2020-01-01T08:50:00+00:00').unix(),
+    mtime: moment('2020-01-01T08:50:00+00:00').unix(),
     posixPermissions: '777',
     type: 'file',
     belongsTo(name) {
@@ -389,6 +392,11 @@ function createFile(override = {}, ownerGri = userGri) {
           id: () => ownerGri,
         };
       }
+    },
+    hasMany() {
+      return {
+        ids: () => [],
+      };
     },
   }, override);
 
@@ -413,4 +421,15 @@ async function renderComponent(testCase) {
 async function expandInheritanceTag() {
   const inheritanceTag = find('.file-status-inherited');
   await click(inheritanceTag);
+}
+
+function enableColumn(mochaContext, columnName) {
+  mochaContext.set(
+    `browserModel.columnsConfiguration.columns.${columnName}.isEnabled`,
+    true
+  );
+  mochaContext.set(
+    `browserModel.columnsConfiguration.columns.${columnName}.isVisible`,
+    true
+  );
 }

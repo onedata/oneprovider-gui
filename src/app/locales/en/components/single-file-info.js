@@ -1,6 +1,6 @@
 export default {
   size: 'Size',
-  modificationTime: 'Modification time',
+  mtime: 'Modification time',
   dataset: 'Dataset',
   archive: 'Archive',
 };

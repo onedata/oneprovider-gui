@@ -307,6 +307,8 @@ export default EmberObject.extend(...mixins, {
 
   //#endregion
 
+  dirId: reads('dir.entityId'),
+
   isRootDirProxy: promise.object(computed(
     'dir.hasParent',
     'resolveFileParentFun',
@@ -559,7 +561,7 @@ export default EmberObject.extend(...mixins, {
     'dirLoadError',
     'hasEmptyDirClass',
     function columnsVisibilityAutoChecker() {
-      this.columnsConfiguration.checkColumnsVisibility();
+      this.columnsConfiguration?.checkColumnsVisibility();
     },
   ),
 
@@ -571,6 +573,20 @@ export default EmberObject.extend(...mixins, {
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
     this.set('columnsConfiguration', this.createColumnsConfiguration());
+  },
+
+  /**
+   * @param {HTMLElement} element HTMLElement of Components.FileBrowser.
+   */
+  mount(element) {
+    const elementFbTableThead = element.querySelector('.fb-table-thead');
+    if (elementFbTableThead) {
+      this.columnsConfiguration?.mount(elementFbTableThead);
+    } else {
+      console.warn(
+        'Could not find file browser table head element - columns configuration will not work properly.'
+      );
+    }
   },
 
   /**

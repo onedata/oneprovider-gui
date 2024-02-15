@@ -24,10 +24,6 @@ const TransferManager = Service.extend({
   getSpaceTransfersThroughputCharts: notImplementedReject,
 });
 
-const Store = Service.extend({
-  findRecord: notImplementedReject,
-});
-
 const ErrorExtractor = Service.extend({
   getMessage: () => ({
     message: 'error extractor message',
@@ -66,7 +62,6 @@ describe('Integration | Component | space-transfers', function () {
     const fileId = 'dummyFileId';
     const defaultTab = 'waiting';
     registerService(this, 'transferManager', TransferManager);
-    registerService(this, 'store', Store);
     registerService(this, 'errorExtractor', ErrorExtractor);
     set(lookupService(this, 'guiContext'), 'clusterId', providerId);
     this.setProperties({
@@ -179,7 +174,8 @@ describe('Integration | Component | space-transfers', function () {
       }}</div>`);
 
       expect(find('.nav-link-file'), '.nav-link-file').to.not.exist;
-    });
+    }
+  );
 
   it('renders tab link for file tab with file name if fileId is provided',
     async function () {
@@ -214,5 +210,6 @@ describe('Integration | Component | space-transfers', function () {
       const navLinkFile = find('.nav-link-file');
       expect(navLinkFile, '.nav-link-file').to.exist;
       expect(navLinkFile).to.have.trimmed.text(file.name);
-    });
+    }
+  );
 });

@@ -2,7 +2,7 @@ import archiveFilesystem from './archive-filesystem';
 import archive from './archive';
 import dataset from './dataset';
 import filesystem from './filesystem';
-import sharedFilesystem from './shared-filesystem';
+import shareFilesystem from './share-filesystem';
 import transfer from './transfer';
 
 export default {
@@ -13,6 +13,6 @@ export default {
   archive,
   dataset,
   filesystem,
-  sharedFilesystem,
+  shareFilesystem,
   transfer,
 };

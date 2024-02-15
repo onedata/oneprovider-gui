@@ -2,12 +2,12 @@
  * Provides model functions related to files and directories.
  *
  * @author Michał Borzęcki, Jakub Liput
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @copyright (C) 2019-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Service, { inject as service } from '@ember/service';
-import { resolve, allSettled, all as allFulfilled, hash as hashFulfilled, hashSettled } from 'rsvp';
+import { allSettled, all as allFulfilled, hash as hashFulfilled, hashSettled } from 'rsvp';
 import { get, set, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -23,6 +23,15 @@ import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import FileQuery from 'oneprovider-gui/utils/file-query';
+import { pullPrivateFileAttributes } from 'oneprovider-gui/utils/file-model';
+import { serializedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
+import {
+  isBelongsToProperty,
+  isHasManyProperty,
+  serializeBelongsToProperty,
+  serializeHasManyProperty,
+} from 'oneprovider-gui/serializers/file';
 
 export const SpaceSizeStatsType = Object.freeze({
   All: 'all',
@@ -82,7 +91,7 @@ export const SpaceSizeStatsType = Object.freeze({
  */
 
 const cancelRecallAspect = 'cancel_archive_recall';
-const childrenAttrsAspect = 'children_details';
+const childrenAttrsAspect = 'children';
 const symlinkTargetAttrsAspect = 'symlink_target';
 const recallLogAspect = 'archive_recall_log';
 const fileModelName = 'file';
@@ -98,6 +107,7 @@ export default Service.extend({
   spaceManager: service(),
   storageManager: service(),
   providerManager: service(),
+  fileRequirementRegistry: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -111,27 +121,44 @@ export default Service.extend({
   throttledDirChildrenRefreshCallbacks: computed(() => ({})),
 
   /**
-   * @param {String} fileId
+   * @param {string} fileId
    * @param {Object} options
    * @param {'private'|'public'} [options.scope='private']
-   * @param {Boolean} [options.reload=false] a `findRecord` option
-   * @param {Boolean} [options.backgroundReload=false] a `findRecord` option
+   * @param {boolean} [options.reload=false] A `findRecord` option.
+   * @param {boolean} [options.backgroundReload=false] A `findRecord` option.
+   * @param {Array<FileModel.Property>} [options.extraAttributes] Additional attributes
+   *   added to required attributes when making request.
    * @returns {Promise<Models.File>}
    */
   async getFileById(fileId, {
     scope = 'private',
     reload = false,
     backgroundReload = false,
+    extraAttributes,
   } = {}) {
     const store = this.get('store');
     const fileGri = getFileGri(fileId, scope);
-    const file = await store.findRecord(
-      fileModelName,
-      fileGri, {
-        reload,
-        backgroundReload,
-      }
+    const requirementQuery = new FileQuery({ fileGri });
+    const attributes = this.fileRequirementRegistry.getRequiredAttributes(
+      requirementQuery
     );
+    if (Array.isArray(extraAttributes) && extraAttributes.length) {
+      attributes.push(..._.without(extraAttributes, attributes));
+    }
+    if (scope === 'public') {
+      pullPrivateFileAttributes(attributes);
+    }
+    const file = await store.findRecord(fileModelName, fileGri, {
+      reload,
+      backgroundReload,
+      adapterOptions: {
+        _meta: {
+          additionalData: {
+            attributes,
+          },
+        },
+      },
+    });
     await this.resolveSymlinks([file], scope);
     return file;
   },
@@ -278,40 +305,107 @@ export default Service.extend({
    * @param {Number} offset
    * @returns {Promise<{ childrenRecords: Array<Models.File>, isLast: Boolean }>}
    */
-  fetchDirChildren(dirId, scope, index, limit, offset) {
+  async fetchDirChildren(dirId, scope, index, limit, offset) {
     if (!limit || limit <= 0) {
-      return resolve({ childrenRecords: [], isLast: false });
+      return { childrenRecords: [], isLast: false };
     } else {
-      return this.fetchChildrenAttrs({
+      const attributes = this.attributesForChildrenAttrsQuery(dirId, scope);
+      const { children, isLast } = await this.fetchChildrenAttrs({
         dirId,
         scope,
         index,
         limit,
         offset,
-      }).then(({ children, isLast }) =>
-        this.pushChildrenAttrsToStore(children, scope)
-        .then(childrenRecords =>
-          this.resolveSymlinks(childrenRecords, scope).then(() => childrenRecords)
-        )
-        .then(childrenRecords => ({ childrenRecords, isLast }))
-      );
+        attributes,
+      });
+      const childrenRecords = this.pushChildrenAttrsToStore({
+        childrenAttrs: children,
+        attributes,
+        scope,
+      });
+      await this.resolveSymlinks(childrenRecords, scope);
+      return { childrenRecords, isLast };
     }
   },
 
   /**
-   * @param {Array<Object>} childrenAttrs data for creating File model
-   * @param {String} scope one of: private, public
-   * @returns {Array<Record>}
+   * @private
+   * @param {string} dirId
+   * @param {'private'|'public'}
+   * @returns {Array<FileModel.RawAttribute>}
    */
-  pushChildrenAttrsToStore(childrenAttrs, scope) {
-    const store = this.get('store');
-    return resolve(childrenAttrs.map(fileAttrs => {
-      fileAttrs.scope = scope;
-      const modelData = store.normalize(fileModelName, fileAttrs);
-      const currentRecord = store.peekRecord('file', modelData.data.id);
-      if (currentRecord?.currentState.stateName === 'root.deleted.inFlight') {
-        return currentRecord;
+  attributesForChildrenAttrsQuery(dirId, scope) {
+    const requirementQuery = new FileQuery({
+      parentId: dirId,
+    });
+    const attributes = this.fileRequirementRegistry.getRequiredAttributes(
+      requirementQuery
+    );
+    if (scope === 'public') {
+      pullPrivateFileAttributes(attributes);
+    }
+    return attributes;
+  },
+
+  /**
+   * @private
+   * @param {Array<Object>} childrenAttrs Data of file records for creating File model.
+   *   Contains attributes specified in `attributes` argument.
+   * @param {Array<FileModel.RawAttribute>} attributes List of attributes that are
+   *   included in each children data object of `childrenAttrs`.
+   * @param {'private'|'public'} scope Scope for GRI.
+   * @returns {Array<Models.File>}
+   */
+  pushChildrenAttrsToStore({ childrenAttrs, attributes, scope }) {
+    const store = this.store;
+    return childrenAttrs.map(fileAttrs => {
+      const effFileAttrs = { ...fileAttrs };
+      const effAttributes = attributes ? attributes : Object.keys(fileAttrs);
+      const fileGri = getFileGri(fileAttrs.fileId, scope);
+      const currentRecord = store.peekRecord('file', fileGri);
+      let currentAdditionalData;
+      if (currentRecord) {
+        if (currentRecord.currentState.stateName === 'root.deleted.inFlight') {
+          return currentRecord;
+        }
+        // Record data is typically pushed to store when files listing is being done. The
+        // list fetch is done with attributes registered with requirements matching the
+        // parent of the list, but some files could need individual special attributes to
+        // be fetched. We do not want to fetch these special attributes for all the files
+        // on the list, so the special attributes are preserved in records with the latest
+        // values.
+        const additionalAttributes = _.difference(
+          // Optimized to get required attributes without doing heuristics to get
+          // requirements for parent - because we will reject parent requirements anyway.
+          this.fileRequirementRegistry.getRequiredAttributes(
+            new FileQuery({
+              fileGri: get(currentRecord, 'id'),
+            }), {
+              addParentAttributes: false,
+            }
+          ),
+          effAttributes,
+        );
+        currentAdditionalData = additionalAttributes.reduce((data, attribute) => {
+          const propertyValue = get(currentRecord, attribute);
+          if (isBelongsToProperty(attribute)) {
+            data[attribute] = serializeBelongsToProperty(currentRecord, attribute);
+          } else if (isHasManyProperty(attribute)) {
+            data[attribute] = serializeHasManyProperty(currentRecord, attribute);
+          } else if (attribute === 'type') {
+            // Not possible, because type is a basic property, but checking just-in-case.
+            data[attribute] = serializedFileTypes[propertyValue];
+          } else {
+            // Copy data as-is, because the property wasn't specially deserialized.
+            data[attribute] = propertyValue;
+          }
+          return data;
+        }, {});
+        _.merge(effFileAttrs, currentAdditionalData);
       }
+
+      effFileAttrs.scope = scope;
+      const modelData = store.normalize(fileModelName, effFileAttrs);
       try {
         return store.push(modelData);
       } catch (error) {
@@ -321,20 +415,24 @@ export default Service.extend({
         );
         return currentRecord;
       }
-    }).filter(record => Boolean(record)));
+    }).filter(record => Boolean(record));
   },
 
   /**
+   * Gets basic and custom file attributes of files that are children of `dirId`.
+   * Custom attributes are evaluated using parent requirements registered in
+   * FileRequirementRegistry.
+   * @private
    * @returns {Promise<{ children: Array, isLast: Boolean }>}
    */
-  fetchChildrenAttrs({ dirId, scope, index, limit, offset }) {
+  fetchChildrenAttrs({ dirId, scope, index, limit, offset, attributes }) {
     const requestGri = gri({
       entityId: dirId,
       entityType: fileEntityType,
       aspect: childrenAttrsAspect,
       scope,
     });
-    return this.get('onedataGraph').request({
+    return this.onedataGraph.request({
       operation: 'get',
       gri: requestGri,
       data: {
@@ -342,70 +440,54 @@ export default Service.extend({
         limit,
         offset,
         inclusive: true,
-        // TODO: VFS-11089 Use that attributes in smarter way
-        // attributes: [
-        //   'activePermissionsType',
-        //   'archiveId',
-        //   'atime',
-        //   'conflictingFiles',
-        //   'conflictingName',
-        //   'ctime',
-        //   'effDatasetMembership',
-        //   'effDatasetProtectionFlags',
-        //   'effProtectionFlags',
-        //   'effQosMembership',
-        //   'fileId',
-        //   'hardlinksCount',
-        //   'hasMetadata',
-        //   'index',
-        //   'isFullyReplicated',
-        //   'isDeleted',
-        //   'localReplicationRate',
-        //   'mtime',
-        //   'name',
-        //   'ownerId',
-        //   'parentId',
-        //   'posixPermissions',
-        //   'providerId',
-        //   'qosStatus',
-        //   'recallRootId',
-        //   'shares',
-        //   'size',
-        //   'storageGroupId',
-        //   'storageUserId',
-        //   'symlinkValue',
-        //   'type',
-        // ],
+        attributes,
       },
       subscribe: false,
     });
   },
 
-  resolveSymlinks(files, scope) {
+  async resolveSymlinks(files, scope) {
     const symlinks = files.filterBy('type', 'symlink');
-    return allFulfilled(symlinks.map(symlink =>
-      this.fetchSymlinkTargetAttrs(get(symlink, 'entityId'), scope)
-      .then(targetAttrs => this.pushChildrenAttrsToStore([targetAttrs], scope))
-      .then(([targetRecord]) => set(symlink, 'symlinkTargetFile', targetRecord))
-      .catch(() => set(symlink, 'symlinkTargetFile', null))
-    ));
+    await allFulfilled(symlinks.map(async (symlink) => {
+      try {
+        const targetAttrs = await this.fetchSymlinkTargetAttrs(
+          get(symlink, 'id'),
+          scope
+        );
+        const [targetRecord] = this.pushChildrenAttrsToStore({
+          childrenAttrs: [targetAttrs],
+          scope,
+        });
+        set(symlink, 'symlinkTargetFile', targetRecord);
+      } catch {
+        set(symlink, 'symlinkTargetFile', null);
+      }
+    }));
   },
 
   /**
-   * @param {String} symlinkEntityId
-   * @param {String} scope
+   * @param {string} symlinkGri
+   * @param {string} scope
    * @returns {Promise<Object>} attributes of symlink target
    */
-  fetchSymlinkTargetAttrs(symlinkEntityId, scope) {
+  fetchSymlinkTargetAttrs(symlinkGri, scope) {
+    const symlinkFileId = parseGri(symlinkGri).entityId;
     const requestGri = gri({
-      entityId: symlinkEntityId,
+      entityId: symlinkFileId,
       entityType: fileEntityType,
       aspect: symlinkTargetAttrsAspect,
       scope,
     });
-    return this.get('onedataGraph').request({
+    const query = new FileQuery({
+      fileGri: symlinkGri,
+    });
+    const attributes = this.fileRequirementRegistry.getRequiredAttributes(query);
+    return this.onedataGraph.request({
       operation: 'get',
       gri: requestGri,
+      data: {
+        attributes,
+      },
       subscribe: false,
     });
   },
@@ -426,6 +508,11 @@ export default Service.extend({
     return this.copyOrMoveFile(file, parentDirEntityId, 'move');
   },
 
+  /**
+   * This method needs a custom property `size` to be loaded in file.
+   * @param {Models.File} file
+   * @returns {Models.User}
+   */
   async copyOrMoveFile(file, parentDirEntityId, operation) {
     const name = get(file, 'name') || 'unknown';
     const entityId = get(file, 'entityId');
@@ -452,7 +539,7 @@ export default Service.extend({
     } finally {
       const file = await this.getFileByName(parentDirEntityId, name);
       if (file) {
-        this.dirChildrenRefresh(parentDirEntityId);
+        this.dirChildrenRefresh(parentDirEntityId, { forced: true });
         set(file, 'isCopyingMovingStop', true);
       }
     }
@@ -498,7 +585,7 @@ export default Service.extend({
       hardlinksIds.map(hardlinkId =>
         this.getFileById(parseGri(hardlinkId).entityId))
     ).then(results => ({
-      hardlinksCount: hardlinksIds.length,
+      hardlinkCount: hardlinksIds.length,
       hardlinks: results.filterBy('state', 'fulfilled').mapBy('value'),
       errors: results.filterBy('state', 'rejected').mapBy('reason'),
     }));
@@ -523,13 +610,13 @@ export default Service.extend({
       );
     }
     if (isRecordA && isRecordB) {
-      const hardlinksCountA = get(fileRecordOrIdA, 'hardlinksCount');
-      const hardlinksCountB = get(fileRecordOrIdB, 'hardlinksCount');
+      const hardlinkCountA = get(fileRecordOrIdA, 'hardlinkCount');
+      const hardlinkCountB = get(fileRecordOrIdB, 'hardlinkCount');
       // checking if both counts are greater than 1 because data can be out of sync with
       // backend
       if (
-        hardlinksCountA && hardlinksCountA <= 1 &&
-        hardlinksCountB && hardlinksCountB <= 1
+        hardlinkCountA && hardlinkCountA <= 1 &&
+        hardlinkCountB && hardlinkCountB <= 1
       ) {
         return false;
       }
@@ -1016,15 +1103,15 @@ export default Service.extend({
 
   /**
    * Begins a procedure of cancelling archive recall process that has root in
-   * file with `recallRootId` entity ID.
-   * @param {string} recallRootId
+   * file with `archiveRecallRootFileId` entity ID.
+   * @param {string} archiveRecallRootFileId
    * @returns {Promise<Object|null>} stop recall response or null if file is not a part
    *   of recalled tree
    */
-  async cancelRecall(recallRootId) {
+  async cancelRecall(archiveRecallRootFileId) {
     const requestGri = gri({
       entityType: fileEntityType,
-      entityId: recallRootId,
+      entityId: archiveRecallRootFileId,
       aspect: cancelRecallAspect,
     });
     return this.get('onedataGraph').request({
@@ -1036,14 +1123,14 @@ export default Service.extend({
 
   /**
    * Loads recall process logs for specific recall root.
-   * @param {string} recallRootId
+   * @param {string} archiveRecallRootFileId
    * @param {AuditLogListingParams} listingParams
    * @returns {Promise<AuditLogEntriesPage<RecallAuditLogEntryContent>>}
    */
-  async getRecallLogs(recallRootId, listingParams) {
+  async getRecallLogs(archiveRecallRootFileId, listingParams) {
     const requestGri = gri({
       entityType: fileEntityType,
-      entityId: recallRootId,
+      entityId: archiveRecallRootFileId,
       aspect: recallLogAspect,
     });
     return await this.get('auditLogManager').getAuditLogEntries(
@@ -1053,6 +1140,11 @@ export default Service.extend({
     );
   },
 
+  /**
+   * This method needs a custom property `owner` to be loaded in file.
+   * @param {Models.File} file
+   * @returns {Models.User}
+   */
   async getFileOwner(file) {
     // Allowing file to not have relationEntityId beacuse some integration tests
     // are using not-fully-mocked files
@@ -1071,18 +1163,30 @@ export default Service.extend({
    * files (including dirs) that will be affected by that change, eg. changing QoS
    * requirements.
    * @param {Models.File} file
-   * @return {Promise}
+   * @return {Promise<Array<PromiseSettledResult>>}
    */
   async refreshRelatedFiles(file) {
     if (!file) {
       return;
     }
-    if (get(file, 'hardlinksCount') > 1) {
-      this.fileParentRefresh(file);
-    }
+    const promises = [];
+    promises.push(
+      this.fileRequirementRegistry.requireTemporaryAsync(
+        [get(file, 'id')],
+        ['hardlinkCount'],
+        async () => {
+          if (get(file, 'hardlinkCount') > 1) {
+            await this.fileParentRefresh(file);
+          }
+        }
+      )
+    );
     if (get(file, 'type') === 'dir') {
-      this.dirChildrenRefresh(get(file, 'entityId'));
+      promises.push(
+        this.dirChildrenRefresh(get(file, 'entityId'), { forced: true })
+      );
     }
+    await allSettled(promises);
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service
@@ -1130,11 +1234,14 @@ export default Service.extend({
   /**
    * Invokes request for refresh in all known file browser tables
    * @param {Array<object>} parentDirEntityId
+   * @param {Object} options
+   * @param {boolean} options.forced If set to true - the refresh will be added to
+   *   processing queue even if there is already another refresh in the processing queue.
    * @returns {Array<object>}
    */
-  dirChildrenRefresh(parentDirEntityId) {
+  dirChildrenRefresh(parentDirEntityId, { forced = false, animated = false } = {}) {
     return allSettled(this.get('fileTableComponents').map(fbTable =>
-      fbTable.onDirChildrenRefresh(parentDirEntityId)
+      fbTable.onDirChildrenRefresh(parentDirEntityId, { forced, animated })
     ));
   },
 

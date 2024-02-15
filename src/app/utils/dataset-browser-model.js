@@ -271,13 +271,11 @@ export default BaseBrowserModel.extend(I18n, {
       }),
     };
     const columnsOrder = ['archives', 'created'];
-    const elementFbTableThead = this.element?.querySelector('.fb-table-thead');
     return ColumnsConfiguration.create({
       configurationType: this.browserPersistedConfigurationKey,
       columns,
       columnsOrder,
       firstColumnWidth: 350,
-      tableThead: elementFbTableThead,
     });
   },
 

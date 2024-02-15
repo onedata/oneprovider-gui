@@ -63,7 +63,7 @@
         style={{columnsConfiguration.columnsStyle.modification}}
       >
         <span class="file-item-text">
-          {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
+          {{date-format file.effFile.mtime format="dateWithMinutes" blank="—"}}
         </span>
       </td>
     {{else if (eq columnName "owner")}}

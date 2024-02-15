@@ -114,7 +114,7 @@ export default Component.extend(I18n, {
       const promises = [
         file.reload(),
         fileDatasetSummaryRelation.reload(),
-        fileManager.dirChildrenRefresh(get(file, 'entityId')),
+        fileManager.dirChildrenRefresh(get(file, 'entityId'), { forced: true }),
       ];
       // refresh opened file parent and its children only if invoker is not this parent
       const parentRelation = file.belongsTo('parent');
