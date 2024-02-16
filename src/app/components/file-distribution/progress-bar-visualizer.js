@@ -52,6 +52,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Object<string,string>>}
    */
   errorOnStorage: undefined,
 

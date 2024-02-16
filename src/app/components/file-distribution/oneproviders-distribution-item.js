@@ -321,6 +321,9 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * @type {Ember.ComputedProperty<Object<string,string>>}
+   */
   errorOnStorage: computed(
     'isDistributionDataIncomplete',
     'fileDistributionData.@each.{fileDistribution}',
