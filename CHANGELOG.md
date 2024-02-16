@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11607 Improved User Experience of file ACL view
+* VFS-11564 Added overflow handling to the chart tooltip
 * VFS-11252 Added optional file attributes fetching; enabled QoS and Replication columns in file browser
 * VFS-11726 Fixed broken selection in archives browser after using breadcrumbs menu
 * VFS-11608 Added resource subheaders to modals in automation
