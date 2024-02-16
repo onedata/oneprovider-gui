@@ -344,20 +344,25 @@ $space-transfers-gray: #B6BAC0;
   .transfers-tab .row-providers-map-inner {
     height: calc(100vh - 73px);
   }
-  .tables-container .bs-tab ul.nav.nav-tabs-with-loading > li > a.nav-link {
-    padding-left: $nav-link-padding-vertical;
-    padding-right: $nav-link-padding-vertical;
+
+  @media (max-width: $screen-xs-max) {
+    .tables-container .bs-tab ul.nav.nav-tabs-with-loading > li > a.nav-link {
+      padding-left: $nav-link-padding-vertical;
+      padding-right: $nav-link-padding-vertical;
+    }
+    .nav-tabs-transfers .nav-link-file .one-icon + .tab-name {
+      padding-left: 1.6em;
+      padding-right: 1.4em;
+    }
   }
+
   .transfers-tab {
     .transfers-tabs {
       position: sticky;
       top: 0;
       z-index: 1;
       background-color: $color-one-white;
-      padding-bottom: $padding-large-vertical;
-    }
-    > .tab-content {
-      padding-top: 0;
+      padding-top: $padding-base-vertical;
     }
   }
 }

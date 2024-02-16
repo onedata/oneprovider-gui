@@ -71,10 +71,7 @@
                 </div>
               {{else}}
                 <div
-                  class={{concat-classes
-                    "row loadable-row throughput-chart-container"
-                    (if (not areTabLabelsShort) "providers-container-border")
-                  }}
+                  class="row loadable-row throughput-chart-container providers-container-border"
                 >
                   {{space-transfers/throughput-chart
                     space=space
