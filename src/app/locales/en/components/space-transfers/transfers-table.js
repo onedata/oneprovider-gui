@@ -1,4 +1,4 @@
-import headers from '../fb-columns-name/transfer';
+import headers from '../-browser-columns-name/transfer';
 
 export default {
   headers,

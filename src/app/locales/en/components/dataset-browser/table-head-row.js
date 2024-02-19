@@ -1,4 +1,4 @@
-import headers from '../fb-columns-name/dataset';
+import headers from '../-browser-columns-name/dataset';
 
 export default {
   headers,

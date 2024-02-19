@@ -1,4 +1,4 @@
-import headers from '../fb-columns-name/archive';
+import headers from '../-browser-columns-name/archive';
 
 export default {
   headers,
