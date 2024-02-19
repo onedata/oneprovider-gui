@@ -1,15 +1,7 @@
+import headers from '../-browser-columns-name/transfer';
+
 export default {
-  type: 'Type',
-  path: 'File/directory',
-  userName: 'User',
-  destination: 'Destination',
-  scheduledAt: 'Scheduled at',
-  startedAt: 'Started at',
-  finishedAt: 'Finished at',
-  processed: 'Processed',
-  replicated: 'Replicated',
-  evicted: 'Evicted',
-  status: 'Status',
+  headers,
   actions: '',
   destinationUnknown: '-',
   cancelFailure: 'Error occurred during transfer cancellation.',

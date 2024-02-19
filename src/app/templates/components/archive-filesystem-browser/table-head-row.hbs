@@ -5,7 +5,7 @@
   }}
 >
   <div class="fb-table-first-col-container">
-    <div class="table-header-text">{{tt this "files"}}</div>
+    <div class="table-header-text">{{tt this "headers.files"}}</div>
     {{#if renderArchiveDipSwitch}}
       {{archive-dip-switch
         disabled=(not isArchiveDipAvailable)
@@ -40,7 +40,7 @@
     >
       <span class="column-name">
         {{one-icon icon="drag" class="column-move-icon"}}
-        {{tt this columnName}}
+        {{tt this (concat "headers." columnName)}}
         {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
           {{#one-icon icon="browser-info" class="column-info-icon"}}
             {{one-tooltip
