@@ -9,7 +9,12 @@
     <h1>{{tt this "header"}}</h1>
     {{#if atmTaskName}}
       <h2 class="normal-case">
-        {{#truncated-string}}{{atmTaskName}}{{/truncated-string}}
+        {{#truncated-string class="header-content"}}
+          <div class="inline-icon-container header-icon">
+            <OneIcon @icon="atm-lambda" />
+          </div>
+          {{atmTaskName}}
+        {{/truncated-string}}
       </h2>
     {{/if}}
   {{/modal.header}}

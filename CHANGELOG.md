@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11724 Added new icons to the automation GUI
 * VFS-11177 Improved UX of transfers view
 * VFS-11296 Refactored translation for columns configuration
 * VFS-11564 Added overflow handling to the chart tooltip
