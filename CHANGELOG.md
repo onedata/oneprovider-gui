@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11177 Improved UX of transfers view
+* VFS-11296 Refactored translation for columns configuration
 * VFS-11564 Added overflow handling to the chart tooltip
 * VFS-11252 Added optional file attributes fetching; enabled QoS and Replication columns in file browser
 * VFS-11726 Fixed broken selection in archives browser after using breadcrumbs menu

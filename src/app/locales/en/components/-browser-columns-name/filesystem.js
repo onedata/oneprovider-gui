@@ -1,4 +1,5 @@
 export default {
+  files: 'Files',
   size: 'Size',
   owner: 'Owner',
   modification: 'Modification',
