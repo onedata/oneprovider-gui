@@ -481,23 +481,10 @@ export default EmberObject.extend(...mixins, {
     'isNotFilesOrSpaceOwner',
   ),
 
-  isAclAndSomePosixNonOwned: computed(
-    'areActivePermissionsTypeTheSame',
-    function isAclAndSomePosixNonOwned() {
-      if (this.areActivePermissionsTypeTheSame || this.space.currentUserIsOwner) {
-        return false;
-      }
-      const currentUserId = this.currentUser.userId;
-      for (const file of this.files) {
-        if (
-          get(file, 'activePermissionsType') === 'posix' &&
-          file.relationEntityId('owner') !== currentUserId
-        ) {
-          return true;
-        }
-      }
-      return false;
-    }
+  isAclAndSomePosixNonOwned: and(
+    not('areActivePermissionsTypeTheSame'),
+    not('space.currentUserIsOwner'),
+    'isSomeNonOwnedPosix'
   ),
 
   isPosixEditorReadonly: or(

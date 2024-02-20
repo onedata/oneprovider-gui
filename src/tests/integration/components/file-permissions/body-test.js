@@ -42,7 +42,7 @@ describe('Integration | Component | file-permissions/body', function () {
       expect(alertElement).to.exist;
       expect(alertElement).to.have.class('alert-warning');
       expect(alertElement).to.contain.text(
-        'Selected files have different POSIX permissions.'
+        'Selected items have different POSIX permissions.'
       );
     }
   );
@@ -61,8 +61,12 @@ describe('Integration | Component | file-permissions/body', function () {
       const alertElement = find('.alert');
       expect(alertElement).to.exist;
       expect(alertElement).to.have.class('alert-info');
+      console.log(alertElement.innerHTML);
       expect(alertElement).to.contain.text(
-        'Selected files have different POSIX permissions. Select an individual file or files with the same permissions.'
+        'Selected items have different POSIX permissions.'
+      );
+      expect(alertElement).to.contain.text(
+        'There is at least one item with POSIX permissions that you don\'t own, preventing batch modification.'
       );
     }
   );
@@ -105,7 +109,7 @@ describe('Integration | Component | file-permissions/body', function () {
       const alertElement = element.querySelector('.alert');
       expect(alertElement).to.exist;
       expect(alertElement).to.have.class('alert-warning');
-      expect(alertElement).to.contain.text('Selected files have different ACL rules.');
+      expect(alertElement).to.contain.text('Selected items have different ACL rules.');
     }
   );
 
@@ -124,7 +128,10 @@ describe('Integration | Component | file-permissions/body', function () {
       expect(alertElement).to.exist;
       expect(alertElement).to.have.class('alert-info');
       expect(alertElement).to.contain.text(
-        'Selected files have different ACL rules. Select an individual file or files with the same rules.'
+        'Selected items have different ACL rules.'
+      );
+      expect(alertElement).to.contain.text(
+        'To view them, select an individual item or items with the same rules.'
       );
     }
   );
@@ -154,7 +161,7 @@ describe('Integration | Component | file-permissions/body', function () {
     const alertElement = element.querySelector('.alert');
     expect(alertElement).to.exist;
     expect(alertElement).to.have.class('alert-warning');
-    expect(alertElement).to.contain.text('Selected files have different ACL rules.');
+    expect(alertElement).to.contain.text('Selected items use a mix of ACLs and POSIX permissions.');
     expect(element).to.exist;
     expect(aclEditor).to.have.class('hidden');
   });
