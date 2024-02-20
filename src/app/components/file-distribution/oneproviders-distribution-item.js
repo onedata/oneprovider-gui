@@ -325,7 +325,6 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<Object<string,string>>}
    */
   errorOnStorage: computed(
-    'isDistributionDataIncomplete',
     'fileDistributionData.@each.{fileDistribution}',
     function errorOnStorage() {
       let error = undefined;
@@ -741,8 +740,8 @@ export default Component.extend(I18n, {
         locationsPerProvider,
         storageId,
       } = this.getProperties('locationsPerProvider', 'storageId');
-      if (locationsPerProvider) {
-        const oneproviderId = this.get('oneprovider.entityId');
+      const oneproviderId = this.get('oneprovider.entityId');
+      if (locationsPerProvider && locationsPerProvider[oneproviderId].success) {
         return locationsPerProvider[oneproviderId].locationsPerStorage[storageId];
       } else {
         return undefined;

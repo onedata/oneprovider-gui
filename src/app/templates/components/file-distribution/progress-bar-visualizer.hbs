@@ -2,7 +2,7 @@
   <div class="progress-bar-scale-container"></div>
   {{#if isDataIncomplete}}
     <div class="progress-bar-text na-text hidden-xs">
-      {{#if (and errorOnStorage (eq errorOnStorage.id "dirStatsDisabledForSpace"))}}
+      {{#if (eq errorOnStorage.id "dirStatsDisabledForSpace")}}
         <a
           href={{providersUrl}}
           class="dir-statistics-settings-url navy"
