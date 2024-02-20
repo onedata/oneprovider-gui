@@ -124,9 +124,9 @@ describe('Integration | Component | content-space-transfers', function () {
       `);
 
       expect(find('.space-transfers'), 'space-transfers').to.exist;
-      expect(find('.transfers-overview'), 'transfers-overview').to.exist;
+      expect(find('.providers-map-tab'), 'providers-map-tab').to.exist;
       expect(find('.tables-container'), 'tables-container').to.exist;
-      expect(find('.providers-map'), 'providers-map').to.exist;
+      expect(find('.providers-throughput-tab'), 'providers-throughput-tab').to.exist;
       expect(find('.transfers-table'), 'transfers-table')
         .to.contain.text('onefile');
     });

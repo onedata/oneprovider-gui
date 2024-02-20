@@ -6,6 +6,7 @@ $space-transfers-gray: #B6BAC0;
 @import './space-transfers/providers-map';
 @import './space-transfers/transfer-details';
 @import './space-transfers/transfers-table-container';
+@import './space-transfers/throughput-chart';
 
 .space-transfers {
   $-table-border-color: $main-border-color;
@@ -44,6 +45,9 @@ $space-transfers-gray: #B6BAC0;
   .ct-label.ct-horizontal {
     display: block;
     text-align: center;
+  }
+  .ct-label {
+    color: $main-text-color;
   }
 
   .transfers-throughput-distribution {
@@ -299,6 +303,66 @@ $space-transfers-gray: #B6BAC0;
           }
         }
       }
+    }
+  }
+
+  @media (min-width: $screen-md-min) {
+    .row-providers-map-inner {
+      height: 482px;
+    }
+  }
+
+  .providers-container-border {
+    background-color: $block-background-transparent-color;
+    border: 1px solid $block-border-transparent-color;
+    border-radius: $border-radius-base;
+    padding: 1em;
+    .transfers-table th, .tab-content {
+      background-color: inherit;
+    }
+    &.providers-table {
+      @media (max-width: $screen-xs-max) {
+        padding: 1em 0;
+
+        .transfers-table-col-path {
+          padding-left: 1.5em;
+        }
+        .transfers-table-cell-actions .menu-toggle {
+          padding-left: 0;
+          width: inherit;
+        }
+      }
+    }
+  }
+
+  .full-width-map {
+    margin-left: -$content-col-padding;
+    margin-right: -$content-col-padding;
+    padding-bottom: 0;
+  }
+
+  .transfers-tab .row-providers-map-inner {
+    height: calc(100vh - 73px);
+  }
+
+  @media (max-width: $screen-xs-max) {
+    .tables-container .bs-tab ul.nav.nav-tabs-with-loading > li > a.nav-link {
+      padding-left: $nav-link-padding-vertical;
+      padding-right: $nav-link-padding-vertical;
+    }
+    .nav-tabs-transfers .nav-link-file .one-icon + .tab-name {
+      padding-left: 1.6em;
+      padding-right: 1.4em;
+    }
+  }
+
+  .transfers-tab {
+    .transfers-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background-color: $color-one-white;
+      padding-top: $padding-base-vertical;
     }
   }
 }
