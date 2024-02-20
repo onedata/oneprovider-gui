@@ -6,7 +6,7 @@
   colspan={{if (media "isMobile") "2" "1"}}
 >
   <div class="fb-table-first-col-container">
-    <div class="table-header-text">{{tt this "files"}}</div>
+    <div class="table-header-text">{{tt this "headers.files"}}</div>
     {{!--
       table-header-jump-control flex element is intentionally left rendered even
       if file-browser/jump-control component is not rendered to keep space
@@ -46,7 +46,7 @@
     >
       <span class="column-name">
         {{one-icon icon="drag" class="column-move-icon"}}
-        {{tt this columnName}}
+        {{tt this (concat "headers." columnName)}}
       </span>
       {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
         {{#one-icon icon="browser-info" class="column-info-icon"}}

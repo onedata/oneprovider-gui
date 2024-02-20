@@ -17,7 +17,7 @@
             {{#if (not-eq i 0)}}
               {{one-icon icon="drag" class="column-move-icon"}}
             {{/if}}
-            {{tt this column.id}}
+            {{tt this (concat "headers." column.id)}}
           </span>
           <div
             class="draggable-area"
