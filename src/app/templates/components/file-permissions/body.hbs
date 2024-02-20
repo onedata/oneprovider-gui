@@ -13,24 +13,38 @@
 {{/unless}}
 {{#if (and posixViewActive (not isPosixActivePermissionsType))}}
   <div class="alert alert-warning alert-simple-info">
-    {{viewModel.posixNotActiveText}}
+    {{tt this "posixNotActive"}}
   </div>
 {{/if}}
 {{#if (and posixViewActive (not filesHaveCompatiblePosixPermissions))}}
   {{#if effectiveReadonly}}
     <div class="alert alert-info alert-simple-info">
-      {{tt this "differentPosixReadonly"}}
+      {{#if viewModel.filesHaveTheSamePermissionsType}}
+        {{tt this "different.posix"}}
+      {{else}}
+        {{tt this "mixedPermissions"}}
+      {{/if}}
+      {{#if viewModel.isSomeNonOwnedPosix}}
+        {{tt this "someNonOwnedPosix"}}
+      {{else}}
+        {{tt this "selectIndividual"}}
+      {{/if}}
     </div>
   {{else}}
     <div class="alert alert-warning alert-simple-info">
       {{#if viewModel.isPosixPermissionsIncompatibilityAccepted}}
-        <div class="row">{{tt this "differentPosixReset.info"}}</div>
+        <div class="row">{{tt this "differentAfterReset.posix.info"}}</div>
         <ul>
-          <li>{{tt this "differentPosixReset.discardInfo"}}</li>
-          <li>{{tt this "differentPosixReset.saveInfo"}}</li>
+          <li>{{tt this "differentAfterReset.posix.discardInfo"}}</li>
+          <li>{{tt this "differentAfterReset.posix.saveInfo"}}</li>
         </ul>
       {{else}}
-        {{tt this "differentPosix"}}
+        {{#if viewModel.filesHaveTheSamePermissionsType}}
+          {{tt this "different.posix"}}
+        {{else}}
+          {{tt this "mixedPermissions"}}
+        {{/if}}
+        {{tt this "youCanReset.posix"}}
         <div class="row alert-simple-info-btn">
           {{#bs-button
             class="btn btn-warning btn-sm open-posix-editor reset-permissions-btn"
@@ -56,7 +70,17 @@
   triggerRender=aclViewActive
   class=(unless aclViewActive "hidden")
 }}
-  {{#unless (eq filesType "mixed")}}
+  {{#if (eq filesType "mixed")}}
+    {{#if effectiveReadonly}}
+      <div class="alert alert-info">
+        {{tt this "noAclDueToMixedFileTypesReadonly"}}
+      </div>
+    {{else}}
+      <div class="alert alert-warning">
+        {{tt this "noAclDueToMixedFileTypes"}}
+      </div>
+    {{/if}}
+  {{else}}
     {{#if isAclForbiddenError}}
       <ResourceLoadError
         @customType="forbidden"
@@ -71,18 +95,32 @@
         {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}
           {{#if effectiveReadonly}}
             <div class="alert alert-info alert-simple-info">
-              {{tt this "differentAclReadonly"}}
+              {{#if viewModel.filesHaveTheSamePermissionsType}}
+                {{tt this "different.acl"}}
+              {{else}}
+                {{tt this "mixedPermissions"}}
+              {{/if}}
+              {{#if viewModel.isSomeNonOwnedPosix}}
+                {{tt this "someNonOwnedPosix"}}
+              {{else}}
+                {{tt this "selectIndividual"}}
+              {{/if}}
             </div>
           {{else}}
             <div class="alert alert-warning alert-simple-info">
               {{#if viewModel.isAclIncompatibilityAccepted}}
-                <div class="row">{{tt this "differentAclReset.info"}}</div>
+                <div class="row">{{tt this "differentAfterReset.acl.info"}}</div>
                 <ul>
-                  <li>{{tt this "differentAclReset.discardInfo"}}</li>
-                  <li>{{tt this "differentAclReset.saveInfo"}}</li>
+                  <li>{{tt this "differentAfterReset.acl.discardInfo"}}</li>
+                  <li>{{tt this "differentAfterReset.acl.saveInfo"}}</li>
                 </ul>
               {{else}}
-                {{tt this "differentAcl"}}
+                {{#if viewModel.filesHaveTheSamePermissionsType}}
+                  {{tt this "different.acl"}}
+                {{else}}
+                  {{tt this "mixedPermissions"}}
+                {{/if}}
+                {{tt this "youCanReset.acl"}}
                 <div class="row alert-simple-info-btn">
                   {{#bs-button
                     class="btn btn-warning btn-sm open-acl-editor reset-permissions-btn"
@@ -107,13 +145,5 @@
         }}
       {{/promise-proxy-container}}
     {{/if}}
-  {{else if effectiveReadonly}}
-    <div class="alert alert-info">
-      {{tt this "noAclDueToMixedFileTypesReadonly"}}
-    </div>
-  {{else}}
-    <div class="alert alert-warning">
-      {{tt this "noAclDueToMixedFileTypes"}}
-    </div>
-  {{/unless}}
+  {{/if}}
 {{/render-later}}

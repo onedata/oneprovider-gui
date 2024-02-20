@@ -211,7 +211,6 @@ export default EmberObject.extend(...mixins, {
     'isRootDir',
     'metadataIsProtected',
     'isPosixAndNonOwner',
-    'fileTypeTextConfig',
     'isAclAndSomePosixNonOwned',
     'activePermissionsType',
     'hasReadonlyAclRules',
@@ -237,31 +236,6 @@ export default EmberObject.extend(...mixins, {
       }
     }
   ),
-
-  fileTypeTextConfig: computed('files.@each.type', function fileTypeTextConfig() {
-    let fileType = get(this.files[0], 'type');
-    let form;
-    if (this.files.length === 1) {
-      form = 'singular';
-    } else {
-      form = 'plural';
-      if (!this.files.every(file => get(file, 'type') === fileType)) {
-        fileType = null;
-      }
-    }
-    const text = translateFileType(this.i18n, fileType, { form });
-    return {
-      text,
-      fileType,
-      form,
-    };
-  }),
-
-  posixNotActiveText: computed('fileTypeTextConfig', function posixNotActiveText() {
-    return this.t(`posixNotActive.${this.fileTypeTextConfig.form}`, {
-      fileTypeText: this.fileTypeTextConfig.text,
-    });
-  }),
 
   /**
    * List of system subjects, that represents owner of a file/directory, owning
@@ -318,6 +292,12 @@ export default EmberObject.extend(...mixins, {
     array.isEvery('files', raw('activePermissionsType'), raw('posix')),
     raw('posix'),
     raw('acl')
+  ),
+
+  filesHaveTheSamePermissionsType: array.isEvery(
+    'files',
+    raw('activePermissionsType'),
+    'files.0.activePermissionsType'
   ),
 
   /**
@@ -442,6 +422,15 @@ export default EmberObject.extend(...mixins, {
     'isAclIncompatibilityAccepted'
   ),
 
+  isSomeNonOwnedPosix: computed('files.@each.owner', function isSomeNonOwnedPosix() {
+    const currentUserId = this.currentUser.userId;
+    return !this.files?.every(file =>
+      !file ||
+      get(file, 'activePermissionsType') === 'acl' ||
+      file.relationEntityId('owner') === currentUserId
+    );
+  }),
+
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
@@ -535,7 +524,6 @@ export default EmberObject.extend(...mixins, {
   }),
 
   lackOfAclEditorPermissionsText: computed(
-    'isLackOfAclEditorPermissions',
     'itemTypeText',
     function lackOfAclEditorPermissionsText() {
       return this.t('lackOfAclPermissionsWarning', { itemType: this.itemTypeText });
@@ -678,21 +666,39 @@ export default EmberObject.extend(...mixins, {
     });
   },
 
-  async computeHasAclPermissions(acl, aclPermission) {
+  async computeHasAclPermissions(aclPermission) {
     // current user group list is needed to check group permissions
     await get(this.currentUser.user, 'effGroupList');
-    return this.files.every(file => {
-      for (const ace of acl) {
-        const readAclPermission =
-          this.evaluateUserAcePermission(file, ace, aclPermission);
-        if (readAclPermission === 'allow') {
-          return true;
-        } else if (readAclPermission === 'deny') {
-          return false;
+    if (this.filesHaveCompatibleAcl) {
+      // single ACL is used for all files
+      return this.files.every(file => {
+        for (const ace of this.acl) {
+          const readAclPermission =
+            this.evaluateUserAcePermission(file, ace, aclPermission);
+          if (readAclPermission === 'allow') {
+            return true;
+          } else if (readAclPermission === 'deny') {
+            return false;
+          }
         }
-      }
-      return false;
-    });
+        return false;
+      });
+    } else {
+      // check original ACLs for each file, because we cannot determine common ACL for all
+      // files
+      return _.zip(this.files, this.acls).every(([file, acl]) => {
+        for (const ace of acl) {
+          const readAclPermission =
+            this.evaluateUserAcePermission(file, ace, aclPermission);
+          if (readAclPermission === 'allow') {
+            return true;
+          } else if (readAclPermission === 'deny') {
+            return false;
+          }
+        }
+        return false;
+      });
+    }
   },
 
   /**
@@ -781,9 +787,9 @@ export default EmberObject.extend(...mixins, {
 
   async setAclEditorSelfPermissionsState() {
     const hasAclReadPermissions =
-      await this.computeHasAclPermissions(this.acl, 'read_acl');
+      await this.computeHasAclPermissions('read_acl');
     const hasAclChangePermissions =
-      await this.computeHasAclPermissions(this.acl, 'change_acl');
+      await this.computeHasAclPermissions('change_acl');
     this.setProperties({
       hasAclReadPermissions,
       hasAclChangePermissions,
