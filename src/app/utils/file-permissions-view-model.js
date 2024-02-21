@@ -422,14 +422,18 @@ export default EmberObject.extend(...mixins, {
     'isAclIncompatibilityAccepted'
   ),
 
-  isSomeNonOwnedPosix: computed('files.@each.owner', function isSomeNonOwnedPosix() {
-    const currentUserId = this.currentUser.userId;
-    return !this.files?.every(file =>
-      !file ||
-      get(file, 'activePermissionsType') === 'acl' ||
-      file.relationEntityId('owner') === currentUserId
-    );
-  }),
+  isSomeNonOwnedPosix: computed(
+    'files.@each.owner',
+    'currentUser.userId',
+    function isSomeNonOwnedPosix() {
+      const currentUserId = this.currentUser.userId;
+      return !this.files?.every(file =>
+        !file ||
+        get(file, 'activePermissionsType') === 'acl' ||
+        file.relationEntityId('owner') === currentUserId
+      );
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<boolean>}

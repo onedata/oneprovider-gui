@@ -1,14 +1,6 @@
 /**
- * @typedef {'ACL rules'|'POSIX permissions'} LongPermissionsTypeText
- */
-
-/**
- * @typedef {'rules'|'permissions'} ShortPermissionsSuffixText
- */
-
-/**
  *
- * @param {ShortPermissionsSuffixText} shortTypeText
+ * @param {'rules'|'permissions'} shortTypeText
  * @returns {string}
  */
 function generateYouCanReset(shortTypeText) {
@@ -24,7 +16,7 @@ function generateDifferentAfterReset(permissionsTypeText, shortTypeText) {
 }
 
 /**
- * @param {LongPermissionsTypeText} permissionsTypeText
+ * @param {'ACL rules'|'POSIX permissions'} permissionsTypeText
  * @returns {string}
  */
 function generateDifferent(permissionsTypeText) {
