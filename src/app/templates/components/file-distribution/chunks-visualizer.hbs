@@ -4,12 +4,14 @@
     <div class="chunks-scale upper-size">{{bytes-to-string fileSize}}</div>
   </div>
   {{#if errorOnStorage}}
-    <div class="chunks-text never-synchronized-text hidden-xs">
-      {{tt this "error"}}
-      {{one-icon
-        icon="sign-warning-rounded"
-        class="inline-icon-container error-icon"
-      }}
+    <div class="chunks-text error-text">
+      {{#truncated-string}}
+        {{tt this "error"}}
+        {{one-icon
+          icon="sign-warning-rounded"
+          class="inline-icon-container error-icon"
+        }}
+      {{/truncated-string}}
     </div>
     <div class="chunks-background never-synchronized-background"></div>
     {{one-tooltip title=errorMessage}}

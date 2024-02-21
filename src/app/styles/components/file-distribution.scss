@@ -371,6 +371,11 @@
       0 -0.2em 10px white;
   }
 
+  .error-text {
+    width: 100%;
+    text-align: center;
+  }
+
   .chunks-background, .progress-bar-background {
     flex-grow: 1;
     min-width: 0;
