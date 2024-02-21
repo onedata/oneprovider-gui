@@ -242,7 +242,7 @@ describe('Integration | Component | file-permissions', function () {
   );
 
   createSingleFileAclViewWarningTest('ANONYMOUS@ ACE',
-    false,
+    true,
     async () => {
       return [{
         aceType: 'ALLOW',
