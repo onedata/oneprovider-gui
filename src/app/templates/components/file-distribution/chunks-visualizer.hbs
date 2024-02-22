@@ -3,7 +3,19 @@
     <div class="chunks-scale lower-size">{{bytes-to-string 0}}</div>
     <div class="chunks-scale upper-size">{{bytes-to-string fileSize}}</div>
   </div>
-  {{#if neverSynchronized}}
+  {{#if errorOnStorage}}
+    <div class="chunks-text error-text">
+      {{#truncated-string}}
+        {{tt this "error"}}
+        {{one-icon
+          icon="sign-warning-rounded"
+          class="inline-icon-container error-icon"
+        }}
+      {{/truncated-string}}
+    </div>
+    <div class="chunks-background never-synchronized-background"></div>
+    {{one-tooltip title=errorMessage}}
+  {{else if neverSynchronized}}
     <div class="chunks-text never-synchronized-text hidden-xs">
       {{tt this "neverSynchronized"}}
     </div>
@@ -17,7 +29,7 @@
   {{/if}}
 </div>
 <div class="percentage-text">
-  {{#if neverSynchronized}}
+  {{#if (or errorOnStorage neverSynchronized)}}
     <span>{{tt this "na"}}</span>
   {{else}}
     {{percentageText}}

@@ -4,4 +4,6 @@ export default {
   block: 'block',
   blocks: 'blocks',
   blocksSize: '{{size}} in {{blockCount}} {{blockNoun}}',
+  error: 'Error fetching statistics',
+  na: 'n/a',
 };

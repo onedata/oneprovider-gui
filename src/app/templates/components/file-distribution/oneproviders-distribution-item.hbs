@@ -66,6 +66,7 @@
       percentage=percentage
       chunksRange=chunksRange
       blockCount=blockCount
+      errorOnStorage=errorOnStorage
     }}
   {{else}}
     {{file-distribution/progress-bar-visualizer
@@ -73,6 +74,7 @@
       percentage=percentage
       getProvidersUrl=(action "getProvidersUrl")
       providerId=oneprovider.entityId
+      errorOnStorage=errorOnStorage
     }}
   {{/if}}
 </div>
