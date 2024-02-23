@@ -18,6 +18,7 @@ export default Component.extend(I18n, {
   classNameBindings: ['neverSynchronized:never-synchronized:synchronized'],
 
   i18n: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -68,6 +69,12 @@ export default Component.extend(I18n, {
   chunksRange: undefined,
 
   /**
+   * @virtual
+   * @type {Object<string,string>>}
+   */
+  errorOnStorage: undefined,
+
+  /**
    * @type {string}
    */
   chunksColor: '#4BD187',
@@ -93,6 +100,15 @@ export default Component.extend(I18n, {
       blockCount,
       blockNoun: blockCount > 1 ? this.t('blocks') : this.t('block'),
     });
+  }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  errorMessage: computed('errorOnStorage', function errorMessage() {
+    return this.errorExtractor.getMessage(this.errorOnStorage)?.message ||
+      this.errorOnStorage.description ||
+      this.t('unknownError') + ': ' + JSON.stringify(this.errorOnStorage);
   }),
 
   canvasRedrawer: observer(

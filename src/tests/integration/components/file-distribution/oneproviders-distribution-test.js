@@ -35,28 +35,40 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
         success: successOnKrakow,
         virtualSize: 1024,
         distributionPerStorage: {
-          storage: type === 'dir' ? { physicalSize: normalizedOnKrakowDir } : {
-            blocksPercentage: normalizedOnKrakow,
-            chunksBarData: {
-              0: normalizedOnKrakow,
+          storage: successOnKrakow ?
+            type === 'dir' ? { physicalSize: normalizedOnKrakowDir } : {
+              blocksPercentage: normalizedOnKrakow,
+              chunksBarData: {
+                0: normalizedOnKrakow,
+              },
+              blockCount: 1,
+              physicalSize: 1024 * normalizedOnKrakow / 100,
+            } : {
+              error: {
+                id: 'dirStatsDisabledForSpace',
+                description: 'Directory statistics collection is disabled for this space.',
+              },
             },
-            blockCount: 1,
-            physicalSize: 1024 * normalizedOnKrakow / 100,
-          },
         },
       },
       providerpar: {
         success: successOnParis,
         virtualSize: 1024,
         distributionPerStorage: {
-          storage: type === 'dir' ? { physicalSize: normalizedOnParis } : {
-            blocksPercentage: normalizedOnParis,
-            chunksBarData: {
-              0: normalizedOnParis,
+          storage: successOnParis ?
+            type === 'dir' ? { physicalSize: normalizedOnParis } : {
+              blocksPercentage: normalizedOnParis,
+              chunksBarData: {
+                0: normalizedOnParis,
+              },
+              blockCount: 1,
+              physicalSize: 1024 * normalizedOnParis / 100,
+            } : {
+              error: {
+                id: 'dirStatsDisabledForSpace',
+                description: 'Directory statistics collection is disabled for this space.',
+              },
             },
-            blockCount: 1,
-            physicalSize: 1024 * normalizedOnParis / 100,
-          },
         },
       },
     },
