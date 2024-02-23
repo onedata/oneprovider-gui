@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11607 Improved UX of file ACL view
 * VFS-11724 Added new icons to the automation GUI
 * VFS-11623 Added showing error in data distribution other than disabled stats
 * VFS-11177 Improved UX of transfers view

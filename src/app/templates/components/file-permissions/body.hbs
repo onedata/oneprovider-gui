@@ -1,35 +1,59 @@
-{{#if isOwnerShown}}
+{{#unless previewMode}}
   <div class="owner-info-line">
     <strong class="owner-info-label">{{tt this "owner"}}:</strong>
-    {{record-info-with-icon
-      record=owner
-      errorReason=errorReasonForOwnerProxy
-    }}
+    {{#if viewModel.filesHaveSameOwner}}
+      {{record-info-with-icon
+        record=owner
+        errorReason=errorReasonForOwnerProxy
+      }}
+    {{else}}
+      {{tt this "multipleOwners" count=viewModel.ownersCount}}
+    {{/if}}
   </div>
-{{/if}}
+{{/unless}}
 {{#if (and posixViewActive (not isPosixActivePermissionsType))}}
   <div class="alert alert-warning alert-simple-info">
-    {{viewModel.posixNotActiveText}}
+    {{tt this "posixNotActive"}}
   </div>
 {{/if}}
 {{#if (and posixViewActive (not filesHaveCompatiblePosixPermissions))}}
   {{#if effectiveReadonly}}
     <div class="alert alert-info alert-simple-info">
-      {{tt this "differentPosixReadonly"}}
+      {{#if viewModel.filesHaveTheSamePermissionsType}}
+        {{tt this "different.posix"}}
+      {{else}}
+        {{tt this "mixedPermissions"}}
+      {{/if}}
+      {{#if viewModel.isSomeNonOwnedPosix}}
+        {{tt this "someNonOwnedPosix"}}
+      {{else}}
+        {{tt this "selectIndividual"}}
+      {{/if}}
     </div>
   {{else}}
     <div class="alert alert-warning alert-simple-info">
-      {{tt this "differentPosix"}}
-      {{#unless posixPermissionsCompatible}}
+      {{#if viewModel.isPosixPermissionsIncompatibilityAccepted}}
+        <div class="row">{{tt this "differentAfterReset.posix.info"}}</div>
+        <ul>
+          <li>{{tt this "differentAfterReset.posix.discardInfo"}}</li>
+          <li>{{tt this "differentAfterReset.posix.saveInfo"}}</li>
+        </ul>
+      {{else}}
+        {{#if viewModel.filesHaveTheSamePermissionsType}}
+          {{tt this "different.posix"}}
+        {{else}}
+          {{tt this "mixedPermissions"}}
+        {{/if}}
+        {{tt this "youCanReset.posix"}}
         <div class="row alert-simple-info-btn">
           {{#bs-button
-            class="btn btn-warning btn-sm open-posix-editor"
+            class="btn btn-warning btn-sm open-posix-editor reset-permissions-btn"
             onClick=(action "acceptPosixIncompatibility")
           }}
-            {{tt this "editAnyway"}}
+            {{tt this "resetPosix"}}
           {{/bs-button}}
         </div>
-      {{/unless}}
+      {{/if}}
     </div>
   {{/if}}
 {{/if}}
@@ -46,50 +70,80 @@
   triggerRender=aclViewActive
   class=(unless aclViewActive "hidden")
 }}
-  {{#unless (eq filesType "mixed")}}
-    {{#promise-proxy-container
-      tagName="div"
-      class="loadable-row"
-      proxy=aclsProxy
-    }}
-      {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}
-        {{#if effectiveReadonly}}
-          <div class="alert alert-info alert-simple-info">
-            {{tt this "differentAclReadonly"}}
-          </div>
-        {{else}}
-          <div class="alert alert-warning alert-simple-info">
-            {{tt this "differentAcl"}}
-            {{#unless aclCompatible}}
-              <div class="row alert-simple-info-btn">
-                {{#bs-button
-                  class="btn btn-warning btn-sm open-acl-editor"
-                  onClick=(action "acceptAclIncompatibility")}}
-                  {{tt this "editAnyway"}}
-                {{/bs-button}}
-              </div>
-            {{/unless}}
-          </div>
-        {{/if}}
-      {{/if}}
-      {{acl-editor
-        users=spaceUsers
-        groups=spaceGroups
-        systemSubjects=systemSubjects
-        acl=acl
-        context=filesType
-        readonly=effectiveReadonly
-        class=(unless aclCompatible "hidden")
-        onChange=(action "aclChanged")
-      }}
-    {{/promise-proxy-container}}
-  {{else if effectiveReadonly}}
-    <div class="alert alert-info">
-      {{tt this "noAclDueToMixedFileTypesReadonly"}}
-    </div>
+  {{#if (eq filesType "mixed")}}
+    {{#if effectiveReadonly}}
+      <div class="alert alert-info">
+        {{tt this "noAclDueToMixedFileTypesReadonly"}}
+      </div>
+    {{else}}
+      <div class="alert alert-warning">
+        {{tt this "noAclDueToMixedFileTypes"}}
+      </div>
+    {{/if}}
   {{else}}
-    <div class="alert alert-warning">
-      {{tt this "noAclDueToMixedFileTypes"}}
-    </div>
-  {{/unless}}
+    {{#if isAclForbiddenError}}
+      <ResourceLoadError
+        @customType="forbidden"
+        @message={{viewModel.forbiddenAclEditorText}}
+      />
+    {{else}}
+      {{#promise-proxy-container
+        tagName="div"
+        class="loadable-row"
+        proxy=aclsProxy
+      }}
+        {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}
+          {{#if effectiveReadonly}}
+            <div class="alert alert-info alert-simple-info">
+              {{#if viewModel.filesHaveTheSamePermissionsType}}
+                {{tt this "different.acl"}}
+              {{else}}
+                {{tt this "mixedPermissions"}}
+              {{/if}}
+              {{#if viewModel.isSomeNonOwnedPosix}}
+                {{tt this "someNonOwnedPosix"}}
+              {{else}}
+                {{tt this "selectIndividual"}}
+              {{/if}}
+            </div>
+          {{else}}
+            <div class="alert alert-warning alert-simple-info">
+              {{#if viewModel.isAclIncompatibilityAccepted}}
+                <div class="row">{{tt this "differentAfterReset.acl.info"}}</div>
+                <ul>
+                  <li>{{tt this "differentAfterReset.acl.discardInfo"}}</li>
+                  <li>{{tt this "differentAfterReset.acl.saveInfo"}}</li>
+                </ul>
+              {{else}}
+                {{#if viewModel.filesHaveTheSamePermissionsType}}
+                  {{tt this "different.acl"}}
+                {{else}}
+                  {{tt this "mixedPermissions"}}
+                {{/if}}
+                {{tt this "youCanReset.acl"}}
+                <div class="row alert-simple-info-btn">
+                  {{#bs-button
+                    class="btn btn-warning btn-sm open-acl-editor reset-permissions-btn"
+                    onClick=(action "acceptAclIncompatibility")
+                  }}
+                    {{tt this "resetAcl"}}
+                  {{/bs-button}}
+                </div>
+              {{/if}}
+            </div>
+          {{/if}}
+        {{/if}}
+        {{acl-editor
+          users=spaceUsers
+          groups=spaceGroups
+          systemSubjects=systemSubjects
+          acl=acl
+          context=filesType
+          readonly=effectiveReadonly
+          class=(unless aclCompatible "hidden")
+          onChange=(action "aclChanged")
+        }}
+      {{/promise-proxy-container}}
+    {{/if}}
+  {{/if}}
 {{/render-later}}

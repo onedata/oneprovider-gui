@@ -4,7 +4,6 @@ import { find } from '@ember/test-helpers';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
 import { lookupService } from './stub-service';
 import { all as allFulfilled } from 'rsvp';
-import { findByText } from './find';
 import { click } from '@ember/test-helpers';
 import createSpace from './create-space';
 import DefaultUserHelper from './default-user';
@@ -159,10 +158,10 @@ export default class FilePermissionsHelper {
     ]);
   }
 
-  async whenEditAnywayIsClicked() {
-    const editAnyway = findByText('Edit anyway', 'button');
-    expect(editAnyway, 'edit anyway button').exists;
-    await click(editAnyway);
+  async whenResetPermissionsIsClicked() {
+    const resetPermissions = find('.reset-permissions-btn');
+    expect(resetPermissions, 'reset permissions button').exists;
+    await click(resetPermissions);
   }
 
   thenExpectVisiblePosixEditor() {
