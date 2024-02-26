@@ -42,11 +42,11 @@ describe('Integration | Utility | items-select-browser/base-model', function () 
     const label = 'Custom submit label';
     const dir = { name: 'current dir' };
 
-    const model = ItemsSelectBrowserBaseModel.create(defaultCreateData, {
-      // overrides
+    const model = ItemsSelectBrowserBaseModel.extend({
       submitCurrentLabel: label,
-      // state
       dir,
+    }).create(defaultCreateData, {
+      // state
       browserSelectedItems: [],
     });
 
@@ -60,9 +60,10 @@ describe('Integration | Utility | items-select-browser/base-model', function () 
       } = this.getProperties('defaultCreateData');
       const dir = { name: 'current dir' };
 
-      const model = ItemsSelectBrowserBaseModel.create(defaultCreateData, {
-        // state
+      const model = ItemsSelectBrowserBaseModel.extend({
         dir,
+      }).create(defaultCreateData, {
+        // state
         browserSelectedItems: [],
       });
 
@@ -77,9 +78,10 @@ describe('Integration | Utility | items-select-browser/base-model', function () 
       } = this.getProperties('defaultCreateData');
       const dir = { name: 'current dir' };
 
-      const model = ItemsSelectBrowserBaseModel.create(defaultCreateData, {
-        // state
+      const model = ItemsSelectBrowserBaseModel.extend({
         dir,
+      }).create(defaultCreateData, {
+        // state
         browserSelectedItems: [],
       });
 
@@ -94,9 +96,10 @@ describe('Integration | Utility | items-select-browser/base-model', function () 
       } = this.getProperties('defaultCreateData');
       const dir = { name: 'current dir' };
 
-      const model = ItemsSelectBrowserBaseModel.create(defaultCreateData, {
-        // state
+      const model = ItemsSelectBrowserBaseModel.extend({
         dir,
+      }).create(defaultCreateData, {
+        // state
         browserSelectedItems: [{ name: 'test-file-1' }],
       });
 

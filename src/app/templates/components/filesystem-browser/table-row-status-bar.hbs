@@ -1,4 +1,4 @@
-{{#if (and (not previewMode) (gt hardlinksCount 1))}}
+{{#if (and (not previewMode) (gt hardlinkCount 1))}}
   <div
     class="file-status-tag file-status-hardlinks {{if disabled "file-status-tag-disabled"}}"
     {{action
@@ -9,12 +9,12 @@
       bubbles=(bool disabled)
     }}
   >
-    {{tt this "status.hardlinks" hardlinksCount=hardlinksCount}}
+    {{tt this "status.hardlinks" hardlinkCount=hardlinkCount}}
   </div>
 {{/if}}
 {{#if (and (not previewMode) (not isSymlink) isShared)}}
   <div
-    class="file-status-tag-group"
+    class="file-status-tag-group {{if (not disabled) "clickable"}}"
     {{action
       (if disabled
         (no-action)
@@ -53,9 +53,9 @@
     {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
   </div>
 {{/if}}
-{{#if (and (not isSymlink) hasMetadata)}}
+{{#if (and (not isSymlink) hasCustomMetadata)}}
   <div
-    class="file-status-tag file-status-metadata {{if disabled "file-status-tag-disabled"}}"
+    class="file-status-tag file-status-metadata {{if disabled "file-status-tag-disabled" "clickable"}}"
     {{action
       (if disabled
         (no-action)
@@ -73,6 +73,7 @@
       "file-status-tag file-status-acl"
       (if previewMode "file-status-tag-warning")
       (if disabled "file-status-tag-disabled")
+      (if (not (or disabled previewMode)) "clickable")
     }}
     {{action
       (if (or disabled previewMode)
@@ -94,6 +95,7 @@
     browserModel=browserModel
     item=file
     disabled=disabled
+    isFileConsumerDisabled=true
     onInvokeItemAction=(action invokeFileAction)
   }}
 {{/unless}}

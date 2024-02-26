@@ -195,7 +195,7 @@ export default Component.extend(I18n, {
       } finally {
         // only a side effect
         for (const dirId of datasetsIds) {
-          fileManager.dirChildrenRefresh(dirId).catch(error => {
+          fileManager.dirChildrenRefresh(dirId, { forced: true }).catch(error => {
             console.error(
               `components:archives-delete#delete: failed to refresh archives list of dataset ${dirId}: ${error}`
             );

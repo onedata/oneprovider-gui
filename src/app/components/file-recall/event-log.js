@@ -49,7 +49,7 @@ export default Component.extend(I18n, {
    */
   duplicateNameHashMapper: undefined,
 
-  recallRootFileId: reads('recallRootFile.entityId'),
+  archiveRecallRootFileId: reads('recallRootFile.entityId'),
 
   archiveId: reads('archive.entityId'),
 
@@ -72,19 +72,19 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<(listingParams: AuditLogListingParams) => Promise<AuditLogEntriesPage<RecallAuditLogEntryContent>>>}
    */
   fetchLogEntriesCallback: computed(
-    'recallRootFileId',
+    'archiveRecallRootFileId',
     function fetchLogEntriesCallback() {
       const {
-        recallRootFileId,
+        archiveRecallRootFileId,
         fileManager,
       } = this.getProperties(
-        'recallRootFileId',
+        'archiveRecallRootFileId',
         'fileManager'
       );
       return async (listingParams) => {
         /** @type {AuditLogEntriesPage<RecallAuditLogEntryContent>} */
         const logsPage = await fileManager.getRecallLogs(
-          recallRootFileId,
+          archiveRecallRootFileId,
           listingParams
         );
         for (const entry of logsPage.logEntries) {

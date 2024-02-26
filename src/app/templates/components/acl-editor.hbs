@@ -16,7 +16,11 @@
     {{/list.item}}
   {{else}}
     {{#list.item class="no-ace" as |listItem|}}
-      {{#listItem.header isCollapsible=false}}{{tt this "noAce"}}{{/listItem.header}}
+      {{#listItem.header isCollapsible=false}}
+        {{tt this "noAce"}}
+        <br />
+        <strong>{{tt this "posixPermissionsWillApply"}}</strong>
+      {{/listItem.header}}
     {{/list.item}}
   {{/each}}
   {{#unless readonly}}
@@ -25,23 +29,30 @@
         <span class="item-icon-container">
           {{one-icon icon="group-invite" class="item-icon"}}
         </span>
-        {{#power-select
-          triggerClass="add-user-group-ace-trigger"
-          dropdownClass="add-user-group-ace-dropdown"
-          options=subjectsList
-          onchange=(action "addEntitySelected")
-          placeholder=(tt this "addUserOrGroup")
-          searchField="name"
-          as |entity|}}
+        <OneDropdown
+          @triggerClass="add-user-group-ace-trigger"
+          @dropdownClass="add-user-group-ace-dropdown"
+          @options={{subjectsList}}
+          @onChange={{action "addEntitySelected"}}
+          @placeholder={{tt this "addUserOrGroup"}}
+          @searchEnabled={{true}}
+          @searchField="name"
+          as |entity|
+        >
           <div class="option-container" data-entity-id={{entity.entityId}}>
             {{#truncated-string}}
               {{one-icon icon=(or entity.constructor.modelName entity.equivalentType)}}
               <span class="text {{if entity.isSystemSubject "system-subject-name"}}">
                 {{entity.name}}
               </span>
+              {{#if entity.description}}
+                <span class="system-subject-description">
+                  ({{entity.description}})
+                </span>
+              {{/if}}
             {{/truncated-string}}
           </div>
-        {{/power-select}}
+        </OneDropdown>
       {{/listItem.header}}
     {{/list.item}}
   {{/unless}}

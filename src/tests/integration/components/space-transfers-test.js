@@ -5,6 +5,7 @@ import { render, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import sinon from 'sinon';
 import Service from '@ember/service';
+import { set } from '@ember/object';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
@@ -21,10 +22,6 @@ const TransferManager = Service.extend({
   getTransfersForFile: notImplementedReject,
   getSpaceTransfersActiveChannels: notImplementedReject,
   getSpaceTransfersThroughputCharts: notImplementedReject,
-});
-
-const Store = Service.extend({
-  findRecord: notImplementedReject,
 });
 
 const ErrorExtractor = Service.extend({
@@ -65,13 +62,12 @@ describe('Integration | Component | space-transfers', function () {
     const fileId = 'dummyFileId';
     const defaultTab = 'waiting';
     registerService(this, 'transferManager', TransferManager);
-    registerService(this, 'store', Store);
     registerService(this, 'errorExtractor', ErrorExtractor);
+    set(lookupService(this, 'guiContext'), 'clusterId', providerId);
     this.setProperties({
       space,
       fileId,
       defaultTab,
-      providerId,
       transferManager: lookupService(this, 'transferManager'),
       store: lookupService(this, 'store'),
       actions: {
@@ -98,7 +94,6 @@ describe('Integration | Component | space-transfers', function () {
       space=space
       fileId=undefined
       defaultTab=defaultTab
-      providerId=providerId
       resetQueryParams=(action resetQueryParams)
       changeListTab=(action changeListTab)
       closeFileTab=(action closeFileTab)
@@ -137,13 +132,12 @@ describe('Integration | Component | space-transfers', function () {
       space=space
       fileId=fileId
       tab=tab
-      providerId=providerId
       resetQueryParams=(action resetQueryParams)
       changeListTab=(action changeListTab)
       closeFileTab=(action closeFileTab)
     }}</div>`);
 
-    expect(find('.row-transfers-tables'), '.row-transfers-tables').to
+    expect(find('.tables-container'), '.tables-container').to
       .exist;
     expect(findRecord).to.have.been.calledOnce;
     expect(findRecord).to.have.been.calledWith('file', expectedFileGri);
@@ -174,14 +168,14 @@ describe('Integration | Component | space-transfers', function () {
       await render(hbs `<div id="content-scroll">{{space-transfers
         space=space
         defaultTab=defaultTab
-        providerId=providerId
         resetQueryParams=(action resetQueryParams)
         changeListTab=(action changeListTab)
         closeFileTab=(action closeFileTab)
       }}</div>`);
 
       expect(find('.nav-link-file'), '.nav-link-file').to.not.exist;
-    });
+    }
+  );
 
   it('renders tab link for file tab with file name if fileId is provided',
     async function () {
@@ -208,7 +202,6 @@ describe('Integration | Component | space-transfers', function () {
         space=space
         defaultTab=defaultTab
         fileId=fileId
-        providerId=providerId
         resetQueryParams=(action resetQueryParams)
         changeListTab=(action changeListTab)
         closeFileTab=(action closeFileTab)
@@ -217,5 +210,6 @@ describe('Integration | Component | space-transfers', function () {
       const navLinkFile = find('.nav-link-file');
       expect(navLinkFile, '.nav-link-file').to.exist;
       expect(navLinkFile).to.have.trimmed.text(file.name);
-    });
+    }
+  );
 });

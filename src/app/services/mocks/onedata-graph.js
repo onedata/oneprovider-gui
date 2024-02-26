@@ -511,7 +511,7 @@ const fileHandlers = {
     }
     return response;
   },
-  children_details(operation, entityId, { index, limit, offset }) {
+  children(operation, entityId, { index, limit, offset }) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
@@ -1112,7 +1112,7 @@ export default OnedataGraphMock.extend({
     if (type === 'data') {
       mockChildren = this.getMockChildrenData(entityId);
       arrIndex = mockChildren.findIndex(fileData => {
-        const childId = get(fileData, 'guid');
+        const childId = get(fileData, 'fileId');
         return atob(childId).endsWith(index);
       });
     } else if (type === 'id') {
@@ -1188,10 +1188,10 @@ export default OnedataGraphMock.extend({
 
   getHardlinks(fileEntityId) {
     const files = this.get('mockBackend.entityRecords.file');
-    const originalFile = files.findBy('entityId', fileEntityId);
+    const originalFile = files?.findBy('entityId', fileEntityId);
     const hardlinks = [originalFile];
-    if (get(originalFile, 'hardlinksCount') > 1) {
-      hardlinks.push(files.without(originalFile).findBy('hardlinksCount', 2));
+    if (originalFile && get(originalFile, 'hardlinkCount') > 1) {
+      hardlinks.push(files.without(originalFile).findBy('hardlinkCount', 2));
     }
     return hardlinks.compact().mapBy('id');
   },
@@ -1243,18 +1243,18 @@ function recordToChildData(record) {
     'type',
     'size',
     'posixPermissions',
-    'hasMetadata',
-    'effQosMembership',
-    'effDatasetMembership',
+    'hasCustomMetadata',
+    'effQosInheritancePath',
+    'effDatasetInheritancePath',
     'effProtectionFlags',
     'mtime',
     'activePermissionsType'
   ), {
-    guid: get(record, 'entityId'),
-    shares: hasManyEntityIds(record, 'shareRecords'),
-    parentId: belongsToEntityId(record, 'parent'),
-    ownerId: belongsToEntityId(record, 'owner'),
-    providerId: belongsToEntityId(record, 'provider'),
+    fileId: get(record, 'entityId'),
+    directShareIds: hasManyEntityIds(record, 'shareRecords'),
+    parentFileId: belongsToEntityId(record, 'parent'),
+    ownerUserId: belongsToEntityId(record, 'owner'),
+    originProviderId: belongsToEntityId(record, 'provider'),
   });
 }
 

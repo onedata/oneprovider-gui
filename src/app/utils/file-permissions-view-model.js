@@ -24,17 +24,22 @@ import {
 import { Promise, all as allFulfilled, allSettled, resolve, reject } from 'rsvp';
 import _ from 'lodash';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { translateFileType } from 'onedata-gui-common/utils/file';
+import { numberToTree } from 'oneprovider-gui/utils/acl-permissions-converter';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const mixins = [
   OwnerInjector,
   I18n,
+  FileConsumerMixin,
   createDataProxyMixin('spaceUsers', { type: 'array' }),
   createDataProxyMixin('spaceGroups', { type: 'array' }),
   createDataProxyMixin('acls', { type: 'array' }),
@@ -83,6 +88,28 @@ export default EmberObject.extend(...mixins, {
   //#region state
 
   /**
+   * @override
+   */
+  fileRequirements: computed('files.[]', function fileRequirements() {
+    const properties = Object.freeze([
+      'owner',
+      'metadataIsProtected',
+      'posixPermissions',
+      'activePermissionsType',
+    ]);
+    return this.files.map(file => new FileRequirement({
+      fileGri: get(file, 'id'),
+      properties,
+    }));
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedMultiUsedFileGris('files'),
+
+  /**
    * @type {FilePermissionsType}
    */
   selectedPermissionsType: undefined,
@@ -125,7 +152,29 @@ export default EmberObject.extend(...mixins, {
    */
   lastResetTime: undefined,
 
+  /**
+   * If true, current user is considered to have permissions to modify ACL in
+   * editor. It is set by default to true, because first computation is asynchronical.
+   * @type {boolean}
+   */
+  hasAclChangePermissions: true,
+
+  /**
+   * If true, current user is considered to have permissions to view in the editor.
+   * It is set by default to true, because first computation is asynchronical.
+   * @type {boolean}
+   */
+  hasAclReadPermissions: true,
+
+  /**
+   * Read-only state of ACL editor when it is saved.
+   * @type {boolean}
+   */
+  hasReadonlyAclRules: false,
+
   //#endregion
+
+  hasAclEditorPermissions: and('hasAclReadPermissions', 'hasAclChangePermissions'),
 
   isMultiFile: gt('files.length', 1),
 
@@ -162,7 +211,11 @@ export default EmberObject.extend(...mixins, {
     'isRootDir',
     'metadataIsProtected',
     'isPosixAndNonOwner',
-    'fileTypeTextConfig',
+    'isAclAndSomePosixNonOwned',
+    'activePermissionsType',
+    'hasReadonlyAclRules',
+    'space.currentUserIsOwner',
+    'selectedPermissionsType',
     function effectiveReadonlyTip() {
       if (this.readonlyTip) {
         return this.readonlyTip;
@@ -170,40 +223,19 @@ export default EmberObject.extend(...mixins, {
         return this.t('readonlyDueToBeingRootDir');
       } else if (this.metadataIsProtected) {
         return this.t('readonlyDueToMetadataIsProtected');
-      } else if (this.isPosixAndNonOwner) {
-        return this.t('readonlyDueToPosixNonOwner', {
-          fileTypeText: this.fileTypeTextConfig.text,
-        });
+      } else if (this.isPosixAndNonOwner || this.isAclAndSomePosixNonOwned) {
+        return this.t('readonlyDueToPosixNonOwner');
+      } else if (
+        this.activePermissionsType === 'acl' &&
+        !get(this.space, 'currentUserIsOwner') &&
+        this.hasReadonlyAclRules
+      ) {
+        return this.t('readonlyDueToAclRules');
       } else {
         return '';
       }
     }
   ),
-
-  fileTypeTextConfig: computed('files.@each.type', function fileTypeTextConfig() {
-    let fileType = get(this.files[0], 'type');
-    let form;
-    if (this.files.length === 1) {
-      form = 'singular';
-    } else {
-      form = 'plural';
-      if (!this.files.every(file => get(file, 'type') === fileType)) {
-        fileType = null;
-      }
-    }
-    const text = translateFileType(this.i18n, fileType, { form });
-    return {
-      text,
-      fileType,
-      form,
-    };
-  }),
-
-  posixNotActiveText: computed('fileTypeTextConfig', function posixNotActiveText() {
-    return this.t(`posixNotActive.${this.fileTypeTextConfig.form}`, {
-      fileTypeText: this.fileTypeTextConfig.text,
-    });
-  }),
 
   /**
    * List of system subjects, that represents owner of a file/directory, owning
@@ -223,16 +255,19 @@ export default EmberObject.extend(...mixins, {
       entityId: 'GROUP@',
       equivalentType: 'group',
       name: this.t('groupSystemSubject'),
+      description: this.t('systemSubjectDescription.group'),
     }, {
       isSystemSubject: true,
       entityId: 'EVERYONE@',
       equivalentType: 'group',
       name: this.t('everyoneSystemSubject'),
+      description: this.t('systemSubjectDescription.everyone'),
     }, {
       isSystemSubject: true,
       entityId: 'ANONYMOUS@',
       equivalentType: 'user',
       name: this.t('anonymousSystemSubject'),
+      description: this.t('systemSubjectDescription.anonymous'),
     }];
   }),
 
@@ -257,6 +292,12 @@ export default EmberObject.extend(...mixins, {
     array.isEvery('files', raw('activePermissionsType'), raw('posix')),
     raw('posix'),
     raw('acl')
+  ),
+
+  filesHaveTheSamePermissionsType: array.isEvery(
+    'files',
+    raw('activePermissionsType'),
+    'files.0.activePermissionsType'
   ),
 
   /**
@@ -293,6 +334,21 @@ export default EmberObject.extend(...mixins, {
   filesHaveCompatiblePosixPermissions: isEveryTheSame(
     'files',
     raw('posixPermissions')
+  ),
+
+  ownersCount: computed(
+    'files.@each.owner',
+    function ownersCount() {
+      /** @type {Set} */
+      const ownerSet = this.files.reduce(
+        (currentOwnerSet, file) => {
+          currentOwnerSet.add(file.relationEntityId('owner'));
+          return currentOwnerSet;
+        },
+        new Set()
+      );
+      return ownerSet.size;
+    }
   ),
 
   filesHaveSameOwner: computed('files.@each.owner', function filesHaveSameOwner() {
@@ -366,6 +422,19 @@ export default EmberObject.extend(...mixins, {
     'isAclIncompatibilityAccepted'
   ),
 
+  isSomeNonOwnedPosix: computed(
+    'files.@each.owner',
+    'currentUser.userId',
+    function isSomeNonOwnedPosix() {
+      const currentUserId = this.currentUser.userId;
+      return !this.files?.every(file =>
+        !file ||
+        get(file, 'activePermissionsType') === 'acl' ||
+        file.relationEntityId('owner') === currentUserId
+      );
+    }
+  ),
+
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
@@ -401,11 +470,6 @@ export default EmberObject.extend(...mixins, {
     raw(null),
   ),
 
-  isPermissionsTypeSelectorDisabled: bool(and(
-    'effectiveReadonly',
-    equal('activePermissionsType', raw('posix')),
-  )),
-
   isAllFilesOwner: computed('files.@each.owner', function isAllFilesOwner() {
     const currentUserId = this.currentUser.userId;
     return this.files?.every(file => file?.relationEntityId('owner') === currentUserId);
@@ -421,12 +485,51 @@ export default EmberObject.extend(...mixins, {
     'isNotFilesOrSpaceOwner',
   ),
 
+  isAclAndSomePosixNonOwned: and(
+    not('areActivePermissionsTypeTheSame'),
+    not('space.currentUserIsOwner'),
+    'isSomeNonOwnedPosix'
+  ),
+
   isPosixEditorReadonly: or(
     'effectiveReadonly',
     and(
       equal('activePermissionsType', raw('acl')),
       'isNotFilesOrSpaceOwner',
     )
+  ),
+
+  isLackOfAclEditorPermissions: computed(
+    'hasAclEditorPermissions',
+    'acl.length',
+    function isLackOfAclEditorPermissions() {
+      return this.acl?.length &&
+        !this.hasAclEditorPermissions;
+    }
+  ),
+
+  itemTypeText: computed('files.[]', function itemTypeText() {
+    return this.files.length === 1 ?
+      translateFileType(this.i18n, get(this.files[0], 'type')) :
+      this.t('selectedItems');
+  }),
+
+  lackOfAclEditorPermissionsText: computed(
+    'itemTypeText',
+    function lackOfAclEditorPermissionsText() {
+      return this.t('lackOfAclPermissionsWarning', { itemType: this.itemTypeText });
+    }
+  ),
+
+  forbiddenAclEditorText: computed(
+    'itemTypeText',
+    'files.[]',
+    function forbiddenAclEditorText() {
+      const itemType = this.files.length === 1 ?
+        this.t('forbiddenMessageItemType.' + get(this.files[0], 'type')) :
+        this.t('forbiddenMessageItemType.multi');
+      return this.t('forbiddenAclEditor', { itemType });
+    }
   ),
 
   init() {
@@ -508,15 +611,143 @@ export default EmberObject.extend(...mixins, {
           subject = users.findBy('entityId', identifier);
           subjectType = 'user';
         }
-        subject = this.stripSubject(subject);
+        subject = subject ? this.stripSubject(subject) : null;
         return _.assign({ subject, subjectType }, ace);
       });
     });
-    return allFulfilled(aclPromises);
+    return allFulfilled(aclPromises.filter(Boolean));
+  },
+
+  /**
+   * Compute if provided ACL grants permissions needed for current user to view and edit
+   * ACL using the editor.
+   * @param {Array<Ace>} acl
+   * @returns {boolean}
+   */
+  async computeHasAclChangePermissions(acl) {
+    // current user group list is needed to check group permissions
+    await get(this.currentUser.user, 'effGroupList');
+    return this.files.every(file => {
+      for (const ace of acl) {
+        const changeAclPermission =
+          this.evaluateUserAcePermission(file, ace, 'change_acl');
+        if (changeAclPermission === 'allow') {
+          return true;
+        } else if (changeAclPermission === 'deny') {
+          return false;
+        }
+      }
+      return false;
+    });
+  },
+
+  async computeHasAclReadPermissions(acl) {
+    // current user group list is needed to check group permissions
+    await get(this.currentUser.user, 'effGroupList');
+    return this.files.every(file => {
+      for (const ace of acl) {
+        const readAclPermission = this.evaluateUserAcePermission(file, ace, 'read_acl');
+        if (readAclPermission === 'allow') {
+          return true;
+        } else if (readAclPermission === 'deny') {
+          return false;
+        }
+      }
+      return false;
+    });
+  },
+
+  async computeHasAclPermissions(aclPermission) {
+    // current user group list is needed to check group permissions
+    await get(this.currentUser.user, 'effGroupList');
+    if (this.filesHaveCompatibleAcl) {
+      // single ACL is used for all files
+      return this.files.every(file => {
+        for (const ace of this.acl) {
+          const readAclPermission =
+            this.evaluateUserAcePermission(file, ace, aclPermission);
+          if (readAclPermission === 'allow') {
+            return true;
+          } else if (readAclPermission === 'deny') {
+            return false;
+          }
+        }
+        return false;
+      });
+    } else {
+      // check original ACLs for each file, because we cannot determine common ACL for all
+      // files
+      return _.zip(this.files, this.acls).every(([file, acl]) => {
+        for (const ace of acl) {
+          const readAclPermission =
+            this.evaluateUserAcePermission(file, ace, aclPermission);
+          if (readAclPermission === 'allow') {
+            return true;
+          } else if (readAclPermission === 'deny') {
+            return false;
+          }
+        }
+        return false;
+      });
+    }
+  },
+
+  /**
+   * @param {Ace} ace
+   * @param {'read_acl'|'change_acl'} permission
+   * @returns {'allow'|'deny'|'none'}
+   */
+  evaluateUserAcePermission(file, ace, permission) {
+    if (ace.subjectType === 'user') {
+      if (ace.identifier === 'OWNER@') {
+        if (file.relationEntityId('owner') !== this.currentUser.userId) {
+          return 'none';
+        }
+      } else {
+        if (ace.identifier !== this.currentUser.userId) {
+          return 'none';
+        }
+      }
+    }
+
+    if (
+      ace.subjectType === 'group' && (
+        ace.identifier === 'ANONYMOUS@' ||
+        (
+          ace.identifier !== 'EVERYONE@' &&
+          ace.identifier !== 'GROUP@' &&
+          !this.isUserEffMemberOfGroupId(this.currentUser.user, ace.identifier)
+        )
+      )
+    ) {
+      return 'none';
+    }
+
+    const isEnabled = numberToTree(ace.aceMask, get(file, 'type')).acl[permission];
+    if (isEnabled) {
+      return ace.aceType === 'ALLOW' ? 'allow' : 'deny';
+    } else {
+      return 'none';
+    }
+  },
+
+  /**
+   * Needs `user.effGroupList` to be loaded!
+   * @param {Models.User} user
+   * @param {string} groupId
+   * @returns {boolean}
+   */
+  isUserEffMemberOfGroupId(user, groupId) {
+    const groupList = get(user, 'effGroupList.content');
+    if (!groupList) {
+      return undefined;
+    }
+    const groupsGris = groupList.hasMany('list').ids();
+    return groupsGris.some(gri => groupId === parseGri(gri).entityId);
   },
 
   stripSubject(record) {
-    return getProperties(record, 'name', 'isSystemSubject');
+    return getProperties(record, 'name', 'isSystemSubject', 'description');
   },
 
   acceptPosixIncompatibility() {
@@ -542,6 +773,21 @@ export default EmberObject.extend(...mixins, {
 
   setAclFromInitial() {
     this.set('acl', _.cloneDeep(this.initialAcl));
+    (async () => {
+      await this.setAclEditorSelfPermissionsState();
+      safeExec(this, 'set', 'hasReadonlyAclRules', !this.hasAclChangePermissions);
+    })();
+  },
+
+  async setAclEditorSelfPermissionsState() {
+    const hasAclReadPermissions =
+      await this.computeHasAclPermissions('read_acl');
+    const hasAclChangePermissions =
+      await this.computeHasAclPermissions('change_acl');
+    this.setProperties({
+      hasAclReadPermissions,
+      hasAclChangePermissions,
+    });
   },
 
   async initAclValuesOnProxyLoad() {
@@ -551,7 +797,10 @@ export default EmberObject.extend(...mixins, {
     } = this.getProperties('aclsProxy', 'acl');
     if (!acl) {
       await aclsProxy;
-      safeExec(this, 'setAclFromInitial');
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
+      this.setAclFromInitial();
     }
   },
 
@@ -569,7 +818,6 @@ export default EmberObject.extend(...mixins, {
    */
   async changeTab(tabId) {
     if (
-      this.isPermissionsTypeSelectorDisabled ||
       tabId === this.selectedPermissionsType ||
       !(await this.checkCurrentTabClose())
     ) {
@@ -593,13 +841,14 @@ export default EmberObject.extend(...mixins, {
   onAclChanged(acl) {
     this.set('acl', acl);
     this.markPermissionsTypeAsEdited('acl');
+    this.setAclEditorSelfPermissionsState();
   },
 
   /**
    * @private
    * @returns {Promise}
    */
-  saveAllPermissions() {
+  async saveAllPermissions() {
     const {
       acl,
       posixPermissions,
@@ -667,6 +916,30 @@ export default EmberObject.extend(...mixins, {
     });
   },
 
+  async submit() {
+    if (this.isLackOfAclEditorPermissions) {
+      return this.showAclPermissionsWarningModal();
+    } else {
+      return this.save();
+    }
+  },
+
+  async showAclPermissionsWarningModal() {
+    return this.modalManager.show('question-modal', {
+      headerIcon: 'sign-warning-rounded',
+      headerText: this.t('aclPermissionsWarningModal.header'),
+      descriptionParagraphs: [{
+        text: this.lackOfAclEditorPermissionsText,
+      }],
+      yesButtonText: this.t('aclPermissionsWarningModal.yes'),
+      yesButtonType: 'danger',
+      noButtonText: this.t('aclPermissionsWarningModal.no'),
+      onSubmit: async () => {
+        return await this.save();
+      },
+    }).hiddenPromise;
+  },
+
   async save() {
     if (this.isSaveDisabled) {
       return;
@@ -694,7 +967,8 @@ export default EmberObject.extend(...mixins, {
         );
       }
     } finally {
-      const hardlinkedFile = files.find(file => get(file, 'hardlinksCount') > 1);
+      safeExec(this, 'set', 'hasReadonlyAclRules', !this.hasAclChangePermissions);
+      const hardlinkedFile = files.find(file => get(file, 'hardlinkCount') > 1);
       if (hardlinkedFile) {
         this.fileManager.fileParentRefresh(hardlinkedFile);
       }
@@ -707,6 +981,12 @@ export default EmberObject.extend(...mixins, {
       selectedPermissionsType: this.initialActivePermissionsType,
       posixPermissions: this.initialPosixPermissions,
     });
+    if (!this.filesHaveCompatibleAcl) {
+      this.set('isAclIncompatibilityAccepted', false);
+    }
+    if (!this.filesHaveCompatiblePosixPermissions) {
+      this.set('isPosixPermissionsIncompatibilityAccepted', false);
+    }
     this.setAclFromInitial();
     this.clearEditedPermissionsTypes();
   },

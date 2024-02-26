@@ -71,6 +71,7 @@ describe('Integration | Component | archive-browser', function () {
   });
 
   it('renders "Building" state with stats of archive on list', async function () {
+    const store = lookupService(this, 'store');
     const itemsCount = 1;
     const mockArray = mockItems({
       testCase: this,
@@ -79,13 +80,13 @@ describe('Integration | Component | archive-browser', function () {
     const archive = mockArray.array[0];
     const filesArchived = 8;
     const bytesArchived = 2048;
-    setProperties(archive, {
+    setProperties(archive, store.createRecord('archive', {
       state: 'building',
       stats: {
         filesArchived,
         bytesArchived,
       },
-    });
+    }));
 
     await renderComponent(this);
 
@@ -93,7 +94,8 @@ describe('Integration | Component | archive-browser', function () {
     expect(colStates).to.have.length(1);
     const colState = colStates[0];
     expect(colState.textContent).to.contain('Building');
-    expect(colState.textContent).to.contain('8 files');
+    expect(colState
+      .textContent).to.contain('8 files');
     expect(colState.textContent).to.contain('2 KiB');
   });
 
@@ -187,7 +189,8 @@ describe('Integration | Component | archive-browser', function () {
     expect(openArchiveDetailsModal).to.have.been.calledWith(archive);
   });
 
-  it('has non-disabled "cancel archivization" action for archive item that invokes cancel confirmation modal on click',
+  it(
+    'has non-disabled "cancel archivization" action for archive item that invokes cancel confirmation modal on click',
     async function () {
       const itemsCount = 1;
       const mockArray = mockItems({
@@ -258,10 +261,6 @@ async function renderComponent(testCase) {
     'openArchiveDetailsModal',
     'openCancelModal',
   );
-  const defaultDataset = {
-    name: 'Default dataset',
-    state: 'attached',
-  };
   setTestPropertyDefault(
     testCase,
     'resolveFileParentFun',
@@ -269,7 +268,7 @@ async function renderComponent(testCase) {
   );
   setTestPropertyDefault(testCase, 'spacePrivileges', {});
   setTestPropertyDefault(testCase, 'spaceId', 'some_space_id');
-  setTestPropertyDefault(testCase, 'dataset', defaultDataset);
+  setTestPropertyDefault(testCase, 'dataset', createDefaultDataset(testCase));
   const spaceDatasetsViewState = {
     browsableDataset: testCase.get('dataset'),
     attachmentState: testCase.get('dataset.state'),
@@ -307,6 +306,14 @@ async function renderComponent(testCase) {
     updateDirEntityId=(action updateDirEntityId)
     changeSelectedItems=(action (mut selectedItems))
   }}</div>`);
+}
+
+function createDefaultDataset(mochaContext) {
+  const store = lookupService(mochaContext, 'store');
+  return mochaContext, store.createRecord('dataset', {
+    name: 'Default dataset',
+    state: 'attached',
+  });
 }
 
 // TODO: VFS-7643 common test utils for browsers

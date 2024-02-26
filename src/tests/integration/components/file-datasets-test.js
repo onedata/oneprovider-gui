@@ -8,7 +8,7 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import ToggleHelper from '../../helpers/toggle';
 import { createFileDatasetSummary, createDataset } from '../../helpers/datasets-archives';
-import { setProperties } from '@ember/object';
+import { set } from '@ember/object';
 import Service from '@ember/service';
 import { lookupService, registerService } from '../../helpers/stub-service';
 import sinon from 'sinon';
@@ -243,10 +243,8 @@ function testEffectiveProtectionInfo(flags) {
         file,
         fileDatasetSummary,
       } = this.getProperties('file', 'fileDatasetSummary');
-      const dataIsProtected = shortFlags.includes('data');
-      const metadataIsProtected = shortFlags.includes('metadata');
-      setProperties(fileDatasetSummary, { dataIsProtected, metadataIsProtected });
-      setProperties(file, { dataIsProtected, metadataIsProtected });
+      set(fileDatasetSummary, 'effProtectionFlags', flags);
+      set(file, 'effProtectionFlags', flags);
 
       await renderComponent(this);
 
@@ -277,7 +275,7 @@ async function renderComponent(testCase) {
 
 function createFile(override = {}, ownerGri = userGri) {
   return Object.assign({
-    modificationTime: moment('2020-01-01T08:50:00+00:00').unix(),
+    mtime: moment('2020-01-01T08:50:00+00:00').unix(),
     posixPermissions: '777',
     type: 'file',
     belongsTo(name) {

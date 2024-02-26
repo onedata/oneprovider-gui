@@ -27,7 +27,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool, eq } from 'ember-awesome-macros';
-import { all as allFulfilled, allSettled } from 'rsvp';
+import { all as allFulfilled, allSettled, defer } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -46,20 +46,33 @@ import globals from 'onedata-gui-common/utils/globals';
  * @typedef {EmberObject} FbTableApi
  */
 
+/**
+ * @typedef {Object} FbTableRefreshOptions
+ * @property {boolean} forced If true, the refresh will be added to queue even if another
+ *   refresh is already queued.
+ * @property {boolean} animated If true, show spinner over the list while the refresh is
+ *   performed.
+ */
+
 const defaultIsItemDisabled = () => false;
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+];
+
+export default Component.extend(...mixins, {
   classNames: ['fb-table'],
   classNameBindings: [
     'hasEmptyDirClass:empty-dir',
     'dirLoadError:error-dir',
     'specialViewClass:special-dir-view',
-    'refreshStarted',
+    'refreshDefer:refresh-started',
   ],
   attributeBindings: ['tabIndex'],
 
   fileManager: service(),
   i18n: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -217,6 +230,11 @@ export default Component.extend(I18n, {
    */
   lastSelectedFile: undefined,
 
+  /**
+   * @type {RSVP.Deferred}
+   */
+  refreshDefer: null,
+
   rowHeight: 61,
 
   /**
@@ -291,7 +309,10 @@ export default Component.extend(I18n, {
   selectionCount: reads('selectedItems.length'),
 
   viewTester: computed('contentScroll', function viewTester() {
-    const $contentScroll = $(this.get('contentScroll'));
+    if (!this.contentScroll) {
+      return null;
+    }
+    const $contentScroll = $(this.contentScroll);
     return new ViewTester($contentScroll);
   }),
 
@@ -303,10 +324,10 @@ export default Component.extend(I18n, {
       this.get('filesArray.sourceArray').mapBy('originalName'),
       name => name,
     );
-    const test = Object.entries(namesCount)
+    const namesUsedMultipleTimes = Object.entries(namesCount)
       .filter(([, count]) => count > 1)
       .map(([name]) => name);
-    return test;
+    return namesUsedMultipleTimes;
   }),
 
   listLoadState: reads('browserModel.listLoadState'),
@@ -360,6 +381,18 @@ export default Component.extend(I18n, {
       return _start ? _start * this.get('rowHeight') : 0;
     }
   ),
+
+  listWatcher: computed('contentScroll', function listWatcher() {
+    if (!this.contentScroll) {
+      return null;
+    }
+    return new ListWatcher(
+      $(this.contentScroll),
+      '.data-row',
+      (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
+      '.table-start-row',
+    );
+  }),
 
   /**
    * When replacing chunks array gets expanded on beginning (items are unshifted into
@@ -581,31 +614,24 @@ export default Component.extend(I18n, {
     }
   ),
 
+  listWatcherObserver: observer('listWatcher', async function listWatcherObserver() {
+    await waitForRender();
+    this.listWatcher?.scrollHandler();
+  }),
+
   init() {
     this._super(...arguments);
-    const {
-      fileManager,
-      registerApi,
-      api,
-      loadingIconFileIds,
-      filesArray,
-    } = this.getProperties(
-      'fileManager',
-      'registerApi',
-      'api',
-      'loadingIconFileIds',
-      'filesArray'
-    );
-    if (!loadingIconFileIds) {
+    if (!this.loadingIconFileIds) {
       this.set('loadingIconFileIds', A());
     }
-    fileManager.registerRefreshHandler(this);
-    registerApi(api);
-    if (get(filesArray, 'initialJumpIndex')) {
-      get(filesArray, 'initialLoad').then(() => {
+    this.fileManager.registerRefreshHandler(this);
+    this.registerApi(this.api);
+    if (get(this.filesArray, 'initialJumpIndex')) {
+      get(this.filesArray, 'initialLoad').then(() => {
         this.selectedItemsForJumpObserver();
       });
     }
+    this.listWatcherObserver();
   },
 
   /**
@@ -630,19 +656,10 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  didInsertElement() {
-    this._super(...arguments);
-    const listWatcher = this.set('listWatcher', this.createListWatcher());
-    listWatcher.scrollHandler();
-  },
-
-  /**
-   * @override
-   */
   willDestroyElement() {
     try {
-      this.get('listWatcher').destroy();
-      this.get('fileManager').deregisterRefreshHandler(this);
+      this.listWatcher?.destroy();
+      this.fileManager.deregisterRefreshHandler(this);
     } finally {
       this._super(...arguments);
     }
@@ -684,7 +701,7 @@ export default Component.extend(I18n, {
       }
       // wait for render of array fragment containing item to jump
       await sleep(0);
-      listWatcher.scrollHandler();
+      listWatcher?.scrollHandler();
       // wait for fetch prev/next resolve
       await this.get('filesArray').getCurrentExpandPromise();
       // wait for fetch prev/next result render
@@ -795,9 +812,14 @@ export default Component.extend(I18n, {
     );
   },
 
-  async onDirChildrenRefresh(parentDirEntityId) {
+  /**
+   * @param {string} parentDirEntityId
+   * @param {FbTableRefreshOptions} options
+   * @returns {Promise}
+   */
+  async onDirChildrenRefresh(parentDirEntityId, options) {
     if (get(this.dir, 'entityId') === parentDirEntityId) {
-      return this.refresh(false);
+      return this.refresh(options.animated, options.forced);
     }
   },
 
@@ -806,32 +828,41 @@ export default Component.extend(I18n, {
    * view with optional loading indicator.
    * This method is a part of File Browser Table API implemenetation.
    * @param {boolean} [animated]
+   * @param {boolean} [forced]
    * @returns {Promise}
    */
-  async refresh(animated = true) {
+  async refresh(animated = true, forced = false) {
     // should be the same as $refresh-transition-duration in fb-table.scss
     const fadeTime = 300;
-    if (this.refreshStarted) {
-      return;
+    if (this.refreshDefer) {
+      if (forced) {
+        await this.refreshDefer.promise;
+        return this.refresh(animated, forced);
+      } else {
+        return await this.refreshDefer.promise;
+      }
     }
     this.browserModel.onTableWillRefresh();
     if (!animated) {
-      return await this.refreshFileList();
+      return await this.refreshFileList(forced);
     }
     this.set('renderRefreshSpinner', true);
     // wait for refresh spinner to render because it needs parent class to transition
     await waitForRender();
-    safeExec(this, 'set', 'refreshStarted', true);
+    safeExec(this, 'set', 'refreshDefer', defer());
     try {
       await sleep(fadeTime);
-      return await this.refreshFileList();
+      return await this.refreshFileList(forced);
     } finally {
-      safeExec(this, 'set', 'refreshStarted', false);
-      later(() => {
-        if (!this.refreshStarted) {
-          safeExec(this, 'set', 'renderRefreshSpinner', false);
-        }
-      }, fadeTime);
+      safeExec(this, () => {
+        this.refreshDefer.resolve();
+        this.set('refreshDefer', null);
+        later(() => {
+          if (!this.refreshDefer) {
+            safeExec(this, 'set', 'renderRefreshSpinner', false);
+          }
+        }, fadeTime);
+      });
     }
   },
 
@@ -840,9 +871,11 @@ export default Component.extend(I18n, {
    * Takes care of valid state of items array after reload and selected items.
    * This method is used internally - please use `refresh` to invoke items table refresh
    * from outside this component.
+   * @param {boolean} forced If set to true - queue reload even if there is reload already
+   *   in the processing queue.
    * @return {Promise}
    */
-  async refreshFileList() {
+  async refreshFileList(forced = false) {
     const {
       dir,
       filesArray,
@@ -864,7 +897,7 @@ export default Component.extend(I18n, {
     if (dir && dir.reload) {
       promises.push(dir.reload());
     }
-    const filesArrayReload = filesArray.scheduleReload()
+    const filesArrayReload = filesArray.scheduleReload(forced ? { forced: true } : {})
       .finally(async () => {
         const {
           selectedItems,
@@ -976,7 +1009,7 @@ export default Component.extend(I18n, {
         filesArray.scheduleTask('fetchPrev').then(result => {
           if (result !== false) {
             // wait for fetched prev render if something more loaded
-            next(() => listWatcher.scrollHandler());
+            next(() => listWatcher?.scrollHandler());
           }
         });
       });
@@ -1019,16 +1052,6 @@ export default Component.extend(I18n, {
       );
     }
     safeExec(this, 'set', 'headerVisible', headerVisible);
-  },
-
-  createListWatcher() {
-    const contentScroll = this.get('contentScroll');
-    return new ListWatcher(
-      $(contentScroll),
-      '.data-row',
-      (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
-      '.table-start-row',
-    );
   },
 
   clearFilesSelection() {

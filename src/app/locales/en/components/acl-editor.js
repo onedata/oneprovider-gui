@@ -37,7 +37,13 @@ export default {
     remove: 'Remove',
     unknown: 'Unknown',
     id: 'ID',
+    aceSubjects: {
+      user: 'user',
+      group: 'group',
+    },
+    aceNotAccessible: 'This Access Control Entry refers to a {{subject}} that is no longer a member of this space.',
   },
   addUserOrGroup: 'Add user or group...',
-  noAce: 'No Access Control Entries defined.',
+  noAce: 'No Access Control Entries specified.',
+  posixPermissionsWillApply: 'POSIX permissions will be applied.',
 };

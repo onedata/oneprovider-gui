@@ -1,6 +1,33 @@
 /**
  * Single file or directory model.
  *
+ * # BASIC PROPERTIES
+ *
+ * The File model could be fetched from backend with custom set of attributes.
+ * In frontend, we use FileRequirementRegistry service to manage properties that
+ * are needed by currently used components, object, etc. called File Consumers.
+ *
+ * There are many File Consumers that need only a small set of file attributes, so
+ * there is a set of often used properties called Basic Properties. The file requirement
+ * system is configured to always fetch the Basic Properties from backend.
+ * When using only these properties, you should not do anything special.
+ *
+ * The Basic Properties are declared in regions:
+ * - basic runtime properties
+ * - basic attributes
+ *
+ * You can see alse current set of basic properties in FileRequirementRegistry service.
+ *
+ * # CUSTOM PROPERTIES
+ *
+ * If you want to use file attributes that are not listed in the Basic Properties,
+ * you must implement a FileConsumerMixin in your class. See FileConsumerMixin docs
+ * for details.
+ *
+ * Custom properties are declared in regions:
+ * - custom runtime properties
+ * - custom attributes
+ *
  * @author Jakub Liput, Michał Borzęcki
  * @copyright (C) 2019-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -8,7 +35,6 @@
 
 import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
-import { alias } from '@ember/object/computed';
 import { belongsTo, hasMany } from 'onedata-gui-websocket-client/utils/relationships';
 import { computed, get, getProperties } from '@ember/object';
 import Mixin from '@ember/object/mixin';
@@ -18,7 +44,7 @@ import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { bool, array, promise, or, eq, raw } from 'ember-awesome-macros';
+import { bool, array, promise, or, eq, raw, writable } from 'ember-awesome-macros';
 import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
@@ -54,8 +80,166 @@ export const dirSizeStatsTimeSeriesNameGenerators = {
 };
 
 export const RuntimeProperties = Mixin.create({
+  //#region runtime basic properties
+
+  /**
+   * Properties declared in this region are always available in file record.
+   * See BASIC PROPERTIES section in head documentation for details.
+   */
+
+  /**
+   * When file is a symlink, then `effFile` is the file pointed
+   * by the symlink (so can be empty). For other types of files it points to
+   * the same file (as normal file can be treated as a "symlink to itself").
+   * @type {Models.File}
+   */
+  effFile: computed('type', 'symlinkTargetFile', {
+    get() {
+      const {
+        type,
+        symlinkTargetFile,
+      } = this.getProperties('type', 'symlinkTargetFile');
+      return type === 'symlink' ? symlinkTargetFile : this;
+    },
+    // Setting is available only for testing purposes
+    set(key, value) {
+      return value;
+    },
+  }),
+
+  /**
+   * Writable only for testing purposes
+   */
+  hasParent: computed({
+    get() {
+      return Boolean(this.belongsTo('parent').id());
+    },
+    set(key, value) {
+      return value;
+    },
+  }),
+
+  /**
+   * Name of file ignoring naming conflict.
+   * @type {ComputedProperty<string>}
+   */
+  originalName: or('conflictingName', 'name'),
+
+  /**
+   * Writable only for testing purposes
+   */
+  cdmiObjectId: computed('entityId', {
+    get() {
+      try {
+        return guidToCdmiObjectId(this.get('entityId'));
+      } catch (error) {
+        console.trace();
+        console.error(error);
+        return 'error';
+      }
+    },
+    set(key, value) {
+      return value;
+    },
+  }),
+
+  spaceEntityId: computed('entityId', function spaceEntityId() {
+    return getSpaceIdFromGuid(this.get('entityId'));
+  }),
+
+  internalFileId: computed('entityId', function internalFileId() {
+    return getInternalFileIdFromGuid(this.get('entityId'));
+  }),
+
+  //#endregion
+
+  //#region custom runtime properties
+
+  /**
+   * Properties declared in this region are available in records only if the file
+   * requirement system is used.
+   * See CUSTOM PROPERTIES section in this file header documentation for details.
+   */
+
+  dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
+  metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
+
+  dataIsProtectedByDataset: hasProtectionFlag('effDatasetProtectionFlags', 'data'),
+  metadataIsProtectedByDataset: hasProtectionFlag('effDatasetProtectionFlags', 'metadata'),
+
+  isShared: bool('sharesCount'),
+
+  /**
+   * Membership of running archive recall process:
+   * - direct - if the file is a target (root) for recall process
+   * - ancestor - if the file is a descendant of root for recall process (as above)
+   * - none - none of above or the associated recall process finished
+   * @type {ComputedProperty<PromiseObject<Exclude<ItemFeatureMembership, 'directAndAncestor'|null>>>}
+   */
+  recallingInheritancePathProxy: promise.object(computed(
+    'archiveRecallRootFileId',
+    'archiveRecallInfo.finishTime',
+    async function recallingInheritancePathProxy() {
+      const {
+        archiveRecallRootFileId,
+        entityId,
+      } = this.getProperties('archiveRecallRootFileId', 'entityId');
+      if (archiveRecallRootFileId) {
+        const archiveRecallInfoContent = await this.get('archiveRecallInfo');
+        if (
+          archiveRecallInfoContent &&
+          get(archiveRecallInfoContent, 'finishTime')
+        ) {
+          return 'none';
+        } else {
+          return archiveRecallRootFileId === entityId ? 'direct' : 'ancestor';
+        }
+      } else {
+        return 'none';
+      }
+    }
+  )),
+
+  /**
+   * @type {ComputedProperty<Exclude<ItemFeatureMembership, 'directAndAncestor'|null>>}
+   */
+  recallingInheritancePath: computedLastProxyContent('recallingInheritancePathProxy'),
+
+  isRecalling: or(
+    eq('recallingInheritancePath', raw('direct')),
+    eq('recallingInheritancePath', raw('ancestor')),
+  ),
+
+  isRecalledProxy: promise.object(computed(
+    'archiveRecallRootFileId',
+    'archiveRecallInfo.finishTime',
+    async function recallingInheritancePathProxy() {
+      const archiveRecallRootFileId = this.get('archiveRecallRootFileId');
+      if (archiveRecallRootFileId) {
+        const archiveRecallInfoContent = await this.get('archiveRecallInfo');
+        return Boolean(
+          archiveRecallInfoContent &&
+          get(archiveRecallInfoContent, 'finishTime')
+        );
+      } else {
+        return false;
+      }
+    }
+  )),
+
+  isRecalled: computedLastProxyContent('isRecalledProxy'),
+
+  //#endregion
+
+  //#region runtime record state
+
+  /**
+   * Properties set and managed in runtime, without backend attributes relation.
+   */
+
   /**
    * Not empty when file is a symlink and points to an accessible file.
+   * Set by `FileManager.resolveSymlinks`.
    * @type {Models.File|undefined}
    */
   symlinkTargetFile: undefined,
@@ -95,58 +279,10 @@ export const RuntimeProperties = Mixin.create({
    */
   isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
 
-  /**
-   * Name of file ignoring naming conflict.
-   * @type {ComputedProperty<string>}
-   */
-  originalName: or('conflictingName', 'name'),
-
-  /**
-   * When file is a symlink, then `effFile` is the file pointed
-   * by the symlink (so can be empty). For other types of files it points to
-   * the same file (as normal file can be treated as a "symlink to itself").
-   * @type {Models.File}
-   */
-  effFile: computed('type', 'symlinkTargetFile', function effFile() {
-    const {
-      type,
-      symlinkTargetFile,
-    } = this.getProperties('type', 'symlinkTargetFile');
-    return type === 'symlink' ? symlinkTargetFile : this;
-  }),
-
-  dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
-  metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
-
-  dataIsProtectedByDataset: hasProtectionFlag('effDatasetProtectionFlags', 'data'),
-  metadataIsProtectedByDataset: hasProtectionFlag('effDatasetProtectionFlags', 'metadata'),
-
-  isShared: bool('sharesCount'),
-
-  cdmiObjectId: computed('entityId', function cdmiObjectId() {
-    try {
-      return guidToCdmiObjectId(this.get('entityId'));
-    } catch (error) {
-      console.trace();
-      console.error(error);
-      return 'error';
-    }
-  }),
-
-  hasParent: computed(function hasParent() {
-    return Boolean(this.belongsTo('parent').id());
-  }),
+  //#endregion
 
   isArchiveRootDir: computed(function isArchiveRootDir() {
     return Boolean(this.belongsTo('archive').id());
-  }),
-
-  spaceEntityId: computed('entityId', function spaceEntityId() {
-    return getSpaceIdFromGuid(this.get('entityId'));
-  }),
-
-  internalFileId: computed('entityId', function internalFileId() {
-    return getInternalFileIdFromGuid(this.get('entityId'));
   }),
 
   /**
@@ -154,9 +290,10 @@ export const RuntimeProperties = Mixin.create({
    * - direct - if the file is a target (root) for recall process
    * - ancestor - if the file is a descendant of root for recall process (as above)
    * - none - none of above or the associated recall process finished
+   * Writable only for testing.
    * @type {ComputedProperty<PromiseObject<null|'none'|'direct'|'ancestor'>>}
    */
-  recallingMembershipProxy: promise.object(computed(
+  recallingMembershipProxy: writable(promise.object(computed(
     'recallRootId',
     'archiveRecallInfo.finishTime',
     async function recallingMembershipProxy() {
@@ -178,36 +315,12 @@ export const RuntimeProperties = Mixin.create({
         return 'none';
       }
     }
-  )),
+  )), (value) => value),
 
   /**
    * @type {ComputedProperty<null|'none'|'direct'|'ancestor'>}
    */
   recallingMembership: computedLastProxyContent('recallingMembershipProxy'),
-
-  isRecalling: or(
-    eq('recallingMembership', raw('direct')),
-    eq('recallingMembership', raw('ancestor')),
-  ),
-
-  isRecalledProxy: promise.object(computed(
-    'recallRootId',
-    'archiveRecallInfo.finishTime',
-    async function recallingMembershipProxy() {
-      const recallRootId = this.get('recallRootId');
-      if (recallRootId) {
-        const archiveRecallInfoContent = await this.get('archiveRecallInfo');
-        return Boolean(
-          archiveRecallInfoContent &&
-          get(archiveRecallInfoContent, 'finishTime')
-        );
-      } else {
-        return false;
-      }
-    }
-  )),
-
-  isRecalled: computedLastProxyContent('isRecalledProxy'),
 
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
@@ -272,21 +385,12 @@ export default Model.extend(
   GraphSingleModelMixin,
   RuntimeProperties,
   createConflictModelMixin('shareRecords'), {
-    name: attr('string'),
-    index: attr('string'),
-    type: attr('file-type'),
-    size: attr('number'),
-    posixPermissions: attr('string'),
-    hasMetadata: attr('boolean'),
-    localReplicationRate: attr('number'),
-
-    sharesCount: attr('number'),
-    hardlinksCount: attr('number', { defaultValue: 1 }),
+    //#region basic attributes
 
     /**
-     * @type {ComputedProperty<QosStatus>}
+     * Properties declared in this region are always available in file record.
+     * See BASIC PROPERTIES section in this file header documentation for details.
      */
-    qosStatus: attr('string'),
 
     /**
      * If there is a filename conflict between providers (two files with the same name,
@@ -304,24 +408,76 @@ export default Model.extend(
      */
     conflictingName: attr('string'),
 
+    name: attr('string'),
+
     /**
      * Not empty only for symlinks. Contains target path. May contain any string,
      * but in general it may look like this (relative path):
      * `../some/file`
      * or like this (absolute path):
      * `<__onedata_space_id:cbe3808d32b011f8578877ca531ad214chfb28>/some/file`
+     * @type {ComputedProperty<string>}
      */
-    targetPath: attr('string'),
+    symlinkValue: attr('string'),
+
+    type: attr('file-type'),
+
+    parent: belongsTo('file'),
 
     /**
-     * Possible values: none, direct, ancestor, directAndAncestor
+     * Async relations below are always available to resolve, because they base on
+     * the file ID.
      */
-    effQosMembership: attr('string', { defaultValue: 'none' }),
 
     /**
-     * Possible values: none, direct, ancestor, directAndAncestor
+     * There is also an `acl` raw property available to get with file data from backend,
+     * but currently we only use relation that async get acl record.
      */
-    effDatasetMembership: attr('string', { defaultValue: 'none' }),
+    acl: belongsTo('acl'),
+
+    distribution: belongsTo('file-distribution'),
+    fileQosSummary: belongsTo('file-qos-summary'),
+    fileDatasetSummary: belongsTo('file-dataset-summary'),
+    storageLocationInfo: belongsTo('storage-location-info'),
+    archiveRecallInfo: belongsTo('archive-recall-info'),
+    archiveRecallState: belongsTo('archive-recall-state'),
+
+    //#endregion
+
+    //#region custom attributes
+
+    /**
+     * Properties declared in this region are available in records only if the file
+     * requirement system is used.
+     * See CUSTOM PROPERTIES section in this file header documentation for details.
+     */
+
+    index: attr('string'),
+    size: attr('number'),
+    posixPermissions: attr('string'),
+    hasCustomMetadata: attr('boolean'),
+    hardlinkCount: attr('number', { defaultValue: 1 }),
+    localReplicationRate: attr('number'),
+    isFullyReplicatedLocally: attr('boolean'),
+    path: attr('string'),
+    displayGid: attr('number'),
+    displayUid: attr('number'),
+    sharesCount: attr('number'),
+
+    /**
+     * @type {ComputedProperty<QosStatus>}
+     */
+    aggregateQosStatus: attr('string'),
+
+    /**
+     * @type {ComputedProperty<ItemFeatureMembership>}
+     */
+    effQosInheritancePath: attr('string', { defaultValue: 'none' }),
+
+    /**
+     * @type {ComputedProperty<ItemFeatureMembership>}
+     */
+    effDatasetInheritancePath: attr('string', { defaultValue: 'none' }),
 
     /**
      * Effective protection flags inherited from attached ancestor dataset flags.
@@ -339,14 +495,26 @@ export default Model.extend(
     /**
      * If file is a recalled archive root or descendant of one, GUID of recalled archive
      * root. Null or empty otherwise.
-     * @type {ComputedProperty<String>}
+     * @type {ComputedProperty<string>}
      */
-    recallRootId: attr('string'),
+    archiveRecallRootFileId: attr('string'),
 
     /**
-     * Modification time in UNIX timestamp format.
+     * Modification time (last time a file’s contents were modified) in UNIX
+     * timestamp format.
      */
     mtime: attr('number'),
+
+    /**
+     * Access time (last time a file was accessed) in UNIX timestamp format.
+     */
+    atime: attr('number'),
+
+    /**
+     * Change time (last time some metadata related to the file was changed) in UNIX
+     * timestamp format.
+     */
+    ctime: attr('number'),
 
     /**
      * One of: `posix`, `acl`. Cannot be modified
@@ -355,28 +523,17 @@ export default Model.extend(
 
     shareRecords: hasMany('share'),
 
-    acl: belongsTo('acl'),
-    parent: belongsTo('file'),
-    distribution: belongsTo('file-distribution'),
-    storageLocationInfo: belongsTo('storage-location-info'),
-    // NOTE: User record from this relation can be fetched only if the user has been
-    // already fetched using authHint (eg. using userManager or from space.userList).
-    // If you want to fetch owner before this, consider using `fileManager.getFileOwner`.
+    /**
+     * NOTE: User record from this relation can be fetched only if the user has been
+     * already fetched using authHint (eg. using userManager or from space.userList).
+     * If you want to fetch owner before this, consider using `fileManager.getFileOwner`.
+     */
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
-    fileQosSummary: belongsTo('file-qos-summary'),
-    fileDatasetSummary: belongsTo('file-dataset-summary'),
-    archiveRecallInfo: belongsTo('archive-recall-info'),
-    archiveRecallState: belongsTo('archive-recall-state'),
 
-    /**
-     * Relation to archive model if this file is a root dir of archive.
-     * @type {Models.Archive}
-     */
-    archive: belongsTo('archive'),
-
-    modificationTime: alias('mtime'),
-  }).reopenClass(StaticGraphModelMixin, {
+    //#endregion
+  }
+).reopenClass(StaticGraphModelMixin, {
   /**
    * @override
    */

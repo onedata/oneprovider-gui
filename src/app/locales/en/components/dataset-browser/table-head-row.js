@@ -1,5 +1,5 @@
+import headers from '../-browser-columns-name/dataset';
+
 export default {
-  datasets: 'Datasets',
-  archives: 'Archives',
-  created: 'Created at',
+  headers,
 };

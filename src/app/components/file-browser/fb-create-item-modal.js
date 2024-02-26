@@ -51,7 +51,10 @@ export default FbSetNameModal.extend(I18n, {
       this.set('processing', true);
       const parentEntityId = get(parentDir, 'entityId');
       return fileManager.createFileOrDirectory(itemType, editValue, parentDir)
-        .then(file => fileManager.dirChildrenRefresh(parentEntityId).then(() => file))
+        .then(file =>
+          fileManager.dirChildrenRefresh(parentEntityId, { forced: true })
+          .then(() => file)
+        )
         .catch(error => {
           onHide.bind(this)(false);
           globalNotify.backendError(this.t(`creating.${itemType}`), error);

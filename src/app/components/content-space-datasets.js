@@ -39,6 +39,7 @@ import _ from 'lodash';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import { getFileGri } from 'oneprovider-gui/models/file';
 
 const mixins = [
   I18n,
@@ -280,6 +281,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
       return this.getDatasetsForView(selectedDatasets);
     }
   )),
+
+  dirGri: computed('dirId', function dirGri() {
+    return getFileGri(this.dirId, 'private');
+  }),
 
   spaceProxy: promise.object(computed('spaceId', function spaceProxy() {
     const {

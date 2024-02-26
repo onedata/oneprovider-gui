@@ -310,7 +310,8 @@ export default Component.extend(I18n, {
       } else {
         return `${this.t('id')}: ${this.get('identifier')}`;
       }
-    }),
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Array<Action>>}

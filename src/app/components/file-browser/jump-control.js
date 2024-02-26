@@ -139,6 +139,7 @@ export default Component.extend(I18n, {
         parentDirId,
         inputValue, {
           scope: parentScope,
+          attributes: ['name', 'fileId'],
         }
       );
       let notFoundTipType;
@@ -162,13 +163,17 @@ export default Component.extend(I18n, {
           inputValue, {
             offset: -1,
             scope: parentScope,
+            attributes: ['fileId'],
           });
       }
       if (!fileData) {
         return;
       }
-      const fileId = get(fileData, 'guid');
-      const file = await fileManager.getFileById(fileId, { scope: parentScope });
+      const fileId = get(fileData, 'fileId');
+      const file = await fileManager.getFileById(fileId, {
+        scope: parentScope,
+        extraAttributes: ['index'],
+      });
       await this.tableSelectAndJump(file);
       if (isLastJumpFailed) {
         cancel(this.get('showNotFoundTooltipTimeoutId'));

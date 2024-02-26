@@ -1,17 +1,16 @@
 {{#unless compact}}
   <div class="col-key">
-    {{#one-dropdown
-      triggerClass="small text-like share-link-type-selector-trigger"
-      dropdownClass="small text-like share-link-type-selector-dropdown"
-      renderInPlace=false
-      options=availableUrlTypes
-      selected=effSelectedUrlType
-      searchEnabled=false
-      onchange=(action changeSelectedUrlType)
+    <OneDropdown
+      @triggerClass="small text-like share-link-type-selector-trigger"
+      @dropdownClass="small text-like share-link-type-selector-dropdown"
+      @renderInPlace={{false}}
+      @options={{availableUrlTypes}}
+      @selected={{effSelectedUrlType}}
+      @onChange={{action changeSelectedUrlType}}
       as |urlType|
-    }}
+    >
       {{tt this (concat "linkLabel." urlType)}}
-    {{/one-dropdown}}
+    </OneDropdown>
   </div>
 {{/unless}}
 <div class="col-value">
@@ -60,7 +59,7 @@
           {{/one-webui-popover}}
         {{/if}}
         <div
-          class="input-group-addon url-type-info-trigger input-group-addon-left {{if typeInfoTriggerText "input-group-addon-text" "input-group-addon-icon"}}"
+          class="input-group-addon url-type-info-trigger input-group-addon-left clickable {{if typeInfoTriggerText "input-group-addon-text" "input-group-addon-icon"}}"
           {{action (mut urlTypeInfoOpened) (not urlTypeInfoOpened)}}
         >
           <div class="url-type-info-container">

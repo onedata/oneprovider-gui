@@ -94,20 +94,27 @@ export default Component.extend(...mixins, {
   displayedPathItemsCount: Number.MAX_SAFE_INTEGER,
 
   /**
+   * State of number of renders that are invoked one-after-another.
+   * See `batchRenderLimit` property for details.
+   * @type {number}
+   */
+  batchRenderCount: 0,
+
+  /**
    * Max number of renders that are invoked one-after-another.
    * Ember has limit of scheduled rerenders without "settling" (see:
    * https://github.com/emberjs/ember.js/blob/master/packages/@ember/-internals/environment/lib/env.ts#L146)
    * so we need to defer next the render after reaching the limit.
    *
-   * In Ember 3.4.8, the limit is set to 10: https://github.com/emberjs/ember.js/blob/v3.4.8/packages/ember-glimmer/lib/renderer.ts#L228.
-   * As the time this code was written, the limit in the latest Ember version still
-   * occurs, but is much larger.
+   * In Ember 3.12.0 - 5.3.0, the limit is set to 1000:
+   * - https://github.com/emberjs/ember.js/blob/v3.12.0/packages/@ember/-internals/environment/lib/env.ts#L140
+   * - https://github.com/emberjs/ember.js/blob/v5.3.0/packages/@ember/-internals/environment/lib/env.ts#L156
    *
    * The limit is used in `didRender`.
-   * Please examine the limit after Ember update to make it larger.
+   * Please examine the limit after Ember update (5.3+) to make it larger.
    * @type {number}
    */
-  batchRenderCount: 0,
+  batchRenderLimit: 1000,
 
   /**
    * If set to true - do not invoke updateView after didRender, which is done to adjust
@@ -143,7 +150,7 @@ export default Component.extend(...mixins, {
     const fontLoadPromise = globals.document.fonts.load(font);
     const timeoutPromise = sleep(3000);
     // Wait either for font load settled (no matter if it fulfilled or rejected)
-    // or timeout occured. Ignore font load error with catch.
+    // or timeout occurred. Ignore font load error with catch.
     try {
       await race([fontLoadPromise, timeoutPromise]);
     } catch {
@@ -364,12 +371,7 @@ export default Component.extend(...mixins, {
     if (this.ignoreRenderRepeat) {
       return;
     }
-    // For batch render value see: https://github.com/emberjs/ember.js/blob/v3.4.8/packages/ember-glimmer/lib/renderer.ts#L228
-    // at specific Ember version.
-    // TODO: VFS-10002 use ENV._RERENDER_LOOP_LIMIT for the limit as in Ember 3.12
-    // Variable usage: https://github.com/emberjs/ember.js/blob/v3.12.0/packages/@ember/-internals/glimmer/lib/renderer.ts#L226
-    // Variable definition: https://github.com/emberjs/ember.js/blob/v3.12.0/packages/@ember/-internals/environment/lib/env.ts#L140
-    if (this.batchRenderCount > 9) {
+    if (this.batchRenderCount > this.batchRenderLimit - 1) {
       this.set('ignoreRenderRepeat', true);
       (async () => {
         await waitForRender();

@@ -23,6 +23,7 @@ const mixins = [
   createDataProxyMixin('oneproviders', { type: 'array' }),
 ];
 
+// TODO: VFS-11449 optional file size fetch
 export default EmberObject.extend(...mixins, {
   transferManager: service(),
   globalNotify: service(),

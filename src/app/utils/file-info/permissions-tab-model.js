@@ -11,8 +11,14 @@ import { computed, get } from '@ember/object';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
 import { conditional, raw, array } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
+import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
-export default BaseTabModel.extend({
+const mixins = [
+  FileConsumerMixin,
+];
+
+export default BaseTabModel.extend(...mixins, {
   /**
    * @override
    */
@@ -83,6 +89,28 @@ export default BaseTabModel.extend({
    */
   modalClass: 'with-sticky-footer',
 
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  fileRequirements: computed('files', function fileRequirements() {
+    if (!this.files) {
+      return [];
+    }
+    return this.files.map(file =>
+      new FileRequirement({
+        fileGri: get(file, 'id'),
+        properties: ['activePermissionsType'],
+      }),
+    );
+  }),
+
+  /**
+   * @override
+   * @implements {Mixins.FileConsumer}
+   */
+  usedFileGris: computedMultiUsedFileGris('files'),
+
   statusTag: conditional(
     'isAnyFileWithAcl',
     computedT('acl'),
@@ -105,6 +133,17 @@ export default BaseTabModel.extend({
       readonly: this.readonly,
     });
   }),
+
+  /**
+   * @override
+   */
+  destroy() {
+    try {
+      this.viewModel?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
 
   /**
    * @override

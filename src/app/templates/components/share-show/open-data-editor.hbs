@@ -98,15 +98,16 @@
       </div>
       <div class="row-metadata-group-add">
         <h2>{{tt this "editor.moreElements"}}</h2>
-        {{#power-select
-          triggerClass="add-metadata-group"
-          dropdownClass="add-metadata-group-dropdown"
-          options=metadataGroupAddListSorted
-          disabled=formDisabled
-          onchange=(action "addMetadataGroup")
-          placeholder=(tt this "editor.addMetadataGroup")
+        <OneDropdown
+          @triggerClass="add-metadata-group"
+          @dropdownClass="add-metadata-group-dropdown"
+          @options={{metadataGroupAddListSorted}}
+          @disabled={{formDisabled}}
+          @onChange={{action "addMetadataGroup"}}
+          @placeholder={{tt this "editor.addMetadataGroup"}}
+          @searchEnabled={{true}}
           as |groupType|
-        }}
+        >
           <div class="option-container" data-group-type={{groupType}}>
             {{#truncated-string}}
               <span class="text">
@@ -114,7 +115,7 @@
               </span>
             {{/truncated-string}}
           </div>
-        {{/power-select}}
+        </OneDropdown>
       </div>
     {{/carousel.slide}}
     {{#carousel.slide slideId="xml"}}

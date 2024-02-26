@@ -18,6 +18,7 @@ export default Model.extend(GraphSingleModelMixin, {
   username: attr('string'),
 
   effSpaceList: belongsTo('spaceList'),
+  effGroupList: belongsTo('groupList'),
   effHandleServiceList: belongsTo('handleServiceList'),
   effAtmInventoryList: belongsTo('atmInventoryList'),
 

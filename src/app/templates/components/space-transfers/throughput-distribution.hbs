@@ -1,14 +1,15 @@
-<div class="row chart-selectors">  
-  {{#power-select
-    triggerClass="provider-select-trigger small"
-    dropdownClass="provider-select-dropdown small"
-    options=_providersOptions
-    selected=selectedProviderItem
-    renderInPlace=true
-    onchange=(action "selectProvider")
-    searchField="name"
+<div class="row chart-selectors">
+  <OneDropdown
+    @triggerClass="provider-select-trigger small"
+    @dropdownClass="provider-select-dropdown small"
+    @options={{_providersOptions}}
+    @selected={{selectedProviderItem}}
+    @renderInPlace={{true}}
+    @onChange={{action "selectProvider"}}
+    @searchEnabled={{true}}
+    @searchField="name"
     as |provider|
-  }}
+  >
     <div class="option-container">
       {{#truncated-string}}
         {{one-icon icon=(if (eq transferStatProviderId "__all__") "providers" "provider")}}
@@ -17,8 +18,8 @@
         </span>
       {{/truncated-string}}
     </div>
-  {{/power-select}}
-  
+  </OneDropdown>
+
   {{#if (and (not statsError) _statsLoaded)}}
     {{#bs-button-group
       value=timeUnit

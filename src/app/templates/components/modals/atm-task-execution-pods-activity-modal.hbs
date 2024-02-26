@@ -7,6 +7,16 @@
 
   {{#modal.header}}
     <h1>{{tt this "header"}}</h1>
+    {{#if atmTaskName}}
+      <h2 class="normal-case">
+        {{#truncated-string class="header-content"}}
+          <div class="inline-icon-container header-icon">
+            <OneIcon @icon="atm-lambda" />
+          </div>
+          {{atmTaskName}}
+        {{/truncated-string}}
+      </h2>
+    {{/if}}
   {{/modal.header}}
 
   {{#modal.body}}
@@ -24,7 +34,7 @@
       }}
       <div class="events-table-section fill-flex-using-column relative">
         {{#if selectedPodId}}
-          <h2>{{tt this "eventsHeader" podName=selectedPodId}}</h2>
+          <h2 class="normal-case">{{tt this "eventsHeader" podName=selectedPodId}}</h2>
           {{modals/atm-task-execution-pods-activity-modal/events-table
             class="fill-flex-using-column"
             atmTaskExecutionId=atmTaskExecutionId

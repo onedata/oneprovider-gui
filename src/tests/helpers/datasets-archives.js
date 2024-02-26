@@ -102,7 +102,7 @@ export async function createArchiveRecallData(testCase) {
     lastError: null,
   });
   setProperties(targetFile, {
-    recallRootId: get(targetFile, 'entityId'),
+    archiveRecallRootFileId: get(targetFile, 'entityId'),
     archiveRecallInfo,
     archiveRecallState,
   });

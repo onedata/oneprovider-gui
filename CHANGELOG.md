@@ -7,6 +7,22 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11540 Added support for publishing Open Data with Europeana Data Model metadata (raw XML editor)
+* VFS-11607 Improved UX of file ACL view
+* VFS-11724 Added new icons to the automation GUI
+* VFS-11623 Added showing error in data distribution other than disabled stats
+* VFS-11177 Improved UX of transfers view
+* VFS-11296 Refactored translation for columns configuration
+* VFS-11564 Added overflow handling to the chart tooltip
+* VFS-11252 Added optional file attributes fetching; enabled QoS and Replication columns in file browser
+* VFS-11726 Fixed broken selection in archives browser after using breadcrumbs menu
+* VFS-11608 Added resource subheaders to modals in automation
+* VFS-11594 Fixed popovers broken position after their content size change
+* VFS-11513 Fixed not working items list reload when it is executed concurrently with other reload
+* VFS-11601 Fixed showing Access Control Entries for subjects that are no longer member of a space
+* VFS-10168 Improved UX of the workflow selector — showing inventory name and additional conflict labels
+* VFS-11620 Added jVectorMap 2.0.5 to own public files
+* VFS-11667 Added version to documentation links
+* VFS-11617 Upgraded EmberJS to v3.12.4
 * VFS-10649 Added complex charts dashboard editor to the automation GUI
 * VFS-11573 Fixed wrong error message on failed ACL settings reloading
 * VFS-11405 Added draggable modify order of columns in transfers table
@@ -17,8 +33,8 @@ CHANGELOG
 * VFS-11392 Updated directory size stats metric names
 * VFS-11251 Removed unused oneicons
 * VFS-11207 Added separate dir size stats in space root dir for archives and trash
-* VFS-10939 Fixed copying from provider popover in firefox
-* VFS-11312 Fix showing jump to file input
+* VFS-10939 Fixed copying from provider popover in Firefox
+* VFS-11312 Fixed showing "jump to file" input
 * VFS-11268 Added error handling for file data push to store on fetching files list
 * VFS-11224 Added jumping to items in exception store
 * VFS-10696 Added setting for modifying the order of columns in the transfers table

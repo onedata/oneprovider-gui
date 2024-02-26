@@ -1,4 +1,5 @@
 export default {
+  path: 'File/directory',
   userName: 'User',
   destination: 'Destination',
   startedAt: 'Started at',

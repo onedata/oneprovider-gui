@@ -322,6 +322,23 @@ export default Component.extend(I18n, {
   ),
 
   /**
+   * @type {Ember.ComputedProperty<Object<string,string>>}
+   */
+  errorOnStorage: computed(
+    'fileDistributionData.@each.{fileDistribution}',
+    function errorOnStorage() {
+      let error = undefined;
+      this.fileDistributionData.forEach(fileDistDataContainer => {
+        const fileDistribution =
+          fileDistDataContainer.getDistributionForOneprovider(this.oneprovider)
+          .distributionPerStorage[this.storageId];
+        error = fileDistribution?.error;
+      });
+      return error;
+    }
+  ),
+
+  /**
    * @type {Ember.ComputedProperty<Object>}
    */
   chunksBarData: computed(
@@ -723,8 +740,8 @@ export default Component.extend(I18n, {
         locationsPerProvider,
         storageId,
       } = this.getProperties('locationsPerProvider', 'storageId');
-      if (locationsPerProvider) {
-        const oneproviderId = this.get('oneprovider.entityId');
+      const oneproviderId = this.get('oneprovider.entityId');
+      if (locationsPerProvider && locationsPerProvider[oneproviderId].success) {
         return locationsPerProvider[oneproviderId].locationsPerStorage[storageId];
       } else {
         return undefined;
@@ -770,7 +787,7 @@ export default Component.extend(I18n, {
 
   actions: {
     getProvidersUrl(...args) {
-        return this.get('getProvidersUrl')(...args);
+      return this.get('getProvidersUrl')(...args);
     },
   },
 });
