@@ -80,22 +80,22 @@
                 {{/one-label-tip}}
               </p>
               <div class="row row-metadata-type-select">
-                {{#one-dropdown
-                  triggerClass="select-metadata-type"
-                  dropdownClass="select-metadata-type"
-                  placeholder=(tt this "publishWelcome.selectMetadataTypePlaceholder")
-                  selected=selectedMetadataType
-                  options=metadataTypes
-                  searchEnabled=false
-                  onchange=(action (mut selectedMetadataType))
+                <OneDropdown
+                  @triggerClass="select-metadata-type"
+                  @dropdownClass="select-metadata-type"
+                  @placeholder={{tt this "publishWelcome.selectMetadataTypePlaceholder"}}
+                  @selected={{selectedMetadataType}}
+                  @options={{metadataTypes}}
+                  @searchEnabled={{false}}
+                  @onChange={{action (mut selectedMetadataType)}}
                   as |metadataType|
-                }}
+                >
                   <div class="option-container">
                     {{#truncated-string}}
                       {{tt this (concat "publishWelcome.metadataTypes." metadataType)}}
                     {{/truncated-string}}
                   </div>
-                {{/one-dropdown}}
+                </OneDropdown>
               </div>
             {{/content-info}}
           {{/carousel.slide}}
