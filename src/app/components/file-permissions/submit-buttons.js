@@ -49,7 +49,7 @@ export default SubmitButtons.extend({
    * @override
    */
   async onSave() {
-    return this.viewModel.save();
+    return this.viewModel.submit();
   },
 
   /**

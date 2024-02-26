@@ -160,6 +160,13 @@
   .system-subject-name {
     font-style: italic;
     text-transform: uppercase;
+    + .system-subject-description {
+      margin-left: 0.5em;
+    }
+  }
+  .system-subject-description {
+    font-size: $font-size-small;
+    opacity: $disabled-opacity;
   }
   .unknown-subject-name {
     font-style: italic;

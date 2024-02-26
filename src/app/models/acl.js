@@ -14,6 +14,7 @@
  * @property {number} aceMask union of ACE permissions. Available flags are
  *   described in utils/acl-permissions-specification
  * @property {Models.User|Models.Group} subject
+ * @property {'user'|'group'} subjectType
  */
 
 import Model from 'ember-data/model';
