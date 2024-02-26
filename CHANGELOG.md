@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11710 Added possibility to embed Onedata Web GUI in an iframe on foreign domain
 * VFS-11724 Added new icons to the automation GUI
 * VFS-11623 Added showing error in data distribution other than disabled stats
 * VFS-11177 Improved UX of transfers view
