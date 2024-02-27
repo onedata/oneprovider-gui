@@ -816,11 +816,14 @@ export default Component.extend(...mixins, {
     const initialTab = this.initialTab;
     const visibleTabs = this.visibleTabs;
     this.set('activeTab', visibleTabs.includes(initialTab) ? initialTab : visibleTabs[0]);
-    this.currentProviderLocationsProxy.then(currentProviderLocations => {
-      if (currentProviderLocations.length === 0 && !this.areStorageLocationsExpanded) {
-        this.set('areStorageLocationsExpanded', true);
-      }
-    });
+    // check just the first file, because all files should have the same scope
+    if (get(this.file, 'scope') !== 'public') {
+      this.currentProviderLocationsProxy.then(currentProviderLocations => {
+        if (currentProviderLocations.length === 0 && !this.areStorageLocationsExpanded) {
+          this.set('areStorageLocationsExpanded', true);
+        }
+      });
+    }
   },
 
   willDestroyElement() {
