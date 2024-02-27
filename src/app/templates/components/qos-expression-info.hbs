@@ -6,7 +6,7 @@
     }}
   </div>
   {{#if (gt count 0)}}
-    <span class="storages-matching-number">{{count}}</span>
+    <span class="storages-matching-number">{{format-number count}}</span>
   {{/if}}
   {{#if matchingStoragesTranslationKey}}
     <span class="storages-matching-text">{{tt this matchingStoragesTranslationKey}}</span>

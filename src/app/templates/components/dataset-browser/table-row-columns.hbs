@@ -3,7 +3,7 @@
     {{#if (eq columnName "archives")}}
       <td class="fb-table-col-archives hidden-xs">
         <span class="file-item-text">
-          {{fileRowModel.archiveCount}}
+          {{format-number fileRowModel.archiveCount}}
         </span>
       </td>
     {{else if (eq columnName "created")}}

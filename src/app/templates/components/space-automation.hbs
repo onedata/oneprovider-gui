@@ -43,7 +43,7 @@
                   suspendedExecutionsCountInfo.content
                 )}}
                   <span class={{suspendedExecutionsCountInfo.className}}>
-                    ({{suspendedExecutionsCountInfo.content}})
+                    ({{format-number suspendedExecutionsCountInfo.content}})
                   </span>
                 {{/if}}
                 {{#if (eq tabId "preview")}}
