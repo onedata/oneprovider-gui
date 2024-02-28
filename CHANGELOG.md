@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11018 Hid "Run workflow" tab in automation view when a user is already on that tab
 * VFS-10083 Better formatting of large numbers
 * VFS-11710 Added possibility to embed Onedata Web GUI in an iframe on foreign domain
 * VFS-11607 Improved UX of file ACL view

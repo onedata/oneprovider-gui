@@ -7,7 +7,7 @@
     as |bsTab|
   }}
     {{#bs-nav type="tabs" as |nav|}}
-      {{#each possibleTabs as |tabId|}}
+      {{#each visibleTabs as |tabId|}}
         {{#if (or (not-eq tabId "preview") atmWorkflowExecutionIdInPreview)}}
           {{#nav.item
             class=(concat "nav-item-" tabId)

@@ -137,7 +137,7 @@ describe('Integration | Component | space-automation', function () {
 
     await click('.nav-link-create');
 
-    expect(find('.nav-item-create')).to.have.class('active');
+    expect(find('.nav-item-create')).to.not.exist;
     const createTabPane = find('#create.tab-pane');
     expect(createTabPane).to.have.class('active');
     expect(createTabPane.querySelector('.run-workflow-creator')).to.exist;
