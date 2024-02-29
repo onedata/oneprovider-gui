@@ -89,14 +89,15 @@ const allSpecs = {
  */
 
 /**
- *
- * @param {*} edmPropertyType
+ * @param {EdmPropertyNamespace} namespace
+ * @param {string} edmPropertyType
  * @param {EdmPropertyClassSpec} spec
  * @returns
  */
-function createEdmPropertyClass(edmPropertyType, spec) {
+function createEdmPropertyClass(namespace, edmPropertyType, spec) {
   const options = {
     edmPropertyType,
+    namespace,
   };
   if (spec.attrs) {
     options.shownAttrs = spec.attrs;
@@ -116,7 +117,11 @@ const propertyClasses = [
   const namespaceSpecs = allSpecs[namespace];
   classesPerNamespace[namespace] =
     Object.entries(namespaceSpecs).reduce((namespaceClasses, [propertyName, spec]) => {
-      namespaceClasses[propertyName] = createEdmPropertyClass(propertyName, spec);
+      namespaceClasses[propertyName] = createEdmPropertyClass(
+        namespace,
+        propertyName,
+        spec
+      );
       return namespaceClasses;
     }, {});
   return classesPerNamespace;

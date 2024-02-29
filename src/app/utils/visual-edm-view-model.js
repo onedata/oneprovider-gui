@@ -8,7 +8,7 @@ const VisualEdmViewModel = EmberObject.extend({
   xmlValue: undefined,
 
   /**
-   * @type {Utils.Edm.EdmMetadata}
+   * @type {Utils.Edm.Metadata}
    */
   edmMetadata: undefined,
 

@@ -5,6 +5,7 @@ import Aggregation from './objects/aggregation';
 import WebResource from './objects/web-resource';
 import propertyClasses from './property-classes';
 import EdmObjectType from './object-type';
+import EdmXmlParser from './xml-parser';
 import _ from 'lodash';
 
 // FIXME: rozróżnienie na property dla różnych obiektów
@@ -131,6 +132,42 @@ const EdmMetadataFactory = EmberObject.extend({
     return EdmMetadata.create({
       edmObjects: [providedCho, aggregation, webResource],
     });
+  },
+
+  /**
+   * @param {string} xmlSource
+   * @returns {Utils.Edm.Metadata}
+   */
+  parseXml(xmlSource) {
+    // FIXME: być może trzeba rozdzielić odpowiedzialności, żeby xml-parser korzystał z
+    // metod XML, a tutaj już nie
+    const parser = new EdmXmlParser(xmlSource);
+    const xmlObjects = parser.getObjects();
+    const metadata = this.createEmptyMetadata();
+    // FIXME: pierwszym obiektem xmlObjects może być tagName parsererror z komunikatem
+    // wygląda na to, że to nie jest błąd krytyczny, ale należy go przechować w obiekcie metadata
+    for (const xmlObject of xmlObjects) {
+      if (xmlObject.tagName === 'parsererror') {
+        continue;
+      }
+      // FIXME: tolerancja błędów z testami
+      const [, edmObjectType] = xmlObject.tagName.split(':');
+      const properties = Array.from(xmlObject.children).map(xmlPropertyElement => {
+        const [namespace, propertyName] = xmlPropertyElement.tagName.split(':');
+        return this.createProperty(namespace, propertyName, {
+          value: xmlPropertyElement.textContent,
+          about: xmlPropertyElement.getAttribute('rdf:about'),
+          lang: xmlPropertyElement.getAttribute('xml:lang'),
+          resource: xmlPropertyElement.getAttribute('rdf:resource'),
+        });
+      });
+      const edmObject = this.createObject(edmObjectType, {
+        about: xmlObject.getAttribute('rdf:about'),
+        properties,
+      });
+      metadata.edmObjects.push(edmObject);
+    }
+    return metadata;
   },
 
   /**

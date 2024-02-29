@@ -14,6 +14,11 @@ const EdmProperty = EmberObject.extend({
   /**
    * @virtual
    */
+  namespace: undefined,
+
+  /**
+   * @virtual
+   */
   edmPropertyType: undefined,
 
   shownAttrs: Object.freeze(['resource', 'lang', 'about']),
