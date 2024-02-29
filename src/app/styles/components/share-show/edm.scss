@@ -1,4 +1,4 @@
-.edm-editor {
+.share-show-edm {
   .col-edm-editor {
     display: flex;
     flex-direction: column;
@@ -10,6 +10,16 @@
   .metadata-editor-footer {
     margin-top: 1.5em;
   }
+  // FIXME: possible DRY with open-data-editor
+  .metadata-header-section-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 10px;
+    .main-header {
+      flex-grow: 1;
+    }
+  }
   &.readonly {
     h1.main-header {
       margin-bottom: 1em;
@@ -18,7 +28,7 @@
 }
 
 .share-show {
-  .edm-editor {
+  .share-show-edm {
     // a fill-flex-using column is added in share-show, because of layout we need this
     flex-direction: row;
     .metadata-editor-footer {

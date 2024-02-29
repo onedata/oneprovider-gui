@@ -11,14 +11,16 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { not, and, raw, or, bool, conditional } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
+const defaultMode = 'visual';
+
 export default Component.extend(I18n, {
-  classNames: ['edm-editor', 'open-data-metadata-editor', 'form-group'],
+  classNames: ['share-show-edm', 'open-data-metadata-editor', 'form-group'],
   classNameBindings: ['isValid::has-error', 'readonly:readonly'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.shareShow.edmEditor',
+  i18nPrefix: 'components.shareShow.edm',
 
   //#region virtual
 
@@ -77,6 +79,11 @@ export default Component.extend(I18n, {
 
   isValid: true,
 
+  /**
+   * @type {'visual'|'xml'}
+   */
+  mode: defaultMode,
+
   //#endregion
 
   isEmpty: not('xmlValue'),
@@ -134,6 +141,12 @@ export default Component.extend(I18n, {
   },
 
   actions: {
+    /**
+     * @param {'visual'|'xml'} newMode
+     */
+    changeMode(newMode) {
+      this.set('mode', newMode);
+    },
     aceEditorReady(aceEditor) {
       this.setupAceEditor(aceEditor);
     },

@@ -1,0 +1,31 @@
+{{!-- FIXME: refactor to angle comopnents --}}
+<div class="icon-section">
+  {{one-icon icon="space"}}
+</div>
+<div class="content-section">
+  <div class="basic-info-row">
+    <div class="basic-info-col">
+      <div class="row modern-iconified-block-row title-row">
+        <div class="edm-object-type item-name">{{objectTypeName}}</div>
+        <div class="edm-xml-tag">({{model.xmlTagName}})</div>
+      </div>
+    </div>
+  </div>
+  <div class="edm-object-attrs-container edm-object-list-container">
+    {{!-- FIXME: maybe to reuse in object --}}
+    {{#each model.shownAttrs as |attrName|}}
+      {{#if (get model.attrs attrName)}}
+        <div class="edm-attr-container">
+          <div class="edm-attr-name">{{attrName}}:</div>
+          <div class="edm-attr-value">{{get model.attrs attrName}}</div>
+        </div>
+      {{/if}}
+    {{/each}}
+  </div>
+  <div class="edm-object-properties-container edm-object-list-container main-content-row row modern-iconified-block-row">
+    {{#each model.edmProperties as |edmProperty|}}
+      <VisualEdm::Property @model={{edmProperty}} />
+    {{/each}}
+  </div>
+</div>
+{{yield}}

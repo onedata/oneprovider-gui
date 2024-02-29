@@ -47,6 +47,7 @@ import fileCommon from './components/file-common';
 import apiSamples from './components/api-samples';
 import columnsConfigurationPopover from './components/columns-configuration-popover';
 import columnsConfigurationCell from './components/columns-configuration-cell';
+import visualEdm from './components/visual-edm';
 
 import uploadManager from './services/upload-manager';
 
@@ -120,6 +121,7 @@ const translations = {
     apiSamples,
     columnsConfigurationPopover,
     columnsConfigurationCell,
+    visualEdm,
   },
   services: {
     uploadManager,

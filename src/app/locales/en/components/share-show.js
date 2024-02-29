@@ -11,7 +11,7 @@ import markdownEditor from './share-show/markdown-editor';
 import urlInfoHandle from './share-show/url-info-handle';
 import urlInfoShare from './share-show/url-info-share';
 import urlInfoRest from './share-show/url-info-rest';
-import edmEditor from './share-show/edm-editor';
+import edm from './share-show/edm';
 import metadataEditorFooter from './share-show/metadata-editor-footer';
 
 export default {
@@ -39,6 +39,6 @@ export default {
   urlInfoHandle,
   urlInfoShare,
   urlInfoRest,
-  edmEditor,
+  edm,
   metadataEditorFooter,
 };

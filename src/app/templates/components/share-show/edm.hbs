@@ -1,0 +1,61 @@
+<div class={{concat-classes "col-edm-editor full-height" colClassname}}>
+  <div class="metadata-header-section-content">
+    <h1 class="section-name main-header">
+      {{tt this "header"}}
+      {{#if readonly}}
+        {{one-label-tip title=(tt this "readonlyHeaderTip")}}
+      {{/if}}
+    </h1>
+    {{share-show/open-data-mode-switch mode=mode onModeChange=(action "changeMode")}}
+  </div>
+
+  {{!-- FIXME: podobnie jak w open-data-editor dać mniej tekstu w trybie mobilnym --}}
+
+  {{#unless readonly}}
+    <p class="metadata-text">
+      {{tt this "metadataEditorIntro"}}
+    </p>
+    <p class="metadata-text">
+      {{tt this "introExtra"}}
+      {{one-label-tip title=(tt this "introTip")}}
+    </p>
+  {{/unless}}
+
+  {{#if (eq mode "visual")}}
+    {{!-- FIXME: use VisualEdm component --}}
+  {{else if (eq mode "xml")}}
+    {{ember-ace
+      class="ember-ace ember-ace-edm-source"
+      editorClass="full-height"
+      value=xmlValue
+      worker="ace/mode/xml_worker"
+      mode="ace/mode/xml"
+      theme="ace/theme/textmate"
+      tabSize=2
+      useWrapMode=true
+      highlightActiveLine=true
+      showLineNumbers=true
+      showPrintMargin=false
+      readOnly=readonly
+      ready=(action "aceEditorReady")
+      update=(action "sourceChanged")
+    }}
+  {{/if}}
+
+  {{#unless readonly}}
+    {{share-show/metadata-editor-footer
+      isSubmitDisabled=isSubmitDisabled
+      submitButtonTip=submitDisabledReason
+      handleService=handleService
+      onCancel=(action "back")
+      onSubmit=(action "submit")
+    }}
+  {{/unless}}
+</div>
+
+{{#if readonly}}
+  <div class="hidden-xs hidden-sm col-md-4 col-lg-5 col-open-data-logo">
+    <div class="open-data-logo">
+    </div>
+  </div>
+{{/if}}

@@ -2,11 +2,11 @@
   {{#if handle}}
     {{#if xml}}
       {{#if (eq selectedMetadataType MetadataType.Edm)}}
-        {{share-show/edm-editor
+        <ShareShow::Edm
           class="fill-flex-using-column"
-          xmlValue=xml
-          readonly=true
-        }}
+          @xmlValue={{xml}}
+          @readonly={{true}}
+        />
       {{else}}
         {{share-show/open-data-preview
           class="fill-flex-using-column"
@@ -102,15 +102,15 @@
           {{#carousel.slide slideId="createMetadata" class="full-height" as |slide|}}
             {{#if (eq slide.state "active-from-right")}}
               {{#if (eq selectedMetadataType MetadataType.Edm)}}
-                {{share-show/edm-editor
+                <ShareShow::Edm
                   class="full-height"
-                  xmlValue=xml
-                  initialData=initialData
-                  handleService=selectedHandleService
-                  onUpdateXml=(action "updateXml")
-                  onSubmit=(action "submit")
-                  onBack=(action "back")
-                }}
+                  @xmlValue={{xml}}
+                  @initialData={{initialData}}
+                  @handleService={{selectedHandleService}}
+                  @onUpdateXml={{action "updateXml"}}
+                  @onSubmit={{action "submit"}}
+                  @onBack={{action "back"}}
+                />
               {{else if (eq selectedMetadataType MetadataType.Dc)}}
                 {{share-show/open-data-editor
                   xml=xml
