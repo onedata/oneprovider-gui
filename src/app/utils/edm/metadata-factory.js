@@ -1,9 +1,10 @@
 import EmberObject from '@ember/object';
 import EdmMetadata from './metadata';
-import ProvidedCho from './objects/provided-cho';
+import ProvidedCHO from './objects/provided-cho';
 import Aggregation from './objects/aggregation';
 import WebResource from './objects/web-resource';
 import propertyClasses from './property-classes';
+import EdmObjectType from './object-type';
 import _ from 'lodash';
 
 // FIXME: rozróżnienie na property dla różnych obiektów
@@ -16,23 +17,33 @@ import _ from 'lodash';
  * @property {string} [about] `rdf:about` attribute of element.
  */
 
-export default EmberObject.extend({
+const objectClasses = {
+  [EdmObjectType.Aggregation]: Aggregation,
+  [EdmObjectType.ProvidedCHO]: ProvidedCHO,
+  [EdmObjectType.WebResource]: WebResource,
+};
+
+const EdmMetadataFactory = EmberObject.extend({
   //#region state
 
   //#endregion
 
-  createInitialEdmMetadata() {
-    const providedCho = ProvidedCho.create();
+  createEmptyMetadata() {
+    return EdmMetadata.create();
+  },
+
+  createInitialMetadata() {
+    const providedCho = ProvidedCHO.create();
     const aggregation = Aggregation.create();
     return EdmMetadata.create({
       edmObjects: [providedCho, aggregation],
     });
   },
 
-  // FIXME: to remove on production
-  createMockEdmMetadata() {
+  // FIXME: przenieść do pliku z mockami, żeby było na dummy
+  createMockMetadata() {
     const resourceId = 'urn://eriac/19';
-    const providedCho = ProvidedCho.create({
+    const providedCho = ProvidedCHO.create({
       attrs: {
         about: resourceId,
       },
@@ -123,17 +134,31 @@ export default EmberObject.extend({
   },
 
   /**
+   * @param {EdmObjectType} edmObjectType
+   * @param {{ [about]: string, [properties]: Array<EdmProperty> }} options
+   * @returns {Utils.Edm.Object}
+   */
+  createObject(edmObjectType, options) {
+    const constructorOptions = {
+      attrs: { about: options.about },
+    };
+    if (options.properties) {
+      constructorOptions.edmProperties = options.properties;
+    }
+    return objectClasses[edmObjectType].create(constructorOptions);
+  },
+
+  /**
    *
    * @param {EdmPropertyNamespace} namespace
    * @param {EdmPropertyName} propertyName
    * @param {EdmPropertyOptions} options
-   * @returns {Utils.Edm.EdmProperty}
+   * @returns {Utils.Edm.Property}
    */
   createProperty(namespace, propertyName, options) {
     // FIXME: throw error when invalid namespace/name or optional chaining
     const attrs = _.cloneDeep(options);
     delete attrs.value;
-    // FIXME: debug
     const propertyClass = propertyClasses[namespace]?.[propertyName];
     if (propertyClass) {
       return propertyClasses[namespace][propertyName].create({
@@ -141,7 +166,10 @@ export default EmberObject.extend({
         attrs,
       });
     } else {
+      // FIXME: zmienić napis
       console.error(`No property to create: ${namespace}, ${propertyName}`);
     }
   },
 });
+
+export default EdmMetadataFactory;

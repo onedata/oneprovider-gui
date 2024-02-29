@@ -1,4 +1,4 @@
-import { EdmObjectType } from './object';
+import EdmObjectType from './object-type';
 import EdmProperty from './property';
 
 // FIXME: typy obiektów mają być w enumie
@@ -31,7 +31,7 @@ const allSpecs = {
   },
   dcterms: {
     alternative: {},
-    conformsTo: { objs: [EdmObjectType.ProvidedCho, EdmObjectType.WebResource] },
+    conformsTo: { objs: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
     created: {},
     extent: {},
     hasFormat: {},
@@ -76,7 +76,7 @@ const allSpecs = {
     ugc: { objs: [EdmObjectType.Aggregation] },
   },
   owl: {
-    isSameAs: { objs: [EdmObjectType.ProvidedCho] },
+    isSameAs: { objs: [EdmObjectType.ProvidedCHO] },
     sameAs: { objs: [EdmObjectType.WebResource] },
   },
 };

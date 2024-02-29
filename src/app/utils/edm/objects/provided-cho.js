@@ -1,11 +1,7 @@
-import EdmObject, { EdmObjectType } from '../object';
+import EdmObject from '../object';
+import EdmObjectType from '../object-type';
 
 export default EdmObject.extend({
-  edmObjectType: EdmObjectType.ProvidedCho,
+  edmObjectType: EdmObjectType.ProvidedCHO,
   xmlNamespace: 'edm',
-
-  /**
-   * @override
-   */
-  xmlTagName: 'edm:ProvidedCHO',
 });

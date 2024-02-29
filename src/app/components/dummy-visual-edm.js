@@ -9,7 +9,7 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     this.set('exampleXml', generateExampleXml());
-    this.set('edmMetadata', EdmMetadataFactory.create().createMockEdmMetadata());
+    this.set('edmMetadata', EdmMetadataFactory.create().createMockMetadata());
     this.set('visualEdmViewModel', VisualEdmViewModel
       .extend({
         xmlValue: reads('container.xmlValue'),

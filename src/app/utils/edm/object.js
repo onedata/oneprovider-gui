@@ -5,12 +5,6 @@ import { classify } from '@ember/string';
  * @property {string} about Mandatory `rdf:about` property.
  */
 
-export const EdmObjectType = {
-  Aggregation: 'aggregation',
-  ProvidedCho: 'providedCho',
-  WebResource: 'webResource',
-};
-
 const EdmObject = EmberObject.extend({
   /**
    * @type {EdmObjectAttrs}
@@ -18,12 +12,13 @@ const EdmObject = EmberObject.extend({
   attrs: undefined,
 
   /**
-   * @type {Array<EdmProperty>}
+   * @type {Array<Utils.Edm.Property>}
    */
   edmProperties: undefined,
 
   /**
    * @virtual
+   * @type {EdmObjectType}
    */
   edmObjectType: undefined,
 

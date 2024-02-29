@@ -20,7 +20,7 @@ export default Component.extend(I18n, {
   model: undefined,
 
   /**
-   * @type {Array<Utils.Edm.EdmProperty>}
+   * @type {Array<Utils.Edm.Property>}
    */
   edmProperties: undefined,
 

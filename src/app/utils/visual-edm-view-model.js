@@ -2,7 +2,7 @@ import EmberObject, { observer } from '@ember/object';
 
 // FIXME: ta klasa jest całkowicie eksperymentalna - obecnie ważne jest tylko edmMetadata
 
-export default EmberObject.extend({
+const VisualEdmViewModel = EmberObject.extend({
   //#region dependencies
 
   xmlValue: undefined,
@@ -80,3 +80,5 @@ export default EmberObject.extend({
     this.set('dummyState', dummyState);
   },
 });
+
+export default VisualEdmViewModel;
