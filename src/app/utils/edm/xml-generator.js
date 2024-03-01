@@ -40,6 +40,27 @@ const EdmXmlGenerator = class EdmXmlParser {
     const doc = this.createXmlDocument();
     const rootNode = doc.documentElement;
     this.addRdfNamespaces(rootNode);
+    // FIXME: można rozbić tą generację - per Object i per Property
+    for (const edmObject of this.edmMetadata.edmObjects) {
+      /** @type {Element} */
+      const xmlObjectElement = doc.createElement(edmObject.xmlTagName);
+      if (edmObject.attrs?.about) {
+        xmlObjectElement.setAttribute('rdf:about', edmObject.attrs.about);
+      }
+      for (const edmProperty of edmObject.edmProperties) {
+        /** @type {Element} */
+        const xmlPropertyElement = doc.createElement(edmProperty.xmlTagName);
+        if (edmProperty.value) {
+          xmlPropertyElement.textContent = edmProperty.value;
+        }
+        const propertyAttrEntries = Object.entries(edmProperty.getFilledAttrs(true));
+        for (const [attrName, value] of propertyAttrEntries) {
+          xmlPropertyElement.setAttribute(attrName, value);
+        }
+        xmlObjectElement.appendChild(xmlPropertyElement);
+      }
+      rootNode.appendChild(xmlObjectElement);
+    }
     return `${EdmXmlGenerator.xmlDeclaration}\n${rootNode.outerHTML}`;
   }
 };
