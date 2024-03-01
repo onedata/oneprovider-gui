@@ -69,31 +69,29 @@ describe('Unit | Utility | edm/metadata-factory', function () {
         resource: 'http://vocab.getty.edu/aat/300020103',
       });
 
-      // FIXME: sprawdzić działanie tych testów
+      const aggregation = metadataModel.edmObjects[1];
+      expect(get(aggregation, 'edmObjectType')).to.equal(EdmObjectType.Aggregation);
+      expect(get(aggregation, 'attrs.about')).to.equal('#example_direct_Image_1_AGG');
+      const propertyAggregatedCHO = aggregation.edmProperties[0];
+      const propertyIsShownBy = aggregation.edmProperties[1];
 
-      // const aggregation = metadataModel.edmObjects[1];
-      // expect(get(aggregation, 'edmObjectType')).to.equal(EdmObjectType.Aggregation);
-      // expect(get(aggregation, 'attrs.about')).to.equal('#example_direct_Image_1_AGG');
-      // const propertyAggregatedCHO = aggregation.edmProperties[0];
-      // const propertyIsShownBy = aggregation.edmProperties[1];
+      expect(get(propertyAggregatedCHO, 'edmPropertyType')).to.equal('aggregatedCHO');
+      expect(get(propertyAggregatedCHO, 'namespace')).to.equal('edm');
+      expect(get(propertyAggregatedCHO, 'value')).to.be.empty;
+      expect(get(propertyAggregatedCHO, 'attrs')).to.deep.equal({
+        about: null,
+        lang: null,
+        resource: '#example_direct_Image_1',
+      });
 
-      // expect(get(propertyAggregatedCHO, 'edmPropertyType')).to.equal('aggregatedCHO');
-      // expect(get(propertyAggregatedCHO, 'namespace')).to.equal('edm');
-      // expect(get(propertyAggregatedCHO, 'value')).to.be.empty;
-      // expect(get(propertyAggregatedCHO, 'attrs')).to.deep.equal({
-      //   about: null,
-      //   lang: null,
-      //   resource: '#example_direct_Image_1',
-      // });
-
-      // expect(get(propertyIsShownBy, 'edmPropertyType')).to.equal('isShownBy');
-      // expect(get(propertyIsShownBy, 'namespace')).to.equal('edm');
-      // expect(get(propertyIsShownBy, 'value')).to.be.empty;
-      // expect(get(propertyIsShownBy, 'attrs')).to.deep.equal({
-      //   about: null,
-      //   lang: null,
-      //   resource: 'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg',
-      // });
+      expect(get(propertyIsShownBy, 'edmPropertyType')).to.equal('isShownBy');
+      expect(get(propertyIsShownBy, 'namespace')).to.equal('edm');
+      expect(get(propertyIsShownBy, 'value')).to.be.empty;
+      expect(get(propertyIsShownBy, 'attrs')).to.deep.equal({
+        about: null,
+        lang: null,
+        resource: 'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg',
+      });
     }
   );
 });
