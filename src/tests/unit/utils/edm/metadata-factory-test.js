@@ -12,11 +12,12 @@ describe('Unit | Utility | edm/metadata-factory', function () {
     function () {
       // given
       const factory = EdmMetadataFactory.create();
-      const xmlSinglePCHO = `<?xml version="1.0" encoding="UTF-8"?>
+      const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
       <rdf:RDF
           xmlns:dc="http://purl.org/dc/elements/1.1/"
           xmlns:dcterms="http://purl.org/dc/terms/"
           xmlns:edm="http://www.europeana.eu/schemas/edm/"
+          xmlns:ore="http://www.openarchives.org/ore/terms/"
           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
           <edm:ProvidedCHO rdf:about="#example_direct_Image_1">
               <dcterms:created>1951</dcterms:created>
@@ -30,7 +31,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       </rdf:RDF>`;
 
       // when
-      const metadataModel = factory.parseXml(xmlSinglePCHO);
+      const metadataModel = factory.parseXml(xmlSource);
 
       // then
       expect(metadataModel.edmObjects).to.have.lengthOf(2);
@@ -67,6 +68,8 @@ describe('Unit | Utility | edm/metadata-factory', function () {
         lang: null,
         resource: 'http://vocab.getty.edu/aat/300020103',
       });
+
+      // FIXME: sprawdzić działanie tych testów
 
       // const aggregation = metadataModel.edmObjects[1];
       // expect(get(aggregation, 'edmObjectType')).to.equal(EdmObjectType.Aggregation);

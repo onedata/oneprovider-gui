@@ -1,4 +1,5 @@
 import EmberObject from '@ember/object';
+import EdmXmlGenerator from './xml-generator';
 
 const EdmMetadata = EmberObject.extend({
   //#region state
@@ -16,6 +17,10 @@ const EdmMetadata = EmberObject.extend({
     if (!Array.isArray(this.edmObjects)) {
       this.set('edmObjects', []);
     }
+  },
+
+  stringify() {
+    return new EdmXmlGenerator(this).generateXml();
   },
 });
 
