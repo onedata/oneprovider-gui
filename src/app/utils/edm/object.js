@@ -27,6 +27,13 @@ const EdmObject = EmberObject.extend({
    */
   xmlNamespace: undefined,
 
+  /**
+   * True if the object has been generated from XML containing unknown data beside
+   * supported data (eg. extra properties).
+   * @type {boolean}
+   */
+  hasExtraData: false,
+
   xmlTagName: computed('xmlNamespace', 'edmObjectType', function xmlTagName() {
     return `${this.xmlNamespace}:${classify(this.edmObjectType)}`;
   }),

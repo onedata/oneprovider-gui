@@ -10,6 +10,13 @@ const EdmMetadata = EmberObject.extend({
    */
   edmObjects: undefined,
 
+  /**
+   * True if metadata has been generated from XML containing unknown data beside
+   * supported data (eg. extra objects).
+   * @type {boolean}
+   */
+  hasExtraData: false,
+
   //#endregion
 
   init() {

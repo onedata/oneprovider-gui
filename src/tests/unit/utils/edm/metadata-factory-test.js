@@ -33,6 +33,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       // when
       const metadataModel = factory.parseXml(xmlSource);
 
+      // FIXME: zmienić wywołania get na zwyczajne gettery
       // then
       expect(metadataModel.edmObjects).to.have.lengthOf(2);
       const providedCHO = metadataModel.edmObjects[0];
@@ -50,6 +51,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
         lang: null,
         resource: null,
       });
+      expect(propertyCreated.hasExtraData).to.be.false;
 
       expect(get(propertyTitle, 'edmPropertyType')).to.equal('title');
       expect(get(propertyTitle, 'namespace')).to.equal('dc');
@@ -59,6 +61,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
         lang: 'en',
         resource: null,
       });
+      expect(propertyTitle.hasExtraData).to.be.false;
 
       expect(get(propertySubject, 'edmPropertyType')).to.equal('subject');
       expect(get(propertySubject, 'namespace')).to.equal('dc');
@@ -68,6 +71,9 @@ describe('Unit | Utility | edm/metadata-factory', function () {
         lang: null,
         resource: 'http://vocab.getty.edu/aat/300020103',
       });
+      expect(propertySubject.hasExtraData).to.be.false;
+
+      expect(providedCHO.hasExtraData).to.be.false;
 
       const aggregation = metadataModel.edmObjects[1];
       expect(get(aggregation, 'edmObjectType')).to.equal(EdmObjectType.Aggregation);
@@ -83,6 +89,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
         lang: null,
         resource: '#example_direct_Image_1',
       });
+      expect(propertyAggregatedCHO.hasExtraData).to.be.false;
 
       expect(get(propertyIsShownBy, 'edmPropertyType')).to.equal('isShownBy');
       expect(get(propertyIsShownBy, 'namespace')).to.equal('edm');
@@ -92,6 +99,52 @@ describe('Unit | Utility | edm/metadata-factory', function () {
         lang: null,
         resource: 'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg',
       });
+      expect(propertyIsShownBy.hasExtraData).to.be.false;
+
+      expect(aggregation.hasExtraData).to.be.false;
+      expect(metadataModel.hasExtraData).to.be.false;
     }
   );
+
+  it('generates EDM metadata model from XML with extra content',
+    function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
+    <rdf:RDF
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:dcterms="http://purl.org/dc/terms/"
+        xmlns:edm="http://www.europeana.eu/schemas/edm/"
+        xmlns:ore="http://www.openarchives.org/ore/terms/"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        example extra content
+        <!-- comment one -->
+        <test>test content<!-- comment two --></test>
+        other example
+        <edm:ProvidedCHO rdf:about="#example_direct_Image_1">
+            <!-- comment inside property -->
+            <test>test content<!-- comment four --></test>
+            another example
+            <dcterms:created hello="world">1951</dcterms:created>
+        </edm:ProvidedCHO>
+    </rdf:RDF>`;
+
+      // when
+      const metadataModel = factory.parseXml(xmlSource);
+
+      // then
+      expect(metadataModel.edmObjects).to.have.lengthOf(1);
+      expect(metadataModel.hasExtraData, 'metadata model').to.be.true;
+      const providedCHO = metadataModel.edmObjects[0];
+      expect(providedCHO.hasExtraData, 'ProvidedCHO extra').to.be.true;
+      const edmProperties = get(providedCHO, 'edmProperties');
+      expect(edmProperties).to.have.lengthOf(1);
+      const createdProperty = edmProperties[0];
+      expect(createdProperty.edmPropertyType).to.equal('created');
+      expect(createdProperty.value).to.equal('1951');
+      expect(createdProperty.hasExtraData, 'Created extra').to.be.true;
+    }
+  );
+
+  // FIXME: it parses and generates XML containing extra nodes (comments, tags)
 });

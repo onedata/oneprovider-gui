@@ -1,4 +1,4 @@
-import EdmMetadataFactory from './metadata-factory';
+import { set, setProperties } from '@ember/object';
 
 const EdmXmlParser = class EdmXmlParser {
   /**
@@ -15,7 +15,7 @@ const EdmXmlParser = class EdmXmlParser {
     }
   }
   get rootNode() {
-    return this.xmlDoc.children[0];
+    return this.xmlDoc.documentElement;
   }
   /** @returns {Array<Element>} */
   getObjects() {
@@ -35,29 +35,58 @@ const EdmXmlParser = class EdmXmlParser {
   createModel(medatadataFactory) {
     const xmlObjects = this.getObjects();
     const metadata = medatadataFactory.createEmptyMetadata();
+    const edmObjects = [];
+    let hasMetadataExtraData = false;
     // FIXME: pierwszym obiektem xmlObjects może być tagName parsererror z komunikatem
     // wygląda na to, że to nie jest błąd krytyczny, ale należy go przechować w obiekcie metadata
     for (const xmlObject of xmlObjects) {
+      let hasEdmObjectExtraData = false;
       if (xmlObject.tagName === 'parsererror') {
+        // the first artificial tag that is added when parsing error occurs
         continue;
       }
       // FIXME: tolerancja błędów z testami
       const [, edmObjectType] = xmlObject.tagName.split(':');
-      const properties = Array.from(xmlObject.children).map(xmlPropertyElement => {
+      if (!edmObjectType) {
+        // this is not supported tag, because all supported tags are namespaced
+        hasMetadataExtraData = true;
+        continue;
+      }
+
+      const properties = [];
+      for (const xmlPropertyElement of xmlObject.children) {
         const [namespace, propertyName] = xmlPropertyElement.tagName.split(':');
-        return medatadataFactory.createProperty(namespace, propertyName, {
+        if (!propertyName) {
+          // this is not supported tag, because all supported tags are namespaced
+          hasEdmObjectExtraData = true;
+          continue;
+        }
+        // FIXME: test i sprawdzanie nieznanych property z namespacem
+        const edmProperty = medatadataFactory.createProperty(namespace, propertyName, {
           value: xmlPropertyElement.textContent,
           about: xmlPropertyElement.getAttribute('rdf:about'),
           lang: xmlPropertyElement.getAttribute('xml:lang'),
           resource: xmlPropertyElement.getAttribute('rdf:resource'),
         });
-      });
+        const extraAttr = Array.from(xmlPropertyElement.attributes).find(attr =>
+          !edmProperty.shownAttrs.includes(attr.name.split(':')[1] || attr.name)
+        );
+        if (extraAttr) {
+          set(edmProperty, 'hasExtraData', true);
+        }
+        properties.push(edmProperty);
+      }
       const edmObject = medatadataFactory.createObject(edmObjectType, {
         about: xmlObject.getAttribute('rdf:about'),
         properties,
+        hasExtraData: hasEdmObjectExtraData,
       });
-      metadata.edmObjects.push(edmObject);
+      edmObjects.push(edmObject);
     }
+    setProperties(metadata, {
+      edmObjects,
+      hasExtraData: hasMetadataExtraData,
+    });
     return metadata;
   }
 };

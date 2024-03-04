@@ -144,7 +144,7 @@ const EdmMetadataFactory = EmberObject.extend({
 
   /**
    * @param {EdmObjectType} edmObjectType
-   * @param {{ [about]: string, [properties]: Array<EdmProperty> }} options
+   * @param {{ [about]: string, [properties]: Array<EdmProperty>, [hasExtraData]: boolean }} options
    * @returns {Utils.Edm.Object}
    */
   createObject(edmObjectType, options) {
@@ -153,6 +153,9 @@ const EdmMetadataFactory = EmberObject.extend({
     };
     if (options.properties) {
       constructorOptions.edmProperties = options.properties;
+    }
+    if (typeof options.hasExtraData === 'boolean') {
+      constructorOptions.hasExtraData = options.hasExtraData;
     }
     return objectClasses[edmObjectType].create(constructorOptions);
   },

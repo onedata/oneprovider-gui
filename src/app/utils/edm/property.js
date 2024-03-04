@@ -27,6 +27,13 @@ const EdmProperty = EmberObject.extend({
    */
   edmPropertyType: undefined,
 
+  /**
+   * True if the object has been generated from XML containing unknown data beside
+   * supported data (eg. extra properties).
+   * @type {boolean}
+   */
+  hasExtraData: false,
+
   shownAttrs: Object.freeze(['resource', 'lang', 'about']),
 
   objectTypes: Object.freeze([]),
