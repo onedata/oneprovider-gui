@@ -75,4 +75,45 @@ describe('Unit | Utility | edm/metadata', function () {
       );
     }
   );
+
+  it('includes uknown elements in XML generated from model from parsed XML',
+    function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
+  <rdf:RDF
+      xmlns:dc="http://purl.org/dc/elements/1.1/"
+      xmlns:dcterms="http://purl.org/dc/terms/"
+      xmlns:edm="http://www.europeana.eu/schemas/edm/"
+      xmlns:ore="http://www.openarchives.org/ore/terms/"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      example extra content
+      <!-- comment one -->
+      <test>test content<!-- comment two --></test>
+      other example
+      <edm:ProvidedCHO rdf:about="#example_direct_Image_1">
+          <!-- comment inside property -->
+          <test>test content<!-- comment four --></test>
+          another example
+          <dcterms:created hello="world">1951</dcterms:created>
+      </edm:ProvidedCHO>
+  </rdf:RDF>`;
+
+      // when
+      const metadataModel = factory.parseXml(xmlSource);
+      const xmlOutput = metadataModel.stringify();
+
+      // then
+      const fragments = [
+        '<edm:ProvidedCHO rdf:about="#example_direct_Image_1">',
+        // '<!-- comment one -->',
+        // '<test>test content',
+        // '<!-- comment two -->',
+        // '<dcterms:created hello="world">1951</dcterms:created>',
+      ];
+      for (const fragment of fragments) {
+        expect(xmlOutput).to.contain(fragment);
+      }
+    }
+  );
 });

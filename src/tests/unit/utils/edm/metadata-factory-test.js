@@ -145,6 +145,4 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       expect(createdProperty.hasExtraData, 'Created extra').to.be.true;
     }
   );
-
-  // FIXME: it parses and generates XML containing extra nodes (comments, tags)
 });
