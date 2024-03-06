@@ -15,8 +15,10 @@ describe('Integration | Component | visual-edm', function () {
     const factory = EdmMetadataFactory.create();
     const metadata = factory.createEmptyMetadata();
     const resourceId = 'urn://eriac/19';
-    const providedCho = factory.createObject(EdmObjectType.ProvidedCHO, {
-      about: resourceId,
+    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+      attrs: {
+        about: resourceId,
+      },
       edmProperties: [
         factory.createProperty(metadata, 'dc', 'contributor', {
           value: 'ERIAC',
@@ -27,7 +29,7 @@ describe('Integration | Component | visual-edm', function () {
         }),
       ],
     });
-    metadata.edmObjects.push(providedCho);
+    metadata.edmObjects = [providedCho];
     helper.visualEdmViewModel.set('edmMetadata', metadata);
 
     await helper.render();

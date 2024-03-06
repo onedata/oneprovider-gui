@@ -16,7 +16,7 @@ describe('Unit | Utility | edm/object', function () {
     const edmObject = new EdmObject({
       xmlDocument,
       namespace: 'edm',
-      edmPropertyType: 'ProvidedCHO',
+      edmObjectType: 'ProvidedCHO',
     });
     const contributorProperty = new EdmProperty({
       xmlDocument,

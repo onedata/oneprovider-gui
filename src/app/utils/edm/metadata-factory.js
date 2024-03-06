@@ -3,7 +3,6 @@ import EdmMetadata from './metadata';
 import ProvidedCHO from './objects/provided-cho';
 import Aggregation from './objects/aggregation';
 import WebResource from './objects/web-resource';
-import propertyClasses from './property-classes';
 import EdmProperty from './property';
 import EdmObjectType from './object-type';
 import EdmXmlParser from './xml-parser';
@@ -130,6 +129,7 @@ const EdmMetadataFactory = EmberObject.extend({
         lang: 'en',
       }),
     ];
+    return metadata;
   },
 
   /**
@@ -146,14 +146,14 @@ const EdmMetadataFactory = EmberObject.extend({
    * @param {{ [about]: string, [properties]: Array<EdmProperty>, [hasExtraData]: boolean }} options
    * @returns {Utils.Edm.Object}
    */
-  createObject(edmMetadata, edmObjectType, options) {
+  createObject(edmMetadata, edmObjectType, options = {}) {
     const objectClass = objectClasses[edmObjectType];
     if (!objectClass) {
       throw new InvalidEdmObjectType('edmObjectType');
     }
     const edmObject = new objectClasses[edmObjectType]({
       xmlDocument: edmMetadata.xmlDocument,
-      hasExtraDAta: options.hasExtraData,
+      hasExtraData: options.hasExtraData,
     });
     edmObject.attrs = options.attrs;
     edmObject.edmProperties = options.edmProperties;
@@ -170,7 +170,7 @@ const EdmMetadataFactory = EmberObject.extend({
    * @param {EdmPropertyOptions} options
    * @returns {Utils.Edm.Property}
    */
-  createProperty(edmMetadata, namespace, propertyName, options) {
+  createProperty(edmMetadata, namespace, propertyName, options = {}) {
     // FIXME: check / throw error when invalid namespace/name
     const edmProperty = new EdmProperty({
       xmlDocument: edmMetadata.xmlDocument,

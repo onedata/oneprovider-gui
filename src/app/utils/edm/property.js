@@ -1,12 +1,15 @@
 import EdmAttrs from './attrs';
 
 class EdmProperty {
+  static defaultShownAttrs = Object.freeze(['resource', 'lang', 'about']);
+
   /**
    * @param {XMLDocument} [options.xmlDocument]
    * @param {string} [options.namespace]
    * @param {string} [options.edmPropertyType]
    * @param {Element} [options.xmlElement]
    * @param {boolean} [options.hasExtraData]
+   * @param {Array<string>} [options.shownAttrs]
    */
   constructor(options) {
     /** @type {Element} */
@@ -31,6 +34,7 @@ class EdmProperty {
 
     this.attrs = {};
     this.hasExtraData = options.hasExtraData || false;
+    this.shownAttrs = options.shownAttrs || EdmProperty.defaultShownAttrs;
   }
 
   get xmlTagName() {

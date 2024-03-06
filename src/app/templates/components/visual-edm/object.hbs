@@ -13,13 +13,11 @@
   </div>
   <div class="edm-object-attrs-container edm-object-list-container">
     {{!-- FIXME: maybe to reuse in object --}}
-    {{#each model.shownAttrs as |attrName|}}
-      {{#if (get model.attrs attrName)}}
-        <div class="edm-attr-container">
-          <div class="edm-attr-name">{{attrName}}:</div>
-          <div class="edm-attr-value">{{get model.attrs attrName}}</div>
-        </div>
-      {{/if}}
+    {{#each attrItems as |attrItem|}}
+      <li class="edm-attr-container">
+        <div class="edm-attr-name"><span class="name-value">{{attrItem.name}}</span>:</div>
+        <div class="edm-attr-value">{{attrItem.value}}</div>
+      </li>
     {{/each}}
   </div>
   <div class="edm-object-properties-container edm-object-list-container main-content-row row modern-iconified-block-row">

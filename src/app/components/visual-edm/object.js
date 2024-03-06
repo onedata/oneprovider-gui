@@ -28,6 +28,14 @@ export default Component.extend(I18n, {
     return this.t(`objectTypeName.${this.model.edmObjectType}`);
   }),
 
+  attrItems: computed('model.attrs', function attrItems() {
+    const attrs = this.model.attrs;
+    return ['about'].map(name => ({
+      name,
+      value: attrs[name],
+    })).filter(({ value }) => value);
+  }),
+
   init() {
     this._super(...arguments);
     if (!Array.isArray(this.edmProperties)) {

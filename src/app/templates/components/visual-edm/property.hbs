@@ -8,13 +8,11 @@
 </div>
 <ul class="edm-property-attrs-container edm-property-list-container">
   {{!-- FIXME: maybe to reuse in object --}}
-  {{#each model.shownAttrs as |attrName|}}
-    {{#if (get model.attrs attrName)}}
-      <li class="edm-attr-container">
-        <div class="edm-attr-name"><span class="name-value">{{attrName}}</span>:</div>
-        <div class="edm-attr-value">{{get model.attrs attrName}}</div>
-      </li>
-    {{/if}}
+  {{#each attrItems as |attrItem|}}
+    <li class="edm-attr-container">
+      <div class="edm-attr-name"><span class="name-value">{{attrItem.name}}</span>:</div>
+      <div class="edm-attr-value">{{attrItem.value}}</div>
+    </li>
   {{/each}}
 </ul>
 {{yield}}
