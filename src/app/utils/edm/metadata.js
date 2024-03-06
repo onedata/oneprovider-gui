@@ -1,34 +1,92 @@
-import EmberObject from '@ember/object';
 import EdmXmlGenerator from './xml-generator';
+import globals from 'onedata-gui-common/utils/globals';
+import EdmObjectsList from './objects-list';
 
-const EdmMetadata = EmberObject.extend({
-  //#region state
+export default class EdmMetadata {
+  static namespaceUris = Object.freeze({
+    rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    dc: 'http://purl.org/dc/elements/1.1/',
+    dcterms: 'http://purl.org/dc/terms/',
+    edm: 'http://www.europeana.eu/schemas/edm/',
+    ore: 'http://www.openarchives.org/ore/terms/',
+  });
 
-  // FIXME: type EdmObject
+  // FIXME: to remove?
+  static #xmlDeclaration = '<?xml version="1.0" encoding="UTF-8"?>';
+
   /**
-   * @type {Array<EdmObject>}
+   * @public
+   * @param {string} xmlValue
+   * @returns {EdmMetadata}
    */
-  edmObjects: undefined,
+  static fromXml(xmlValue) {
+    const domParser = new DOMParser();
+    /** @type {XMLDocument} */
+    const xmlDocument = domParser.parseFromString(xmlValue, 'text/xml');
+    return new EdmMetadata(xmlDocument);
+  }
+
+  /** @returns {XMLDocument} */
+  static createXmlDocument() {
+    const xmlDocument = globals.document.implementation.createDocument(
+      EdmMetadata.namespaceUris.rdf,
+      'rdf:RDF'
+    );
+    const xmlDeclaration = xmlDocument.createProcessingInstruction(
+      'xml',
+      'version="1.0" encoding="UTF-8"'
+    );
+    xmlDocument.insertBefore(xmlDeclaration, xmlDocument.firstChild);
+    return xmlDocument;
+  }
 
   /**
-   * True if metadata has been generated from XML containing unknown data beside
-   * supported data (eg. extra objects).
-   * @type {boolean}
+   * @param {Element} rootNode
    */
-  hasExtraData: false,
-
-  //#endregion
-
-  init() {
-    this._super(...arguments);
-    if (!Array.isArray(this.edmObjects)) {
-      this.set('edmObjects', []);
+  static addRdfNamespaces(rootNode) {
+    for (const [namespace, uri] of Object.entries(EdmXmlGenerator.namespaceUris)) {
+      if (namespace === 'rdf') {
+        continue;
+      }
+      rootNode.setAttribute(`xmlns:${namespace}`, uri);
     }
-  },
+  }
 
+  /**
+   * @param {XMLDocument} xmlDocument
+   */
+  constructor(xmlDocument) {
+    if (xmlDocument) {
+      this.xmlDocument = xmlDocument;
+      // FIXME: jakaś podstawowa walidacja jak w xml-parser?
+    } else {
+      this.xmlDocument = EdmMetadata.createXmlDocument();
+      EdmMetadata.addRdfNamespaces(this.xmlElement);
+    }
+    /** @type {Array<EdmObject>} */
+    this.edmObjects = undefined;
+  }
+
+  get xmlElement() {
+    return this.xmlDocument.documentElement;
+  }
+
+  /** @param {Array<EdmObject>} */
+  set edmObjects(objects) {
+    this.__edmObjects = new EdmObjectsList(this.xmlElement, objects);
+  }
+  get edmObjects() {
+    return this.__edmObjects.toArray();
+  }
+
+  // FIXME: niech xmlDocument ma deklarację XML w sobie
   stringify() {
-    return new EdmXmlGenerator(this).generateXml();
-  },
-});
+    const xmlSerializer = new XMLSerializer();
+    return xmlSerializer.serializeToString(this.xmlDocument);
+  }
 
-export default EdmMetadata;
+  // FIXME: to implement
+  get hasExtraData() {
+    return false;
+  }
+}

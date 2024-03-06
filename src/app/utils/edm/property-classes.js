@@ -105,7 +105,17 @@ function createEdmPropertyClass(namespace, edmPropertyType, spec) {
   if (spec.objs) {
     options.objectTypes = spec.objs;
   }
-  return EdmProperty.extend(options);
+
+  const newClass = class extends EdmProperty {
+    shownAttrs = spec.attrs;
+    objectTypes = spec.objs;
+    namespace = namespace;
+    edmPropertyType = edmPropertyType;
+  };
+
+  return newClass;
+
+  // return EdmProperty.extend(options);
 }
 
 const propertyClasses = [

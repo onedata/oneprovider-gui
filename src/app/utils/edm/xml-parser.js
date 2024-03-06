@@ -9,14 +9,14 @@ const EdmXmlParser = class EdmXmlParser {
     this.xmlValue = xmlValue;
     this.domParser = new DOMParser();
     /** @type {XMLDocument} */
-    this.xmlDoc = this.domParser.parseFromString(this.xmlValue, 'text/xml');
+    this.xmlDocument = this.domParser.parseFromString(this.xmlValue, 'text/xml');
     // FIXME: validacja, czy to jest rdf
     if (this.rootElement.nodeName !== 'rdf:RDF') {
       throw new Error('XML has no single <rdf:RDF> root node');
     }
   }
   get rootElement() {
-    return this.xmlDoc.documentElement;
+    return this.xmlDocument.documentElement;
   }
   /**
    * @param {Utils.Edm.MetadataFactory} metadatafactory
@@ -61,12 +61,16 @@ const EdmXmlParser = class EdmXmlParser {
           continue;
         }
         // FIXME: test i sprawdzanie nieznanych property z namespacem
-        const edmProperty = medatadataFactory.createProperty(namespace, propertyName, {
-          value: xmlPropertyNode.textContent,
-          about: xmlPropertyNode.getAttribute('rdf:about'),
-          lang: xmlPropertyNode.getAttribute('xml:lang'),
-          resource: xmlPropertyNode.getAttribute('rdf:resource'),
-        });
+        const edmProperty = medatadataFactory.createProperty(
+          metadata,
+          namespace,
+          propertyName, {
+            value: xmlPropertyNode.textContent,
+            about: xmlPropertyNode.getAttribute('rdf:about'),
+            lang: xmlPropertyNode.getAttribute('xml:lang'),
+            resource: xmlPropertyNode.getAttribute('rdf:resource'),
+          }
+        );
         const extraAttr = Array.from(xmlPropertyNode.attributes).find(attr =>
           !edmProperty.shownAttrs.includes(attr.name.split(':')[1] || attr.name)
         );
@@ -77,7 +81,7 @@ const EdmXmlParser = class EdmXmlParser {
       }
       const edmObject = medatadataFactory.createObject(edmObjectType, {
         about: xmlObject.getAttribute('rdf:about'),
-        properties,
+        edmProperties: properties,
         hasExtraData: hasEdmObjectExtraData,
       });
       edmObjects.push(edmObject);

@@ -17,12 +17,12 @@ describe('Integration | Component | visual-edm', function () {
     const resourceId = 'urn://eriac/19';
     const providedCho = factory.createObject(EdmObjectType.ProvidedCHO, {
       about: resourceId,
-      properties: [
-        factory.createProperty('dc', 'contributor', {
+      edmProperties: [
+        factory.createProperty(metadata, 'dc', 'contributor', {
           value: 'ERIAC',
           lang: 'en',
         }),
-        factory.createProperty('dcterms', 'created', {
+        factory.createProperty(metadata, 'dcterms', 'created', {
           value: '2018-03-13',
         }),
       ],

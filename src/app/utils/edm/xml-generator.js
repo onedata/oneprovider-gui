@@ -36,6 +36,9 @@ const EdmXmlGenerator = class EdmXmlParser {
       rootNode.setAttribute(`xmlns:${namespace}`, uri);
     }
   }
+
+  // FIXME: to trzeba będzie ograniczyć do brania node'ów z modeli i generowania tekstu
+  // XML krok-po-kroku
   generateXml() {
     const doc = this.createXmlDocument();
     const rootNode = doc.documentElement;

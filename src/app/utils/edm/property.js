@@ -1,75 +1,61 @@
-import EmberObject, { computed } from '@ember/object';
+import EdmAttrs from './attrs';
 
-const attrNamespaces = {
-  resource: 'rdf',
-  lang: 'xml',
-  about: 'rdf',
-};
-
-const EdmProperty = EmberObject.extend({
+class EdmProperty {
   /**
-   * @virtual
+   * @param {XMLDocument} [options.xmlDocument]
+   * @param {string} [options.namespace]
+   * @param {string} [options.edmPropertyType]
+   * @param {Element} [options.xmlElement]
+   * @param {boolean} [options.hasExtraData]
    */
-  value: undefined,
-
-  /**
-   * @virtual
-   */
-  attrs: undefined,
-
-  /**
-   * @virtual
-   */
-  namespace: undefined,
-
-  /**
-   * @virtual
-   */
-  edmPropertyType: undefined,
-
-  /**
-   * True if the object has been generated from XML containing unknown data beside
-   * supported data (eg. extra properties).
-   * @type {boolean}
-   */
-  hasExtraData: false,
-
-  shownAttrs: Object.freeze(['resource', 'lang', 'about']),
-
-  objectTypes: Object.freeze([]),
-
-  xmlTagName: computed('namespace', 'edmPropertyType', function xmlTagName() {
-    return `${this.namespace}:${this.edmPropertyType}`;
-  }),
-
-  init() {
-    this._super(...arguments);
-    if (!this.attrs) {
-      this.set('attrs', {});
+  constructor(options) {
+    /** @type {Element} */
+    this.xmlElement = options.xmlElement;
+    if (options.xmlDocument) {
+      this.xmlDocument = options.xmlDocument;
     }
-  },
 
-  /**
-   * @param {boolean} withXmlNs If true, generate mapping with keys having XML namespacs
-   *   for attributes, eg. `xml:lang` instead of `lang`.
-   * @returns {Object}
-   */
-  getFilledAttrs(withXmlNs = false) {
-    return this.shownAttrs.reduce((resultMap, attrName) => {
-      const value = this.attrs[attrName];
-      if (value) {
-        const effAttrName = (withXmlNs && attrNamespaces[attrName]) ?
-          `${attrNamespaces[attrName]}:${attrName}` : attrName;
-        resultMap[effAttrName] = value;
+    if (this.xmlElement) {
+      [this.namespace, this.edmPropertyType] = this.xmlElement.tagName.split(':');
+      if (!this.namespace || !this.edmPropertyType) {
+        throw new Error(`EDM Property tag not supported: ${this.xmlElement.tagName}`);
       }
-      return resultMap;
-    }, {});
-  },
+    } else {
+      this.namespace = options.namespace;
+      this.edmPropertyType = options.edmPropertyType;
+      this.xmlElement = this.xmlDocument.createElement(this.xmlTagName);
+    }
+    if (!this.xmlDocument) {
+      this.xmlDocument = this.xmlElement.ownerDocument;
+    }
 
-  // FIXME: test: umożliwić dowolne property
+    this.attrs = {};
+    this.hasExtraData = options.hasExtraData || false;
+  }
 
-  // FIXME: może tutaj string albo sparsowany Node
-  xmlSource: '',
-});
+  get xmlTagName() {
+    return `${this.namespace}:${this.edmPropertyType}`;
+  }
+
+  get value() {
+    return this.xmlElement.textContent;
+  }
+  set value(textContent) {
+    this.xmlElement.textContent = textContent;
+  }
+
+  set attrs(valueMap = {}) {
+    this.__attrs = new EdmAttrs(this.xmlElement);
+    for (const [key, value] of Object.entries(valueMap)) {
+      this.__attrs[key] = value;
+    }
+  }
+  get attrs() {
+    return this.__attrs;
+  }
+
+  // FIXME: implement?
+  // getFilledAttrs
+}
 
 export default EdmProperty;

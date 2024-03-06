@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupTest } from 'ember-mocha';
+import { get } from '@ember/object';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
-import { get } from '@ember/object';
+import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 
 describe('Unit | Utility | edm/metadata-factory', function () {
   setupTest('util:edm/metadata-factory', {});
@@ -11,7 +12,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
   it('generates EDM metadata model from XML with ProvidedCHO and Aggregation with "about" and some properties',
     function () {
       // given
-      const factory = EdmMetadataFactory.create();
+      // const factory = EdmMetadataFactory.create();
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
       <rdf:RDF
           xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -31,74 +32,67 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       </rdf:RDF>`;
 
       // when
-      const metadataModel = factory.parseXml(xmlSource);
+      const metadataModel = EdmMetadata.fromXml(xmlSource);
 
-      // FIXME: zmienić wywołania get na zwyczajne gettery
       // then
       expect(metadataModel.edmObjects).to.have.lengthOf(2);
       const providedCHO = metadataModel.edmObjects[0];
-      expect(get(providedCHO, 'edmObjectType')).to.equal(EdmObjectType.ProvidedCHO);
-      expect(get(providedCHO, 'attrs.about')).to.equal('#example_direct_Image_1');
+      expect(providedCHO.edmObjectType).to.equal(EdmObjectType.ProvidedCHO);
+      expect(providedCHO.attrs.about).to.equal('#example_direct_Image_1');
       const propertyCreated = providedCHO.edmProperties[0];
       const propertyTitle = providedCHO.edmProperties[1];
       const propertySubject = providedCHO.edmProperties[2];
 
-      expect(get(propertyCreated, 'edmPropertyType')).to.equal('created');
-      expect(get(propertyCreated, 'namespace')).to.equal('dcterms');
-      expect(get(propertyCreated, 'value')).to.equal('1951');
-      expect(get(propertyCreated, 'attrs')).to.deep.equal({
-        about: null,
-        lang: null,
-        resource: null,
-      });
+      expect(propertyCreated.edmPropertyType).to.equal('created');
+      expect(propertyCreated.namespace).to.equal('dcterms');
+      expect(propertyCreated.value).to.equal('1951');
+      expect(propertyCreated.attrs.about).to.equal(null);
+      expect(propertyCreated.attrs.lang).to.equal(null);
+      expect(propertyCreated.attrs.resource).to.equal(null);
       expect(propertyCreated.hasExtraData).to.be.false;
 
-      expect(get(propertyTitle, 'edmPropertyType')).to.equal('title');
-      expect(get(propertyTitle, 'namespace')).to.equal('dc');
-      expect(get(propertyTitle, 'value')).to.equal('Image JPG Example Record Tier 1');
-      expect(get(propertyTitle, 'attrs')).to.deep.equal({
-        about: null,
-        lang: 'en',
-        resource: null,
-      });
+      expect(propertyTitle.edmPropertyType).to.equal('title');
+      expect(propertyTitle.namespace).to.equal('dc');
+      expect(propertyTitle.value).to.equal('Image JPG Example Record Tier 1');
+      expect(propertyTitle.attrs.about).to.equal(null);
+      expect(propertyTitle.attrs.lang).to.equal('en');
+      expect(propertyTitle.attrs.resource).to.equal(null);
       expect(propertyTitle.hasExtraData).to.be.false;
 
-      expect(get(propertySubject, 'edmPropertyType')).to.equal('subject');
-      expect(get(propertySubject, 'namespace')).to.equal('dc');
-      expect(get(propertySubject, 'value')).to.be.empty;
-      expect(get(propertySubject, 'attrs')).to.deep.equal({
-        about: null,
-        lang: null,
-        resource: 'http://vocab.getty.edu/aat/300020103',
-      });
+      expect(propertySubject.edmPropertyType).to.equal('subject');
+      expect(propertySubject.namespace).to.equal('dc');
+      expect(propertySubject.value).to.be.empty;
+      expect(propertySubject.attrs.about).to.equal(null);
+      expect(propertySubject.attrs.lang).to.equal(null);
+      expect(propertySubject.attrs.resource).to.equal(
+        'http://vocab.getty.edu/aat/300020103'
+      );
       expect(propertySubject.hasExtraData).to.be.false;
 
       expect(providedCHO.hasExtraData).to.be.false;
 
       const aggregation = metadataModel.edmObjects[1];
-      expect(get(aggregation, 'edmObjectType')).to.equal(EdmObjectType.Aggregation);
-      expect(get(aggregation, 'attrs.about')).to.equal('#example_direct_Image_1_AGG');
+      expect(aggregation.edmObjectType).to.equal(EdmObjectType.Aggregation);
+      expect(aggregation.attrs.about).to.equal('#example_direct_Image_1_AGG');
       const propertyAggregatedCHO = aggregation.edmProperties[0];
       const propertyIsShownBy = aggregation.edmProperties[1];
 
-      expect(get(propertyAggregatedCHO, 'edmPropertyType')).to.equal('aggregatedCHO');
-      expect(get(propertyAggregatedCHO, 'namespace')).to.equal('edm');
-      expect(get(propertyAggregatedCHO, 'value')).to.be.empty;
-      expect(get(propertyAggregatedCHO, 'attrs')).to.deep.equal({
-        about: null,
-        lang: null,
-        resource: '#example_direct_Image_1',
-      });
+      expect(propertyAggregatedCHO.edmPropertyType).to.equal('aggregatedCHO');
+      expect(propertyAggregatedCHO.namespace).to.equal('edm');
+      expect(propertyAggregatedCHO.value).to.be.empty;
+      expect(propertyAggregatedCHO.attrs.about).to.equal(null);
+      expect(propertyAggregatedCHO.attrs.lang).to.equal(null);
+      expect(propertyAggregatedCHO.attrs.resource).to.equal('#example_direct_Image_1');
       expect(propertyAggregatedCHO.hasExtraData).to.be.false;
 
-      expect(get(propertyIsShownBy, 'edmPropertyType')).to.equal('isShownBy');
-      expect(get(propertyIsShownBy, 'namespace')).to.equal('edm');
-      expect(get(propertyIsShownBy, 'value')).to.be.empty;
-      expect(get(propertyIsShownBy, 'attrs')).to.deep.equal({
-        about: null,
-        lang: null,
-        resource: 'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg',
-      });
+      expect(propertyIsShownBy.edmPropertyType).to.equal('isShownBy');
+      expect(propertyIsShownBy.namespace).to.equal('edm');
+      expect(propertyIsShownBy.value).to.be.empty;
+      expect(propertyIsShownBy.attrs.about).to.equal(null);
+      expect(propertyIsShownBy.attrs.lang).to.equal(null);
+      expect(propertyIsShownBy.attrs.resource).to.equal(
+        'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg'
+      );
       expect(propertyIsShownBy.hasExtraData).to.be.false;
 
       expect(aggregation.hasExtraData).to.be.false;
@@ -130,14 +124,14 @@ describe('Unit | Utility | edm/metadata-factory', function () {
     </rdf:RDF>`;
 
       // when
-      const metadataModel = factory.parseXml(xmlSource);
+      const metadataModel = EdmMetadata.fromXml(xmlSource);
 
       // then
       expect(metadataModel.edmObjects).to.have.lengthOf(1);
       expect(metadataModel.hasExtraData, 'metadata model').to.be.true;
       const providedCHO = metadataModel.edmObjects[0];
       expect(providedCHO.hasExtraData, 'ProvidedCHO extra').to.be.true;
-      const edmProperties = get(providedCHO, 'edmProperties');
+      const edmProperties = providedCHO.edmProperties;
       expect(edmProperties).to.have.lengthOf(1);
       const createdProperty = edmProperties[0];
       expect(createdProperty.edmPropertyType).to.equal('created');
