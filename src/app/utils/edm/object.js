@@ -1,5 +1,6 @@
 import EdmAttrs from './attrs';
-import EdmProperty from './property';
+import { isEmptyXmlNode, isSupportedXmlProperty } from './xml-utils';
+import EdmPropertiesList from './edm-properties-list';
 
 /**
  * @typedef {Object} EdmObjectAttrs
@@ -40,7 +41,7 @@ export default class EdmObject {
 
     this.attrs = {};
     this.edmProperties = undefined;
-    this.hasExtraData = options.hasExtraData || false;
+    // FIXME: usunąć ręczne ustawianie hasExtraData na instancjach tej klasy
   }
 
   get xmlTagName() {
@@ -64,41 +65,18 @@ export default class EdmObject {
     return this.__edmProperties.toArray();
   }
 
+  get hasExtraData() {
+    // FIXME: sprawdzić także to co jest poza root elementem
+    for (const node of this.xmlElement.childNodes) {
+      if (!isEmptyXmlNode(node) && !isSupportedXmlProperty(node)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // FIXME: implement?
   // getFilledAttrs
-}
-
-class EdmPropertiesList {
-  /**
-   * @param {Array<EdmProperty>} properties
-   */
-  constructor(xmlElement, properties) {
-    /** @type {Element} */
-    this.xmlElement = xmlElement;
-    if (properties) {
-      this.replaceAll(properties);
-    }
-  }
-
-  get xmlDocument() {
-    return this.xmlElement.ownerDocument;
-  }
-
-  /**
-   * @param {Array<EdmProperty>} properties
-   */
-  replaceAll(properties) {
-    const elements = properties.map(property => property.xmlElement);
-    this.xmlElement.replaceChildren(...elements);
-  }
-
-  toArray() {
-    return Array.from(this.xmlElement.children).map(propertyXmlElement =>
-      new EdmProperty({
-        xmlElement: propertyXmlElement,
-      })
-    );
-  }
 }
 
 export class InvalidEdmObjectType extends Error {

@@ -3,3 +3,7 @@
     <VisualEdm::Object @model={{edmObject}} />
   {{/each}}
 </ul>
+{{#if edmMetadata.hasExtraData}}
+  {{!-- FIXME: ładny komunikat z ikoną (i) --}}
+  {{tt this "hasExtraData"}}
+{{/if}}

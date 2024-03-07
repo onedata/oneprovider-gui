@@ -21,9 +21,13 @@
     {{/each}}
   </div>
   <div class="edm-object-properties-container edm-object-list-container main-content-row row modern-iconified-block-row">
-    {{#each model.edmProperties as |edmProperty|}}
+    {{#each edmProperties as |edmProperty|}}
       <VisualEdm::Property @model={{edmProperty}} />
     {{/each}}
   </div>
+  {{#if model.hasExtraData}}
+    {{!-- FIXME: ładny komunikat z ikoną (i) --}}
+    {{tt this "hasExtraData"}}
+  {{/if}}
 </div>
 {{yield}}

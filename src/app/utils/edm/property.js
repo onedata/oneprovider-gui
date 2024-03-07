@@ -1,4 +1,4 @@
-import EdmAttrs from './attrs';
+import EdmAttrs, { namespacedAttr } from './attrs';
 
 class EdmProperty {
   static defaultShownAttrs = Object.freeze(['resource', 'lang', 'about']);
@@ -8,7 +8,6 @@ class EdmProperty {
    * @param {string} [options.namespace]
    * @param {string} [options.edmPropertyType]
    * @param {Element} [options.xmlElement]
-   * @param {boolean} [options.hasExtraData]
    * @param {Array<string>} [options.shownAttrs]
    */
   constructor(options) {
@@ -33,8 +32,8 @@ class EdmProperty {
     }
 
     this.attrs = {};
-    this.hasExtraData = options.hasExtraData || false;
     this.shownAttrs = options.shownAttrs || EdmProperty.defaultShownAttrs;
+    // FIXME: find and remove manula setting of hasExtraData
   }
 
   get xmlTagName() {
@@ -56,6 +55,20 @@ class EdmProperty {
   }
   get attrs() {
     return this.__attrs;
+  }
+
+  get shownXmlAttrs() {
+    return this.shownAttrs.map(attr => namespacedAttr(attr));
+  }
+
+  get hasExtraData() {
+    const shownXmlAttrs = this.shownXmlAttrs;
+    for (const attr of this.xmlElement.attributes) {
+      if (!shownXmlAttrs.includes(attr.name)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // FIXME: implement?

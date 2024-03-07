@@ -1,7 +1,7 @@
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 import VisualEdmViewModel from '../utils/visual-edm-view-model';
-import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
+import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 
 export default Component.extend({
   exampleXml: undefined,
@@ -9,7 +9,7 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     this.set('exampleXml', generateExampleXml());
-    this.set('edmMetadata', EdmMetadataFactory.create().createMockMetadata());
+    this.set('edmMetadata', EdmMetadata.fromXml(this.exampleXml));
     this.set('visualEdmViewModel', VisualEdmViewModel
       .extend({
         xmlValue: reads('container.xmlValue'),
@@ -26,8 +26,10 @@ export default Component.extend({
 const generateExampleXml = () =>
   `<?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdaGr2="http://rdvocab.info/ElementsGr2/" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:crm="http://www.cidoc-crm.org/rdfs/cidoc_crm_v5.0.2_english_label.rdfs#" xmlns:xalan="http://xml.apache.org/xalan" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:svcs="http://rdfs.org/sioc/services#">
+  <lol></lol>
   <edm:ProvidedCHO rdf:about="urn://eriac/19">
-    <dc:contributor xml:lang="en">ERIAC</dc:contributor>
+    <lol2></lol2>
+    <dc:contributor xml:lang="en" test="1">ERIAC</dc:contributor>
     <dc:contributor xml:lang="en">ERIAC Archive</dc:contributor>
     <dc:date xml:lang="en">2018-03-13</dc:date>
     <dc:description xml:lang="en">Artwork "Romani Kali Daj II" by Małgorzata Mirga-Tas at the exhibition "Hidden Roma Masterpieces"</dc:description>

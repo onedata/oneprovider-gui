@@ -4,7 +4,7 @@ const attrNamespaces = {
   about: 'rdf',
 };
 
-function namespacedAttr(attrName) {
+export function namespacedAttr(attrName) {
   const namespace = attrNamespaces[attrName];
   return namespace ? `${namespace}:${attrName}` : attrName;
 }

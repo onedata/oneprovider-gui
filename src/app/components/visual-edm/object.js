@@ -1,6 +1,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 
 export default Component.extend(I18n, {
   tagName: 'li',
@@ -17,12 +18,16 @@ export default Component.extend(I18n, {
    */
   i18nPrefix: 'components.visualEdm.object',
 
+  /**
+   * @virtual
+   * @type {EdmObject}
+   */
   model: undefined,
 
   /**
-   * @type {Array<Utils.Edm.Property>}
+   * @type {Computed<Array<EdmProperty>>}
    */
-  edmProperties: undefined,
+  edmProperties: reads('model.edmProperties'),
 
   objectTypeName: computed('model.edmObjectType', function objectTypeName() {
     return this.t(`objectTypeName.${this.model.edmObjectType}`);
@@ -35,11 +40,4 @@ export default Component.extend(I18n, {
       value: attrs[name],
     })).filter(({ value }) => value);
   }),
-
-  init() {
-    this._super(...arguments);
-    if (!Array.isArray(this.edmProperties)) {
-      this.set('edmProperties', []);
-    }
-  },
 });

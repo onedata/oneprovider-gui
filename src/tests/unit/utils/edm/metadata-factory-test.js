@@ -49,7 +49,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       expect(propertyCreated.attrs.about).to.equal(null);
       expect(propertyCreated.attrs.lang).to.equal(null);
       expect(propertyCreated.attrs.resource).to.equal(null);
-      expect(propertyCreated.hasExtraData).to.be.false;
+      expect(propertyCreated.hasExtraData, 'created property extra').to.be.false;
 
       expect(propertyTitle.edmPropertyType).to.equal('title');
       expect(propertyTitle.namespace).to.equal('dc');
@@ -57,7 +57,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       expect(propertyTitle.attrs.about).to.equal(null);
       expect(propertyTitle.attrs.lang).to.equal('en');
       expect(propertyTitle.attrs.resource).to.equal(null);
-      expect(propertyTitle.hasExtraData).to.be.false;
+      expect(propertyTitle.hasExtraData, 'title property extra').to.be.false;
 
       expect(propertySubject.edmPropertyType).to.equal('subject');
       expect(propertySubject.namespace).to.equal('dc');
@@ -67,9 +67,9 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       expect(propertySubject.attrs.resource).to.equal(
         'http://vocab.getty.edu/aat/300020103'
       );
-      expect(propertySubject.hasExtraData).to.be.false;
+      expect(propertySubject.hasExtraData, 'subject property extra').to.be.false;
 
-      expect(providedCHO.hasExtraData).to.be.false;
+      expect(providedCHO.hasExtraData, 'ProvidedCHO extra').to.be.false;
 
       const aggregation = metadataModel.edmObjects[1];
       expect(aggregation.edmObjectType).to.equal(EdmObjectType.Aggregation);
@@ -83,7 +83,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       expect(propertyAggregatedCHO.attrs.about).to.equal(null);
       expect(propertyAggregatedCHO.attrs.lang).to.equal(null);
       expect(propertyAggregatedCHO.attrs.resource).to.equal('#example_direct_Image_1');
-      expect(propertyAggregatedCHO.hasExtraData).to.be.false;
+      expect(propertyAggregatedCHO.hasExtraData, 'aggregatedCHO property extra').to.be.false;
 
       expect(propertyIsShownBy.edmPropertyType).to.equal('isShownBy');
       expect(propertyIsShownBy.namespace).to.equal('edm');
@@ -93,10 +93,10 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       expect(propertyIsShownBy.attrs.resource).to.equal(
         'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg'
       );
-      expect(propertyIsShownBy.hasExtraData).to.be.false;
+      expect(propertyIsShownBy.hasExtraData, 'isShownBy property extra').to.be.false;
 
-      expect(aggregation.hasExtraData).to.be.false;
-      expect(metadataModel.hasExtraData).to.be.false;
+      expect(aggregation.hasExtraData, 'Aggregation extra').to.be.false;
+      expect(metadataModel.hasExtraData, 'metadata model extra').to.be.false;
     }
   );
 
@@ -136,7 +136,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       const createdProperty = edmProperties[0];
       expect(createdProperty.edmPropertyType).to.equal('created');
       expect(createdProperty.value).to.equal('1951');
-      expect(createdProperty.hasExtraData, 'Created extra').to.be.true;
+      expect(createdProperty.hasExtraData, 'created property extra').to.be.true;
     }
   );
 });

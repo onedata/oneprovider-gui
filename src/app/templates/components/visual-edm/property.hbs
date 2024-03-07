@@ -15,4 +15,8 @@
     </li>
   {{/each}}
 </ul>
+{{#if model.hasExtraData}}
+  {{!-- FIXME: ładny komunikat z ikoną (i) --}}
+  {{tt this "hasExtraData"}}
+{{/if}}
 {{yield}}

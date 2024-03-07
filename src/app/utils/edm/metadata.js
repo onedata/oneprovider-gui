@@ -1,6 +1,7 @@
 import EdmXmlGenerator from './xml-generator';
 import globals from 'onedata-gui-common/utils/globals';
 import EdmObjectsList from './objects-list';
+import { isEmptyXmlNode, isSupportedXmlObject } from './xml-utils';
 
 export default class EdmMetadata {
   static namespaceUris = Object.freeze({
@@ -10,9 +11,6 @@ export default class EdmMetadata {
     edm: 'http://www.europeana.eu/schemas/edm/',
     ore: 'http://www.openarchives.org/ore/terms/',
   });
-
-  // FIXME: to remove?
-  static #xmlDeclaration = '<?xml version="1.0" encoding="UTF-8"?>';
 
   /**
    * @public
@@ -79,14 +77,18 @@ export default class EdmMetadata {
     return this.__edmObjects.toArray();
   }
 
-  // FIXME: niech xmlDocument ma deklarację XML w sobie
   stringify() {
     const xmlSerializer = new XMLSerializer();
     return xmlSerializer.serializeToString(this.xmlDocument);
   }
 
-  // FIXME: to implement
   get hasExtraData() {
+    // FIXME: sprawdzić także to co jest poza root elementem
+    for (const node of this.xmlElement.childNodes) {
+      if (!isEmptyXmlNode(node) && !isSupportedXmlObject(node)) {
+        return true;
+      }
+    }
     return false;
   }
 }
