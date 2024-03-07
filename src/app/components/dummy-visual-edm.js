@@ -56,7 +56,7 @@ const generateExampleXml = () =>
     <edm:hasMet rdf:resource="http://www.wikidata.org/entity/Q25291"/>
     <edm:type>IMAGE</edm:type>
   </edm:ProvidedCHO>
-  <edm:WebResource rdf:about="https://eriac.org/wp-content/uploads/2018/03/IMG_1578-1200x800.jpg">
+  <edm:WebResource rdf:about="https://eriac.org/wp-content/uploads/2018/03/IMG_1578-1200x800.jpg" test="2">
     <dc:creator xml:lang="en"/>
     <dc:description xml:lang="en"/>
     <dc:format xml:lang="en">JPG</dc:format>

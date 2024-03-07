@@ -35,7 +35,7 @@ export default Component.extend(I18n, {
 
   attrItems: computed('model.attrs', function attrItems() {
     const attrs = this.model.attrs;
-    return ['about'].map(name => ({
+    return this.model.shownAttrs.map(name => ({
       name,
       value: attrs[name],
     })).filter(({ value }) => value);

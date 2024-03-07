@@ -9,6 +9,9 @@ import EdmPropertiesList from './edm-properties-list';
 
 // FIXME: można próbować ujednolicić niektóre miejsca w constructor i innych metodach razem z property
 
+const shownAttrs = Object.freeze(['about']);
+const shownXmlAttrs = Object.freeze(['rdf:about']);
+
 export default class EdmObject {
   /**
    * @param {Element} [options.xmlElement] Provide for objects created from XML.
@@ -65,8 +68,20 @@ export default class EdmObject {
     return this.__edmProperties.toArray();
   }
 
+  get shownAttrs() {
+    return shownAttrs;
+  }
+  get shownXmlAttrs() {
+    return shownXmlAttrs;
+  }
+
   get hasExtraData() {
     // FIXME: sprawdzić także to co jest poza root elementem
+    for (const attr of this.xmlElement.attributes) {
+      if (!this.shownXmlAttrs.includes(attr.name)) {
+        return true;
+      }
+    }
     for (const node of this.xmlElement.childNodes) {
       if (!isEmptyXmlNode(node) && !isSupportedXmlProperty(node)) {
         return true;
