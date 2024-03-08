@@ -34,6 +34,7 @@ const EdmMetadataFactory = EmberObject.extend({
     return new EdmMetadata();
   },
 
+  // FIXME: zastąpione przez statyczną metodę w EdmMetadata
   createInitialMetadata() {
     const metadata = new EdmMetadata();
     const providedCho = new ProvidedCHO();

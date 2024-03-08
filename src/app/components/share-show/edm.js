@@ -7,9 +7,11 @@
  */
 
 import Component from '@ember/component';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { not, and, raw, or, bool, conditional } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
 
 const defaultMode = 'visual';
 
@@ -112,13 +114,28 @@ export default Component.extend(I18n, {
     raw(null),
   ),
 
+  init() {
+    this._super(...arguments);
+    // FIXME: debug code
+    this.set('xmlValue', generateDefaultXml(this.initialData));
+    this.set('visualEdmViewModel', VisualEdmViewModel
+      .extend({
+        xmlValue: reads('container.xmlValue'),
+      })
+      .create({
+        ownerSource: this,
+        container: this,
+      })
+    );
+  },
+
   /**
    * @override
    */
   didInsertElement() {
     this._super(...arguments);
     if (!this.xmlValue) {
-      this.onUpdateXml(generateDefaultXML(this.initialData));
+      this.onUpdateXml(generateDefaultXml(this.initialData));
     }
   },
 
@@ -145,6 +162,7 @@ export default Component.extend(I18n, {
      * @param {'visual'|'xml'} newMode
      */
     changeMode(newMode) {
+      this.visualEdmViewModel.updateMetadataModel();
       this.set('mode', newMode);
     },
     aceEditorReady(aceEditor) {
@@ -175,7 +193,7 @@ export default Component.extend(I18n, {
  * @param {string} [data.organizationName]
  * @returns
  */
-function generateDefaultXML(data) {
+function generateDefaultXml(data) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- Example EDM XML content - replace it with the detailed metadata. -->

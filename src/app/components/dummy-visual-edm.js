@@ -1,7 +1,6 @@
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 import VisualEdmViewModel from '../utils/visual-edm-view-model';
-import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 
 export default Component.extend({
   exampleXml: undefined,
@@ -9,11 +8,9 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     this.set('exampleXml', generateExampleXml());
-    this.set('edmMetadata', EdmMetadata.fromXml(this.exampleXml));
     this.set('visualEdmViewModel', VisualEdmViewModel
       .extend({
         xmlValue: reads('container.xmlValue'),
-        edmMetadata: reads('container.edmMetadata'),
       })
       .create({
         ownerSource: this,

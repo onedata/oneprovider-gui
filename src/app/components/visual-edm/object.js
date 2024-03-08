@@ -24,6 +24,8 @@ export default Component.extend(I18n, {
    */
   model: undefined,
 
+  objectIcon: 'browser-metadata',
+
   /**
    * @type {Computed<Array<EdmProperty>>}
    */

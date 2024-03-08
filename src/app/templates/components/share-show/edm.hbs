@@ -22,7 +22,7 @@
   {{/unless}}
 
   {{#if (eq mode "visual")}}
-    {{!-- FIXME: use VisualEdm component --}}
+    <VisualEdm @viewModel={{visualEdmViewModel}} />
   {{else if (eq mode "xml")}}
     {{ember-ace
       class="ember-ace ember-ace-edm-source"

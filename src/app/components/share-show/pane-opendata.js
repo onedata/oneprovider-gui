@@ -17,6 +17,7 @@ import { conditional, raw, not, or, eq } from 'ember-awesome-macros';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { MetadataType } from 'oneprovider-gui/models/handle';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 export default Component.extend(I18n, {
   classNames: ['share-show-pane-opendata', 'pane-opendata', 'row'],
@@ -53,7 +54,7 @@ export default Component.extend(I18n, {
   selectedHandleService: undefined,
 
   /**
-   * @type {PaneOpenData.MetadataType}
+   * @type {HandleModel.MetadataType}
    */
   selectedMetadataType: undefined,
 
@@ -64,7 +65,7 @@ export default Component.extend(I18n, {
   MetadataType,
 
   /**
-   * @type {Array<PaneOpenData.MetadataType>}
+   * @type {Array<HandleModel.MetadataType>}
    */
   metadataTypes: Object.freeze([MetadataType.Dc, MetadataType.Edm]),
 
@@ -140,6 +141,16 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this.loadXml();
+    // FIXME: debug code
+    (async () => {
+      const handleServices = await this.handleServicesProxy;
+      this.setProperties({
+        selectedHandleService: handleServices.get('firstObject'),
+        selectedMetadataType: MetadataType.Edm,
+      });
+      await waitForRender();
+      this.element.querySelector('button').click();
+    })();
   },
 
   async loadXml() {

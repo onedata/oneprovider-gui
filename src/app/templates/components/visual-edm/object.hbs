@@ -1,6 +1,6 @@
 {{!-- FIXME: refactor to angle comopnents --}}
 <div class="icon-section">
-  {{one-icon icon="space"}}
+  {{one-icon icon=objectIcon}}
 </div>
 <div class="content-section">
   <div class="basic-info-row">
@@ -26,8 +26,7 @@
     {{/each}}
   </div>
   {{#if model.hasExtraData}}
-    {{!-- FIXME: ładny komunikat z ikoną (i) --}}
-    {{tt this "hasExtraData"}}
+    <VisualEdm::ExtraDataInfo @model={{model}}/>
   {{/if}}
 </div>
 {{yield}}

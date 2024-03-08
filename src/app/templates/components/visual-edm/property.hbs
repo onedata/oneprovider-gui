@@ -16,7 +16,6 @@
   {{/each}}
 </ul>
 {{#if model.hasExtraData}}
-  {{!-- FIXME: ładny komunikat z ikoną (i) --}}
-  {{tt this "hasExtraData"}}
+  <VisualEdm::ExtraDataInfo @model={{model}}/>
 {{/if}}
 {{yield}}

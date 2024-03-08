@@ -2,6 +2,8 @@ import EdmXmlGenerator from './xml-generator';
 import globals from 'onedata-gui-common/utils/globals';
 import EdmObjectsList from './objects-list';
 import { isEmptyXmlNode, isSupportedXmlObject } from './xml-utils';
+import ProvidedCHO from './objects/provided-cho';
+import Aggregation from './objects/aggregation';
 
 export default class EdmMetadata {
   static namespaceUris = Object.freeze({
@@ -22,6 +24,14 @@ export default class EdmMetadata {
     /** @type {XMLDocument} */
     const xmlDocument = domParser.parseFromString(xmlValue, 'text/xml');
     return new EdmMetadata(xmlDocument);
+  }
+
+  static createInitialMetadata() {
+    const metadata = new EdmMetadata();
+    const providedCho = new ProvidedCHO();
+    const aggregation = new Aggregation();
+    metadata.edmObjects = [providedCho, aggregation];
+    return metadata;
   }
 
   /** @returns {XMLDocument} */

@@ -1,13 +1,19 @@
 import EmberObject, { observer } from '@ember/object';
+import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 
 // FIXME: ta klasa jest całkowicie eksperymentalna - obecnie ważne jest tylko edmMetadata
 
 const VisualEdmViewModel = EmberObject.extend({
   //#region dependencies
 
+  /**
+   * @virtual optional
+   * @type {string}
+   */
   xmlValue: undefined,
 
   /**
+   * @virtual optional
    * @type {Utils.Edm.Metadata}
    */
   edmMetadata: undefined,
@@ -16,68 +22,21 @@ const VisualEdmViewModel = EmberObject.extend({
 
   //#region state
 
-  /**
-   * @type {DOMParser}
-   */
-  xmlParser: undefined,
-
-  /**
-   * @type {XMLDocument}
-   */
-  xmlDoc: undefined,
-
-  /**
-   * @type {Object}
-   */
-  dummyState: undefined,
-
   //#endregion
-
-  xmlValueObserver: observer('xmlValue', function xmlValueObserver() {
-    this.set(
-      'xmlDoc',
-      this.xmlValue ? this.xmlParser.parseFromString(this.xmlValue, 'text/xml') : null
-    );
-    this.updateView();
-  }),
 
   init() {
     this._super(...arguments);
-    this.set('xmlParser', new DOMParser());
-    this.xmlValueObserver();
+    // FIXME: umożliwić wstrzykiwanie edmMetadata LUB xmlValue - obecnie tylko xmlValue
+    this.set(
+      'edmMetadata',
+      this.xmlValue ?
+      EdmMetadata.fromXml(this.xmlValue) : EdmMetadata.createInitialMetadata()
+    );
   },
 
-  updateView() {
-    if (!this.xmlDoc) {
-      return {};
-    }
-    // this.xmlDoc.children[0] - rdf
-    //
-    const dummyState = {};
-
-    const providedCHO = this.xmlDoc.children[0]
-      ?.querySelector('ProvidedCHO');
-
-    if (providedCHO) {
-
-      // FIXME: iść po odpowiedniej ścieżce
-      const titleNodes = [...providedCHO.querySelectorAll('title')];
-
-      dummyState.titles = titleNodes.map(titleNode => ({
-        text: titleNode.textContent,
-        lang: titleNode.getAttribute('xml:lang') ?? null,
-      }));
-
-      dummyState.title = providedCHO
-        ?.querySelector('title')
-        ?.textContent ?? '';
-
-      dummyState.titleLang = providedCHO
-        ?.querySelector('title')
-        ?.getAttribute('xml:lang') ?? '';
-    }
-
-    this.set('dummyState', dummyState);
+  updateMetadataModel() {
+    // FIXME: EdmMetadata powinno mieć możliwość podmianki w sobie, a nie tylko tworzenie nowego obiektu?
+    this.set('edmMetadata', EdmMetadata.fromXml(this.xmlValue));
   },
 });
 

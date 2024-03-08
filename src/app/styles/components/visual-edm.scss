@@ -77,6 +77,11 @@
       }
     }
   }
+
+  // contextual style for component inside visual-edm block
+  .visual-edm-extra-data-info {
+    margin-top: 1em;
+  }
 }
 
 // FIXME: refaktor nazw
@@ -86,8 +91,6 @@ $fallback-spaces-marketplace-item-height: 300px;
 
 .visual-edm-object-list {
   padding-left: 0;
-  padding-bottom: calc(var(--spaces-marketplace-item-spacing, #{$fallback-spaces-marketplace-item-spacing}) * 3);
-
 }
 
 // FIXME: kandydat na ujednolicenie styli ze space-marketplace
@@ -260,3 +263,5 @@ $fallback-spaces-marketplace-item-height: 300px;
 .edm-object-iconified-block {
   --spaces-marketplace-item-height: auto;
 }
+
+@import './visual-edm/extra-data-info';
