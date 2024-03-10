@@ -2,6 +2,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
+import humanizeString from 'oneprovider-gui/utils/humanize-string';
 
 export default Component.extend(I18n, {
   tagName: 'li',
@@ -35,11 +36,18 @@ export default Component.extend(I18n, {
     return this.t(`objectTypeName.${this.model.edmObjectType}`);
   }),
 
-  attrItems: computed('model.attrs', function attrItems() {
+  attrItems: computed('model.{shownAttrs,attrs}', function attrItems() {
     const attrs = this.model.attrs;
-    return this.model.shownAttrs.map(name => ({
-      name,
-      value: attrs[name],
-    })).filter(({ value }) => value);
+    return this.model.shownAttrs.map(name => {
+      const foundTranslation = this.t(
+        `attrName.${name}`, {}, {
+          defaultValue: null,
+        }
+      );
+      return {
+        name: foundTranslation || humanizeString(name),
+        value: attrs[name],
+      };
+    }).filter(({ value }) => value);
   }),
 });

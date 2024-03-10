@@ -10,7 +10,7 @@ export default Component.extend({
     this.set('exampleXml', generateExampleXml());
     this.set('visualEdmViewModel', VisualEdmViewModel
       .extend({
-        xmlValue: reads('container.xmlValue'),
+        xmlValue: reads('container.exampleXml'),
       })
       .create({
         ownerSource: this,

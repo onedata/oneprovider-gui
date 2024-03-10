@@ -28,8 +28,8 @@ export default class EdmMetadata {
 
   static createInitialMetadata() {
     const metadata = new EdmMetadata();
-    const providedCho = new ProvidedCHO();
-    const aggregation = new Aggregation();
+    const providedCho = new ProvidedCHO({ xmlDocument: metadata.xmlDocument });
+    const aggregation = new Aggregation({ xmlDocument: metadata.xmlDocument });
     metadata.edmObjects = [providedCho, aggregation];
     return metadata;
   }

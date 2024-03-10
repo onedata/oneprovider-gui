@@ -1,12 +1,12 @@
 <div class="edm-property-value-container">
   <div class="edm-property-type">
-    {{model.edmPropertyType}}:
+    {{displayedPropertyName}}:
   </div>
   <div class="edm-property-value">
     {{model.value}}
   </div>
 </div>
-<ul class="edm-property-attrs-container edm-property-list-container">
+<ul class="edm-property-attrs-container edm-property-list-container edm-attrs-container">
   {{!-- FIXME: maybe to reuse in object --}}
   {{#each attrItems as |attrItem|}}
     <li class="edm-attr-container">

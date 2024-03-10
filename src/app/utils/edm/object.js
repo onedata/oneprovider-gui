@@ -21,7 +21,12 @@ export default class EdmObject {
    * @param {string} [options.edmPropertyType] Provide for completely new object.
    * @param {boolean} [options.hasExtraData]
    */
-  constructor(options) {
+  constructor(options = {}) {
+    if (!options.xmlElement && !options.xmlDocument) {
+      throw new Error(
+        'EDM Object: no xmlElement nor xmlDocument provided in constructor'
+      );
+    }
     /** @type {Element} */
     this.xmlElement = options.xmlElement;
     if (options.xmlDocument) {
@@ -33,13 +38,13 @@ export default class EdmObject {
       if (!this.namespace || !this.edmObjectType) {
         throw new InvalidEdmObjectType(this.xmlElement.tagName);
       }
+      if (!this.xmlDocument) {
+        this.xmlDocument = this.xmlElement.ownerDocument;
+      }
     } else {
       this.namespace = options.namespace;
       this.edmObjectType = options.edmObjectType;
       this.xmlElement = this.xmlDocument.createElement(this.xmlTagName);
-    }
-    if (!this.xmlDocument) {
-      this.xmlDocument = this.xmlElement.ownerDocument;
     }
 
     this.attrs = {};

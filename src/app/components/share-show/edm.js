@@ -162,7 +162,11 @@ export default Component.extend(I18n, {
      * @param {'visual'|'xml'} newMode
      */
     changeMode(newMode) {
-      this.visualEdmViewModel.updateMetadataModel();
+      if (newMode === 'visual') {
+        this.visualEdmViewModel.updateMetadataModel();
+      } else {
+        this.onUpdateXml(this.visualEdmViewModel.edmMetadata.stringify());
+      }
       this.set('mode', newMode);
     },
     aceEditorReady(aceEditor) {

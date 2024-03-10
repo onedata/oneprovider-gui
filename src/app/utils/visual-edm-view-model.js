@@ -26,12 +26,15 @@ const VisualEdmViewModel = EmberObject.extend({
 
   init() {
     this._super(...arguments);
-    // FIXME: umożliwić wstrzykiwanie edmMetadata LUB xmlValue - obecnie tylko xmlValue
-    this.set(
-      'edmMetadata',
-      this.xmlValue ?
-      EdmMetadata.fromXml(this.xmlValue) : EdmMetadata.createInitialMetadata()
-    );
+    // FIXME: coś zrobić, żeby xmlValue było respektowane jako wstrzykiwane z góry
+    //  - np. zmiany, albo udokumentować odpowiednio
+    if (!this.edmMetadata) {
+      this.set(
+        'edmMetadata',
+        this.xmlValue ?
+        EdmMetadata.fromXml(this.xmlValue) : EdmMetadata.createInitialMetadata()
+      );
+    }
   },
 
   updateMetadataModel() {

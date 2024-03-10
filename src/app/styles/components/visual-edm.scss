@@ -42,17 +42,24 @@
 
     }
     .edm-property-attrs-container {
-      padding-inline-start: 1em;
-      li {
-        &::before {
-          content: '⏺';
-          margin-right: 0.5em;
-        }
+
+    }
+  }
+  .edm-attrs-container {
+    padding-inline-start: 0;
+    li {
+      :first-of-type {
+        margin-top: 0.2em;
+      }
+      &::before {
+        content: '↳';
+        margin-right: 0.5em;
       }
     }
   }
   .edm-attr-container {
     display: flex;
+    align-items: baseline;
     .edm-attr-name {
 
     }

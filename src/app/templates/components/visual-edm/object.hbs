@@ -11,7 +11,7 @@
       </div>
     </div>
   </div>
-  <div class="edm-object-attrs-container edm-object-list-container">
+  <ul class="edm-object-attrs-container edm-object-list-container edm-attrs-container">
     {{!-- FIXME: maybe to reuse in object --}}
     {{#each attrItems as |attrItem|}}
       <li class="edm-attr-container">
@@ -19,7 +19,7 @@
         <div class="edm-attr-value">{{attrItem.value}}</div>
       </li>
     {{/each}}
-  </div>
+  </ul>
   <div class="edm-object-properties-container edm-object-list-container main-content-row row modern-iconified-block-row">
     {{#each edmProperties as |edmProperty|}}
       <VisualEdm::Property @model={{edmProperty}} />

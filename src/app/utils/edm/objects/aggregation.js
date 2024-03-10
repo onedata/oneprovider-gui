@@ -2,7 +2,7 @@ import EdmObject from '../object';
 import EdmObjectType from '../object-type';
 
 export default class Aggregation extends EdmObject {
-  constructor(options) {
+  constructor(options = {}) {
     super({
       edmObjectType: EdmObjectType.Aggregation,
       namespace: 'ore',
