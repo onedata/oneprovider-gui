@@ -1,5 +1,5 @@
 import globals from 'onedata-gui-common/utils/globals';
-import { supportedPropertyTagSet } from './property-classes';
+import { supportedPropertyTagSet } from './property-spec';
 
 // FIXME: refactor to have common code with enum
 const supportedObjectTagSet = Object.freeze(new Set([

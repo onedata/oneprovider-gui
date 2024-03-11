@@ -1,20 +1,106 @@
-<div class="edm-property-value-container">
+<div class="edm-property-name-container">
   <div class="edm-property-type">
-    {{displayedPropertyName}}:
+    {{displayedPropertyName}}
+  </div>
+  {{#unless viewModel.isReadOnly}}
+    {{#if isAnyValueType}}
+      <div class="edm-property-resource-toggle">
+        <BsButtonGroup
+          @value={{valueType}}
+          @type="radio"
+          @onChange={{action "changeValueType"}}
+          as |bg|
+        >
+          <bg.button
+            class="btn-sm"
+            @type="default"
+            @value="literal"
+          >
+            {{tt this "valueType.literal"}}
+          </bg.button>
+          <bg.button
+            class="btn-sm"
+            @type="default"
+            @value="reference"
+          >
+            {{tt this "valueType.reference"}}
+          </bg.button>
+        </BsButtonGroup>
+      </div>
+    {{/if}}
+    <div class="separator edm-property-lang-separator"></div>
+    <div class="edm-property-lang-label">
+      {{tt this "language"}}:
+    </div>
+    <input
+      class="form-control input-sm edm-property-lang-input"
+      value={{lang}}
+    />
+    {{#unless isLangEnabled}}
+      <div class="edm-property-lang-default">
+        {{tt this "defaultLanguage"}}
+      </div>
+    {{/unless}}
+    <div class="edm-property-delete-btn">
+      <OneIcon class="edm-property-delete-icon" @icon="browser-delete" />
+    </div>
+  {{/unless}}
+</div>
+<div class="edm-property-value-container">
+  <div class="edm-property-value-label">
+    <OneIcon class="label-icon" @icon={{valueIcon}} />
+    {{tt this (concat "valueLabel." valueType)}}:
   </div>
   <div class="edm-property-value">
-    {{model.value}}
+    {{#if viewModel.isReadOnly}}
+      {{#if (eq inputType "textarea")}}
+        {{value}}
+      {{else}}
+        <TruncatedString>{{value}}</TruncatedString>
+      {{/if}}
+    {{else}}
+      {{#if (eq inputType "input")}}
+        <input class="form-control input-sm" value={{value}} />
+      {{else if (eq inputType "textarea")}}
+        <textarea class="form-control input-sm" value={{value}} rows="4" />
+      {{else if (eq inputType "dropdown")}}
+        <OneDropdown
+          @triggerClass="small property-value-dropdown-trigger"
+          @dropdownClass="small property-value-dropdown"
+          @options={{predefinedValueOptions}}
+          @selected={{selectedPredefinedValueOption}}
+          @onChange={{action "changeSelectedPredefinedValueOption"}}
+          {{!-- @placeholder={{tt this ""}} --}}
+          @searchEnabled={{true}}
+          @searchField="label"
+          as |option|
+        >
+          <div class="option-container">
+            {{#truncated-string}}
+              <span class="text">
+                {{option.label}}
+              </span>
+            {{/truncated-string}}
+          </div>
+        </OneDropdown>
+      {{/if}}
+    {{/if}}
   </div>
 </div>
-<ul class="edm-property-attrs-container edm-property-list-container edm-attrs-container">
-  {{!-- FIXME: maybe to reuse in object --}}
+{{!-- <ul class="edm-property-attrs-container edm-property-list-container edm-attrs-container">
   {{#each attrItems as |attrItem|}}
     <li class="edm-attr-container">
       <div class="edm-attr-name"><span class="name-value">{{attrItem.name}}</span>:</div>
-      <div class="edm-attr-value">{{attrItem.value}}</div>
+      <div class="edm-attr-value">
+        {{#if isReadOnly}}
+          {{attrItem.value}}
+        {{else}}
+          <input class="form-control input-sm" value={{attrItem.value}} />
+        {{/if}}
+      </div>
     </li>
   {{/each}}
-</ul>
+</ul> --}}
 {{#if model.hasExtraData}}
   <VisualEdm::ExtraDataInfo @model={{model}}/>
 {{/if}}

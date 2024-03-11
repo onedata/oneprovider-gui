@@ -1,7 +1,17 @@
 <ul class="visual-edm-object-list">
   {{#each edmMetadata.edmObjects as |edmObject|}}
-    <VisualEdm::Object @model={{edmObject}} />
+    <VisualEdm::Object @model={{edmObject}} @viewModel={{viewModel}} />
   {{/each}}
+  {{#unless viewModel.isReadOnly}}
+    <div class="objects-list-buttons">
+      <OneButton type="default">
+        <OneIcon @icon="plus" />
+        <span class="text">
+          {{tt this "listButtons.addWebResource"}}
+        </span>
+      </OneButton>
+    </div>
+  {{/unless}}
 </ul>
 {{#if model.hasExtraData}}
   <VisualEdm::ExtraDataInfo @model={{model}}/>

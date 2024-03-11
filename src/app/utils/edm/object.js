@@ -18,7 +18,7 @@ export default class EdmObject {
    * @param {XMLDocument} [options.xmlDocument] Provide for completely new object (not
    *   from XML).
    * @param {string} [options.namespace] Provide for completely new object.
-   * @param {string} [options.edmPropertyType] Provide for completely new object.
+   * @param {string} [options.edmObjectType] Provide for completely new object.
    * @param {boolean} [options.hasExtraData]
    */
   constructor(options = {}) {

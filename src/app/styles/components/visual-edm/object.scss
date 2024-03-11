@@ -1,0 +1,62 @@
+.visual-edm-object {
+  .edm-object-type {
+    @include font-semibold;
+  }
+  .edm-attr-container {
+    display: flex;
+    margin-top: 0.25em;
+    .edm-attr-name {
+      @include font-semibold;
+      margin-right: 0.75em;
+    }
+  }
+  .edm-object-list-container {
+    display: flex;
+  }
+  .edm-object-attrs-container {
+    margin-top: 0.5em;
+  }
+  .edm-object-properties-container {
+    padding: 0;
+  }
+  .main-content-row {
+    border-top: none;
+  }
+  .properties-list-buttons {
+    margin-top: var(--metadata-items-spacing);
+  }
+  .add-another-title-row {
+    font-size: $font-size-small;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+    padding-left: 1.2em;
+  }
+  .edm-object-delete-btn {
+    align-self: center;
+    display: flex;
+    margin-left: auto;
+  }
+  .edm-property-delete-icon {
+    font-size: 180%;
+  }
+  .edm-object-title-row {
+    .edm-object-type {
+      margin-right: 0;
+    }
+    .edm-object-type + .hint-trigger {
+      margin-left: 0.8em;
+    }
+  }
+}
+
+.modern-iconified-block.visual-edm-object .basic-info-row .basic-info-col {
+  padding-right: 0;
+}
+
+.one-webui-popover.tags-selector.add-property-selector {
+  width: 200px;
+  height: 400px;
+  .filter-input {
+    margin-bottom: 0.8em;
+  }
+}

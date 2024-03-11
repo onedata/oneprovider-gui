@@ -1,5 +1,4 @@
 import EdmObject, { InvalidEdmObjectType } from './object';
-import EdmMetadataFactory from './metadata-factory';
 
 // FIXME: ujednolicenie z EdmPropertiesList?
 export default class EdmObjectsList {

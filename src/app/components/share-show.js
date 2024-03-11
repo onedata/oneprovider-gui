@@ -202,7 +202,7 @@ export default Component.extend(...mixins, {
   init() {
     this._super(...arguments);
     // FIXME: debug code
-    this.get('handleStateProxy').then(handleState => {
+    this.get('handleStateProxy').then(( /*handleState*/ ) => {
       this.set('activeTab', 'opendata');
       // if (handleState === 'available') {
       //   this.set('activeTab', 'opendata');

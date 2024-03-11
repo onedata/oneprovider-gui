@@ -1,4 +1,4 @@
-import EmberObject, { observer } from '@ember/object';
+import EmberObject from '@ember/object';
 import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 
 // FIXME: ta klasa jest całkowicie eksperymentalna - obecnie ważne jest tylko edmMetadata
@@ -19,6 +19,8 @@ const VisualEdmViewModel = EmberObject.extend({
   edmMetadata: undefined,
 
   //#endregion
+
+  isReadOnly: false,
 
   //#region state
 

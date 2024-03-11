@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupTest } from 'ember-mocha';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
+import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 
@@ -28,6 +29,7 @@ describe('Unit | Utility | edm/metadata', function () {
     function () {
       // given
       const factory = EdmMetadataFactory.create();
+      const propertyFactory = EdmPropertyFactory.create();
       const metadataModel = factory.createEmptyMetadata();
       const resourceId = 'urn://eriac/19';
       const providedCho = factory.createObject(metadataModel, EdmObjectType.ProvidedCHO, {
@@ -35,11 +37,11 @@ describe('Unit | Utility | edm/metadata', function () {
           about: resourceId,
         },
         edmProperties: [
-          factory.createProperty(metadataModel, 'dc', 'contributor', {
+          propertyFactory.createProperty(metadataModel, 'dc', 'contributor', {
             value: 'ERIAC',
             lang: 'en',
           }),
-          factory.createProperty(metadataModel, 'dcterms', 'created', {
+          propertyFactory.createProperty(metadataModel, 'dcterms', 'created', {
             value: '2018-03-13',
           }),
         ],
@@ -49,10 +51,10 @@ describe('Unit | Utility | edm/metadata', function () {
           about: resourceId,
         },
         edmProperties: [
-          factory.createProperty(metadataModel, 'edm', 'aggregatedCHO', {
+          propertyFactory.createProperty(metadataModel, 'edm', 'aggregatedCHO', {
             resource: '#example_direct_Image_1',
           }),
-          factory.createProperty(metadataModel, 'edm', 'isShownBy', {
+          propertyFactory.createProperty(metadataModel, 'edm', 'isShownBy', {
             resource: 'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg',
           }),
         ],
@@ -62,10 +64,10 @@ describe('Unit | Utility | edm/metadata', function () {
           about: 'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg',
         },
         edmProperties: [
-          factory.createProperty(metadataModel, 'dc', 'format', {
+          propertyFactory.createProperty(metadataModel, 'dc', 'format', {
             value: 'jpg',
           }),
-          factory.createProperty(metadataModel, 'dcterms', 'created', {
+          propertyFactory.createProperty(metadataModel, 'dcterms', 'created', {
             value: '2017',
           }),
         ],

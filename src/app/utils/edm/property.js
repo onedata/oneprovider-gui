@@ -1,7 +1,8 @@
 import EdmAttrs, { namespacedAttr } from './attrs';
+import { EdmPropertyValueType } from './property-spec';
 
 class EdmProperty {
-  static defaultShownAttrs = Object.freeze(['resource', 'lang', 'about']);
+  static defaultShownAttrs = Object.freeze(['resource', 'lang']);
 
   /**
    * @param {XMLDocument} [options.xmlDocument]
@@ -9,6 +10,7 @@ class EdmProperty {
    * @param {string} [options.edmPropertyType]
    * @param {Element} [options.xmlElement]
    * @param {Array<string>} [options.shownAttrs]
+   * @param {EdmPropertySpec} [options.spec]
    */
   constructor(options) {
     /** @type {Element} */
@@ -33,6 +35,7 @@ class EdmProperty {
 
     this.attrs = {};
     this.shownAttrs = options.shownAttrs || EdmProperty.defaultShownAttrs;
+    this.spec = options.spec;
     // FIXME: find and remove manula setting of hasExtraData
   }
 
@@ -69,6 +72,22 @@ class EdmProperty {
       }
     }
     return false;
+  }
+
+  get isUsingResource() {
+    return Boolean(!this.value && this.attrs.resource);
+  }
+
+  get supportedValueType() {
+    return this.spec?.val || EdmPropertyValueType.Any;
+  }
+
+  get predefinedValues() {
+    return this.spec.predef;
+  }
+
+  get hasPredefinedValues() {
+    return Boolean(this.predefinedValues);
   }
 
   // FIXME: implement?

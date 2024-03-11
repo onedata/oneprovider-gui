@@ -1,8 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupTest } from 'ember-mocha';
-import { get } from '@ember/object';
-import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 
@@ -12,7 +10,6 @@ describe('Unit | Utility | edm/metadata-factory', function () {
   it('generates EDM metadata model from XML with ProvidedCHO and Aggregation with "about" and some properties',
     function () {
       // given
-      // const factory = EdmMetadataFactory.create();
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
       <rdf:RDF
           xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -32,6 +29,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       </rdf:RDF>`;
 
       // when
+      // FIXME: to nie jest test factory - albo przenieść tą metodę, albo przeorganizować testy
       const metadataModel = EdmMetadata.fromXml(xmlSource);
 
       // then
@@ -103,7 +101,6 @@ describe('Unit | Utility | edm/metadata-factory', function () {
   it('generates EDM metadata model from XML with extra content',
     function () {
       // given
-      const factory = EdmMetadataFactory.create();
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
     <rdf:RDF
         xmlns:dc="http://purl.org/dc/elements/1.1/"

@@ -1,0 +1,41 @@
+{{!-- FIXME: zmiana na curly brackets --}}
+{{#one-webui-popover
+  class="tags-selector add-property-selector"
+  open=opened
+  triggerSelector=triggerSelector
+  arrow=true
+  registerApi=(action (mut popoverApi))
+  padding=false
+  placement="auto"
+  popoverStyle="tags-selector"
+  as |popover|
+}}
+  {{#click-outside
+    class="selector-container"
+    onClickOutside=onPropertyAdd
+    exceptSelector=popoverClickOutsideIgnoreSelector
+  }}
+    <input
+      class="input-sm form-control filter-input"
+      type="text"
+      value={{filterValue}}
+      oninput={{action (mut filterValue) value="target.value"}}
+      placeholder={{tt this "searchPlaceholder"}}
+    >
+
+    {{#perfect-scrollbar-element class="tags-container"}}
+      <ul class="selector-list">
+        {{#each availableEdmPropertiesSpecs key="label" as |propertySpec|}}
+          <li
+            class="selector-item"
+            {{action "propertySelected" propertySpec}}
+          >
+            {{#truncated-string class="property-label"}}
+              {{propertySpec.label}}
+            {{/truncated-string}}
+          </li>
+        {{/each}}
+      </ul>
+    {{/perfect-scrollbar-element}}
+  {{/click-outside}}
+{{/one-webui-popover}}

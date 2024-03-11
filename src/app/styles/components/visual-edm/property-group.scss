@@ -1,0 +1,34 @@
+.visual-edm-property-group {
+  margin-top: 0.75em;
+  &:first-child {
+    margin-top: 0;
+  }
+}
+.edm-attrs-container {
+  padding-inline-start: 0;
+  li {
+    :first-of-type {
+      margin-top: 0.2em;
+    }
+    &::before {
+      content: '↳';
+      margin-right: 0.5em;
+    }
+  }
+}
+
+// FIXME: copied from providers-list.scss from onezone-gui
+.edm-property-group-box {
+  border: 1px solid $main-border-color;
+  border-radius: $border-radius-base;
+  background-color: $main-content-light-background;
+  @media (max-width: $screen-xs-max) {
+    margin: 0 $mobile-horizontal-content-padding;
+  }
+  @media (min-width: $screen-sm-min) {
+    .one-collapsible-list-header {
+      padding-top: $padding-large-vertical * 1.75;
+      padding-bottom: $padding-large-vertical * 1.75;
+    }
+  }
+}

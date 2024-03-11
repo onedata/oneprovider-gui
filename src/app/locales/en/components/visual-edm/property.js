@@ -2,6 +2,16 @@
 // be auto-generated.
 
 export default {
+  valueType: {
+    literal: 'Literal value',
+    reference: 'Reference',
+  },
+  valueLabel: {
+    literal: 'Value',
+    reference: 'Reference',
+  },
+  language: 'Language',
+  defaultLanguage: 'using default',
   propertyName: {
     dc: {
       contributor: 'Contributor to the creation of the original object',
@@ -19,7 +29,7 @@ export default {
       relation: 'URL for paradata',
       rights: 'Copyright',
       // source: '',
-      // subject: '',
+      subject: 'Subject',
       title: 'Title',
       type: 'Type of object',
     },
@@ -80,6 +90,6 @@ export default {
   },
   attrName: {
     lang: 'Language',
-    resource: 'Resource',
+    resource: 'Reference',
   },
 };

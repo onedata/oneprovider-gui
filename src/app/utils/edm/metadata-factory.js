@@ -3,10 +3,9 @@ import EdmMetadata from './metadata';
 import ProvidedCHO from './objects/provided-cho';
 import Aggregation from './objects/aggregation';
 import WebResource from './objects/web-resource';
-import EdmProperty from './property';
 import EdmObjectType from './object-type';
 import EdmXmlParser from './xml-parser';
-import _ from 'lodash';
+import EdmPropertyFactory from './property-factory';
 import { InvalidEdmObjectType } from './object';
 
 // FIXME: rozróżnienie na property dla różnych obiektów
@@ -54,52 +53,53 @@ const EdmMetadataFactory = EmberObject.extend({
     providedCho.attrs = {
       about: resourceId,
     };
+    const propertyFactory = EdmPropertyFactory.create();
     providedCho.edmProperties = [
-      this.createProperty(metadata, 'dc', 'contributor', {
+      propertyFactory.createProperty(metadata, 'dc', 'contributor', {
         value: 'ERIAC',
         lang: 'en',
       }),
-      this.createProperty(metadata, 'dc', 'contributor', {
+      propertyFactory.createProperty(metadata, 'dc', 'contributor', {
         value: 'ERIAC Archive',
         lang: 'en',
       }),
-      this.createProperty(metadata, 'dc', 'date', {
+      propertyFactory.createProperty(metadata, 'dc', 'date', {
         value: '2018-03-13',
         lang: 'en',
       }),
-      this.createProperty(metadata, 'dc', 'description', {
+      propertyFactory.createProperty(metadata, 'dc', 'description', {
         value: 'Artwork "Romani Kali Daj II" by Małgorzata Mirga-Tas at the exhibition "Hidden Roma Masterpieces"',
         lang: 'en',
       }),
-      this.createProperty(metadata, 'dc', 'identifier', {
+      propertyFactory.createProperty(metadata, 'dc', 'identifier', {
         value: '19',
         lang: 'en',
       }),
       // ...
-      this.createProperty(metadata, 'dc', 'subject', {
+      propertyFactory.createProperty(metadata, 'dc', 'subject', {
         resource: 'http://vocab.getty.edu/aat/300389150',
       }),
-      this.createProperty(metadata, 'dc', 'subject', {
+      propertyFactory.createProperty(metadata, 'dc', 'subject', {
         resource: 'http://www.wikidata.org/entity/Q8060',
       }),
       // ...
-      this.createProperty(metadata, 'dc', 'subject', {
+      propertyFactory.createProperty(metadata, 'dc', 'subject', {
         value: 'arts',
       }),
-      this.createProperty(metadata, 'dc', 'subject', {
+      propertyFactory.createProperty(metadata, 'dc', 'subject', {
         value: 'culture',
       }),
       // ...
-      this.createProperty(metadata, 'dc', 'type', {
+      propertyFactory.createProperty(metadata, 'dc', 'type', {
         value: 'Image',
         lang: 'en',
       }),
       // ...
-      this.createProperty(metadata, 'dcterms', 'created', {
+      propertyFactory.createProperty(metadata, 'dcterms', 'created', {
         value: '2018-03-13',
       }),
       // ...
-      this.createProperty(metadata, 'edm', 'type', {
+      propertyFactory.createProperty(metadata, 'edm', 'type', {
         value: 'IMAGE',
       }),
     ];
@@ -107,14 +107,14 @@ const EdmMetadataFactory = EmberObject.extend({
       about: resourceId,
     };
     aggregation.edmProperties = [
-      this.createProperty(metadata, 'edm', 'type', {
+      propertyFactory.createProperty(metadata, 'edm', 'type', {
         value: 'IMAGE',
       }),
-      this.createProperty(metadata, 'edm', 'dataProvider', {
+      propertyFactory.createProperty(metadata, 'edm', 'dataProvider', {
         value: 'ERIAC',
         lang: 'en',
       }),
-      this.createProperty(metadata, 'edm', 'isShownBy', {
+      propertyFactory.createProperty(metadata, 'edm', 'isShownBy', {
         resource: 'https://eriac.org/wp-content/uploads/2018/03/IMG_1578-1200x800.jpg',
       }),
     ];
@@ -122,10 +122,10 @@ const EdmMetadataFactory = EmberObject.extend({
       about: resourceId,
     };
     webResource.edmProperties = [
-      this.createProperty(metadata, 'edm', 'aggregatedCHO', {
+      propertyFactory.createProperty(metadata, 'edm', 'aggregatedCHO', {
         resource: resourceId,
       }),
-      this.createProperty(metadata, 'edm', 'dataProvider', {
+      propertyFactory.createProperty(metadata, 'edm', 'dataProvider', {
         value: 'ERIAC',
         lang: 'en',
       }),
@@ -159,30 +159,6 @@ const EdmMetadataFactory = EmberObject.extend({
     edmObject.attrs = options.attrs;
     edmObject.edmProperties = options.edmProperties;
     return edmObject;
-  },
-
-  // FIXME: skoro tutaj operuję na koncepcji modelu to mogę nie wymagać podawania namespace
-  // tylko samego property name (namespace będzie wzięte ze specyfikacji)
-
-  /**
-   * @param {EdmMetadata} edmMetadata
-   * @param {EdmPropertyNamespace} namespace
-   * @param {EdmPropertyName} propertyName
-   * @param {EdmPropertyOptions} options
-   * @returns {Utils.Edm.Property}
-   */
-  createProperty(edmMetadata, namespace, propertyName, options = {}) {
-    // FIXME: check / throw error when invalid namespace/name
-    const edmProperty = new EdmProperty({
-      xmlDocument: edmMetadata.xmlDocument,
-      namespace,
-      edmPropertyType: propertyName,
-    });
-    edmProperty.value = options.value;
-    const attrs = _.cloneDeep(options);
-    delete attrs.value;
-    edmProperty.attrs = attrs;
-    return edmProperty;
   },
 });
 

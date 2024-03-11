@@ -3,7 +3,12 @@ import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  classNames: ['visual-edm'],
+  classNames: [
+    'visual-edm',
+  ],
+  classNameBindings: [
+    'viewModel.isReadOnly:readonly',
+  ],
 
   i18nPrefix: 'components.visualEdm',
 
@@ -15,13 +20,4 @@ export default Component.extend(I18n, {
   viewModel: undefined,
 
   edmMetadata: reads('viewModel.edmMetadata'),
-
-  init() {
-    this._super(...arguments);
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_visual_edm');
-  },
 });

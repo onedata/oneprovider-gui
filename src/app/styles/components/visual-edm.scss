@@ -1,62 +1,7 @@
 .visual-edm {
-  // FIXME: generic
-  .edm-xml-tag {
-    opacity: $disabled-opacity;
-    font-size: $font-size-small;
-  }
+  --metadata-items-spacing: 20px;
+  --spaces-marketplace-item-spacing: var(--metadata-items-spacing);
 
-  .visual-edm-object {
-    .edm-object-type {
-      @include font-semibold;
-    }
-    .edm-attr-container {
-      display: flex;
-      .edm-attr-name {
-        @include font-semibold;
-        margin-right: 0.75em;
-      }
-    }
-    .edm-object-list-container {
-      display: flex;
-
-    }
-    .edm-object-attrs-container {
-      margin-top: 0.5em;
-    }
-    .edm-object-properties-container {
-      padding-top: 1em;
-    }
-    .visual-edm-property {
-      margin-top: 0.5em;
-    }
-  }
-  .visual-edm-property {
-    .edm-property-value-container {
-      display: flex;
-    }
-    .edm-property-type {
-      @include font-semibold;
-      margin-right: 0.75em;
-    }
-    .edm-property-value {
-
-    }
-    .edm-property-attrs-container {
-
-    }
-  }
-  .edm-attrs-container {
-    padding-inline-start: 0;
-    li {
-      :first-of-type {
-        margin-top: 0.2em;
-      }
-      &::before {
-        content: '↳';
-        margin-right: 0.5em;
-      }
-    }
-  }
   .edm-attr-container {
     display: flex;
     align-items: baseline;
@@ -64,30 +9,35 @@
 
     }
     .edm-attr-value {
-
+      flex-grow: 1;
     }
   }
 
-  // FIXME: copied from providers-list.scss from onezone-gui
-  .edm-property-box {
-    border: 1px solid $main-border-color;
-    border-radius: $border-radius-base;
-    background-color: $main-content-light-background;
-    padding: 0.5em;
-    @media (max-width: $screen-xs-max) {
-      margin: 0 $mobile-horizontal-content-padding;
-    }
-    @media (min-width: $screen-sm-min) {
-      .one-collapsible-list-header {
-        padding-top: $padding-large-vertical * 1.75;
-        padding-bottom: $padding-large-vertical * 1.75;
-      }
+  .objects-list-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--metadata-items-spacing);
+  }
+
+  .separator {
+    padding-left: 8px;
+    padding-right: 14px;
+    // FIXME: refactor styles
+    &::after {
+      height: 32px;
+      content: " ";
+      border-left: 1px solid;
+      border-color: #d6d6d6;
     }
   }
 
   // contextual style for component inside visual-edm block
   .visual-edm-extra-data-info {
     margin-top: 1em;
+  }
+
+  &.readonly {
+    padding: 0.5em;
   }
 }
 
@@ -272,3 +222,6 @@ $fallback-spaces-marketplace-item-height: 300px;
 }
 
 @import './visual-edm/extra-data-info';
+@import './visual-edm/object';
+@import './visual-edm/property';
+@import './visual-edm/property-group';

@@ -1,4 +1,5 @@
-import EdmProperty from './property';
+// import EdmMetadataFactory from './metadata-factory';
+import EdmPropertyFactory from './property-factory';
 import { isSupportedXmlProperty } from './xml-utils';
 
 export default class EdmPropertiesList {
@@ -26,10 +27,11 @@ export default class EdmPropertiesList {
   }
 
   toArray() {
+    const factory = EdmPropertyFactory.create();
     const array = [];
     for (const propertyXmlElement of this.xmlElement.children) {
       if (isSupportedXmlProperty(propertyXmlElement)) {
-        array.push(new EdmProperty({ xmlElement: propertyXmlElement }));
+        array.push(factory.createPropertyFromXml(propertyXmlElement));
       }
     }
     return array;
