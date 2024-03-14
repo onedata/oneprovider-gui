@@ -8,13 +8,15 @@ const PropertyGroupViewModel = EmberObject.extend({
   edmPropertyType: undefined,
   edmProperties: undefined,
   edmObjectModel: undefined,
+  // FIXME: zredukować powyższe property wstrzykiwaane
+  objectViewModel: undefined,
 
   edmObjectType: reads('edmObjectModel.edmObjectType'),
 
   propertiesViewModels: computed('edmProperties', function propertiesViewModels() {
     return this.edmProperties.map(edmProperty => PropertyViewModel.create({
       visualEdmViewModel: this.visualEdmViewModel,
-      edmObjectModel: this.edmObjectModel,
+      propertyGroupViewModel: this,
       model: edmProperty,
     }));
   }),

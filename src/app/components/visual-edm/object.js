@@ -60,6 +60,7 @@ export default Component.extend(I18n, {
    */
   edmProperties: reads('viewModel.edmProperties'),
 
+  // FIXME: to może być w viewModel
   /**
    * @type {ComputedProperty<EdmPropertyGroup>}
    */
@@ -70,7 +71,9 @@ export default Component.extend(I18n, {
       PropertyGroupViewModel.create({
         visualEdmViewModel: this.visualEdmViewModel,
         namespace: properties[0].namespace,
+        // FIXME: to remove
         edmObjectModel: this.viewModel.model,
+        objectViewModel: this.viewModel,
         edmPropertyType: properties[0].edmPropertyType,
         edmProperties: properties,
       })

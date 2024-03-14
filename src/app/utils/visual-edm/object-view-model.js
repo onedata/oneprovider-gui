@@ -15,6 +15,10 @@ const ObjectViewModel = EmberObject.extend({
   model: undefined,
 
   edmProperties: reads('model.edmProperties'),
+
+  updateView() {
+    this.notifyPropertyChange('model');
+  },
 });
 
 export default ObjectViewModel;

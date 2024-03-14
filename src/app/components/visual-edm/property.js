@@ -30,7 +30,7 @@ export default Component.extend(I18n, {
   /**
    * @type {EdmObject}
    */
-  edmObjectModel: reads('viewModel.edmObjectModel'),
+  edmObjectModel: reads('viewModel.propertyGroupViewModel.objectViewModel.model'),
 
   /**
    * @type {VisualEdmPropertyValueType}
@@ -203,7 +203,7 @@ export default Component.extend(I18n, {
   deleteProperty() {
     this.edmObjectModel.deleteProperty(this.viewModel.model);
     // FIXME: to jest niezoptymalizowne, updatuje wszystko
-    this.visualEdmViewModel.updateView();
+    this.viewModel.propertyGroupViewModel.objectViewModel.updateView();
   },
 
   actions: {
