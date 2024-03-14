@@ -6,6 +6,7 @@ import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import { and, eq, raw, not } from 'ember-awesome-macros';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import _ from 'lodash';
+import PropertyGroupViewModel from '../../utils/visual-edm/property-group-view-model';
 
 /**
  * @typedef {Object} EdmPropertyGroup
@@ -39,15 +40,14 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Utils.VisualEdmViewModel}
+   * @type {Utils.VisualEdm.ObjectViewModel}
    */
   viewModel: undefined,
 
   /**
-   * @virtual
-   * @type {EdmObject}
+   * @type {ComputedProperty<Utils.VisualEdmViewModel>}
    */
-  model: undefined,
+  visualEdmViewModel: reads('viewModel.visualEdmViewModel'),
 
   objectIcon: 'browser-metadata',
 
@@ -58,7 +58,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Computed<Array<EdmProperty>>}
    */
-  edmProperties: reads('model.edmProperties'),
+  edmProperties: reads('viewModel.edmProperties'),
 
   /**
    * @type {ComputedProperty<EdmPropertyGroup>}
@@ -66,32 +66,36 @@ export default Component.extend(I18n, {
   edmPropertyGroups: computed('edmProperties', function edmPropertyGroups() {
     const sortedProperties = _.sortBy(this.edmProperties, ['xmlTagName']);
     const groupedProperties = _.groupBy(sortedProperties, 'xmlTagName');
-    return Object.values(groupedProperties).map(properties => ({
-      namespace: properties[0].namespace,
-      edmPropertyType: properties[0].edmPropertyType,
-      edmProperties: properties,
-    }));
+    return Object.values(groupedProperties).map(properties =>
+      PropertyGroupViewModel.create({
+        visualEdmViewModel: this.visualEdmViewModel,
+        namespace: properties[0].namespace,
+        edmObjectModel: this.viewModel.model,
+        edmPropertyType: properties[0].edmPropertyType,
+        edmProperties: properties,
+      })
+    );
   }),
 
   isDeletable: and(
-    eq('model.edmObjectType', raw(EdmObjectType.WebResource)),
-    not('viewModel.isReadOnly'),
+    eq('viewModel.model.edmObjectType', raw(EdmObjectType.WebResource)),
+    not('visualEdmViewModel.isReadOnly'),
   ),
 
   objectTypeName: computed('model.edmObjectType', function objectTypeName() {
-    return this.t(`objectTypeName.${this.model.edmObjectType}`);
+    return this.t(`objectTypeName.${this.viewModel.model.edmObjectType}`);
   }),
 
   attrItems: computed(
-    'model.{shownAttrs,attrs}',
-    'viewModel.isReadOnly',
+    'viewModel.model.{shownAttrs,attrs}',
+    'visualEdmViewModel.isReadOnly',
     function attrItems() {
       // FIXME: dummy
-      if (!this.viewModel.isReadOnly) {
+      if (!this.visualEdmViewModel.isReadOnly) {
         return [];
       }
-      const attrs = this.model.attrs;
-      const result = this.model.shownAttrs.map(name => {
+      const attrs = this.viewModel.model.attrs;
+      const result = this.viewModel.model.shownAttrs.map(name => {
         const foundTranslation = this.t(
           `attrName.${name}`, {}, {
             defaultValue: null,
@@ -119,10 +123,6 @@ export default Component.extend(I18n, {
       window[name] = this;
       console.log(`window.${name}`, window[name]);
     })('debug_object');
-  },
-
-  updateView() {
-    this.notifyPropertyChange('model');
   },
 
   actions: {

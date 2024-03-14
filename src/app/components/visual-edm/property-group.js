@@ -1,6 +1,5 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe } from '@ember/string';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
@@ -12,26 +11,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {EdmPropertyGroup}
-   */
-  edmPropertyGroupModel: undefined,
-
-  /**
-   * @virtual
-   * @type {Utils.VisualEdmViewModel}
+   * @type {Utils.VisualEdm.PropertyGroupViewModel}
    */
   viewModel: undefined,
 
-  /**
-   * @virtual
-   * @type {EdmObject}
-   */
-  edmObjectModel: undefined,
-
-  edmProperties: reads('edmPropertyGroupModel.edmProperties'),
-
-  isAddAnotherEnabled: computed('model.edmPropertyType', function inputType() {
-    if (this.model.edmPropertyType === 'title') {
+  isAddAnotherEnabled: computed('viewModel.edmPropertyType', function inputType() {
+    if (this.viewModel.edmPropertyType === 'title') {
       return true;
     } else {
       return false;
@@ -42,11 +27,11 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<SafeString>}
    */
   displayedPropertyName: computed(
-    'model.{namespace,edmPropertyType}',
+    'viewModel.{namespace,edmPropertyType}',
     function displayedPropertyName() {
       let text;
       text = this.t(
-        `propertyName.${this.model.namespace}.${this.model.edmPropertyType}.${this.edmObjectModel.edmObjectType}`, {}, {
+        `propertyName.${this.viewModel.namespace}.${this.viewModel.edmPropertyType}.${this.viewModel.edmObjectType}`, {}, {
           defaultValue: null,
         }
       );
@@ -54,14 +39,14 @@ export default Component.extend(I18n, {
         return text;
       }
       text = this.t(
-        `propertyName.${this.model.namespace}.${this.model.edmPropertyType}`, {}, {
+        `propertyName.${this.viewModel.namespace}.${this.viewModel.edmPropertyType}`, {}, {
           defaultValue: null,
         }
       );
       if (text) {
         return text;
       }
-      return htmlSafe(humanizeString(this.model.edmPropertyType));
+      return htmlSafe(humanizeString(this.viewModel.edmPropertyType));
     }
   ),
 });

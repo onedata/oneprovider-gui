@@ -7,7 +7,7 @@ export default Component.extend(I18n, {
     'visual-edm',
   ],
   classNameBindings: [
-    'viewModel.isReadOnly:readonly',
+    'viewModel.model.isReadOnly:readonly',
   ],
 
   i18nPrefix: 'components.visualEdm',

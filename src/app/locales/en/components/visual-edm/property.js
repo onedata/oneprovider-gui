@@ -1,14 +1,16 @@
 // Known, but non-customly translated properties are commented-out — their labels should
 // be auto-generated.
 
+import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
+
 export default {
   valueType: {
     literal: 'Literal value',
     reference: 'Reference',
   },
   valueLabel: {
-    literal: 'Value',
-    reference: 'Reference',
+    [EdmPropertyValueType.Literal]: 'Value',
+    [EdmPropertyValueType.Reference]: 'Reference',
   },
   language: 'Language',
   defaultLanguage: 'using default',

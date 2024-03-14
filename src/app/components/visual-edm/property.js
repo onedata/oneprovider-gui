@@ -20,29 +20,29 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {EdmProperty}
    */
-  model: undefined,
-
-  /**
-   * @virtual
-   * @type {Utils.VisualEdmViewModel}
-   */
   viewModel: undefined,
 
   /**
-   * @virtual
+   * @type {Utils.VisualEdmViewModel}
+   */
+  visualEdmViewModel: reads('viewModel.visualEdmViewModel'),
+
+  /**
    * @type {EdmObject}
    */
-  edmObjectModel: undefined,
+  edmObjectModel: reads('viewModel.edmObjectModel'),
 
   /**
    * @type {VisualEdmPropertyValueType}
    */
   valueType: undefined,
 
+  EdmPropertyValueType,
+
   // FIXME: property robocze
   isSupportingReference: true,
 
-  isUsingReference: reads('model.isUsingResource'),
+  isUsingReference: reads('viewModel.model.isUsingResource'),
 
   isShowingReference: reads('isUsingReference'),
 
@@ -52,28 +52,28 @@ export default Component.extend(I18n, {
     raw('text-link'),
   ),
 
-  inputType: computed('model.edmPropertyType', function inputType() {
+  inputType: computed('viewModel.model.edmPropertyType', function inputType() {
     // FIXME: dodać do specyfikacji
-    if (this.model.edmPropertyType === 'description') {
+    if (this.viewModel.model.edmPropertyType === 'description') {
       return 'textarea';
-    } else if (this.model.hasPredefinedValues) {
+    } else if (this.viewModel.model.hasPredefinedValues) {
       return 'dropdown';
     } else {
       return 'input';
     }
   }),
 
-  referenceValue: computed('model.attrs', function referenceValue() {
-    return this.model.attrs.resource;
+  referenceValue: computed('viewModel.model.attrs', function referenceValue() {
+    return this.viewModel.model.attrs.resource;
   }),
 
   value: conditional(
     'isUsingReference',
     'referenceValue',
-    'model.value'
+    'viewModel.model.value'
   ),
 
-  isAddAnotherEnabled: computed('model.edmPropertyType', function inputType() {
+  isAddAnotherEnabled: computed('viewModel.model.edmPropertyType', function inputType() {
     if (this.model.edmPropertyType === 'title') {
       return true;
     } else {
@@ -81,25 +81,25 @@ export default Component.extend(I18n, {
     }
   }),
 
-  lang: computed('model.attrs', function lang() {
-    return this.model.attrs.lang;
+  lang: computed('viewModel.model.attrs', function lang() {
+    return this.viewModel.model.attrs.lang;
   }),
 
   isLangEnabled: bool('lang'),
 
   isAnyValueType: eq(
-    'model.supportedValueType',
+    'viewModel.model.supportedValueType',
     raw(EdmPropertyValueType.Any)
   ),
 
   predefinedValueOptions: computed(
     'inputType',
-    'model.predefinedValues',
+    'viewModel.model.predefinedValues',
     function predefinedValueOptions() {
       if (this.inputType !== 'dropdown') {
         return null;
       }
-      return this.model.predefinedValues;
+      return this.viewModel.model.predefinedValues;
     }
   ),
 
@@ -114,9 +114,9 @@ export default Component.extend(I18n, {
   // FIXME: do poprawki - za pomocą tego pokazywać tylko propertiesy, które są niestandardowe?
   attrItems: computed(
     'isShowingReference',
-    'model.{shownAttrs,attrs}',
+    'viewModel.model.{shownAttrs,attrs}',
     function attrItems() {
-      const attrs = this.model.attrs;
+      const attrs = this.viewModel.model.attrs;
       // FIXME: jeśli to jest edycja i to nowy model, to pokazywać tylko
       // reference - jeśli jest isShowingReference
       // lang - jeśli ten model ma takie coś i nie ma isShowingReference
@@ -137,7 +137,7 @@ export default Component.extend(I18n, {
           value: attrs[name],
         };
       });
-      if (this.viewModel.isReadOnly) {
+      if (this.viewModel.model.isReadOnly) {
         result = result.filter(({ value }) => value);
       }
       return result;
@@ -148,11 +148,11 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<SafeString>}
    */
   displayedPropertyName: computed(
-    'model.{namespace,edmPropertyType}',
+    'viewModel.model.{namespace,edmPropertyType}',
     function displayedPropertyName() {
       let text;
       text = this.t(
-        `propertyName.${this.model.namespace}.${this.model.edmPropertyType}.${this.edmObjectModel.edmObjectType}`, {}, {
+        `propertyName.${this.viewModel.model.namespace}.${this.viewModel.model.edmPropertyType}.${this.edmObjectModel.edmObjectType}`, {}, {
           defaultValue: null,
         }
       );
@@ -160,34 +160,48 @@ export default Component.extend(I18n, {
         return text;
       }
       text = this.t(
-        `propertyName.${this.model.namespace}.${this.model.edmPropertyType}`, {}, {
+        `propertyName.${this.viewModel.model.namespace}.${this.viewModel.model.edmPropertyType}`, {}, {
           defaultValue: null,
         }
       );
       if (text) {
         return text;
       }
-      return htmlSafe(humanizeString(this.model.edmPropertyType));
+      return htmlSafe(humanizeString(this.viewModel.model.edmPropertyType));
     }
   ),
 
   init() {
     this._super(...arguments);
-    this.set('valueType', this.isUsingReference ? EdmPropertyValueType.Reference : EdmPropertyValueType.Literal);
+    this.set(
+      'valueType',
+      this.isUsingReference ?
+      EdmPropertyValueType.Reference : EdmPropertyValueType.Literal
+    );
   },
 
   changeValue(newValue) {
     if (this.valueType === EdmPropertyValueType.Reference) {
-      this.model.attrs.resource = newValue;
+      this.viewModel.model.attrs.resource = newValue;
     } else {
-      this.model.value = newValue;
+      this.viewModel.model.value = newValue;
     }
   },
 
-  deleteProperty() {
-    this.edmObjectModel.deleteProperty(this.model);
-    // FIXME: to jest niezoptymalizowne, updatuje wszystko
+  changeValueType(valueType) {
+    if (valueType === this.valueType) {
+      return;
+    }
+    this.changeValue('');
+    this.set('valueType', valueType);
+    // FIXME: optymalizacja - tylko widok tego propery do update
     this.viewModel.updateView();
+  },
+
+  deleteProperty() {
+    this.edmObjectModel.deleteProperty(this.viewModel.model);
+    // FIXME: to jest niezoptymalizowne, updatuje wszystko
+    this.visualEdmViewModel.updateView();
   },
 
   actions: {
@@ -195,7 +209,7 @@ export default Component.extend(I18n, {
      * @param {VisualEdmPropertyValueType} valueType
      */
     changeValueType(valueType) {
-      this.set('valueType', valueType);
+      this.changeValueType(valueType);
     },
     changeSelectedPredefinedValueOption(option) {
       this.changeValue(option.value);

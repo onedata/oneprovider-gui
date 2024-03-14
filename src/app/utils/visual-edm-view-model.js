@@ -1,9 +1,10 @@
-import EmberObject from '@ember/object';
+// FIXME: refaktor - lepiej: utils/visual-edm/view-model
+
+import EmberObject, { observer } from '@ember/object';
 import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { reads } from '@ember/object/computed';
-
-// FIXME: ta klasa jest całkowicie eksperymentalna - obecnie ważne jest tylko edmMetadata
+import ObjectViewModel from './visual-edm/object-view-model';
 
 const VisualEdmViewModel = EmberObject.extend({
   //#region dependencies
@@ -34,6 +35,15 @@ const VisualEdmViewModel = EmberObject.extend({
 
   hasExtraData: reads('edmMetadata.hasExtraData'),
 
+  /**
+   * @type {Array<Utils.VisualEdm.ObjectViewModel>}
+   */
+  objects: undefined,
+
+  edmMetadataObserver: observer('edmMetadata', function edmMetadataObserver() {
+    this.set('objects', this.createObjectsViewModels());
+  }),
+
   init() {
     this._super(...arguments);
     // FIXME: coś zrobić, żeby xmlValue było respektowane jako wstrzykiwane z góry
@@ -45,13 +55,17 @@ const VisualEdmViewModel = EmberObject.extend({
         EdmMetadata.fromXml(this.xmlValue) : EdmMetadata.createInitialMetadata()
       );
     }
+
+    this.set('objects', this.createObjectsViewModels());
   },
 
-  /**
-   * @param {Components.VisualEdm} component
-   */
-  mount(component) {
-    this.set('component', component);
+  createObjectsViewModels() {
+    return this.edmMetadata.edmObjects.map(edmObject => {
+      return ObjectViewModel.create({
+        visualEdmViewModel: this,
+        model: edmObject,
+      });
+    });
   },
 
   updateMetadataModel() {

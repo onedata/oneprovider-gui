@@ -2,7 +2,7 @@
   <div class="edm-property-type">
     {{displayedPropertyName}}
   </div>
-  {{#unless viewModel.isReadOnly}}
+  {{#unless visualEdmViewModel.isReadOnly}}
     {{#if isAnyValueType}}
       <div class="edm-property-resource-toggle">
         <BsButtonGroup
@@ -13,17 +13,19 @@
         >
           <bg.button
             class="btn-sm"
+            data-value-type={{EdmPropertyValueType.Literal}}
             @type="default"
-            @value="literal"
+            @value={{EdmPropertyValueType.Literal}}
           >
-            {{tt this "valueType.literal"}}
+            {{tt this (concat "valueType." EdmPropertyValueType.Literal)}}
           </bg.button>
           <bg.button
             class="btn-sm"
+            data-value-type={{EdmPropertyValueType.Reference}}
             @type="default"
-            @value="reference"
+            @value={{EdmPropertyValueType.Reference}}
           >
-            {{tt this "valueType.reference"}}
+            {{tt this (concat "valueType." EdmPropertyValueType.Reference)}}
           </bg.button>
         </BsButtonGroup>
       </div>
@@ -60,7 +62,7 @@
     {{tt this (concat "valueLabel." valueType)}}:
   </div>
   <div class="edm-property-value">
-    {{#if viewModel.isReadOnly}}
+    {{#if visualEdmViewModel.isReadOnly}}
       {{#if (eq inputType "textarea")}}
         {{value}}
       {{else}}
@@ -118,7 +120,7 @@
     </li>
   {{/each}}
 </ul> --}}
-{{#if model.hasExtraData}}
-  <VisualEdm::ExtraDataInfo @model={{model}}/>
+{{#if viewModel.model.hasExtraData}}
+  <VisualEdm::ExtraDataInfo @model={{viewModel.model}}/>
 {{/if}}
 {{yield}}

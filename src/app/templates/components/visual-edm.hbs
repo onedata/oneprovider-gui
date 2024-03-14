@@ -1,6 +1,6 @@
 <ul class="visual-edm-object-list">
-  {{#each viewModel.edmObjects as |edmObject|}}
-    <VisualEdm::Object @model={{edmObject}} @viewModel={{viewModel}} />
+  {{#each viewModel.objects as |objectViewModel|}}
+    <VisualEdm::Object @viewModel={{objectViewModel}} />
   {{/each}}
   {{#unless viewModel.isReadOnly}}
     <div class="objects-list-buttons">

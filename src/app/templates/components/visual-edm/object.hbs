@@ -1,6 +1,5 @@
-{{!-- FIXME: refactor to angle comopnents --}}
 <div class="icon-section">
-  {{one-icon icon=objectIcon}}
+  <OneIcon @icon={{objectIcon}} />
 </div>
 <div class="content-section">
   <div class="basic-info-row">
@@ -28,7 +27,7 @@
         <li class="edm-attr-container">
           <div class="edm-attr-name"><span class="name-value">{{attrItem.name}}</span>:</div>
           <div class="edm-attr-value">
-            {{#if viewModel.isReadOnly}}
+            {{#if visualEdmViewModel.isReadOnly}}
               {{attrItem.value}}
             {{else}}
               <input class="form-control input-sm" value={{attrItem.value}} />
@@ -43,14 +42,10 @@
     "edm-object-list-container"
     "main-content-row"
     "row modern-iconified-block-row"
-    (if (not edmProperties.length) "hidden")
+    (if (not edmPropertyGroups.length) "hidden")
   }}>
-    {{#each edmPropertyGroups as |edmPropertyGroupModel|}}
-      <VisualEdm::PropertyGroup
-        @viewModel={{viewModel}}
-        @edmObjectModel={{model}}
-        @edmPropertyGroupModel={{edmPropertyGroupModel}}
-      />
+    {{#each edmPropertyGroups as |propertyGroupViewModel|}}
+      <VisualEdm::PropertyGroup @viewModel={{propertyGroupViewModel}} />
       {{!-- FIXME: hack, jeśli się spodoba to trzeba inaczej rozwiązać (jakaś lista obliczania w JS) --}}
       {{!-- {{#if (eq index 2)}}
         <div class="add-another-title-row">
@@ -59,7 +54,7 @@
       {{/if}} --}}
     {{/each}}
   </div>
-  {{#unless viewModel.isReadOnly}}
+  {{#unless visualEdmViewModel.isReadOnly}}
     <div class="properties-list-buttons">
       {{!-- FIXME: można by zrefaktorować, także w ramach innego ticketa, zamknąć w komponencie (i refaktor direct-dataset-control) --}}
       <OneButton
@@ -74,7 +69,7 @@
       </OneButton>
       <RenderLater @triggerRender={{isAddPropertyOpened}}>
         <VisualEdm::AddPropertySelector
-          @edmObjectModel={{model}}
+          @edmObjectModel={{viewModel.model}}
           @opened={{isAddPropertyOpened}}
           @triggerSelector={{addPropertyButtonSelector}}
           @onPropertyAdd={{action "onPropertyAdd"}}
@@ -82,8 +77,8 @@
       </RenderLater>
     </div>
   {{/unless}}
-  {{#if model.hasExtraData}}
-    <VisualEdm::ExtraDataInfo @model={{model}}/>
+  {{#if viewModel.model.hasExtraData}}
+    <VisualEdm::ExtraDataInfo @model={{viewModel.model}}/>
   {{/if}}
 </div>
 {{yield}}

@@ -12,7 +12,6 @@ describe('Integration | Component | visual-edm', function () {
   setupRenderingTest();
 
   it('renders ProvidedCHO with some EDM properties with values in editor mode', async function () {
-    const helper = new Helper(this);
     const factory = EdmMetadataFactory.create();
     const propertyFactory = EdmPropertyFactory.create();
     const metadata = factory.createEmptyMetadata();
@@ -28,22 +27,21 @@ describe('Integration | Component | visual-edm', function () {
       ],
     });
     metadata.edmObjects = [providedCho];
+    const helper = new Helper(this, metadata);
     helper.visualEdmViewModel.set('isReadOnly', false);
-    helper.visualEdmViewModel.set('edmMetadata', metadata);
 
     await helper.render();
 
     const propertyLabels = findAll('.edm-property-type').map(element => element.textContent.trim());
-    expect(propertyLabels.includes('Contributor to the creation of the original object')).to.be.true;
-    expect(propertyLabels.includes('Creation date of the original object')).to.be.true;
+    expect(propertyLabels).to.include('Contributor to the creation of the original object');
+    expect(propertyLabels).to.include('Creation date of the original object');
 
     const propertyValues = findAll('.edm-property-value input').map(element => element.value);
-    expect(propertyValues.includes('ERIAC')).to.be.true;
-    expect(propertyValues.includes('2018-03-13')).to.be.true;
+    expect(propertyValues).to.include('ERIAC');
+    expect(propertyValues).to.include('2018-03-13');
   });
 
   it('renders ProvidedCHO with "about" and some EDM properties in readonly mode', async function () {
-    const helper = new Helper(this);
     const factory = EdmMetadataFactory.create();
     const propertyFactory = EdmPropertyFactory.create();
     const metadata = factory.createEmptyMetadata();
@@ -63,8 +61,8 @@ describe('Integration | Component | visual-edm', function () {
       ],
     });
     metadata.edmObjects = [providedCho];
+    const helper = new Helper(this, metadata);
     helper.visualEdmViewModel.set('isReadOnly', true);
-    helper.visualEdmViewModel.set('edmMetadata', metadata);
 
     await helper.render();
 
@@ -83,7 +81,6 @@ describe('Integration | Component | visual-edm', function () {
 
   it('changes model and input value when input value is changed', async function () {
     // given
-    const helper = new Helper(this);
     const factory = EdmMetadataFactory.create();
     const propertyFactory = EdmPropertyFactory.create();
     const metadata = factory.createEmptyMetadata();
@@ -95,8 +92,8 @@ describe('Integration | Component | visual-edm', function () {
       ],
     });
     metadata.edmObjects = [providedCho];
+    const helper = new Helper(this, metadata);
     helper.visualEdmViewModel.set('isReadOnly', false);
-    helper.visualEdmViewModel.set('edmMetadata', metadata);
 
     // when
     await helper.render();
@@ -110,7 +107,6 @@ describe('Integration | Component | visual-edm', function () {
 
   it('removes property from model and view when delete icon is clicked', async function () {
     // given
-    const helper = new Helper(this);
     const factory = EdmMetadataFactory.create();
     const propertyFactory = EdmPropertyFactory.create();
     const metadata = factory.createEmptyMetadata();
@@ -122,8 +118,8 @@ describe('Integration | Component | visual-edm', function () {
       ],
     });
     metadata.edmObjects = [providedCho];
+    const helper = new Helper(this, metadata);
     helper.visualEdmViewModel.set('isReadOnly', false);
-    helper.visualEdmViewModel.set('edmMetadata', metadata);
 
     // when
     await helper.render();
@@ -133,15 +129,116 @@ describe('Integration | Component | visual-edm', function () {
     expect(metadata.edmObjects[0].edmProperties).to.have.lengthOf(0);
     expect(helper.getPropertyElement(0, 0)).to.not.exist;
   });
+
+  it('changes model "value" and "resource" when type of value is changed to "reference" and filled',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const propertyFactory = EdmPropertyFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+        edmProperties: [
+          propertyFactory.createProperty(metadata, 'dc', 'subject', {
+            value: 'example value',
+          }),
+        ],
+      });
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+      const valueTypeToggle = find('.edm-property-resource-toggle');
+      await click(valueTypeToggle.querySelector('[data-value-type="reference"]'));
+      const edmPropertyValueInput = find('.edm-property-value input');
+
+      await fillIn(edmPropertyValueInput, 'http://example.com');
+
+      // then
+      expect(metadata.edmObjects[0].edmProperties[0].attrs.resource)
+        .to.equal('http://example.com');
+      expect(metadata.edmObjects[0].edmProperties[0].value).to.be.empty;
+    }
+  );
+
+  it('changes model "value" and "resource" when type of value is changed to "value" and filled',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const propertyFactory = EdmPropertyFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+        edmProperties: [
+          propertyFactory.createProperty(metadata, 'dc', 'subject', {
+            resource: 'http://example.com',
+          }),
+        ],
+      });
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+      const valueTypeToggle = find('.edm-property-resource-toggle');
+      await click(valueTypeToggle.querySelector('[data-value-type="literal"]'));
+      const edmPropertyValueInput = find('.edm-property-value input');
+
+      await fillIn(edmPropertyValueInput, 'example value');
+
+      // then
+      expect(metadata.edmObjects[0].edmProperties[0].value).to.be.equal('example value');
+      expect(metadata.edmObjects[0].edmProperties[0].attrs.resource).to.be.empty;
+    }
+  );
+
+  // FIXME: zmiana value type dla pustego
+
+  // FIXME:
+  it('clears property "value" in view when type of value is changed to "reference" and back to "literal"',
+    async function () {
+      // given
+      const helper = new Helper(this);
+      const factory = EdmMetadataFactory.create();
+      const propertyFactory = EdmPropertyFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+        edmProperties: [
+          propertyFactory.createProperty(metadata, 'dc', 'subject', {
+            value: 'example value',
+          }),
+        ],
+      });
+      metadata.edmObjects = [providedCho];
+      helper.visualEdmViewModel.set('isReadOnly', false);
+      helper.visualEdmViewModel.set('edmMetadata', metadata);
+
+      // when
+      await helper.render();
+      const valueTypeToggle = find('.edm-property-resource-toggle');
+      await click(valueTypeToggle.querySelector('[data-value-type="reference"]'));
+      await fillIn('.edm-property-value input', 'http://example.com');
+      await click(valueTypeToggle.querySelector('[data-value-type="literal"]'));
+
+      // then
+      expect(find('.edm-property-value input').value).to.be.empty;
+    }
+  );
 });
 
 class Helper {
+  #visualEdmViewModel = undefined;
+
   /**
    * @param {Mocha.Context} mochaContext
+   * @param {EdmMetadata} edmMetadata
    */
-  constructor(mochaContext) {
+  constructor(mochaContext, edmMetadata) {
     this.mochaContext = mochaContext;
-    this.visualEdmViewModel = VisualEdmViewModel.create();
+    this.visualEdmViewModel = VisualEdmViewModel.create({
+      edmMetadata,
+    });
   }
   /** @type {HTMLDivElement} */
   get element() {
@@ -158,6 +255,15 @@ class Helper {
     return this
       .getObjectElement(objectIndex)
       .querySelectorAll('.visual-edm-property')[propertyIndex];
+  }
+  get visualEdmViewModel() {
+    if (!this.#visualEdmViewModel) {
+      this.#visualEdmViewModel = VisualEdmViewModel.create();
+    }
+    return this.#visualEdmViewModel;
+  }
+  set visualEdmViewModel(value) {
+    this.#visualEdmViewModel = value;
   }
   async render() {
     this.mochaContext.setProperties({
