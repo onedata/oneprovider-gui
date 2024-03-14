@@ -192,8 +192,10 @@ export default Component.extend(I18n, {
     if (valueType === this.valueType) {
       return;
     }
+    const prevValue = this.value;
     this.changeValue('');
     this.set('valueType', valueType);
+    this.changeValue(prevValue);
     // FIXME: optymalizacja - tylko widok tego propery do update
     this.viewModel.updateView();
   },

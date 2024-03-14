@@ -196,7 +196,7 @@ describe('Integration | Component | visual-edm', function () {
   // FIXME: zmiana value type dla pustego
 
   // FIXME:
-  it('clears property "value" in view when type of value is changed to "reference" and back to "literal"',
+  it('moved value to resource when type of value type is changed from "literal" to "reference"',
     async function () {
       // given
       const helper = new Helper(this);
@@ -206,7 +206,7 @@ describe('Integration | Component | visual-edm', function () {
       const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
         edmProperties: [
           propertyFactory.createProperty(metadata, 'dc', 'subject', {
-            value: 'example value',
+            value: 'http://example.com',
           }),
         ],
       });
@@ -218,11 +218,11 @@ describe('Integration | Component | visual-edm', function () {
       await helper.render();
       const valueTypeToggle = find('.edm-property-resource-toggle');
       await click(valueTypeToggle.querySelector('[data-value-type="reference"]'));
-      await fillIn('.edm-property-value input', 'http://example.com');
-      await click(valueTypeToggle.querySelector('[data-value-type="literal"]'));
 
       // then
-      expect(find('.edm-property-value input').value).to.be.empty;
+      expect(metadata.edmObjects[0].edmProperties[0].attrs.resource)
+        .to.equal('http://example.com');
+      expect(find('.edm-property-value input').value).to.equal('http://example.com');
     }
   );
 });
