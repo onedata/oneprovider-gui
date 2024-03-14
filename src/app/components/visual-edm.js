@@ -27,4 +27,10 @@ export default Component.extend(I18n, {
       console.log(`window.${name}`, window[name]);
     })('debug_visual_edm');
   },
+
+  actions: {
+    addWebResource() {
+      this.viewModel.addWebResource();
+    },
+  },
 });

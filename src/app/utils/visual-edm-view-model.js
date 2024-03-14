@@ -2,9 +2,11 @@
 
 import EmberObject, { observer } from '@ember/object';
 import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
+import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { reads } from '@ember/object/computed';
 import ObjectViewModel from './visual-edm/object-view-model';
+import EdmObjectType from './edm/object-type';
 
 const VisualEdmViewModel = EmberObject.extend({
   //#region dependencies
@@ -76,6 +78,15 @@ const VisualEdmViewModel = EmberObject.extend({
   async updateView() {
     this.notifyPropertyChange('edmMetadata');
     await waitForRender();
+  },
+
+  addWebResource() {
+    const factory = EdmMetadataFactory.create();
+    this.edmMetadata.edmObjects = [
+      ...this.edmMetadata.edmObjects,
+      factory.createObject(this.edmMetadata, EdmObjectType.WebResource),
+    ];
+    this.updateView();
   },
 });
 

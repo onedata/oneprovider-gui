@@ -193,9 +193,6 @@ describe('Integration | Component | visual-edm', function () {
     }
   );
 
-  // FIXME: zmiana value type dla pustego
-
-  // FIXME:
   it('moved value to resource when type of value type is changed from "literal" to "reference"',
     async function () {
       // given
@@ -225,6 +222,25 @@ describe('Integration | Component | visual-edm', function () {
       expect(find('.edm-property-value input').value).to.equal('http://example.com');
     }
   );
+
+  it('adds WebResource object when clicking on "Add Web Resource" button', async function () {
+    // given
+    const factory = EdmMetadataFactory.create();
+    const metadata = factory.createEmptyMetadata();
+    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {});
+    metadata.edmObjects = [providedCho];
+    const helper = new Helper(this, metadata);
+    helper.visualEdmViewModel.set('isReadOnly', false);
+
+    // when
+    await helper.render();
+    await click(helper.addWebResourceButton);
+
+    // then
+    expect(metadata.edmObjects).to.have.lengthOf(2);
+    expect(helper.getObjectElement(1)).to.exist;
+    expect(helper.getObjectElement(1).textContent).to.contain('Web Resource');
+  });
 });
 
 class Helper {
@@ -264,6 +280,9 @@ class Helper {
   }
   set visualEdmViewModel(value) {
     this.#visualEdmViewModel = value;
+  }
+  get addWebResourceButton() {
+    return this.element.querySelector('.add-web-resource-btn');
   }
   async render() {
     this.mochaContext.setProperties({

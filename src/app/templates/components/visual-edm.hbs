@@ -4,7 +4,11 @@
   {{/each}}
   {{#unless viewModel.isReadOnly}}
     <div class="objects-list-buttons">
-      <OneButton type="default">
+      <OneButton
+        class="add-web-resource-btn"
+        @type="default"
+        @onClick={{action "addWebResource"
+      }}>
         <OneIcon @icon="plus" />
         <span class="text">
           {{tt this "listButtons.addWebResource"}}
