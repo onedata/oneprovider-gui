@@ -60,9 +60,18 @@
       {{/if}}
     {{else}}
       {{#if (eq inputType "input")}}
-        <input class="form-control input-sm" value={{value}} />
+        <input
+          class="form-control input-sm"
+          value={{value}}
+          oninput={{action "changeValue" value="target.value"}}
+        />
       {{else if (eq inputType "textarea")}}
-        <textarea class="form-control input-sm" value={{value}} rows="4" />
+        <textarea
+          class="form-control input-sm"
+          value={{value}}
+          rows="4"
+          oninput={{action "changeValue" value="target.value"}}
+        />
       {{else if (eq inputType "dropdown")}}
         <OneDropdown
           @triggerClass="small property-value-dropdown-trigger"

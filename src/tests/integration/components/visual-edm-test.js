@@ -1,12 +1,13 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll } from '@ember/test-helpers';
+import { render, find, findAll, fillIn, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 describe('Integration | Component | visual-edm', function () {
   setupRenderingTest();
@@ -79,6 +80,33 @@ describe('Integration | Component | visual-edm', function () {
     for (const expectedString of expectedStrings) {
       expect(helper.element.textContent).to.contain(expectedString);
     }
+  });
+
+  it('changes model and input value when input value is changed', async function () {
+    // given
+    const helper = new Helper(this);
+    const factory = EdmMetadataFactory.create();
+    const propertyFactory = EdmPropertyFactory.create();
+    const metadata = factory.createEmptyMetadata();
+    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+      edmProperties: [
+        propertyFactory.createProperty(metadata, 'dc', 'title', {
+          value: 'initial title',
+        }),
+      ],
+    });
+    metadata.edmObjects = [providedCho];
+    helper.visualEdmViewModel.set('isReadOnly', false);
+    helper.visualEdmViewModel.set('edmMetadata', metadata);
+
+    // when
+    await helper.render();
+    const edmPropertyValueInput = find('.edm-property-value input');
+    await fillIn(edmPropertyValueInput, 'new title');
+
+    // then
+    expect(metadata.edmObjects[0].edmProperties[0].value).to.equal('new title');
+    expect(edmPropertyValueInput.value).to.equal('new title');
   });
 });
 

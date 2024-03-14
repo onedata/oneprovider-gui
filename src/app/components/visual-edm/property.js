@@ -176,6 +176,14 @@ export default Component.extend(I18n, {
     this.set('valueType', this.isUsingReference ? EdmPropertyValueType.Reference : EdmPropertyValueType.Literal);
   },
 
+  changeValue(newValue) {
+    if (this.valueType === EdmPropertyValueType.Reference) {
+      this.model.attrs.resource = newValue;
+    } else {
+      this.model.value = newValue;
+    }
+  },
+
   actions: {
     /**
      * @param {VisualEdmPropertyValueType} valueType
@@ -184,7 +192,10 @@ export default Component.extend(I18n, {
       this.set('valueType', valueType);
     },
     changeSelectedPredefinedValueOption(option) {
-      this.set('value', option.value);
+      this.changeValue(option.value);
+    },
+    changeValue(newValue) {
+      this.changeValue(newValue);
     },
   },
 });
