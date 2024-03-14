@@ -9,7 +9,7 @@
         <div class="edm-object-type item-name">{{objectTypeName}}</div>
         <OneIcon class="hint-trigger" @icon="sign-info-rounded" />
         {{#if isDeletable}}
-          <div class="edm-object-delete-btn">
+          <div class="edm-delete-btn edm-object-delete-btn">
             <OneIcon class="edm-property-delete-icon" @icon="browser-delete" />
           </div>
         {{/if}}
@@ -18,10 +18,10 @@
   </div>
   {{#if attrItems}}
     <ul class={{concat-classes
-        "edm-object-attrs-container"
-        "edm-object-list-container"
-        "edm-attrs-container"
-        (if (not attrItems.length) "hidden")
+      "edm-object-attrs-container"
+      "edm-object-list-container"
+      "edm-attrs-container"
+      (if (not attrItems.length) "hidden")
     }}>
       {{!-- FIXME: maybe to reuse in object --}}
       {{#each attrItems as |attrItem|}}

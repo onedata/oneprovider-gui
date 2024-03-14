@@ -112,6 +112,19 @@ export default Component.extend(I18n, {
     return `#${this.elementId} .add-edm-property-btn`;
   }),
 
+  init() {
+    this._super(...arguments);
+    // FIXME: debug code
+    ((name) => {
+      window[name] = this;
+      console.log(`window.${name}`, window[name]);
+    })('debug_object');
+  },
+
+  updateView() {
+    this.notifyPropertyChange('model');
+  },
+
   actions: {
     toggleAddPropertyOpen(open) {
       this.set(

@@ -39,6 +39,15 @@
   &.readonly {
     padding: 0.5em;
   }
+
+  // Common styles for sub-components
+  .edm-delete-btn {
+    font-size: 180%;
+    cursor: pointer;
+    &:hover {
+      color: $color-one-danger;
+    }
+  }
 }
 
 // FIXME: refaktor nazw

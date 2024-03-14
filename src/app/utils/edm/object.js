@@ -1,6 +1,7 @@
 import EdmAttrs from './attrs';
 import { isEmptyXmlNode, isSupportedXmlProperty } from './xml-utils';
 import EdmPropertiesList from './edm-properties-list';
+import _ from 'lodash';
 
 /**
  * @typedef {Object} EdmObjectAttrs
@@ -13,13 +14,15 @@ const shownAttrs = Object.freeze(['about']);
 const shownXmlAttrs = Object.freeze(['rdf:about']);
 
 export default class EdmObject {
+  #edmPropertiesList = undefined;
+  #edmProperties = undefined;
+
   /**
    * @param {Element} [options.xmlElement] Provide for objects created from XML.
    * @param {XMLDocument} [options.xmlDocument] Provide for completely new object (not
    *   from XML).
    * @param {string} [options.namespace] Provide for completely new object.
    * @param {string} [options.edmObjectType] Provide for completely new object.
-   * @param {boolean} [options.hasExtraData]
    */
   constructor(options = {}) {
     if (!options.xmlElement && !options.xmlDocument) {
@@ -67,10 +70,12 @@ export default class EdmObject {
 
   /** @param {Array<EdmProperty>} properties */
   set edmProperties(properties) {
-    this.__edmProperties = new EdmPropertiesList(this.xmlElement, properties);
+    this.#edmPropertiesList = new EdmPropertiesList(this.xmlElement, properties);
+    this.#edmProperties = this.#edmPropertiesList.toArray();
   }
+  /** @type {Array<EdmProperty>} */
   get edmProperties() {
-    return this.__edmProperties.toArray();
+    return this.#edmProperties;
   }
 
   get shownAttrs() {
@@ -93,6 +98,14 @@ export default class EdmObject {
       }
     }
     return false;
+  }
+
+  /**
+   * @param {EdmProperty} edmProperty
+   * @returns {void}
+   */
+  deleteProperty(edmProperty) {
+    this.edmProperties = _.without(this.edmProperties, edmProperty);
   }
 
   // FIXME: implement?

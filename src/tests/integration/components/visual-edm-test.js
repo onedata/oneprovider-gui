@@ -1,13 +1,12 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll, fillIn, settled } from '@ember/test-helpers';
+import { render, find, findAll, fillIn, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
-import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 describe('Integration | Component | visual-edm', function () {
   setupRenderingTest();
@@ -108,6 +107,32 @@ describe('Integration | Component | visual-edm', function () {
     expect(metadata.edmObjects[0].edmProperties[0].value).to.equal('new title');
     expect(edmPropertyValueInput.value).to.equal('new title');
   });
+
+  it('removes property from model and view when delete icon is clicked', async function () {
+    // given
+    const helper = new Helper(this);
+    const factory = EdmMetadataFactory.create();
+    const propertyFactory = EdmPropertyFactory.create();
+    const metadata = factory.createEmptyMetadata();
+    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+      edmProperties: [
+        propertyFactory.createProperty(metadata, 'dc', 'title', {
+          value: 'initial title',
+        }),
+      ],
+    });
+    metadata.edmObjects = [providedCho];
+    helper.visualEdmViewModel.set('isReadOnly', false);
+    helper.visualEdmViewModel.set('edmMetadata', metadata);
+
+    // when
+    await helper.render();
+    await click(helper.getPropertyElement(0, 0).querySelector('.edm-delete-btn'));
+
+    // then
+    expect(metadata.edmObjects[0].edmProperties).to.have.lengthOf(0);
+    expect(helper.getPropertyElement(0, 0)).to.not.exist;
+  });
 });
 
 class Helper {
@@ -121,6 +146,18 @@ class Helper {
   /** @type {HTMLDivElement} */
   get element() {
     return find('.visual-edm');
+  }
+  /**
+   * @param {number} index
+   * @returns {HTMLDivElement}
+   */
+  getObjectElement(index) {
+    return this.element.querySelectorAll('.visual-edm-object')[index];
+  }
+  getPropertyElement(objectIndex, propertyIndex) {
+    return this
+      .getObjectElement(objectIndex)
+      .querySelectorAll('.visual-edm-property')[propertyIndex];
   }
   async render() {
     this.mochaContext.setProperties({

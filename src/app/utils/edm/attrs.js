@@ -17,6 +17,9 @@ export default class EdmAttrs {
     this.__xmlElement = xmlElement;
     return new Proxy(this, {
       get(target, name) {
+        if (typeof name !== 'string') {
+          return undefined;
+        }
         if (name === '__xmlElement') {
           return target.__xmlElement;
         } else if (name === 'xmlAttributes') {

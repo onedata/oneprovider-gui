@@ -12,6 +12,7 @@ export default {
   },
   language: 'Language',
   defaultLanguage: 'using default',
+  deletePropertyTip: 'Delete this property',
   propertyName: {
     dc: {
       contributor: 'Contributor to the creation of the original object',

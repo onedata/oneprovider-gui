@@ -184,6 +184,12 @@ export default Component.extend(I18n, {
     }
   },
 
+  deleteProperty() {
+    this.edmObjectModel.deleteProperty(this.model);
+    // FIXME: to jest niezoptymalizowne, updatuje wszystko
+    this.viewModel.updateView();
+  },
+
   actions: {
     /**
      * @param {VisualEdmPropertyValueType} valueType
@@ -196,6 +202,9 @@ export default Component.extend(I18n, {
     },
     changeValue(newValue) {
       this.changeValue(newValue);
+    },
+    deleteProperty() {
+      this.deleteProperty();
     },
   },
 });

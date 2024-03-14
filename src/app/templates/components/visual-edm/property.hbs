@@ -41,8 +41,16 @@
         {{tt this "defaultLanguage"}}
       </div>
     {{/unless}}
-    <div class="edm-property-delete-btn">
-      <OneIcon class="edm-property-delete-icon" @icon="browser-delete" />
+    <div
+      class="edm-delete-btn edm-property-delete-btn"
+      onclick={{action "deleteProperty"}}
+    >
+      <OneIcon
+        class="edm-property-delete-icon"
+        @icon="browser-delete"
+      >
+        <OneTooltip @title={{tt this "deletePropertyTip"}} />
+      </OneIcon>
     </div>
   {{/unless}}
 </div>

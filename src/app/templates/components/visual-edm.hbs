@@ -1,5 +1,5 @@
 <ul class="visual-edm-object-list">
-  {{#each edmMetadata.edmObjects as |edmObject|}}
+  {{#each viewModel.edmObjects as |edmObject|}}
     <VisualEdm::Object @model={{edmObject}} @viewModel={{viewModel}} />
   {{/each}}
   {{#unless viewModel.isReadOnly}}
@@ -13,6 +13,6 @@
     </div>
   {{/unless}}
 </ul>
-{{#if model.hasExtraData}}
+{{#if viewModel.hasExtraData}}
   <VisualEdm::ExtraDataInfo @model={{model}}/>
 {{/if}}
