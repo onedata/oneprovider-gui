@@ -295,6 +295,26 @@ describe('Integration | Component | visual-edm', function () {
     expect(helper.getObjectElement(1)).to.exist;
     expect(helper.getObjectElement(1).textContent).to.contain('Web Resource');
   });
+
+  it('removes WebResource object when clicking on trash button in object', async function () {
+    // given
+    const factory = EdmMetadataFactory.create();
+    const metadata = factory.createEmptyMetadata();
+    const providedCHO = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {});
+    const webResource1 = factory.createObject(metadata, EdmObjectType.WebResource, {});
+    const webResource2 = factory.createObject(metadata, EdmObjectType.WebResource, {});
+    metadata.edmObjects = [providedCHO, webResource1, webResource2];
+    const helper = new Helper(this, metadata);
+    helper.visualEdmViewModel.set('isReadOnly', false);
+
+    // when
+    await helper.render();
+    await click(helper.getObjectElement(1).querySelector('.edm-object-delete-btn'));
+
+    // then
+    expect(metadata.edmObjects).to.have.lengthOf(2);
+    expect(helper.element.querySelectorAll('.visual-edm-object').length).to.equal(2);
+  });
 });
 
 class Helper {

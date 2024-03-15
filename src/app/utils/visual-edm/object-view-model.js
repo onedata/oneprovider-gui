@@ -1,6 +1,7 @@
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
 import EdmPropertyFactory from '../edm/property-factory';
+import _ from 'lodash';
 
 const ObjectViewModel = EmberObject.extend({
   /**
@@ -32,6 +33,10 @@ const ObjectViewModel = EmberObject.extend({
       ),
     ];
     this.updateView();
+  },
+
+  deleteObject() {
+    this.visualEdmViewModel.deleteObject(this.model);
   },
 });
 

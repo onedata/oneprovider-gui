@@ -7,6 +7,7 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { reads } from '@ember/object/computed';
 import ObjectViewModel from './visual-edm/object-view-model';
 import EdmObjectType from './edm/object-type';
+import _ from 'lodash';
 
 const VisualEdmViewModel = EmberObject.extend({
   //#region dependencies
@@ -33,6 +34,8 @@ const VisualEdmViewModel = EmberObject.extend({
 
   //#endregion
 
+  model: reads('edmMetadata'),
+
   edmObjects: reads('edmMetadata.edmObjects'),
 
   hasExtraData: reads('edmMetadata.hasExtraData'),
@@ -58,7 +61,7 @@ const VisualEdmViewModel = EmberObject.extend({
       );
     }
 
-    this.set('objects', this.createObjectsViewModels());
+    this.edmMetadataObserver();
   },
 
   createObjectsViewModels() {
@@ -86,6 +89,14 @@ const VisualEdmViewModel = EmberObject.extend({
       ...this.edmMetadata.edmObjects,
       factory.createObject(this.edmMetadata, EdmObjectType.WebResource),
     ];
+    this.updateView();
+  },
+
+  /**
+   * @param {EdmObject} object
+   */
+  deleteObject(object) {
+    this.edmMetadata.edmObjects = _.without(this.edmMetadata.edmObjects, object);
     this.updateView();
   },
 });

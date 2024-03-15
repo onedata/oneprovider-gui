@@ -119,6 +119,15 @@ export default Component.extend(I18n, {
     return `#${this.elementId} .add-edm-property-btn`;
   }),
 
+  deleteObjectTip: computed('viewModel.model.edmObjectType', function deleteObjectTip() {
+    const objectType = this.viewModel.model.edmObjectType;
+    return this.t('deleteObjectTip', {
+      objectType: this.t(
+        `objectTypeName.${objectType}`, {}, { defaultValue: this.t('object') }
+      ),
+    });
+  }),
+
   init() {
     this._super(...arguments);
     // FIXME: debug code
@@ -149,6 +158,9 @@ export default Component.extend(I18n, {
     },
     cancelPropertySelect() {
       this.closeAddProperty();
+    },
+    deleteObject() {
+      this.viewModel.deleteObject();
     },
   },
 });

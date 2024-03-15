@@ -60,6 +60,9 @@ export default class EdmMetadata {
     }
   }
 
+  #edmObjectsList = undefined;
+  #edmObjects = undefined;
+
   /**
    * @param {XMLDocument} xmlDocument
    */
@@ -81,10 +84,11 @@ export default class EdmMetadata {
 
   /** @param {Array<EdmObject>} */
   set edmObjects(objects) {
-    this.__edmObjects = new EdmObjectsList(this.xmlElement, objects);
+    this.#edmObjectsList = new EdmObjectsList(this.xmlElement, objects);
+    this.#edmObjects = this.#edmObjectsList.toArray();
   }
   get edmObjects() {
-    return this.__edmObjects.toArray();
+    return this.#edmObjects;
   }
 
   stringify() {
