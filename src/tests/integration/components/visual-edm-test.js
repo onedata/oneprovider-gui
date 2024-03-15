@@ -189,11 +189,11 @@ describe('Integration | Component | visual-edm', function () {
 
       // then
       expect(metadata.edmObjects[0].edmProperties[0].value).to.be.equal('example value');
-      expect(metadata.edmObjects[0].edmProperties[0].attrs.resource).to.be.empty;
+      expect(metadata.edmObjects[0].edmProperties[0].attrs.resource).to.be.null;
     }
   );
 
-  it('moved value to resource when type of value type is changed from "literal" to "reference"',
+  it('moves value to resource when type of value type is changed from "literal" to "reference"',
     async function () {
       // given
       const helper = new Helper(this);
@@ -203,7 +203,7 @@ describe('Integration | Component | visual-edm', function () {
       const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
         edmProperties: [
           propertyFactory.createProperty(metadata, 'dc', 'subject', {
-            value: 'http://example.com',
+            value: 'hello',
           }),
         ],
       });
@@ -213,13 +213,18 @@ describe('Integration | Component | visual-edm', function () {
 
       // when
       await helper.render();
+      const edmPropertyValueInput = find('.edm-property-value input');
+      await fillIn(edmPropertyValueInput, 'http://example.com');
       const valueTypeToggle = find('.edm-property-resource-toggle');
       await click(valueTypeToggle.querySelector('[data-value-type="reference"]'));
 
       // then
-      expect(metadata.edmObjects[0].edmProperties[0].attrs.resource)
+      expect(metadata.edmObjects[0].edmProperties[0].value, 'model value')
+        .to.equal('');
+      expect(metadata.edmObjects[0].edmProperties[0].attrs.resource, 'model resource')
         .to.equal('http://example.com');
-      expect(find('.edm-property-value input').value).to.equal('http://example.com');
+      expect(find('.edm-property-value input').value, 'input')
+        .to.equal('http://example.com');
     }
   );
 

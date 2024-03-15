@@ -10,6 +10,16 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
+import { allSpecs } from '../../utils/edm/property-spec';
+
+/**
+ * @typedef {Object} VisualEdm.AddPropertySelectorSpec
+ * @property {SafeString} label
+ * @property {EdmPropertySpec} spec
+ * @property {string} namespace
+ * @property {string} name
+ */
 
 export default Component.extend(I18n, {
   classNames: ['space-tags-selector-editor', 'tags-input-selector-editor'],
@@ -42,42 +52,10 @@ export default Component.extend(I18n, {
 
   //#endregion
 
-  availableEdmPropertiesSpecs: computed(function availableEdmPropertiesSpecs() {
-    return [
-      'Contributor to the creation of the original object',
-      'Creator of the model',
-      'Description',
-      '3D format',
-      'Internal ID',
-      'Language of inscriptions in the object',
-      'URL for paradata',
-      'Copyright',
-      'Subject',
-      'Title',
-      'Type of object',
-      'Creation date of the original object',
-      'Dimensions with units',
-      'URL for raw data',
-      'Parent entity (collection, object, site…)',
-      'Material',
-      'Original location',
-      'Current location',
-      'Content provider institution',
-      'Representative image',
-      'Copyright licence URL of the original object',
-      'Asset type',
-    ].map(label => ({ label }));
-    // return [{
-    //     namespace: 'dc',
-    //     name: 'contributor',
-    //     label: 'Contributor to the creation of the original object',
-    //   },
-    //   {
-    //     namespace: 'dc',
-    //     name: 'description',
-    //     label: 'Description',
-    //   },
-    // ];
+  edmObjectType: reads('edmObjectModel.edmObjectType'),
+
+  availableItems: computed(function availableEdmPropertiesSpecs() {
+    return this.createSelectorItems();
   }),
 
   /**
@@ -94,13 +72,44 @@ export default Component.extend(I18n, {
    */
   popoverApi: undefined,
 
+  createSelectorItems(onlyBasic = true) {
+    /** @type {Array<VisualEdm.AddPropertySelectorSpec>} */
+    const items = [];
+    for (const [namespace, namespaceSpecs] of Object.entries(allSpecs)) {
+      for (const [name, spec] of Object.entries(namespaceSpecs)) {
+        if (!onlyBasic || spec.basic) {
+          const label = this.t(
+              `properties.${namespace}.${name}`, {}, {
+                defaultValue: '',
+              }
+            ) ||
+            this.t(
+              `properties.${namespace}.${name}.${this.edmObjectType}`, {}, {
+                defaultValue: `${namespace}:${name}`,
+              }
+            );
+          items.push(Object.freeze({
+            label,
+            name,
+            namespace,
+            spec,
+          }));
+        }
+      }
+    }
+    return Object.freeze(items);
+  },
+
   repositionPopover() {
     this.popoverApi.reposition();
   },
 
   actions: {
-    propertySelected( /*propertySpec*/ ) {
-      // FIXME: implement
+    /**
+     * @param {VisualEdm.AddPropertySelectorSpec} item
+     */
+    propertySelected(item) {
+      this.onPropertyAdd(item);
     },
   },
 });

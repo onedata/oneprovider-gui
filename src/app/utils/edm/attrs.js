@@ -1,3 +1,5 @@
+// FIXME: doc - attry można usuwać za pomocą ustawiania null/undefined
+
 const attrNamespaces = {
   resource: 'rdf',
   lang: 'xml',
@@ -32,7 +34,11 @@ export default class EdmAttrs {
         if (name === '__xmlElement') {
           target.__xmlElement = value;
         } else {
-          target.__xmlElement.setAttribute(namespacedAttr(name), value);
+          if (value == null) {
+            target.__xmlElement.removeAttribute(namespacedAttr(name));
+          } else {
+            target.__xmlElement.setAttribute(namespacedAttr(name), value);
+          }
         }
         return true;
       },

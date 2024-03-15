@@ -25,13 +25,13 @@
 
     {{#perfect-scrollbar-element class="tags-container"}}
       <ul class="selector-list">
-        {{#each availableEdmPropertiesSpecs key="label" as |propertySpec|}}
+        {{#each availableItems key="label" as |propertyItem|}}
           <li
             class="selector-item"
-            {{action "propertySelected" propertySpec}}
+            {{action "propertySelected" propertyItem}}
           >
             {{#truncated-string class="property-label"}}
-              {{propertySpec.label}}
+              {{propertyItem.label}}
             {{/truncated-string}}
           </li>
         {{/each}}

@@ -7,6 +7,8 @@ import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import { conditional, eq, raw, bool } from 'ember-awesome-macros';
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
 
+// FIXME: jak najwięcej przenieść logiki do property-view-model
+
 /**
  * @type {EdmPropertyValueType.Literal|EdmPropertyValueType.Reference} VisualEdmPropertyValueType
  */
@@ -35,7 +37,7 @@ export default Component.extend(I18n, {
   /**
    * @type {VisualEdmPropertyValueType}
    */
-  valueType: undefined,
+  valueType: reads('viewModel.valueType'),
 
   EdmPropertyValueType,
 
@@ -67,11 +69,7 @@ export default Component.extend(I18n, {
     return this.viewModel.model.attrs.resource;
   }),
 
-  value: conditional(
-    'isUsingReference',
-    'referenceValue',
-    'viewModel.model.value'
-  ),
+  value: reads('viewModel.value'),
 
   isAddAnotherEnabled: computed('viewModel.model.edmPropertyType', function inputType() {
     if (this.model.edmPropertyType === 'title') {
@@ -171,56 +169,21 @@ export default Component.extend(I18n, {
     }
   ),
 
-  init() {
-    this._super(...arguments);
-    this.set(
-      'valueType',
-      this.isUsingReference ?
-      EdmPropertyValueType.Reference : EdmPropertyValueType.Literal
-    );
-  },
-
-  changeValue(newValue) {
-    if (this.valueType === EdmPropertyValueType.Reference) {
-      this.viewModel.model.attrs.resource = newValue;
-    } else {
-      this.viewModel.model.value = newValue;
-    }
-  },
-
-  changeValueType(valueType) {
-    if (valueType === this.valueType) {
-      return;
-    }
-    const prevValue = this.value;
-    this.changeValue('');
-    this.set('valueType', valueType);
-    this.changeValue(prevValue);
-    // FIXME: optymalizacja - tylko widok tego propery do update
-    this.viewModel.updateView();
-  },
-
-  deleteProperty() {
-    this.edmObjectModel.deleteProperty(this.viewModel.model);
-    // FIXME: to jest niezoptymalizowne, updatuje wszystko
-    this.viewModel.propertyGroupViewModel.objectViewModel.updateView();
-  },
-
   actions: {
     /**
      * @param {VisualEdmPropertyValueType} valueType
      */
     changeValueType(valueType) {
-      this.changeValueType(valueType);
+      this.viewModel.changeValueType(valueType);
     },
     changeSelectedPredefinedValueOption(option) {
-      this.changeValue(option.value);
+      this.viewModel.changeValue(option.value);
     },
     changeValue(newValue) {
-      this.changeValue(newValue);
+      this.viewModel.changeValue(newValue);
     },
     deleteProperty() {
-      this.deleteProperty();
+      this.viewModel.deleteProperty();
     },
   },
 });

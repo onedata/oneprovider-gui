@@ -1,5 +1,6 @@
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
+import EdmPropertyFactory from '../edm/property-factory';
 
 const ObjectViewModel = EmberObject.extend({
   /**
@@ -18,6 +19,19 @@ const ObjectViewModel = EmberObject.extend({
 
   updateView() {
     this.notifyPropertyChange('model');
+  },
+
+  addProperty(item) {
+    const factory = EdmPropertyFactory.create();
+    this.model.edmProperties = [
+      ...this.model.edmProperties,
+      factory.createProperty(
+        this.visualEdmViewModel.edmMetadata,
+        item.namespace,
+        item.name
+      ),
+    ];
+    this.updateView();
   },
 });
 

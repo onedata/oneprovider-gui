@@ -135,8 +135,12 @@ export default Component.extend(I18n, {
         typeof open === 'boolean' ? open : !this.isAddPropertyOpened
       );
     },
-    onPropertyAdd( /*propertySpec*/ ) {
+    /**
+     * @param {VisualEdm.AddPropertySelectorSpec} item
+     */
+    onPropertyAdd(item) {
       // FIXME: implement
+      this.viewModel.addProperty(item);
       this.set('isAddPropertyOpened', false);
     },
   },

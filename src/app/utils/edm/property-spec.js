@@ -13,6 +13,8 @@ import EdmObjectType from './object-type';
 /**
  * @typedef {Object} EdmPropertySpec
  * @property {EdmPropertyValueType} val
+ * @property {boolean} basic If true, then the property should be available to select to
+ *   be added in the visual editor.
  */
 
 export const EdmPropertyValueType = Object.freeze({
@@ -22,7 +24,7 @@ export const EdmPropertyValueType = Object.freeze({
 });
 
 // FIXME: use
-export const EdmPropertyRedommendation = Object.freeze({
+export const EdmPropertyRecommendation = Object.freeze({
   Mandatory: 'mandatory',
   Recommended: 'recommended',
   None: 'none',
@@ -36,43 +38,48 @@ export const EdmPropertyMaxOccurrences = Object.freeze({
 
 export const allSpecs = Object.freeze({
   dc: {
-    contributor: { val: EdmPropertyValueType.Any },
+    contributor: {
+      val: EdmPropertyValueType.Any,
+      basic: true,
+      rec: EdmPropertyRecommendation.Recommended,
+      max: EdmPropertyMaxOccurrences.Any,
+    },
     coverage: {},
-    creator: { val: EdmPropertyValueType.Any },
+    creator: { val: EdmPropertyValueType.Any, basic: true },
     date: {},
-    description: { val: EdmPropertyValueType.Literal },
-    format: { val: EdmPropertyValueType.Reference },
-    identifier: { val: EdmPropertyValueType.Literal },
-    language: { val: EdmPropertyValueType.Literal },
+    description: { val: EdmPropertyValueType.Literal, basic: true },
+    format: { val: EdmPropertyValueType.Reference, basic: true },
+    identifier: { val: EdmPropertyValueType.Literal, basic: true },
+    language: { val: EdmPropertyValueType.Literal, basic: true },
     published: {},
-    relation: { val: EdmPropertyValueType.Reference },
-    rights: { val: EdmPropertyValueType.Literal },
+    relation: { val: EdmPropertyValueType.Reference, basic: true },
+    rights: { val: EdmPropertyValueType.Literal, basic: true },
     source: {},
-    subject: { val: EdmPropertyValueType.Any },
-    title: { val: EdmPropertyValueType.Literal },
-    type: { val: EdmPropertyValueType.Any },
+    subject: { val: EdmPropertyValueType.Any, basic: true },
+    title: { val: EdmPropertyValueType.Literal, basic: true },
+    type: { val: EdmPropertyValueType.Any, basic: true },
   },
   dcterms: {
     alternative: {},
-    conformsTo: { objs: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
-    created: { val: EdmPropertyValueType.Any },
-    extent: { val: EdmPropertyValueType.Any },
+    conformsTo: {},
+    created: { val: EdmPropertyValueType.Any, basic: true },
+    extent: { val: EdmPropertyValueType.Any, basic: true },
     hasFormat: {},
     hasPart: {},
     hasVersion: {},
-    isFormatOf: { val: EdmPropertyValueType.Reference },
-    isPartOf: { val: EdmPropertyValueType.Any },
+    isFormatOf: { val: EdmPropertyValueType.Reference, basic: true },
+    isPartOf: { val: EdmPropertyValueType.Any, basic: true },
     isReferencedBy: {},
     isReplacedBy: {},
     isRequiredBy: {},
     issued: {},
     isVersionOf: {},
-    medium: { val: EdmPropertyValueType.Literal },
+    medium: { val: EdmPropertyValueType.Literal, basic: true },
     provenance: {},
     references: {},
     replaces: {},
     requires: {},
-    spatial: { val: EdmPropertyValueType.Reference },
+    spatial: { val: EdmPropertyValueType.Reference, basic: true },
     tableOfContents: {},
     temporal: {},
   },
@@ -80,33 +87,31 @@ export const allSpecs = Object.freeze({
     aggregatedCHO: {
       val: EdmPropertyValueType.Reference,
       objs: [EdmObjectType.Aggregation],
+      basic: true,
     },
     // FIXME: tego nie ma w standardzie EDM, ale jest w spreatsheecie
-    currentLocation: { val: EdmPropertyValueType.Reference },
-    dataProvider: {
-      val: EdmPropertyValueType.Any,
-      objs: [EdmObjectType.Aggregation],
-    },
+    currentLocation: { val: EdmPropertyValueType.Reference, basic: true },
+    dataProvider: { val: EdmPropertyValueType.Any, basic: true },
     hasMet: {},
     hasType: {},
-    hasView: { objs: [EdmObjectType.Aggregation] },
+    hasView: {},
     incorporates: {},
-    intermediateProvider: { objs: [EdmObjectType.Aggregation] },
+    intermediateProvider: {},
     isDerivativeOf: {},
     isNextInSequence: {},
     isRelatedTo: {},
     isRepresentationOf: {},
-    isShownAt: { val: EdmPropertyValueType.Reference, objs: [EdmObjectType.Aggregation] },
-    isShownBy: { val: EdmPropertyValueType.Reference, objs: [EdmObjectType.Aggregation] },
+    isShownAt: { val: EdmPropertyValueType.Reference, basic: true },
+    isShownBy: { val: EdmPropertyValueType.Reference },
     isSimilarTo: {},
     isSuccessorOf: {},
-    object: { val: EdmPropertyValueType.Reference, objs: [EdmObjectType.Aggregation] },
+    object: { val: EdmPropertyValueType.Reference, basic: true },
     // FIXME: tylko w spreasheecie
     provider: { val: EdmPropertyValueType.Any },
     realizes: {},
     rights: {
+      basic: true,
       val: EdmPropertyValueType.Reference,
-      objs: [EdmObjectType.WebResource, EdmObjectType.Aggregation],
       predef: [{
           label: 'Creative Commons Attribution 4.0 International',
           value: 'https://creativecommons.org/licenses/by/4.0/',
@@ -137,12 +142,12 @@ export const allSpecs = Object.freeze({
         },
       ],
     },
-    type: { val: EdmPropertyValueType.Literal },
-    ugc: { objs: [EdmObjectType.Aggregation] },
+    type: { val: EdmPropertyValueType.Literal, basic: true },
+    ugc: {},
   },
   owl: {
-    isSameAs: { objs: [EdmObjectType.ProvidedCHO] },
-    sameAs: { objs: [EdmObjectType.WebResource] },
+    isSameAs: {},
+    sameAs: {},
   },
 });
 
