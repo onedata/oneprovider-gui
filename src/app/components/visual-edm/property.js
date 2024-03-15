@@ -182,6 +182,9 @@ export default Component.extend(I18n, {
     changeValue(newValue) {
       this.viewModel.changeValue(newValue);
     },
+    changeLanguage(newValue) {
+      this.viewModel.changeAttribute('lang', newValue || null);
+    },
     deleteProperty() {
       this.viewModel.deleteProperty();
     },

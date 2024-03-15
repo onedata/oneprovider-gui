@@ -37,6 +37,7 @@
     <input
       class="form-control input-sm edm-property-lang-input"
       value={{lang}}
+      oninput={{action "changeLanguage" value="target.value"}}
     />
     {{#unless isLangEnabled}}
       <div class="edm-property-lang-default">
@@ -106,6 +107,7 @@
     {{/if}}
   </div>
 </div>
+{{!-- FIXME: show additional attributes --}}
 {{!-- <ul class="edm-property-attrs-container edm-property-list-container edm-attrs-container">
   {{#each attrItems as |attrItem|}}
     <li class="edm-attr-container">

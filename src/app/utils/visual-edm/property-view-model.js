@@ -50,6 +50,11 @@ const PropertyViewModel = EmberObject.extend({
     this.updateView();
   },
 
+  changeAttribute(attributeName, newValue) {
+    this.model.attrs[attributeName] = newValue;
+    this.updateView();
+  },
+
   changeValueType(valueType) {
     if (valueType === this.valueType) {
       return;

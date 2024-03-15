@@ -196,7 +196,6 @@ describe('Integration | Component | visual-edm', function () {
   it('moves value to resource when type of value type is changed from "literal" to "reference"',
     async function () {
       // given
-      const helper = new Helper(this);
       const factory = EdmMetadataFactory.create();
       const propertyFactory = EdmPropertyFactory.create();
       const metadata = factory.createEmptyMetadata();
@@ -208,8 +207,8 @@ describe('Integration | Component | visual-edm', function () {
         ],
       });
       metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
       helper.visualEdmViewModel.set('isReadOnly', false);
-      helper.visualEdmViewModel.set('edmMetadata', metadata);
 
       // when
       await helper.render();
@@ -225,6 +224,56 @@ describe('Integration | Component | visual-edm', function () {
         .to.equal('http://example.com');
       expect(find('.edm-property-value input').value, 'input')
         .to.equal('http://example.com');
+    }
+  );
+
+  it('adds property to object using add property selector',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO);
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+      await click(helper.getObjectElement(0).querySelector('.add-edm-property-btn'));
+      await click('.add-property-selector li');
+
+      // then
+      expect(metadata.edmObjects[0].edmProperties, 'model properties')
+        .to.have.lengthOf(1);
+      expect(helper.getPropertyElement(0, 0)).to.exist;
+    }
+  );
+
+  it('changes language attribute when changing language input',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const propertyFactory = EdmPropertyFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+        edmProperties: [
+          propertyFactory.createProperty(metadata, 'dc', 'subject', {
+            value: 'example value',
+          }),
+        ],
+      });
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+      const edmPropertyLangInput = find('.edm-property-lang-input');
+
+      await fillIn(edmPropertyLangInput, 'pl');
+
+      // then
+      expect(metadata.edmObjects[0].edmProperties[0].attrs.lang).to.equal('pl');
     }
   );
 
