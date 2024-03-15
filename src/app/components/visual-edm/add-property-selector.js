@@ -41,6 +41,8 @@ export default Component.extend(I18n, {
 
   onPropertyAdd: undefined,
 
+  onCancel: undefined,
+
   triggerSelector: undefined,
 
   //#region state
@@ -108,8 +110,11 @@ export default Component.extend(I18n, {
     /**
      * @param {VisualEdm.AddPropertySelectorSpec} item
      */
-    propertySelected(item) {
+    selectProperty(item) {
       this.onPropertyAdd(item);
+    },
+    cancelSelect() {
+      this.onCancel();
     },
   },
 });

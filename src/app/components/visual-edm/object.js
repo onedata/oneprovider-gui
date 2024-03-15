@@ -128,6 +128,10 @@ export default Component.extend(I18n, {
     })('debug_object');
   },
 
+  closeAddProperty() {
+    this.set('isAddPropertyOpened', false);
+  },
+
   actions: {
     toggleAddPropertyOpen(open) {
       this.set(
@@ -138,10 +142,13 @@ export default Component.extend(I18n, {
     /**
      * @param {VisualEdm.AddPropertySelectorSpec} item
      */
-    onPropertyAdd(item) {
+    addProperty(item) {
       // FIXME: implement
       this.viewModel.addProperty(item);
-      this.set('isAddPropertyOpened', false);
+      this.closeAddProperty();
+    },
+    cancelPropertySelect() {
+      this.closeAddProperty();
     },
   },
 });

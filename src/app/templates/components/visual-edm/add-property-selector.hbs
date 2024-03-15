@@ -12,7 +12,7 @@
 }}
   {{#click-outside
     class="selector-container"
-    onClickOutside=onPropertyAdd
+    onClickOutside=(action "cancelSelect")
     exceptSelector=popoverClickOutsideIgnoreSelector
   }}
     <input
@@ -28,7 +28,7 @@
         {{#each availableItems key="label" as |propertyItem|}}
           <li
             class="selector-item"
-            {{action "propertySelected" propertyItem}}
+            {{action "selectProperty" propertyItem}}
           >
             {{#truncated-string class="property-label"}}
               {{propertyItem.label}}

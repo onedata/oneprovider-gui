@@ -103,8 +103,7 @@ Accession no.: CG 005. Current location: The Hunt Museum, Limerick, Ireland.</dc
 
 const generateShortXml = () =>
   `<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
-  <edm:ProvidedCHO rdf:about="share3d:1027">
-    <dc:creator>The Hunt Museum as part of the Art of Reading in the Middle Ages project.</dc:creator>
+  <edm:ProvidedCHO>
   </edm:ProvidedCHO>
 </rdf:RDF>
 `;

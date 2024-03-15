@@ -72,7 +72,8 @@
           @edmObjectModel={{viewModel.model}}
           @opened={{isAddPropertyOpened}}
           @triggerSelector={{addPropertyButtonSelector}}
-          @onPropertyAdd={{action "onPropertyAdd"}}
+          @onPropertyAdd={{action "addProperty"}}
+          @onCancel={{action "cancelPropertySelect"}}
         />
       </RenderLater>
     </div>

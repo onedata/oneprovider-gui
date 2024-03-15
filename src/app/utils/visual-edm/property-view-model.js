@@ -47,7 +47,7 @@ const PropertyViewModel = EmberObject.extend({
     } else {
       this.model.value = newValue;
     }
-    this.notifyPropertyChange('value');
+    this.updateView();
   },
 
   changeValueType(valueType) {
@@ -62,7 +62,6 @@ const PropertyViewModel = EmberObject.extend({
     }
     this.set('valueType', valueType);
     this.changeValue(prevValue);
-    this.updateView();
   },
 
   deleteProperty() {
