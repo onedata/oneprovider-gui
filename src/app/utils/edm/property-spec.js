@@ -197,9 +197,10 @@ export const allSpecs = Object.freeze({
   edm: {
     aggregatedCHO: {
       val: EdmPropertyValueType.Reference,
-      basic: true,
+      basic: false,
       obj: [EdmObjectType.Aggregation],
-      rec: Rec.Mandatory,
+      // it is added by backend
+      rec: Rec.None,
       max: Max.Single,
     },
     // FIXME: tego nie ma w standardzie EDM, ale jest w spreadsheecie
@@ -236,7 +237,8 @@ export const allSpecs = Object.freeze({
     isShownBy: {
       val: EdmPropertyValueType.Reference,
       obj: [EdmObjectType.Aggregation],
-      rec: Rec.Mandatory,
+      // it is added by backend
+      rec: Rec.None,
       max: Max.Single,
     },
     isSimilarTo: { obj: [EdmObjectType.ProvidedCHO] },

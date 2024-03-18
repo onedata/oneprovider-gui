@@ -1,7 +1,6 @@
 // FIXME: refaktor - lepiej: utils/visual-edm/view-model
 
 import EmberObject, { observer } from '@ember/object';
-import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { reads } from '@ember/object/computed';
 import ObjectViewModel from './visual-edm/object-view-model';

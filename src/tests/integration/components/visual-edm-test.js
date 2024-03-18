@@ -480,6 +480,74 @@ describe('Integration | Component | visual-edm', function () {
         .to.not.include('Content provider institution');
     }
   );
+
+  it('renders with initial objects with required and recommended properties by default',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const propertyFactory = EdmPropertyFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
+        edmProperties: [
+          propertyFactory.createProperty(metadata, 'dc', 'contributor', {
+            value: 'ERIAC',
+            lang: 'en',
+          }),
+          propertyFactory.createProperty(metadata, 'dcterms', 'created', {
+            value: '2018-03-13',
+          }),
+        ],
+      });
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, null);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+
+      // then
+      expect(
+        helper.element.querySelectorAll('.visual-edm-object')
+      ).to.have.lengthOf(2);
+      expect(
+        helper.getObjectElement(0).querySelector('.edm-object-type').textContent.trim()
+      ).to.equal('Provided Cultural Heritage Object');
+      expect(
+        helper.getObjectElement(1).querySelector('.edm-object-type').textContent.trim()
+      ).to.equal('Aggregation');
+      const choPropertyLabels = Array.from(
+        helper.getObjectElement(0).querySelectorAll('.edm-property-type')
+      ).map(element => element.textContent.trim());
+      const expectedChoPropertyLabels = [
+        'Title',
+        'Description',
+        'Asset type',
+        'Subject',
+        'Type of object',
+        'Contributor to the creation of the original object',
+        'Creator of the model',
+        'Creation date of the original object',
+        '3D format',
+        'Language of inscriptions in the object',
+      ];
+      for (const label of expectedChoPropertyLabels) {
+        expect(choPropertyLabels).to.include(label);
+      }
+      const expectedAggregationPropertyLabels = [
+        'Content provider institution',
+        'Representative image',
+        'Provider',
+        'Copyright licence URL of the original object',
+      ];
+      const aggregationPropertyLabels = Array.from(
+        helper.getObjectElement(1).querySelectorAll('.edm-property-type')
+      ).map(element => element.textContent.trim());
+      for (const label of expectedAggregationPropertyLabels) {
+        expect(aggregationPropertyLabels).to.include(label);
+      }
+    }
+  );
 });
 
 class Helper {
@@ -487,7 +555,7 @@ class Helper {
 
   /**
    * @param {Mocha.Context} mochaContext
-   * @param {EdmMetadata} edmMetadata
+   * @param {EdmMetadata} [edmMetadata]
    */
   constructor(mochaContext, edmMetadata) {
     this.mochaContext = mochaContext;
