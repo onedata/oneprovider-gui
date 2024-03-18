@@ -2,11 +2,9 @@ import EmberObject from '@ember/object';
 import EdmMetadata from './metadata';
 import ProvidedCHO from './objects/provided-cho';
 import Aggregation from './objects/aggregation';
-import WebResource from './objects/web-resource';
 import EdmObjectType from './object-type';
-import EdmXmlParser from './xml-parser';
 import EdmPropertyFactory from './property-factory';
-import { InvalidEdmObjectType } from './object';
+import EdmObjectFactory from './object-factory';
 
 // FIXME: rozróżnienie na property dla różnych obiektów
 
@@ -18,12 +16,6 @@ import { InvalidEdmObjectType } from './object';
  * @property {string} [about] `rdf:about` attribute of element.
  */
 
-const objectClasses = {
-  [EdmObjectType.Aggregation]: Aggregation,
-  [EdmObjectType.ProvidedCHO]: ProvidedCHO,
-  [EdmObjectType.WebResource]: WebResource,
-};
-
 const EdmMetadataFactory = EmberObject.extend({
   //#region state
 
@@ -33,11 +25,23 @@ const EdmMetadataFactory = EmberObject.extend({
     return new EdmMetadata();
   },
 
+  /**
+   * @public
+   * @param {string} xmlValue
+   * @returns {EdmMetadata}
+   */
+  fromXml(xmlValue) {
+    const domParser = new DOMParser();
+    /** @type {XMLDocument} */
+    const xmlDocument = domParser.parseFromString(xmlValue, 'text/xml');
+    return new EdmMetadata(xmlDocument);
+  },
+
   // FIXME: zastąpione przez statyczną metodę w EdmMetadata
   createInitialMetadata() {
     const metadata = new EdmMetadata();
-    const providedCho = new ProvidedCHO();
-    const aggregation = new Aggregation();
+    const providedCho = new ProvidedCHO({ xmlDocument: metadata.xmlDocument });
+    const aggregation = new Aggregation({ xmlDocument: metadata.xmlDocument });
     metadata.edmObjects = [providedCho, aggregation];
     return metadata;
   },
@@ -46,9 +50,10 @@ const EdmMetadataFactory = EmberObject.extend({
   createMockMetadata() {
     const resourceId = 'urn://eriac/19';
     const metadata = new EdmMetadata();
-    const providedCho = this.createObject(metadata, EdmObjectType.ProvidedCHO);
-    const aggregation = this.createObject(metadata, EdmObjectType.Aggregation);
-    const webResource = this.createObject(metadata, EdmObjectType.WebResource);
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
+    const aggregation = objectFactory.createObject(EdmObjectType.Aggregation);
+    const webResource = objectFactory.createObject(EdmObjectType.WebResource);
     metadata.edmObjects = [providedCho, aggregation, webResource];
     providedCho.attrs = {
       about: resourceId,
@@ -131,34 +136,6 @@ const EdmMetadataFactory = EmberObject.extend({
       }),
     ];
     return metadata;
-  },
-
-  /**
-   * @param {string} xmlSource
-   * @returns {Utils.Edm.Metadata}
-   */
-  parseXml(xmlSource) {
-    return new EdmXmlParser(xmlSource).createModel(this);
-  },
-
-  /**
-   * @param {EdmMetadata} edmMetadata
-   * @param {EdmObjectType} edmObjectType
-   * @param {{ [about]: string, [properties]: Array<EdmProperty>, [hasExtraData]: boolean }} options
-   * @returns {Utils.Edm.Object}
-   */
-  createObject(edmMetadata, edmObjectType, options = {}) {
-    const objectClass = objectClasses[edmObjectType];
-    if (!objectClass) {
-      throw new InvalidEdmObjectType('edmObjectType');
-    }
-    const edmObject = new objectClasses[edmObjectType]({
-      xmlDocument: edmMetadata.xmlDocument,
-      hasExtraData: options.hasExtraData,
-    });
-    edmObject.attrs = options.attrs;
-    edmObject.edmProperties = options.edmProperties;
-    return edmObject;
   },
 });
 

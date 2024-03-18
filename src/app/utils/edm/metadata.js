@@ -2,8 +2,6 @@ import EdmXmlGenerator from './xml-generator';
 import globals from 'onedata-gui-common/utils/globals';
 import EdmObjectsList from './objects-list';
 import { isEmptyXmlNode, isSupportedXmlObject } from './xml-utils';
-import ProvidedCHO from './objects/provided-cho';
-import Aggregation from './objects/aggregation';
 
 export default class EdmMetadata {
   static namespaceUris = Object.freeze({
@@ -13,26 +11,6 @@ export default class EdmMetadata {
     edm: 'http://www.europeana.eu/schemas/edm/',
     ore: 'http://www.openarchives.org/ore/terms/',
   });
-
-  /**
-   * @public
-   * @param {string} xmlValue
-   * @returns {EdmMetadata}
-   */
-  static fromXml(xmlValue) {
-    const domParser = new DOMParser();
-    /** @type {XMLDocument} */
-    const xmlDocument = domParser.parseFromString(xmlValue, 'text/xml');
-    return new EdmMetadata(xmlDocument);
-  }
-
-  static createInitialMetadata() {
-    const metadata = new EdmMetadata();
-    const providedCho = new ProvidedCHO({ xmlDocument: metadata.xmlDocument });
-    const aggregation = new Aggregation({ xmlDocument: metadata.xmlDocument });
-    metadata.edmObjects = [providedCho, aggregation];
-    return metadata;
-  }
 
   /** @returns {XMLDocument} */
   static createXmlDocument() {

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupTest } from 'ember-mocha';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
-import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
+import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 
 describe('Unit | Utility | edm/metadata-factory', function () {
   setupTest('util:edm/metadata-factory', {});
@@ -10,6 +10,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
   it('generates EDM metadata model from XML with ProvidedCHO and Aggregation with "about" and some properties',
     function () {
       // given
+      const factory = EdmMetadataFactory.create();
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
       <rdf:RDF
           xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -29,8 +30,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
       </rdf:RDF>`;
 
       // when
-      // FIXME: to nie jest test factory - albo przenieść tą metodę, albo przeorganizować testy
-      const metadataModel = EdmMetadata.fromXml(xmlSource);
+      const metadataModel = factory.fromXml(xmlSource);
 
       // then
       expect(metadataModel.edmObjects).to.have.lengthOf(2);
@@ -101,6 +101,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
   it('generates EDM metadata model from XML with extra content',
     function () {
       // given
+      const factory = EdmMetadataFactory.create();
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
     <rdf:RDF
         xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -121,7 +122,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
     </rdf:RDF>`;
 
       // when
-      const metadataModel = EdmMetadata.fromXml(xmlSource);
+      const metadataModel = factory.fromXml(xmlSource);
 
       // then
       expect(metadataModel.edmObjects).to.have.lengthOf(1);

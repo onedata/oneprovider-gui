@@ -2,12 +2,13 @@
 
 import EmberObject, { observer } from '@ember/object';
 import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
-import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { reads } from '@ember/object/computed';
 import ObjectViewModel from './visual-edm/object-view-model';
 import EdmObjectType from './edm/object-type';
 import _ from 'lodash';
+import EdmObjectFactory from './edm/object-factory';
+import EdmMetadataFactory from './edm/metadata-factory';
 
 const VisualEdmViewModel = EmberObject.extend({
   //#region dependencies
@@ -54,10 +55,11 @@ const VisualEdmViewModel = EmberObject.extend({
     // FIXME: coś zrobić, żeby xmlValue było respektowane jako wstrzykiwane z góry
     //  - np. zmiany, albo udokumentować odpowiednio
     if (!this.edmMetadata) {
+      const factory = EdmMetadataFactory.create();
       this.set(
         'edmMetadata',
         this.xmlValue ?
-        EdmMetadata.fromXml(this.xmlValue) : EdmMetadata.createInitialMetadata()
+        factory.fromXml(this.xmlValue) : factory.createInitialMetadata()
       );
     }
 
@@ -75,7 +77,8 @@ const VisualEdmViewModel = EmberObject.extend({
 
   updateMetadataModel() {
     // FIXME: EdmMetadata powinno mieć możliwość podmianki w sobie, a nie tylko tworzenie nowego obiektu?
-    this.set('edmMetadata', EdmMetadata.fromXml(this.xmlValue));
+    const factory = EdmMetadataFactory.create();
+    this.set('edmMetadata', factory.fromXml(this.xmlValue));
   },
 
   async updateView() {
@@ -84,10 +87,10 @@ const VisualEdmViewModel = EmberObject.extend({
   },
 
   addWebResource() {
-    const factory = EdmMetadataFactory.create();
+    const factory = new EdmObjectFactory(this.edmMetadata);
     this.edmMetadata.edmObjects = [
       ...this.edmMetadata.edmObjects,
-      factory.createObject(this.edmMetadata, EdmObjectType.WebResource),
+      factory.createObject(EdmObjectType.WebResource),
     ];
     this.updateView();
   },

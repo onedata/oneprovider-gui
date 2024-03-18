@@ -4,7 +4,7 @@ import { setupTest } from 'ember-mocha';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
-import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
+import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 
 describe('Unit | Utility | edm/metadata', function () {
   setupTest('util:edm/metadata', {});
@@ -31,8 +31,9 @@ describe('Unit | Utility | edm/metadata', function () {
       const factory = EdmMetadataFactory.create();
       const propertyFactory = EdmPropertyFactory.create();
       const metadataModel = factory.createEmptyMetadata();
+      const objectFactory = new EdmObjectFactory(metadataModel);
       const resourceId = 'urn://eriac/19';
-      const providedCho = factory.createObject(metadataModel, EdmObjectType.ProvidedCHO, {
+      const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
         attrs: {
           about: resourceId,
         },
@@ -46,7 +47,7 @@ describe('Unit | Utility | edm/metadata', function () {
           }),
         ],
       });
-      const aggregation = factory.createObject(metadataModel, EdmObjectType.Aggregation, {
+      const aggregation = objectFactory.createObject(EdmObjectType.Aggregation, {
         attrs: {
           about: resourceId,
         },
@@ -59,7 +60,7 @@ describe('Unit | Utility | edm/metadata', function () {
           }),
         ],
       });
-      const webResource = factory.createObject(metadataModel, EdmObjectType.WebResource, {
+      const webResource = objectFactory.createObject(EdmObjectType.WebResource, {
         attrs: {
           about: 'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg',
         },
@@ -87,6 +88,7 @@ describe('Unit | Utility | edm/metadata', function () {
   it('includes unknown elements in XML generated from model from parsed XML',
     function () {
       // given
+      const factory = EdmMetadataFactory.create();
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
   <rdf:RDF
       xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -107,7 +109,7 @@ describe('Unit | Utility | edm/metadata', function () {
   </rdf:RDF>`;
 
       // when
-      const metadataModel = EdmMetadata.fromXml(xmlSource);
+      const metadataModel = factory.fromXml(xmlSource);
       const xmlOutput = metadataModel.stringify();
 
       // then

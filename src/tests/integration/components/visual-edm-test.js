@@ -7,6 +7,7 @@ import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
+import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 
 describe('Integration | Component | visual-edm', function () {
   setupRenderingTest();
@@ -15,7 +16,8 @@ describe('Integration | Component | visual-edm', function () {
     const factory = EdmMetadataFactory.create();
     const propertyFactory = EdmPropertyFactory.create();
     const metadata = factory.createEmptyMetadata();
-    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
         propertyFactory.createProperty(metadata, 'dc', 'contributor', {
           value: 'ERIAC',
@@ -45,8 +47,9 @@ describe('Integration | Component | visual-edm', function () {
     const factory = EdmMetadataFactory.create();
     const propertyFactory = EdmPropertyFactory.create();
     const metadata = factory.createEmptyMetadata();
+    const objectFactory = new EdmObjectFactory(metadata);
     const resourceId = 'urn://eriac/19';
-    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       attrs: {
         about: resourceId,
       },
@@ -84,7 +87,8 @@ describe('Integration | Component | visual-edm', function () {
     const factory = EdmMetadataFactory.create();
     const propertyFactory = EdmPropertyFactory.create();
     const metadata = factory.createEmptyMetadata();
-    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
         propertyFactory.createProperty(metadata, 'dc', 'title', {
           value: 'initial title',
@@ -110,7 +114,8 @@ describe('Integration | Component | visual-edm', function () {
     const factory = EdmMetadataFactory.create();
     const propertyFactory = EdmPropertyFactory.create();
     const metadata = factory.createEmptyMetadata();
-    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
         propertyFactory.createProperty(metadata, 'dc', 'title', {
           value: 'initial title',
@@ -136,13 +141,16 @@ describe('Integration | Component | visual-edm', function () {
       const factory = EdmMetadataFactory.create();
       const propertyFactory = EdmPropertyFactory.create();
       const metadata = factory.createEmptyMetadata();
-      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
-        edmProperties: [
-          propertyFactory.createProperty(metadata, 'dc', 'subject', {
-            value: 'example value',
-          }),
-        ],
-      });
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(
+        EdmObjectType.ProvidedCHO, {
+          edmProperties: [
+            propertyFactory.createProperty(metadata, 'dc', 'subject', {
+              value: 'example value',
+            }),
+          ],
+        }
+      );
       metadata.edmObjects = [providedCho];
       const helper = new Helper(this, metadata);
       helper.visualEdmViewModel.set('isReadOnly', false);
@@ -168,13 +176,16 @@ describe('Integration | Component | visual-edm', function () {
       const factory = EdmMetadataFactory.create();
       const propertyFactory = EdmPropertyFactory.create();
       const metadata = factory.createEmptyMetadata();
-      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
-        edmProperties: [
-          propertyFactory.createProperty(metadata, 'dc', 'subject', {
-            resource: 'http://example.com',
-          }),
-        ],
-      });
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(
+        EdmObjectType.ProvidedCHO, {
+          edmProperties: [
+            propertyFactory.createProperty(metadata, 'dc', 'subject', {
+              resource: 'http://example.com',
+            }),
+          ],
+        }
+      );
       metadata.edmObjects = [providedCho];
       const helper = new Helper(this, metadata);
       helper.visualEdmViewModel.set('isReadOnly', false);
@@ -199,13 +210,16 @@ describe('Integration | Component | visual-edm', function () {
       const factory = EdmMetadataFactory.create();
       const propertyFactory = EdmPropertyFactory.create();
       const metadata = factory.createEmptyMetadata();
-      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
-        edmProperties: [
-          propertyFactory.createProperty(metadata, 'dc', 'subject', {
-            value: 'hello',
-          }),
-        ],
-      });
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(
+        EdmObjectType.ProvidedCHO, {
+          edmProperties: [
+            propertyFactory.createProperty(metadata, 'dc', 'subject', {
+              value: 'hello',
+            }),
+          ],
+        }
+      );
       metadata.edmObjects = [providedCho];
       const helper = new Helper(this, metadata);
       helper.visualEdmViewModel.set('isReadOnly', false);
@@ -232,7 +246,8 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const factory = EdmMetadataFactory.create();
       const metadata = factory.createEmptyMetadata();
-      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO);
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
       metadata.edmObjects = [providedCho];
       const helper = new Helper(this, metadata);
       helper.visualEdmViewModel.set('isReadOnly', false);
@@ -255,13 +270,16 @@ describe('Integration | Component | visual-edm', function () {
       const factory = EdmMetadataFactory.create();
       const propertyFactory = EdmPropertyFactory.create();
       const metadata = factory.createEmptyMetadata();
-      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
-        edmProperties: [
-          propertyFactory.createProperty(metadata, 'dc', 'subject', {
-            value: 'example value',
-          }),
-        ],
-      });
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(
+        EdmObjectType.ProvidedCHO, {
+          edmProperties: [
+            propertyFactory.createProperty(metadata, 'dc', 'subject', {
+              value: 'example value',
+            }),
+          ],
+        }
+      );
       metadata.edmObjects = [providedCho];
       const helper = new Helper(this, metadata);
       helper.visualEdmViewModel.set('isReadOnly', false);
@@ -281,7 +299,10 @@ describe('Integration | Component | visual-edm', function () {
     // given
     const factory = EdmMetadataFactory.create();
     const metadata = factory.createEmptyMetadata();
-    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {});
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(
+      EdmObjectType.ProvidedCHO, {}
+    );
     metadata.edmObjects = [providedCho];
     const helper = new Helper(this, metadata);
     helper.visualEdmViewModel.set('isReadOnly', false);
@@ -300,9 +321,10 @@ describe('Integration | Component | visual-edm', function () {
     // given
     const factory = EdmMetadataFactory.create();
     const metadata = factory.createEmptyMetadata();
-    const providedCHO = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {});
-    const webResource1 = factory.createObject(metadata, EdmObjectType.WebResource, {});
-    const webResource2 = factory.createObject(metadata, EdmObjectType.WebResource, {});
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCHO = objectFactory.createObject(EdmObjectType.ProvidedCHO);
+    const webResource1 = objectFactory.createObject(EdmObjectType.WebResource);
+    const webResource2 = objectFactory.createObject(EdmObjectType.WebResource);
     metadata.edmObjects = [providedCHO, webResource1, webResource2];
     const helper = new Helper(this, metadata);
     helper.visualEdmViewModel.set('isReadOnly', false);
@@ -321,8 +343,11 @@ describe('Integration | Component | visual-edm', function () {
     const factory = EdmMetadataFactory.create();
     const propertyFactory = EdmPropertyFactory.create();
     const metadata = factory.createEmptyMetadata();
-    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
+        // FIXME: propertyFactory should be refactored to be native class with metadata
+        // injected - createProperty method should not require metadata to be provided
         propertyFactory.createProperty(metadata, 'dcterms', 'issued'),
         propertyFactory.createProperty(metadata, 'dc', 'description'),
         propertyFactory.createProperty(metadata, 'dc', 'date'),
@@ -360,7 +385,8 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const factory = EdmMetadataFactory.create();
       const metadata = factory.createEmptyMetadata();
-      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO);
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
       metadata.edmObjects = [providedCho];
       const helper = new Helper(this, metadata);
       helper.visualEdmViewModel.set('isReadOnly', false);
@@ -402,9 +428,10 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const factory = EdmMetadataFactory.create();
       const metadata = factory.createEmptyMetadata();
-      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO);
-      const aggregation = factory.createObject(metadata, EdmObjectType.Aggregation);
-      const webResource = factory.createObject(metadata, EdmObjectType.WebResource);
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
+      const aggregation = objectFactory.createObject(EdmObjectType.Aggregation);
+      const webResource = objectFactory.createObject(EdmObjectType.WebResource);
       metadata.edmObjects = [providedCho, aggregation, webResource];
       const helper = new Helper(this, metadata);
       helper.visualEdmViewModel.set('isReadOnly', false);
