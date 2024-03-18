@@ -386,14 +386,8 @@ describe('Integration | Component | visual-edm', function () {
         'Dimensions with units',
         'Parent entity (collection, object, site…)',
         'Material',
-        'Original location', // FIXME: nie wiadomo czy to ma być?
+        'Original location',
         'Current location',
-        'Aggregated CHO', // FIXME: chyba tego nie ma być
-        'Content provider institution',
-        'Object on provider\'s Website',
-        'Representative image',
-        // 'Provider', // FIXME: na razie nie widać, żeby to było
-        'Copyright licence URL of the original object',
         'Copyright',
         'URL for raw data',
         'URL for paradata',
@@ -403,7 +397,6 @@ describe('Integration | Component | visual-edm', function () {
     }
   );
 
-  // FIXME: dla providedcho i webresource sprawdzić kilka specyficznych property
   it('lists available specific properties for ProvidedCHO, Aggregation and WebResource',
     async function () {
       // given

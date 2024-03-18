@@ -191,10 +191,11 @@ export const allSpecs = Object.freeze({
       basic: true,
       obj: [EdmObjectType.Aggregation],
     },
-    // FIXME: tylko w spreasheecie
+    // FIXME: tylko w spreasheecie - ma być dropdown i wypełnione
     provider: {
       val: EdmPropertyValueType.Any,
-      obj: [EdmObjectType.ProvidedCHO, EdmObjectType.Aggregation],
+      basic: true,
+      obj: [EdmObjectType.Aggregation],
     },
     realizes: { obj: [EdmObjectType.ProvidedCHO] },
     rights: {
