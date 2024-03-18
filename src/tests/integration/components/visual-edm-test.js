@@ -327,7 +327,7 @@ describe('Integration | Component | visual-edm', function () {
         propertyFactory.createProperty(metadata, 'dc', 'description'),
         propertyFactory.createProperty(metadata, 'dc', 'date'),
         propertyFactory.createProperty(metadata, 'edm', 'type'),
-        propertyFactory.createProperty(metadata, 'dc', 'published'),
+        propertyFactory.createProperty(metadata, 'dc', 'publisher'),
         propertyFactory.createProperty(metadata, 'dc', 'title'),
         propertyFactory.createProperty(metadata, 'dcterms', 'alternative'),
       ],
@@ -341,15 +341,18 @@ describe('Integration | Component | visual-edm', function () {
 
     // then
     const propertyLabels = findAll('.edm-property-type').map(element => element.textContent.trim());
-    expect(propertyLabels).to.deep.equal([
+    const expectedPropertyLabels = [
       'Title',
       'Description',
       'Asset type',
       'Date',
-      'Published',
+      'Publisher',
       'Alternative',
       'Issued',
-    ]);
+    ];
+    console.log(propertyLabels);
+    console.log(expectedPropertyLabels);
+    expect(propertyLabels).to.deep.equal(expectedPropertyLabels);
   });
 
   it('lists properties in the predefined order in add property selector',
@@ -397,6 +400,64 @@ describe('Integration | Component | visual-edm', function () {
         // FIXME: może dojdą property nie-predefiniowano-sortowane
       ];
       expect(propertyLabels).to.deep.equal(expectedPropertyLabels);
+    }
+  );
+
+  // FIXME: dla providedcho i webresource sprawdzić kilka specyficznych property
+  it('lists available specific properties for ProvidedCHO, Aggregation and WebResource',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO);
+      const aggregation = factory.createObject(metadata, EdmObjectType.Aggregation);
+      const webResource = factory.createObject(metadata, EdmObjectType.WebResource);
+      metadata.edmObjects = [providedCho, aggregation, webResource];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      let propertyLabels;
+      await helper.render();
+      const getSelectorOptions = async (objectIndex) => {
+        await click(
+          helper.getObjectElement(objectIndex).querySelector('.add-edm-property-btn')
+        );
+        const labels = findAll('.webui-popover-tags-selector.in li')
+          .map(element => element.textContent.trim());
+        await click(
+          helper.getObjectElement(objectIndex).querySelector('.add-edm-property-btn')
+        );
+        return labels;
+      };
+
+      // when/then - ProvidedCHO
+      propertyLabels = await getSelectorOptions(0);
+      expect(propertyLabels, 'ProvidedCHO').to.include('Creator of the model');
+      expect(propertyLabels, 'ProvidedCHO')
+        .to.not.include('Creator of the original object');
+      expect(propertyLabels, 'ProvidedCHO')
+        .to.include('Language of inscriptions in the object');
+      expect(propertyLabels, 'ProvidedCHO')
+        .to.not.include('Content provider institution');
+
+      // when/then - Aggregation
+      propertyLabels = await getSelectorOptions(1);
+      expect(propertyLabels, 'Aggregation').to.not.include('Creator of the model');
+      expect(propertyLabels, 'Aggregation')
+        .to.not.include('Creator of the original object');
+      expect(propertyLabels, 'Aggregation')
+        .to.not.include('Language of inscriptions in the object');
+      expect(propertyLabels, 'Aggregation').to.include('Content provider institution');
+
+      // when/then - WebResource
+      propertyLabels = await getSelectorOptions(2);
+      expect(propertyLabels, 'WebResource').to.not.include('Creator of the model');
+      expect(propertyLabels, 'WebResource').to.include('Creator of the original object');
+      expect(propertyLabels, 'WebResource')
+        .to.not.include('Language of inscriptions in the object');
+      expect(propertyLabels, 'WebResource')
+        .to.not.include('Content provider institution');
     }
   );
 });

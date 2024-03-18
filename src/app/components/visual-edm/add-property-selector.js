@@ -81,7 +81,7 @@ export default Component.extend(I18n, {
     const items = [];
     for (const [namespace, namespaceSpecs] of Object.entries(allSpecs)) {
       for (const [name, spec] of Object.entries(namespaceSpecs)) {
-        if (!onlyBasic || spec.basic) {
+        if (spec.obj.includes(this.edmObjectType) && (!onlyBasic || spec.basic)) {
           const label = this.t(
               `properties.${namespace}.${name}`, {}, {
                 defaultValue: '',

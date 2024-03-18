@@ -16,7 +16,7 @@ export const propertyName = {
     format: '3D format',
     identifier: 'Internal ID',
     language: 'Language of inscriptions in the object',
-    // published: '',
+    // publisher: '',
     relation: 'URL for paradata',
     rights: 'Copyright',
     // source: '',
