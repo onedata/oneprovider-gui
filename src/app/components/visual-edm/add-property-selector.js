@@ -11,7 +11,8 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { allSpecs } from '../../utils/edm/property-spec';
+import { allSpecs } from 'oneprovider-gui/utils/edm/property-spec';
+import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
 
 /**
  * @typedef {Object} VisualEdm.AddPropertySelectorSpec
@@ -74,6 +75,7 @@ export default Component.extend(I18n, {
    */
   popoverApi: undefined,
 
+  // FIXME: można próbować optymalizować generację tej listy (np. obliczać raz elementy)
   createSelectorItems(onlyBasic = true) {
     /** @type {Array<VisualEdm.AddPropertySelectorSpec>} */
     const items = [];
@@ -94,12 +96,13 @@ export default Component.extend(I18n, {
             label,
             name,
             namespace,
+            xmlTagName: `${namespace}:${name}`,
             spec,
           }));
         }
       }
     }
-    return Object.freeze(items);
+    return Object.freeze(sortProperties(items));
   },
 
   repositionPopover() {

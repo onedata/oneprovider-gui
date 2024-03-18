@@ -6,7 +6,8 @@ import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import { and, eq, raw, not } from 'ember-awesome-macros';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import _ from 'lodash';
-import PropertyGroupViewModel from '../../utils/visual-edm/property-group-view-model';
+import PropertyGroupViewModel from 'oneprovider-gui/utils/visual-edm/property-group-view-model';
+import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
 
 /**
  * @typedef {Object} EdmPropertyGroup
@@ -65,7 +66,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<EdmPropertyGroup>}
    */
   edmPropertyGroups: computed('edmProperties', function edmPropertyGroups() {
-    const sortedProperties = _.sortBy(this.edmProperties, ['xmlTagName']);
+    const sortedProperties = sortProperties(this.edmProperties);
     const groupedProperties = _.groupBy(sortedProperties, 'xmlTagName');
     return Object.values(groupedProperties).map(properties =>
       PropertyGroupViewModel.create({

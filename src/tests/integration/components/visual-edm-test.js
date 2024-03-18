@@ -315,6 +315,90 @@ describe('Integration | Component | visual-edm', function () {
     expect(metadata.edmObjects).to.have.lengthOf(2);
     expect(helper.element.querySelectorAll('.visual-edm-object').length).to.equal(2);
   });
+
+  it('lists properties in object in the predefined order', async function () {
+    // given
+    const factory = EdmMetadataFactory.create();
+    const propertyFactory = EdmPropertyFactory.create();
+    const metadata = factory.createEmptyMetadata();
+    const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO, {
+      edmProperties: [
+        propertyFactory.createProperty(metadata, 'dcterms', 'issued'),
+        propertyFactory.createProperty(metadata, 'dc', 'description'),
+        propertyFactory.createProperty(metadata, 'dc', 'date'),
+        propertyFactory.createProperty(metadata, 'edm', 'type'),
+        propertyFactory.createProperty(metadata, 'dc', 'published'),
+        propertyFactory.createProperty(metadata, 'dc', 'title'),
+        propertyFactory.createProperty(metadata, 'dcterms', 'alternative'),
+      ],
+    });
+    metadata.edmObjects = [providedCho];
+    const helper = new Helper(this, metadata);
+    helper.visualEdmViewModel.set('isReadOnly', true);
+
+    // when
+    await helper.render();
+
+    // then
+    const propertyLabels = findAll('.edm-property-type').map(element => element.textContent.trim());
+    expect(propertyLabels).to.deep.equal([
+      'Title',
+      'Description',
+      'Asset type',
+      'Date',
+      'Published',
+      'Alternative',
+      'Issued',
+    ]);
+  });
+
+  it('lists properties in the predefined order in add property selector',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const providedCho = factory.createObject(metadata, EdmObjectType.ProvidedCHO);
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+      await click(helper.getObjectElement(0).querySelector('.add-edm-property-btn'));
+
+      // then
+      const propertyLabels = findAll('.add-property-selector li').map(element => element.textContent.trim());
+      const expectedPropertyLabels = [
+        'Title',
+        'Description',
+        'Asset type',
+        'Subject',
+        'Type of object',
+        'Contributor to the creation of the original object',
+        'Creator of the model',
+        'Creation date of the original object',
+        '3D format',
+        'Internal ID',
+        'Language of inscriptions in the object',
+        'Dimensions with units',
+        'Parent entity (collection, object, site…)',
+        'Material',
+        'Original location', // FIXME: nie wiadomo czy to ma być?
+        'Current location',
+        'Aggregated CHO', // FIXME: chyba tego nie ma być
+        'Content provider institution',
+        'Object on provider\'s Website',
+        'Representative image',
+        // 'Provider', // FIXME: na razie nie widać, żeby to było
+        'Copyright licence URL of the original object',
+        'Copyright',
+        'URL for raw data',
+        'URL for paradata',
+        // FIXME: może dojdą property nie-predefiniowano-sortowane
+      ];
+      expect(propertyLabels).to.deep.equal(expectedPropertyLabels);
+    }
+  );
 });
 
 class Helper {
