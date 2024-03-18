@@ -1,5 +1,5 @@
 import EdmAttrs, { namespacedAttr } from './attrs';
-import { EdmPropertyValueType } from './property-spec';
+import { EdmPropertyMaxOccurrences, EdmPropertyRecommendation, EdmPropertyValueType } from './property-spec';
 
 class EdmProperty {
   static defaultShownAttrs = Object.freeze(['resource', 'lang']);
@@ -83,15 +83,20 @@ class EdmProperty {
   }
 
   get predefinedValues() {
-    return this.spec.predef;
+    return this.spec?.predef;
   }
 
   get hasPredefinedValues() {
     return Boolean(this.predefinedValues);
   }
 
-  // FIXME: implement?
-  // getFilledAttrs
+  get recommendation() {
+    return this.spec?.rec || EdmPropertyRecommendation.None;
+  }
+
+  get maxOccurrences() {
+    return this.spec?.max || EdmPropertyMaxOccurrences.Any;
+  }
 }
 
 export default EdmProperty;

@@ -15,6 +15,9 @@ import EdmObjectType from './object-type';
  * @property {EdmPropertyValueType} val
  * @property {boolean} basic If true, then the property should be available to select to
  *   be added in the visual editor.
+ * @property {Array} obj
+ * @property {EdmPropertyRecommendation} rec
+ * @property {EdmPropertyMaxOccurrences} max
  */
 
 export const EdmPropertyValueType = Object.freeze({
@@ -305,6 +308,8 @@ export const allSpecs = Object.freeze({
   },
 });
 
+// FIXME: raczej powinno się zrobić speki w płaskiej liście i ew. potem robić z tego mapę pomocniczną (grupowaną)
+
 function createSupportedTags() {
   const array = [];
   for (const namespace of Object.keys(allSpecs)) {
@@ -316,3 +321,20 @@ function createSupportedTags() {
 }
 
 export const supportedPropertyTagSet = Object.freeze(new Set(createSupportedTags()));
+
+function createFlatSpecs() {
+  const items = [];
+  for (const [namespace, namespaceSpecs] of Object.entries(allSpecs)) {
+    for (const [name, spec] of Object.entries(namespaceSpecs)) {
+      items.push(Object.freeze({
+        name,
+        namespace,
+        xmlTagName: `${namespace}:${name}`,
+        spec,
+      }));
+    }
+  }
+  return items;
+}
+
+export const flatSpecs = createFlatSpecs();

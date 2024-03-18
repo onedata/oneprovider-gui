@@ -5,6 +5,7 @@ import Aggregation from './objects/aggregation';
 import EdmObjectType from './object-type';
 import EdmPropertyFactory from './property-factory';
 import EdmObjectFactory from './object-factory';
+import { EdmPropertyRecommendation, flatSpecs } from './property-spec';
 
 // FIXME: rozróżnienie na property dla różnych obiektów
 
@@ -37,12 +38,45 @@ const EdmMetadataFactory = EmberObject.extend({
     return new EdmMetadata(xmlDocument);
   },
 
-  // FIXME: zastąpione przez statyczną metodę w EdmMetadata
+  // FIXME: można uwzględnić dane z share'a
   createInitialMetadata() {
     const metadata = new EdmMetadata();
-    const providedCho = new ProvidedCHO({ xmlDocument: metadata.xmlDocument });
-    const aggregation = new Aggregation({ xmlDocument: metadata.xmlDocument });
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
+    const aggregation = objectFactory.createObject(EdmObjectType.Aggregation);
+    const initialPropertyItems = flatSpecs.filter(item => {
+      return item.spec.rec === EdmPropertyRecommendation.Mandatory ||
+        item.spec.rec === EdmPropertyRecommendation.Recommended;
+    });
+    const providedChoPropertyItems = [];
+    const aggregationPropertyItems = [];
+    for (const propertyItem of initialPropertyItems) {
+      for (const supportedObjectType of propertyItem.spec.obj) {
+        if (supportedObjectType === EdmObjectType.ProvidedCHO) {
+          providedChoPropertyItems.push(propertyItem);
+        }
+        if (supportedObjectType === EdmObjectType.Aggregation) {
+          aggregationPropertyItems.push(propertyItem);
+        }
+      }
+    }
+
+    const propertyFactory = EdmPropertyFactory.create();
+    providedCho.edmProperties = providedChoPropertyItems
+      .map(propertyItem => propertyFactory.createProperty(
+        metadata,
+        propertyItem.namespace,
+        propertyItem.name
+      ));
+    aggregation.edmProperties = aggregationPropertyItems
+      .map(propertyItem => propertyFactory.createProperty(
+        metadata,
+        propertyItem.namespace,
+        propertyItem.name
+      ));
+
     metadata.edmObjects = [providedCho, aggregation];
+
     return metadata;
   },
 

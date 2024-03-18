@@ -1,6 +1,6 @@
 import Component from '@ember/component';
-import { reads } from '@ember/object/computed';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
+import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 // FIXME: remove if unused
 // import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 // import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
@@ -13,20 +13,24 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     this.set('exampleXml', generateShortXml());
+
+    const metadataFactory = EdmMetadataFactory.create();
+    const edmMetadata = metadataFactory.createInitialMetadata();
+
     this.set('visualEdmViewModel', VisualEdmViewModel
       .extend({
-        xmlValue: reads('container.exampleXml'),
+        // xmlValue: reads('container.exampleXml'),
       })
       .create({
         ownerSource: this,
-        container: this,
+        // container: this,
+        edmMetadata,
         isReadOnly: false,
       })
     );
 
     // FIXME: test metadata
     // const metadata = this.visualEdmViewModel.edmMetadata;
-    // const factory = EdmMetadataFactory.create();
     // const propertyFactory = EdmPropertyFactory.create();
     // const objectFactory = new EdmObjectFactory(metadata);
     // const creator = propertyFactory.createProperty('dc', 'creator', {
