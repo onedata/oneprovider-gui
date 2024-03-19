@@ -12,22 +12,13 @@ export default Component.extend({
 
   init() {
     this._super(...arguments);
-    this.set('exampleXml', generateShortXml());
 
-    const metadataFactory = EdmMetadataFactory.create();
-    const edmMetadata = metadataFactory.createInitialMetadata();
-
-    this.set('visualEdmViewModel', VisualEdmViewModel
-      .extend({
-        // xmlValue: reads('container.exampleXml'),
-      })
-      .create({
-        ownerSource: this,
-        // container: this,
-        edmMetadata,
-        isReadOnly: false,
-      })
-    );
+    this.set('visualEdmViewModel', VisualEdmViewModel.create({
+      ownerSource: this,
+      xmlValue: generateEuropeanaXml(),
+      // edmMetadata: EdmMetadataFactory.create().createInitialMetadata(),
+      isReadOnly: false,
+    }));
 
     // FIXME: test metadata
     // const metadata = this.visualEdmViewModel.edmMetadata;
@@ -114,7 +105,7 @@ const generateShortXml = () =>
 </rdf:RDF>
 `;
 
-const generateLongXml = () =>
+const generateEuropeanaXml = () =>
   `<?xml version="1.0"  encoding="UTF-8" ?>
   <rdf:RDF
     xmlns:crm="http://www.cidoc-crm.org/rdfs/cidoc_crm_v5.0.2_english_label.rdfs#"

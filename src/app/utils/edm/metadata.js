@@ -1,7 +1,7 @@
 import EdmXmlGenerator from './xml-generator';
 import globals from 'onedata-gui-common/utils/globals';
 import EdmObjectsList from './objects-list';
-import { isEmptyXmlNode, isSupportedXmlObject } from './xml-utils';
+import { isEmptyXmlNode, isSupportedXmlObject, stringifyXmlDocument } from './xml-utils';
 
 export default class EdmMetadata {
   static namespaceUris = Object.freeze({
@@ -70,8 +70,7 @@ export default class EdmMetadata {
   }
 
   stringify() {
-    const xmlSerializer = new XMLSerializer();
-    return xmlSerializer.serializeToString(this.xmlDocument);
+    return stringifyXmlDocument(this.xmlDocument);
   }
 
   get hasExtraData() {
