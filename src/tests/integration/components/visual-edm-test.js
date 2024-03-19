@@ -484,22 +484,6 @@ describe('Integration | Component | visual-edm', function () {
   it('renders with initial objects with required and recommended properties by default',
     async function () {
       // given
-      const factory = EdmMetadataFactory.create();
-      const propertyFactory = EdmPropertyFactory.create();
-      const metadata = factory.createEmptyMetadata();
-      const objectFactory = new EdmObjectFactory(metadata);
-      const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
-        edmProperties: [
-          propertyFactory.createProperty(metadata, 'dc', 'contributor', {
-            value: 'ERIAC',
-            lang: 'en',
-          }),
-          propertyFactory.createProperty(metadata, 'dcterms', 'created', {
-            value: '2018-03-13',
-          }),
-        ],
-      });
-      metadata.edmObjects = [providedCho];
       const helper = new Helper(this, null);
       helper.visualEdmViewModel.set('isReadOnly', false);
 
