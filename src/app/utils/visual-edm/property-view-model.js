@@ -53,6 +53,8 @@ const PropertyViewModel = EmberObject.extend({
     }
   ),
 
+  isLangConfigurable: reads('model.isLangConfigurable'),
+
   init() {
     this._super(...arguments);
     this.set(

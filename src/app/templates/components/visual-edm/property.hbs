@@ -30,20 +30,22 @@
         </BsButtonGroup>
       </div>
     {{/if}}
-    <div class="separator edm-property-lang-separator"></div>
-    <div class="edm-property-lang-label">
-      {{tt this "language"}}:
-    </div>
-    <input
-      class="form-control input-sm edm-property-lang-input"
-      value={{lang}}
-      oninput={{action "changeLanguage" value="target.value"}}
-    />
-    {{#unless isLangEnabled}}
-      <div class="edm-property-lang-default">
-        {{tt this "defaultLanguage"}}
+    {{#if viewModel.isLangConfigurable}}
+      <div class="separator edm-property-lang-separator"></div>
+      <div class="edm-property-lang-label">
+        {{tt this "language"}}:
       </div>
-    {{/unless}}
+      <input
+        class="form-control input-sm edm-property-lang-input"
+        value={{lang}}
+        oninput={{action "changeLanguage" value="target.value"}}
+      />
+      {{#unless isLangEnabled}}
+        <div class="edm-property-lang-default">
+          {{tt this "defaultLanguage"}}
+        </div>
+      {{/unless}}
+    {{/if}}
     {{#if viewModel.isFirstPropertyInGroup}}
       <div class="edm-recommendation-label {{recommendationClass}}">
         {{recommendationLabel}}

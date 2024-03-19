@@ -681,6 +681,34 @@ describe('Integration | Component | visual-edm', function () {
       expect(helper.getPropertyElement(0, 0)).to.exist;
     }
   );
+
+  it('does not render lang input for some properties',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const propertyFactory = EdmPropertyFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(
+        EdmObjectType.ProvidedCHO, {
+          edmProperties: [
+            propertyFactory.createProperty(metadata, 'edm', 'type', {
+              value: 'example value',
+            }),
+          ],
+        }
+      );
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+
+      // then
+      expect(find('.edm-property-lang-input')).to.not.exist;
+    }
+  );
 });
 
 class Helper {

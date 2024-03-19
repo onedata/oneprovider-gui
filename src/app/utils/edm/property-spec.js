@@ -64,6 +64,8 @@ export const allSpecs = Object.freeze({
       obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
       rec: Rec.Mandatory,
       max: Max.Single,
+      // FIXME: experimental - fill-in as in spreadsheet
+      lang: true,
     },
     format: {
       val: EdmPropertyValueType.Reference,
@@ -113,6 +115,7 @@ export const allSpecs = Object.freeze({
       obj: [EdmObjectType.ProvidedCHO],
       rec: Rec.Mandatory,
       max: Max.Single,
+      lang: true,
     },
     title: {
       val: EdmPropertyValueType.Literal,
@@ -120,6 +123,7 @@ export const allSpecs = Object.freeze({
       obj: [EdmObjectType.ProvidedCHO],
       rec: Rec.Mandatory,
       max: Max.Single,
+      lang: true,
     },
     type: {
       val: EdmPropertyValueType.Any,
@@ -127,6 +131,7 @@ export const allSpecs = Object.freeze({
       obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
       rec: Rec.Mandatory,
       max: Max.Single,
+      lang: true,
     },
   },
   dcterms: {

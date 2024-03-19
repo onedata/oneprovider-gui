@@ -97,6 +97,10 @@ class EdmProperty {
   get maxOccurrences() {
     return this.spec?.max || EdmPropertyMaxOccurrences.Any;
   }
+
+  get isLangConfigurable() {
+    return this.spec?.lang || false;
+  }
 }
 
 export default EdmProperty;
