@@ -2,6 +2,7 @@
 // be auto-generated.
 
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
+import { EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
 
 export const propertyName = {
   dc: {
@@ -96,5 +97,10 @@ export default {
   attrName: {
     lang: 'Language',
     resource: 'Reference',
+  },
+  recommendation: {
+    [EdmPropertyRecommendation.None]: 'optional',
+    [EdmPropertyRecommendation.Recommended]: 'recommended',
+    [EdmPropertyRecommendation.Mandatory]: 'required',
   },
 };

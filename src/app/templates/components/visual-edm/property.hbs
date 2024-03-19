@@ -44,6 +44,9 @@
         {{tt this "defaultLanguage"}}
       </div>
     {{/unless}}
+    <div class="edm-recommendation-label {{recommendationClass}}">
+      {{recommendationLabel}}
+    </div>
     <div
       class="edm-delete-btn edm-property-delete-btn"
       onclick={{action "deleteProperty"}}

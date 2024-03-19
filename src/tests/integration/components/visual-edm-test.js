@@ -532,6 +532,78 @@ describe('Integration | Component | visual-edm', function () {
       }
     }
   );
+
+  it('shows "required" label for property which recommendation is Required', async function () {
+    // given
+    const factory = EdmMetadataFactory.create();
+    const propertyFactory = EdmPropertyFactory.create();
+    const metadata = factory.createEmptyMetadata();
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
+      edmProperties: [
+        propertyFactory.createProperty(metadata, 'dc', 'description'),
+      ],
+    });
+    metadata.edmObjects = [providedCho];
+    const helper = new Helper(this, metadata);
+    helper.visualEdmViewModel.set('isReadOnly', false);
+
+    // when
+    await helper.render();
+
+    // then
+    expect(
+      helper.getPropertyElement(0, 0).textContent
+    ).to.contain('required');
+  });
+
+  it('shows "recommended" label for property which recommendation is Recommended', async function () {
+    // given
+    const factory = EdmMetadataFactory.create();
+    const propertyFactory = EdmPropertyFactory.create();
+    const metadata = factory.createEmptyMetadata();
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
+      edmProperties: [
+        propertyFactory.createProperty(metadata, 'dc', 'contributor'),
+      ],
+    });
+    metadata.edmObjects = [providedCho];
+    const helper = new Helper(this, metadata);
+    helper.visualEdmViewModel.set('isReadOnly', false);
+
+    // when
+    await helper.render();
+
+    // then
+    expect(
+      helper.getPropertyElement(0, 0).textContent
+    ).to.contain('recommended');
+  });
+
+  it('shows "optional" label for property which recommendation is None', async function () {
+    // given
+    const factory = EdmMetadataFactory.create();
+    const propertyFactory = EdmPropertyFactory.create();
+    const metadata = factory.createEmptyMetadata();
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
+      edmProperties: [
+        propertyFactory.createProperty(metadata, 'dc', 'identifier'),
+      ],
+    });
+    metadata.edmObjects = [providedCho];
+    const helper = new Helper(this, metadata);
+    helper.visualEdmViewModel.set('isReadOnly', false);
+
+    // when
+    await helper.render();
+
+    // then
+    expect(
+      helper.getPropertyElement(0, 0).textContent
+    ).to.contain('optional');
+  });
 });
 
 class Helper {

@@ -26,14 +26,12 @@ export const EdmPropertyValueType = Object.freeze({
   Any: 'any',
 });
 
-// FIXME: use
 export const EdmPropertyRecommendation = Object.freeze({
   Mandatory: 'mandatory',
   Recommended: 'recommended',
   None: 'none',
 });
 
-// FIXME: use
 export const EdmPropertyMaxOccurrences = Object.freeze({
   Single: '1',
   Any: 'n',

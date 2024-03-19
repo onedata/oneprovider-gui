@@ -6,6 +6,7 @@ import { htmlSafe } from '@ember/string';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import { conditional, eq, raw, bool } from 'ember-awesome-macros';
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
+import { EdmPropertyRecommendation } from '../../utils/edm/property-spec';
 
 // FIXME: jak najwięcej przenieść logiki do property-view-model
 
@@ -166,6 +167,32 @@ export default Component.extend(I18n, {
         return text;
       }
       return htmlSafe(humanizeString(this.viewModel.model.edmPropertyType));
+    }
+  ),
+
+  recommendationClass: computed('viewModel.model.recommendation',
+    function recommendationLabel() {
+      switch (this.viewModel.model.recommendation) {
+        case EdmPropertyRecommendation.None:
+          return 'optional';
+        case EdmPropertyRecommendation.Recommended:
+          return 'recommended';
+        case EdmPropertyRecommendation.Mandatory:
+          return 'required';
+        default:
+          break;
+      }
+    }
+  ),
+
+  recommendationLabel: computed(
+    'viewModel.model.recommendation',
+    function recommendationLabel() {
+      return this.t(
+        `recommendation.${this.viewModel.model.recommendation}`, {}, {
+          defaultValue: '',
+        }
+      );
     }
   ),
 

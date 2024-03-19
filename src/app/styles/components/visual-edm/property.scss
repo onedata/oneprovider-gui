@@ -69,9 +69,24 @@
   }
   .edm-property-delete-btn {
     display: flex;
-    margin-left: auto;
-    margin-top: 0.2em;
     align-self: flex-start;
+  }
+  .edm-recommendation-label + .edm-property-delete-btn {
+    margin-left: 8px;
+  }
+  .edm-recommendation-label {
+    opacity: $disabled-opacity;
+    margin-left: auto;
+    font-size: $font-size-small;
+    &.required {
+
+    }
+    &.recommended {
+
+    }
+    &.optional {
+
+    }
   }
   .edm-property-attrs-container {
 
