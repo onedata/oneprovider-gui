@@ -13,6 +13,7 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { allSpecs } from 'oneprovider-gui/utils/edm/property-spec';
 import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
+import { EdmPropertyMaxOccurrences } from '../../utils/edm/property-spec';
 
 /**
  * @typedef {Object} VisualEdm.AddPropertySelectorSpec
@@ -57,9 +58,21 @@ export default Component.extend(I18n, {
 
   edmObjectType: reads('edmObjectModel.edmObjectType'),
 
-  availableItems: computed(function availableEdmPropertiesSpecs() {
-    return this.createSelectorItems();
-  }),
+  availableItems: computed('singleDisabledItemsTags',
+    function availableEdmPropertiesSpecs() {
+      return this.createSelectorItems();
+    }
+  ),
+
+  // FIXME: reaktywność?
+  singleDisabledItemsTags: computed(
+    'edmObjectModel.edmProperties',
+    function singleDisabledItemsTags() {
+      return this.edmObjectModel.edmProperties
+        .filter(property => property.maxOccurrences === EdmPropertyMaxOccurrences.Single)
+        .map(property => property.xmlTagName);
+    }
+  ),
 
   /**
    * This component does not have any additional settings. `settings` field is
@@ -79,6 +92,7 @@ export default Component.extend(I18n, {
   createSelectorItems(onlyBasic = true) {
     /** @type {Array<VisualEdm.AddPropertySelectorSpec>} */
     const items = [];
+    const disabledTagSet = new Set(this.singleDisabledItemsTags);
     for (const [namespace, namespaceSpecs] of Object.entries(allSpecs)) {
       for (const [name, spec] of Object.entries(namespaceSpecs)) {
         if (spec.obj.includes(this.edmObjectType) && (!onlyBasic || spec.basic)) {
@@ -92,12 +106,14 @@ export default Component.extend(I18n, {
                 defaultValue: `${namespace}:${name}`,
               }
             );
+          const xmlTagName = `${namespace}:${name}`;
           items.push(Object.freeze({
             label,
             name,
             namespace,
-            xmlTagName: `${namespace}:${name}`,
+            xmlTagName,
             spec,
+            disabled: disabledTagSet.has(xmlTagName),
           }));
         }
       }

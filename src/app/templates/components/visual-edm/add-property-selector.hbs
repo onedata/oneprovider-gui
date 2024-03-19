@@ -27,12 +27,18 @@
       <ul class="selector-list">
         {{#each availableItems key="label" as |propertyItem|}}
           <li
-            class="selector-item"
-            {{action "selectProperty" propertyItem}}
+            class={{concat-classes
+              "selector-item"
+              (if propertyItem.disabled "disabled")
+            }}
+            onclick={{unless propertyItem.disabled (action "selectProperty" propertyItem)}}
           >
-            {{#truncated-string class="property-label"}}
+            {{#truncated-string class="property-label" customTooltipText=(if propertyItem.disabled "")}}
               {{propertyItem.label}}
             {{/truncated-string}}
+            {{#if propertyItem.disabled}}
+              <OneTooltip @title={{tt this "singlePropertyAlreadyUsed"}}/>
+            {{/if}}
           </li>
         {{/each}}
       </ul>

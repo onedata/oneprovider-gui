@@ -8,6 +8,7 @@ import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
+import { findByText } from '../../helpers/find';
 
 describe('Integration | Component | visual-edm', function () {
   setupRenderingTest();
@@ -604,6 +605,53 @@ describe('Integration | Component | visual-edm', function () {
       helper.getPropertyElement(0, 0).textContent
     ).to.contain('optional');
   });
+
+  it('shows property already added with single max occurence as disabled in the add property selector',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const objectFactory = new EdmObjectFactory(metadata);
+      const propertyFactory = EdmPropertyFactory.create();
+      const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
+        edmProperties: [
+          propertyFactory.createProperty(metadata, 'dc', 'title'),
+        ],
+      });
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+      await click(helper.getObjectElement(0).querySelector('.add-edm-property-btn'));
+
+      // then
+      const titleSelectorItem = findByText('Title', '.add-property-selector li');
+      expect(titleSelectorItem).to.have.class('disabled');
+    }
+  );
+
+  it('shows property not yet added with single max occurence as not disabled in the add property selector',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+      await click(helper.getObjectElement(0).querySelector('.add-edm-property-btn'));
+
+      // then
+      const titleSelectorItem = findByText('Title', '.add-property-selector li');
+      expect(titleSelectorItem).to.not.have.class('disabled');
+    }
+  );
 });
 
 class Helper {
