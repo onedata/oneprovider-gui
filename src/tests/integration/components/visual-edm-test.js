@@ -118,8 +118,8 @@ describe('Integration | Component | visual-edm', function () {
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
-        propertyFactory.createProperty(metadata, 'dc', 'title', {
-          value: 'initial title',
+        propertyFactory.createProperty(metadata, 'dc', 'contributor', {
+          value: 'contributor name',
         }),
       ],
     });
@@ -555,7 +555,7 @@ describe('Integration | Component | visual-edm', function () {
     // then
     expect(
       helper.getPropertyElement(0, 0).textContent
-    ).to.contain('required');
+    ).to.contain('mandatory');
   });
 
   it('shows "recommended" label for property which recommendation is Recommended', async function () {
@@ -650,6 +650,35 @@ describe('Integration | Component | visual-edm', function () {
       // then
       const titleSelectorItem = findByText('Title', '.add-property-selector li');
       expect(titleSelectorItem).to.not.have.class('disabled');
+    }
+  );
+
+  it('has disabled delete button for mandatory property that has single instance',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const propertyFactory = EdmPropertyFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
+        edmProperties: [
+          propertyFactory.createProperty(metadata, 'dc', 'description'),
+        ],
+      });
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+      const deleteButton = helper.getPropertyElement(0, 0)
+        .querySelector('.edm-delete-btn');
+      await click(deleteButton);
+
+      // then
+
+      expect(deleteButton).to.have.class('disabled');
+      expect(helper.getPropertyElement(0, 0)).to.exist;
     }
   );
 });

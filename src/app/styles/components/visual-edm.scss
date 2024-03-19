@@ -47,6 +47,12 @@
     &:hover {
       color: $color-one-danger;
     }
+    &.disabled {
+      color: $main-text-color-disabled;
+      &:hover {
+        color: $main-text-color-disabled;
+      }
+    }
   }
 }
 

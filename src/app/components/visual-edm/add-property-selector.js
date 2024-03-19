@@ -64,14 +64,8 @@ export default Component.extend(I18n, {
     }
   ),
 
-  // FIXME: reaktywność?
-  singleDisabledItemsTags: computed(
-    'edmObjectViewModel.edmProperties',
-    function singleDisabledItemsTags() {
-      return this.edmObjectViewModel.edmProperties
-        .filter(property => property.maxOccurrences === EdmPropertyMaxOccurrences.Single)
-        .map(property => property.xmlTagName);
-    }
+  singleDisabledItemsTags: reads(
+    'edmObjectViewModel.singleInstancePropertyTags'
   ),
 
   /**

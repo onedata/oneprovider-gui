@@ -92,7 +92,8 @@ export default {
   },
   language: 'Language',
   defaultLanguage: 'using default',
-  deletePropertyTip: 'Delete this property',
+  deletePropertyTip: 'Delete this property value',
+  cannotDeleteOnlyMandatory: 'Cannot delete the only value of mandatory property',
   propertyName,
   attrName: {
     lang: 'Language',
@@ -101,6 +102,6 @@ export default {
   recommendation: {
     [EdmPropertyRecommendation.None]: 'optional',
     [EdmPropertyRecommendation.Recommended]: 'recommended',
-    [EdmPropertyRecommendation.Mandatory]: 'required',
+    [EdmPropertyRecommendation.Mandatory]: 'mandatory',
   },
 };

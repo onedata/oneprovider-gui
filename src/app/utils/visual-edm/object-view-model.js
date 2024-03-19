@@ -1,7 +1,7 @@
-import EmberObject from '@ember/object';
+import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import EdmPropertyFactory from '../edm/property-factory';
-import _ from 'lodash';
+import { EdmPropertyMaxOccurrences } from '../edm/property-spec';
 
 const ObjectViewModel = EmberObject.extend({
   /**
@@ -19,6 +19,20 @@ const ObjectViewModel = EmberObject.extend({
   edmProperties: reads('model.edmProperties'),
 
   edmObjectType: reads('model.edmObjectType'),
+
+  /**
+   * XML tags of poroperties that are defined in object and could have only single
+   * instance.
+   * @type {ComputedProperty<Array<string>>}
+   */
+  singleInstancePropertyTags: computed(
+    'edmProperties',
+    function singleDisabledItemsTags() {
+      return this.edmProperties
+        .filter(property => property.maxOccurrences === EdmPropertyMaxOccurrences.Single)
+        .map(property => property.xmlTagName);
+    }
+  ),
 
   updateView() {
     this.notifyPropertyChange('model');

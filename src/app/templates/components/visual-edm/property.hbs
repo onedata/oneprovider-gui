@@ -44,18 +44,23 @@
         {{tt this "defaultLanguage"}}
       </div>
     {{/unless}}
-    <div class="edm-recommendation-label {{recommendationClass}}">
-      {{recommendationLabel}}
-    </div>
+    {{#if viewModel.isFirstPropertyInGroup}}
+      <div class="edm-recommendation-label {{recommendationClass}}">
+        {{recommendationLabel}}
+      </div>
+    {{/if}}
     <div
-      class="edm-delete-btn edm-property-delete-btn"
-      onclick={{action "deleteProperty"}}
+      class={{concat-classes
+        "edm-delete-btn edm-property-delete-btn"
+        (if viewModel.isDeleteDisabled "disabled")
+      }}
+      onclick={{unless viewModel.isDeleteDisabled (action "deleteProperty")}}
     >
       <OneIcon
         class="edm-property-delete-icon"
         @icon="browser-delete"
       >
-        <OneTooltip @title={{tt this "deletePropertyTip"}} />
+        <OneTooltip @title={{deleteButtonTip}} />
       </OneIcon>
     </div>
   {{/unless}}

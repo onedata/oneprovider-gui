@@ -178,7 +178,7 @@ export default Component.extend(I18n, {
         case EdmPropertyRecommendation.Recommended:
           return 'recommended';
         case EdmPropertyRecommendation.Mandatory:
-          return 'required';
+          return 'mandatory';
         default:
           break;
       }
@@ -195,6 +195,13 @@ export default Component.extend(I18n, {
       );
     }
   ),
+
+  deleteButtonTip: computed('viewModel.isDeleteDisabled', function deleteButtonTip() {
+    return this.t(
+      this.viewModel.isDeleteDisabled ?
+      'cannotDeleteOnlyMandatory' : 'deletePropertyTip'
+    );
+  }),
 
   actions: {
     /**

@@ -70,6 +70,7 @@
   .edm-property-delete-btn {
     display: flex;
     align-self: flex-start;
+    margin-left: auto;
   }
   .edm-recommendation-label + .edm-property-delete-btn {
     margin-left: 8px;
@@ -78,15 +79,6 @@
     opacity: $disabled-opacity;
     margin-left: auto;
     font-size: $font-size-small;
-    &.required {
-
-    }
-    &.recommended {
-
-    }
-    &.optional {
-
-    }
   }
   .edm-property-attrs-container {
 

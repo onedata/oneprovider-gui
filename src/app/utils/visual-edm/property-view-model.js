@@ -1,7 +1,8 @@
 import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional } from 'ember-awesome-macros';
+import { eq, raw, conditional } from 'ember-awesome-macros';
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
+import { EdmPropertyRecommendation } from '../edm/property-spec';
 
 const PropertyViewModel = EmberObject.extend({
   visualEdmViewModel: undefined,
@@ -10,6 +11,8 @@ const PropertyViewModel = EmberObject.extend({
 
   // FIXME: redukcja powyższych na podstawie poniższego
   propertyGroupViewModel: undefined,
+
+  objectViewModel: reads('propertyGroupViewModel.objectViewModel'),
 
   /**
    * @type {VisualEdmPropertyValueType}
@@ -27,6 +30,28 @@ const PropertyViewModel = EmberObject.extend({
   ),
 
   isUsingReference: reads('model.isUsingResource'),
+
+  isDeleteDisabled: computed(
+    'objectViewModel.singleInstancePropertyTags',
+    'propertyGroupViewModel.propertiesViewModels.length',
+    'isTheOnlyPropertyInGroup',
+    function isDeleteDisabled() {
+      return this.model.recommendation === EdmPropertyRecommendation.Mandatory &&
+        this.isTheOnlyPropertyInGroup;
+    }
+  ),
+
+  isTheOnlyPropertyInGroup: eq(
+    'propertyGroupViewModel.propertiesViewModels.length',
+    raw(1)
+  ),
+
+  isFirstPropertyInGroup: computed(
+    'propertyGroupViewModel.propertyViewModels',
+    function isFirstPropertyInGroup() {
+      return this.propertyGroupViewModel.propertiesViewModels[0] === this;
+    }
+  ),
 
   init() {
     this._super(...arguments);
