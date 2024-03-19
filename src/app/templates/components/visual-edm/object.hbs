@@ -74,7 +74,7 @@
       </OneButton>
       <RenderLater @triggerRender={{isAddPropertyOpened}}>
         <VisualEdm::AddPropertySelector
-          @edmObjectModel={{viewModel.model}}
+          @edmObjectViewModel={{viewModel}}
           @opened={{isAddPropertyOpened}}
           @triggerSelector={{addPropertyButtonSelector}}
           @onPropertyAdd={{action "addProperty"}}

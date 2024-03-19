@@ -35,9 +35,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {EdmObject}
+   * @type {Utils.VisualEdm.ObjectViewModel}
    */
-  edmObjectModel: undefined,
+  edmObjectViewModel: undefined,
 
   opened: false,
 
@@ -56,7 +56,7 @@ export default Component.extend(I18n, {
 
   //#endregion
 
-  edmObjectType: reads('edmObjectModel.edmObjectType'),
+  edmObjectType: reads('edmObjectViewModel.edmObjectType'),
 
   availableItems: computed('singleDisabledItemsTags',
     function availableEdmPropertiesSpecs() {
@@ -66,9 +66,9 @@ export default Component.extend(I18n, {
 
   // FIXME: reaktywność?
   singleDisabledItemsTags: computed(
-    'edmObjectModel.edmProperties',
+    'edmObjectViewModel.edmProperties',
     function singleDisabledItemsTags() {
-      return this.edmObjectModel.edmProperties
+      return this.edmObjectViewModel.edmProperties
         .filter(property => property.maxOccurrences === EdmPropertyMaxOccurrences.Single)
         .map(property => property.xmlTagName);
     }

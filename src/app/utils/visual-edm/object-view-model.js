@@ -18,6 +18,8 @@ const ObjectViewModel = EmberObject.extend({
 
   edmProperties: reads('model.edmProperties'),
 
+  edmObjectType: reads('model.edmObjectType'),
+
   updateView() {
     this.notifyPropertyChange('model');
   },
