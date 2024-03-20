@@ -1,7 +1,12 @@
 {{#if (or (eq dirStatsServiceState.status "initializing") dirStatsNotReady)}}
   <div class="no-statistics">
+    <h1 class="no-statistics-header">{{tt this "noStatisticsTitle"}}</h1>
+    <img
+      class="dir-stats-not-ready-image"
+      src={{root-url "assets/images/dir-stats-not-ready.svg"}}
+    >
     <div class="no-statistics-message">
-      {{tt this "noStatistics"}}
+      {{tt this "noStatisticsContent"}}
     </div>
   </div>
 {{else}}
