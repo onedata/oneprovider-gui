@@ -40,7 +40,7 @@ export function stringifyXmlDocument(xmlDocument) {
   const xmlSerializer = new XMLSerializer();
   let str = xmlSerializer.serializeToString(xmlDocument);
   str = str.replace(/(<\?xml version="1.0" encoding="UTF-8"\?>)/, '$1\n');
-  const namespaces = str.match(/<rdf:RDF\s*(.*?)\s*>\n/)[1]
+  const namespaces = str.match(/<rdf:RDF\s*(.*?)\s*>\s*(\n|$)/)[1]
     .replaceAll(/(xmlns:)\s*/g, '\n    $1');
   str = str.replace(/<rdf:RDF\s*.*?\s*>/, `<rdf:RDF ${namespaces}>`);
   str = str.replaceAll(/^( {2})(\s*)/gm, '$2');

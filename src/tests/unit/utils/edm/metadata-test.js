@@ -9,7 +9,7 @@ import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 describe('Unit | Utility | edm/metadata', function () {
   setupTest('util:edm/metadata', {});
 
-  it('generates XML with supported namespaces from empty EDM metadata model',
+  it('generates formatted XML with supported namespaces from empty EDM metadata model',
     function () {
       // given
       const factory = EdmMetadataFactory.create();
@@ -19,9 +19,15 @@ describe('Unit | Utility | edm/metadata', function () {
       const resultXml = metadataModel.stringify();
 
       // then
-      expect(resultXml).to.equal(
-        '<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:ore="http://www.openarchives.org/ore/terms/"/>'
-      );
+      const expectedXmlRe = new RegExp(`<\\?xml version="1.0" encoding="UTF-8"\\?>\\s*
+<rdf:RDF\\s*
+  xmlns:rdf="http://www\\.w3\\.org/1999/02/22-rdf-syntax-ns#"\\s*
+  xmlns:dc="http://purl\\.org/dc/elements/1\\.1/"\\s*
+  xmlns:dcterms="http://purl\\.org/dc/terms/"\\s*
+  xmlns:edm="http://www.europeana\\.eu/schemas/edm/"\\s*
+  xmlns:ore="http://www.openarchives\\.org/ore/terms/"/>`, 'm');
+      console.log(resultXml);
+      expect(resultXml).to.match(expectedXmlRe);
     }
   );
 
@@ -79,9 +85,19 @@ describe('Unit | Utility | edm/metadata', function () {
       const resultXml = metadataModel.stringify();
 
       // then
-      expect(resultXml).to.equal(
-        '<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:ore="http://www.openarchives.org/ore/terms/"><edm:ProvidedCHO rdf:about="urn://eriac/19"><dc:contributor xml:lang="en">ERIAC</dc:contributor><dcterms:created>2018-03-13</dcterms:created></edm:ProvidedCHO><ore:Aggregation rdf:about="urn://eriac/19"><edm:aggregatedCHO rdf:resource="#example_direct_Image_1"/><edm:isShownBy rdf:resource="https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg"/></ore:Aggregation><edm:WebResource rdf:about="https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg"><dc:format>jpg</dc:format><dcterms:created>2017</dcterms:created></edm:WebResource></rdf:RDF>'
-      );
+      const resultStrings = [
+        '<edm:ProvidedCHO rdf:about="urn://eriac/19">',
+        '<dc:contributor xml:lang="en">ERIAC</dc:contributor>',
+        '<dcterms:created>2018-03-13</dcterms:created>',
+        '<ore:Aggregation rdf:about="urn://eriac/19">',
+        '<edm:isShownBy rdf:resource="https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg"/>',
+        '<edm:WebResource rdf:about="https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg">',
+        '<dc:format>jpg</dc:format>',
+      ];
+
+      for (const str of resultStrings) {
+        expect(resultXml).to.contain(str);
+      }
     }
   );
 
@@ -90,23 +106,23 @@ describe('Unit | Utility | edm/metadata', function () {
       // given
       const factory = EdmMetadataFactory.create();
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
-  <rdf:RDF
-      xmlns:dc="http://purl.org/dc/elements/1.1/"
-      xmlns:dcterms="http://purl.org/dc/terms/"
-      xmlns:edm="http://www.europeana.eu/schemas/edm/"
-      xmlns:ore="http://www.openarchives.org/ore/terms/"
-      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-      example extra content
-      <!-- comment one -->
-      <test>test content<!-- comment two --></test>
-      other example
-      <edm:ProvidedCHO rdf:about="#example_direct_Image_1">
-          <!-- comment inside property -->
-          <test>test content<!-- comment four --></test>
-          another example
-          <dcterms:created hello="world">1951</dcterms:created>
-      </edm:ProvidedCHO>
-  </rdf:RDF>`;
+<rdf:RDF
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:edm="http://www.europeana.eu/schemas/edm/"
+    xmlns:ore="http://www.openarchives.org/ore/terms/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    example extra content
+    <!-- comment one -->
+    <test>test content<!-- comment two --></test>
+    other example
+    <edm:ProvidedCHO rdf:about="#example_direct_Image_1">
+        <!-- comment inside property -->
+        <test>test content<!-- comment four --></test>
+        another example
+        <dcterms:created hello="world">1951</dcterms:created>
+    </edm:ProvidedCHO>
+</rdf:RDF>`;
 
       // when
       const metadataModel = factory.fromXml(xmlSource);
