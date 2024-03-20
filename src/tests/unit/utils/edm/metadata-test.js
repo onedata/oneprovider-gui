@@ -26,7 +26,6 @@ describe('Unit | Utility | edm/metadata', function () {
   xmlns:dcterms="http://purl\\.org/dc/terms/"\\s*
   xmlns:edm="http://www.europeana\\.eu/schemas/edm/"\\s*
   xmlns:ore="http://www.openarchives\\.org/ore/terms/"/>`, 'm');
-      console.log(resultXml);
       expect(resultXml).to.match(expectedXmlRe);
     }
   );

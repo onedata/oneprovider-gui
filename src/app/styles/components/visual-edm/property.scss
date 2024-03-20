@@ -31,7 +31,12 @@
   }
   .edm-property-value {
     flex-grow: 1;
-    overflow: hidden;
+    &.readonly {
+      overflow: hidden;
+    }
+    .form-group {
+      margin-bottom: 0;
+    }
     .value-using-reference {
       padding-top: 7px;
       padding-bottom: 7px;

@@ -15,8 +15,8 @@ export default Component.extend({
 
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       ownerSource: this,
-      xmlValue: generateEuropeanaXml(),
-      // edmMetadata: EdmMetadataFactory.create().createInitialMetadata(),
+      // xmlValue: generateEuropeanaXml(),
+      edmMetadata: EdmMetadataFactory.create().createInitialMetadata(),
       isReadOnly: false,
     }));
 

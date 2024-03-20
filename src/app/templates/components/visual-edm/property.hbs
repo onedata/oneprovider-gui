@@ -47,7 +47,7 @@
       {{/unless}}
     {{/if}}
     {{#if viewModel.isFirstPropertyInGroup}}
-      <div class="edm-recommendation-label {{recommendationClass}}">
+      <div class={{recommendationClassName}}>
         {{recommendationLabel}}
       </div>
     {{/if}}
@@ -72,7 +72,10 @@
     <OneIcon class="label-icon" @icon={{valueIcon}} />
     {{tt this (concat "valueLabel." valueType)}}:
   </div>
-  <div class="edm-property-value">
+  <div class={{concat-classes
+    "edm-property-value"
+    (if visualEdmViewModel.isReadOnly "readonly")
+  }}>
     {{#if visualEdmViewModel.isReadOnly}}
       {{#if (eq inputType "textarea")}}
         {{value}}
@@ -80,40 +83,44 @@
         <TruncatedString>{{value}}</TruncatedString>
       {{/if}}
     {{else}}
-      {{#if (eq inputType "input")}}
-        <input
-          class="form-control input-sm"
-          value={{value}}
-          oninput={{action "changeValue" value="target.value"}}
-        />
-      {{else if (eq inputType "textarea")}}
-        <textarea
-          class="form-control input-sm"
-          value={{value}}
-          rows="4"
-          oninput={{action "changeValue" value="target.value"}}
-        />
-      {{else if (eq inputType "dropdown")}}
-        <OneDropdown
-          @triggerClass="small property-value-dropdown-trigger"
-          @dropdownClass="small property-value-dropdown"
-          @options={{predefinedValueOptions}}
-          @selected={{selectedPredefinedValueOption}}
-          @onChange={{action "changeSelectedPredefinedValueOption"}}
-          {{!-- @placeholder={{tt this ""}} --}}
-          @searchEnabled={{true}}
-          @searchField="label"
-          as |option|
-        >
-          <div class="option-container">
-            {{#truncated-string}}
-              <span class="text">
-                {{option.label}}
-              </span>
-            {{/truncated-string}}
-          </div>
-        </OneDropdown>
-      {{/if}}
+      <div class={{viewModel.formGroupClassName}}>
+        {{#if (eq inputType "input")}}
+          <input
+            class="form-control input-sm"
+            value={{value}}
+            oninput={{action "changeValue" value="target.value"}}
+            onblur={{action "handleInputBlur"}}
+          />
+        {{else if (eq inputType "textarea")}}
+          <textarea
+            class="form-control input-sm"
+            value={{value}}
+            rows="4"
+            oninput={{action "changeValue" value="target.value"}}
+            onblur={{action "handleInputBlur"}}
+          />
+        {{else if (eq inputType "dropdown")}}
+          <OneDropdown
+            @triggerClass="small property-value-dropdown-trigger"
+            @dropdownClass="small property-value-dropdown"
+            @options={{predefinedValueOptions}}
+            @selected={{selectedPredefinedValueOption}}
+            @onChange={{action "changeSelectedPredefinedValueOption"}}
+            {{!-- @placeholder={{tt this ""}} --}}
+            @searchEnabled={{true}}
+            @searchField="label"
+            as |option|
+          >
+            <div class="option-container">
+              {{#truncated-string}}
+                <span class="text">
+                  {{option.label}}
+                </span>
+              {{/truncated-string}}
+            </div>
+          </OneDropdown>
+        {{/if}}
+      </div>
     {{/if}}
   </div>
 </div>

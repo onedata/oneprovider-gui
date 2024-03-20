@@ -3,6 +3,7 @@ import { reads } from '@ember/object/computed';
 import { eq, raw, conditional } from 'ember-awesome-macros';
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
 import { EdmPropertyRecommendation } from '../edm/property-spec';
+import EdmPropertyValidator from '../edm/property-validator';
 
 const PropertyViewModel = EmberObject.extend({
   visualEdmViewModel: undefined,
@@ -13,6 +14,11 @@ const PropertyViewModel = EmberObject.extend({
   propertyGroupViewModel: undefined,
 
   objectViewModel: reads('propertyGroupViewModel.objectViewModel'),
+
+  /**
+   * @type {boolean}
+   */
+  wasInputFocused: false,
 
   /**
    * @type {VisualEdmPropertyValueType}
@@ -55,6 +61,18 @@ const PropertyViewModel = EmberObject.extend({
 
   isLangConfigurable: reads('model.isLangConfigurable'),
 
+  formGroupClassName: computed(
+    'wasInputFocused',
+    'validator.isError',
+    function formGroupClassName() {
+      const classes = ['form-group'];
+      if (this.wasInputFocused) {
+        classes.push(this.validator.isError ? 'has-error' : 'has-success');
+      }
+      return classes.join(' ');
+    }
+  ),
+
   init() {
     this._super(...arguments);
     this.set(
@@ -62,10 +80,14 @@ const PropertyViewModel = EmberObject.extend({
       this.isUsingReference ?
       EdmPropertyValueType.Reference : EdmPropertyValueType.Literal
     );
+    this.set('validator', EdmPropertyValidator.create({
+      edmProperty: this.model,
+    }));
   },
 
   updateView() {
     this.notifyPropertyChange('model');
+    this.validator.updateValue();
   },
 
   changeValue(newValue) {

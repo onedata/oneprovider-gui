@@ -1,12 +1,12 @@
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { set, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe } from '@ember/string';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import { conditional, eq, raw, bool } from 'ember-awesome-macros';
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
-import { EdmPropertyRecommendation } from '../../utils/edm/property-spec';
+import { EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
 
 // FIXME: jak najwięcej przenieść logiki do property-view-model
 
@@ -170,18 +170,17 @@ export default Component.extend(I18n, {
     }
   ),
 
-  recommendationClass: computed('viewModel.model.recommendation',
-    function recommendationLabel() {
-      switch (this.viewModel.model.recommendation) {
-        case EdmPropertyRecommendation.None:
-          return 'optional';
-        case EdmPropertyRecommendation.Recommended:
-          return 'recommended';
-        case EdmPropertyRecommendation.Mandatory:
-          return 'mandatory';
-        default:
-          break;
+  recommendationClassName: computed(
+    'viewModel.{validator.isError,model.recommendation}',
+    function recommendationClassName() {
+      const classes = ['edm-recommendation-label'];
+      if (
+        this.viewModel.model.recommendation === EdmPropertyRecommendation.Mandatory &&
+        this.viewModel.validator.isError
+      ) {
+        classes.push('text-danger');
       }
+      return classes.join(' ');
     }
   ),
 
@@ -221,6 +220,9 @@ export default Component.extend(I18n, {
     },
     deleteProperty() {
       this.viewModel.deleteProperty();
+    },
+    handleInputBlur() {
+      set(this.viewModel, 'wasInputFocused', true);
     },
   },
 });

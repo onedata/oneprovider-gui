@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll, fillIn, click } from '@ember/test-helpers';
+import { render, find, findAll, fillIn, click, focus, blur } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
@@ -376,8 +376,6 @@ describe('Integration | Component | visual-edm', function () {
       'Alternative',
       'Issued',
     ];
-    console.log(propertyLabels);
-    console.log(expectedPropertyLabels);
     expect(propertyLabels).to.deep.equal(expectedPropertyLabels);
   });
 
@@ -707,6 +705,37 @@ describe('Integration | Component | visual-edm', function () {
 
       // then
       expect(find('.edm-property-lang-input')).to.not.exist;
+    }
+  );
+
+  it('shows validation error on property value input if it is empty after input blur',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory.create();
+      const propertyFactory = EdmPropertyFactory.create();
+      const metadata = factory.createEmptyMetadata();
+      const objectFactory = new EdmObjectFactory(metadata);
+      const providedCho = objectFactory.createObject(
+        EdmObjectType.ProvidedCHO, {
+          edmProperties: [
+            propertyFactory.createProperty(metadata, 'dc', 'subject', {
+              value: '',
+            }),
+          ],
+        }
+      );
+      metadata.edmObjects = [providedCho];
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+      const edmPropertyValueInput = find('.edm-property-value input');
+      await focus(edmPropertyValueInput);
+      await blur(edmPropertyValueInput);
+
+      // then
+      expect(find('.edm-property-value .form-group')).to.have.class('has-error');
     }
   );
 });
