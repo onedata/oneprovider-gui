@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11264 Added tooltips to chart dashboard editor
 * VFS-11431 Added better validation errors propagation to charts dashboard editor
 * VFS-11018 Hid "Run workflow" tab in automation view when a user is already on that tab
 * VFS-10083 Better formatting of large numbers
