@@ -45,6 +45,7 @@ const EdmMetadataFactory = EmberObject.extend({
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
     const aggregation = objectFactory.createObject(EdmObjectType.Aggregation);
+    // FIXME: typ
     const initialPropertyItems = flatSpecs.filter(item => {
       return item.spec.rec === EdmPropertyRecommendation.Mandatory ||
         item.spec.rec === EdmPropertyRecommendation.Recommended;

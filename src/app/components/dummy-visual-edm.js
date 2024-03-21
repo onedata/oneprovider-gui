@@ -1,6 +1,7 @@
 import Component from '@ember/component';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
+import EdmMetadataValidator from '../utils/edm/metadata-validator';
 // FIXME: remove if unused
 // import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 // import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
@@ -13,10 +14,12 @@ export default Component.extend({
   init() {
     this._super(...arguments);
 
+    const edmMetadata = EdmMetadataFactory.create().createInitialMetadata();
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       ownerSource: this,
       // xmlValue: generateEuropeanaXml(),
-      edmMetadata: EdmMetadataFactory.create().createInitialMetadata(),
+      edmMetadata,
+      validator: EdmMetadataValidator.create({ edmMetadata }),
       isReadOnly: false,
     }));
 

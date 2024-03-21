@@ -36,6 +36,10 @@
     margin-top: 1em;
   }
 
+  .edm-metadata-invalid {
+    margin-top: 1em;
+  }
+
   &.readonly {
     padding: 0.5em;
   }
@@ -51,6 +55,27 @@
       color: $main-text-color-disabled;
       &:hover {
         color: $main-text-color-disabled;
+      }
+    }
+  }
+
+  .edm-info-row {
+    display: flex;
+    .edm-info-row-inner {
+      display: flex;
+      align-items: center;
+    }
+    .edm-info-row-icon + .edm-info-row-text {
+      margin-left: 0.8em;
+    }
+    &.warning {
+      .edm-info-row-icon {
+        color: $color-one-warning;
+      }
+    }
+    &.info {
+      .edm-info-row-icon {
+        color: $color-one-azure;
       }
     }
   }

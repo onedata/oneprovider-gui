@@ -176,7 +176,7 @@ export default Component.extend(I18n, {
       const classes = ['edm-recommendation-label'];
       if (
         this.viewModel.model.recommendation === EdmPropertyRecommendation.Mandatory &&
-        this.viewModel.validator.isError
+        this.viewModel.validator?.isError
       ) {
         classes.push('text-danger');
       }

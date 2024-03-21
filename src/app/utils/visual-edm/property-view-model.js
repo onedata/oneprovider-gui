@@ -13,6 +13,8 @@ const PropertyViewModel = EmberObject.extend({
   // FIXME: redukcja powyższych na podstawie poniższego
   propertyGroupViewModel: undefined,
 
+  validator: undefined,
+
   objectViewModel: reads('propertyGroupViewModel.objectViewModel'),
 
   /**
@@ -66,7 +68,7 @@ const PropertyViewModel = EmberObject.extend({
     'validator.isError',
     function formGroupClassName() {
       const classes = ['form-group'];
-      if (this.wasInputFocused && this.validator.isError) {
+      if (this.wasInputFocused && this.validator?.isError) {
         classes.push('has-error');
       }
       return classes.join(' ');
@@ -87,14 +89,11 @@ const PropertyViewModel = EmberObject.extend({
     } else {
       this.set('valueType', this.model.supportedValueType);
     }
-    this.set('validator', EdmPropertyValidator.create({
-      edmProperty: this.model,
-    }));
   },
 
   updateView() {
     this.notifyPropertyChange('model');
-    this.validator.updateValue();
+    this.validator?.updateValue();
   },
 
   changeValue(newValue) {

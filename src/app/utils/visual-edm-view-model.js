@@ -12,9 +12,16 @@ const VisualEdmViewModel = EmberObject.extend({
   //#region dependencies
 
   /**
-   * @type {Utils.Edm.Metadata}
+   * @virtual
+   * @type {EdmMetadata}
    */
   edmMetadata: undefined,
+
+  /**
+   * @virtual
+   * @type {EdmMetadataValidator}
+   */
+  validator: undefined,
 
   //#endregion
 
@@ -37,9 +44,13 @@ const VisualEdmViewModel = EmberObject.extend({
    */
   objects: undefined,
 
-  edmMetadataObserver: observer('edmMetadata', function edmMetadataObserver() {
-    this.set('objects', this.createObjectsViewModels());
-  }),
+  edmMetadataObserver: observer(
+    'edmMetadata',
+    'validator',
+    function edmMetadataObserver() {
+      this.set('objects', this.createObjectsViewModels());
+    }
+  ),
 
   // FIXME: raczej uprościć, żeby nie obsługiwać wstrzykiwania xmlValue, tylko sam model
   init() {
@@ -52,8 +63,12 @@ const VisualEdmViewModel = EmberObject.extend({
 
   createObjectsViewModels() {
     return this.edmMetadata.edmObjects.map(edmObject => {
+      const objectValidator = this.validator?.objectValidators.find(v =>
+        v.edmObject === edmObject
+      );
       return ObjectViewModel.create({
         visualEdmViewModel: this,
+        validator: objectValidator,
         model: edmObject,
       });
     });

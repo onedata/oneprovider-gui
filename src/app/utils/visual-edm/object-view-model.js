@@ -1,7 +1,8 @@
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import EdmPropertyFactory from '../edm/property-factory';
 import { EdmPropertyMaxOccurrences } from '../edm/property-spec';
+import EdmObjectValidator from '../edm/object-validator';
 
 const ObjectViewModel = EmberObject.extend({
   /**
@@ -15,6 +16,11 @@ const ObjectViewModel = EmberObject.extend({
    * @type {EdmObject}
    */
   model: undefined,
+
+  /**
+   * @type {EdmObjectValidator}
+   */
+  objectValidator: undefined,
 
   edmProperties: reads('model.edmProperties'),
 
@@ -34,8 +40,15 @@ const ObjectViewModel = EmberObject.extend({
     }
   ),
 
+  // FIXME:
+  // edmPropertiesObserver: observer('edmProperties', function edmPropertiesObserver() {
+  //   this.updateView();
+  //   debugger;
+  // }),
+
   updateView() {
     this.notifyPropertyChange('model');
+    this.validator?.updateValue();
   },
 
   addProperty(item) {

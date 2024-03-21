@@ -68,15 +68,11 @@ export default Component.extend(I18n, {
   edmPropertyGroups: computed('edmProperties', function edmPropertyGroups() {
     const sortedProperties = sortProperties(this.edmProperties);
     const groupedProperties = _.groupBy(sortedProperties, 'xmlTagName');
-    return Object.values(groupedProperties).map(properties =>
+    return Object.values(groupedProperties).map(edmProperties =>
       PropertyGroupViewModel.create({
         visualEdmViewModel: this.visualEdmViewModel,
-        namespace: properties[0].namespace,
-        // FIXME: to remove
-        edmObjectModel: this.viewModel.model,
+        edmProperties,
         objectViewModel: this.viewModel,
-        edmPropertyType: properties[0].edmPropertyType,
-        edmProperties: properties,
       })
     );
   }),

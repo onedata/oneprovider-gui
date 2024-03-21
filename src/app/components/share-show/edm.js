@@ -12,6 +12,7 @@ import { not, and, raw, or, bool, conditional } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
+import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { set } from '@ember/object';
 
 const defaultMode = 'visual';
@@ -96,9 +97,14 @@ export default Component.extend(I18n, {
    */
   mode: defaultMode,
 
+  /**
+   * @type {EdmMetadataValidator}
+   */
+  metadataValidator: undefined,
+
   //#endregion
 
-  isEmpty: not('xmlValue'),
+  isEmpty: not('currentXmlValue'),
 
   isSubmitDisabled: bool('submitDisabledReason'),
 
@@ -138,8 +144,11 @@ export default Component.extend(I18n, {
         edmMetadata = metadataFactory.createInitialMetadata();
       }
     }
+    const metadataValidator = EdmMetadataValidator.create({ edmMetadata });
+    this.set('metadataValidator', metadataValidator);
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       edmMetadata,
+      validator: metadataValidator,
       isReadOnly: this.readonly,
     }));
 
@@ -165,7 +174,7 @@ export default Component.extend(I18n, {
   },
 
   submit() {
-    return this.onSubmit(this.xmlValue);
+    return this.onSubmit(this.currentXmlValue);
   },
 
   updateCurrentXmlValue() {

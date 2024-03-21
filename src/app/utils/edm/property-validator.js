@@ -5,6 +5,7 @@ import { not } from 'ember-awesome-macros';
 const EdmPropertyValidator = EmberObject.extend({
   /**
    * @virtual
+   * @type {EdmProperty}
    */
   edmProperty: undefined,
 

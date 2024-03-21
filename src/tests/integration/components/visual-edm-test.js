@@ -9,6 +9,7 @@ import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import { findByText } from '../../helpers/find';
+import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 
 describe('Integration | Component | visual-edm', function () {
   setupRenderingTest();
@@ -366,7 +367,9 @@ describe('Integration | Component | visual-edm', function () {
     await helper.render();
 
     // then
-    const propertyLabels = findAll('.edm-property-type').map(element => element.textContent.trim());
+    const propertyLabels = findAll('.edm-property-type').map(element =>
+      element.textContent.trim()
+    );
     const expectedPropertyLabels = [
       'Title',
       'Description',
@@ -754,6 +757,9 @@ class Helper {
     this.mochaContext = mochaContext;
     this.visualEdmViewModel = VisualEdmViewModel.create({
       edmMetadata,
+      validator: EdmMetadataValidator.create({
+        edmMetadata,
+      }),
     });
   }
   /** @type {HTMLDivElement} */
@@ -773,9 +779,6 @@ class Helper {
       .querySelectorAll('.visual-edm-property')[propertyIndex];
   }
   get visualEdmViewModel() {
-    if (!this.#visualEdmViewModel) {
-      this.#visualEdmViewModel = VisualEdmViewModel.create();
-    }
     return this.#visualEdmViewModel;
   }
   set visualEdmViewModel(value) {
