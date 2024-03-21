@@ -480,10 +480,13 @@ describe('Integration | Component | visual-edm', function () {
     }
   );
 
-  it('renders with initial objects with required and recommended properties by default',
+  it('renders with initial objects with required and recommended properties when used with initial metadata',
     async function () {
       // given
-      const helper = new Helper(this, null);
+      const helper = new Helper(
+        this,
+        EdmMetadataFactory.create().createInitialMetadata()
+      );
       helper.visualEdmViewModel.set('isReadOnly', false);
 
       // when

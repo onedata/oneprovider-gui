@@ -1,5 +1,6 @@
 import globals from 'onedata-gui-common/utils/globals';
 import { supportedPropertyTagSet } from './property-spec';
+import xmlFormat from 'xml-formatter';
 
 // FIXME: refactor to have common code with enum
 const supportedObjectTagSet = Object.freeze(new Set([
@@ -38,11 +39,17 @@ export function isEmptyXmlNode(xmlNode) {
  */
 export function stringifyXmlDocument(xmlDocument) {
   const xmlSerializer = new XMLSerializer();
-  let str = xmlSerializer.serializeToString(xmlDocument);
-  str = str.replace(/(<\?xml version="1.0" encoding="UTF-8"\?>)/, '$1\n');
-  const namespaces = str.match(/<rdf:RDF\s*(.*?)\s*>\s*(\n|$)/)[1]
-    .replaceAll(/(xmlns:)\s*/g, '\n    $1');
-  str = str.replace(/<rdf:RDF\s*.*?\s*>/, `<rdf:RDF ${namespaces}>`);
-  str = str.replaceAll(/^( {2})(\s*)/gm, '$2');
+  let str = xmlFormat(xmlSerializer.serializeToString(xmlDocument), {
+    indentation: '  ',
+    collapseContent: true,
+  });
+  try {
+    str = str.replace(/(<\?xml version="1.0" encoding="UTF-8"\?>)/, '$1\n');
+    const namespaces = str.match(/<rdf:RDF\s*(.*?)\s*>\s*(\n|$)/)[1]
+      .replaceAll(/(xmlns:)\s*/g, '\n  $1');
+    str = str.replace(/<rdf:RDF\s*.*?\s*>/, `<rdf:RDF ${namespaces}>`);
+  } catch {
+    console.error('Failed to properly format EDM metadata XML');
+  }
   return str;
 }

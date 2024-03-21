@@ -102,9 +102,9 @@
           {{#carousel.slide slideId="createMetadata" class="full-height" as |slide|}}
             {{#if (eq slide.state "active-from-right")}}
               {{#if (eq selectedMetadataType MetadataType.Edm)}}
+                {{!-- FIXME: tutaj było wstrzykiwanie "xml", ale teraz Edm ma to wew. --}}
                 <ShareShow::Edm
                   class="full-height"
-                  @xmlValue={{xml}}
                   @initialData={{initialData}}
                   @handleService={{selectedHandleService}}
                   @onUpdateXml={{action "updateXml"}}

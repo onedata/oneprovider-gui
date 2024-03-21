@@ -17,14 +17,11 @@ import { EdmPropertyRecommendation, flatSpecs } from './property-spec';
  * @property {string} [about] `rdf:about` attribute of element.
  */
 
+// FIXME: change to native class and non-instance methods
 const EdmMetadataFactory = EmberObject.extend({
   //#region state
 
   //#endregion
-
-  createEmptyMetadata() {
-    return new EdmMetadata();
-  },
 
   /**
    * @public
@@ -36,6 +33,10 @@ const EdmMetadataFactory = EmberObject.extend({
     /** @type {XMLDocument} */
     const xmlDocument = domParser.parseFromString(xmlValue, 'text/xml');
     return new EdmMetadata(xmlDocument);
+  },
+
+  createEmptyMetadata() {
+    return new EdmMetadata();
   },
 
   // FIXME: można uwzględnić dane z share'a

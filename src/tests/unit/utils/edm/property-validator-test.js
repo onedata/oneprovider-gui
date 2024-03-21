@@ -2,9 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import EdmPropertyValidator from 'oneprovider-gui/utils/edm/property-validator';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
-import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
-import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 
 describe('Unit | Utility | edm/property-validator', function () {
   it('has isValid = true if property has a non-empty value', function () {
@@ -57,10 +55,7 @@ class Helper {
   constructor() {
     this.metadataFactory = EdmMetadataFactory.create();
     this.metadata = this.metadataFactory.createEmptyMetadata();
-    this.objectFactory = new EdmObjectFactory(this.metadata);
     this.propertyFactory = EdmPropertyFactory.create();
-    this.object = this.objectFactory.createObject(EdmObjectType.ProvidedCHO);
-    this.metadata.edmObjects = [this.object];
   }
   initProperty(namespace, name, options = {}) {
     this.property =

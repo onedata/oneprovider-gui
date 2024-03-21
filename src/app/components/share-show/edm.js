@@ -7,11 +7,12 @@
  */
 
 import Component from '@ember/component';
-import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { not, and, raw, or, bool, conditional } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
+import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
+import { set } from '@ember/object';
 
 const defaultMode = 'visual';
 
@@ -56,7 +57,16 @@ export default Component.extend(I18n, {
    */
   onBack: undefined,
 
-  //#region
+  //#endregion
+
+  //#region state
+
+  /**
+   * @type {string}
+   */
+  currentXmlValue: '',
+
+  //#endregion
 
   //#region configuration
 
@@ -116,27 +126,28 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    // FIXME: debug code
-    this.set('xmlValue', generateDefaultXml(this.initialData));
-    this.set('visualEdmViewModel', VisualEdmViewModel
-      .extend({
-        xmlValue: reads('container.xmlValue'),
-      })
-      .create({
-        ownerSource: this,
-        container: this,
-      })
-    );
-  },
-
-  /**
-   * @override
-   */
-  didInsertElement() {
-    this._super(...arguments);
-    if (!this.xmlValue) {
-      this.onUpdateXml(generateDefaultXml(this.initialData));
+    // FIXME: dodać komentarze początkowe do XML-a
+    const metadataFactory = EdmMetadataFactory.create();
+    let edmMetadata;
+    if (this.xmlValue) {
+      edmMetadata = metadataFactory.fromXml(this.xmlValue);
+    } else {
+      if (this.readonly) {
+        edmMetadata = metadataFactory.createEmptyMetadata();
+      } else {
+        edmMetadata = metadataFactory.createInitialMetadata();
+      }
     }
+    this.set('visualEdmViewModel', VisualEdmViewModel.create({
+      edmMetadata,
+      isReadOnly: this.readonly,
+    }));
+
+    // FIXME: debug code
+    ((name) => {
+      window[name] = this;
+      console.log(`window.${name}`, window[name]);
+    })('debug_edm');
   },
 
   setupAceEditor(aceEditor) {
@@ -157,15 +168,35 @@ export default Component.extend(I18n, {
     return this.onSubmit(this.xmlValue);
   },
 
+  updateCurrentXmlValue() {
+    this.changeSource(this.visualEdmViewModel.edmMetadata.stringify());
+  },
+
+  updateModelFromCurrentXml() {
+    set(
+      this.visualEdmViewModel,
+      'edmMetadata',
+      EdmMetadataFactory.create().fromXml(this.currentXmlValue)
+    );
+  },
+
+  changeSource(value) {
+    if (!value) {
+      this.set('isValid', true);
+    }
+    this.set('currentXmlValue', value);
+    this.onUpdateXml(value);
+  },
+
   actions: {
     /**
      * @param {'visual'|'xml'} newMode
      */
     changeMode(newMode) {
       if (newMode === 'visual') {
-        this.visualEdmViewModel.updateMetadataModel();
+        this.updateModelFromCurrentXml();
       } else {
-        this.onUpdateXml(this.visualEdmViewModel.edmMetadata.stringify());
+        this.updateCurrentXmlValue();
       }
       this.set('mode', newMode);
     },
@@ -173,10 +204,7 @@ export default Component.extend(I18n, {
       this.setupAceEditor(aceEditor);
     },
     sourceChanged(value) {
-      if (!value) {
-        this.set('isValid', true);
-      }
-      this.onUpdateXml(value);
+      this.changeSource(value);
     },
     // TODO: VFS-11645 Ask for unsaved changed when cancelling and chaning view
     back() {

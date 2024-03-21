@@ -66,8 +66,8 @@ const PropertyViewModel = EmberObject.extend({
     'validator.isError',
     function formGroupClassName() {
       const classes = ['form-group'];
-      if (this.wasInputFocused) {
-        classes.push(this.validator.isError ? 'has-error' : 'has-success');
+      if (this.wasInputFocused && this.validator.isError) {
+        classes.push('has-error');
       }
       return classes.join(' ');
     }
@@ -75,11 +75,18 @@ const PropertyViewModel = EmberObject.extend({
 
   init() {
     this._super(...arguments);
-    this.set(
-      'valueType',
-      this.isUsingReference ?
-      EdmPropertyValueType.Reference : EdmPropertyValueType.Literal
-    );
+    if (
+      this.visualEdmViewModel.isReadOnly ||
+      this.model.supportedValueType === EdmPropertyValueType.Any
+    ) {
+      this.set(
+        'valueType',
+        this.isUsingReference ?
+        EdmPropertyValueType.Reference : EdmPropertyValueType.Literal
+      );
+    } else {
+      this.set('valueType', this.model.supportedValueType);
+    }
     this.set('validator', EdmPropertyValidator.create({
       edmProperty: this.model,
     }));
