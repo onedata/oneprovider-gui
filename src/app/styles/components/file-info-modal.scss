@@ -33,21 +33,8 @@
     margin-left: 0.5em;
   }
 
-  .no-statistics {
-    background-image: url($root-url + "/images/empty-directory.svg");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: auto 200px;
-    padding-top: 260px;
-    .no-statistics-message {
-      @include font-semibold();
-      text-transform: uppercase;
-      font-size: 130%;
-      text-align: center;
-      width: 100%;
-      padding-top: 30px;
-      padding-bottom: 30px;
-    }
+  .no-statistics-message {
+    text-align: center;
   }
 
   .size-stats-expand {

@@ -1,7 +1,8 @@
 import sizeStatsPerProviderTable from './size-stats-per-provider-table';
 
 export default {
-  noStatistics: 'Requested directory statistics are not ready yet – calculation is in progress.',
+  noStatisticsTitle: 'Directory statistics not ready yet',
+  noStatisticsContent: 'The requested directory statistics are still being calculated, please come back in a while.',
   currentSize: {
     header: 'Current size',
     fileCounters: {

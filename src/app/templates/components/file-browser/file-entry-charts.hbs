@@ -1,9 +1,13 @@
 {{#if (or (eq dirStatsServiceState.status "initializing") dirStatsNotReady)}}
-  <div class="no-statistics">
+  {{#content-info
+    class="scroll-breakpoint-600 fill-flex-using-column content-info-no-statistics"
+    header=(tt this "noStatisticsTitle")
+    imagePath="assets/images/dir-stats-not-ready.svg"
+  }}
     <div class="no-statistics-message">
-      {{tt this "noStatistics"}}
+      {{tt this "noStatisticsContent"}}
     </div>
-  </div>
+  {{/content-info}}
 {{else}}
   {{#promise-proxy-container proxy=loadingProxy}}
     <div class="current-size-section">
