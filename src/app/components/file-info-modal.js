@@ -816,6 +816,11 @@ export default Component.extend(...mixins, {
     const initialTab = this.initialTab;
     const visibleTabs = this.visibleTabs;
     this.set('activeTab', visibleTabs.includes(initialTab) ? initialTab : visibleTabs[0]);
+
+    // BUGFIX: `isActive` property value does not recalculate properly when we
+    // enter directly "size" tab. We need to kick changes detection manually.
+    this.activeTabModel?.notifyPropertyChange('isActive');
+
     // check just the first file, because all files should have the same scope
     if (get(this.file, 'scope') !== 'public') {
       this.currentProviderLocationsProxy.then(currentProviderLocations => {
