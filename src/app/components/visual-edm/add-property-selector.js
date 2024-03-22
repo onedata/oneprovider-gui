@@ -112,7 +112,7 @@ export default Component.extend(I18n, {
         }
       }
     }
-    return Object.freeze(sortProperties(items));
+    return Object.freeze(sortProperties(items, 'visual'));
   },
 
   repositionPopover() {

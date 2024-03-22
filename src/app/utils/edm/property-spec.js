@@ -68,7 +68,10 @@ export const allSpecs = Object.freeze({
       lang: true,
     },
     format: {
-      val: EdmPropertyValueType.Reference,
+      // FIXME: "for now, we do a simple enum, in the future we probable get urls"
+      // FIXME: zrobić dropdown, na razie z values
+      // val: EdmPropertyValueType.Reference,
+      val: EdmPropertyValueType.Value,
       basic: true,
       obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
       // FIXME: sprawdzić w spreadsheecie

@@ -2,6 +2,7 @@ import EdmXmlGenerator from './xml-generator';
 import globals from 'onedata-gui-common/utils/globals';
 import EdmObjectsList from './objects-list';
 import { isEmptyXmlNode, isSupportedXmlObject, stringifyXmlDocument } from './xml-utils';
+import { sortObjects } from './sort';
 
 export default class EdmMetadata {
   static namespaceUris = Object.freeze({
@@ -69,10 +70,6 @@ export default class EdmMetadata {
     return this.#edmObjects;
   }
 
-  stringify() {
-    return stringifyXmlDocument(this.xmlDocument);
-  }
-
   get hasExtraData() {
     // FIXME: sprawdzić także to co jest poza root elementem
     for (const node of this.xmlElement.childNodes) {
@@ -81,5 +78,16 @@ export default class EdmMetadata {
       }
     }
     return false;
+  }
+
+  stringify() {
+    return stringifyXmlDocument(this.xmlDocument);
+  }
+
+  sort() {
+    this.#edmObjectsList.replaceAll(sortObjects(this.edmObjects));
+    for (const object of this.edmObjects) {
+      object.sortProperties();
+    }
   }
 }

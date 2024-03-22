@@ -26,6 +26,9 @@ export default class EdmPropertiesList {
     this.xmlElement.replaceChildren(...elements);
   }
 
+  /**
+   * @returns {Array<EdmProeprty>}
+   */
   toArray() {
     const factory = EdmPropertyFactory.create();
     const array = [];

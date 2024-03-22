@@ -7,6 +7,7 @@ import ObjectViewModel from './visual-edm/object-view-model';
 import EdmObjectType from './edm/object-type';
 import _ from 'lodash';
 import EdmObjectFactory from './edm/object-factory';
+import { sortObjects } from './edm/sort';
 
 const VisualEdmViewModel = EmberObject.extend({
   //#region dependencies
@@ -62,7 +63,7 @@ const VisualEdmViewModel = EmberObject.extend({
   },
 
   createObjectsViewModels() {
-    return this.edmMetadata.edmObjects.map(edmObject => {
+    return sortObjects(this.edmMetadata.edmObjects).map(edmObject => {
       const objectValidator = this.validator?.objectValidators.find(v =>
         v.edmObject === edmObject
       );

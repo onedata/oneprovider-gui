@@ -38,7 +38,6 @@ const EdmObjectValidator = EmberObject.extend({
       return this.propertyValidators.every(validator =>
         validator.isValid
       );
-      // FIXME: sprawdzenie, czy wszystkie requiredy są tutaj
       // FIXME: sprawdzenie, czy nic nie przekracza max occurences
     }
   ),

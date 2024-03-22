@@ -66,7 +66,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<EdmPropertyGroup>}
    */
   edmPropertyGroups: computed('edmProperties', function edmPropertyGroups() {
-    const sortedProperties = sortProperties(this.edmProperties);
+    const sortedProperties = sortProperties(this.edmProperties, 'visual');
     const groupedProperties = _.groupBy(sortedProperties, 'xmlTagName');
     return Object.values(groupedProperties).map(edmProperties =>
       PropertyGroupViewModel.create({

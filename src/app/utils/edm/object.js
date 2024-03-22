@@ -2,6 +2,7 @@ import EdmAttrs from './attrs';
 import { isEmptyXmlNode, isSupportedXmlProperty } from './xml-utils';
 import EdmPropertiesList from './edm-properties-list';
 import _ from 'lodash';
+import { sortProperties } from './sort';
 
 /**
  * @typedef {Object} EdmObjectAttrs
@@ -14,7 +15,9 @@ const shownAttrs = Object.freeze(['about']);
 const shownXmlAttrs = Object.freeze(['rdf:about']);
 
 export default class EdmObject {
+  /** @type {EdmPropertiesList} */
   #edmPropertiesList = undefined;
+  /** @type {Array<EdmProperty>} */
   #edmProperties = undefined;
 
   /**
@@ -108,8 +111,12 @@ export default class EdmObject {
     this.edmProperties = _.without(this.edmProperties, edmProperty);
   }
 
-  // FIXME: implement?
-  // getFilledAttrs
+  /**
+   * @returns {void}
+   */
+  sortProperties() {
+    this.#edmPropertiesList.replaceAll(sortProperties(this.edmProperties, 'xml'));
+  }
 }
 
 export class InvalidEdmObjectType extends Error {
