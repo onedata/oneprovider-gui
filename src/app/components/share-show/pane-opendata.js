@@ -141,16 +141,16 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this.loadXml();
-    // FIXME: debug code
-    // (async () => {
-    //   const handleServices = await this.handleServicesProxy;
-    //   this.setProperties({
-    //     selectedHandleService: handleServices.get('firstObject'),
-    //     selectedMetadataType: MetadataType.Edm,
-    //   });
-    //   await waitForRender();
-    //   this.element.querySelector('button').click();
-    // })();
+    // FIXME: share show debug code
+    (async () => {
+      const handleServices = await this.handleServicesProxy;
+      this.setProperties({
+        selectedHandleService: handleServices.get('firstObject'),
+        selectedMetadataType: MetadataType.Edm,
+      });
+      await waitForRender();
+      this.element.querySelector('button').click();
+    })();
   },
 
   async loadXml() {

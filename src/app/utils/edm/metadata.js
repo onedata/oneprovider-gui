@@ -1,4 +1,3 @@
-import EdmXmlGenerator from './xml-generator';
 import globals from 'onedata-gui-common/utils/globals';
 import EdmObjectsList from './objects-list';
 import { isEmptyXmlNode, isSupportedXmlObject, stringifyXmlDocument } from './xml-utils';
@@ -31,7 +30,7 @@ export default class EdmMetadata {
    * @param {Element} rootNode
    */
   static addRdfNamespaces(rootNode) {
-    for (const [namespace, uri] of Object.entries(EdmXmlGenerator.namespaceUris)) {
+    for (const [namespace, uri] of Object.entries(EdmMetadata.namespaceUris)) {
       if (namespace === 'rdf') {
         continue;
       }
@@ -39,22 +38,29 @@ export default class EdmMetadata {
     }
   }
 
+  /** @type {Array<EdmObjectsList>} */
   #edmObjectsList = undefined;
+  /** @type {Array<EdmObject>} */
   #edmObjects = undefined;
+  /** @type {XMLDocument} */
+  #xmlDocument = undefined;
 
   /**
    * @param {XMLDocument} xmlDocument
    */
   constructor(xmlDocument) {
     if (xmlDocument) {
-      this.xmlDocument = xmlDocument;
-      // FIXME: jakaś podstawowa walidacja jak w xml-parser?
+      this.#xmlDocument = xmlDocument;
     } else {
-      this.xmlDocument = EdmMetadata.createXmlDocument();
+      this.#xmlDocument = EdmMetadata.createXmlDocument();
       EdmMetadata.addRdfNamespaces(this.xmlElement);
     }
     /** @type {Array<EdmObject>} */
     this.edmObjects = undefined;
+  }
+
+  get xmlDocument() {
+    return this.#xmlDocument;
   }
 
   get xmlElement() {

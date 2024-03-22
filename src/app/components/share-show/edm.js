@@ -8,10 +8,10 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import emberAwesomeMacros, { not, and, raw, or, bool, conditional } from 'ember-awesome-macros';
+import { not, and, raw, or, bool, conditional } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
-import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
+import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { set } from '@ember/object';
 
@@ -92,6 +92,8 @@ export default Component.extend(I18n, {
 
   isValid: true,
 
+  isXmlValueInvalid: false,
+
   /**
    * @type {'visual'|'xml'}
    */
@@ -136,28 +138,32 @@ export default Component.extend(I18n, {
     const metadataFactory = EdmMetadataFactory.create();
     let edmMetadata;
     if (this.xmlValue) {
-      edmMetadata = metadataFactory.fromXml(this.xmlValue);
+      try {
+        edmMetadata = metadataFactory.fromXml(this.xmlValue);
+      } catch (error) {
+        if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
+          throw error;
+        }
+        this.set('isXmlValueInvalid', true);
+      }
     } else {
       if (this.readonly) {
         edmMetadata = metadataFactory.createEmptyMetadata();
       } else {
-        edmMetadata = metadataFactory.fromXml(this.getMockXml());
-        // edmMetadata = metadataFactory.createInitialMetadata();
+        // FIXME: debug code
+        // edmMetadata = metadataFactory.fromXml(this.getMockXml());
+        edmMetadata = metadataFactory.createInitialMetadata();
       }
     }
-    const metadataValidator = EdmMetadataValidator.create({ edmMetadata });
-    this.set('metadataValidator', metadataValidator);
-    this.set('visualEdmViewModel', VisualEdmViewModel.create({
-      edmMetadata,
-      validator: metadataValidator,
-      isReadOnly: this.readonly,
-    }));
-
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_edm');
+    if (!this.isXmlValueInvalid) {
+      const metadataValidator = EdmMetadataValidator.create({ edmMetadata });
+      this.set('metadataValidator', metadataValidator);
+      this.set('visualEdmViewModel', VisualEdmViewModel.create({
+        edmMetadata,
+        validator: metadataValidator,
+        isReadOnly: this.readonly,
+      }));
+    }
   },
 
   setupAceEditor(aceEditor) {
@@ -179,16 +185,25 @@ export default Component.extend(I18n, {
   },
 
   updateCurrentXmlValue() {
-    this.visualEdmViewModel.edmMetadata.sort();
+    // FIXME: tego nie może być, bo niszczy nieznane elementy XML-a - do ustalenia
+    // this.visualEdmViewModel.edmMetadata.sort();
     this.changeSource(this.visualEdmViewModel.edmMetadata.stringify());
   },
 
   updateModelFromCurrentXml() {
-    set(
-      this.visualEdmViewModel,
-      'edmMetadata',
-      EdmMetadataFactory.create().fromXml(this.currentXmlValue)
-    );
+    let edmMetadata;
+    try {
+      edmMetadata = EdmMetadataFactory.create().fromXml(this.currentXmlValue);
+      this.set('isXmlValueInvalid', false);
+    } catch (error) {
+      if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
+        throw error;
+      }
+      this.set('isXmlValueInvalid', true);
+    }
+    if (!this.isXmlValueInvalid) {
+      set(this.visualEdmViewModel, 'edmMetadata', edmMetadata);
+    }
   },
 
   changeSource(value) {
@@ -205,9 +220,16 @@ export default Component.extend(I18n, {
    */
   changeMode(newMode) {
     if (newMode === 'visual') {
-      this.updateModelFromCurrentXml();
+      if (this.isEmpty) {
+        const newModel = EdmMetadataFactory.create().createInitialMetadata();
+        set(this.visualEdmViewModel, 'edmMetadata', newModel);
+      } else {
+        this.updateModelFromCurrentXml();
+      }
     } else {
-      this.updateCurrentXmlValue();
+      if (!this.isXmlValueInvalid) {
+        this.updateCurrentXmlValue();
+      }
     }
     this.set('mode', newMode);
   },

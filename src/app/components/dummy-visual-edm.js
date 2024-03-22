@@ -13,50 +13,15 @@ export default Component.extend({
 
   init() {
     this._super(...arguments);
-
-    const edmMetadata = EdmMetadataFactory.create().createInitialMetadata();
+    const factory = EdmMetadataFactory.create();
+    // const edmMetadata = factory.createInitialMetadata();
+    const edmMetadata = factory.fromXml(generateExampleXml());
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       ownerSource: this,
-      // xmlValue: generateEuropeanaXml(),
       edmMetadata,
       validator: EdmMetadataValidator.create({ edmMetadata }),
       isReadOnly: false,
     }));
-
-    // FIXME: test metadata
-    // const metadata = this.visualEdmViewModel.edmMetadata;
-    // const propertyFactory = EdmPropertyFactory.create();
-    // const objectFactory = new EdmObjectFactory(metadata);
-    // const creator = propertyFactory.createProperty('dc', 'creator', {
-    //   value: 'John Smith',
-    // });
-    // const title1 = propertyFactory.createProperty('dc', 'title', {
-    //   value: 'My share',
-    //   // lang: 'en',
-    // });
-    // // const title2 = propertyFactory.createProperty('dc', 'title', {
-    // //   value: 'Posąg Jasia Fasoli',
-    // //   lang: 'pl',
-    // // });
-    // // const subject = propertyFactory.createProperty('dc', 'subject', {
-    // //   resource: 'http://vocab.getty.edu/aat/300019275',
-    // //   // lang: 'en',
-    // // });
-    // // const description = propertyFactory.createProperty('dc', 'description', {
-    // //   value: 'Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis.',
-    // // });
-
-    // const webResource1 = objectFactory.createObject(EdmObjectType.WebResource);
-    // const webResource2 = objectFactory.createObject(EdmObjectType.WebResource);
-    // metadata.edmObjects = [...metadata.edmObjects, webResource1, webResource2];
-
-    // metadata.edmObjects[0].edmProperties = [
-    //   creator,
-    //   title1,
-    //   // subject,
-    //   // description,
-    //   // title2,
-    // ];
   },
 
   actions: {
@@ -66,40 +31,90 @@ export default Component.extend({
   },
 });
 
+// function createTestMetadata() {
+//   // FIXME: test metadata
+//   const metadata = this.visualEdmViewModel.edmMetadata;
+//   const propertyFactory = EdmPropertyFactory.create();
+//   const objectFactory = new EdmObjectFactory(metadata);
+//   const creator = propertyFactory.createProperty('dc', 'creator', {
+//     value: 'John Smith',
+//   });
+//   const title1 = propertyFactory.createProperty('dc', 'title', {
+//     value: 'My share',
+//     // lang: 'en',
+//   });
+//   // const title2 = propertyFactory.createProperty('dc', 'title', {
+//   //   value: 'Posąg Jasia Fasoli',
+//   //   lang: 'pl',
+//   // });
+//   // const subject = propertyFactory.createProperty('dc', 'subject', {
+//   //   resource: 'http://vocab.getty.edu/aat/300019275',
+//   //   // lang: 'en',
+//   // });
+//   // const description = propertyFactory.createProperty('dc', 'description', {
+//   //   value: 'Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis.',
+//   // });
+
+//   const webResource1 = objectFactory.createObject(EdmObjectType.WebResource);
+//   const webResource2 = objectFactory.createObject(EdmObjectType.WebResource);
+//   metadata.edmObjects = [...metadata.edmObjects, webResource1, webResource2];
+
+//   metadata.edmObjects[0].edmProperties = [
+//     creator,
+//     title1,
+//     // subject,
+//     // description,
+//     // title2,
+//   ];
+// }
+
 const generateExampleXml = () =>
-  `<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
-  <edm:ProvidedCHO rdf:about="share3d:1027">
-    <dc:title xml:lang="en">Ivory plaque with nativity scenes</dc:title>
-    <dc:description xml:lang="en">A 12th century ivory plaque carved with scenes in three registers.
-
-Top:  the Annunciation (Mary and the Angel Gabriel) and the Visitation (Mary and Elizabeth). The Nativity with Mary lying on a bed and the Infant Christ just above her being warmed by the ox and ass. A figure stands on either side of this scene, possibly Salomé (the midwife) and Joseph.
-
-Bottom: Jesus is being presented by Mary to a male figure carrying doves. In the bottom left-hand corner the Massacre of the Innocents is depicted. Mosan or German.
-
-Accession no.: CG 005. Current location: The Hunt Museum, Limerick, Ireland.</dc:description>
-    <dc:creator>The Hunt Museum as part of the Art of Reading in the Middle Ages project.</dc:creator>
-    <dc:subject xml:lang="en">Cultural Heritage &amp; History</dc:subject>
-    <dc:subject rdf:resource="http://vocab.getty.edu/aat/300011857"/>
-  </edm:ProvidedCHO>
-  <edm:WebResource rdf:about="https://sketchfab.com/models/5a5173b4756d46059e7ea9b70aabb4ca/embed">
-    <dc:creator>The Hunt Museum as part of the Art of Reading in the Middle Ages project.</dc:creator>
-    <dc:description xml:lang="en">Models are created using Shining3D’s Einscan Pro 2X laser scanner and ExScan Pro software. They are then processed using Meshlab and Blender. </dc:description>
-    <dc:format xml:lang="en" rdf:resource="https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nbsir80-1978.pdf" />
-    <dc:type xml:lang="en">3D</dc:type>
-    <dcterms:created>2021</dcterms:created>
-    <edm:rights xml:lang="en" rdf:resource="https://creativecommons.org/licenses/by-nc/4.0/" />
-  </edm:WebResource>
-  <ore:Aggregation rdf:about="share3d:1027#aggregation">
-    <edm:aggregatedCHO rdf:resource="share3d:1027"/>
-    <edm:dataProvider>The Hunt Museum</edm:dataProvider>
-    <edm:provider>CARARE</edm:provider>
-    <edm:isShownAt rdf:resource="https://sketchfab.com/models/5a5173b4756d46059e7ea9b70aabb4ca/embed"/>
-    <edm:isShownBy rdf:resource="https://sketchfab.com/models/5a5173b4756d46059e7ea9b70aabb4ca"/>
-    <edm:rights rdf:resource="https://creativecommons.org/licenses/by-nc/4.0/"/>
-    <edm:object rdf:resource="https://media.sketchfab.com/models/5a5173b4756d46059e7ea9b70aabb4ca/thumbnails/dd8c7d3afea340cd91f6a059bcd0093e/ac0602e1fab04039a134d92b1082bd0d.jpeg"/>
-  </ore:Aggregation>
-</rdf:RDF>
-`;
+  `<?xml version="1.0" encoding="UTF-8"?>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdaGr2="http://rdvocab.info/ElementsGr2/" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:crm="http://www.cidoc-crm.org/rdfs/cidoc_crm_v5.0.2_english_label.rdfs#" xmlns:xalan="http://xml.apache.org/xalan" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:svcs="http://rdfs.org/sioc/services#">
+    <edm:ProvidedCHO rdf:about="urn://eriac/19">
+      <dc:contributor xml:lang="en">ERIAC</dc:contributor>
+      <dc:contributor xml:lang="en">ERIAC Archive</dc:contributor>
+      <dc:date xml:lang="en">2018-03-13</dc:date>
+      <dc:description xml:lang="en">Artwork "Romani Kali Daj II" by Małgorzata Mirga-Tas at the exhibition "Hidden Roma Masterpieces"</dc:description>
+      <dc:identifier xml:lang="en">19</dc:identifier>
+      <dc:publisher xml:lang="en">ERIAC</dc:publisher>
+      <dc:rights xml:lang="en">In Copyright - Educational Use Permitted</dc:rights>
+      <dc:subject rdf:resource="http://vocab.getty.edu/aat/300389150"/>
+      <dc:subject rdf:resource="http://www.wikidata.org/entity/Q8060"/>
+      <dc:subject rdf:resource="http://vocab.getty.edu/aat/300054137"/>
+      <dc:subject rdf:resource="http://vocab.getty.edu/aat/300025929"/>
+      <dc:subject> arts</dc:subject>
+      <dc:subject>culture</dc:subject>
+      <dc:subject>exhibition</dc:subject>
+      <dc:subject>contemporary art</dc:subject>
+      <dc:subject>intangible cultural heritage</dc:subject>
+      <dc:title xml:lang="en">Exhibition | Hidden Roma Masterpieces #2</dc:title>
+      <dc:type xml:lang="en">Image</dc:type>
+      <dcterms:created>2018-03-13</dcterms:created>
+      <dcterms:isPartOf>WEAVE</dcterms:isPartOf>
+      <dcterms:medium xml:lang="en">Digital Image</dcterms:medium>
+      <dcterms:spatial rdf:resource="https://sws.geonames.org/2950159/"/>
+      <dcterms:spatial rdf:resource="https://sws.geonames.org/6255148/"/>
+      <dcterms:spatial xml:lang="en">Berlin, Germany</dcterms:spatial>
+      <edm:hasMet rdf:resource="http://www.wikidata.org/entity/Q25291"/>
+      <edm:type>IMAGE</edm:type>
+    </edm:ProvidedCHO>
+    <edm:WebResource rdf:about="https://eriac.org/wp-content/uploads/2018/03/IMG_1578-1200x800.jpg">
+      <dc:creator xml:lang="en"/>
+      <dc:description xml:lang="en"/>
+      <dc:format xml:lang="en">JPG</dc:format>
+      <dcterms:created xml:lang="en">2018-03-13</dcterms:created>
+      <dcterms:isPartOf xml:lang="en"/>
+    </edm:WebResource>
+    <ore:Aggregation rdf:about="urn://eriac/19">
+      <edm:aggregatedCHO rdf:resource="urn://eriac/19"/>
+      <edm:dataProvider xml:lang="en">ERIAC</edm:dataProvider>
+      <edm:isShownAt rdf:resource="https://eriac.org/hidden-roma-masterpieces/"/>
+      <edm:isShownBy rdf:resource="https://eriac.org/wp-content/uploads/2018/03/IMG_1578-1200x800.jpg"/>
+      <edm:provider xml:lang="en">Photoconsortium</edm:provider>
+      <edm:rights rdf:resource="http://rightsstatements.org/vocab/InC-EDU/1.0/"/>
+    </ore:Aggregation>
+  </rdf:RDF>`;
 
 const generateShortXml = () =>
   `<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
@@ -136,13 +151,13 @@ const generateEuropeanaXml = () =>
   Capsa de cuir &amp;quot;The Delicate Roses&amp;quot;, 1848-1851.</dc:description>
       <dc:format>Photography</dc:format>
       <dc:identifier>044161</dc:identifier>
+      <dc:language>ca</dc:language>
       <dc:rights>Public Domain</dc:rights>
       <dc:source xml:lang="ca">Colˇlecció Joan Basseda Casas</dc:source>
       <dc:subject rdf:resource="http://www.wikidata.org/entity/Q6581072"/>
       <dc:subject rdf:resource="http://vocab.getty.edu/aat/300223022"/>
       <dc:subject>Dones</dc:subject>
       <dc:subject>Retrats d'estudi</dc:subject>
-      <dc:subject/>
       <dc:title xml:lang="ca">[Retrat d'estudi d'una dona]</dc:title>
       <dc:type xml:lang="ca">Fotografia</dc:type>
       <dc:type rdf:resource="http://vocab.getty.edu/aat/300046300"/>

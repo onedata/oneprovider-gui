@@ -1,7 +1,5 @@
 import EmberObject from '@ember/object';
 import EdmMetadata from './metadata';
-import ProvidedCHO from './objects/provided-cho';
-import Aggregation from './objects/aggregation';
 import EdmObjectType from './object-type';
 import EdmPropertyFactory from './property-factory';
 import EdmObjectFactory from './object-factory';
@@ -31,7 +29,15 @@ const EdmMetadataFactory = EmberObject.extend({
   fromXml(xmlValue) {
     const domParser = new DOMParser();
     /** @type {XMLDocument} */
-    const xmlDocument = domParser.parseFromString(xmlValue, 'text/xml');
+    let xmlDocument;
+    try {
+      xmlDocument = domParser.parseFromString(xmlValue, 'text/xml');
+    } catch {
+      throw new InvalidEdmMetadataXmlDocument();
+    }
+    if (!this.validateXmlDocument(xmlDocument)) {
+      throw new InvalidEdmMetadataXmlDocument();
+    }
     return new EdmMetadata(xmlDocument);
   },
 
@@ -80,6 +86,13 @@ const EdmMetadataFactory = EmberObject.extend({
     metadata.edmObjects = [providedCho, aggregation];
 
     return metadata;
+  },
+
+  validateXmlDocument(xmlDocument) {
+    if (xmlDocument.children[0]?.tagName !== 'rdf:RDF') {
+      return false;
+    }
+    return true;
   },
 
   // FIXME: przenieść do pliku z mockami, żeby było na dummy
@@ -176,3 +189,5 @@ const EdmMetadataFactory = EmberObject.extend({
 });
 
 export default EdmMetadataFactory;
+
+export class InvalidEdmMetadataXmlDocument extends Error {}

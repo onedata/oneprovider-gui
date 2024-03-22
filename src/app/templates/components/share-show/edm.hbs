@@ -22,7 +22,13 @@
   {{/unless}}
 
   {{#if (eq mode "visual")}}
-    <VisualEdm @viewModel={{visualEdmViewModel}} />
+    {{#if isXmlValueInvalid}}
+      <div class="xml-value-invalid-info alert alert-warning">
+        {{tt this "invalidXml"}}
+      </div>
+    {{else}}
+      <VisualEdm @viewModel={{visualEdmViewModel}} />
+    {{/if}}
   {{else if (eq mode "xml")}}
     {{ember-ace
       class="ember-ace ember-ace-edm-source"

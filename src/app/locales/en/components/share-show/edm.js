@@ -10,8 +10,9 @@ export default {
   introTip: `${editorHeaderTipCommon} The visual editor for EDM metadata is not yet implemented.`,
   readonlyHeaderTip: edmReadonlyTip,
   introExtra: edmIntroExtra,
+  invalidXml: 'The XML source cannot be parsed to EDM metadata. Review your XML.',
   submitDisabledReason: {
     empty: 'Metadata must not be empty.',
-    invalid: 'Metadata XML is not valid.',
+    invalid: 'Metadata is not valid.',
   },
 };
