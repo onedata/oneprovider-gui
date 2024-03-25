@@ -13,7 +13,7 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
-import { set } from '@ember/object';
+import { set, setProperties } from '@ember/object';
 
 const defaultMode = 'visual';
 
@@ -190,10 +190,13 @@ export default Component.extend(I18n, {
     this.changeSource(this.visualEdmViewModel.edmMetadata.stringify());
   },
 
-  updateModelFromCurrentXml() {
+  replaceModelUsingCurrentXml() {
     let edmMetadata;
+    let validator;
+    // FIXME: v2: try to optimize: update model, do not create new model
     try {
       edmMetadata = EdmMetadataFactory.create().fromXml(this.currentXmlValue);
+      validator = EdmMetadataValidator.create({ edmMetadata });
       this.set('isXmlValueInvalid', false);
     } catch (error) {
       if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
@@ -202,7 +205,10 @@ export default Component.extend(I18n, {
       this.set('isXmlValueInvalid', true);
     }
     if (!this.isXmlValueInvalid) {
-      set(this.visualEdmViewModel, 'edmMetadata', edmMetadata);
+      setProperties(this.visualEdmViewModel, {
+        edmMetadata,
+        validator,
+      });
     }
   },
 
@@ -224,7 +230,7 @@ export default Component.extend(I18n, {
         const newModel = EdmMetadataFactory.create().createInitialMetadata();
         set(this.visualEdmViewModel, 'edmMetadata', newModel);
       } else {
-        this.updateModelFromCurrentXml();
+        this.replaceModelUsingCurrentXml();
       }
     } else {
       if (!this.isXmlValueInvalid) {

@@ -53,6 +53,7 @@ const ObjectViewModel = EmberObject.extend({
 
   addProperty(item) {
     const factory = EdmPropertyFactory.create();
+    // FIXME: należy wstawić do tablicy w kolejności sortowania
     this.model.edmProperties = [
       ...this.model.edmProperties,
       factory.createProperty(
