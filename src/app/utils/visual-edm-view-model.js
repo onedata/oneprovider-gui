@@ -84,7 +84,7 @@ const VisualEdmViewModel = EmberObject.extend({
     const factory = new EdmObjectFactory(this.edmMetadata);
     this.edmMetadata.edmObjects = [
       ...this.edmMetadata.edmObjects,
-      factory.createObject(EdmObjectType.WebResource),
+      factory.createInitialObject(EdmObjectType.WebResource),
     ];
     this.updateView();
   },

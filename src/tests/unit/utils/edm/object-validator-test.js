@@ -1,39 +1,34 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import EdmPropertyValidator from 'oneprovider-gui/utils/edm/property-validator';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import EdmObjectValidator from 'oneprovider-gui/utils/edm/object-validator';
+import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
 
 describe('Unit | Utility | edm/object-validator', function () {
-  it('is not valid if some of properties are not valid', function () {
+  it('is valid if object has all mandatory properties and all properties are valid', function () {
     const helper = new Helper();
     helper.initObject(EdmObjectType.ProvidedCHO);
-    const p1 = helper.propertyFactory
-      .createProperty(helper.metadata, 'dc', 'description', { value: 'test' });
-    const p2 = helper.propertyFactory
-      .createProperty(helper.metadata, 'dc', 'description');
-    helper.object.edmProperties = [p1, p2];
+    for (const property of helper.object.edmProperties) {
+      setPropertyValue(property);
+    }
+    helper.initValidator();
+
+    expect(helper.validator.isValid).to.be.true;
+  });
+
+  it('is not valid if object has all mandatory properties and some of properties are not valid', function () {
+    const helper = new Helper();
+    helper.initObject(EdmObjectType.ProvidedCHO);
+    for (const property of helper.object.edmProperties) {
+      setPropertyValue(property);
+    }
+    setPropertyValue(helper.object.edmProperties[0], '');
     helper.initValidator();
 
     expect(helper.validator.isValid).to.be.false;
-  });
-
-  it('is valid if all properties are valid', function () {
-    const helper = new Helper();
-    helper.initObject(EdmObjectType.ProvidedCHO);
-    const p1 = helper.propertyFactory
-      .createProperty(helper.metadata, 'dc', 'description', { value: 'test' });
-    const p2 = helper.propertyFactory
-      .createProperty(helper.metadata, 'dc', 'description', { value: 'example' });
-    helper.object.edmProperties = [p1, p2];
-    const pv1 = EdmPropertyValidator.create({ edmProperty: p1 });
-    const pv2 = EdmPropertyValidator.create({ edmProperty: p2 });
-    helper.initValidator([pv1, pv2]);
-
-    expect(helper.validator.isValid).to.be.true;
   });
 });
 
@@ -45,7 +40,7 @@ class Helper {
     this.propertyFactory = EdmPropertyFactory.create();
   }
   initObject(edmObjectType) {
-    this.object = this.objectFactory.createObject(edmObjectType);
+    this.object = this.objectFactory.createInitialObject(edmObjectType);
     this.metadata.edmObjects = [this.object];
     return this.object;
   }
@@ -57,5 +52,23 @@ class Helper {
       edmObject: this.object,
     });
     return this.validator;
+  }
+}
+
+/**
+ * @param {EdmProperty} property
+ * @param {string} value
+ */
+function setPropertyValue(property, value = 'dummy') {
+  switch (property.supportedValueType) {
+    case EdmPropertyValueType.Any:
+    case EdmPropertyValueType.Literal:
+      property.value = value;
+      break;
+    case EdmPropertyValueType.Reference:
+      property.attrs.resource = value;
+      break;
+    default:
+      break;
   }
 }

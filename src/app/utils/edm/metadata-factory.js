@@ -49,41 +49,10 @@ const EdmMetadataFactory = EmberObject.extend({
   createInitialMetadata() {
     const metadata = new EdmMetadata();
     const objectFactory = new EdmObjectFactory(metadata);
-    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
-    const aggregation = objectFactory.createObject(EdmObjectType.Aggregation);
-    // FIXME: typ
-    const initialPropertyItems = flatSpecs.filter(item => {
-      return item.spec.rec === EdmPropertyRecommendation.Mandatory ||
-        item.spec.rec === EdmPropertyRecommendation.Recommended;
-    });
-    const providedChoPropertyItems = [];
-    const aggregationPropertyItems = [];
-    for (const propertyItem of initialPropertyItems) {
-      for (const supportedObjectType of propertyItem.spec.obj) {
-        if (supportedObjectType === EdmObjectType.ProvidedCHO) {
-          providedChoPropertyItems.push(propertyItem);
-        }
-        if (supportedObjectType === EdmObjectType.Aggregation) {
-          aggregationPropertyItems.push(propertyItem);
-        }
-      }
-    }
-
-    const propertyFactory = EdmPropertyFactory.create();
-    providedCho.edmProperties = providedChoPropertyItems
-      .map(propertyItem => propertyFactory.createProperty(
-        metadata,
-        propertyItem.namespace,
-        propertyItem.name
-      ));
-    aggregation.edmProperties = aggregationPropertyItems
-      .map(propertyItem => propertyFactory.createProperty(
-        metadata,
-        propertyItem.namespace,
-        propertyItem.name
-      ));
-
-    metadata.edmObjects = [providedCho, aggregation];
+    metadata.edmObjects = [
+      objectFactory.createInitialObject(EdmObjectType.ProvidedCHO),
+      objectFactory.createInitialObject(EdmObjectType.Aggregation),
+    ];
 
     return metadata;
   },

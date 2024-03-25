@@ -14,8 +14,8 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     const factory = EdmMetadataFactory.create();
-    // const edmMetadata = factory.createInitialMetadata();
-    const edmMetadata = factory.fromXml(generateExampleXml());
+    const edmMetadata = factory.createInitialMetadata();
+    // const edmMetadata = factory.fromXml(generateExampleXml());
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       ownerSource: this,
       edmMetadata,

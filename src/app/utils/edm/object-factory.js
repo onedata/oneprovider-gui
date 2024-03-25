@@ -4,12 +4,16 @@ import WebResource from './objects/web-resource';
 import EdmObjectType from './object-type';
 import { InvalidEdmObjectType } from './object';
 import EdmMetadata from './metadata';
+import { EdmPropertyRecommendation, flatSpecs } from './property-spec';
+import EdmPropertyFactory from './property-factory';
 
 const objectClasses = {
   [EdmObjectType.Aggregation]: Aggregation,
   [EdmObjectType.ProvidedCHO]: ProvidedCHO,
   [EdmObjectType.WebResource]: WebResource,
 };
+
+const initialPropertiesMap = createInitialPropertyMap();
 
 class EdmObjectFactory {
   constructor(metadata) {
@@ -25,7 +29,7 @@ class EdmObjectFactory {
   /**
    * @param {EdmMetadata} edmMetadata
    * @param {EdmObjectType} edmObjectType
-   * @param {{ [about]: string, [properties]: Array<EdmProperty>, [hasExtraData]: boolean }} options
+   * @param {{ [attrs]: Object, [properties]: Array<EdmProperty> }} options
    * @returns {Utils.Edm.Object}
    */
   createObject(edmObjectType, options = {}) {
@@ -35,12 +39,45 @@ class EdmObjectFactory {
     }
     const edmObject = new objectClasses[edmObjectType]({
       xmlDocument: this.metadata.xmlDocument,
-      hasExtraData: options.hasExtraData,
     });
     edmObject.attrs = options.attrs;
     edmObject.edmProperties = options.edmProperties;
     return edmObject;
   }
+
+  createInitialObject(edmObjectType) {
+    const propertyFactory = EdmPropertyFactory.create();
+    return this.createObject(edmObjectType, {
+      edmProperties: initialPropertiesMap[edmObjectType].map(propertyItem =>
+        propertyFactory.createProperty(
+          this.metadata,
+          propertyItem.namespace,
+          propertyItem.name
+        )
+      ),
+    });
+  }
+}
+
+/**
+ * @returns {Object<EdmObjectType, Array<Object>}
+ */
+function createInitialPropertyMap() {
+  const initialPropertyItems = flatSpecs.filter(item => {
+    return item.spec.rec === EdmPropertyRecommendation.Mandatory ||
+      item.spec.rec === EdmPropertyRecommendation.Recommended;
+  });
+  const propertyItems = {
+    [EdmObjectType.ProvidedCHO]: [],
+    [EdmObjectType.Aggregation]: [],
+    [EdmObjectType.WebResource]: [],
+  };
+  for (const propertyItem of initialPropertyItems) {
+    for (const supportedObjectType of propertyItem.spec.obj) {
+      propertyItems[supportedObjectType].push(propertyItem);
+    }
+  }
+  return propertyItems;
 }
 
 export default EdmObjectFactory;

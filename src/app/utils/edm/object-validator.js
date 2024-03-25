@@ -5,7 +5,7 @@ import EdmObjectType from './object-type';
 import { EdmPropertyRecommendation, flatSpecs } from './property-spec';
 import _ from 'lodash';
 
-const mandatoryPropertiesMap = getMandatoryPropertyTags();
+export const mandatoryPropertiesMap = getMandatoryPropertyTags();
 
 const EdmObjectValidator = EmberObject.extend({
   /**

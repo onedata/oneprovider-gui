@@ -9,6 +9,10 @@ import { sortProperties } from './sort';
  * @property {string} about Mandatory `rdf:about` property.
  */
 
+/**
+ * @typedef {Object}
+ */
+
 // FIXME: można próbować ujednolicić niektóre miejsca w constructor i innych metodach razem z property
 
 const shownAttrs = Object.freeze(['about']);
@@ -20,6 +24,8 @@ export default class EdmObject {
   /** @type {Array<EdmProperty>} */
   #edmProperties = undefined;
 
+  // FIXME: przejrzeć użycia konstruktora - options być może powinno być wyłącznie w fabryce
+  // żeby nie rozpraszać logiki konstrukcji obiektu
   /**
    * @param {Element} [options.xmlElement] Provide for objects created from XML.
    * @param {XMLDocument} [options.xmlDocument] Provide for completely new object (not
