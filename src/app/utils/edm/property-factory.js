@@ -1,7 +1,7 @@
 import EmberObject from '@ember/object';
 import EdmProperty from './property';
 import _ from 'lodash';
-import { allSpecs } from './property-spec';
+import { EdmPropertyValueType, allSpecs } from './property-spec';
 
 // FIXME: rozróżnienie na property dla różnych obiektów
 
@@ -36,7 +36,11 @@ const EdmPropertyFactory = EmberObject.extend({
       edmPropertyType: propertyName,
       spec,
     });
-    edmProperty.value = options.value;
+    if (options.value) {
+      edmProperty.value = options.value;
+    } else if (spec.def) {
+      setPropertyValue(edmProperty, spec.def);
+    }
     const attrs = _.cloneDeep(options);
     delete attrs.value;
     edmProperty.attrs = attrs;
@@ -58,3 +62,21 @@ const EdmPropertyFactory = EmberObject.extend({
 });
 
 export default EdmPropertyFactory;
+
+/**
+ * @param {EdmProperty} property
+ * @param {string} value
+ */
+export function setPropertyValue(property, value) {
+  switch (property.supportedValueType) {
+    case EdmPropertyValueType.Any:
+    case EdmPropertyValueType.Literal:
+      property.value = value;
+      break;
+    case EdmPropertyValueType.Reference:
+      property.attrs.resource = value;
+      break;
+    default:
+      break;
+  }
+}

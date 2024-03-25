@@ -70,6 +70,7 @@ export const propertyName = {
     // isSimilarTo: '',
     // isSuccessorOf: '',
     object: 'Representative image',
+    provider: 'Name of organisation uploading the data',
     // realizes: '',
     rights: 'Copyright licence URL of the original object',
     type: 'Asset type',

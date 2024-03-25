@@ -526,7 +526,7 @@ describe('Integration | Component | visual-edm', function () {
       const expectedAggregationPropertyLabels = [
         'Content provider institution',
         'Representative image',
-        'Provider',
+        'Name of organisation uploading the data',
         'Copyright licence URL of the original object',
       ];
       const aggregationPropertyLabels = Array.from(

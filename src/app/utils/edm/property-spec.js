@@ -12,12 +12,15 @@ import EdmObjectType from './object-type';
 
 /**
  * @typedef {Object} EdmPropertySpec
- * @property {EdmPropertyValueType} val
+ * @property {EdmPropertyValueType} val Type of data accepted of property - see
+ *   `EdmPropertyValueType`.
  * @property {boolean} basic If true, then the property should be available to select to
  *   be added in the visual editor.
- * @property {Array} obj
- * @property {EdmPropertyRecommendation} rec
- * @property {EdmPropertyMaxOccurrences} max
+ * @property {Array} obj Types of EDM objects that can use this property.
+ * @property {EdmPropertyRecommendation} rec Level of usage recommendation.
+ * @property {EdmPropertyMaxOccurrences} max Level of property maximum occurrences in
+ *   single EDM object.
+ * @property {string} def Default value.
  */
 
 export const EdmPropertyValueType = Object.freeze({
@@ -258,45 +261,83 @@ export const allSpecs = Object.freeze({
       rec: Rec.Recommended,
       max: Max.Single,
     },
-    // FIXME: tylko w spreasheecie - ma być dropdown i wypełnione
     provider: {
-      val: EdmPropertyValueType.Any,
+      val: EdmPropertyValueType.Literal,
       basic: true,
       obj: [EdmObjectType.Aggregation],
       rec: Rec.Mandatory,
       max: Max.Single,
+      predef: [{
+        label: 'Phoconsortium',
+        value: 'Phoconsortium',
+      }],
+      def: 'Phoconsortium',
     },
     realizes: { obj: [EdmObjectType.ProvidedCHO] },
     rights: {
       basic: true,
       val: EdmPropertyValueType.Reference,
-      predef: [{
-          label: 'Creative Commons Attribution 4.0 International',
+      // Predefined values from
+      // https://europeana.atlassian.net/wiki/spaces/EF/pages/1503756289/Providing+copyright+metadata+to+Europeana#Available-values
+      predef: [
+        // Creative Commons Licenses
+        {
+          label: 'CC BY 4.0',
           value: 'https://creativecommons.org/licenses/by/4.0/',
         },
         {
-          label: 'Creative Commons Attribution-ShareAlike 4.0 International',
+          label: 'CC BY-SA 4.0',
           value: 'https://creativecommons.org/licenses/by-sa/4.0/',
         },
         {
-          label: 'Creative Commons Attribution-ShareAlike 4.0 International',
-          value: 'https://creativecommons.org/licenses/by-sa/4.0/',
-        },
-        {
-          label: 'Attribution-NoDerivs 4.0 International',
+          label: 'CC BY-ND 4.0',
           value: 'https://creativecommons.org/licenses/by-nd/4.0/',
         },
         {
-          label: 'Attribution-NonCommercial 4.0 International',
+          label: 'CC BY-NC 4.0',
           value: 'https://creativecommons.org/licenses/by-nc/4.0/',
         },
         {
-          label: 'Attribution-NonCommercial-ShareAlike 4.0 International',
+          label: 'CC BY-NC-SA 4.0',
           value: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
         },
         {
-          label: 'Attribution-NonCommercial-NoDerivs 4.0 International',
+          label: 'CC BY-NC-ND 4.0',
           value: 'https://creativecommons.org/licenses/by-nc-nd/4.0/',
+        },
+        // Rights Statements provided by RightsStatements.org
+        {
+          label: 'NoC-NC',
+          value: 'http://rightsstatements.org/vocab/NoC-NC/1.0/',
+        },
+        {
+          label: 'NoC-OKLR',
+          value: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
+        },
+        {
+          label: 'InC',
+          value: 'http://rightsstatements.org/vocab/InC/1.0/',
+        },
+        {
+          label: 'InC-EDU',
+          value: 'http://rightsstatements.org/vocab/InC-EDU/1.0/',
+        },
+        {
+          label: 'InC-EU-OW',
+          value: 'http://rightsstatements.org/vocab/InC-OW-EU/1.0/',
+        },
+        {
+          label: 'CNE',
+          value: 'http://rightsstatements.org/vocab/CNE/1.0/',
+        },
+        // Creative Commons Public Domain Tools
+        {
+          label: 'CC0 1.0',
+          value: 'https://creativecommons.org/publicdomain/zero/1.0/',
+        },
+        {
+          label: 'PDM 1.0',
+          value: 'https://creativecommons.org/publicdomain/mark/1.0/',
         },
       ],
       obj: [EdmObjectType.Aggregation, EdmObjectType.WebResource],
