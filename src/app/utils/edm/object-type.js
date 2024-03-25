@@ -8,4 +8,6 @@ const EdmObjectType = Object.freeze({
   WebResource: 'WebResource',
 });
 
+export const supportedEdmObjectTypes = Object.values(EdmObjectType);
+
 export default EdmObjectType;

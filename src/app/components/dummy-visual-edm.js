@@ -14,8 +14,8 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     const factory = EdmMetadataFactory.create();
-    const edmMetadata = factory.createInitialMetadata();
-    // const edmMetadata = factory.fromXml(generateExampleXml());
+    // const edmMetadata = factory.createInitialMetadata();
+    const edmMetadata = factory.fromXml(generateSurplusXml());
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       ownerSource: this,
       edmMetadata,
@@ -184,3 +184,58 @@ const generateEuropeanaXml = () =>
       <edm:rights rdf:resource="http://creativecommons.org/publicdomain/mark/1.0/"/>
     </ore:Aggregation>
   </rdf:RDF>`;
+
+const generateSurplusXml = () => `<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:adms="http://www.w3.org/ns/adms#"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:crm="http://www.cidoc-crm.org/rdfs/cidoc_crm_v5.0.2_english_label.rdfs#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:doap="http://usefulinc.com/ns/doap#"
+    xmlns:ebucore="http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#"
+    xmlns:edm="http://www.europeana.eu/schemas/edm/"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:odrl="http://www.w3.org/ns/odrl/2/"
+    xmlns:ore="http://www.openarchives.org/ore/terms/"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:rdaGr2="http://rdvocab.info/ElementsGr2/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:svcs="http://rdfs.org/sioc/services#"
+    xmlns:wgs84="http://www.w3.org/2003/01/geo/wgs84_pos#"
+    xmlns:xalan="http://xml.apache.org/xalan">
+    <edm:ProvidedCHO rdf:about="#example_IIIF_Image_1">
+        <dc:date>Before 1942</dc:date>
+        <dc:language>chi</dc:language>
+        <dc:title xml:lang="en">Image IIIF Example Record Tier 1</dc:title>
+        <dc:type rdf:resource="http://vocab.getty.edu/aat/300028877"/>
+        <dc:subject rdf:resource="http://vocab.getty.edu/aat/300018322"/>
+        <dc:format xml:lang="en">object</dc:format>
+        <dcterms:isPartOf>Europeana Foundation Example Records</dcterms:isPartOf>
+        <edm:currentLocation rdf:resource="https://sws.geonames.org/2751773/"/>
+        <edm:type>IMAGE</edm:type>
+    </edm:ProvidedCHO>
+    <ore:Aggregation rdf:about="#example_IIIF_Image_1_AGG">
+            <edm:aggregatedCHO rdf:resource="#example_IIIF_Image_1"/>
+            <edm:dataProvider>Europeana Foundation</edm:dataProvider>
+            <edm:isShownAt rdf:resource="http://hdl.handle.net/1887.1/item:3175415"/>
+            <edm:isShownBy rdf:resource="https://iiif.universiteitleiden.nl/iiif/2/hdl%3A1887.1%2Fitem%3A360462/full/333,/0/default.jpg"/>
+            <edm:object rdf:resource="https://iiif.universiteitleiden.nl/iiif/2/hdl%3A1887.1%2Fitem%3A3175421/full/333,/0/default.jpg"/>
+            <edm:provider>Europeana Foundation</edm:provider>
+        <edm:rights rdf:resource="http://rightsstatements.org/vocab/InC/1.0/"/>
+    </ore:Aggregation>
+    <edm:WebResource rdf:about="https://iiif.universiteitleiden.nl/iiif/2/hdl%3A1887.1%2Fitem%3A360462/full/333,/0/default.jpg">
+                <dc:format>jpg</dc:format>
+                <dcterms:created>2017</dcterms:created>
+                <dcterms:isReferencedBy rdf:resource="https://digitalcollections.universiteitleiden.nl/iiif_manifest/item:3175415/manifest"/>
+                <svcs:has_service rdf:resource="https://iiif.universiteitleiden.nl/iiif/2/hdl%3A1887.1%2Fitem%3A3175421"/>
+                <dc:rights>Use of this resource is governed by the terms and conditions of the Creative Commons CC BY License</dc:rights>
+                <edm:rights rdf:resource="http://rightsstatements.org/vocab/InC/1.0/"/>
+    </edm:WebResource>
+    <svcs:Service rdf:about="https://iiif.universiteitleiden.nl/iiif/2/hdl%3A1887.1%2Fitem%3A3175421">
+                <dcterms:conformsTo rdf:resource="http://iiif.io/api/image"/>
+                <doap:implements rdf:resource="http://iiif.io/api/image/2/level2.json"/>
+    </svcs:Service>
+</rdf:RDF>`;

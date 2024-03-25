@@ -82,8 +82,9 @@ export default Component.extend(I18n, {
     not('visualEdmViewModel.isReadOnly'),
   ),
 
-  objectTypeName: computed('model.edmObjectType', function objectTypeName() {
-    return this.t(`objectTypeName.${this.viewModel.model.edmObjectType}`);
+  objectTypeName: computed('viewModel.model.edmObjectType', function objectTypeName() {
+    const objectType = this.viewModel.model.edmObjectType;
+    return this.t(`objectTypeName.${objectType}`, {}, { defaultValue: objectType });
   }),
 
   attrItems: computed(

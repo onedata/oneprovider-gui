@@ -86,6 +86,7 @@ const VisualEdmViewModel = EmberObject.extend({
       ...this.edmMetadata.edmObjects,
       factory.createInitialObject(EdmObjectType.WebResource),
     ];
+    this.validator?.updateValue();
     this.updateView();
   },
 

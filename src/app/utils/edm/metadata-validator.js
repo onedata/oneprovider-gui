@@ -49,7 +49,7 @@ const EdmMetadataValidator = EmberObject.extend({
   isError: not('isValid'),
 
   updateValue() {
-    this.notifyPropertyChange('edmProperty');
+    this.notifyPropertyChange('edmMetadata');
   },
 });
 
