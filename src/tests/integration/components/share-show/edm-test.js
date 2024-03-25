@@ -1,12 +1,16 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find, click, blur, focus } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
-import globals from 'onedata-gui-common/utils/globals';
+import { replaceEmberAceWithTextarea } from '../../../helpers/ember-ace';
 
 describe('Integration | Component | share-show/edm', function () {
   setupRenderingTest();
+
+  beforeEach(function () {
+    replaceEmberAceWithTextarea(this);
+  });
 
   it('renders visual metadata representation if xmlValue is provided',
     async function () {
@@ -97,14 +101,8 @@ class Helper {
   get visualEditorButton() {
     return this.element.querySelector('.btn-visual-editor');
   }
-  /**
-   * @type {Ace.Editor}
-   */
-  get aceEditor() {
-    return globals.window.ace.edit(this.element.querySelector('.ace_editor'));
-  }
   get xmlSourceText() {
-    return this.aceEditor.getValue();
+    return this.element.querySelector('.ember-ace-edm-source textarea').value;
   }
   async render() {
     this.mochaContext.setProperties({
