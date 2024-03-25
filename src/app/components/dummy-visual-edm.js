@@ -212,7 +212,8 @@ const generateSurplusXml = () => `<?xml version="1.0" encoding="UTF-8"?>
         <dc:title xml:lang="en">Image IIIF Example Record Tier 1</dc:title>
         <dc:type rdf:resource="http://vocab.getty.edu/aat/300028877"/>
         <dc:subject rdf:resource="http://vocab.getty.edu/aat/300018322"/>
-        <dc:format xml:lang="en">object</dc:format>
+        <!-- <dc:format xml:lang="en">object</dc:format> -->
+        <dc:format>BLEND</dc:format>
         <dcterms:isPartOf>Europeana Foundation Example Records</dcterms:isPartOf>
         <edm:currentLocation rdf:resource="https://sws.geonames.org/2751773/"/>
         <edm:type>IMAGE</edm:type>
