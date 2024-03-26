@@ -461,7 +461,7 @@ export default Component.extend(...mixins, {
   storageLocationsPerProviderOrder: computed(
     'storageLocationsPerProviderProxy.content',
     function storageLocationsPerProviderOrder() {
-      if (this.storageLocationsPerProviderProxy) {
+      if (this.storageLocationsPerProviderProxy.content) {
         const storageLocationsPerProvider = Object.values(
           this.storageLocationsPerProviderProxy.content
         );
@@ -480,16 +480,17 @@ export default Component.extend(...mixins, {
     'currentProviderId',
     'storageLocationsPerProviderOrder',
     function firstProviderDisplayedId() {
-      if (this.storageLocationsPerProviderProxy) {
+      if (this.storageLocationsPerProviderProxy.content) {
         const storageLocationsPerProvider = this.storageLocationsPerProviderProxy.content;
-        if (storageLocationsPerProvider[this.currentProviderId][0].path) {
-          return this.currentProviderId;
-        } else {
-          for (const locations of this.storageLocationsPerProviderOrder) {
-            for (const location of locations) {
-              if (location.path) {
-                return location.provider.entityId;
-              }
+        for (const location of storageLocationsPerProvider[this.currentProviderId]) {
+          if (location.path) {
+            return this.currentProviderId;
+          }
+        }
+        for (const locations of this.storageLocationsPerProviderOrder) {
+          for (const location of locations) {
+            if (location.path) {
+              return location.provider.entityId;
             }
           }
         }
