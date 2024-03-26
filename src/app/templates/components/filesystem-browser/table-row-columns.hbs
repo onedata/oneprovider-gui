@@ -59,7 +59,7 @@
       </td>
     {{else if (eq columnName "modification")}}
       <td
-        class="fb-table-col-modification hidden-xs"
+        class="fb-table-col-modification table-col-time hidden-xs"
         style={{columnsConfiguration.columnsStyle.modification}}
       >
         <span class="file-item-text">
@@ -136,6 +136,24 @@
               {{one-tooltip title=(tt this (concat "qosStatusHint." qosStatus) fileType=fileTypeText)}}
             </span>
           {{/if}}
+        </span>
+      </td>
+    {{else if (eq columnName "atime")}}
+      <td
+        class="fb-table-col-atime table-col-time hidden-xs"
+        style={{columnsConfiguration.columnsStyle.atime}}
+      >
+        <span class="file-item-text">
+          {{date-format file.effFile.atime format="dateWithMinutes" blank="—"}}
+        </span>
+      </td>
+    {{else if (eq columnName "ctime")}}
+      <td
+        class="fb-table-col-ctime table-col-time hidden-xs"
+        style={{columnsConfiguration.columnsStyle.ctime}}
+      >
+        <span class="file-item-text">
+          {{date-format file.effFile.ctime format="dateWithMinutes" blank="—"}}
         </span>
       </td>
     {{/if}}

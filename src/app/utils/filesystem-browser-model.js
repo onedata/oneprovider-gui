@@ -83,6 +83,8 @@ const columnsRequirementsDependencies = [
   'owner',
   'replication',
   'qos',
+  'atime',
+  'ctime',
 ].map(columnName =>
   `${columnName}.isEnabled,${columnName}.isVisible`
 ).join(',');
@@ -449,6 +451,12 @@ export default BaseBrowserModel.extend(...mixins, {
         }
         if (columns.qos?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('aggregateQosStatus');
+        }
+        if (columns.atime?.[columnRequirementsEnableProperty]) {
+          listedFilesPropertySet.add('atime');
+        }
+        if (columns.ctime?.[columnRequirementsEnableProperty]) {
+          listedFilesPropertySet.add('ctime');
         }
       }
       return [...listedFilesPropertySet.values()];
@@ -1314,7 +1322,7 @@ export default BaseBrowserModel.extend(...mixins, {
    */
   createColumnsConfiguration() {
     const columnsOrder = _.without(
-      ['size', 'modification', 'owner', 'replication', 'qos'],
+      ['size', 'modification', 'owner', 'replication', 'qos', 'atime', 'ctime'],
       ...(this.disabledColumns ?? [])
     );
     const columns = {};
@@ -1353,6 +1361,20 @@ export default BaseBrowserModel.extend(...mixins, {
             isVisible: false,
             isEnabled: false,
             width: 100,
+          });
+          break;
+        case 'atime':
+          columns.atime = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
+            width: 180,
+          });
+          break;
+        case 'ctime':
+          columns.ctime = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
+            width: 180,
           });
           break;
         default:

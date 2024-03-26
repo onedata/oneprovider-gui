@@ -4,4 +4,6 @@ export default {
   modification: 'Modification',
   replication: 'Replication',
   qos: 'QoS',
+  atime: 'Atime',
+  ctime: 'Ctime',
 };

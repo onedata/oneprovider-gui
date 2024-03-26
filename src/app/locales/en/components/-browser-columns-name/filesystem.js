@@ -5,4 +5,6 @@ export default {
   modification: 'Modification',
   replication: 'Replication',
   qos: 'QoS',
+  atime: 'Access',
+  ctime: 'Change',
 };
