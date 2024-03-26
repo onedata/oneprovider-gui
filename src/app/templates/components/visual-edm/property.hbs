@@ -113,6 +113,7 @@
               @onChange={{action "changeSelectedPredefinedValueOption"}}
               @searchEnabled={{true}}
               @searchField="label"
+              @onBlur={{action "handleInputBlur"}}
               as |option|
             >
               <div class="option-container">

@@ -3,7 +3,6 @@ import { reads } from '@ember/object/computed';
 import { eq, raw, conditional } from 'ember-awesome-macros';
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
 import { EdmPropertyRecommendation } from '../edm/property-spec';
-import EdmPropertyValidator from '../edm/property-validator';
 
 const PropertyViewModel = EmberObject.extend({
   visualEdmViewModel: undefined,

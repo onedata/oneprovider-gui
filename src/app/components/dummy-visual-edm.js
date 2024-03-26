@@ -12,13 +12,13 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     const factory = EdmMetadataFactory.create();
-    // const edmMetadata = factory.createInitialMetadata();
-    const edmMetadata = factory.fromXml(generateEuropeanaXml());
+    const edmMetadata = factory.createInitialMetadata();
+    // const edmMetadata = factory.fromXml(generateEuropeanaXml());
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       ownerSource: this,
       edmMetadata,
       validator: EdmMetadataValidator.create({ edmMetadata }),
-      isReadOnly: true,
+      isReadOnly: false,
     }));
   },
 

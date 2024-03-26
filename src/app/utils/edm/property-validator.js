@@ -10,19 +10,29 @@ const EdmPropertyValidator = EmberObject.extend({
   edmProperty: undefined,
 
   isValid: computed('edmProperty', function isValid() {
-    switch (this.edmProperty.supportedValueType) {
-      case EdmPropertyValueType.Any:
-        return Boolean(this.edmProperty.value || this.edmProperty.attrs.resource);
-      case EdmPropertyValueType.Literal:
-        return Boolean(this.edmProperty.value);
-      case EdmPropertyValueType.Reference:
-        return Boolean(this.edmProperty.attrs.resource);
-      default:
-        break;
+    if (this.edmProperty.hasPredefinedValues) {
+      return this.edmProperty.predefinedValues
+        .map(({ value }) => value)
+        .includes(this.getValueByType());
+    } else {
+      return Boolean(this.getValueByType());
     }
   }),
 
   isError: not('isValid'),
+
+  getValueByType() {
+    switch (this.edmProperty.supportedValueType) {
+      case EdmPropertyValueType.Any:
+        return this.edmProperty.value || this.edmProperty.attrs.resource;
+      case EdmPropertyValueType.Literal:
+        return this.edmProperty.value;
+      case EdmPropertyValueType.Reference:
+        return this.edmProperty.attrs.resource;
+      default:
+        break;
+    }
+  },
 
   updateValue() {
     this.notifyPropertyChange('edmProperty');
