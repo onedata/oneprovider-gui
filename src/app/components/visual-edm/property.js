@@ -232,7 +232,7 @@ export default Component.extend(I18n, {
   async animateAttention() {
     try {
       await sleep(0);
-      this.element.scrollIntoViewIfNeeded(false);
+      this.element.scrollIntoView({ block: 'center' });
       await animateCss(this.element, 'pulse-bg-variable');
     } finally {
       set(this.viewModel, 'isAttentionAnimationQueued', false);
