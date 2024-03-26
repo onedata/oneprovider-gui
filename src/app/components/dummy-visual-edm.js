@@ -9,18 +9,16 @@ import EdmMetadataValidator from '../utils/edm/metadata-validator';
 // import EdmObjectFactory from '../utils/edm/object-factory';
 
 export default Component.extend({
-  exampleXml: undefined,
-
   init() {
     this._super(...arguments);
     const factory = EdmMetadataFactory.create();
-    const edmMetadata = factory.createInitialMetadata();
-    // const edmMetadata = factory.fromXml(generateSurplusXml());
+    // const edmMetadata = factory.createInitialMetadata();
+    const edmMetadata = factory.fromXml(generateEuropeanaXml());
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       ownerSource: this,
       edmMetadata,
       validator: EdmMetadataValidator.create({ edmMetadata }),
-      isReadOnly: false,
+      isReadOnly: true,
     }));
   },
 

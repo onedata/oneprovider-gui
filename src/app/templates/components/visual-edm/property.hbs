@@ -1,6 +1,6 @@
 <div class="edm-property-name-container">
   <TruncatedString class="edm-property-type">
-    {{displayedPropertyName}}
+    {{displayedPropertyName}}{{if visualEdmViewModel.isReadOnly ":"}}
   </TruncatedString>
   {{#unless visualEdmViewModel.isReadOnly}}
     {{#if isAnyValueType}}

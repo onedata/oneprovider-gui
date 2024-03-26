@@ -217,6 +217,7 @@ export default Component.extend(I18n, {
    */
   didInsertElement() {
     this._super(...arguments);
+    window.aaa = this;
     this.tryExecuteAnimateAttention();
   },
 
