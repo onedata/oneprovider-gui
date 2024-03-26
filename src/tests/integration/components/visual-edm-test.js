@@ -370,6 +370,7 @@ describe('Integration | Component | visual-edm', function () {
     const propertyLabels = findAll('.edm-property-type').map(element =>
       element.textContent.trim()
     );
+    console.log(propertyLabels);
     const expectedPropertyLabels = [
       'Title',
       'Description',
@@ -378,7 +379,7 @@ describe('Integration | Component | visual-edm', function () {
       'Publisher',
       'Alternative',
       'Issued',
-    ];
+    ].map(name => name + ':');
     expect(propertyLabels).to.deep.equal(expectedPropertyLabels);
   });
 

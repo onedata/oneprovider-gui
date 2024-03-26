@@ -11,7 +11,11 @@ describe('Unit | Utility | edm/metadata-validator', function () {
     helper.initMetadata();
     for (const object of helper.metadata.edmObjects) {
       for (const property of object.edmProperties) {
-        setPropertyValue(property, 'dummy');
+        if (property.hasPredefinedValues) {
+          setPropertyValue(property, property.predefinedValues[0].value);
+        } else {
+          setPropertyValue(property, 'dummy');
+        }
       }
     }
     helper.initValidator();
