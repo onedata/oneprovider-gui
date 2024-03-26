@@ -1,7 +1,7 @@
 <div class="edm-property-name-container">
-  <div class="edm-property-type">
+  <TruncatedString class="edm-property-type">
     {{displayedPropertyName}}
-  </div>
+  </TruncatedString>
   {{#unless visualEdmViewModel.isReadOnly}}
     {{#if isAnyValueType}}
       <div class="edm-property-resource-toggle">
@@ -32,38 +32,42 @@
     {{/if}}
     {{#if viewModel.isLangConfigurable}}
       <div class="separator edm-property-lang-separator"></div>
-      <div class="edm-property-lang-label">
-        {{tt this "language"}}:
-      </div>
-      <input
-        class="form-control input-sm edm-property-lang-input"
-        value={{lang}}
-        oninput={{action "changeLanguage" value="target.value"}}
-      />
-      {{#unless isLangEnabled}}
-        <div class="edm-property-lang-default">
-          {{tt this "defaultLanguage"}}
+      <div class="header-lang-section">
+        <div class="edm-property-lang-label">
+          {{tt this "language"}}:
         </div>
-      {{/unless}}
-    {{/if}}
-    {{#if viewModel.isFirstPropertyInGroup}}
-      <div class={{recommendationClassName}}>
-        {{recommendationLabel}}
+        <input
+          class="form-control input-sm edm-property-lang-input"
+          value={{lang}}
+          oninput={{action "changeLanguage" value="target.value"}}
+        />
+        {{#unless isLangEnabled}}
+          <div class="edm-property-lang-default truncate">
+            {{tt this "defaultLanguage"}}
+          </div>
+        {{/unless}}
       </div>
     {{/if}}
-    <div
-      class={{concat-classes
-        "edm-delete-btn edm-property-delete-btn"
-        (if viewModel.isDeleteDisabled "disabled")
-      }}
-      onclick={{unless viewModel.isDeleteDisabled (action "deleteProperty")}}
-    >
-      <OneIcon
-        class="edm-property-delete-icon"
-        @icon="browser-delete"
+    <div class="header-quantity-section">
+      {{#if viewModel.isFirstPropertyInGroup}}
+        <div class={{recommendationClassName}}>
+          {{recommendationLabel}}
+        </div>
+      {{/if}}
+      <div
+        class={{concat-classes
+          "edm-delete-btn edm-property-delete-btn"
+          (if viewModel.isDeleteDisabled "disabled")
+        }}
+        onclick={{unless viewModel.isDeleteDisabled (action "deleteProperty")}}
       >
-        <OneTooltip @title={{deleteButtonTip}} />
-      </OneIcon>
+        <OneIcon
+          class="edm-property-delete-icon"
+          @icon="browser-delete"
+        >
+          <OneTooltip @title={{deleteButtonTip}} />
+        </OneIcon>
+      </div>
     </div>
   {{/unless}}
 </div>

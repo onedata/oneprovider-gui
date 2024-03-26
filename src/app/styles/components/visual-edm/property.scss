@@ -56,6 +56,9 @@
     align-self: flex-start;
     margin-left: 1.2em;
     font-size: $font-size-small;
+    .btn-group {
+      display: flex;
+    }
   }
   .edm-property-lang-label {
     font-size: $font-size-small;
@@ -78,12 +81,22 @@
     align-self: flex-start;
     margin-left: auto;
   }
+  .header-lang-section {
+    display: flex;
+    align-items: baseline;
+  }
+  .header-quantity-section {
+    display: flex;
+    margin-left: auto;
+    align-items: center;
+  }
   .edm-recommendation-label + .edm-property-delete-btn {
-    margin-left: 8px;
+    margin-left: 12px;
   }
   .edm-recommendation-label {
     opacity: $disabled-opacity;
     margin-left: auto;
+    padding-left: 1em;
     font-size: $font-size-small;
   }
   .edm-property-attrs-container {
@@ -93,6 +106,38 @@
     align-self: center;
     font-size: 120%;
     margin-right: 0.4em;
+  }
+
+  @media (max-width: 920px) {
+    .edm-property-name-container {
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .edm-property-type {
+        flex-basis: 100%;
+        padding-bottom: 10px;
+    }
+    .edm-property-resource-toggle {
+      margin-left: 0;
+    }
+    .edm-property-type + .edm-property-lang-separator {
+      display: none;
+    }
+  }
+  @media (max-width: 800px) {
+    .edm-property-resource-toggle {
+      flex-basis: 100%;
+      margin-bottom:14px;
+    }
+
+    .edm-property-lang-separator {
+      display: none;
+    }
+  }
+  @media (max-width: 520px) {
+    .edm-property-lang-default {
+      display: none;
+    }
   }
 }
 

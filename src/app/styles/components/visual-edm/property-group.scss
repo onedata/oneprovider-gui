@@ -22,9 +22,6 @@
   border: 1px solid $main-border-color;
   border-radius: $border-radius-base;
   background-color: $main-content-light-background;
-  @media (max-width: $screen-xs-max) {
-    margin: 0 $mobile-horizontal-content-padding;
-  }
   @media (min-width: $screen-sm-min) {
     .one-collapsible-list-header {
       padding-top: $padding-large-vertical * 1.75;
