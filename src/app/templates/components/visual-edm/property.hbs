@@ -1,133 +1,139 @@
-<div class="edm-property-name-container">
-  <TruncatedString class="edm-property-type">
-    {{displayedPropertyName}}{{if visualEdmViewModel.isReadOnly ":"}}
-  </TruncatedString>
-  {{#unless visualEdmViewModel.isReadOnly}}
-    {{#if isAnyValueType}}
-      <div class="edm-property-resource-toggle">
-        <BsButtonGroup
-          @value={{valueType}}
-          @type="radio"
-          @onChange={{action "changeValueType"}}
-          as |bg|
-        >
-          <bg.button
-            class="btn-sm"
-            data-value-type={{EdmPropertyValueType.Literal}}
-            @type="default"
-            @value={{EdmPropertyValueType.Literal}}
+<div class="edm-property-key-value">
+  <div class="edm-property-name-container">
+    <TruncatedString class="edm-property-type">
+      {{displayedPropertyName}}{{if visualEdmViewModel.isReadOnly ":"}}
+    </TruncatedString>
+    {{#unless visualEdmViewModel.isReadOnly}}
+      {{#if isAnyValueType}}
+        <div class="edm-property-resource-toggle">
+          <BsButtonGroup
+            @value={{valueType}}
+            @type="radio"
+            @onChange={{action "changeValueType"}}
+            as |bg|
           >
-            {{tt this (concat "valueType." EdmPropertyValueType.Literal)}}
-          </bg.button>
-          <bg.button
-            class="btn-sm"
-            data-value-type={{EdmPropertyValueType.Reference}}
-            @type="default"
-            @value={{EdmPropertyValueType.Reference}}
-          >
-            {{tt this (concat "valueType." EdmPropertyValueType.Reference)}}
-          </bg.button>
-        </BsButtonGroup>
-      </div>
-    {{/if}}
-    {{#if viewModel.isLangConfigurable}}
-      <div class="separator edm-property-lang-separator"></div>
-      <div class="header-lang-section">
-        <div class="edm-property-lang-label">
-          {{tt this "language"}}:
+            <bg.button
+              class="btn-sm"
+              data-value-type={{EdmPropertyValueType.Literal}}
+              @type="default"
+              @value={{EdmPropertyValueType.Literal}}
+            >
+              {{tt this (concat "valueType." EdmPropertyValueType.Literal)}}
+            </bg.button>
+            <bg.button
+              class="btn-sm"
+              data-value-type={{EdmPropertyValueType.Reference}}
+              @type="default"
+              @value={{EdmPropertyValueType.Reference}}
+            >
+              {{tt this (concat "valueType." EdmPropertyValueType.Reference)}}
+            </bg.button>
+          </BsButtonGroup>
         </div>
-        <input
-          class="form-control input-sm edm-property-lang-input"
-          value={{lang}}
-          oninput={{action "changeLanguage" value="target.value"}}
-        />
-        {{#unless isLangEnabled}}
-          <div class="edm-property-lang-default truncate">
-            {{tt this "defaultLanguage"}}
+      {{/if}}
+      {{#if viewModel.isLangConfigurable}}
+        <div class="separator edm-property-lang-separator"></div>
+        <div class="header-lang-section">
+          <div class="edm-property-lang-label">
+            {{tt this "language"}}:
           </div>
-        {{/unless}}
-      </div>
-    {{/if}}
-    <div class="header-quantity-section">
-      {{#if viewModel.isFirstPropertyInGroup}}
-        <div class={{recommendationClassName}}>
-          {{recommendationLabel}}
+          <input
+            class="form-control input-sm edm-property-lang-input"
+            value={{lang}}
+            oninput={{action "changeLanguage" value="target.value"}}
+          />
+          {{#unless isLangEnabled}}
+            <div class="edm-property-lang-default truncate">
+              {{tt this "defaultLanguage"}}
+            </div>
+          {{/unless}}
         </div>
       {{/if}}
-      <div
-        class={{concat-classes
-          "edm-delete-btn edm-property-delete-btn"
-          (if viewModel.isDeleteDisabled "disabled")
-        }}
-        onclick={{unless viewModel.isDeleteDisabled (action "deleteProperty")}}
-      >
-        <OneIcon
-          class="edm-property-delete-icon"
-          @icon="browser-delete"
-        >
-          <OneTooltip @title={{deleteButtonTip}} />
-        </OneIcon>
-      </div>
-    </div>
-  {{/unless}}
-</div>
-<div class="edm-property-value-container">
-  <div class="edm-property-value-label">
-    <OneIcon class="label-icon" @icon={{valueIcon}} />
-    {{tt this (concat "valueLabel." valueType)}}:
-  </div>
-  <div class={{concat-classes
-    "edm-property-value"
-    (if visualEdmViewModel.isReadOnly "readonly")
-  }}>
-    {{#if visualEdmViewModel.isReadOnly}}
-      {{#if (eq inputType "textarea")}}
-        {{value}}
-      {{else}}
-        <TruncatedString>{{value}}</TruncatedString>
-      {{/if}}
-    {{else}}
-      <div class={{viewModel.formGroupClassName}}>
-        {{#if (eq inputType "input")}}
-          <input
-            class="form-control input-sm"
-            value={{value}}
-            oninput={{action "changeValue" value="target.value"}}
-            onblur={{action "handleInputBlur"}}
-          />
-        {{else if (eq inputType "textarea")}}
-          <textarea
-            class="form-control input-sm"
-            value={{value}}
-            rows="4"
-            oninput={{action "changeValue" value="target.value"}}
-            onblur={{action "handleInputBlur"}}
-          />
-        {{else if (eq inputType "dropdown")}}
-          <OneDropdown
-            @triggerClass="small property-value-dropdown-trigger"
-            @dropdownClass="small property-value-dropdown"
-            @options={{predefinedValueOptions}}
-            @selected={{selectedPredefinedValueOption}}
-            @onChange={{action "changeSelectedPredefinedValueOption"}}
-            {{!-- @placeholder={{tt this ""}} --}}
-            @searchEnabled={{true}}
-            @searchField="label"
-            as |option|
-          >
-            <div class="option-container">
-              {{#truncated-string}}
-                <span class="text">
-                  {{option.label}}
-                </span>
-              {{/truncated-string}}
-            </div>
-          </OneDropdown>
+      <div class="header-quantity-section">
+        {{#if viewModel.isFirstPropertyInGroup}}
+          <div class={{recommendationClassName}}>
+            {{recommendationLabel}}
+          </div>
         {{/if}}
+        <div
+          class={{concat-classes
+            "edm-delete-btn edm-property-delete-btn"
+            (if viewModel.isDeleteDisabled "disabled")
+          }}
+          onclick={{unless viewModel.isDeleteDisabled (action "deleteProperty")}}
+        >
+          <OneIcon
+            class="edm-property-delete-icon"
+            @icon="browser-delete"
+          >
+            <OneTooltip @title={{deleteButtonTip}} />
+          </OneIcon>
+        </div>
       </div>
-    {{/if}}
+    {{/unless}}
+  </div>
+  <div class="edm-property-value-container">
+    <div class="edm-property-value-label">
+      <OneIcon class="label-icon" @icon={{valueIcon}} />
+      {{tt this (concat "valueLabel." valueType)}}:
+    </div>
+    <div class={{concat-classes
+      "edm-property-value"
+      (if visualEdmViewModel.isReadOnly "readonly")
+    }}>
+      {{#if visualEdmViewModel.isReadOnly}}
+        {{#if (eq inputType "textarea")}}
+          {{value}}
+        {{else}}
+          <TruncatedString>{{value}}</TruncatedString>
+        {{/if}}
+      {{else}}
+        <div class={{viewModel.formGroupClassName}}>
+          {{#if (eq inputType "input")}}
+            <input
+              class="form-control input-sm"
+              value={{value}}
+              oninput={{action "changeValue" value="target.value"}}
+              onblur={{action "handleInputBlur"}}
+            />
+          {{else if (eq inputType "textarea")}}
+            <textarea
+              class="form-control input-sm"
+              value={{value}}
+              rows="4"
+              oninput={{action "changeValue" value="target.value"}}
+              onblur={{action "handleInputBlur"}}
+            />
+          {{else if (eq inputType "dropdown")}}
+            <OneDropdown
+              @triggerClass="small property-value-dropdown-trigger"
+              @dropdownClass="small property-value-dropdown"
+              @options={{predefinedValueOptions}}
+              @selected={{selectedPredefinedValueOption}}
+              @onChange={{action "changeSelectedPredefinedValueOption"}}
+              @searchEnabled={{true}}
+              @searchField="label"
+              as |option|
+            >
+              <div class="option-container">
+                {{#truncated-string}}
+                  <span class="text">
+                    {{option.label}}
+                  </span>
+                {{/truncated-string}}
+              </div>
+            </OneDropdown>
+          {{/if}}
+        </div>
+      {{/if}}
+    </div>
   </div>
 </div>
+
+{{#if isImageRendered}}
+  <VisualEdm::ImageReference @reference={{value}} />
+{{/if}}
+
 {{!-- FIXME: show additional attributes --}}
 {{!-- <ul class="edm-property-attrs-container edm-property-list-container edm-attrs-container">
   {{#each attrItems as |attrItem|}}

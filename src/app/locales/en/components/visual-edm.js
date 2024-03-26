@@ -1,6 +1,7 @@
 import property from './visual-edm/property';
 import object from './visual-edm/object';
 import addPropertySelector from './visual-edm/add-property-selector';
+import imageReference from './visual-edm/image-reference';
 
 export default {
   listButtons: {
@@ -15,4 +16,5 @@ export default {
   },
   addPropertySelector,
   property,
+  imageReference,
 };

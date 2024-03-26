@@ -205,6 +205,14 @@ export default Component.extend(I18n, {
     );
   }),
 
+  isImageRendered: computed(
+    'viewModel.{visualEdmViewModel.isReadOnly,model.xmlTagName}',
+    function isImageRendered() {
+      return this.viewModel.visualEdmViewModel.isReadOnly &&
+        this.viewModel.model.xmlTagName === 'edm:object';
+    }
+  ),
+
   animateAttentionObserver: observer(
     'viewModel.isAnimateAttentionQueued',
     function animateAttentionObserver() {
@@ -217,7 +225,6 @@ export default Component.extend(I18n, {
    */
   didInsertElement() {
     this._super(...arguments);
-    window.aaa = this;
     this.tryExecuteAnimateAttention();
   },
 
