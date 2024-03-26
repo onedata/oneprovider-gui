@@ -48,7 +48,7 @@
         {{one-icon icon="drag" class="column-move-icon"}}
         {{tt this (concat "headers." columnName)}}
       </span>
-      {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
+      {{#if (contains columnName columnsNamesWithTooltip)}}
         {{#one-icon icon="browser-info" class="column-info-icon"}}
           {{one-tooltip
             title=(tt this (concat columnName "Tooltip") oneprovider=currentProviderName)

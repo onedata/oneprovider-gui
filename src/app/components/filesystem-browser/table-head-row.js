@@ -61,6 +61,13 @@ export default FbTableHeadRow.extend(...mixins, {
    */
   currentProviderName: reads('currentProviderProxy.content.name'),
 
+  /**
+   * @type {Array<String>}
+   */
+  columnsNamesWithTooltip: Object.freeze(
+    ['qos', 'replication', 'modification', 'atime', 'ctime']
+  ),
+
   dirObserver: observer('browserModel.dir', async function dirObserver() {
     // let header display feature tags for new dir
     scheduleOnce('afterRender', this, () => {
