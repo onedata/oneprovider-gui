@@ -1,5 +1,5 @@
 import Component from '@ember/component';
-import { set, computed } from '@ember/object';
+import { set, computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe } from '@ember/string';
@@ -7,6 +7,9 @@ import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import { conditional, eq, raw, bool } from 'ember-awesome-macros';
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
 import { EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
+import animateCss from 'onedata-gui-common/utils/animate-css';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 // FIXME: jak najwięcej przenieść logiki do property-view-model
 
@@ -201,6 +204,40 @@ export default Component.extend(I18n, {
       'cannotDeleteOnlyMandatory' : 'deletePropertyTip'
     );
   }),
+
+  animateAttentionObserver: observer(
+    'viewModel.isAnimateAttentionQueued',
+    function animateAttentionObserver() {
+      this.tryExecuteAnimateAttention();
+    }
+  ),
+
+  /**
+   * @override
+   */
+  didInsertElement() {
+    this._super(...arguments);
+    this.tryExecuteAnimateAttention();
+  },
+
+  async tryExecuteAnimateAttention() {
+    if (!this.element) {
+      return;
+    }
+    if (this.viewModel.isAnimateAttentionQueued) {
+      this.animateAttention();
+    }
+  },
+
+  async animateAttention() {
+    try {
+      await sleep(0);
+      this.element.scrollIntoViewIfNeeded(false);
+      await animateCss(this.element, 'pulse-bg-variable');
+    } finally {
+      set(this.viewModel, 'isAttentionAnimationQueued', false);
+    }
+  },
 
   actions: {
     /**

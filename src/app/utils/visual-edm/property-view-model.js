@@ -27,6 +27,11 @@ const PropertyViewModel = EmberObject.extend({
    */
   valueType: undefined,
 
+  /**
+   * @type {boolean}
+   */
+  isAnimateAttentionQueued: false,
+
   referenceValue: computed('model.attrs', function referenceValue() {
     return this.model.attrs.resource;
   }),
@@ -89,6 +94,10 @@ const PropertyViewModel = EmberObject.extend({
     } else {
       this.set('valueType', this.model.supportedValueType);
     }
+  },
+
+  animateAttention() {
+    this.set('isAnimateAttentionQueued', true);
   },
 
   updateView() {

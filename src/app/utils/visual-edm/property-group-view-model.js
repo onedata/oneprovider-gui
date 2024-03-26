@@ -1,5 +1,4 @@
 import EmberObject, { computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
 import PropertyViewModel from './property-view-model';
 
 const PropertyGroupViewModel = EmberObject.extend({
@@ -38,6 +37,15 @@ const PropertyGroupViewModel = EmberObject.extend({
       });
     }
   ),
+
+  /**
+   *
+   * @param {EdmProperty} edmProperty
+   * @returns
+   */
+  findPropertyViewModel(edmProperty) {
+    return this.propertiesViewModels.find(pvm => pvm.model.equals(edmProperty));
+  },
 });
 
 export default PropertyGroupViewModel;

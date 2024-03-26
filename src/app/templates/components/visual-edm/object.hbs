@@ -47,9 +47,9 @@
     "edm-object-list-container"
     "main-content-row"
     "row modern-iconified-block-row"
-    (if (not edmPropertyGroups.length) "hidden")
+    (if (not viewModel.edmPropertyGroups.length) "hidden")
   }}>
-    {{#each edmPropertyGroups as |propertyGroupViewModel|}}
+    {{#each viewModel.edmPropertyGroups as |propertyGroupViewModel|}}
       <VisualEdm::PropertyGroup @viewModel={{propertyGroupViewModel}} />
       {{!-- FIXME: napisać na nowo albo usunąć --}}
       {{!-- {{#if (eq index 2)}}

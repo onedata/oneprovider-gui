@@ -5,9 +5,6 @@ import { reads } from '@ember/object/computed';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import { and, eq, raw, not } from 'ember-awesome-macros';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
-import _ from 'lodash';
-import PropertyGroupViewModel from 'oneprovider-gui/utils/visual-edm/property-group-view-model';
-import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
 
 /**
  * @typedef {Object} EdmPropertyGroup
@@ -60,22 +57,6 @@ export default Component.extend(I18n, {
    * @type {Computed<Array<EdmProperty>>}
    */
   edmProperties: reads('viewModel.edmProperties'),
-
-  // FIXME: to może być w viewModel
-  /**
-   * @type {ComputedProperty<EdmPropertyGroup>}
-   */
-  edmPropertyGroups: computed('edmProperties', function edmPropertyGroups() {
-    const sortedProperties = sortProperties(this.edmProperties, 'visual');
-    const groupedProperties = _.groupBy(sortedProperties, 'xmlTagName');
-    return Object.values(groupedProperties).map(edmProperties =>
-      PropertyGroupViewModel.create({
-        visualEdmViewModel: this.visualEdmViewModel,
-        edmProperties,
-        objectViewModel: this.viewModel,
-      })
-    );
-  }),
 
   isDeletable: and(
     eq('viewModel.model.edmObjectType', raw(EdmObjectType.WebResource)),

@@ -101,6 +101,14 @@ class EdmProperty {
   get isLangConfigurable() {
     return this.spec?.lang || false;
   }
+
+  /**
+   * @param {EdmProperty} edmProperty
+   * @returns {boolean}
+   */
+  equals(edmProperty) {
+    return this.xmlElement === edmProperty.xmlElement;
+  }
 }
 
 export default EdmProperty;
