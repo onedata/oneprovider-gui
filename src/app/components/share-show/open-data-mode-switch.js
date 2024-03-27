@@ -19,9 +19,8 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.shareShow.openDataModeSwitch',
 
   /**
-   * One of: visual, xml
    * @virtual
-   * @type {String}
+   * @type {'visual'|'xml'}
    */
   mode: undefined,
 
@@ -31,4 +30,40 @@ export default Component.extend(I18n, {
    * @virtual
    */
   onModeChange: notImplementedWarn,
+
+  /**
+   * @type {boolean}
+   * @virtual optional
+   */
+  isVisualModeDisabled: false,
+
+  /**
+   * @type {boolean}
+   * @virtual optional
+   */
+  isXmlModeDisabled: false,
+
+  /**
+   * @type {string|SafeString}
+   * @virtual optional
+   */
+  visualModeTip: undefined,
+
+  /**
+   * @type {string|SafeString}
+   * @virtual optional
+   */
+  xmlModeTip: undefined,
+
+  actions: {
+    changeMode(mode) {
+      if (
+        (mode === 'visual' && this.isVisualModeDisabled) ||
+        (mode === 'xml' && this.isXmlModeDisabled)
+      ) {
+        return;
+      }
+      this.onModeChange(mode);
+    },
+  },
 });

@@ -3,10 +3,18 @@
     <h1 class="section-name main-header">
       {{tt this "header"}}
       {{#if readonly}}
-        {{one-label-tip title=(tt this "readonlyHeaderTip")}}
+        <OneLabelTip @title={{tt this "readonlyHeaderTip"}} />
       {{/if}}
     </h1>
-    {{share-show/open-data-mode-switch mode=mode onModeChange=(action "changeMode")}}
+    <ShareShow::OpenDataModeSwitch
+      @mode={{mode}}
+      @isVisualModeDisabled={{isVisualModeDisabled}}
+      @visualModeTip={{if
+        isVisualModeDisabled
+        (tt this "submitDisabledReason.xmlNotAccepted")
+      }}
+      @onModeChange={{action "changeMode"}}
+    />
   </div>
 
   {{!-- FIXME: podobnie jak w open-data-editor dać mniej tekstu w trybie mobilnym --}}
@@ -17,7 +25,7 @@
     </p>
     <p class="metadata-text">
       {{tt this "introExtra"}}
-      {{one-label-tip title=(tt this "introTip")}}
+      <OneLabelTip @title={{tt this "introTip"}} />
     </p>
   {{/unless}}
 
@@ -30,32 +38,52 @@
       <VisualEdm @viewModel={{visualEdmViewModel}} />
     {{/if}}
   {{else if (eq mode "xml")}}
-    {{ember-ace
+    <EmberAce
       class="ember-ace ember-ace-edm-source"
-      editorClass="full-height"
-      value=currentXmlValue
-      worker="ace/mode/xml_worker"
-      mode="ace/mode/xml"
-      theme="ace/theme/textmate"
-      tabSize=2
-      useWrapMode=true
-      highlightActiveLine=true
-      showLineNumbers=true
-      showPrintMargin=false
-      readOnly=readonly
-      ready=(action "aceEditorReady")
-      update=(action "sourceChanged")
-    }}
+      @editorClass="full-height"
+      @value={{currentXmlValue}}
+      @worker="ace/mode/xml_worker"
+      @mode="ace/mode/xml"
+      @theme="ace/theme/textmate"
+      @tabSize=2
+      @useWrapMode={{true}}
+      @highlightActiveLine={{true}}
+      @showLineNumbers={{true}}
+      @showPrintMargin={{false}}
+      @readOnly={{readonly}}
+      @ready={{action "aceEditorReady"}}
+      @update={{action "sourceChanged"}}
+    />
+    {{#if isApplyXmlButtonShown}}
+      <div class="btn-tooltip-container">
+        <OneButton
+          class="apply-xml-btn"
+          @disabled={{isXmlNotParseable}}
+          @onClick={{action "acceptXml"}}
+        >
+          {{tt this "applyAndFormatXml"}}
+        </OneButton>
+        {{#if isXmlNotParseable}}
+          <OneTooltip @title={{tt this "submitDisabledReason.xmlNotValid"}} />
+        {{/if}}
+      </div>
+    {{/if}}
+    {{#if (or validator.isError isXmlNotParseable)}}
+      <VisualEdm::ValidationError
+        class="edm-metadata-invalid"
+        @text={{tt this "notValid"}}
+      />
+    {{/if}}
   {{/if}}
 
   {{#unless readonly}}
-    {{share-show/metadata-editor-footer
-      isSubmitDisabled=isSubmitDisabled
-      submitButtonTip=submitDisabledReason
-      handleService=handleService
-      onCancel=(action "back")
-      onSubmit=(action "submit")
-    }}
+    <ShareShow::MetadataEditorFooter
+      @isSubmitDisabled={{isSubmitDisabled}}
+      @submitButtonTip={{submitDisabledReason}}
+      @handleService={{handleService}}
+      @onCancel={{action "back"}}
+      @onSubmit={{action "submit"}}
+    />
   {{/unless}}
 </div>
 

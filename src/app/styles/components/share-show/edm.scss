@@ -20,6 +20,10 @@
       flex-grow: 1;
     }
   }
+  .apply-xml-btn {
+    align-self: flex-end;
+    margin-top: 1em;
+  }
   &.readonly {
     h1.main-header {
       margin-bottom: 1em;

@@ -203,14 +203,14 @@ export default Component.extend(...mixins, {
     this._super(...arguments);
     // FIXME: share show debug code
     this.get('handleStateProxy').then((handleState) => {
-      // this.set('activeTab', 'opendata');
-      if (handleState === 'available') {
-        this.set('activeTab', 'opendata');
-      } else if (this.get('share.description')) {
-        this.set('activeTab', 'description');
-      } else {
-        this.set('activeTab', 'files');
-      }
+      this.set('activeTab', 'opendata');
+      // if (handleState === 'available') {
+      //   this.set('activeTab', 'opendata');
+      // } else if (this.get('share.description')) {
+      //   this.set('activeTab', 'description');
+      // } else {
+      //   this.set('activeTab', 'files');
+      // }
     });
   },
 

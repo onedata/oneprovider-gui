@@ -3,14 +3,10 @@
     <VisualEdm::Object @viewModel={{objectViewModel}} />
   {{/each}}
   {{#if viewModel.validator.isError}}
-    <div class="edm-info-row warning edm-metadata-invalid">
-      <div class="edm-info-row-inner">
-        <OneIcon @icon="sign-warning-rounded" class="edm-info-row-icon" />
-        <span class="edm-info-row-text">
-          {{tt this "notValid"}}
-        </span>
-      </div>
-    </div>
+    <VisualEdm::ValidationError
+      class="edm-metadata-invalid"
+      @text={{tt this "notValid"}}
+    />
   {{/if}}
   {{#if viewModel.hasExtraData}}
     <VisualEdm::ExtraDataInfo @model={{model}}/>

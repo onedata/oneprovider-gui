@@ -58,27 +58,6 @@
       }
     }
   }
-
-  .edm-info-row {
-    display: flex;
-    .edm-info-row-inner {
-      display: flex;
-      align-items: center;
-    }
-    .edm-info-row-icon + .edm-info-row-text {
-      margin-left: 0.8em;
-    }
-    &.warning {
-      .edm-info-row-icon {
-        color: $color-one-warning;
-      }
-    }
-    &.info {
-      .edm-info-row-icon {
-        color: $color-one-azure;
-      }
-    }
-  }
 }
 
 // FIXME: refaktor nazw
@@ -259,6 +238,27 @@ $fallback-spaces-marketplace-item-height: 300px;
 
 .edm-object-iconified-block {
   --spaces-marketplace-item-height: auto;
+}
+
+.edm-info-row {
+  display: flex;
+  .edm-info-row-inner {
+    display: flex;
+    align-items: center;
+  }
+  .edm-info-row-icon + .edm-info-row-text {
+    margin-left: 0.8em;
+  }
+  &.warning {
+    .edm-info-row-icon {
+      color: $color-one-warning;
+    }
+  }
+  &.info {
+    .edm-info-row-icon {
+      color: $color-one-azure;
+    }
+  }
 }
 
 @import './visual-edm/extra-data-info';

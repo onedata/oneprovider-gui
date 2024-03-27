@@ -8,18 +8,28 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { not, and, raw, or, bool, conditional } from 'ember-awesome-macros';
+import { not, and, raw, or, bool, conditional, eq, notEqual } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
-import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
-import { set, setProperties } from '@ember/object';
+import Edmvalidator from 'oneprovider-gui/utils/edm/metadata-validator';
+import { set, setProperties, computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
+import { debounce } from '@ember/runloop';
 
 const defaultMode = 'visual';
 
+const EdmModelXmlSyncState = Object.freeze({
+  Synced: 'synced',
+  Waiting: 'waiting',
+  // FIXME: można wprowadzić stan Pending i asynchronicznie tworzyć walidator (validateSourceModelSync)
+  NotParseable: 'notParseable',
+  Parseable: 'parseable',
+});
+
 export default Component.extend(I18n, {
   classNames: ['share-show-edm', 'open-data-metadata-editor', 'form-group'],
-  classNameBindings: ['isValid::has-error', 'readonly:readonly'],
+  classNameBindings: ['isValid::invalid-metadata', 'readonly:readonly'],
 
   /**
    * @override
@@ -67,6 +77,8 @@ export default Component.extend(I18n, {
    */
   currentXmlValue: '',
 
+  modelXmlSyncState: EdmModelXmlSyncState.Synced,
+
   //#endregion
 
   //#region configuration
@@ -90,7 +102,7 @@ export default Component.extend(I18n, {
 
   aceEditor: undefined,
 
-  isValid: true,
+  isValid: reads('validator.isValid'),
 
   isXmlValueInvalid: false,
 
@@ -99,16 +111,37 @@ export default Component.extend(I18n, {
    */
   mode: defaultMode,
 
-  /**
-   * @type {EdmMetadataValidator}
-   */
-  metadataValidator: undefined,
-
   //#endregion
+
+  /**
+   * @type {Edmvalidator}
+   */
+  validator: computed(
+    'modelXmlSyncState',
+    'visualEdmViewModel.validator',
+    'tmpSourceValidator',
+    function validator() {
+      switch (this.modelXmlSyncState) {
+        case EdmModelXmlSyncState.Synced:
+          return this.visualEdmViewModel.validator;
+        case EdmModelXmlSyncState.Parseable:
+          return this.tmpSourceValidator;
+        default:
+          return null;
+      }
+    }
+  ),
 
   isEmpty: not('currentXmlValue'),
 
   isSubmitDisabled: bool('submitDisabledReason'),
+
+  isXmlNotParseable: eq('modelXmlSyncState', raw(EdmModelXmlSyncState.NotParseable)),
+
+  isApplyXmlButtonShown: or(
+    eq('modelXmlSyncState', raw(EdmModelXmlSyncState.Parseable)),
+    eq('modelXmlSyncState', raw(EdmModelXmlSyncState.NotParseable))
+  ),
 
   /**
    * Classname added to columns to center the form content, as it is too wide
@@ -120,20 +153,31 @@ export default Component.extend(I18n, {
     raw('col-xs-12 col-md-8 col-centered'),
   ),
 
-  submitDisabledReason: undefined,
+  submitDisabledReason: or(
+    // and(
+    //   'isEmpty',
+    //   computedT('submitDisabledReason.empty')
+    // ),
+    and(
+      eq('modelXmlSyncState', raw(EdmModelXmlSyncState.Waiting)),
+      computedT('submitDisabledReason.validatingSync')
+    ),
+    and(
+      'isXmlNotParseable',
+      computedT('submitDisabledReason.xmlNotValid')
+    ),
+    and(
+      notEqual('modelXmlSyncState', raw(EdmModelXmlSyncState.Synced)),
+      computedT('submitDisabledReason.xmlNotAccepted')
+    ),
+    and(
+      not('isValid'),
+      computedT('submitDisabledReason.invalid')
+    ),
+    raw(null),
+  ),
 
-  // FIXME: walidacja
-  // submitDisabledReason: or(
-  //   and(
-  //     'isEmpty',
-  //     computedT('submitDisabledReason.empty')
-  //   ),
-  //   and(
-  //     not('isValid'),
-  //     computedT('submitDisabledReason.invalid')
-  //   ),
-  //   raw(null),
-  // ),
+  isVisualModeDisabled: notEqual('modelXmlSyncState', raw(EdmModelXmlSyncState.Synced)),
 
   init() {
     this._super(...arguments);
@@ -159,14 +203,19 @@ export default Component.extend(I18n, {
       }
     }
     if (!this.isXmlValueInvalid) {
-      const metadataValidator = EdmMetadataValidator.create({ edmMetadata });
-      this.set('metadataValidator', metadataValidator);
+      const validator = Edmvalidator.create({ edmMetadata });
       this.set('visualEdmViewModel', VisualEdmViewModel.create({
         edmMetadata,
-        validator: metadataValidator,
+        validator: validator,
         isReadOnly: this.readonly,
       }));
     }
+
+    // FIXME: debug code
+    ((name) => {
+      window[name] = this;
+      console.log(`window.${name}`, window[name]);
+    })('debug_edm');
   },
 
   setupAceEditor(aceEditor) {
@@ -178,20 +227,23 @@ export default Component.extend(I18n, {
   },
 
   annotationChanged() {
+    if (this.checkAceErrors()) {
+      this.set('modelXmlSyncState', EdmModelXmlSyncState.NotParseable);
+    }
+  },
+
+  checkAceErrors() {
     const annotations = this.aceEditor.getSession().getAnnotations();
-    const errorsPresent = annotations?.some(annotation => annotation.type === 'error');
-    this.set('isValid', !errorsPresent);
+    return annotations?.some(annotation => annotation.type === 'error');
   },
 
   submit() {
-    this.updateCurrentXmlValue();
+    this.replaceCurrentXmlValueUsingModel();
     return this.onSubmit(this.currentXmlValue);
   },
 
-  updateCurrentXmlValue() {
-    // FIXME: tego nie może być, bo niszczy nieznane elementy XML-a - do ustalenia
-    // this.visualEdmViewModel.edmMetadata.sort();
-    this.changeSource(this.visualEdmViewModel.edmMetadata.stringify());
+  replaceCurrentXmlValueUsingModel() {
+    this.changeSource(this.visualEdmViewModel.edmMetadata.stringify(), false);
   },
 
   replaceModelUsingCurrentXml() {
@@ -200,7 +252,7 @@ export default Component.extend(I18n, {
     // FIXME: v2: try to optimize: update model, do not create new model
     try {
       edmMetadata = EdmMetadataFactory.create().fromXml(this.currentXmlValue);
-      validator = EdmMetadataValidator.create({ edmMetadata });
+      validator = Edmvalidator.create({ edmMetadata });
       this.set('isXmlValueInvalid', false);
     } catch (error) {
       if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
@@ -216,13 +268,49 @@ export default Component.extend(I18n, {
     }
   },
 
-  changeSource(value) {
-    if (!value) {
-      this.set('isValid', true);
+  changeSource(value, invalidate = true) {
+    const prevXmlValue = this.currentXmlValue;
+    if (prevXmlValue === value) {
+      return;
     }
     this.set('currentXmlValue', value);
+    if (invalidate && prevXmlValue) {
+      this.invalidateSourceModelSync();
+    }
     // onUpdateXml could be not available in readonly mode
     this.onUpdateXml?.(value);
+  },
+
+  invalidateSourceModelSync() {
+    this.set('modelXmlSyncState', EdmModelXmlSyncState.Waiting);
+    debounce(this, 'validateSourceModelSync', 1000);
+  },
+
+  validateSourceModelSync() {
+    let edmMetadata;
+    let validator;
+    // FIXME: v2: try to optimize: update model, do not create new model
+    try {
+      if (this.checkAceErrors()) {
+        this.set('modelXmlSyncState', EdmModelXmlSyncState.NotParseable);
+        return;
+      }
+      edmMetadata = EdmMetadataFactory.create().fromXml(this.currentXmlValue);
+      validator = Edmvalidator.create({ edmMetadata });
+      this.set('tmpSourceValidator', validator);
+      this.set('modelXmlSyncState', EdmModelXmlSyncState.Parseable);
+    } catch (error) {
+      if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
+        throw error;
+      }
+      this.set('modelXmlSyncState', EdmModelXmlSyncState.NotParseable);
+    }
+  },
+
+  acceptXml() {
+    this.replaceModelUsingCurrentXml();
+    this.replaceCurrentXmlValueUsingModel();
+    this.set('modelXmlSyncState', EdmModelXmlSyncState.Synced);
   },
 
   /**
@@ -230,6 +318,9 @@ export default Component.extend(I18n, {
    */
   changeMode(newMode) {
     if (newMode === 'visual') {
+      if (this.modelXmlSyncState !== EdmModelXmlSyncState.Synced) {
+        return;
+      }
       if (this.isEmpty) {
         const newModel = EdmMetadataFactory.create().createInitialMetadata();
         set(this.visualEdmViewModel, 'edmMetadata', newModel);
@@ -238,7 +329,7 @@ export default Component.extend(I18n, {
       }
     } else {
       if (!this.isXmlValueInvalid) {
-        this.updateCurrentXmlValue();
+        this.replaceCurrentXmlValueUsingModel();
       }
     }
     this.set('mode', newMode);
@@ -264,6 +355,9 @@ export default Component.extend(I18n, {
     },
     submit() {
       return this.submit();
+    },
+    acceptXml() {
+      this.acceptXml();
     },
   },
 

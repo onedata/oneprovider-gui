@@ -11,8 +11,13 @@ export default {
   readonlyHeaderTip: edmReadonlyTip,
   introExtra: edmIntroExtra,
   invalidXml: 'The XML source cannot be parsed to EDM metadata. Review your XML.',
+  applyAndFormatXml: 'Apply and format XML',
+  notValid: 'Metadata definition is not valid.',
   submitDisabledReason: {
-    empty: 'Metadata must not be empty.',
-    invalid: 'Metadata is not valid.',
+    empty: 'Metadata must not be empty',
+    invalid: 'Metadata is not valid',
+    xmlNotValid: 'XML is not valid',
+    validatingSync: 'XML validation is pending',
+    xmlNotAccepted: 'Apply the XML source first',
   },
 };
