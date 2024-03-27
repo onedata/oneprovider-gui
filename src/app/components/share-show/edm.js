@@ -120,17 +120,20 @@ export default Component.extend(I18n, {
     raw('col-xs-12 col-md-8 col-centered'),
   ),
 
-  submitDisabledReason: or(
-    and(
-      'isEmpty',
-      computedT('submitDisabledReason.empty')
-    ),
-    and(
-      not('isValid'),
-      computedT('submitDisabledReason.invalid')
-    ),
-    raw(null),
-  ),
+  submitDisabledReason: undefined,
+
+  // FIXME: walidacja
+  // submitDisabledReason: or(
+  //   and(
+  //     'isEmpty',
+  //     computedT('submitDisabledReason.empty')
+  //   ),
+  //   and(
+  //     not('isValid'),
+  //     computedT('submitDisabledReason.invalid')
+  //   ),
+  //   raw(null),
+  // ),
 
   init() {
     this._super(...arguments);
@@ -181,6 +184,7 @@ export default Component.extend(I18n, {
   },
 
   submit() {
+    this.updateCurrentXmlValue();
     return this.onSubmit(this.currentXmlValue);
   },
 

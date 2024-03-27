@@ -18,15 +18,6 @@ export default Component.extend(I18n, {
    */
   viewModel: undefined,
 
-  init() {
-    this._super(...arguments);
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_visual_edm');
-  },
-
   actions: {
     addWebResource() {
       this.viewModel.addWebResource();
