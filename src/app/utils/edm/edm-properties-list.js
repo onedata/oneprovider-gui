@@ -1,4 +1,3 @@
-// import EdmMetadataFactory from './metadata-factory';
 import EdmPropertyFactory from './property-factory';
 import { isSupportedXmlProperty } from './xml-utils';
 
@@ -30,6 +29,9 @@ export default class EdmPropertiesList {
     this.xmlElement.replaceChildren(...elements);
   }
 
+  /**
+   * @param {EdmProperty} edmProperty
+   */
   addProperty(edmProperty) {
     const newPropertyTagName = edmProperty.xmlTagName;
     const propertyElements = this.xmlElement.children;
@@ -40,6 +42,9 @@ export default class EdmPropertiesList {
     this.xmlElement.insertBefore(edmProperty.xmlElement, propertyElements[insertIndex]);
   }
 
+  /**
+   * @param {EdmProperty} edmProperty
+   */
   deleteProperty(edmProperty) {
     this.xmlElement.removeChild(edmProperty.xmlElement);
   }

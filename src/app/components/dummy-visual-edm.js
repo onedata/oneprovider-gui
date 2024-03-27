@@ -12,8 +12,8 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     const factory = EdmMetadataFactory.create();
-    const edmMetadata = factory.createInitialMetadata();
-    // const edmMetadata = factory.fromXml(generateEuropeanaXml());
+    // const edmMetadata = factory.createInitialMetadata();
+    const edmMetadata = factory.fromXml(generateEuropeanaXml());
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       ownerSource: this,
       edmMetadata,
@@ -151,6 +151,7 @@ const generateEuropeanaXml = () =>
       <dc:identifier>044161</dc:identifier>
       <dc:language>ca</dc:language>
       <dc:rights>Public Domain</dc:rights>
+      <!-- test -->
       <dc:source xml:lang="ca">Colˇlecció Joan Basseda Casas</dc:source>
       <dc:subject rdf:resource="http://www.wikidata.org/entity/Q6581072"/>
       <dc:subject rdf:resource="http://vocab.getty.edu/aat/300223022"/>
@@ -172,6 +173,7 @@ const generateEuropeanaXml = () =>
       <dcterms:spatial xml:lang="ca">Unknown</dcterms:spatial>
       <edm:type>3D</edm:type>
     </edm:ProvidedCHO>
+    <!-- object test -->
     <ore:Aggregation rdf:about="http://mint-projects.image.ntua.gr/photography/ProvidedCHO/Ajuntament de Girona/044161">
       <edm:aggregatedCHO rdf:resource="http://mint-projects.image.ntua.gr/photography/ProvidedCHO/Ajuntament_de_Girona/044161"/>
       <edm:dataProvider>Ajuntament de Girona</edm:dataProvider>

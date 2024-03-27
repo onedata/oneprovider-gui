@@ -72,6 +72,7 @@ export default class EdmMetadata {
     this.#edmObjectsList = new EdmObjectsList(this.xmlElement, objects);
     this.#edmObjects = this.#edmObjectsList.toArray();
   }
+
   get edmObjects() {
     return this.#edmObjects;
   }
@@ -84,6 +85,16 @@ export default class EdmMetadata {
       }
     }
     return false;
+  }
+
+  addObject(edmObject) {
+    this.#edmObjectsList.addObject(edmObject);
+    this.#edmObjects = this.#edmObjectsList.toArray();
+  }
+
+  deleteObject(edmObject) {
+    this.#edmObjectsList.deleteObject(edmObject);
+    this.#edmObjects = this.#edmObjectsList.toArray();
   }
 
   stringify() {

@@ -26,6 +26,20 @@ export default class EdmObjectsList {
     this.xmlElement.replaceChildren(...elements);
   }
 
+  /**
+   * @param {EdmObject} edmObject
+   */
+  addObject(edmObject) {
+    this.xmlElement.appendChild(edmObject.xmlElement);
+  }
+
+  /**
+   * @param {EdmObject} edmObject
+   */
+  deleteObject(edmObject) {
+    this.xmlElement.removeChild(edmObject.xmlElement);
+  }
+
   toArray() {
     const edmObjects = [];
     for (const objectXmlElement of Array.from(this.xmlElement.children)) {

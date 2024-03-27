@@ -82,10 +82,8 @@ const VisualEdmViewModel = EmberObject.extend({
 
   addWebResource() {
     const factory = new EdmObjectFactory(this.edmMetadata);
-    this.edmMetadata.edmObjects = [
-      ...this.edmMetadata.edmObjects,
-      factory.createInitialObject(EdmObjectType.WebResource),
-    ];
+    const object = factory.createInitialObject(EdmObjectType.WebResource);
+    this.edmMetadata.addObject(object);
     this.validator?.updateValue();
     this.updateView();
   },
@@ -94,7 +92,7 @@ const VisualEdmViewModel = EmberObject.extend({
    * @param {EdmObject} object
    */
   deleteObject(object) {
-    this.edmMetadata.edmObjects = _.without(this.edmMetadata.edmObjects, object);
+    this.edmMetadata.deleteObject(object);
     this.updateView();
   },
 });

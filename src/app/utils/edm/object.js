@@ -99,7 +99,6 @@ export default class EdmObject {
   }
 
   get hasExtraData() {
-    // FIXME: sprawdzić także to co jest poza root elementem
     for (const attr of this.xmlElement.attributes) {
       if (!this.shownXmlAttrs.includes(attr.name)) {
         return true;
@@ -113,17 +112,17 @@ export default class EdmObject {
     return false;
   }
 
+  addProperty(edmProperty) {
+    this.#edmPropertiesList.addProperty(edmProperty);
+    this.#edmProperties = this.#edmPropertiesList.toArray();
+  }
+
   /**
    * @param {EdmProperty} edmProperty
    * @returns {void}
    */
   deleteProperty(edmProperty) {
     this.#edmPropertiesList.deleteProperty(edmProperty);
-    this.#edmProperties = this.#edmPropertiesList.toArray();
-  }
-
-  addProperty(edmProperty) {
-    this.#edmPropertiesList.addProperty(edmProperty);
     this.#edmProperties = this.#edmPropertiesList.toArray();
   }
 
