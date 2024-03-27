@@ -7,7 +7,7 @@
     as |bsTab|
   }}
     {{#bs-nav type="tabs" as |nav|}}
-      {{#each possibleTabs as |tabId|}}
+      {{#each visibleTabs as |tabId|}}
         {{#if (or (not-eq tabId "preview") atmWorkflowExecutionIdInPreview)}}
           {{#nav.item
             class=(concat "nav-item-" tabId)
@@ -43,7 +43,7 @@
                   suspendedExecutionsCountInfo.content
                 )}}
                   <span class={{suspendedExecutionsCountInfo.className}}>
-                    ({{suspendedExecutionsCountInfo.content}})
+                    ({{format-number suspendedExecutionsCountInfo.content}})
                   </span>
                 {{/if}}
                 {{#if (eq tabId "preview")}}

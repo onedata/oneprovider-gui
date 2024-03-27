@@ -674,7 +674,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       size: targetSize,
     } = getProperties(target, 'cdmiObjectId', 'type', 'name', 'size');
     const result = {
-      file_id: targetCdmiObjectId,
+      fileId: targetCdmiObjectId,
       type: convertFromLegacyFileTypeIfNeeded(targetType),
       name: targetName,
       size: targetSize,
@@ -737,7 +737,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
 
     const file = await this.fileManager.getFileById(fileId);
     const result = {
-      file_id: cdmiObjectId,
+      fileId: cdmiObjectId,
       name: get(file, 'name'),
       size: get(file, 'size') ?? null,
     };

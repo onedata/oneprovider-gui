@@ -154,6 +154,15 @@ export default Component.extend(...mixins, {
   ),
 
   /**
+   * @type {ComputedProperty<Array<string>>}
+   */
+  visibleTabs: computed('normalizedTab', 'possibleTabs', function visibleTabs() {
+    // When user switches to workflow creation tab, we hide it from the screen
+    return this.normalizedTab === 'create' ?
+      this.possibleTabs.filter((tab) => tab !== 'create') : this.possibleTabs;
+  }),
+
+  /**
    * @type {Object}
    */
   tabIcons: Object.freeze({

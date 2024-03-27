@@ -145,7 +145,7 @@ describe('Integration | Component | space-automation/input-stores-form', functio
           type: AtmDataSpecType.File,
         },
       },
-      defaultInitialContent: { file_id: guidToCdmiObjectId('id0') },
+      defaultInitialContent: { fileId: guidToCdmiObjectId('id0') },
       requiresInitialContent: true,
     }]);
     const dataStore = lookupService(this, 'store');

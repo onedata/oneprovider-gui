@@ -48,6 +48,7 @@ import apiSamples from './components/api-samples';
 import columnsConfigurationPopover from './components/columns-configuration-popover';
 import columnsConfigurationCell from './components/columns-configuration-cell';
 import visualEdm from './components/visual-edm';
+import storageLocationPerProviderTable from './components/storage-location-per-provider-table';
 
 import uploadManager from './services/upload-manager';
 
@@ -122,6 +123,7 @@ const translations = {
     columnsConfigurationPopover,
     columnsConfigurationCell,
     visualEdm,
+    storageLocationPerProviderTable,
   },
   services: {
     uploadManager,

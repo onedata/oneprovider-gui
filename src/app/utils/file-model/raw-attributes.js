@@ -8,6 +8,7 @@
  */
 
 import _ from 'lodash';
+import { FileAttribute, fileAttributesArray } from 'onedata-gui-common/utils/file';
 
 /**
  * @typedef {typeof possibleFileRawAttributes[number]} FileModel.RawAttribute
@@ -17,56 +18,27 @@ import _ from 'lodash';
  * @type {Array<File.RawAttribute>}
  */
 export const possibleFileRawAttributes = Object.freeze([
-  'acl', // currently not used by frontend, which has an ACL relation
-  'activePermissionsType',
-  'archiveRecallRootFileId',
-  'atime',
-  'conflictingName',
-  'ctime',
-  'directShareIds',
-  'displayGid',
-  'displayUid',
-  'effDatasetInheritancePath',
-  'effDatasetProtectionFlags',
-  'effProtectionFlags',
-  'effQosInheritancePath',
-  'fileId', // consumed by serializer and available as entityId in record
-  'hardlinkCount',
-  'hasCustomMetadata',
-  'index',
-  'isFullyReplicatedLocally',
-  'localReplicationRate',
-  'mtime',
-  'name',
-  'originProviderId',
-  'ownerUserId',
-  'parentFileId',
-  'path',
-  'posixPermissions',
-  'aggregateQosStatus',
-  'size',
-  'symlinkValue',
-  'type',
+  ...fileAttributesArray,
   // NOTE: there are also special attributes "xattr.*" for getting specific xattrs of file
   // record but its support is not implemented in frontend yet.
 ]);
 
 export const sharedFileRawAttributes = Object.freeze([
-  'activePermissionsType',
-  'atime',
-  'conflictingName',
-  'ctime',
-  'directShareIds',
-  'fileId',
-  'hasCustomMetadata',
-  'index',
-  'mtime',
-  'name',
-  'parentFileId',
-  'posixPermissions',
-  'size',
-  'symlinkValue',
-  'type',
+  FileAttribute.ActivePermissionsType,
+  FileAttribute.Atime,
+  FileAttribute.ConflictingName,
+  FileAttribute.Ctime,
+  FileAttribute.DirectShareIds,
+  FileAttribute.FileId,
+  FileAttribute.HasCustomMetadata,
+  FileAttribute.Index,
+  FileAttribute.Mtime,
+  FileAttribute.Name,
+  FileAttribute.ParentFileId,
+  FileAttribute.PosixPermissions,
+  FileAttribute.Size,
+  FileAttribute.SymlinkValue,
+  FileAttribute.Type,
   // NOTE: there are also special attributes "xattr.*" for getting specific xattrs of file
   // record but its support is not implemented in frontend yet.
 ]);
