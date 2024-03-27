@@ -76,10 +76,11 @@ const ObjectViewModel = EmberObject.extend({
       item.name
     );
     // FIXME: należy wstawić do tablicy w kolejności sortowania
-    this.model.edmProperties = [
-      ...this.model.edmProperties,
-      newEdmProperty,
-    ];
+    // this.model.edmProperties = [
+    //   ...this.model.edmProperties,
+    //   newEdmProperty,
+    // ];
+    this.model.addProperty(newEdmProperty);
     this.updateView();
     const pvm = this.findPropertyViewModel(newEdmProperty);
     pvm.animateAttention();

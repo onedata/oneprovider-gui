@@ -122,7 +122,6 @@ export default Component.extend(I18n, {
      * @param {VisualEdm.AddPropertySelectorSpec} item
      */
     addProperty(item) {
-      // FIXME: implement
       this.viewModel.addProperty(item);
       this.closeAddProperty();
     },

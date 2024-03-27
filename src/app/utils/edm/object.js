@@ -67,12 +67,14 @@ export default class EdmObject {
   get xmlTagName() {
     return `${this.namespace}:${this.edmObjectType}`;
   }
+
   set attrs(valueMap = {}) {
     this.__attrs = new EdmAttrs(this.xmlElement);
     for (const [key, value] of Object.entries(valueMap)) {
       this.__attrs[key] = value;
     }
   }
+
   get attrs() {
     return this.__attrs;
   }
@@ -82,6 +84,7 @@ export default class EdmObject {
     this.#edmPropertiesList = new EdmPropertiesList(this.xmlElement, properties);
     this.#edmProperties = this.#edmPropertiesList.toArray();
   }
+
   /** @type {Array<EdmProperty>} */
   get edmProperties() {
     return this.#edmProperties;
@@ -90,6 +93,7 @@ export default class EdmObject {
   get shownAttrs() {
     return shownAttrs;
   }
+
   get shownXmlAttrs() {
     return shownXmlAttrs;
   }
@@ -114,7 +118,13 @@ export default class EdmObject {
    * @returns {void}
    */
   deleteProperty(edmProperty) {
-    this.edmProperties = _.without(this.edmProperties, edmProperty);
+    this.#edmPropertiesList.deleteProperty(edmProperty);
+    this.#edmProperties = this.#edmPropertiesList.toArray();
+  }
+
+  addProperty(edmProperty) {
+    this.#edmPropertiesList.addProperty(edmProperty);
+    this.#edmProperties = this.#edmPropertiesList.toArray();
   }
 
   /**

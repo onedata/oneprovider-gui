@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import EdmObjectType from './object-type';
 
 const visualPropertiesOrder = [
   'dc:title',
