@@ -8,12 +8,12 @@
           @readonly={{true}}
         />
       {{else}}
-        {{share-show/open-data-preview
+        <ShareShow::DcPreview
           class="fill-flex-using-column"
-          xml=xml
-          handleUrl=handle.url
-          handleServiceName=handle.handleService.name
-        }}
+          @xml={{xml}}
+          @handleUrl={{handle.url}}
+          @handleServiceName={{handle.handleService.name}}
+        />
       {{/if}}
     {{else}}
       <p class="no-metadata-info">
@@ -112,14 +112,14 @@
                   @onBack={{action "back"}}
                 />
               {{else if (eq selectedMetadataType MetadataType.Dc)}}
-                {{share-show/open-data-editor
-                  xml=xml
-                  initialData=initialData
-                  handleService=selectedHandleService
-                  onUpdateXml=(action "updateXml")
-                  onSubmit=(action "submit")
-                  onBack=(action "back")
-                }}
+                <ShareShow::DcEditor
+                  @xml={{xml}}
+                  @initialData={{initialData}}
+                  @handleService={{selectedHandleService}}
+                  @onUpdateXml={{action "updateXml"}}
+                  @onSubmit={{action "submit"}}
+                  @onBack={{action "back"}}
+                />
               {{/if}}
             {{/if}}
           {{/carousel.slide}}

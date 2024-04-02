@@ -14,12 +14,12 @@ import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 const defaultMode = 'visual';
 
 export default Component.extend(I18n, {
-  classNames: ['open-data'],
+  classNames: ['share-show-dc'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.shareShow.openData',
+  i18nPrefix: 'components.shareShow.dc',
 
   /**
    * @virtual

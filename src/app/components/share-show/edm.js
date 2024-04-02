@@ -172,11 +172,6 @@ export default Component.extend(I18n, {
   }),
 
   submitDisabledReason: or(
-    // FIXME: empty state?
-    // and(
-    //   'isEmpty',
-    //   computedT('submitDisabledReason.empty')
-    // ),
     and(
       eq('modelXmlSyncState', raw(EdmModelXmlSyncState.Waiting)),
       computedT('submitDisabledReason.validatingSync')
@@ -212,13 +207,8 @@ export default Component.extend(I18n, {
         this.set('isXmlValueInvalid', true);
       }
     } else {
-      if (this.readonly) {
-        edmMetadata = metadataFactory.createEmptyMetadata();
-      } else {
-        // FIXME: debug code
-        // edmMetadata = metadataFactory.fromXml(this.getMockXml());
-        edmMetadata = metadataFactory.createInitialMetadata();
-      }
+      edmMetadata = this.readonly ?
+        metadataFactory.createEmptyMetadata() : metadataFactory.createInitialMetadata();
     }
     if (!this.isXmlValueInvalid) {
       const validator = Edmvalidator.create({ edmMetadata });
@@ -228,12 +218,6 @@ export default Component.extend(I18n, {
         isReadOnly: this.readonly,
       }));
     }
-
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_edm');
   },
 
   setupAceEditor(aceEditor) {
@@ -267,7 +251,7 @@ export default Component.extend(I18n, {
   replaceModelUsingCurrentXml() {
     let edmMetadata;
     let validator;
-    // FIXME: v2: try to optimize: update model, do not create new model
+    // TODO: VFS-11911 try to optimize: update model, do not create new model instance
     try {
       edmMetadata = EdmMetadataFactory.fromXml(this.currentXmlValue);
       validator = Edmvalidator.create({ edmMetadata });

@@ -3,9 +3,9 @@ import publicUrlViewer from './share-show/public-url-viewer';
 import paneDescription from './share-show/pane-description';
 import paneFiles from './share-show/pane-files';
 import paneOpendata from './share-show/pane-opendata';
-import openDataCommon from './share-show/open-data-common';
-import openDataEditor from './share-show/open-data-editor';
-import openDataPreview from './share-show/open-data-preview';
+import dcCommon from './share-show/dc-common';
+import dcEditor from './share-show/dc-editor';
+import dcPreview from './share-show/dc-preview';
 import openDataModeSwitch from './share-show/open-data-mode-switch';
 import markdownEditor from './share-show/markdown-editor';
 import urlInfoHandle from './share-show/url-info-handle';
@@ -29,10 +29,10 @@ export default {
   paneDescription,
   paneFiles,
   paneOpendata,
-  openData: {
-    common: openDataCommon,
-    editor: openDataEditor,
-    preview: openDataPreview,
+  dc: {
+    common: dcCommon,
+    editor: dcEditor,
+    preview: dcPreview,
   },
   openDataModeSwitch,
   markdownEditor,

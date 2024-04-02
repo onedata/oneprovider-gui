@@ -1,6 +1,6 @@
-import { editorHeaderTipCommon } from './open-data-common';
+import { editorHeaderTipCommon } from './dc-common';
 
-// NOTE: This is a mixin to extend open-data-common translations
+// NOTE: This is a mixin to extend dc-common translations
 export default {
   publishingData: 'publishing as Open Data',
   publish: 'Publish',

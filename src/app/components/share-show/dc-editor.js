@@ -6,9 +6,6 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-// TODO: VFS-11646 Change name of "open-data-*" components to "dublin-core-*" or something
-// because now we have multiple open data metadata editors.
-
 import EmberObject, { get, set, computed, observer } from '@ember/object';
 import dcXmlGenerator from 'oneprovider-gui/utils/dublin-core-xml-generator';
 import dublinCoreXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
@@ -20,13 +17,13 @@ import _ from 'lodash';
 import { isEmpty, array, or } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
-import OpenData from './-open-data';
+import Dc from './-dc';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 // FIXME: refactor name to "dc" (like "edm")
 
-export default OpenData.extend(I18n, {
-  classNames: ['open-data-editor', 'open-data-metadata-editor'],
+export default Dc.extend(I18n, {
+  classNames: ['share-show-dc-editor', 'open-data-metadata-editor'],
 
   globalNotify: service(),
 

@@ -8,10 +8,10 @@
  */
 import { get, computed } from '@ember/object';
 import dublinCoreXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
-import OpenData from './-open-data';
+import Dc from './-dc';
 
-export default OpenData.extend({
-  classNames: ['open-data-preview'],
+export default Dc.extend({
+  classNames: ['share-show-dc-preview'],
 
   /**
    * For format reference see `util:dublin-core-xml-generator#groupedEntries`.

@@ -1,8 +1,8 @@
-import openDataCommon, { editorHeaderTipCommon } from './open-data-common';
+import dcCommon, { editorHeaderTipCommon } from './dc-common';
 
-const metadataEditorIntro = openDataCommon.metadataEditorIntro;
-const edmReadonlyTip = openDataCommon.metadataPublicHeaderTip.edm;
-const edmIntroExtra = openDataCommon.metadataEditorIntroExtra.edm;
+const metadataEditorIntro = dcCommon.metadataEditorIntro;
+const edmReadonlyTip = dcCommon.metadataPublicHeaderTip.edm;
+const edmIntroExtra = dcCommon.metadataEditorIntroExtra.edm;
 
 export default {
   header: 'Europeana Data Model (EDM) metadata',

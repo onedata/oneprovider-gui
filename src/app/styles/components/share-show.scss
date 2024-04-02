@@ -72,7 +72,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     // There is also a 2px embedded iframe bug caused by perfect-scroll usage
     margin-bottom: -$content-col-padding + 2px;
 
-    .open-data-preview {
+    .share-show-dc-preview {
       // restore bottom padding, which was removed in share-show-public for footer
       padding-bottom: $content-col-padding;
       .metadata-header-section {
@@ -159,7 +159,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
         top: $share-show-content-header-height-private;
       }
     }
-    .open-data-preview {
+    .share-show-dc-preview {
       textarea.open-data-xml-textarea {
         // the non-variable value is typical height of metadata-header-section,
         // because its height is dynamic
@@ -221,9 +221,9 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
 @import './share-show/header-management';
 @import './share-show/header-public';
 @import './share-show/public-url-viewer';
-@import './share-show/open-data';
-@import './share-show/open-data-editor';
-@import './share-show/open-data-preview';
+@import './share-show/dc';
+@import './share-show/dc-editor';
+@import './share-show/dc-preview';
 @import './share-show/markdown-editor';
 @import './share-show/edm';
 @import './share-show/metadata-editor-footer';
