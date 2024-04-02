@@ -36,10 +36,15 @@ export default class EdmPropertiesList {
     const newPropertyTagName = edmProperty.xmlTagName;
     const propertyElements = this.xmlElement.children;
     let insertIndex = 0;
-    while (propertyElements[insertIndex].tagName.localeCompare(newPropertyTagName) <= 0) {
+    while (
+      propertyElements[insertIndex]?.tagName.localeCompare(newPropertyTagName) <= 0
+    ) {
       insertIndex += 1;
     }
-    this.xmlElement.insertBefore(edmProperty.xmlElement, propertyElements[insertIndex]);
+    this.xmlElement.insertBefore(
+      edmProperty.xmlElement,
+      propertyElements[insertIndex] || null
+    );
   }
 
   /**
