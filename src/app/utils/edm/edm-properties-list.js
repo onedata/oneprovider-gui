@@ -58,11 +58,10 @@ export default class EdmPropertiesList {
    * @returns {Array<EdmProeprty>}
    */
   toArray() {
-    const factory = EdmPropertyFactory.create();
     const array = [];
     for (const propertyXmlElement of this.xmlElement.children) {
       if (isSupportedXmlProperty(propertyXmlElement)) {
-        array.push(factory.createPropertyFromXml(propertyXmlElement));
+        array.push(EdmPropertyFactory.createPropertyFromXml(propertyXmlElement));
       }
     }
     return array;

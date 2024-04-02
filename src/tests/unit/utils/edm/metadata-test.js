@@ -12,7 +12,7 @@ describe('Unit | Utility | edm/metadata', function () {
   it('generates formatted XML with supported namespaces from empty EDM metadata model',
     function () {
       // given
-      const factory = EdmMetadataFactory.create();
+      const factory = EdmMetadataFactory;
       const metadataModel = factory.createEmptyMetadata();
 
       // when
@@ -33,21 +33,21 @@ describe('Unit | Utility | edm/metadata', function () {
   it('generates XML from EDM metadata model with some EDM objects and properties',
     function () {
       // given
-      const factory = EdmMetadataFactory.create();
-      const propertyFactory = EdmPropertyFactory.create();
-      const metadataModel = factory.createEmptyMetadata();
-      const objectFactory = new EdmObjectFactory(metadataModel);
+      const factory = EdmMetadataFactory;
+      const metadata = factory.createEmptyMetadata();
+      const propertyFactory = new EdmPropertyFactory(metadata);
+      const objectFactory = new EdmObjectFactory(metadata);
       const resourceId = 'urn://eriac/19';
       const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
         attrs: {
           about: resourceId,
         },
         edmProperties: [
-          propertyFactory.createProperty(metadataModel, 'dc', 'contributor', {
+          propertyFactory.createProperty('dc', 'contributor', {
             value: 'ERIAC',
             lang: 'en',
           }),
-          propertyFactory.createProperty(metadataModel, 'dcterms', 'created', {
+          propertyFactory.createProperty('dcterms', 'created', {
             value: '2018-03-13',
           }),
         ],
@@ -57,10 +57,10 @@ describe('Unit | Utility | edm/metadata', function () {
           about: resourceId,
         },
         edmProperties: [
-          propertyFactory.createProperty(metadataModel, 'edm', 'aggregatedCHO', {
+          propertyFactory.createProperty('edm', 'aggregatedCHO', {
             resource: '#example_direct_Image_1',
           }),
-          propertyFactory.createProperty(metadataModel, 'edm', 'isShownBy', {
+          propertyFactory.createProperty('edm', 'isShownBy', {
             resource: 'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg',
           }),
         ],
@@ -70,18 +70,18 @@ describe('Unit | Utility | edm/metadata', function () {
           about: 'https://sammlung.mak.at/img/1200x1200/publikationsbilder/ki-18709-67-2_1.jpg',
         },
         edmProperties: [
-          propertyFactory.createProperty(metadataModel, 'dc', 'format', {
+          propertyFactory.createProperty('dc', 'format', {
             value: 'jpg',
           }),
-          propertyFactory.createProperty(metadataModel, 'dcterms', 'created', {
+          propertyFactory.createProperty('dcterms', 'created', {
             value: '2017',
           }),
         ],
       });
-      metadataModel.edmObjects = [providedCho, aggregation, webResource];
+      metadata.edmObjects = [providedCho, aggregation, webResource];
 
       // when
-      const resultXml = metadataModel.stringify();
+      const resultXml = metadata.stringify();
 
       // then
       const resultStrings = [
@@ -103,7 +103,7 @@ describe('Unit | Utility | edm/metadata', function () {
   it('includes unknown elements in XML generated from model from parsed XML',
     function () {
       // given
-      const factory = EdmMetadataFactory.create();
+      const factory = EdmMetadataFactory;
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF
     xmlns:dc="http://purl.org/dc/elements/1.1/"

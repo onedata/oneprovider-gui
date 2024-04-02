@@ -87,53 +87,53 @@ export function createMockEdmMetadata() {
   providedCho.attrs = {
     about: resourceId,
   };
-  const propertyFactory = EdmPropertyFactory.create();
+  const propertyFactory = new EdmPropertyFactory(metadata);
   providedCho.edmProperties = [
-    propertyFactory.createProperty(metadata, 'dc', 'contributor', {
+    propertyFactory.createProperty('dc', 'contributor', {
       value: 'ERIAC',
       lang: 'en',
     }),
-    propertyFactory.createProperty(metadata, 'dc', 'contributor', {
+    propertyFactory.createProperty('dc', 'contributor', {
       value: 'ERIAC Archive',
       lang: 'en',
     }),
-    propertyFactory.createProperty(metadata, 'dc', 'date', {
+    propertyFactory.createProperty('dc', 'date', {
       value: '2018-03-13',
       lang: 'en',
     }),
-    propertyFactory.createProperty(metadata, 'dc', 'description', {
+    propertyFactory.createProperty('dc', 'description', {
       value: 'Artwork "Romani Kali Daj II" by Małgorzata Mirga-Tas at the exhibition "Hidden Roma Masterpieces"',
       lang: 'en',
     }),
-    propertyFactory.createProperty(metadata, 'dc', 'identifier', {
+    propertyFactory.createProperty('dc', 'identifier', {
       value: '19',
       lang: 'en',
     }),
     // ...
-    propertyFactory.createProperty(metadata, 'dc', 'subject', {
+    propertyFactory.createProperty('dc', 'subject', {
       resource: 'http://vocab.getty.edu/aat/300389150',
     }),
-    propertyFactory.createProperty(metadata, 'dc', 'subject', {
+    propertyFactory.createProperty('dc', 'subject', {
       resource: 'http://www.wikidata.org/entity/Q8060',
     }),
     // ...
-    propertyFactory.createProperty(metadata, 'dc', 'subject', {
+    propertyFactory.createProperty('dc', 'subject', {
       value: 'arts',
     }),
-    propertyFactory.createProperty(metadata, 'dc', 'subject', {
+    propertyFactory.createProperty('dc', 'subject', {
       value: 'culture',
     }),
     // ...
-    propertyFactory.createProperty(metadata, 'dc', 'type', {
+    propertyFactory.createProperty('dc', 'type', {
       value: 'Image',
       lang: 'en',
     }),
     // ...
-    propertyFactory.createProperty(metadata, 'dcterms', 'created', {
+    propertyFactory.createProperty('dcterms', 'created', {
       value: '2018-03-13',
     }),
     // ...
-    propertyFactory.createProperty(metadata, 'edm', 'type', {
+    propertyFactory.createProperty('edm', 'type', {
       value: 'IMAGE',
     }),
   ];
@@ -141,14 +141,14 @@ export function createMockEdmMetadata() {
     about: resourceId,
   };
   aggregation.edmProperties = [
-    propertyFactory.createProperty(metadata, 'edm', 'type', {
+    propertyFactory.createProperty('edm', 'type', {
       value: 'IMAGE',
     }),
-    propertyFactory.createProperty(metadata, 'edm', 'dataProvider', {
+    propertyFactory.createProperty('edm', 'dataProvider', {
       value: 'ERIAC',
       lang: 'en',
     }),
-    propertyFactory.createProperty(metadata, 'edm', 'isShownBy', {
+    propertyFactory.createProperty('edm', 'isShownBy', {
       resource: 'https://eriac.org/wp-content/uploads/2018/03/IMG_1578-1200x800.jpg',
     }),
   ];
@@ -156,10 +156,10 @@ export function createMockEdmMetadata() {
     about: resourceId,
   };
   webResource.edmProperties = [
-    propertyFactory.createProperty(metadata, 'edm', 'aggregatedCHO', {
+    propertyFactory.createProperty('edm', 'aggregatedCHO', {
       resource: resourceId,
     }),
-    propertyFactory.createProperty(metadata, 'edm', 'dataProvider', {
+    propertyFactory.createProperty('edm', 'dataProvider', {
       value: 'ERIAC',
       lang: 'en',
     }),

@@ -69,17 +69,11 @@ const ObjectViewModel = EmberObject.extend({
   },
 
   addProperty(item) {
-    const factory = EdmPropertyFactory.create();
+    const factory = new EdmPropertyFactory(this.visualEdmViewModel.edmMetadata);
     const newEdmProperty = factory.createProperty(
-      this.visualEdmViewModel.edmMetadata,
       item.namespace,
       item.name
     );
-    // FIXME: należy wstawić do tablicy w kolejności sortowania
-    // this.model.edmProperties = [
-    //   ...this.model.edmProperties,
-    //   newEdmProperty,
-    // ];
     this.model.addProperty(newEdmProperty);
     this.updateView();
     const pvm = this.findPropertyViewModel(newEdmProperty);

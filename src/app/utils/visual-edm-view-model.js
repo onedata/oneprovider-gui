@@ -5,7 +5,6 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { reads } from '@ember/object/computed';
 import ObjectViewModel from './visual-edm/object-view-model';
 import EdmObjectType from './edm/object-type';
-import _ from 'lodash';
 import EdmObjectFactory from './edm/object-factory';
 import { sortObjects } from './edm/sort';
 
@@ -53,7 +52,6 @@ const VisualEdmViewModel = EmberObject.extend({
     }
   ),
 
-  // FIXME: raczej uprościć, żeby nie obsługiwać wstrzykiwania xmlValue, tylko sam model
   init() {
     this._super(...arguments);
     if (!this.edmMetadata) {

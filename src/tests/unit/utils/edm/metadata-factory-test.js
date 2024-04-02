@@ -10,7 +10,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
   it('generates EDM metadata model from XML with ProvidedCHO and Aggregation with "about" and some properties',
     function () {
       // given
-      const factory = EdmMetadataFactory.create();
+      const factory = EdmMetadataFactory;
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
       <rdf:RDF
           xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -101,7 +101,7 @@ describe('Unit | Utility | edm/metadata-factory', function () {
   it('generates EDM metadata model from XML with extra content',
     function () {
       // given
-      const factory = EdmMetadataFactory.create();
+      const factory = EdmMetadataFactory;
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
     <rdf:RDF
         xmlns:dc="http://purl.org/dc/elements/1.1/"

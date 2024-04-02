@@ -46,11 +46,10 @@ class EdmObjectFactory {
   }
 
   createInitialObject(edmObjectType) {
-    const propertyFactory = EdmPropertyFactory.create();
+    const propertyFactory = new EdmPropertyFactory(this.metadata);
     return this.createObject(edmObjectType, {
       edmProperties: initialPropertiesMap[edmObjectType].map(propertyItem =>
         propertyFactory.createProperty(
-          this.metadata,
           propertyItem.namespace,
           propertyItem.name
         )

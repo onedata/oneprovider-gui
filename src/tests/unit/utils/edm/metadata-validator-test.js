@@ -26,12 +26,12 @@ describe('Unit | Utility | edm/metadata-validator', function () {
 
 class Helper {
   constructor() {
-    this.metadataFactory = EdmMetadataFactory.create();
+    this.metadataFactory = EdmMetadataFactory;
   }
   initMetadata() {
     this.metadata = this.metadataFactory.createInitialMetadata();
     this.objectFactory = new EdmObjectFactory(this.metadata);
-    this.propertyFactory = EdmPropertyFactory.create();
+    this.propertyFactory = new EdmPropertyFactory(this.metadata);
     return this.metadata;
   }
   initValidator() {

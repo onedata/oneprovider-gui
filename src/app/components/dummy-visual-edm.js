@@ -7,7 +7,7 @@ import { exampleEdmEuropeanaXml } from 'oneprovider-gui/utils/mock-data';
 export default Component.extend({
   init() {
     this._super(...arguments);
-    const factory = EdmMetadataFactory.create();
+    const factory = EdmMetadataFactory;
     // uncomment for initial metadata
     // const edmMetadata = factory.createInitialMetadata();
     const edmMetadata = factory.fromXml(exampleEdmEuropeanaXml);

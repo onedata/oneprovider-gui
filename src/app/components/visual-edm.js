@@ -12,8 +12,7 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.visualEdm',
 
   /**
-   * FIXME: proper type
-   * @type {Utils.VisualEdmViewModel}
+   * @type {VisualEdmViewModel}
    * @virtual
    */
   viewModel: undefined,

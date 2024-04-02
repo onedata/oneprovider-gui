@@ -1,4 +1,3 @@
-import EmberObject from '@ember/object';
 import EdmMetadata from './metadata';
 import EdmObjectType from './object-type';
 import EdmObjectFactory from './object-factory';
@@ -11,18 +10,13 @@ import EdmObjectFactory from './object-factory';
  * @property {string} [about] `rdf:about` attribute of element.
  */
 
-// FIXME: change to native class and non-instance methods
-const EdmMetadataFactory = EmberObject.extend({
-  //#region state
-
-  //#endregion
-
+export default class EdmMetadataFactory {
   /**
    * @public
    * @param {string} xmlValue
    * @returns {EdmMetadata}
    */
-  fromXml(xmlValue) {
+  static fromXml(xmlValue) {
     const domParser = new DOMParser();
     /** @type {XMLDocument} */
     let xmlDocument;
@@ -31,22 +25,21 @@ const EdmMetadataFactory = EmberObject.extend({
     } catch {
       throw new InvalidEdmMetadataXmlDocument();
     }
-    if (!this.validateXmlDocument(xmlDocument)) {
+    if (!EdmMetadataFactory.validateXmlDocument(xmlDocument)) {
       throw new InvalidEdmMetadataXmlDocument();
     }
     return new EdmMetadata(xmlDocument);
-  },
+  }
 
-  createEmptyMetadata() {
+  static createEmptyMetadata() {
     return new EdmMetadata();
-  },
+  }
 
-  // FIXME: dodać komentarze początkowe do XML-a
   /**
    * @returns {EdmMetadata}
    */
-  createInitialMetadata() {
-    const metadata = new EdmMetadata();
+  static createInitialMetadata() {
+    const metadata = EdmMetadataFactory.createEmptyMetadata();
     const objectFactory = new EdmObjectFactory(metadata);
     metadata.edmObjects = [
       objectFactory.createInitialObject(EdmObjectType.ProvidedCHO),
@@ -70,16 +63,14 @@ const EdmMetadataFactory = EmberObject.extend({
     }
 
     return metadata;
-  },
+  }
 
-  validateXmlDocument(xmlDocument) {
+  static validateXmlDocument(xmlDocument) {
     if (xmlDocument.children[0]?.tagName !== 'rdf:RDF') {
       return false;
     }
     return true;
-  },
-});
-
-export default EdmMetadataFactory;
+  }
+}
 
 export class InvalidEdmMetadataXmlDocument extends Error {}

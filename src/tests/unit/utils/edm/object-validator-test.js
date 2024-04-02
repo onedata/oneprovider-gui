@@ -29,10 +29,10 @@ describe('Unit | Utility | edm/object-validator', function () {
 
 class Helper {
   constructor() {
-    this.metadataFactory = EdmMetadataFactory.create();
+    this.metadataFactory = EdmMetadataFactory;
     this.metadata = this.metadataFactory.createEmptyMetadata();
     this.objectFactory = new EdmObjectFactory(this.metadata);
-    this.propertyFactory = EdmPropertyFactory.create();
+    this.propertyFactory = new EdmPropertyFactory(this.metadata);
   }
   initObject() {
     this.object = this.objectFactory.createInitialObject(EdmObjectType.ProvidedCHO);

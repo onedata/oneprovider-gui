@@ -53,13 +53,13 @@ describe('Unit | Utility | edm/property-validator', function () {
 
 class Helper {
   constructor() {
-    this.metadataFactory = EdmMetadataFactory.create();
+    this.metadataFactory = EdmMetadataFactory;
     this.metadata = this.metadataFactory.createEmptyMetadata();
-    this.propertyFactory = EdmPropertyFactory.create();
+    this.propertyFactory = new EdmPropertyFactory(this.metadata);
   }
   initProperty(namespace, name, options = {}) {
     this.property =
-      this.propertyFactory.createProperty(this.metadata, namespace, name, options);
+      this.propertyFactory.createProperty(namespace, name, options);
     return this.property;
   }
   initValidator() {

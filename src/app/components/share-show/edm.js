@@ -200,7 +200,7 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    const metadataFactory = EdmMetadataFactory.create();
+    const metadataFactory = EdmMetadataFactory;
     let edmMetadata;
     if (this.xmlValue) {
       try {
@@ -269,7 +269,7 @@ export default Component.extend(I18n, {
     let validator;
     // FIXME: v2: try to optimize: update model, do not create new model
     try {
-      edmMetadata = EdmMetadataFactory.create().fromXml(this.currentXmlValue);
+      edmMetadata = EdmMetadataFactory.fromXml(this.currentXmlValue);
       validator = Edmvalidator.create({ edmMetadata });
       this.set('isXmlValueInvalid', false);
     } catch (error) {
@@ -313,7 +313,7 @@ export default Component.extend(I18n, {
         this.set('modelXmlSyncState', EdmModelXmlSyncState.NotParseable);
         return;
       }
-      edmMetadata = EdmMetadataFactory.create().fromXml(this.currentXmlValue);
+      edmMetadata = EdmMetadataFactory.fromXml(this.currentXmlValue);
       validator = Edmvalidator.create({ edmMetadata });
       this.set('tmpSourceValidator', validator);
       this.set('modelXmlSyncState', EdmModelXmlSyncState.Parseable);
@@ -340,7 +340,7 @@ export default Component.extend(I18n, {
         return;
       }
       if (this.isEmpty) {
-        const newModel = EdmMetadataFactory.create().createInitialMetadata();
+        const newModel = EdmMetadataFactory.createInitialMetadata();
         set(this.visualEdmViewModel, 'edmMetadata', newModel);
       } else {
         this.replaceModelUsingCurrentXml();

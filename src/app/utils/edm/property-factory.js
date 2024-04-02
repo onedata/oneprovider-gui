@@ -1,9 +1,7 @@
-import EmberObject from '@ember/object';
 import EdmProperty from './property';
 import _ from 'lodash';
 import { EdmPropertyValueType, allSpecs } from './property-spec';
-
-// FIXME: rozróżnienie na property dla różnych obiektów
+import EdmMetadata from './metadata';
 
 /**
  * @typedef {Object} EdmPropertyOptions
@@ -13,12 +11,31 @@ import { EdmPropertyValueType, allSpecs } from './property-spec';
  * @property {string} [about] `rdf:about` attribute of element.
  */
 
-const EdmPropertyFactory = EmberObject.extend({
-  // FIXME: skoro tutaj operuję na koncepcji modelu to mogę nie wymagać podawania namespace
-  // tylko samego property name (namespace będzie wzięte ze specyfikacji)
+export default class EdmPropertyFactory {
+  /**
+   * @param {Element} xmlElement
+   * @returns {EdmProperty}
+   */
+  static createPropertyFromXml(xmlElement) {
+    const [namespace, propertyName] = xmlElement.tagName.split(':');
+    const spec = allSpecs[namespace]?.[propertyName];
+    return new EdmProperty({
+      xmlElement,
+      spec,
+    });
+  }
 
-  // FIXME: zmiast osobno wstrzykiwać wszystkie property podczas konstrukcji, można użyć
-  // speców jako
+  constructor(metadata) {
+    if (!metadata || !(metadata instanceof EdmMetadata)) {
+      throw new Error(
+        'EdmPropertyFactory needs EdmMetadata to be provided in constructor'
+      );
+    }
+    /**
+     * @type {EdmMetadata}
+     */
+    this.metadata = metadata;
+  }
 
   /**
    * @param {EdmMetadata} edmMetadata
@@ -27,11 +44,10 @@ const EdmPropertyFactory = EmberObject.extend({
    * @param {EdmPropertyOptions} options
    * @returns {Utils.Edm.Property}
    */
-  createProperty(edmMetadata, namespace, propertyName, options = {}) {
-    // FIXME: check / throw error when invalid namespace/name
-    const spec = allSpecs[namespace]?.[propertyName];
+  createProperty(namespace, propertyName, options = {}) {
+    const spec = allSpecs[namespace]?.[propertyName] || {};
     const edmProperty = new EdmProperty({
-      xmlDocument: edmMetadata.xmlDocument,
+      xmlDocument: this.metadata.xmlDocument,
       namespace,
       edmPropertyType: propertyName,
       spec,
@@ -45,23 +61,8 @@ const EdmPropertyFactory = EmberObject.extend({
     delete attrs.value;
     edmProperty.attrs = attrs;
     return edmProperty;
-  },
-
-  /**
-   * @param {Element} xmlElement
-   * @returns {EdmProperty}
-   */
-  createPropertyFromXml(xmlElement) {
-    const [namespace, propertyName] = xmlElement.tagName.split(':');
-    const spec = allSpecs[namespace]?.[propertyName];
-    return new EdmProperty({
-      xmlElement,
-      spec,
-    });
-  },
-});
-
-export default EdmPropertyFactory;
+  }
+}
 
 /**
  * @param {EdmProperty} property
