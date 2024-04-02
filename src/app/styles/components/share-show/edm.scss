@@ -24,6 +24,28 @@
     align-self: flex-end;
     margin-top: 1em;
   }
+  .xml-source-validation-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-top: 1em;
+    .apply-xml-btn {
+      margin-top: 0;
+      margin-left: auto;
+    }
+  }
+  .synchronized-xml-btn {
+    &:hover {
+      cursor: default;
+    }
+  }
+  &.xml-sync-waiting {
+    .xml-source-validation-row {
+      .edm-info-row {
+        opacity: $disabled-opacity;
+      }
+    }
+  }
   &.readonly {
     h1.main-header {
       margin-bottom: 1em;

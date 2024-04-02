@@ -246,18 +246,29 @@ $fallback-spaces-marketplace-item-height: 300px;
     display: flex;
     align-items: center;
   }
+  .edm-info-row-icon {
+    // make line-height the same for all icons (icons use different sizes)
+    line-height: 14px;
+    width: 14px;
+    color: var(--edm-info-row-icon-color, inherit);
+    font-size: 110%;
+    &.oneicon-checkbox-filled {
+      font-size: 170%;
+      margin-left: -0.15em;
+      margin-right: 0.15em;
+    }
+  }
   .edm-info-row-icon + .edm-info-row-text {
     margin-left: 0.8em;
   }
   &.warning {
-    .edm-info-row-icon {
-      color: $color-one-warning;
-    }
+    --edm-info-row-icon-color: #{$color-one-warning};
   }
   &.info {
-    .edm-info-row-icon {
-      color: $color-one-azure;
-    }
+    --edm-info-row-icon-color: #{$color-one-azure};
+  }
+  &.success {
+    --edm-info-row-icon-color: #{$color-one-success};
   }
 }
 

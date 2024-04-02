@@ -8,7 +8,7 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { not, and, raw, or, bool, conditional, eq, notEqual } from 'ember-awesome-macros';
+import { not, and, raw, or, bool, conditional, eq, notEqual, array } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
@@ -16,6 +16,9 @@ import Edmvalidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { set, setProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { debounce } from '@ember/runloop';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import sleep from 'onedata-gui-common/utils/sleep';
+import { dasherize } from '@ember/string';
 
 const defaultMode = 'visual';
 
@@ -29,7 +32,11 @@ const EdmModelXmlSyncState = Object.freeze({
 
 export default Component.extend(I18n, {
   classNames: ['share-show-edm', 'open-data-metadata-editor', 'form-group'],
-  classNameBindings: ['isValid::invalid-metadata', 'readonly:readonly'],
+  classNameBindings: [
+    'isValid::invalid-metadata',
+    'readonly:readonly',
+    'syncStateClass',
+  ],
 
   /**
    * @override
@@ -138,9 +145,26 @@ export default Component.extend(I18n, {
 
   isXmlNotParseable: eq('modelXmlSyncState', raw(EdmModelXmlSyncState.NotParseable)),
 
-  isApplyXmlButtonShown: or(
-    eq('modelXmlSyncState', raw(EdmModelXmlSyncState.Parseable)),
-    eq('modelXmlSyncState', raw(EdmModelXmlSyncState.NotParseable))
+  isApplyXmlButtonShown: array.includes(
+    raw([
+      EdmModelXmlSyncState.Parseable,
+      EdmModelXmlSyncState.NotParseable,
+      EdmModelXmlSyncState.Waiting,
+    ]),
+    'modelXmlSyncState'
+  ),
+
+  isApplyXmlButtonDisabled: or(
+    'isXmlNotParseable',
+    eq('modelXmlSyncState', raw(EdmModelXmlSyncState.Waiting)),
+  ),
+
+  applyXmlButtonTip: or(
+    and('isXmlNotParseable', computedT('submitDisabledReason.xmlNotValid')),
+    and(
+      eq('modelXmlSyncState', raw(EdmModelXmlSyncState.Waiting)),
+      computedT('submitDisabledReason.validatingSync')
+    ),
   ),
 
   /**
@@ -153,7 +177,12 @@ export default Component.extend(I18n, {
     raw('col-xs-12 col-md-8 col-centered'),
   ),
 
+  syncStateClass: computed('modelXmlSyncState', function syncStateClass() {
+    return `xml-sync-${dasherize(this.modelXmlSyncState)}`;
+  }),
+
   submitDisabledReason: or(
+    // FIXME: empty state?
     // and(
     //   'isEmpty',
     //   computedT('submitDisabledReason.empty')
@@ -283,7 +312,7 @@ export default Component.extend(I18n, {
 
   invalidateSourceModelSync() {
     this.set('modelXmlSyncState', EdmModelXmlSyncState.Waiting);
-    debounce(this, 'validateSourceModelSync', 1000);
+    debounce(this, 'validateSourceModelSync', 500);
   },
 
   validateSourceModelSync() {

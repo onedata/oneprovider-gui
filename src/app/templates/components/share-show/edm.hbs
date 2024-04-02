@@ -55,28 +55,62 @@
       @update={{action "sourceChanged"}}
     />
     {{#if isApplyXmlButtonShown}}
-      <div class="btn-tooltip-container">
-        <OneButton
-          class="apply-xml-btn"
-          @disabled={{isXmlNotParseable}}
-          @onClick={{action "acceptXml"}}
-        >
-          {{tt this "applyAndFormatXml"}}
-        </OneButton>
-        {{#if isXmlNotParseable}}
-          <OneTooltip @title={{tt this "submitDisabledReason.xmlNotValid"}} />
-        {{/if}}
-      </div>
+
     {{/if}}
-    {{#if (or validator.isError isXmlNotParseable)}}
-      <VisualEdm::ValidationError
-        class="edm-metadata-invalid"
-        @text={{tt this "notValid"}}
-      />
-    {{/if}}
+
   {{/if}}
 
   {{#unless readonly}}
+    {{#if (eq mode "xml")}}
+      <div class="xml-source-validation-row">
+        {{#if (eq modelXmlSyncState "waiting")}}
+          <div class="edm-info-row info">
+            <div class="edm-info-row-inner">
+              <OneIcon @icon="sign-info-rounded" class="edm-info-row-icon" />
+              <span class="edm-info-row-text">
+                {{tt this "definitionValidating"}}
+              </span>
+            </div>
+          </div>
+        {{else if (or validator.isError isXmlNotParseable)}}
+          <VisualEdm::ValidationError
+            class="edm-metadata-invalid"
+            @text={{tt this "notValid"}}
+          />
+        {{else}}
+          <div class="edm-info-row success">
+            <div class="edm-info-row-inner">
+              <OneIcon @icon="checkbox-filled" class="edm-info-row-icon" />
+              <span class="edm-info-row-text">
+                {{tt this "definitionValid"}}
+              </span>
+            </div>
+          </div>
+        {{/if}}
+        <div class="btn-tooltip-container">
+          {{#if isApplyXmlButtonShown}}
+            <OneButton
+              class="apply-xml-btn"
+              @disabled={{isApplyXmlButtonDisabled}}
+              @onClick={{action "acceptXml"}}
+            >
+              {{tt this "applyAndFormatXml"}}
+            </OneButton>
+            {{#if applyXmlButtonTip}}
+              <OneTooltip @title={{applyXmlButtonTip}} />
+            {{/if}}
+          {{else}}
+            <OneButton
+              class="synchronized-xml-btn"
+              @disabled={{true}}
+            >
+              {{tt this "synchronizedButton"}}
+            </OneButton>
+            <OneTooltip @title={{tt this "synchronizedButtonTip"}} />
+          {{/if}}
+        </div>
+      </div>
+    {{/if}}
     <ShareShow::MetadataEditorFooter
       @isSubmitDisabled={{isSubmitDisabled}}
       @submitButtonTip={{submitDisabledReason}}
