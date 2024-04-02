@@ -1,11 +1,7 @@
 import EmberObject from '@ember/object';
 import EdmMetadata from './metadata';
 import EdmObjectType from './object-type';
-import EdmPropertyFactory from './property-factory';
 import EdmObjectFactory from './object-factory';
-import { EdmPropertyRecommendation, flatSpecs } from './property-spec';
-
-// FIXME: rozróżnienie na property dla różnych obiektów
 
 /**
  * @typedef {Object} EdmPropertyOptions
@@ -45,7 +41,10 @@ const EdmMetadataFactory = EmberObject.extend({
     return new EdmMetadata();
   },
 
-  // FIXME: można uwzględnić dane z share'a
+  // FIXME: dodać komentarze początkowe do XML-a
+  /**
+   * @returns {EdmMetadata}
+   */
   createInitialMetadata() {
     const metadata = new EdmMetadata();
     const objectFactory = new EdmObjectFactory(metadata);
@@ -53,6 +52,22 @@ const EdmMetadataFactory = EmberObject.extend({
       objectFactory.createInitialObject(EdmObjectType.ProvidedCHO),
       objectFactory.createInitialObject(EdmObjectType.Aggregation),
     ];
+
+    const comments = [
+      'Example EDM XML content - replace it with the detailed metadata.',
+      'Refer to the documentation of EDM at the following links:',
+      'https://pro.europeana.eu/page/edm-documentation',
+      'https://europeana.atlassian.net/wiki/spaces/EF/pages/2165440526/Namespaces',
+      'https://europeana.atlassian.net/wiki/spaces/EF/pages/987791389/EDM+-+Mapping+guidelines',
+      'https://europeana.atlassian.net/wiki/spaces/EF/pages/1969258498/Metadata+Tier+A',
+      'https://pro.europeana.eu/files/Europeana_Professional/Share_your_data/Technical_requirements/EDM_Documentation/EDM_Definition_v5.2.8_102017.pdf',
+    ];
+    for (const comment of comments) {
+      metadata.xmlDocument.insertBefore(
+        metadata.xmlDocument.createComment(` ${comment} `),
+        metadata.xmlElement
+      );
+    }
 
     return metadata;
   },
@@ -62,98 +77,6 @@ const EdmMetadataFactory = EmberObject.extend({
       return false;
     }
     return true;
-  },
-
-  // FIXME: przenieść do pliku z mockami, żeby było na dummy
-  createMockMetadata() {
-    const resourceId = 'urn://eriac/19';
-    const metadata = new EdmMetadata();
-    const objectFactory = new EdmObjectFactory(metadata);
-    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
-    const aggregation = objectFactory.createObject(EdmObjectType.Aggregation);
-    const webResource = objectFactory.createObject(EdmObjectType.WebResource);
-    metadata.edmObjects = [providedCho, aggregation, webResource];
-    providedCho.attrs = {
-      about: resourceId,
-    };
-    const propertyFactory = EdmPropertyFactory.create();
-    providedCho.edmProperties = [
-      propertyFactory.createProperty(metadata, 'dc', 'contributor', {
-        value: 'ERIAC',
-        lang: 'en',
-      }),
-      propertyFactory.createProperty(metadata, 'dc', 'contributor', {
-        value: 'ERIAC Archive',
-        lang: 'en',
-      }),
-      propertyFactory.createProperty(metadata, 'dc', 'date', {
-        value: '2018-03-13',
-        lang: 'en',
-      }),
-      propertyFactory.createProperty(metadata, 'dc', 'description', {
-        value: 'Artwork "Romani Kali Daj II" by Małgorzata Mirga-Tas at the exhibition "Hidden Roma Masterpieces"',
-        lang: 'en',
-      }),
-      propertyFactory.createProperty(metadata, 'dc', 'identifier', {
-        value: '19',
-        lang: 'en',
-      }),
-      // ...
-      propertyFactory.createProperty(metadata, 'dc', 'subject', {
-        resource: 'http://vocab.getty.edu/aat/300389150',
-      }),
-      propertyFactory.createProperty(metadata, 'dc', 'subject', {
-        resource: 'http://www.wikidata.org/entity/Q8060',
-      }),
-      // ...
-      propertyFactory.createProperty(metadata, 'dc', 'subject', {
-        value: 'arts',
-      }),
-      propertyFactory.createProperty(metadata, 'dc', 'subject', {
-        value: 'culture',
-      }),
-      // ...
-      propertyFactory.createProperty(metadata, 'dc', 'type', {
-        value: 'Image',
-        lang: 'en',
-      }),
-      // ...
-      propertyFactory.createProperty(metadata, 'dcterms', 'created', {
-        value: '2018-03-13',
-      }),
-      // ...
-      propertyFactory.createProperty(metadata, 'edm', 'type', {
-        value: 'IMAGE',
-      }),
-    ];
-    aggregation.attrs = {
-      about: resourceId,
-    };
-    aggregation.edmProperties = [
-      propertyFactory.createProperty(metadata, 'edm', 'type', {
-        value: 'IMAGE',
-      }),
-      propertyFactory.createProperty(metadata, 'edm', 'dataProvider', {
-        value: 'ERIAC',
-        lang: 'en',
-      }),
-      propertyFactory.createProperty(metadata, 'edm', 'isShownBy', {
-        resource: 'https://eriac.org/wp-content/uploads/2018/03/IMG_1578-1200x800.jpg',
-      }),
-    ];
-    webResource.attrs = {
-      about: resourceId,
-    };
-    webResource.edmProperties = [
-      propertyFactory.createProperty(metadata, 'edm', 'aggregatedCHO', {
-        resource: resourceId,
-      }),
-      propertyFactory.createProperty(metadata, 'edm', 'dataProvider', {
-        value: 'ERIAC',
-        lang: 'en',
-      }),
-    ];
-    return metadata;
   },
 });
 
