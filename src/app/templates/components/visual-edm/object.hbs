@@ -4,7 +4,7 @@
 <div class="content-section">
   <div class="basic-info-row">
     <div class="basic-info-col">
-      <div class="row modern-iconified-block-row title-row edm-object-title-row">
+      <div class="row edm-object-iconified-block-row title-row edm-object-title-row">
         <div class="edm-object-type item-name">{{objectTypeName}}</div>
         <OneIcon class="hint-trigger" @icon="sign-info-rounded" />
         {{#if isDeletable}}
@@ -46,7 +46,8 @@
     "edm-object-properties-container"
     "edm-object-list-container"
     "main-content-row"
-    "row modern-iconified-block-row"
+    "row"
+    "edm-object-iconified-block-row"
     (if (not viewModel.edmPropertyGroups.length) "hidden")
   }}>
     {{#each viewModel.edmPropertyGroups as |propertyGroupViewModel|}}

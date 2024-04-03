@@ -20,8 +20,6 @@ import { inject as service } from '@ember/service';
 import Dc from './-dc';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
-// FIXME: refactor name to "dc" (like "edm")
-
 export default Dc.extend(I18n, {
   classNames: ['share-show-dc-editor', 'open-data-metadata-editor'],
 

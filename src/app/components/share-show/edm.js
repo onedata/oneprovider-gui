@@ -291,7 +291,7 @@ export default Component.extend(I18n, {
   validateSourceModelSync() {
     let edmMetadata;
     let validator;
-    // FIXME: v2: try to optimize: update model, do not create new model
+    // TODO: VFS-11911 try to optimize: update model, do not create new model instance
     try {
       if (this.checkAceErrors()) {
         this.set('modelXmlSyncState', EdmModelXmlSyncState.NotParseable);

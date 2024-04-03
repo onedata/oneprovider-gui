@@ -13,17 +13,10 @@ import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
  * @property {Array<EdmProperty>} edmProperties
  */
 
-// FIXME: temp for design
-const placeholders = {
-  about: 'PID not provided',
-};
-
 export default Component.extend(I18n, {
   tagName: 'li',
   classNames: [
     'visual-edm-object',
-    // FIXME: styles mimic
-    'edm-object-iconified-block',
     'modern-iconified-block',
     'iconified-block',
   ],
@@ -85,11 +78,9 @@ export default Component.extend(I18n, {
         );
         return {
           name: foundTranslation || humanizeString(name),
-          placeholder: placeholders[name],
           value: attrs[name],
         };
       });
-      // FIXME: jeśli jest readonly i puste wartości, to powinny być jakieś placeholdery
       return result;
     }
   ),

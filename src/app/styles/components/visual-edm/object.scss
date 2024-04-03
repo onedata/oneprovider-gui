@@ -1,4 +1,57 @@
 .visual-edm-object {
+  height: auto;
+  overflow: hidden;
+
+  // override default spacing of iconified block
+  &, &.iconified-block + .iconified-block.modern-iconified-block {
+    margin-top: var(--visual-edm-items-spacing);
+  }
+
+  .edm-object-iconified-block-row {
+    display: flex;
+    min-height: 0;
+  }
+
+  .basic-info-row {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    @include vertical-flex-gap(0.75em);
+    .basic-info-col {
+      flex-grow: 1;
+      width: 20em;
+      padding-right: 1em;
+    }
+  }
+
+  .secondary-row {
+    display: flex;
+    align-items: center;
+    @include vertical-flex-gap($additional-margin-top: 0.75em);
+    overflow: hidden;
+    max-width: calc(100% - 1em);
+  }
+
+  .title-row {
+    align-items: baseline;
+    flex-wrap: wrap;
+    @include vertical-flex-gap;
+    .item-name {
+      margin-right: 1em;
+    }
+  }
+
+  .item-name {
+    @include font-semibold;
+    font-size: 120%;
+  }
+
+  .main-content-row {
+    flex-direction: column;
+    border-top: 1px solid $main-border-color;
+    margin-top: 1.5em;
+  }
+
   .edm-object-type {
     @include font-semibold;
   }
@@ -49,14 +102,7 @@
   }
 }
 
+// Override
 .modern-iconified-block.visual-edm-object .basic-info-row .basic-info-col {
   padding-right: 0;
-}
-
-.one-webui-popover.tags-selector.add-property-selector {
-  width: 200px;
-  height: 400px;
-  .filter-input {
-    margin-bottom: 0.8em;
-  }
 }

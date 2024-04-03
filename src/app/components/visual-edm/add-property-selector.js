@@ -1,11 +1,3 @@
-/**
- * FIXME: doc
- *
- * @author Jakub Liput
- * @copyright (C) 2024 ACK CYFRONET AGH
- * @license This software is released under the MIT license cited in 'LICENSE.txt'.
- */
-
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
@@ -13,7 +5,6 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { allSpecs } from 'oneprovider-gui/utils/edm/property-spec';
 import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
-import { EdmPropertyMaxOccurrences } from '../../utils/edm/property-spec';
 
 /**
  * @typedef {Object} VisualEdm.AddPropertySelectorSpec
@@ -82,7 +73,6 @@ export default Component.extend(I18n, {
    */
   popoverApi: undefined,
 
-  // FIXME: można próbować optymalizować generację tej listy (np. obliczać raz elementy)
   createSelectorItems(onlyBasic = true) {
     /** @type {Array<VisualEdm.AddPropertySelectorSpec>} */
     const items = [];
