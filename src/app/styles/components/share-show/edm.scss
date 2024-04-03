@@ -10,12 +10,7 @@
   .metadata-editor-footer {
     margin-top: 1.5em;
   }
-  // FIXME: possible DRY with open-data-editor
   .metadata-header-section-content {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    margin-bottom: 10px;
     .main-header {
       flex-grow: 1;
     }

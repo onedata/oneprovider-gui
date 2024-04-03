@@ -22,12 +22,11 @@
   .separator {
     padding-left: 8px;
     padding-right: 14px;
-    // FIXME: refactor styles
     &::after {
       height: 32px;
       content: " ";
       border-left: 1px solid;
-      border-color: #d6d6d6;
+      border-color: $main-border-color;
     }
   }
 
@@ -92,7 +91,6 @@
   }
 }
 
-@import './visual-edm/extra-data-info';
 @import './visual-edm/image-reference';
 @import './visual-edm/object';
 @import './visual-edm/property-group';

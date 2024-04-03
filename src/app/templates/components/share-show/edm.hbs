@@ -1,8 +1,8 @@
 <div class={{concat-classes "col-edm-editor full-height" colClassname}}>
   <div class="metadata-header-section-content">
     <h1 class="section-name main-header">
-      {{tt this "header"}}
-      {{#if readonly}}
+      {{tt this (if (media "isMobile") "headerMobile" "header")}}
+      {{#if (or readonly (media "isMobile"))}}
         <OneLabelTip @title={{tt this "readonlyHeaderTip"}} />
       {{/if}}
     </h1>
@@ -19,7 +19,7 @@
 
   {{!-- FIXME: podobnie jak w open-data-editor dać mniej tekstu w trybie mobilnym --}}
 
-  {{#unless readonly}}
+  {{#unless (or readonly (media "isMobile"))}}
     <p class="metadata-text">
       {{tt this "metadataEditorIntro"}}
     </p>

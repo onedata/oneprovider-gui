@@ -186,17 +186,6 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     margin-left: -$content-col-padding;
     margin-right: -$content-col-padding;
   }
-  .open-data-metadata-editor {
-    h1 {
-      @include font-semibold;
-      font-size: 1.6em;
-    }
-    h2 {
-      @include font-semibold;
-      font-size: 1.3em;
-      margin-bottom: 1em;
-    }
-  }
 
   // Open Data logo commonly used by metadata presenters
   .col-open-data-logo {
@@ -214,6 +203,30 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       @media (max-height: #{$share-show-content-header-height-public + $share-show-public-footer-height + $open-data-logo-size}) {
         display: none;
       }
+    }
+  }
+}
+
+.open-data-metadata-editor {
+  h1 {
+    @include font-semibold;
+    font-size: 1.6em;
+  }
+  h2 {
+    @include font-semibold;
+    font-size: 1.3em;
+    margin-bottom: 1em;
+  }
+  .metadata-header-section-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    padding-top: 20px;
+    margin-bottom: 10px;
+    > * {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-bottom: 10px;
     }
   }
 }

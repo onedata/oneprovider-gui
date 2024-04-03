@@ -14,7 +14,7 @@ export default Component.extend({
       ownerSource: this,
       edmMetadata,
       validator: EdmMetadataValidator.create({ edmMetadata }),
-      isReadOnly: true,
+      isReadOnly: false,
     }));
   },
 
