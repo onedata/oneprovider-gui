@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { not, and, raw, or, bool, conditional, eq, notEqual, array } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
+import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
 import Edmvalidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { set, setProperties, computed } from '@ember/object';

@@ -1,20 +1,19 @@
-{{!-- FIXME: zmiana na curly brackets --}}
-{{#one-webui-popover
+<OneWebuiPopover
   class="tags-selector add-property-selector"
-  open=opened
-  triggerSelector=triggerSelector
-  arrow=true
-  registerApi=(action (mut popoverApi))
-  padding=false
-  placement="auto"
-  popoverStyle="tags-selector"
+  @open={{opened}}
+  @triggerSelector={{triggerSelector}}
+  @arrow={{true}}
+  @registerApi={{action (mut popoverApi)}}
+  @padding={{false}}
+  @placement="auto"
+  @popoverStyle="tags-selector"
   as |popover|
-}}
-  {{#click-outside
+>
+  <ClickOutside
     class="selector-container"
-    onClickOutside=(action "cancelSelect")
-    exceptSelector=popoverClickOutsideIgnoreSelector
-  }}
+    @onClickOutside={{action "cancelSelect"}}
+    @exceptSelector={{popoverClickOutsideIgnoreSelector}}
+  >
     <input
       class="input-sm form-control filter-input"
       type="text"
@@ -22,8 +21,7 @@
       oninput={{action (mut filterValue) value="target.value"}}
       placeholder={{tt this "searchPlaceholder"}}
     >
-
-    {{#perfect-scrollbar-element class="tags-container"}}
+    <PerfectScrollbarElement class="tags-container">
       <ul class="selector-list">
         {{#each availableItems key="label" as |propertyItem|}}
           <li
@@ -33,15 +31,18 @@
             }}
             onclick={{unless propertyItem.disabled (action "selectProperty" propertyItem)}}
           >
-            {{#truncated-string class="property-label" customTooltipText=(if propertyItem.disabled "")}}
+            <TruncatedString
+              class="property-label"
+              customTooltipText={{if propertyItem.disabled ""}}
+            >
               {{propertyItem.label}}
-            {{/truncated-string}}
+            </TruncatedString>
             {{#if propertyItem.disabled}}
               <OneTooltip @title={{tt this "singlePropertyAlreadyUsed"}}/>
             {{/if}}
           </li>
         {{/each}}
       </ul>
-    {{/perfect-scrollbar-element}}
-  {{/click-outside}}
-{{/one-webui-popover}}
+    </PerfectScrollbarElement>
+  </ClickOutside>
+</OneWebuiPopover>

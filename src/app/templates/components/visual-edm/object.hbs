@@ -27,7 +27,6 @@
       "edm-attrs-container"
       (if (not attrItems.length) "hidden")
     }}>
-      {{!-- FIXME: maybe to reuse in object --}}
       {{#each attrItems as |attrItem|}}
         <li class="edm-attr-container">
           <div class="edm-attr-name"><span class="name-value">{{attrItem.name}}</span>:</div>
@@ -52,17 +51,10 @@
   }}>
     {{#each viewModel.edmPropertyGroups as |propertyGroupViewModel|}}
       <VisualEdm::PropertyGroup @viewModel={{propertyGroupViewModel}} />
-      {{!-- FIXME: napisać na nowo albo usunąć --}}
-      {{!-- {{#if (eq index 2)}}
-        <div class="add-another-title-row">
-          <a class="add-another-title-link" href="#">Add another title...</a>
-        </div>
-      {{/if}} --}}
     {{/each}}
   </div>
   {{#unless visualEdmViewModel.isReadOnly}}
     <div class="properties-list-buttons">
-      {{!-- FIXME: można by zrefaktorować, także w ramach innego ticketa, zamknąć w komponencie (i refaktor direct-dataset-control) --}}
       <OneButton
         class="add-edm-property-btn"
         @type="default"

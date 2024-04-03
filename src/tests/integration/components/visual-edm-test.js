@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find, findAll, fillIn, click, focus, blur } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm-view-model';
+import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
