@@ -16,7 +16,7 @@ export default class EdmPropertyFactory {
    * @param {Element} xmlElement
    * @returns {EdmProperty}
    */
-  static createPropertyFromXml(xmlElement) {
+  static createPropertyFromXmlElement(xmlElement) {
     const [namespace, propertyName] = xmlElement.tagName.split(':');
     const spec = allSpecs[namespace]?.[propertyName];
     return new EdmProperty({

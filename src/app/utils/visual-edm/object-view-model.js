@@ -57,12 +57,6 @@ const ObjectViewModel = EmberObject.extend({
     );
   }),
 
-  // FIXME:
-  // edmPropertiesObserver: observer('edmProperties', function edmPropertiesObserver() {
-  //   this.updateView();
-  //   debugger;
-  // }),
-
   updateView() {
     this.notifyPropertyChange('model');
     this.validator?.updateValue();

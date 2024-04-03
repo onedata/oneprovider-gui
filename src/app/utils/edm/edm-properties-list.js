@@ -61,7 +61,7 @@ export default class EdmPropertiesList {
     const array = [];
     for (const propertyXmlElement of this.xmlElement.children) {
       if (isSupportedXmlProperty(propertyXmlElement)) {
-        array.push(EdmPropertyFactory.createPropertyFromXml(propertyXmlElement));
+        array.push(EdmPropertyFactory.createPropertyFromXmlElement(propertyXmlElement));
       }
     }
     return array;

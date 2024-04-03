@@ -2,7 +2,7 @@ import ProvidedCHO from './objects/provided-cho';
 import Aggregation from './objects/aggregation';
 import WebResource from './objects/web-resource';
 import EdmObjectType from './object-type';
-import { InvalidEdmObjectType } from './object';
+import EdmObject, { InvalidEdmObjectType } from './object';
 import EdmMetadata from './metadata';
 import { EdmPropertyRecommendation, flatSpecs } from './property-spec';
 import EdmPropertyFactory from './property-factory';
@@ -16,6 +16,17 @@ const objectClasses = {
 const initialPropertiesMap = createInitialPropertyMap();
 
 class EdmObjectFactory {
+  /**
+   * @param {Element} xmlElement
+   * @returns {EdmObject}
+   */
+  static createObjectFromXmlElement(xmlElement) {
+    return new EdmObject({ xmlElement });
+  }
+
+  /**
+   * @param {EdmMetadata} metadata
+   */
   constructor(metadata) {
     if (!metadata || !(metadata instanceof EdmMetadata)) {
       throw new Error('EdmObjectFactory needs EdmMetadata to be provided in constructor');

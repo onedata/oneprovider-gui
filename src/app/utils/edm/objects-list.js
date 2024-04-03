@@ -1,10 +1,11 @@
-import EdmObject, { InvalidEdmObjectType } from './object';
+import { InvalidEdmObjectType } from './object';
+import EdmObjectFactory from './object-factory';
 import { supportedEdmObjectTypes } from './object-type';
 
-// FIXME: ujednolicenie z EdmPropertiesList?
 export default class EdmObjectsList {
   /**
-   * @param {Array<EdmProperty>} objects
+   * @param {Element} xmlElement XML element for EDM object
+   * @param {Array<EdmObject>} objects
    */
   constructor(xmlElement, objects) {
     /** @type {Element} */
@@ -44,10 +45,7 @@ export default class EdmObjectsList {
     const edmObjects = [];
     for (const objectXmlElement of Array.from(this.xmlElement.children)) {
       try {
-        // FIXME: mogłoby używać object factory, ale ono potrzebuje instancji metadata
-        const object = new EdmObject({
-          xmlElement: objectXmlElement,
-        });
+        const object = EdmObjectFactory.createObjectFromXmlElement(objectXmlElement);
         if (supportedEdmObjectTypes.includes(object.edmObjectType)) {
           edmObjects.push(object);
         }
@@ -61,6 +59,4 @@ export default class EdmObjectsList {
     }
     return edmObjects;
   }
-
-  // FIXME: zablokować metody typowe dla Array, albo zrobić metody, które będą działać jako immutable
 }
