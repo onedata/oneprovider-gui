@@ -5,16 +5,27 @@ import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
 import { EdmPropertyRecommendation } from '../edm/property-spec';
 
 const PropertyViewModel = EmberObject.extend({
-  visualEdmViewModel: undefined,
-  edmObjectModel: undefined,
+  /**
+   * @virtual
+   * @type {EdmProperty}
+   */
   model: undefined,
 
-  // FIXME: redukcja powyższych na podstawie poniższego
+  /**
+   * @virtual
+   * @type {Utils.VisualEdm.PropertyGroupViewModel}
+   */
   propertyGroupViewModel: undefined,
 
+  /**
+   * @virtual
+   * @type {EdmPropertyValidator}
+   */
   validator: undefined,
 
   objectViewModel: reads('propertyGroupViewModel.objectViewModel'),
+
+  visualEdmViewModel: reads('objectViewModel.visualEdmViewModel'),
 
   /**
    * @type {boolean}

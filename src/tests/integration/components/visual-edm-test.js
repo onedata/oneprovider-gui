@@ -348,8 +348,6 @@ describe('Integration | Component | visual-edm', function () {
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
-        // FIXME: propertyFactory should be refactored to be native class with metadata
-        // injected - createProperty method should not require metadata to be provided
         propertyFactory.createProperty('dcterms', 'issued'),
         propertyFactory.createProperty('dc', 'description'),
         propertyFactory.createProperty('dc', 'date'),
@@ -420,7 +418,6 @@ describe('Integration | Component | visual-edm', function () {
         'Copyright',
         'URL for raw data',
         'URL for paradata',
-        // FIXME: może dojdą property nie-predefiniowano-sortowane
       ];
       expect(propertyLabels).to.deep.equal(expectedPropertyLabels);
     }

@@ -2,7 +2,6 @@ import globals from 'onedata-gui-common/utils/globals';
 import { supportedPropertyTagSet } from './property-spec';
 import xmlFormat from 'xml-formatter';
 
-// FIXME: refactor to have common code with enum
 const supportedObjectTagSet = Object.freeze(new Set([
   'ore:Aggregation',
   'edm:ProvidedCHO',

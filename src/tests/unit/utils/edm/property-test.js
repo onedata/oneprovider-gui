@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupTest } from 'ember-mocha';
 import EdmProperty from 'oneprovider-gui/utils/edm/property';
+import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 import globals from 'onedata-gui-common/utils/globals';
 import { setProperties } from '@ember/object';
 
@@ -11,7 +12,7 @@ describe('Unit | Utility | edm/property', function () {
   it('stores data of the EDM property in the XML Node', function () {
     // given
     const edmProperty = new EdmProperty({
-      xmlDocument: createXmlDocument(),
+      xmlDocument: EdmMetadata.createXmlDocument(),
       namespace: 'dc',
       edmPropertyType: 'contributor',
     });
@@ -90,11 +91,3 @@ describe('Unit | Utility | edm/property', function () {
     expect(xmlElement.innerHTML).to.equal('2024');
   });
 });
-
-// FIXME: może wspólny util dla modeli EDM
-function createXmlDocument() {
-  return globals.document.implementation.createDocument(
-    'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-    'rdf:RDF'
-  );
-}

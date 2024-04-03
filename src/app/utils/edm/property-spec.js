@@ -1,7 +1,5 @@
 import EdmObjectType from './object-type';
 
-// FIXME: typy obiektów mają być w enumie
-
 /**
  * @typedef {'dc'|'dcterms'|'edm'|'owl'} EdmPropertyNamespace
  */
@@ -30,6 +28,14 @@ import EdmObjectType from './object-type';
  * @property {string} [def] Default value.
  * @property {boolean} [long] The string value is typically long and could contain line
  *   breaks.
+ */
+
+/**
+ * @typedef {Object} EdmPropertyCreationData
+ * @property {string} namespace
+ * @property {string} name
+ * @property {`${string}:${string}`} xmlTagName
+ * @property {EdmPropertySpec} spec
  */
 
 /**
@@ -394,8 +400,6 @@ export const allSpecs = Object.freeze({
   },
 });
 
-// FIXME: raczej powinno się zrobić speki w płaskiej liście i ew. potem robić z tego mapę pomocniczną (grupowaną)
-
 function createSupportedTags() {
   const array = [];
   for (const namespace of Object.keys(allSpecs)) {
@@ -408,7 +412,7 @@ function createSupportedTags() {
 
 export const supportedPropertyTagSet = Object.freeze(new Set(createSupportedTags()));
 
-function createFlatSpecs() {
+function createAllPropertiesCreationData() {
   const items = [];
   for (const [namespace, namespaceSpecs] of Object.entries(allSpecs)) {
     for (const [name, spec] of Object.entries(namespaceSpecs)) {
@@ -423,7 +427,10 @@ function createFlatSpecs() {
   return items;
 }
 
-export const flatSpecs = createFlatSpecs();
+/**
+ * @type {Array<EdmPropertyCreationData>}
+ */
+export const allPropertyData = Object.freeze(createAllPropertiesCreationData());
 
 function get3DFormats() {
   return [

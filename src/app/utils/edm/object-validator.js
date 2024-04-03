@@ -2,7 +2,7 @@ import EmberObject, { computed } from '@ember/object';
 import { not } from 'ember-awesome-macros';
 import EdmPropertyValidator from './property-validator';
 import EdmObjectType from './object-type';
-import { EdmPropertyRecommendation, flatSpecs } from './property-spec';
+import { EdmPropertyRecommendation, allPropertyData } from './property-spec';
 import _ from 'lodash';
 import { assert } from '@ember/debug';
 
@@ -82,7 +82,7 @@ const EdmObjectValidator = EmberObject.extend({
 function getMandatoryPropertyTags() {
   const mandatoryPropertyTags = {};
   for (const edmObjectType of Object.keys(EdmObjectType)) {
-    mandatoryPropertyTags[edmObjectType] = flatSpecs.filter(propertySpec =>
+    mandatoryPropertyTags[edmObjectType] = allPropertyData.filter(propertySpec =>
       propertySpec.spec.obj.includes(edmObjectType) &&
       propertySpec.spec.rec === EdmPropertyRecommendation.Mandatory
     ).map(propertySpec => propertySpec.xmlTagName);

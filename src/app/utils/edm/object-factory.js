@@ -4,7 +4,7 @@ import WebResource from './objects/web-resource';
 import EdmObjectType from './object-type';
 import EdmObject, { InvalidEdmObjectType } from './object';
 import EdmMetadata from './metadata';
-import { EdmPropertyRecommendation, flatSpecs } from './property-spec';
+import { EdmPropertyRecommendation, allPropertyData } from './property-spec';
 import EdmPropertyFactory from './property-factory';
 
 const objectClasses = {
@@ -73,7 +73,7 @@ class EdmObjectFactory {
  * @returns {Object<EdmObjectType, Array<Object>}
  */
 function createInitialPropertyMap() {
-  const initialPropertyItems = flatSpecs.filter(item => {
+  const initialPropertyItems = allPropertyData.filter(item => {
     return item.spec.rec === EdmPropertyRecommendation.Mandatory ||
       item.spec.rec === EdmPropertyRecommendation.Recommended;
   });

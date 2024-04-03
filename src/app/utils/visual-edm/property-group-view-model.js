@@ -29,7 +29,6 @@ const PropertyGroupViewModel = EmberObject.extend({
           v.edmProperty === edmProperty
         );
         return PropertyViewModel.create({
-          visualEdmViewModel: this.visualEdmViewModel,
           propertyGroupViewModel: this,
           validator,
           model: edmProperty,
