@@ -7,15 +7,14 @@ import { exampleEdmEuropeanaXml } from 'oneprovider-gui/utils/mock-data';
 export default Component.extend({
   init() {
     this._super(...arguments);
-    const factory = EdmMetadataFactory;
     // uncomment for initial metadata
-    // const edmMetadata = factory.createInitialMetadata();
-    const edmMetadata = factory.fromXml(exampleEdmEuropeanaXml);
+    // const edmMetadata = EdmMetadataFactory.createInitialMetadata();
+    const edmMetadata = EdmMetadataFactory.fromXml(exampleEdmEuropeanaXml);
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       ownerSource: this,
       edmMetadata,
       validator: EdmMetadataValidator.create({ edmMetadata }),
-      isReadOnly: false,
+      isReadOnly: true,
     }));
   },
 

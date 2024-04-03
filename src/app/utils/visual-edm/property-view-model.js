@@ -1,6 +1,6 @@
 import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { eq, raw, conditional } from 'ember-awesome-macros';
+import { eq, raw, conditional, not } from 'ember-awesome-macros';
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
 import { EdmPropertyRecommendation } from '../edm/property-spec';
 
@@ -79,6 +79,64 @@ const PropertyViewModel = EmberObject.extend({
     }
   ),
 
+  valueIcon: conditional(
+    eq('valueType', raw('literal')),
+    raw('browser-rename'),
+    raw('text-link'),
+  ),
+
+  inputType: computed(
+    'model.{edmPropertyType,isPossibleLongValue}',
+    function inputType() {
+      if (this.model.isPossibleLongValue) {
+        return 'textarea';
+      } else if (this.model.hasPredefinedValues) {
+        return 'dropdown';
+      } else {
+        return 'input';
+      }
+    }
+  ),
+
+  lang: computed('model.attrs', function lang() {
+    return this.model.attrs.lang;
+  }),
+
+  isLangDefault: not('lang'),
+
+  isAnyValueType: eq(
+    'model.supportedValueType',
+    raw(EdmPropertyValueType.Any)
+  ),
+
+  predefinedValueOptions: computed(
+    'inputType',
+    'model.predefinedValues',
+    function predefinedValueOptions() {
+      if (this.inputType !== 'dropdown') {
+        return null;
+      }
+      return this.model.predefinedValues;
+    }
+  ),
+
+  selectedPredefinedValueOption: computed(
+    'predefinedValueOptions',
+    'value',
+    function selectedPredefinedValueOption() {
+      return this.predefinedValueOptions?.find(({ value }) => value === this.value);
+    }
+  ),
+
+  isImageRendered: computed(
+    'visualEdmViewModel.isReadOnly',
+    'model.xmlTagName',
+    function isImageRendered() {
+      return this.visualEdmViewModel.isReadOnly &&
+        this.model.xmlTagName === 'edm:object';
+    }
+  ),
+
   init() {
     this._super(...arguments);
     if (
@@ -136,6 +194,7 @@ const PropertyViewModel = EmberObject.extend({
     this.propertyGroupViewModel.objectViewModel.model.deleteProperty(this.model);
     this.propertyGroupViewModel.objectViewModel.updateView();
   },
+
 });
 
 export default PropertyViewModel;

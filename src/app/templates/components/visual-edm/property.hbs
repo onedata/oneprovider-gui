@@ -1,10 +1,10 @@
 <div class="edm-property-key-value">
   <div class="edm-property-name-container">
     <TruncatedString class="edm-property-type">
-      {{displayedPropertyName}}{{if visualEdmViewModel.isReadOnly ":"}}
+      {{displayedPropertyName}}{{if isReadOnly ":"}}
     </TruncatedString>
-    {{#unless visualEdmViewModel.isReadOnly}}
-      {{#if isAnyValueType}}
+    {{#unless isReadOnly}}
+      {{#if viewModel.isAnyValueType}}
         <div class="edm-property-resource-toggle">
           <BsButtonGroup
             @value={{valueType}}
@@ -39,14 +39,14 @@
           </div>
           <input
             class="form-control input-sm edm-property-lang-input"
-            value={{lang}}
+            value={{viewModel.lang}}
             oninput={{action "changeLanguage" value="target.value"}}
           />
-          {{#unless isLangEnabled}}
+          {{#if viewModel.isLangDefault}}
             <div class="edm-property-lang-default truncate">
               {{tt this "defaultLanguage"}}
             </div>
-          {{/unless}}
+          {{/if}}
         </div>
       {{/if}}
       <div class="header-quantity-section">
@@ -74,14 +74,14 @@
   </div>
   <div class="edm-property-value-container">
     <div class="edm-property-value-label">
-      <OneIcon class="label-icon" @icon={{valueIcon}} />
+      <OneIcon class="label-icon" @icon={{viewModel.valueIcon}} />
       {{tt this (concat "valueLabel." valueType)}}:
     </div>
     <div class={{concat-classes
       "edm-property-value"
-      (if visualEdmViewModel.isReadOnly "readonly")
+      (if isReadOnly "readonly")
     }}>
-      {{#if visualEdmViewModel.isReadOnly}}
+      {{#if isReadOnly}}
         {{#if (eq inputType "textarea")}}
           {{value}}
         {{else}}
@@ -108,8 +108,8 @@
             <OneDropdown
               @triggerClass="small property-value-dropdown-trigger"
               @dropdownClass="small property-value-dropdown"
-              @options={{predefinedValueOptions}}
-              @selected={{selectedPredefinedValueOption}}
+              @options={{viewModel.predefinedValueOptions}}
+              @selected={{viewModel.selectedPredefinedValueOption}}
               @onChange={{action "changeSelectedPredefinedValueOption"}}
               @searchEnabled={{true}}
               @searchField="label"
@@ -131,25 +131,23 @@
   </div>
 </div>
 
-{{#if isImageRendered}}
+{{#if viewModel.isImageRendered}}
   <VisualEdm::ImageReference @reference={{value}} />
 {{/if}}
 
-{{!-- FIXME: show additional attributes --}}
-{{!-- <ul class="edm-property-attrs-container edm-property-list-container edm-attrs-container">
-  {{#each attrItems as |attrItem|}}
-    <li class="edm-attr-container">
-      <div class="edm-attr-name"><span class="name-value">{{attrItem.name}}</span>:</div>
-      <div class="edm-attr-value">
-        {{#if isReadOnly}}
+{{#if isReadOnly}}
+  <ul class="edm-property-attrs-container edm-property-list-container edm-attrs-container">
+    {{#each attrItems as |attrItem|}}
+      <li class="edm-attr-container">
+        <div class="edm-attr-name"><span class="name-value">{{attrItem.name}}</span>:</div>
+        <div class="edm-attr-value">
           {{attrItem.value}}
-        {{else}}
-          <input class="form-control input-sm" value={{attrItem.value}} />
-        {{/if}}
-      </div>
-    </li>
-  {{/each}}
-</ul> --}}
+        </div>
+      </li>
+    {{/each}}
+  </ul>
+{{/if}}
+
 {{#if viewModel.model.hasExtraData}}
   <VisualEdm::ExtraDataInfo @model={{viewModel.model}}/>
 {{/if}}

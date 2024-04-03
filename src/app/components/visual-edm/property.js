@@ -4,17 +4,12 @@ import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe } from '@ember/string';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
-import { conditional, eq, raw, bool } from 'ember-awesome-macros';
-import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
-import { EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
+import { EdmPropertyValueType, EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
 import animateCss from 'onedata-gui-common/utils/animate-css';
-import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import sleep from 'onedata-gui-common/utils/sleep';
 
-// FIXME: jak najwięcej przenieść logiki do property-view-model
-
 /**
- * @type {EdmPropertyValueType.Literal|EdmPropertyValueType.Reference} VisualEdmPropertyValueType
+ * @typedef {EdmPropertyValueType.Literal|EdmPropertyValueType.Reference} VisualEdmPropertyValueType
  */
 
 export default Component.extend(I18n, {
@@ -43,108 +38,13 @@ export default Component.extend(I18n, {
    */
   valueType: reads('viewModel.valueType'),
 
+  /**
+   * Expose the enum to template.
+   * @type {EdmPropertyValueType}
+   */
   EdmPropertyValueType,
 
-  // FIXME: property robocze
-  isSupportingReference: true,
-
-  isUsingReference: reads('viewModel.model.isUsingResource'),
-
-  isShowingReference: reads('isUsingReference'),
-
-  valueIcon: conditional(
-    eq('valueType', raw('literal')),
-    raw('browser-rename'),
-    raw('text-link'),
-  ),
-
-  inputType: computed('viewModel.model.edmPropertyType', function inputType() {
-    // FIXME: dodać do specyfikacji
-    if (this.viewModel.model.edmPropertyType === 'description') {
-      return 'textarea';
-    } else if (this.viewModel.model.hasPredefinedValues) {
-      return 'dropdown';
-    } else {
-      return 'input';
-    }
-  }),
-
-  referenceValue: computed('viewModel.model.attrs', function referenceValue() {
-    return this.viewModel.model.attrs.resource;
-  }),
-
   value: reads('viewModel.value'),
-
-  isAddAnotherEnabled: computed('viewModel.model.edmPropertyType', function inputType() {
-    if (this.model.edmPropertyType === 'title') {
-      return true;
-    } else {
-      return false;
-    }
-  }),
-
-  lang: computed('viewModel.model.attrs', function lang() {
-    return this.viewModel.model.attrs.lang;
-  }),
-
-  isLangEnabled: bool('lang'),
-
-  isAnyValueType: eq(
-    'viewModel.model.supportedValueType',
-    raw(EdmPropertyValueType.Any)
-  ),
-
-  predefinedValueOptions: computed(
-    'inputType',
-    'viewModel.model.predefinedValues',
-    function predefinedValueOptions() {
-      if (this.inputType !== 'dropdown') {
-        return null;
-      }
-      return this.viewModel.model.predefinedValues;
-    }
-  ),
-
-  selectedPredefinedValueOption: computed(
-    'predefinedValueOptions',
-    'value',
-    function selectedPredefinedValueOption() {
-      return this.predefinedValueOptions?.find(({ value }) => value === this.value);
-    }
-  ),
-
-  // FIXME: do poprawki - za pomocą tego pokazywać tylko propertiesy, które są niestandardowe?
-  attrItems: computed(
-    'isShowingReference',
-    'viewModel.model.{shownAttrs,attrs}',
-    function attrItems() {
-      const attrs = this.viewModel.model.attrs;
-      // FIXME: jeśli to jest edycja i to nowy model, to pokazywać tylko
-      // reference - jeśli jest isShowingReference
-      // lang - jeśli ten model ma takie coś i nie ma isShowingReference
-      let shownAttrs;
-      if (this.isShowingReference) {
-        shownAttrs = ['resource', 'lang'];
-      } else {
-        shownAttrs = ['lang'];
-      }
-      let result = shownAttrs.map(name => {
-        const foundTranslation = this.t(
-          `attrName.${name}`, {}, {
-            defaultValue: null,
-          }
-        );
-        return {
-          name: foundTranslation || humanizeString(name),
-          value: attrs[name],
-        };
-      });
-      if (this.viewModel.model.isReadOnly) {
-        result = result.filter(({ value }) => value);
-      }
-      return result;
-    }
-  ),
 
   /**
    * @type {ComputedProperty<SafeString>}
@@ -205,13 +105,35 @@ export default Component.extend(I18n, {
     );
   }),
 
-  isImageRendered: computed(
-    'viewModel.{visualEdmViewModel.isReadOnly,model.xmlTagName}',
-    function isImageRendered() {
-      return this.viewModel.visualEdmViewModel.isReadOnly &&
-        this.viewModel.model.xmlTagName === 'edm:object';
+  attrItems: computed(
+    'viewModel.model.attrs',
+    'isLangDefault',
+    'isReadOnly',
+    function attrItems() {
+      const attrs = this.viewModel.model.attrs;
+      // TODO: VFS-11911 Consider showing more attributes (or simplify code)
+      const shownAttrs = this.isLangDefault ? [] : ['lang'];
+      let result = shownAttrs.map(name => {
+        const foundTranslation = this.t(
+          `attrName.${name}`, {}, {
+            defaultValue: null,
+          }
+        );
+        return {
+          name: foundTranslation || humanizeString(name),
+          value: attrs[name],
+        };
+      });
+      if (this.isReadOnly) {
+        result = result.filter(({ value }) => value);
+      }
+      return result;
     }
   ),
+
+  inputType: reads('viewModel.inputType'),
+
+  isReadOnly: reads('visualEdmViewModel.isReadOnly'),
 
   animateAttentionObserver: observer(
     'viewModel.isAnimateAttentionQueued',

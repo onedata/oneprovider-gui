@@ -65,7 +65,7 @@ export default Component.extend(I18n, {
     'viewModel.model.{shownAttrs,attrs}',
     'visualEdmViewModel.isReadOnly',
     function attrItems() {
-      // FIXME: dummy
+      // settings attributes is not available in edit mode
       if (!this.visualEdmViewModel.isReadOnly) {
         return [];
       }

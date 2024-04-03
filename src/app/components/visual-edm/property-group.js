@@ -15,14 +15,6 @@ export default Component.extend(I18n, {
    */
   viewModel: undefined,
 
-  isAddAnotherEnabled: computed('viewModel.edmPropertyType', function inputType() {
-    if (this.viewModel.edmPropertyType === 'title') {
-      return true;
-    } else {
-      return false;
-    }
-  }),
-
   /**
    * @type {ComputedProperty<SafeString>}
    */

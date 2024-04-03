@@ -2,7 +2,10 @@ import EdmAttrs, { namespacedAttr } from './attrs';
 import { EdmPropertyMaxOccurrences, EdmPropertyRecommendation, EdmPropertyValueType } from './property-spec';
 
 class EdmProperty {
-  static defaultShownAttrs = Object.freeze(['resource', 'lang']);
+  static supportedXmlAttrs = Object.freeze([
+    'lang',
+    'resource',
+  ].map(attr => namespacedAttr(attr)));
 
   /**
    * @param {XMLDocument} [options.xmlDocument]
@@ -34,9 +37,7 @@ class EdmProperty {
     }
 
     this.attrs = {};
-    this.shownAttrs = options.shownAttrs || EdmProperty.defaultShownAttrs;
     this.spec = options.spec;
-    // FIXME: find and remove manula setting of hasExtraData
   }
 
   get xmlTagName() {
@@ -60,14 +61,9 @@ class EdmProperty {
     return this.__attrs;
   }
 
-  get shownXmlAttrs() {
-    return this.shownAttrs.map(attr => namespacedAttr(attr));
-  }
-
   get hasExtraData() {
-    const shownXmlAttrs = this.shownXmlAttrs;
     for (const attr of this.xmlElement.attributes) {
-      if (!shownXmlAttrs.includes(attr.name)) {
+      if (!EdmProperty.supportedXmlAttrs.includes(attr.name)) {
         return true;
       }
     }
@@ -100,6 +96,10 @@ class EdmProperty {
 
   get isLangConfigurable() {
     return this.spec?.lang || false;
+  }
+
+  get isPossibleLongValue() {
+    return this.spec?.long || false;
   }
 
   /**

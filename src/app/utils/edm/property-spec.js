@@ -7,41 +7,77 @@ import EdmObjectType from './object-type';
  */
 
 /**
+ * For available EDM properties, see:
+ * - https://europeana.atlassian.net/wiki/spaces/EF/pages/2106294284/edm+ProvidedCHO
+ * - https://europeana.atlassian.net/wiki/spaces/EF/pages/2106032160/ore+Aggregation
+ * - https://europeana.atlassian.net/wiki/spaces/EF/pages/2106392591/edm+WebResource
  * @typedef {string} EdmPropertyName
  */
 
 /**
  * @typedef {Object} EdmPropertySpec
- * @property {EdmPropertyValueType} val Type of data accepted of property - see
+ * @property {EdmPropertyValueType} val How the data should be stored in the XML - see
  *   `EdmPropertyValueType`.
  * @property {boolean} basic If true, then the property should be available to select to
  *   be added in the visual editor.
  * @property {Array} obj Types of EDM objects that can use this property.
- * @property {EdmPropertyRecommendation} rec Level of usage recommendation.
+ * @property {EdmPropertyRecommendation} rec Level of usage recommendation - see
+ *   `EdmPropertyRecommendation`
  * @property {EdmPropertyMaxOccurrences} max Level of property maximum occurrences in
- *   single EDM object.
- * @property {string} def Default value.
+ *   single EDM object - see `EdmPropertyMaxOccurrences`.
+ * @property {boolean} [lang] If true, the optional language (`lang` XML attribute) should
+ *   be set for the property.
+ * @property {string} [def] Default value.
+ * @property {boolean} [long] The string value is typically long and could contain line
+ *   breaks.
  */
 
+/**
+ * How the value should be stored for property in the XML.
+ */
 export const EdmPropertyValueType = Object.freeze({
+  /** The value will be stored as XML tag value: `<tag>value</tag>` */
   Literal: 'literal',
+  /** The value will be stored in the `resource` attribute: `<tag resource="value" />` */
   Reference: 'reference',
+  /** The value should be stored either as literal value or reference */
   Any: 'any',
 });
 
+/**
+ * Is the presence of property mandatory for the object, only recommended or completely
+ * optional? Based on Eureka3D recommendations.
+ */
 export const EdmPropertyRecommendation = Object.freeze({
+  /** There should be at least single occurrence of the property in the object. */
   Mandatory: 'mandatory',
+  /**
+   * It is recommended to have at least single occurrence of the property in the object,
+   * but lack of the property does not cause validation error.
+   */
   Recommended: 'recommended',
+  /** It is completely optional to have the property in the object. */
   None: 'none',
 });
 
+/**
+ * How many properties of the type is allowed for the object.
+ * This enum does not determine minimum occurrences of the property - see
+ * `EdmPropertyRecommendation.Mandatory` for the miniumum single occurrence.
+ * Based on Eureka3D recommendations.
+ */
 export const EdmPropertyMaxOccurrences = Object.freeze({
+  /** There can be maxium single occurrence of the property in the object. */
   Single: '1',
+  /** There are no limits in the property occurrences in the single object. */
   Any: 'n',
 });
 
+// Aliases for the shorter code
 const Rec = EdmPropertyRecommendation;
 const Max = EdmPropertyMaxOccurrences;
+
+// TODO: VFS-11912 Fill-in lang specifications as in Europeana spreadsheet
 
 export const allSpecs = Object.freeze({
   dc: {
@@ -67,14 +103,14 @@ export const allSpecs = Object.freeze({
       obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
       rec: Rec.Mandatory,
       max: Max.Single,
-      // FIXME: experimental - fill-in as in spreadsheet
       lang: true,
+      long: true,
     },
     format: {
       val: EdmPropertyValueType.Literal,
       basic: true,
       obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
-      // FIXME: do finalnego ustalenia w spreadsheecie
+      // TODO: VFS-11912 To be determined with Europeana spreadsheet
       rec: Rec.Mandatory,
       max: Max.Single,
       predef: get3DFormats().map(formatLiteral => ({
@@ -214,7 +250,6 @@ export const allSpecs = Object.freeze({
       rec: Rec.None,
       max: Max.Single,
     },
-    // FIXME: tego nie ma w standardzie EDM, ale jest w spreadsheecie
     currentLocation: {
       val: EdmPropertyValueType.Reference,
       basic: true,
