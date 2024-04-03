@@ -1,4 +1,10 @@
-// FIXME: doc - attry można usuwać za pomocą ustawiania null/undefined
+/**
+ * A facade for setting attributes on the XML Element using the key-value interface.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 const attrNamespaces = {
   resource: 'rdf',

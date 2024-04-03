@@ -8,14 +8,19 @@ class EdmProperty {
   ].map(attr => namespacedAttr(attr)));
 
   /**
-   * @param {XMLDocument} [options.xmlDocument]
-   * @param {string} [options.namespace]
-   * @param {string} [options.edmPropertyType]
-   * @param {Element} [options.xmlElement]
-   * @param {Array<string>} [options.shownAttrs]
+   * @param {Element} [options.xmlElement] Provide for properties created from XML.
+   * @param {XMLDocument} [options.xmlDocument] Provide for completely new properties (not
+   *   from XML).
+   * @param {string} [options.namespace] Provide for completely new property.
+   * @param {string} [options.edmPropertyType] Provide for completely new property.
    * @param {EdmPropertySpec} [options.spec]
    */
-  constructor(options) {
+  constructor(options = {}) {
+    if (!options.xmlElement && !options.xmlDocument) {
+      throw new Error(
+        'EDM Property: no xmlElement nor xmlDocument provided in constructor'
+      );
+    }
     /** @type {Element} */
     this.xmlElement = options.xmlElement;
     if (options.xmlDocument) {
@@ -37,7 +42,7 @@ class EdmProperty {
     }
 
     this.attrs = {};
-    this.spec = options.spec;
+    this.spec = options.spec || {};
   }
 
   get xmlTagName() {

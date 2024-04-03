@@ -1,19 +1,12 @@
 import EdmAttrs from './attrs';
 import { isEmptyXmlNode, isSupportedXmlProperty } from './xml-utils';
 import EdmPropertiesList from './edm-properties-list';
-import _ from 'lodash';
 import { sortProperties } from './sort';
 
 /**
  * @typedef {Object} EdmObjectAttrs
  * @property {string} about Mandatory `rdf:about` property.
  */
-
-/**
- * @typedef {Object}
- */
-
-// FIXME: można próbować ujednolicić niektóre miejsca w constructor i innych metodach razem z property
 
 const shownAttrs = Object.freeze(['about']);
 const shownXmlAttrs = Object.freeze(['rdf:about']);
@@ -61,7 +54,6 @@ export default class EdmObject {
 
     this.attrs = {};
     this.edmProperties = undefined;
-    // FIXME: usunąć ręczne ustawianie hasExtraData na instancjach tej klasy
   }
 
   get xmlTagName() {

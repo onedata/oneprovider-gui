@@ -7,25 +7,32 @@ import EdmObjectType from './object-type';
 const EdmMetadataValidator = EmberObject.extend({
   /**
    * @virtual
+   * @type {EdmMetadata}
    */
   edmMetadata: undefined,
+
+  //#region state
+
+  /**
+   * @type {Map<EdmObject, EdmObjectValidator>}
+   */
+  objectValidatorsCache: undefined,
+
+  //#endregion
 
   init() {
     this._super(...arguments);
     assert(this.edmMetadata, 'edmMetadata must be provided for EdmMetadataValidator');
+    this.set('objectValidatorsCache', new Map());
   },
 
   /**
    * @type {Array<EdmPropertyValidator>}
    */
   objectValidators: computed('edmMetadata.edmObjects', function objectValidators() {
-    // FIXME: zrobić później cachowanie - dla odpowiedniego edmObject trzymać w cache utworzone walidatory
-    return this.edmMetadata.edmObjects.map(object =>
-      EdmObjectValidator.create({ edmObject: object })
-    );
+    return this.getObjectValidators();
   }),
 
-  // FIXME: rozdzielić computedy dla wydajności
   isValid: computed(
     'edmMetadata.edmObjects',
     'objectValidators.@each.isValid',
@@ -50,6 +57,23 @@ const EdmMetadataValidator = EmberObject.extend({
 
   updateValue() {
     this.notifyPropertyChange('edmMetadata');
+  },
+
+  getObjectValidators() {
+    const resultValidators = this.edmMetadata.edmObjects.map(edmObject => {
+      let validator = this.objectValidatorsCache.get(edmObject);
+      if (!validator) {
+        validator = EdmObjectValidator.create({ edmObject });
+        this.objectValidatorsCache.set(edmObject, validator);
+      }
+      return validator;
+    });
+    for (const edmObject of this.objectValidatorsCache.keys()) {
+      if (!resultValidators.includes(edmObject)) {
+        this.objectValidatorsCache.delete(edmObject);
+      }
+    }
+    return resultValidators;
   },
 });
 

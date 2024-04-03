@@ -78,7 +78,6 @@ export default class EdmMetadata {
   }
 
   get hasExtraData() {
-    // FIXME: sprawdzić także to co jest poza root elementem
     for (const node of this.xmlElement.childNodes) {
       if (!isEmptyXmlNode(node) && !isSupportedXmlObject(node)) {
         return true;
