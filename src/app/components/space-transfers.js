@@ -13,7 +13,7 @@ import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { promise } from 'ember-awesome-macros';
 import _ from 'lodash';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import globals from 'onedata-gui-common/utils/globals';

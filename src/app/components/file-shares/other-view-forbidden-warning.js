@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 

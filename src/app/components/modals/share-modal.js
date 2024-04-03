@@ -21,7 +21,7 @@ import {
 } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import backendNameRegexp from 'onedata-gui-common/utils/backend-name-regexp';
 import backendifyName, {
   minLength as shareNameMin,

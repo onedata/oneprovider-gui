@@ -13,7 +13,7 @@ import { raw, array, promise, or, eq, and, getBy, not } from 'ember-awesome-macr
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 import { htmlSafe } from '@ember/string';

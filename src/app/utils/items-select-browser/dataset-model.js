@@ -17,7 +17,7 @@ import {
 } from 'oneprovider-gui/utils/dataset-browser-model';
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { all as allFulfilled } from 'rsvp';
 
 export default BaseModel.extend(I18n, {

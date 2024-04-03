@@ -10,7 +10,7 @@ import EmberObject from '@ember/object';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import ArchiveFormEditModel from 'oneprovider-gui/utils/archive-form/edit-model';
 import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model';
 import { or } from 'ember-awesome-macros';

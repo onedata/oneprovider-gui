@@ -10,7 +10,7 @@
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
 import EmberObject, { computed, get } from '@ember/object';
 import { reads, equal } from '@ember/object/computed';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { promise, bool, or } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';

@@ -19,7 +19,7 @@
 import Component from '@ember/component';
 import EmberObject, { computed, observer } from '@ember/object';
 import { and, notEqual, raw, not, conditional, array, collect, getBy, or } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { defineProperty } from '@ember/object';
 
 /**

@@ -11,7 +11,7 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { inject as service } from '@ember/service';
 import ArchiveFormBaseModel from 'oneprovider-gui/utils/archive-form/-base-model';
 import { promise } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import _ from 'lodash';
 
 export default ArchiveFormBaseModel.extend(I18n, {

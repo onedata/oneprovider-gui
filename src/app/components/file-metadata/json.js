@@ -6,7 +6,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import AceEditorBase from 'oneprovider-gui/components/file-metadata/-ace-editor-base';
 
 export default AceEditorBase.extend(I18n, {

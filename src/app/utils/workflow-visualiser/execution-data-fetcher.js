@@ -23,7 +23,7 @@ import {
   laneEndedStatuses,
   taskEndedStatuses,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { hash as hashFulfilled } from 'rsvp';
 import _ from 'lodash';
 import { inAdvanceRunNumber } from 'onedata-gui-common/utils/workflow-visualiser/run-utils';

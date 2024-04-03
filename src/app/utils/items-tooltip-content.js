@@ -9,7 +9,7 @@
 import EmberObject, { computed, get } from '@ember/object';
 import _ from 'lodash';
 import { htmlSafe } from '@ember/string';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { guidFor } from '@ember/object/internals';

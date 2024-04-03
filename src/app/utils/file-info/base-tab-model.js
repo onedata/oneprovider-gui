@@ -18,7 +18,7 @@ import EmberObject from '@ember/object';
 import { writable, conditional, not, raw, eq } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 
 const mixins = [

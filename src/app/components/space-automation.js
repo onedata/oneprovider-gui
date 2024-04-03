@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { get, getProperties, observer, computed } from '@ember/object';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import { promise, conditional, array } from 'ember-awesome-macros';
 import { reject, hash as hashFulfilled } from 'rsvp';

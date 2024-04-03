@@ -13,7 +13,7 @@ import SelectorFilesystemBrowserModel from 'oneprovider-gui/utils/selector-files
 import { promise, isEmpty, conditional, raw, array } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import _ from 'lodash';
 
 /**

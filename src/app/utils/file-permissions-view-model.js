@@ -26,7 +26,7 @@ import _ from 'lodash';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { translateFileType } from 'onedata-gui-common/utils/file';

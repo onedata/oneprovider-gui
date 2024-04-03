@@ -12,7 +12,7 @@ import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled, hash as hashFulfilled } from 'rsvp';
 import { promise } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';
 

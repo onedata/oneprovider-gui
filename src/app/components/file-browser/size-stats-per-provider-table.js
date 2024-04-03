@@ -11,7 +11,7 @@ import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { array, promise } from 'ember-awesome-macros';
 import { all as allFulfilled } from 'rsvp';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 
 export default Component.extend(I18n, {

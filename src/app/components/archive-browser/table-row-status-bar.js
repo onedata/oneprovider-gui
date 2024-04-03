@@ -9,7 +9,7 @@
 import FbTableRowStatusBar from 'oneprovider-gui/components/file-browser/fb-table-row-status-bar';
 import { equal, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 
 export default FbTableRowStatusBar.extend(I18n, {
   classNames: ['archive-table-row-status-bar'],

@@ -16,7 +16,7 @@ import { computed, get, getProperties } from '@ember/object';
 import { promise, raw, array, equal } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 
 export default Component.extend(I18n, {
   tagName: '',
