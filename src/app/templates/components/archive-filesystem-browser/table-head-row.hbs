@@ -38,26 +38,26 @@
       ondragstart={{action "headingDragAction" columnName}}
       ondragend={{action "headingDragEndAction"}}
     >
-      <span class="column-name">
-        {{one-icon icon="drag" class="column-move-icon"}}
-        <span class="column-name-text">
+      <div class="column-info-container">
+        <span class="column-name">
+          {{one-icon icon="drag" class="column-move-icon"}}
           {{tt this (concat "headers." columnName)}}
-          {{#if (or (eq columnName "ctime") (eq columnName "modification"))}}
-            <div class="column-subname">
-              ({{tt this (concat "headers." columnName "Subname")}})
-            </div>
+          {{#if (contains columnName columnsNamesWithTooltip)}}
+            {{#one-icon icon="browser-info" class="column-info-icon"}}
+              {{one-tooltip
+                title=(tt this
+                  (concat "headers." columnName "Tooltip") oneprovider=currentProviderName
+                )
+              }}
+            {{/one-icon}}
           {{/if}}
         </span>
-        {{#if (contains columnName columnsNamesWithTooltip)}}
-          {{#one-icon icon="browser-info" class="column-info-icon"}}
-            {{one-tooltip
-              title=(tt this
-                (concat "headers." columnName "Tooltip") oneprovider=currentProviderName
-              )
-            }}
-          {{/one-icon}}
+        {{#if (or (eq columnName "ctime") (eq columnName "modification"))}}
+          <span class="column-subname">
+            ({{tt this (concat "headers." columnName "Subname")}})
+          </span>
         {{/if}}
-      </span>
+      </div>
       <div
         class="draggable-area"
         ondragover={{action "headingDragOverAction"}}
