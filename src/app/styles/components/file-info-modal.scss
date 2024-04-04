@@ -195,6 +195,11 @@
         width: auto;
       }
     }
+    .property-subname {
+      font-size: 80%;
+      color: change-color($main-text-color-inactive, $lightness: 60%);
+      font-weight: normal;
+    }
     td.property-value {
       padding-right: 0;
       @media (max-width: $screen-xs-max) {

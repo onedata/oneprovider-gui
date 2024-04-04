@@ -13,12 +13,15 @@ import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import { reads } from '@ember/object/computed';
+import { promise } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   tagName: 'li',
   classNames: ['column-item'],
 
   i18n: service(),
+  providerManager: service(),
 
   /**
    * @override
@@ -86,6 +89,13 @@ export default Component.extend(I18n, {
   dragEndAction: notImplementedIgnore,
 
   /**
+   * @type {Array<String>}
+   */
+  columnsNamesWithTooltip: Object.freeze(
+    ['qos', 'replication', 'modification', 'atime', 'ctime']
+  ),
+
+  /**
    * @type {boolean}
    */
   isArrowTooltipVisible: true,
@@ -97,6 +107,18 @@ export default Component.extend(I18n, {
   checkboxInputId: computed('columnName', function checkboxInputId() {
     return `${this.elementId}-${this.columnName}Checkbox`;
   }),
+
+  /**
+   * @type {PromiseObject<Models.Provider>}
+   */
+  currentProviderProxy: promise.object(computed(function currentProviderProxy() {
+    return this.get('providerManager').getCurrentProvider();
+  })),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  currentProviderName: reads('currentProviderProxy.content.name'),
 
   actions: {
     checkboxChanged(columnName, newValue) {

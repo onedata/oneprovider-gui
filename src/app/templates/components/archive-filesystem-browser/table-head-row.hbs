@@ -40,11 +40,20 @@
     >
       <span class="column-name">
         {{one-icon icon="drag" class="column-move-icon"}}
-        {{tt this (concat "headers." columnName)}}
-        {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
+        <span class="column-name-text">
+          {{tt this (concat "headers." columnName)}}
+          {{#if (or (eq columnName "ctime") (eq columnName "modification"))}}
+            <div class="column-subname">
+              ({{tt this (concat "headers." columnName "Subname")}})
+            </div>
+          {{/if}}
+        </span>
+        {{#if (contains columnName columnsNamesWithTooltip)}}
           {{#one-icon icon="browser-info" class="column-info-icon"}}
             {{one-tooltip
-              title=(tt this (concat columnName "Tooltip") oneprovider=currentProviderName)
+              title=(tt this
+                (concat "headers." columnName "Tooltip") oneprovider=currentProviderName
+              )
             }}
           {{/one-icon}}
         {{/if}}

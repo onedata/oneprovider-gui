@@ -215,8 +215,13 @@
           {{/if}}
           <tr class="file-info-row-modification-time">
             <td class="property-name">
-              {{tt this "mtime"}}
-              {{one-label-tip title=(tt this "mtimeTooltip")}}
+              <div>
+                {{tt this "mtime"}}
+                {{one-label-tip title=(tt this "mtimeTooltip")}}
+              </div>
+              <div class="property-subname">
+                ({{tt this "mtimeSubname"}})
+              </div>
             </td>
             <td class="property-value">
               {{#truncated-string}}
@@ -237,8 +242,13 @@
           </tr>
           <tr class="file-info-row-ctime-time">
             <td class="property-name">
-              {{tt this "ctime"}}
-              {{one-label-tip title=(tt this "ctimeTooltip")}}
+              <div>
+                {{tt this "ctime"}}
+                {{one-label-tip title=(tt this "ctimeTooltip")}}
+              </div>
+              <div class="property-subname">
+                ({{tt this "ctimeSubname"}})
+              </div>
             </td>
             <td class="property-value">
               {{#truncated-string}}

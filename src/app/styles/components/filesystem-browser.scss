@@ -8,8 +8,11 @@
   }
   .fb-table-secondary-col .column-info-icon {
     font-size: 150%;
-    vertical-align: bottom;
     opacity: $disabled-opacity;
+    vertical-align: middle;
+    position: absolute;
+    right: -1.2em;
+    top: -0.04em;
   }
   .fb-table-col-size {
     position: relative;

@@ -1339,7 +1339,7 @@ export default BaseBrowserModel.extend(...mixins, {
           columns.modification = EmberObject.create({
             isVisible: true,
             isEnabled: true,
-            width: 180,
+            width: 130,
           });
           break;
         case 'owner':
@@ -1367,14 +1367,14 @@ export default BaseBrowserModel.extend(...mixins, {
           columns.atime = EmberObject.create({
             isVisible: false,
             isEnabled: false,
-            width: 180,
+            width: 130,
           });
           break;
         case 'ctime':
           columns.ctime = EmberObject.create({
             isVisible: false,
             isEnabled: false,
-            width: 180,
+            width: 130,
           });
           break;
         default:

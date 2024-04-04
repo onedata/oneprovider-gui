@@ -16,6 +16,11 @@
     margin: 0;
     list-style-type: none;
 
+    .subname-text {
+      font-size: 80%;
+      color: change-color($main-text-color-inactive, $lightness: 60%);
+    }
+
     .column-item .draggable-object {
       display: flex;
       justify-content: space-between;
@@ -51,6 +56,7 @@
         display: inline-flex;
         flex-grow: 1;
         padding-right: 2.2em;
+        min-width: 12.3em;
 
         @media (hover: hover) {
           padding-right: 0;
@@ -65,11 +71,21 @@
         margin-bottom: 0;
       }
 
+      .column-info-icon {
+        font-size: 140%;
+        vertical-align: middle;
+        opacity: 0.6;
+        position: absolute;
+        right: -1.3em;
+        top: 50%;
+        transform: translateY(-45%);
+      }
+
       .oneicon-no-view {
         font-size: 160%;
         vertical-align: middle;
         position: absolute;
-        right: -1.2em;
+        right: -2.2em;
         top: 50%;
         transform: translateY(-45%);
       }
