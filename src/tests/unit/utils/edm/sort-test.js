@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { sortProperties, sortObjects } from 'oneprovider-gui/utils/edm/sort';
-import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 
 describe('Unit | Utility | edm/sort', function () {
   it('sortProperties returns new array', function () {
