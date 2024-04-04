@@ -6,7 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
-* VFS-11540 Added support for publishing Open Data with Europeana Data Model metadata (raw XML editor)
+* VFS-11632 Added visual editor for Open Data metadata in Europeana Data Model format
 * VFS-11811 Changed the order of physical locations
 * VFS-11757 Changed placeholder and status icon when dir stats not ready
 * VFS-11434 Added new file attributes to atm file data spec

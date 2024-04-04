@@ -1,3 +1,11 @@
+/**
+ * List allowing to choose EDM properties to add to specific EDM object
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';

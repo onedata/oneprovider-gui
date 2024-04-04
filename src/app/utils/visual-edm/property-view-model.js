@@ -1,3 +1,11 @@
+/**
+ * Model for `VisualEdm::Property` component associated with `EdmProperty` model.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { eq, raw, conditional, not } from 'ember-awesome-macros';

@@ -1,3 +1,12 @@
+/**
+ * Specifications of EDM properties for constructing specific EDM property models.
+ * Based on Eureka 3D specification.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EdmObjectType from './object-type';
 
 /**

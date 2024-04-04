@@ -368,7 +368,6 @@ describe('Integration | Component | visual-edm', function () {
     const propertyLabels = findAll('.edm-property-type').map(element =>
       element.textContent.trim()
     );
-    console.log(propertyLabels);
     const expectedPropertyLabels = [
       'Title',
       'Description',

@@ -1,3 +1,11 @@
+/**
+ * Dummy visual-edm-editor
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';

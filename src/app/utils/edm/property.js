@@ -1,3 +1,13 @@
+/**
+ * Model of single EDM property backed by XML element representing that property in the
+ * XML document. The property has some text value (not to confuse with the `value`
+ * property of this class) that can be stored as XML value or in the `resource` attribute.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EdmAttrs, { namespacedAttr } from './attrs';
 import { EdmPropertyMaxOccurrences, EdmPropertyRecommendation, EdmPropertyValueType } from './property-spec';
 

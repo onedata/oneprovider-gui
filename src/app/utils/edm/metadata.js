@@ -1,3 +1,12 @@
+/**
+ * Model of EDM metadata backed by EDM metadata XML document.
+ * Contains list of EDM objects - see `EdmObject` class.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import globals from 'onedata-gui-common/utils/globals';
 import EdmObjectsList from './objects-list';
 import { isEmptyXmlNode, isSupportedXmlObject, stringifyXmlDocument } from './xml-utils';

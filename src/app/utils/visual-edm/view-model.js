@@ -1,3 +1,11 @@
+/**
+ * Model for `VisualEdm` component associated with `EdmMetadata` model.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, { observer } from '@ember/object';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { reads } from '@ember/object/computed';

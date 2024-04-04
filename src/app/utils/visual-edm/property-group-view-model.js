@@ -1,3 +1,12 @@
+/**
+ * Model for `VisualEdm::PropertyGroup` component associated with array of `EdmProperty`
+ * model instances with the same `edmPropertyType`.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, { computed } from '@ember/object';
 import PropertyViewModel from './property-view-model';
 

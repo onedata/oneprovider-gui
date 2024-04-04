@@ -1,3 +1,12 @@
+/**
+ * Produces `EdmObject` instances from provided data or XML elements (parts of EDM XML
+ * metadata document).
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import ProvidedCHO from './objects/provided-cho';
 import Aggregation from './objects/aggregation';
 import WebResource from './objects/web-resource';

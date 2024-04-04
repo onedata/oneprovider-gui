@@ -1,3 +1,11 @@
+/**
+ * Utilities for sorting elements of metadata model in order specified by Eureka 3D.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import _ from 'lodash';
 
 const visualPropertiesOrder = [

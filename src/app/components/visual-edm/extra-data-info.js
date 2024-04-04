@@ -1,3 +1,12 @@
+/**
+ * Simple information about extra data in the XML source which is not included in the
+ * visual editor/viewer.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 

@@ -1,3 +1,12 @@
+/**
+ * Produces `EdmMetadata` instances from provided data or raw XML string value.
+ * Currently all methods of this class are static, so it should be used like a namespace.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EdmMetadata from './metadata';
 import EdmObjectType from './object-type';
 import EdmObjectFactory from './object-factory';

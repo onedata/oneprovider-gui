@@ -1,3 +1,11 @@
+/**
+ *
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import globals from 'onedata-gui-common/utils/globals';
 import { supportedPropertyTagSet } from './property-spec';
 import xmlFormat from 'xml-formatter';

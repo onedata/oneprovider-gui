@@ -1,6 +1,15 @@
+/**
+ * Model of single EDM object backed by XML element representing that object in the XML
+ * document. Contains list of EDM properties - see `EdmProperty` class.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EdmAttrs from './attrs';
 import { isEmptyXmlNode, isSupportedXmlProperty } from './xml-utils';
-import EdmPropertiesList from './edm-properties-list';
+import EdmPropertiesList from './properties-list';
 import { sortProperties } from './sort';
 
 /**

@@ -1,3 +1,12 @@
+/**
+ * An adapter exposing array of EDM object models based on the XML element that is EDM
+ * metadata root. Allows to read and write.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import { InvalidEdmObjectType } from './object';
 import EdmObjectFactory from './object-factory';
 import { supportedEdmObjectTypes } from './object-type';

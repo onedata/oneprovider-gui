@@ -1,3 +1,12 @@
+/**
+ * An adapter exposing array of EDM property models based on the XML element that is EDM
+ * object. Allows to read and write.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EdmPropertyFactory from './property-factory';
 import { isSupportedXmlProperty } from './xml-utils';
 

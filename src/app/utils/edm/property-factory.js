@@ -1,3 +1,12 @@
+/**
+ * Produces `EdmProperty` instances from provided data or XML elements (parts of EDM XML
+ * metadata document).
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EdmProperty from './property';
 import _ from 'lodash';
 import { EdmPropertyValueType, allSpecs } from './property-spec';

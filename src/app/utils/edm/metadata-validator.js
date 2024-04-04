@@ -1,3 +1,11 @@
+/**
+ * Provides EDM metadata model validation state according to recommendation of Eureka 3D.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, { computed } from '@ember/object';
 import { not } from 'ember-awesome-macros';
 import EdmObjectValidator from './object-validator';

@@ -1,3 +1,11 @@
+/**
+ * Graphical editable or readonly representation of EDM property.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { set, computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
