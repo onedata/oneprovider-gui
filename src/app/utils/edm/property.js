@@ -118,6 +118,24 @@ class EdmProperty {
   }
 
   /**
+   * Sets either value or resource attribute depending on the supported value type.
+   * @param {string} value
+   */
+  setSupportedValue(value) {
+    switch (this.supportedValueType) {
+      case EdmPropertyValueType.Any:
+      case EdmPropertyValueType.Literal:
+        this.value = value;
+        break;
+      case EdmPropertyValueType.Reference:
+        this.attrs.resource = value;
+        break;
+      default:
+        break;
+    }
+  }
+
+  /**
    * @param {EdmProperty} edmProperty
    * @returns {boolean}
    */

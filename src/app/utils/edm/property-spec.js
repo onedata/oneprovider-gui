@@ -32,6 +32,9 @@ import EdmObjectType from './object-type';
  *   `EdmPropertyRecommendation`
  * @property {EdmPropertyMaxOccurrences} max Level of property maximum occurrences in
  *   single EDM object - see `EdmPropertyMaxOccurrences`.
+ * @property {Array<{ label: string, value: string }>} [predef] If provided, the property
+ *   has predefined set of values that should be applied to the property. The `label` is
+ *   shown in the visual editor and `value` is applied as property value.
  * @property {boolean} [lang] If true, the optional language (`lang` XML attribute) should
  *   be set for the property.
  * @property {string} [def] Default value.

@@ -64,29 +64,11 @@ export default class EdmPropertyFactory {
     if (options.value) {
       edmProperty.value = options.value;
     } else if (spec.def) {
-      setPropertyValue(edmProperty, spec.def);
+      edmProperty.setSupportedValue(spec.def);
     }
     const attrs = _.cloneDeep(options);
     delete attrs.value;
     edmProperty.attrs = attrs;
     return edmProperty;
-  }
-}
-
-/**
- * @param {EdmProperty} property
- * @param {string} value
- */
-export function setPropertyValue(property, value) {
-  switch (property.supportedValueType) {
-    case EdmPropertyValueType.Any:
-    case EdmPropertyValueType.Literal:
-      property.value = value;
-      break;
-    case EdmPropertyValueType.Reference:
-      property.attrs.resource = value;
-      break;
-    default:
-      break;
   }
 }

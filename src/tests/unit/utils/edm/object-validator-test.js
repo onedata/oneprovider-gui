@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import EdmPropertyFactory, { setPropertyValue } from 'oneprovider-gui/utils/edm/property-factory';
+import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
@@ -20,7 +20,7 @@ describe('Unit | Utility | edm/object-validator', function () {
     const helper = new Helper();
     helper.initObject();
     helper.makeAllPropertiesValid();
-    setPropertyValue(helper.object.edmProperties[0], '');
+    helper.object.edmProperties[0].setSupportedValue('');
     helper.initValidator();
 
     expect(helper.validator.isValid).to.be.false;
@@ -51,9 +51,9 @@ class Helper {
   makeAllPropertiesValid() {
     for (const property of this.object.edmProperties) {
       if (property.hasPredefinedValues) {
-        setPropertyValue(property, property.predefinedValues[0].value);
+        property.setSupportedValue(property.predefinedValues[0].value);
       } else {
-        setPropertyValue(property, 'dummy');
+        property.setSupportedValue('dummy');
       }
     }
   }

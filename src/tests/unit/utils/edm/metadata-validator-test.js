@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import EdmPropertyFactory, { setPropertyValue } from 'oneprovider-gui/utils/edm/property-factory';
+import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
@@ -12,9 +12,9 @@ describe('Unit | Utility | edm/metadata-validator', function () {
     for (const object of helper.metadata.edmObjects) {
       for (const property of object.edmProperties) {
         if (property.hasPredefinedValues) {
-          setPropertyValue(property, property.predefinedValues[0].value);
+          property.setSupportedValue(property.predefinedValues[0].value);
         } else {
-          setPropertyValue(property, 'dummy');
+          property.setSupportedValue('dummy');
         }
       }
     }
