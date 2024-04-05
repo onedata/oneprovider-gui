@@ -8,7 +8,7 @@
  */
 
 import EdmAttrs from './attrs';
-import { isEmptyXmlNode, isSupportedXmlProperty } from './xml-utils';
+import { isEmptyXmlNode, isSupportedXmlProperty, isXmlPropertyCompatibleWithObject } from './xml-utils';
 import EdmPropertiesList from './properties-list';
 import { sortProperties } from './sort';
 
@@ -104,7 +104,12 @@ export default class EdmObject {
       }
     }
     for (const node of this.xmlElement.childNodes) {
-      if (!isEmptyXmlNode(node) && !isSupportedXmlProperty(node)) {
+      if (
+        !isEmptyXmlNode(node) && (
+          !isSupportedXmlProperty(node) ||
+          !isXmlPropertyCompatibleWithObject(node, this.xmlElement)
+        )
+      ) {
         return true;
       }
     }

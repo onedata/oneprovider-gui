@@ -47,7 +47,7 @@ export default class EdmMetadata {
     }
   }
 
-  /** @type {Array<EdmObjectsList>} */
+  /** @type {EdmObjectsList} */
   #edmObjectsList = undefined;
   /** @type {Array<EdmObject>} */
   #edmObjects = undefined;

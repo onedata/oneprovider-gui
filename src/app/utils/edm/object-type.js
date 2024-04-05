@@ -18,4 +18,10 @@ const EdmObjectType = Object.freeze({
 
 export const supportedEdmObjectTypes = Object.values(EdmObjectType);
 
+export const EdmObjectTagName = Object.freeze({
+  [EdmObjectType.Aggregation]: 'ore:Aggregation',
+  [EdmObjectType.ProvidedCHO]: 'edm:ProvidedCHO',
+  [EdmObjectType.WebResource]: 'edm:WebResource',
+});
+
 export default EdmObjectType;

@@ -283,7 +283,7 @@ export const exampleEdmEuropeanaXml = `<?xml version="1.0"  encoding="UTF-8" ?>
     </ore:Aggregation>
   </rdf:RDF>`;
 
-export const generateEdmSurplusXml = `<?xml version="1.0" encoding="UTF-8"?>
+export const exampleEdmSurplusXml = `<?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:adms="http://www.w3.org/ns/adms#"
     xmlns:cc="http://creativecommons.org/ns#"
     xmlns:crm="http://www.cidoc-crm.org/rdfs/cidoc_crm_v5.0.2_english_label.rdfs#"
@@ -337,4 +337,33 @@ export const generateEdmSurplusXml = `<?xml version="1.0" encoding="UTF-8"?>
                 <dcterms:conformsTo rdf:resource="http://iiif.io/api/image"/>
                 <doap:implements rdf:resource="http://iiif.io/api/image/2/level2.json"/>
     </svcs:Service>
+</rdf:RDF>`;
+
+export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:dcterms="http://purl.org/dc/terms/"
+  xmlns:edm="http://www.europeana.eu/schemas/edm/"
+  xmlns:ore="http://www.openarchives.org/ore/terms/">
+  <edm:ProvidedCHO>
+    <dc:contributor>a</dc:contributor>
+    <dc:creator>a</dc:creator>
+    <dc:description>a</dc:description>
+    <dc:format>IGES</dc:format>
+    <dc:language>a</dc:language>
+    <dc:subject>a</dc:subject>
+    <dc:title>a</dc:title>
+    <dc:type>a</dc:type>
+    <dcterms:created>a</dcterms:created>
+    <edm:type>a</edm:type>
+    <edm:dataProvider>a</edm:dataProvider>
+  </edm:ProvidedCHO>
+  <ore:Aggregation>
+    <edm:dataProvider>a</edm:dataProvider>
+    <edm:object rdf:resource="https://onedata.org/assets/images/logo.svg"/>
+    <edm:provider>Phoconsortium</edm:provider>
+    <edm:rights rdf:resource="https://creativecommons.org/licenses/by-sa/4.0/"/>
+  </ore:Aggregation>
 </rdf:RDF>`;

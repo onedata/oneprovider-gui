@@ -8,7 +8,7 @@
  */
 
 import EdmPropertyFactory from './property-factory';
-import { isSupportedXmlProperty } from './xml-utils';
+import { isSupportedXmlProperty, isXmlPropertyCompatibleWithObject } from './xml-utils';
 
 export default class EdmPropertiesList {
   /**
@@ -69,7 +69,10 @@ export default class EdmPropertiesList {
   toArray() {
     const array = [];
     for (const propertyXmlElement of this.xmlElement.children) {
-      if (isSupportedXmlProperty(propertyXmlElement)) {
+      if (
+        isSupportedXmlProperty(propertyXmlElement) &&
+        isXmlPropertyCompatibleWithObject(propertyXmlElement, this.xmlElement)
+      ) {
         array.push(EdmPropertyFactory.createPropertyFromXmlElement(propertyXmlElement));
       }
     }

@@ -10,14 +10,14 @@ import Component from '@ember/component';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
-import { exampleEdmEuropeanaXml } from 'oneprovider-gui/utils/mock-data';
+import { exampleEdmValidXml as exampleXml } from 'oneprovider-gui/utils/mock-data';
 
 export default Component.extend({
   init() {
     this._super(...arguments);
     // uncomment for initial metadata
     // const edmMetadata = EdmMetadataFactory.createInitialMetadata();
-    const edmMetadata = EdmMetadataFactory.fromXml(exampleEdmEuropeanaXml);
+    const edmMetadata = EdmMetadataFactory.fromXml(exampleXml);
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       ownerSource: this,
       edmMetadata,
