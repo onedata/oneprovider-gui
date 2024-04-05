@@ -43,6 +43,29 @@
           {{/form.group}}
         {{/bs-form}}
       </div>
+      <div class="row publish-row">
+        <div class="publish-checkbox-group {{if isPublishDisabled "disabled"}}">
+          <OneCheckbox
+            class="one-checkbox-understand"
+            @checked={{isPublishCheckboxChecked}}
+            @isReadOnly={{isPublishDisabled}}
+            @update={{action "togglePublishCheckbox"}}
+          />
+          <div
+            class="text-publish {{unless isPublishDisabled "clickable"}}"
+            onclick={{unless isPublishDisabled (action "togglePublishCheckbox")}}
+          >
+            {{tt this "publishText"}}
+          </div>
+        </div>
+        {{#if publishTip}}
+          <OneLabelTip
+            class="publish-label-tip"
+            @tooltipClass="tooltip-lg"
+            @title={{publishTip}}
+          />
+        {{/if}}
+      </div>
     </div>
   {{/modal.body}}
   {{#modal.footer}}
