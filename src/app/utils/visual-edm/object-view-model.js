@@ -27,14 +27,31 @@ const ObjectViewModel = EmberObject.extend({
    */
   model: undefined,
 
+  //#region state
+
   /**
    * @type {EdmObjectValidator}
    */
   objectValidator: undefined,
 
+  /**
+   * @type {ComputedProperty<EdmPropertyGroup>}
+   */
+  prevEdmPropertyGroups: undefined,
+
+  //#endregion
+
   edmProperties: reads('model.edmProperties'),
 
   edmObjectType: reads('model.edmObjectType'),
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    this._super(...arguments);
+    this.destroyPrevEdmPropertyGroups();
+  },
 
   /**
    * XML tags of poroperties that are defined in object and could have only single
@@ -56,13 +73,16 @@ const ObjectViewModel = EmberObject.extend({
   edmPropertyGroups: computed('edmProperties', function edmPropertyGroups() {
     const sortedProperties = sortProperties(this.edmProperties, 'visual');
     const groupedProperties = _.groupBy(sortedProperties, 'xmlTagName');
-    return Object.values(groupedProperties).map(edmProperties =>
+    const newGroups = Object.values(groupedProperties).map(edmProperties =>
       PropertyGroupViewModel.create({
         visualEdmViewModel: this.visualEdmViewModel,
         edmProperties,
         objectViewModel: this,
       })
     );
+    this.destroyPrevEdmPropertyGroups();
+    this.set('prevEdmPropertyGroups', newGroups);
+    return newGroups;
   }),
 
   updateView() {
@@ -91,6 +111,19 @@ const ObjectViewModel = EmberObject.extend({
       const pvm = group.findPropertyViewModel(edmProperty);
       if (pvm) {
         return pvm;
+      }
+    }
+  },
+
+  destroyPrevEdmPropertyGroups() {
+    if (!this.prevEdmPropertyGroups) {
+      return;
+    }
+    for (const propertyGroupViewModel of this.prevEdmPropertyGroups) {
+      try {
+        propertyGroupViewModel?.destroy();
+      } catch {
+        // ignore
       }
     }
   },

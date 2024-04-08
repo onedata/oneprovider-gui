@@ -5,7 +5,6 @@ import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { afterEach } from 'mocha';
-import sinon from 'sinon';
 import { settled } from '@ember/test-helpers';
 
 describe('Unit | Utility | edm/metadata-validator', function () {
@@ -35,12 +34,9 @@ describe('Unit | Utility | edm/metadata-validator', function () {
     const helper = new Helper();
     helper.initMetadata();
     helper.initValidator();
-    const destroyers = [];
+    const propertyValidators = [];
     for (const objectValidator of helper.validator.objectValidators) {
-      for (const propertyValidator of objectValidator.propertyValidators) {
-        const destroyerSpy = sinon.spy(propertyValidator, 'destroy');
-        destroyers.push(destroyerSpy);
-      }
+      propertyValidators.push(...objectValidator.propertyValidators);
     }
 
     // when
@@ -49,8 +45,8 @@ describe('Unit | Utility | edm/metadata-validator', function () {
     expect(helper.validator.isDestroyed).to.be.true;
 
     // then
-    for (const destroyerSpy of destroyers) {
-      expect(destroyerSpy).to.be.calledOnce;
+    for (const propertyValidator of propertyValidators) {
+      expect(propertyValidator.isDestroyed).to.be.true;
     }
   });
 });

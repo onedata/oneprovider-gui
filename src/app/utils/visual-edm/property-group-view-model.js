@@ -29,11 +29,20 @@ const PropertyGroupViewModel = EmberObject.extend({
    */
   edmProperties: undefined,
 
+  //#region state
+
+  prevPropertiesViewModels: undefined,
+
+  //#endregion
+
+  /**
+   * @type {ComputedProperty<Array<PropertyViewModel>>}
+   */
   propertiesViewModels: computed(
     'objectViewModel.validator.propertyValidators',
     'edmProperties',
     function propertiesViewModels() {
-      return this.edmProperties.map(edmProperty => {
+      const newProperties = this.edmProperties.map(edmProperty => {
         const validator = this.objectViewModel.validator?.propertyValidators.find(v =>
           v.edmProperty === edmProperty
         );
@@ -43,6 +52,9 @@ const PropertyGroupViewModel = EmberObject.extend({
           model: edmProperty,
         });
       });
+      this.destroyPrevPropertiesViewModels();
+      this.set('prevPropertiesViewModels', newProperties);
+      return newProperties;
     }
   ),
 
@@ -53,6 +65,27 @@ const PropertyGroupViewModel = EmberObject.extend({
    */
   findPropertyViewModel(edmProperty) {
     return this.propertiesViewModels.find(pvm => pvm.model.equals(edmProperty));
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    this._super(...arguments);
+    this.destroyPrevPropertiesViewModels();
+  },
+
+  destroyPrevPropertiesViewModels() {
+    if (!this.prevPropertiesViewModels) {
+      return;
+    }
+    for (const propertyViewModel of this.prevPropertiesViewModels) {
+      try {
+        propertyViewModel?.destroy();
+      } catch {
+        // ignore
+      }
+    }
   },
 });
 

@@ -19,7 +19,6 @@ export default Component.extend({
     // const edmMetadata = EdmMetadataFactory.createInitialMetadata();
     const edmMetadata = EdmMetadataFactory.fromXml(exampleXml);
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
-      ownerSource: this,
       edmMetadata,
       validator: EdmMetadataValidator.create({ edmMetadata }),
       isReadOnly: false,

@@ -6,7 +6,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { observer } from '@ember/object';
+import EmberObject, { computed } from '@ember/object';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { reads } from '@ember/object/computed';
 import ObjectViewModel from './object-view-model';
@@ -37,6 +37,11 @@ const VisualEdmViewModel = EmberObject.extend({
 
   component: undefined,
 
+  /**
+   * @type {Array<Utils.VisualEdm.ObjectViewModel>}
+   */
+  prevObjects: undefined,
+
   //#endregion
 
   model: reads('edmMetadata'),
@@ -46,15 +51,16 @@ const VisualEdmViewModel = EmberObject.extend({
   hasExtraData: reads('edmMetadata.hasExtraData'),
 
   /**
-   * @type {Array<Utils.VisualEdm.ObjectViewModel>}
+   * @type {ComputedProperty<Array<Utils.VisualEdm.ObjectViewModel>>}
    */
-  objects: undefined,
-
-  edmMetadataObserver: observer(
+  objects: computed(
     'edmMetadata',
     'validator',
-    function edmMetadataObserver() {
-      this.set('objects', this.createObjectsViewModels());
+    function objects() {
+      const newObjects = this.createObjectsViewModels();
+      this.destroyPrevObjects();
+      this.set('prevObjects', newObjects);
+      return newObjects;
     }
   ),
 
@@ -63,7 +69,14 @@ const VisualEdmViewModel = EmberObject.extend({
     if (!this.edmMetadata) {
       throw new Error('edmMetadata must be provided for VisualEdmViewModel');
     }
-    this.edmMetadataObserver();
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    this._super(...arguments);
+    this.destroyPrevObjects();
   },
 
   createObjectsViewModels() {
@@ -98,6 +111,19 @@ const VisualEdmViewModel = EmberObject.extend({
   deleteObject(object) {
     this.edmMetadata.deleteObject(object);
     this.updateView();
+  },
+
+  destroyPrevObjects() {
+    if (!this.prevObjects) {
+      return;
+    }
+    for (const object of this.prevObjects) {
+      try {
+        object?.destroy();
+      } catch {
+        // ignore
+      }
+    }
   },
 });
 
