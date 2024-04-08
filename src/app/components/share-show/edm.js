@@ -114,6 +114,11 @@ export default Component.extend(I18n, {
    */
   mode: defaultMode,
 
+  /**
+   * @type {EdmMetadataValidator}
+   */
+  tmpSourceValidator: undefined,
+
   //#endregion
 
   /**
@@ -239,6 +244,7 @@ export default Component.extend(I18n, {
     this._super(...arguments);
     this.visualEdmViewModel.validator?.destroy();
     this.visualEdmViewModel?.destroy();
+    this.tmpSourceValidator?.destroy();
   },
 
   setupAceEditor(aceEditor) {
@@ -321,6 +327,7 @@ export default Component.extend(I18n, {
       }
       edmMetadata = EdmMetadataFactory.fromXml(this.currentXmlValue);
       validator = EdmMetadataValidator.create({ edmMetadata });
+      this.tmpSourceValidator?.destroy();
       this.set('tmpSourceValidator', validator);
       this.set('modelXmlSyncState', EdmModelXmlSyncState.Parseable);
     } catch (error) {
