@@ -15,7 +15,7 @@ import { camelize, capitalize } from '@ember/string';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';

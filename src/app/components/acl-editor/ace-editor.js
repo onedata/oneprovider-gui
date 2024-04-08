@@ -13,7 +13,7 @@ import { reads, collect } from '@ember/object/computed';
 import { or } from 'ember-awesome-macros';
 import { numberToTree, treeToNumber } from 'oneprovider-gui/utils/acl-permissions-converter';
 import aclPermissionsSpecification from 'oneprovider-gui/utils/acl-permissions-specification';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';

@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import { observer, computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { resolve } from 'rsvp';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';

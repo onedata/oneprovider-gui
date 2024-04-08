@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import { computed, set, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { not, or, notEmpty, conditional, isEmpty, and, number, promise } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';

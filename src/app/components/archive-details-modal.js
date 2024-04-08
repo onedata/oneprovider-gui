@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { computed, observer } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 import ArchivePropertiesViewModel from 'oneprovider-gui/utils/archive-properties-view-model';

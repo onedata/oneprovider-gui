@@ -13,7 +13,7 @@ import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 
 const basicTabs = Object.freeze(['waiting', 'ongoing', 'ended']);
 const prioritisedBasicTabs = Object.freeze(['ongoing', 'waiting', 'ended']);

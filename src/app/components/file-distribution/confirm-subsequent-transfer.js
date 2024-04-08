@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { computed, get } from '@ember/object';
 import _ from 'lodash';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';

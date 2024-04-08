@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { or, raw, not } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {

@@ -16,7 +16,7 @@ import EmberObject, { computed, get, set, setProperties } from '@ember/object';
 import _ from 'lodash';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { htmlSafe, camelize } from '@ember/string';
 import { A } from '@ember/array';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';

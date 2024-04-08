@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { or, tag, conditional, eq, raw, promise, bool } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import computedT from 'onedata-gui-common/utils/computed-t';

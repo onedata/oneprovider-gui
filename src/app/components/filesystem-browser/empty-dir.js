@@ -7,7 +7,7 @@
  */
 
 import FbEmptyDir from 'oneprovider-gui/components/file-browser/fb-empty-dir';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { reads } from '@ember/object/computed';
 import { or } from 'ember-awesome-macros';
 

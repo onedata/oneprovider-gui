@@ -24,7 +24,7 @@ import { dasherize } from '@ember/string';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import {
   actionContext,

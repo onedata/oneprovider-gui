@@ -13,7 +13,7 @@ import { reads } from '@ember/object/computed';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { promise } from 'ember-awesome-macros';
 import { resolve } from 'rsvp';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import ShareFilesystemBrowserModel, {
   ShareRootDirClass,
   shareRootId,

@@ -11,7 +11,7 @@ import { get, computed, getProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { promise } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { getTimeSeriesMetricNamesWithAggregator } from 'onedata-gui-common/utils/time-series';

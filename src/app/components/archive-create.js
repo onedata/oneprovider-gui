@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';

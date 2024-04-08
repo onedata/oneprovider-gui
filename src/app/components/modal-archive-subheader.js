@@ -9,7 +9,7 @@
 
 import { alias } from '@ember/object/computed';
 import { raw, or, conditional } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import ModalFileSubheader from 'oneprovider-gui/components/modal-file-subheader';
 import layout from 'oneprovider-gui/templates/components/modal-file-subheader';
 

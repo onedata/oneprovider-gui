@@ -12,7 +12,7 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { equal, raw, and, not, array, or, conditional } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';

@@ -12,7 +12,7 @@ import { reads } from '@ember/object/computed';
 import { and, not, or } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import protectionIcons from 'oneprovider-gui/utils/dataset-protection/protection-icons';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';

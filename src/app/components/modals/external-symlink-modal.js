@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { or, raw } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
