@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11845 Fixed exiting `ember serve` on error and SCSS hot reloading
 * VFS-10262 Made i18n mixin non-component
 * VFS-11811 Changed the order of physical locations
 * VFS-11757 Changed placeholder and status icon when dir stats not ready
