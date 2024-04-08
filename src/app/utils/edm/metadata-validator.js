@@ -72,16 +72,28 @@ const EdmMetadataValidator = EmberObject.extend({
       let validator = this.objectValidatorsCache.get(edmObject);
       if (!validator) {
         validator = EdmObjectValidator.create({ edmObject });
+        this.objectValidatorsCache.get(edmObject)?.destroy();
         this.objectValidatorsCache.set(edmObject, validator);
       }
       return validator;
     });
-    for (const edmObject of this.objectValidatorsCache.keys()) {
-      if (!resultValidators.includes(edmObject)) {
+    for (const [edmObject, validator] of this.objectValidatorsCache.entries()) {
+      if (!resultValidators.includes(validator)) {
+        this.objectValidatorsCache.get(edmObject)?.destroy();
         this.objectValidatorsCache.delete(edmObject);
       }
     }
     return resultValidators;
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    this._super(...arguments);
+    for (const validator of this.objectValidatorsCache.values()) {
+      validator?.destroy();
+    }
   },
 });
 

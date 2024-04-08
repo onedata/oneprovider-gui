@@ -26,6 +26,15 @@ export default Component.extend({
     }));
   },
 
+  /**
+   * @override
+   */
+  willDestroy() {
+    this._super(...arguments);
+    this.visualEdmViewModel?.validator?.destroy();
+    this.visualEdmViewModel?.destroy();
+  },
+
   actions: {
     generateXml() {
       console.log(this.visualEdmViewModel.edmMetadata.stringify());

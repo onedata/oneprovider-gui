@@ -4,8 +4,15 @@ import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
+import { afterEach } from 'mocha';
+import sinon from 'sinon';
+import { settled } from '@ember/test-helpers';
 
 describe('Unit | Utility | edm/metadata-validator', function () {
+  afterEach(function () {
+    this.helper?.destroy();
+  });
+
   it('is valid if all objects are valid', function () {
     const helper = new Helper();
     helper.initMetadata();
@@ -21,6 +28,30 @@ describe('Unit | Utility | edm/metadata-validator', function () {
     helper.initValidator();
 
     expect(helper.validator.isValid).to.be.true;
+  });
+
+  it('destroys all property validators on destroy', async function () {
+    // given
+    const helper = new Helper();
+    helper.initMetadata();
+    helper.initValidator();
+    const destroyers = [];
+    for (const objectValidator of helper.validator.objectValidators) {
+      for (const propertyValidator of objectValidator.propertyValidators) {
+        const destroyerSpy = sinon.spy(propertyValidator, 'destroy');
+        destroyers.push(destroyerSpy);
+      }
+    }
+
+    // when
+    helper.validator.destroy();
+    await settled();
+    expect(helper.validator.isDestroyed).to.be.true;
+
+    // then
+    for (const destroyerSpy of destroyers) {
+      expect(destroyerSpy).to.be.calledOnce;
+    }
   });
 });
 
@@ -39,5 +70,10 @@ class Helper {
       edmMetadata: this.metadata,
     });
     return this.validator;
+  }
+  destroy() {
+    if (!this.validator?.isDestroyed && !this.validator?.isDestroying) {
+      this.validator?.destroy();
+    }
   }
 }

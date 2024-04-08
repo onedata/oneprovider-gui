@@ -12,7 +12,7 @@ import { not, and, raw, or, bool, conditional, eq, notEqual, array } from 'ember
 import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
-import Edmvalidator from 'oneprovider-gui/utils/edm/metadata-validator';
+import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { set, setProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { debounce } from '@ember/runloop';
@@ -104,6 +104,12 @@ export default Component.extend(I18n, {
   isXmlValueInvalid: false,
 
   /**
+   * Stores previous metadata validator object to detroy it on recomputation.
+   * @type {EdmMetadataValidator}
+   */
+  prevValidator: undefined,
+
+  /**
    * @type {'visual'|'xml'}
    */
   mode: defaultMode,
@@ -111,21 +117,27 @@ export default Component.extend(I18n, {
   //#endregion
 
   /**
-   * @type {Edmvalidator}
+   * @type {EdmMetadataValidator}
    */
   validator: computed(
     'modelXmlSyncState',
     'visualEdmViewModel.validator',
     'tmpSourceValidator',
     function validator() {
+      let newValidator = null;
       switch (this.modelXmlSyncState) {
         case EdmModelXmlSyncState.Synced:
-          return this.visualEdmViewModel.validator;
+          newValidator = this.visualEdmViewModel.validator;
+          break;
         case EdmModelXmlSyncState.Parseable:
-          return this.tmpSourceValidator;
+          newValidator = this.tmpSourceValidator;
+          break;
         default:
-          return null;
+          break;
       }
+      this.prevValidator?.destroy();
+      this.set('prevValidator', newValidator);
+      return newValidator;
     }
   ),
 
@@ -211,13 +223,22 @@ export default Component.extend(I18n, {
         metadataFactory.createEmptyMetadata() : metadataFactory.createInitialMetadata();
     }
     if (!this.isXmlValueInvalid) {
-      const validator = Edmvalidator.create({ edmMetadata });
+      const validator = EdmMetadataValidator.create({ edmMetadata });
       this.set('visualEdmViewModel', VisualEdmViewModel.create({
         edmMetadata,
         validator: validator,
         isReadOnly: this.readonly,
       }));
     }
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    this._super(...arguments);
+    this.visualEdmViewModel.validator?.destroy();
+    this.visualEdmViewModel?.destroy();
   },
 
   setupAceEditor(aceEditor) {
@@ -254,7 +275,7 @@ export default Component.extend(I18n, {
     // TODO: VFS-11911 try to optimize: update model, do not create new model instance
     try {
       edmMetadata = EdmMetadataFactory.fromXml(this.currentXmlValue);
-      validator = Edmvalidator.create({ edmMetadata });
+      validator = EdmMetadataValidator.create({ edmMetadata });
       this.set('isXmlValueInvalid', false);
     } catch (error) {
       if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
@@ -263,6 +284,7 @@ export default Component.extend(I18n, {
       this.set('isXmlValueInvalid', true);
     }
     if (!this.isXmlValueInvalid) {
+      this.visualEdmViewModel.validator?.destroy();
       setProperties(this.visualEdmViewModel, {
         edmMetadata,
         validator,
@@ -298,7 +320,7 @@ export default Component.extend(I18n, {
         return;
       }
       edmMetadata = EdmMetadataFactory.fromXml(this.currentXmlValue);
-      validator = Edmvalidator.create({ edmMetadata });
+      validator = EdmMetadataValidator.create({ edmMetadata });
       this.set('tmpSourceValidator', validator);
       this.set('modelXmlSyncState', EdmModelXmlSyncState.Parseable);
     } catch (error) {

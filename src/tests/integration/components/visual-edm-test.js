@@ -10,9 +10,14 @@ import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import { findByText } from '../../helpers/find';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
+import { afterEach } from 'mocha';
 
 describe('Integration | Component | visual-edm', function () {
   setupRenderingTest();
+
+  afterEach(function () {
+    this.helper?.destroy();
+  });
 
   it('renders ProvidedCHO with some EDM properties with values in editor mode', async function () {
     const factory = EdmMetadataFactory;
@@ -789,5 +794,9 @@ class Helper {
       viewModel: this.visualEdmViewModel,
     });
     await render(hbs`<VisualEdm @viewModel={{viewModel}} />`);
+  }
+  destroy() {
+    this.visualEdmViewModel?.validator?.destroy();
+    this.visualEdmViewModel?.destroy();
   }
 }
