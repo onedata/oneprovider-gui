@@ -18,6 +18,9 @@ export function namespacedAttr(attrName) {
 }
 
 export default class EdmAttrs {
+  static #gettableOwnPropertySet = new Set(['__xmlElement', 'xmlAttributes']);
+  static #settableOwnPropertySet = new Set(['__xmlElement']);
+
   /**
    * @param {Element} xmlElement
    */
@@ -28,17 +31,13 @@ export default class EdmAttrs {
         if (typeof name !== 'string') {
           return undefined;
         }
-        if (name === '__xmlElement') {
-          return target.__xmlElement;
-        } else if (name === 'xmlAttributes') {
-          return target.xmlAttributes;
-        } else {
-          return target.__xmlElement.getAttribute(namespacedAttr(name));
-        }
+        return EdmAttrs.#gettableOwnPropertySet.has(name) ?
+          target[name] :
+          target.__xmlElement.getAttribute(namespacedAttr(name));
       },
       set(target, name, value) {
-        if (name === '__xmlElement') {
-          target.__xmlElement = value;
+        if (EdmAttrs.#settableOwnPropertySet.has(name)) {
+          target[name] = value;
         } else {
           if (value == null) {
             target.__xmlElement.removeAttribute(namespacedAttr(name));

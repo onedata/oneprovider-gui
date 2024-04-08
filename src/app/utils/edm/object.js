@@ -143,8 +143,7 @@ export class InvalidEdmObjectType extends Error {
    * @param {string} edmObjectType
    */
   constructor(edmObjectType) {
-    super(edmObjectType);
-    this.message = `Invalid EDM Object class: ${edmObjectType}`;
+    super(`Invalid EDM Object class: ${edmObjectType}`);
     this.name = 'InvalidEdmObjectType';
   }
 }

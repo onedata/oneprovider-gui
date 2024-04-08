@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupTest } from 'ember-mocha';
-import EdmObject from 'oneprovider-gui/utils/edm/object';
+import EdmObject, { InvalidEdmObjectType } from 'oneprovider-gui/utils/edm/object';
 import EdmProperty from 'oneprovider-gui/utils/edm/property';
 import EdmMetadata from 'oneprovider-gui/utils/edm/metadata';
 import globals from 'onedata-gui-common/utils/globals';
@@ -155,5 +155,17 @@ describe('Unit | Utility | edm/object', function () {
     // extra step: changing data of EDM property inside
     contributorProperty.value = 'Test';
     expect(xmlPropertyElement.innerHTML).to.equal('Test');
+  });
+
+  it('has InvalidEdmObjectType error class which has own string representation', function () {
+    try {
+      throw new InvalidEdmObjectType('hello:world');
+    } catch (error) {
+      expect(error instanceof InvalidEdmObjectType).to.be.true;
+      expect(error.name).to.equal('InvalidEdmObjectType');
+      expect(error.toString()).to.equal(
+        'InvalidEdmObjectType: Invalid EDM Object class: hello:world'
+      );
+    }
   });
 });

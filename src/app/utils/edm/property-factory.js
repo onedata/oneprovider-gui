@@ -9,7 +9,7 @@
 
 import EdmProperty from './property';
 import _ from 'lodash';
-import { EdmPropertyValueType, allSpecs } from './property-spec';
+import { allSpecs } from './property-spec';
 import EdmMetadata from './metadata';
 
 /**
