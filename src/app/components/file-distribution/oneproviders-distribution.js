@@ -15,7 +15,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { Promise } from 'rsvp';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import _ from 'lodash';
 import sortByProperties from 'onedata-gui-common/utils/ember/sort-by-properties';
@@ -559,7 +559,7 @@ export default Component.extend(I18n, {
       this.resolveStartTransferPromise();
     },
     getProvidersUrl(...args) {
-        return this.get('getProvidersUrl')(...args);
+      return this.get('getProvidersUrl')(...args);
     },
   },
 });

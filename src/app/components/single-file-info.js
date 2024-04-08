@@ -7,7 +7,7 @@
  */
 
 import Component from '@ember/component';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { conditional, equal, raw, promise, eq, or, and } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { computed, getProperties } from '@ember/object';

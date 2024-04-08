@@ -13,7 +13,7 @@ import Component from '@ember/component';
 import { htmlSafe } from '@ember/string';
 import { observer } from '@ember/object';
 import $ from 'jquery';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { scheduleOnce } from '@ember/runloop';
 import dom from 'onedata-gui-common/utils/dom';
 import globals from 'onedata-gui-common/utils/globals';

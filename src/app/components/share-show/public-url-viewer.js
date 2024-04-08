@@ -6,7 +6,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 import Component from '@ember/component';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { conditional, raw, collect, and, tag, bool, array, not, equal } from 'ember-awesome-macros';

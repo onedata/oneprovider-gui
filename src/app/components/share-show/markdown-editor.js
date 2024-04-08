@@ -8,7 +8,7 @@
 
 import Component from '@ember/component';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { conditional, equal, raw, and, isEmpty } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import autosize from 'onedata-gui-common/utils/autosize';

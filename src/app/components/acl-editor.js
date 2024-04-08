@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import { getProperties, setProperties, get, computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { array } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';

@@ -27,7 +27,7 @@ import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { htmlSafe } from '@ember/string';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { and, equal, array, collect, raw } from 'ember-awesome-macros';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';

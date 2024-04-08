@@ -10,7 +10,7 @@ import EmberObject, { get, setProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-parameters-suggestions';
 import { Promise, all as allFulfilled, allSettled } from 'rsvp';

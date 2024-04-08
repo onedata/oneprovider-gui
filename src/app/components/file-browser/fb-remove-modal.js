@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 import { get, computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import { inject as service } from '@ember/service';
