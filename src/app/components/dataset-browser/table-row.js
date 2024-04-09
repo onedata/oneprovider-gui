@@ -11,7 +11,7 @@ import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
 import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { or, raw, conditional } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 
 const RowModel = EmberObject.extend({
   /**

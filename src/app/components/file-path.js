@@ -18,7 +18,7 @@ import { debounce } from '@ember/runloop';
 import { promise, lte, or, array, raw, equal } from 'ember-awesome-macros';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { getArchiveRelativeFilePath } from 'oneprovider-gui/utils/file-archive-info';
 import { datasetSeparator, directorySeparator, ellipsisString } from 'oneprovider-gui/components/file-path-renderer';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';

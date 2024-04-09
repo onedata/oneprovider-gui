@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { collect, notEmpty } from '@ember/object/computed';
 import { sum, array, equal, raw, or, and } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';

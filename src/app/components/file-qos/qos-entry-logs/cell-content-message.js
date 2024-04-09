@@ -8,7 +8,7 @@
 
 import Component from '@ember/component';
 import { computed } from '@ember/object';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import parseLogError from 'oneprovider-gui/utils/create-error-message-spec';
 import { inject as service } from '@ember/service';
 import { or, getBy, raw, eq, conditional } from 'ember-awesome-macros';

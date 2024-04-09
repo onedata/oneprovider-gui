@@ -18,7 +18,7 @@ import moment from 'moment';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { later, throttle } from '@ember/runloop';
 import { v4 as uuid } from 'ember-uuid';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import _ from 'lodash';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import globals from 'onedata-gui-common/utils/globals';

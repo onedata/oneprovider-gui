@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 import { gt, conditional, raw, or, and, eq, tag } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
 
 export default Component.extend(I18n, {

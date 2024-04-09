@@ -15,7 +15,7 @@
 import { inject as service } from '@ember/service';
 import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { tag } from 'ember-awesome-macros';

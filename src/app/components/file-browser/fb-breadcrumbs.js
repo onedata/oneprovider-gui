@@ -17,7 +17,7 @@ import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
 import filterBreadcrumbsItems from 'oneprovider-gui/utils/filter-breadcrumbs-items';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 import { inject as service } from '@ember/service';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';

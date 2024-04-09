@@ -12,7 +12,7 @@ import { reads } from '@ember/object/computed';
 import { scheduleOnce } from '@ember/runloop';
 import { inject as service } from '@ember/service';
 import { tag, not } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
 import DropdownField from 'onedata-gui-common/utils/form-component/dropdown-field';
 import { translateEntrySeverity, EntrySeverity, entrySeveritiesArray } from 'onedata-gui-common/utils/audit-log';

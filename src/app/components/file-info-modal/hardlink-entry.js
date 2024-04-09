@@ -8,7 +8,7 @@
 
 import Component from '@ember/component';
 import { computed } from '@ember/object';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 

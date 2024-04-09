@@ -1,6 +1,6 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import atmWorkflowExecutionSummaryIndex from 'oneprovider-gui/utils/atm-workflow-execution-summary-index';

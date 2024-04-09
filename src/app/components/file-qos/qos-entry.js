@@ -11,7 +11,7 @@ import { tag, getBy, raw, or, and, bool } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed, observer } from '@ember/object';
 import { camelize } from '@ember/string';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';

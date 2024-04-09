@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { get, computed, observer } from '@ember/object';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { cancel, later, schedule } from '@ember/runloop';
 import { inject as service } from '@ember/service';

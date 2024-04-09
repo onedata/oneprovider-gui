@@ -11,7 +11,7 @@ import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import moment from 'moment';
 import { conditional, raw, not, or, eq } from 'ember-awesome-macros';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
