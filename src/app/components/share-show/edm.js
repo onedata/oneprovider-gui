@@ -7,7 +7,7 @@
  */
 
 import Component from '@ember/component';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { not, and, raw, or, bool, conditional, eq, notEqual, array } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';

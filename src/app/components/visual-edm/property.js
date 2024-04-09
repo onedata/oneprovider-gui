@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import { set, computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { htmlSafe } from '@ember/string';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import { EdmPropertyValueType, EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
