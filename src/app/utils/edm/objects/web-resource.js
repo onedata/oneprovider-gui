@@ -13,10 +13,9 @@ import EdmObjectType from '../object-type';
 export default class WebResource extends EdmObject {
   constructor(options = {}) {
     super({
+      ...options,
       edmObjectType: EdmObjectType.WebResource,
       namespace: 'edm',
-      xmlDocument: options.xmlDocument,
-      xmlElement: options.xmlElement,
     });
   }
 }

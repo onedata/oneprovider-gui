@@ -20,7 +20,7 @@
 .edm-property-group-box {
   border: 1px solid $main-border-color;
   border-radius: $border-radius-base;
-  background-color: $main-content-light-background;
+  background-color: $main-tabbed-content-background;
   @media (min-width: $screen-sm-min) {
     .one-collapsible-list-header {
       padding-top: $padding-large-vertical * 1.75;

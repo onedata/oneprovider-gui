@@ -50,6 +50,11 @@ const PropertyViewModel = EmberObject.extend({
    */
   isAnimateAttentionQueued: false,
 
+  /**
+   * Cannot use `reads` here, because Ember internals crash on "magic" Proxy constructor
+   * trying to access Proxy's properties.
+   * @type {ComputedProperty<string>}
+   */
   referenceValue: computed('model.attrs', function referenceValue() {
     return this.model.attrs.resource;
   }),
@@ -64,7 +69,6 @@ const PropertyViewModel = EmberObject.extend({
 
   isDeleteDisabled: computed(
     'objectViewModel.singleInstancePropertyTags',
-    'propertyGroupViewModel.propertiesViewModels.length',
     'isTheOnlyPropertyInGroup',
     function isDeleteDisabled() {
       return this.model.recommendation === EdmPropertyRecommendation.Mandatory &&
@@ -117,6 +121,11 @@ const PropertyViewModel = EmberObject.extend({
     }
   ),
 
+  /**
+   * Cannot use `reads` here, because Ember internals crash on "magic" Proxy constructor
+   * trying to access Proxy's properties.
+   * @type {ComputedProperty<string>}
+   */
   lang: computed('model.attrs', function lang() {
     return this.model.attrs.lang;
   }),

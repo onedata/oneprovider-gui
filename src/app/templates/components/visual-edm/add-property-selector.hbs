@@ -23,7 +23,7 @@
     >
     <PerfectScrollbarElement class="tags-container">
       <ul class="selector-list">
-        {{#each availableItems key="label" as |propertyItem|}}
+        {{#each filteredAvailableItems key="label" as |propertyItem|}}
           <li
             class={{concat-classes
               "selector-item"

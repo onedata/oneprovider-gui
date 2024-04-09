@@ -170,6 +170,9 @@ export default Component.extend(I18n, {
   async animateAttention() {
     try {
       await sleep(0);
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
       this.element.scrollIntoView({ block: 'center' });
       await animateCss(this.element, 'pulse-bg-variable');
     } finally {

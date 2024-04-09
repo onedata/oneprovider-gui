@@ -12,15 +12,15 @@
     min-height: 0;
   }
 
-  .basic-info-row {
-    display: flex;
-    align-items: flex-start;
+  .title-row {
+    align-items: center;
     flex-wrap: wrap;
-    @include vertical-flex-gap(0.75em);
-    .basic-info-col {
-      flex-grow: 1;
-      width: 20em;
-      padding-right: 1em;
+    flex-grow: 1;
+    @include vertical-flex-gap(0);
+    // using pixels because font sizes are different
+    margin-top: 4px;
+    .item-name {
+      margin-right: 1em;
     }
   }
 
@@ -30,15 +30,6 @@
     @include vertical-flex-gap($additional-margin-top: 0.75em);
     overflow: hidden;
     max-width: calc(100% - 1em);
-  }
-
-  .title-row {
-    align-items: baseline;
-    flex-wrap: wrap;
-    @include vertical-flex-gap;
-    .item-name {
-      margin-right: 1em;
-    }
   }
 
   .item-name {
@@ -99,6 +90,22 @@
   }
   .edm-object-invalid {
     margin-top: 1em;
+  }
+  .add-edm-property-btn {
+    display: flex;
+    align-items: center;
+    .one-icon.oneicon-plus {
+      top: 0;
+      font-size: 160%;
+    }
+    .text {
+      align-self: auto;
+      margin-left: 0.5em;
+    }
+    .three-dots {
+      margin-left: 12px;
+      margin-right: -4px;
+    }
   }
 }
 

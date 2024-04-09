@@ -136,6 +136,24 @@ class EdmProperty {
   }
 
   /**
+   * Gets either value or resource attribute depending on the supported value type (or
+   * actual value if both are supported).
+   * @returns {string|undefined}
+   */
+  getSupportedValue() {
+    switch (this.supportedValueType) {
+      case EdmPropertyValueType.Any:
+        return this.value || this.attrs.resource;
+      case EdmPropertyValueType.Literal:
+        return this.value;
+      case EdmPropertyValueType.Reference:
+        return this.attrs.resource;
+      default:
+        break;
+    }
+  }
+
+  /**
    * @param {EdmProperty} edmProperty
    * @returns {boolean}
    */

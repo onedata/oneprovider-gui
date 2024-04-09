@@ -25,8 +25,8 @@ import EdmObjectType from './object-type';
  * @typedef {Object} EdmPropertySpec
  * @property {EdmPropertyValueType} val How the data should be stored in the XML - see
  *   `EdmPropertyValueType`.
- * @property {boolean} basic If true, then the property should be available to select to
- *   be added in the visual editor.
+ * @property {boolean} basic If true, then the property can be added via dedicated "add
+ *   property" selector in the visual editor.
  * @property {Array} obj Types of EDM objects that can use this property.
  * @property {EdmPropertyRecommendation} rec Level of usage recommendation - see
  *   `EdmPropertyRecommendation`

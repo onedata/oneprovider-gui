@@ -63,6 +63,20 @@ export default Component.extend(I18n, {
     }
   ),
 
+  filteredAvailableItems: computed(
+    'availableItems',
+    'filterValue',
+    function filteredAvailableItems() {
+      if (!this.filterValue) {
+        return this.availableItems;
+      }
+      const normalizedFilterValue = this.filterValue.toLocaleLowerCase();
+      return this.availableItems.filter(item =>
+        String(item.label).toLocaleLowerCase().includes(normalizedFilterValue)
+      );
+    }
+  ),
+
   singleDisabledItemsTags: reads(
     'edmObjectViewModel.singleInstancePropertyTags'
   ),
@@ -88,6 +102,7 @@ export default Component.extend(I18n, {
     for (const [namespace, namespaceSpecs] of Object.entries(allSpecs)) {
       for (const [name, spec] of Object.entries(namespaceSpecs)) {
         if (spec.obj.includes(this.edmObjectType) && (!onlyBasic || spec.basic)) {
+          const xmlTagName = `${namespace}:${name}`;
           const label = this.t(
               `properties.${namespace}.${name}`, {}, {
                 defaultValue: '',
@@ -95,10 +110,9 @@ export default Component.extend(I18n, {
             ) ||
             this.t(
               `properties.${namespace}.${name}.${this.edmObjectType}`, {}, {
-                defaultValue: `${namespace}:${name}`,
+                defaultValue: xmlTagName,
               }
             );
-          const xmlTagName = `${namespace}:${name}`;
           items.push(Object.freeze({
             label,
             name,

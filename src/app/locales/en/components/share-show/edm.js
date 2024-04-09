@@ -8,7 +8,7 @@ export default {
   header: 'Europeana Data Model (EDM) metadata',
   headerMobile: 'Metadata',
   metadataEditorIntro,
-  introTip: `${editorHeaderTipCommon} The visual editor for EDM metadata is not yet implemented.`,
+  introTip: `${editorHeaderTipCommon} You may use the visual editor that will generate the EDM XML metadata for you.`,
   readonlyHeaderTip: edmReadonlyTip,
   introExtra: edmIntroExtra,
   invalidXml: 'The XML source cannot be parsed to EDM metadata. Review your XML.',

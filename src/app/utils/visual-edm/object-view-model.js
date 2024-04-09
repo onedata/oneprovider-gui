@@ -54,13 +54,13 @@ const ObjectViewModel = EmberObject.extend({
   },
 
   /**
-   * XML tags of poroperties that are defined in object and could have only single
+   * XML tags of properties that are defined in object and could have only single
    * instance.
    * @type {ComputedProperty<Array<string>>}
    */
   singleInstancePropertyTags: computed(
     'edmProperties',
-    function singleDisabledItemsTags() {
+    function singleInstancePropertyTags() {
       return this.edmProperties
         .filter(property => property.maxOccurrences === EdmPropertyMaxOccurrences.Single)
         .map(property => property.xmlTagName);

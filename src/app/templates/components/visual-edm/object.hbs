@@ -3,21 +3,19 @@
 </div>
 <div class="content-section">
   <div class="basic-info-row">
-    <div class="basic-info-col">
-      <div class="row edm-object-iconified-block-row title-row edm-object-title-row">
-        <div class="edm-object-type item-name">{{objectTypeName}}</div>
-        <OneIcon class="hint-trigger" @icon="sign-info-rounded" />
-        {{#if isDeletable}}
-          <div
-            class="edm-delete-btn edm-object-delete-btn"
-            onclick={{action "deleteObject"}}
-          >
-            <OneIcon class="edm-property-delete-icon" @icon="browser-delete">
-              <OneTooltip @title={{deleteObjectTip}} />
-            </OneIcon>
-          </div>
-        {{/if}}
-      </div>
+    <div class="row edm-object-iconified-block-row title-row edm-object-title-row">
+      <div class="edm-object-type item-name">{{objectTypeName}}</div>
+      <OneIcon class="hint-trigger" @icon="sign-info-rounded" />
+      {{#if isDeletable}}
+        <div
+          class="edm-delete-btn edm-object-delete-btn"
+          onclick={{action "deleteObject"}}
+        >
+          <OneIcon class="edm-property-delete-icon" @icon="browser-delete">
+            <OneTooltip @title={{deleteObjectTip}} />
+          </OneIcon>
+        </div>
+      {{/if}}
     </div>
   </div>
   {{#if attrItems}}
@@ -63,7 +61,12 @@
       >
         <OneIcon @icon="plus" />
         <span class="text">{{tt this "listButtons.addProperty"}}</span>
-        <OneIcon class="menu-trigger-arrow" @icon="arrow-down" />
+        <div class="three-dots">
+          <div class="icon-dot"></div>
+          <div class="icon-dot"></div>
+          <div class="icon-dot"></div>
+        </div>
+        {{!-- <OneIcon class="menu-trigger-arrow" @icon="arrow-down" /> --}}
       </OneButton>
       <RenderLater @triggerRender={{isAddPropertyOpened}}>
         <VisualEdm::AddPropertySelector
