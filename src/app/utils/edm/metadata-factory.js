@@ -55,21 +55,12 @@ export default class EdmMetadataFactory {
       objectFactory.createInitialObject(EdmObjectType.Aggregation),
     ];
 
-    const comments = [
-      'Example EDM XML content - replace it with the detailed metadata.',
-      'Refer to the documentation of EDM at the following links:',
-      'https://pro.europeana.eu/page/edm-documentation',
-      'https://europeana.atlassian.net/wiki/spaces/EF/pages/2165440526/Namespaces',
-      'https://europeana.atlassian.net/wiki/spaces/EF/pages/987791389/EDM+-+Mapping+guidelines',
-      'https://europeana.atlassian.net/wiki/spaces/EF/pages/1969258498/Metadata+Tier+A',
-      'https://pro.europeana.eu/files/Europeana_Professional/Share_your_data/Technical_requirements/EDM_Documentation/EDM_Definition_v5.2.8_102017.pdf',
-    ];
-    for (const comment of comments) {
-      metadata.xmlDocument.insertBefore(
-        metadata.xmlDocument.createComment(` ${comment} `),
-        metadata.xmlElement
-      );
-    }
+    const comment =
+      'EDM XML metadata; refer to: https://pro.europeana.eu/page/edm-documentation';
+    metadata.xmlDocument.insertBefore(
+      metadata.xmlDocument.createComment(` ${comment} `),
+      metadata.xmlElement
+    );
 
     return metadata;
   }
