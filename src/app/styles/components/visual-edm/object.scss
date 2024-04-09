@@ -16,20 +16,11 @@
     align-items: center;
     flex-wrap: wrap;
     flex-grow: 1;
-    @include vertical-flex-gap(0);
     // using pixels because font sizes are different
     margin-top: 4px;
     .item-name {
       margin-right: 1em;
     }
-  }
-
-  .secondary-row {
-    display: flex;
-    align-items: center;
-    @include vertical-flex-gap($additional-margin-top: 0.75em);
-    overflow: hidden;
-    max-width: calc(100% - 1em);
   }
 
   .item-name {
