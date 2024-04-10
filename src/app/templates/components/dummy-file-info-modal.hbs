@@ -1,10 +1,11 @@
-{{file-info-modal
-  open=files
-  files=files
-  space=space
-  share=share
-  browserModel=browserModel
-  previewMode=previewMode
-  getDataUrl=(action "getDataUrl")
-  onHidden=(action "closeInfoModal")
-}}
+<FileInfoModal
+  @open={{true}}
+  @files={{files}}
+  @space={{space}}
+  @share={{share}}
+  @initialTab={{initialTab}}
+  @browserModel={{browserModel}}
+  @previewMode={{previewMode}}
+  @getDataUrl={{action "getDataUrl"}}
+  @onHidden={{action "closeInfoModal"}}
+/>
