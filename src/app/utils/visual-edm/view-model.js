@@ -31,6 +31,8 @@ const VisualEdmViewModel = EmberObject.extend({
 
   //#endregion
 
+  isRepresentativeImageShown: false,
+
   isReadOnly: false,
 
   //#region state
@@ -61,6 +63,13 @@ const VisualEdmViewModel = EmberObject.extend({
       this.destroyPrevObjects();
       this.set('prevObjects', newObjects);
       return newObjects;
+    }
+  ),
+
+  representativeImageReference: computed(
+    'edmMetadata',
+    function representativeImageReference() {
+      return this.edmMetadata.getRepresentativeImageReference();
     }
   ),
 

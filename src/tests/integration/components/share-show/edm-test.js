@@ -80,6 +80,39 @@ describe('Integration | Component | share-show/edm', function () {
       expect(getValueFormGroup()).to.have.class('has-error');
     }
   );
+
+  it('renders open data logo in readonly mode if representative image is not provided',
+    async function () {
+      // given
+      const helper = new Helper(this);
+      helper.xmlValue = generateExampleXmls().helloWorldTitle;
+      helper.readonly = true;
+
+      // when
+      await helper.render();
+
+      // then
+      expect(helper.element.querySelector('.open-data-logo')).to.exist;
+    }
+  );
+
+  it('renders representative image in column if it is provided',
+    async function () {
+      // given
+      const helper = new Helper(this);
+      helper.xmlValue = generateExampleXmls().withImage;
+      helper.readonly = true;
+
+      // when
+      await helper.render();
+
+      // then
+      expect(
+        helper.element.querySelector('.representative-image-container img')
+        .getAttribute('src')
+      ).to.equal('http://sgdap.girona.cat/sdam/imatges/044161.jpg');
+    }
+  );
 });
 
 class Helper {
@@ -127,6 +160,15 @@ function generateExampleXmls() {
       <edm:ProvidedCHO>
         <dc:title></dc:title>
       </edm:ProvidedCHO>
+    </rdf:RDF>`,
+    withImage: `<?xml version="1.0" encoding="UTF-8"?>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+      <edm:ProvidedCHO>
+        <dc:title>Hello world</dc:title>
+      </edm:ProvidedCHO>
+      <ore:Aggregation>
+        <edm:object rdf:resource="http://sgdap.girona.cat/sdam/imatges/044161.jpg"/>
+      </ore:Aggregation>
     </rdf:RDF>`,
   };
 }

@@ -117,7 +117,16 @@
 
 {{#if readonly}}
   <div class="hidden-xs hidden-sm col-md-4 col-lg-5 col-open-data-logo">
-    <div class="open-data-logo">
-    </div>
+    {{#if visualEdmViewModel.representativeImageReference}}
+      <div class="representative-image-container">
+        <img
+          src={{visualEdmViewModel.representativeImageReference}}
+          alt={{visualEdmViewModel.representativeImageReference}}
+        />
+      </div>
+    {{else}}
+      <div class="open-data-logo">
+      </div>
+    {{/if}}
   </div>
 {{/if}}

@@ -233,6 +233,8 @@ export default Component.extend(I18n, {
         edmMetadata,
         validator: validator,
         isReadOnly: this.readonly,
+        // FIXME: warunkowość
+        isRepresentativeImageShown: false,
       }));
     }
   },

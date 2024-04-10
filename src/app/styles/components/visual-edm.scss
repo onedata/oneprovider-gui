@@ -1,10 +1,6 @@
 .visual-edm {
   --visual-edm-items-spacing: 20px;
 
-  &.readonly {
-    padding: 0.5em;
-  }
-
   .edm-attr-container {
     display: flex;
     align-items: baseline;

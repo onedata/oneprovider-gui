@@ -11,6 +11,7 @@ import globals from 'onedata-gui-common/utils/globals';
 import EdmObjectsList from './objects-list';
 import { isEmptyXmlNode, isSupportedXmlObject, stringifyXmlDocument } from './xml-utils';
 import { sortObjects } from './sort';
+import EdmObjectType from './object-type';
 
 export default class EdmMetadata {
   static namespaceUris = Object.freeze({
@@ -114,5 +115,13 @@ export default class EdmMetadata {
     for (const object of this.edmObjects) {
       object.sortProperties();
     }
+  }
+
+  getRepresentativeImageReference() {
+    return this.edmObjects
+      ?.find(object => object.edmObjectType === EdmObjectType.Aggregation)
+      ?.edmProperties
+      ?.find(property => property.xmlTagName === 'edm:object')
+      ?.attrs.resource;
   }
 }
