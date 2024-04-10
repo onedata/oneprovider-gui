@@ -1,17 +1,17 @@
 {{#one-collapsible-list accordionMode=true as |list|}}
-  {{#each acl as |ace|}}
-    {{#list.item class="ace" as |listItem|}}
+  {{#each aceListItems key="id" as |aceItem|}}
+    {{#list.item class="ace" id=(concat "ace-item-" aceItem.id) as |listItem index|}}
       {{acl-editor/ace-editor
         listItem=listItem
-        ace=ace
+        ace=aceItem.ace
         context=context
         readonly=readonly
-        onChange=(action "aceChanged" ace)
-        onMoveUp=(action "moveUp" ace)
-        onMoveDown=(action "moveDown" ace)
-        onRemove=(action "remove" ace)
-        isFirstAce=(eq ace acl.firstObject)
-        isLastAce=(eq ace acl.lastObject)
+        onChange=(action "aceChanged" aceItem.ace)
+        onMoveUp=(action "moveUp" aceItem.ace)
+        onMoveDown=(action "moveDown" aceItem.ace)
+        onRemove=(action "remove" aceItem.ace)
+        isFirstAce=(eq index 0)
+        isLastAce=(eq index (sub aceListItems.length 1))
       }}
     {{/list.item}}
   {{else}}
