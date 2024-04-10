@@ -1,9 +1,13 @@
 <tr class="oneprovider-name-row">
   <td colspan="2" class="oneprovider-name-cell">
-    {{#truncated-string}}
+    {{#truncated-string class="provider-record"}}
       {{record-info-with-icon
         record=oneprovider
       }}
+      &nbsp;
+      <span class="provider-details">
+        ({{tt this (if (eq currentProviderId oneprovider.entityId) "local" "remote")}})
+      </span>
     {{/truncated-string}}
   </td>
 </tr>

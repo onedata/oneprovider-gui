@@ -9,7 +9,7 @@
 import EmberObject, { get, set, computed, observer } from '@ember/object';
 import dcXmlGenerator from 'oneprovider-gui/utils/dublin-core-xml-generator';
 import dublinCoreXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import plainCopy from 'onedata-gui-common/utils/plain-copy';
 import { A } from '@ember/array';
 import { dcElements } from 'oneprovider-gui/utils/dublin-core-xml-parser';

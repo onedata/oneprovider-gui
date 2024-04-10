@@ -12,7 +12,7 @@ import { inject as service } from '@ember/service';
 import { get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { cancel, debounce, later } from '@ember/runloop';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default Component.extend(I18n, {

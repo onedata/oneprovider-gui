@@ -15,7 +15,7 @@ import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-contai
 import { inject as service } from '@ember/service';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { guidFor } from '@ember/object/internals';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { defer } from 'rsvp';
 import { debounce } from '@ember/runloop';
 import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';

@@ -13,7 +13,7 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { get } from '@ember/object';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend(I18n, {

@@ -81,25 +81,31 @@
                   spinnerBlockClass="loading-file-path"
                 }}
                   <table class="storage-locations-table">
-                    {{#if currentProviderLocationsProxy}}
-                      {{file-browser/storage-location-per-provider-table
-                        spaceId=spaceId
-                        locations=currentProviderLocationsProxy.content
-                      }}
-                    {{/if}}
+                    {{file-browser/storage-location-per-provider-table
+                      spaceId=spaceId
+                      locations=(get
+                        storageLocationsPerProviderProxy
+                        firstProviderDisplayedId
+                      )
+                      currentProviderId=currentProviderId
+                    }}
                     {{#if (and
                       (gt storageLocationsPerProviderLength 1)
                       areStorageLocationsExpanded
                     )}}
-                      {{#each-in storageLocationsPerProviderProxy as |providerId locations|}}
-                        {{#if (not-eq providerId currentProviderId)}}
+                      {{#each storageLocationsPerProviderOrder as |locations|}}
+                        {{#if (not-eq
+                          locations.firstObject.provider.entityId
+                          firstProviderDisplayedId
+                        )}}
                           <tbody class="space-between-providers"><tr><td></td></tr></tbody>
                           {{file-browser/storage-location-per-provider-table
                             spaceId=spaceId
                             locations=locations
+                            currentProviderId=currentProviderId
                           }}
                         {{/if}}
-                      {{/each-in}}
+                      {{/each}}
                     {{/if}}
                   </table>
                   {{#if (and

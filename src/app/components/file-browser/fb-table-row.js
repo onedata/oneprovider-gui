@@ -12,7 +12,7 @@ import { raw, conditional, isEmpty, or, and } from 'ember-awesome-macros';
 import { get, computed, getProperties, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-click';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';

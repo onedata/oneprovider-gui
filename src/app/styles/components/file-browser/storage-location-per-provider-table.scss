@@ -23,6 +23,15 @@
       .popover-info-trigger {
         font-size: 160%;
       }
+
+      .provider-record {
+        display: inline-flex;
+        align-items: baseline;
+      }
+      .provider-details {
+        font-size: 90%;
+        color: change-color($main-text-color-inactive, $lightness: 60%);
+      }
     }
   }
 

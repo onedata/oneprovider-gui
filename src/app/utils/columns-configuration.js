@@ -13,7 +13,7 @@
 
 import EmberObject, { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { raw, gt, bool } from 'ember-awesome-macros';
 import globals from 'onedata-gui-common/utils/globals';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';

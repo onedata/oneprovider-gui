@@ -11,7 +11,7 @@
 import Component from '@ember/component';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { or, not, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { computed, observer, get } from '@ember/object';

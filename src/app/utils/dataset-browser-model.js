@@ -16,7 +16,7 @@ import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import _ from 'lodash';
 import { conditional, promise, raw } from 'ember-awesome-macros';
 import {

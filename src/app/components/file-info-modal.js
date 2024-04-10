@@ -7,7 +7,7 @@
  */
 
 import Component from '@ember/component';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
@@ -39,6 +39,7 @@ import { guidFor } from '@ember/object/internals';
 import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
+import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 
 const mixins = [
   I18n,
@@ -452,8 +453,51 @@ export default Component.extend(...mixins, {
       } else {
         return locationsPerProviderWithStorageName;
       }
+    })),
+
+  /**
+   * @type {ComputedProperty<Array<Object>>}
+   */
+  storageLocationsPerProviderOrder: computed(
+    'storageLocationsPerProviderProxy.content',
+    function storageLocationsPerProviderOrder() {
+      if (this.storageLocationsPerProviderProxy.content) {
+        const storageLocationsPerProvider = Object.values(
+          this.storageLocationsPerProviderProxy.content
+        );
+        const compareNames = createPropertyComparator('firstObject.provider.name');
+        storageLocationsPerProvider.sort(compareNames);
+        return storageLocationsPerProvider;
+      }
     }
-  )),
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  firstProviderDisplayedId: computed(
+    'storageLocationsPerProviderProxy.content',
+    'currentProviderId',
+    'storageLocationsPerProviderOrder',
+    function firstProviderDisplayedId() {
+      if (this.storageLocationsPerProviderProxy.content) {
+        const storageLocationsPerProvider = this.storageLocationsPerProviderProxy.content;
+        for (const location of storageLocationsPerProvider[this.currentProviderId]) {
+          if (location.path) {
+            return this.currentProviderId;
+          }
+        }
+        for (const locations of this.storageLocationsPerProviderOrder) {
+          for (const location of locations) {
+            if (location.path) {
+              return location.provider.entityId;
+            }
+          }
+        }
+        return this.storageLocationsPerProviderOrder[0][0].provider.entityId;
+      }
+    }
+  ),
 
   storageLocationsPerProviderLength: computed(
     'storageLocationsPerProviderProxy.content',

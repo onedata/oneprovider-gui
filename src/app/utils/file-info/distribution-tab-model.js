@@ -10,7 +10,7 @@ import BaseTabModel from './base-tab-model';
 import { computed, get } from '@ember/object';
 import FileDistributionViewModel from 'oneprovider-gui/utils/file-distribution-view-model';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 
 const mixins = [

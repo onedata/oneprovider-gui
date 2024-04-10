@@ -10,18 +10,30 @@ import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
+import I18n from 'onedata-gui-common/mixins/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   tagName: 'tbody',
   classNames: ['storage-location-per-provider-table'],
 
   errorExtractor: service(),
 
   /**
+   * @override
+   */
+  i18nPrefix: 'components.storageLocationPerProviderTable',
+
+  /**
    * @virtual
    * @type {Ember.Array<Object>}
    */
   locations: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  currentProviderId: undefined,
 
   /**
    * @type {ComputedProperty<Models.Provider>}

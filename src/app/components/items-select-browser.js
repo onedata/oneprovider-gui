@@ -16,7 +16,7 @@ import { computed, get, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { guidFor } from '@ember/object/internals';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';

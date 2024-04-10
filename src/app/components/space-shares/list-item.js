@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { htmlSafe } from '@ember/string';
 import { conditional, raw, eq, tag, collect, promise } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';

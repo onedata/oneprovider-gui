@@ -9,7 +9,7 @@ import { Promise, hash as hashFulfilled } from 'rsvp';
 import { computed, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { collect, tag, conditional, raw, promise } from 'ember-awesome-macros';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import HeaderBaseComponent from './-header-base';
 import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';

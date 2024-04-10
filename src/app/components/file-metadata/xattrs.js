@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import config from 'ember-get-config';
 import _ from 'lodash';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import I18n from 'onedata-gui-common/mixins/i18n';
 import { emptyValue } from 'oneprovider-gui/utils/file-metadata-view-model';
 import { conditional, eq, raw } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
