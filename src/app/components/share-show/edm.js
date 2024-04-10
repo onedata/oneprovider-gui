@@ -83,6 +83,8 @@ export default Component.extend(I18n, {
 
   modelXmlSyncState: EdmModelXmlSyncState.Synced,
 
+  representativeImageError: undefined,
+
   //#endregion
 
   //#region configuration
@@ -391,6 +393,9 @@ export default Component.extend(I18n, {
     },
     acceptXml() {
       this.acceptXml();
+    },
+    handleRepresentativeImageError(error) {
+      this.set('representativeImageError', error);
     },
   },
 });

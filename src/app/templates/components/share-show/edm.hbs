@@ -119,10 +119,20 @@
   <div class="hidden-xs hidden-sm col-md-4 col-lg-5 col-open-data-logo">
     {{#if visualEdmViewModel.representativeImageReference}}
       <div class="representative-image-container">
-        <img
-          src={{visualEdmViewModel.representativeImageReference}}
-          alt={{visualEdmViewModel.representativeImageReference}}
-        />
+        {{#if representativeImageError}}
+          <div class="representative-image representative-image-load-error">
+            <div class="text-container">
+              {{tt this "imageNotFound"}}
+            </div>
+          </div>
+        {{else}}
+          <img
+            class="representative-image"
+            src={{visualEdmViewModel.representativeImageReference}}
+            alt={{visualEdmViewModel.representativeImageReference}}
+            onerror={{action "handleRepresentativeImageError"}}
+          />
+        {{/if}}
       </div>
     {{else}}
       <div class="open-data-logo">

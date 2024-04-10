@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, click, blur, focus } from '@ember/test-helpers';
+import { render, find, click, blur, focus, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { replaceEmberAceWithTextarea } from '../../../helpers/ember-ace';
 
@@ -105,12 +105,36 @@ describe('Integration | Component | share-show/edm', function () {
 
       // when
       await helper.render();
+      // wait for image to load
+      await settled();
 
       // then
       expect(
         helper.element.querySelector('.representative-image-container img')
         .getAttribute('src')
-      ).to.equal('http://sgdap.girona.cat/sdam/imatges/044161.jpg');
+      ).to.equal('/assets/images/oneprovider-logo.svg');
+    }
+  );
+
+  it('renders image not found block in column if it cannot be loaded',
+    async function () {
+      // given
+      const helper = new Helper(this);
+      helper.xmlValue = generateExampleXmls().withInvalidImage;
+      helper.readonly = true;
+
+      // when
+      await helper.render();
+      // wait for image to load (fail to load)
+      await settled();
+
+      // then
+      expect(
+        helper.element.querySelector('.representative-image-container img')
+      ).to.not.exist;
+      expect(
+        helper.element.querySelector('.representative-image-container').textContent
+      ).to.contain('Image not found');
     }
   );
 });
@@ -167,7 +191,16 @@ function generateExampleXmls() {
         <dc:title>Hello world</dc:title>
       </edm:ProvidedCHO>
       <ore:Aggregation>
-        <edm:object rdf:resource="http://sgdap.girona.cat/sdam/imatges/044161.jpg"/>
+        <edm:object rdf:resource="/assets/images/oneprovider-logo.svg"/>
+      </ore:Aggregation>
+    </rdf:RDF>`,
+    withInvalidImage: `<?xml version="1.0" encoding="UTF-8"?>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+      <edm:ProvidedCHO>
+        <dc:title>Hello world</dc:title>
+      </edm:ProvidedCHO>
+      <ore:Aggregation>
+        <edm:object rdf:resource="not-existing.svg"/>
       </ore:Aggregation>
     </rdf:RDF>`,
   };

@@ -25,4 +25,5 @@ export default {
     validatingSync: 'XML validation is pending',
     xmlNotAccepted: 'Apply the XML source first',
   },
+  imageNotFound: 'Image not found',
 };
