@@ -1,5 +1,7 @@
 .acl-editor {
   $desktop-tree-width: 300px;
+  $ace-head-right-padding: 260px;
+  $ace-head-right-padding-mobile: 80px;
 
   .one-collapsible-list-item .one-collapsible-list-item-header .collapsible-toolbar-toggle {
     display: block;
@@ -108,12 +110,28 @@
     min-width: $desktop-tree-width;
   }
 
+  .one-collapsible-list .list-header-row {
+    padding-right: $ace-head-right-padding-mobile;
+  }
+
+  .one-collapsible-list-item-header .one-icon.toggle-icon {
+    right: $ace-head-right-padding-mobile - 25px;
+  }
+
+  .ace-type-switch-container {
+    width: $desktop-tree-width;
+  }
+
   @media (min-width: $screen-sm-min) {
     .one-collapsible-list .list-header-row {
-      padding-right: 230px;
+      padding-right: $ace-head-right-padding;
     }
 
-    .ace-editor-form .privileges-tree-editor, .ace-type-switch-container {
+    .one-collapsible-list-item-header .one-icon.toggle-icon {
+      right: $ace-head-right-padding - 25px;
+    }
+
+    .ace-editor-form .privileges-tree-editor {
       width: $desktop-tree-width;
     }
 
