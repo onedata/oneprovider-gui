@@ -59,7 +59,7 @@
         onChange=(if readonly (no-action) (action "aceTypeChanged"))
       as |bg|}}
         {{#bg.button
-          type=(if (eq aceType "allow") "primary" "default")
+          type=(if (and (not hasNoRulesEnabled) (eq aceType "allow")) "primary" "default")
           class=(concat-classes
             "btn-sm ace-type ace-type-allow"
             (if readonly "disabled")
@@ -69,7 +69,7 @@
           {{one-icon icon="checkbox-filled"}} {{tt this "aceTypes.allow"}}
         {{/bg.button}}
         {{#bg.button
-          type=(if (eq aceType "deny") "danger" "default")
+          type=(if (and (not hasNoRulesEnabled) (eq aceType "deny")) "danger" "default")
           class=(concat-classes
             "btn-sm ace-type ace-type-deny"
             (if readonly "disabled")

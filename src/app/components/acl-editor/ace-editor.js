@@ -318,6 +318,13 @@ export default Component.extend(I18n, {
    */
   actionsArray: collect('moveUpAction', 'moveDownAction', 'removeAction'),
 
+  hasNoRulesEnabled: computed(
+    'ace.aceMask',
+    function hasNoRulesEnabled() {
+      return !this.ace.aceMask;
+    }
+  ),
+
   init() {
     this._super(...arguments);
 

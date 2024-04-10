@@ -126,7 +126,6 @@ export default Component.extend(I18n, {
     };
     this.get('acl').pushObject(newAce);
     (async () => {
-      // await waitForRender();
       await sleep(0);
       this.expandAce(guidFor(newAce));
     })();

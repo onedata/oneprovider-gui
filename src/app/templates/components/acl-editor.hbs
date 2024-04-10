@@ -10,8 +10,8 @@
         onMoveUp=(action "moveUp" aceItem.ace)
         onMoveDown=(action "moveDown" aceItem.ace)
         onRemove=(action "remove" aceItem.ace)
-        isFirstAce=(eq index 0)
-        isLastAce=(eq index (sub aceListItems.length 1))
+        isFirstAce=(eq aceItem aceListItems.firstObject)
+        isLastAce=(eq aceItem aceListItems.lastObject)
       }}
     {{/list.item}}
   {{else}}
