@@ -1,4 +1,6 @@
 .acl-editor {
+  $desktop-tree-width: 300px;
+
   .one-collapsible-list-item .one-collapsible-list-item-header .collapsible-toolbar-toggle {
     display: block;
   }
@@ -56,8 +58,11 @@
 
   .ace-type-presenter {
     display: flex;
-    position: relative;
     align-items: center;
+    flex-wrap: wrap;
+    column-gap: 1em;
+    row-gap: 0.4em;
+    margin-bottom: $padding-base-horizontal;
   }
 
   .ace-type-label {
@@ -69,11 +74,29 @@
   }
 
   .ace-type-selector {
-    flex-grow: 1;
     display: block;
+    flex-grow: 1;
     margin-right: -2px;
     .btn {
       width: 50%;
+    }
+  }
+
+  .ace-type-switch-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .no-rules-enabled-warning {
+    display: flex;
+    align-items: center;
+    column-gap: 0.4em;
+    .no-rules-enabled-warning-icon {
+      font-size: 160%;
+      color: $color-one-warning;
+    }
+    .one-label-tip {
+      line-height: 0;
     }
   }
 
@@ -81,13 +104,17 @@
     box-shadow: none;
   }
 
+  .ace-editor-form .privileges-tree-editor {
+    min-width: $desktop-tree-width;
+  }
+
   @media (min-width: $screen-sm-min) {
     .one-collapsible-list .list-header-row {
       padding-right: 230px;
     }
 
-    .ace-editor-form {
-      max-width: 300px;
+    .ace-editor-form .privileges-tree-editor, .ace-type-switch-container {
+      width: $desktop-tree-width;
     }
 
     .form > .one-tree {
@@ -117,6 +144,9 @@
     .form-group {
       padding-right: 0;
       transition: transition-ease(padding-right);
+    }
+    .ace-type-presenter {
+      margin-bottom: 0;
     }
   }
 
