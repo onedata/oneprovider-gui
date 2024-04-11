@@ -75,14 +75,11 @@
     </div>
   {{/unless}}
   {{#if viewModel.validator.isError}}
-    <div class="edm-info-row warning edm-object-invalid">
-      <div class="edm-info-row-inner">
-        <OneIcon @icon="sign-warning-rounded" class="edm-info-row-icon" />
-        <span class="edm-info-row-text">
-          {{tt this "notValid" objectType=objectTypeName}}
-        </span>
-      </div>
-    </div>
+    <VisualEdm::ValidationError
+      class="edm-object-invalid"
+      @text={{tt this "notValid" objectType=objectTypeName}}
+      @validator={{viewModel.validator}}
+    />
   {{/if}}
   {{#if viewModel.model.hasExtraData}}
     <VisualEdm::ExtraDataInfo @model={{viewModel.model}}/>

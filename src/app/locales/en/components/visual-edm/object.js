@@ -11,5 +11,5 @@ export default {
   },
   deleteObjectTip: 'Delete this {{objectType}}',
   object: 'object',
-  notValid: 'Definition of this {{objectType}} is not valid.',
+  notValid: 'Definition of this {{objectType}} is not valid',
 };

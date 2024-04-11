@@ -14,7 +14,7 @@ export default {
   introExtra: edmIntroExtra,
   invalidXml: 'The XML source cannot be parsed to EDM metadata. Review your XML.',
   applyAndFormatXml: 'Apply and format XML',
-  notValid: 'Metadata definition is not valid.',
+  notValid: 'Metadata definition is not valid',
   definitionValid: 'Metadata definition is valid.',
   definitionValidating: 'Validating...',
   synchronizedButton: 'XML synchronized',

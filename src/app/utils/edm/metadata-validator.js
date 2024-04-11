@@ -7,10 +7,11 @@
  */
 
 import EmberObject, { computed } from '@ember/object';
-import { not } from 'ember-awesome-macros';
+import { not, empty } from '@ember/object/computed';
 import EdmObjectValidator from './object-validator';
 import { assert } from '@ember/debug';
 import EdmObjectType from './object-type';
+import _ from 'lodash';
 
 const EdmMetadataValidator = EmberObject.extend({
   /**
@@ -41,31 +42,37 @@ const EdmMetadataValidator = EmberObject.extend({
     return this.getObjectValidators();
   }),
 
-  isValid: computed(
-    'edmMetadata.edmObjects',
-    'objectValidators.@each.isValid',
-    function isValid() {
-      const validObjectsOccurrence =
-        this.edmMetadata.edmObjects.filter(obj =>
-          obj.edmObjectType === EdmObjectType.ProvidedCHO
-        ).length === 1 &&
-        this.edmMetadata.edmObjects.filter(obj =>
-          obj.edmObjectType === EdmObjectType.Aggregation
-        ).length === 1;
-      if (!validObjectsOccurrence) {
-        return false;
-      }
-      return this.objectValidators.every(objectValidator =>
-        objectValidator.isValid
-      );
-    }
-  ),
+  isValid: empty('errors'),
 
   isError: not('isValid'),
 
   updateValue() {
     this.notifyPropertyChange('edmMetadata');
   },
+
+  errors: computed(
+    'edmMetadata.edmObjects',
+    'objectValidators.@each.isValid',
+    function errors() {
+      const result = [];
+      const isSingleProvidedCHO = this.edmMetadata.edmObjects.filter(obj =>
+        obj.edmObjectType === EdmObjectType.ProvidedCHO
+      ).length === 1;
+      if (!isSingleProvidedCHO) {
+        result.push(EdmMetadataInvalidObjectOcurrence(EdmObjectType.ProvidedCHO, 1));
+      }
+      const isSingleAggregation = this.edmMetadata.edmObjects.filter(obj =>
+        obj.edmObjectType === EdmObjectType.ProvidedCHO
+      ).length === 1;
+      if (!isSingleAggregation) {
+        result.push(EdmMetadataInvalidObjectOcurrence(EdmObjectType.ProvidedCHO, 1));
+      }
+      result.push(..._.flatten(this.objectValidators.map(validator =>
+        validator.errors
+      )));
+      return result;
+    }
+  ),
 
   getObjectValidators() {
     const resultValidators = this.edmMetadata.edmObjects.map(edmObject => {
@@ -96,5 +103,15 @@ const EdmMetadataValidator = EmberObject.extend({
     }
   },
 });
+
+class EdmMetadataInvalidObjectOcurrence {
+  constructor(edmObjectType, expectedOccurence) {
+    this.edmObjectType = edmObjectType;
+    this.expectedOccurence = expectedOccurence;
+  }
+  toString() {
+    return `EDM object of type "${this.edmObjectType}" should occur extactly ${this.expectedOccurence} time(s)`;
+  }
+}
 
 export default EdmMetadataValidator;

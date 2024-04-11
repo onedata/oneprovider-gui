@@ -8,7 +8,7 @@ export default {
   listButtons: {
     addWebResource: 'Add Web Resource',
   },
-  notValid: 'Metadata definition is not valid.',
+  notValid: 'Metadata definition is not valid',
   object,
   addPropertySelector,
   property,

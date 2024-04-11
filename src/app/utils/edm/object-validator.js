@@ -7,7 +7,7 @@
  */
 
 import EmberObject, { computed } from '@ember/object';
-import { not } from 'ember-awesome-macros';
+import { not, empty } from '@ember/object/computed';
 import EdmPropertyValidator from './property-validator';
 import EdmObjectType from './object-type';
 import { EdmPropertyRecommendation, allPropertyData } from './property-spec';
@@ -40,20 +40,27 @@ const EdmObjectValidator = EmberObject.extend({
     return this.getPropertyValidators();
   }),
 
-  isValid: computed(
-    'propertyValidators.@each.isValid',
-    function isValid() {
+  isValid: empty('errors'),
+
+  /**
+   * @type {ComputedProperty<Array<EdmPropertyValidatorError|EdmObjectValidatorError>>}
+   */
+  errors: computed(
+    'propertyValidators.@each.errors',
+    function errors() {
+      const result = [];
       const missingProperties = _.difference(
         mandatoryPropertiesMap[this.edmObject.edmObjectType],
         this.edmObject.edmProperties.map(p => p.xmlTagName)
       );
       if (missingProperties.length) {
-        return false;
+        result.push(new EdmObjectMissingPropertiesError(missingProperties));
       }
-      return this.propertyValidators.every(validator =>
-        validator.isValid
-      );
+      result.push(..._.flatten(this.propertyValidators.map(validator =>
+        validator.errors
+      )));
       // TODO: VFS-11912 Check if any property does not exceeds max occurrences
+      return result;
     }
   ),
 
@@ -108,6 +115,18 @@ function getMandatoryPropertyTags() {
     ).map(propertySpec => propertySpec.xmlTagName);
   }
   return mandatoryPropertyTags;
+}
+
+class EdmObjectMissingPropertiesError {
+  /**
+   * @param {string} properties XML tag name of property.
+   */
+  constructor(properties) {
+    this.properties = properties;
+  }
+  toString() {
+    return `missing object mandatory properties: ${', '.join(this.properties)}`;
+  }
 }
 
 export default EdmObjectValidator;

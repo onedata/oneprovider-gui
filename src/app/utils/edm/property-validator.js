@@ -7,7 +7,7 @@
  */
 
 import EmberObject, { computed } from '@ember/object';
-import { not } from 'ember-awesome-macros';
+import { empty, not } from '@ember/object/computed';
 
 const EdmPropertyValidator = EmberObject.extend({
   /**
@@ -16,22 +16,53 @@ const EdmPropertyValidator = EmberObject.extend({
    */
   edmProperty: undefined,
 
-  isValid: computed('edmProperty', function isValid() {
+  isValid: empty('errors'),
+
+  isError: not('isValid'),
+
+  /**
+   * @type {ComputedProperty<Array<EdmPropertyValidatorError>>}
+   */
+  errors: computed('edmProperty', function errors() {
     const supportedValue = this.edmProperty.getSupportedValue();
     if (this.edmProperty.hasPredefinedValues) {
       return this.edmProperty.predefinedValues
         .map(({ value }) => value)
-        .includes(supportedValue);
+        .includes(supportedValue) ? [] : [
+          new EdmPropertyNonEnumValueError(this.edmProperty),
+        ];
     } else {
-      return Boolean(supportedValue);
+      return supportedValue ? [] : [
+        new EdmPropertyEmptyValueError(this.edmProperty),
+      ];
     }
   }),
-
-  isError: not('isValid'),
 
   updateValue() {
     this.notifyPropertyChange('edmProperty');
   },
 });
+
+class EdmPropertyEmptyValueError {
+  constructor(edmProperty) {
+    this.edmProperty = edmProperty;
+  }
+  toString() {
+    return `property "${this.edmProperty.xmlTagName}" has empty value`;
+  }
+}
+
+class EdmPropertyNonEnumValueError {
+  constructor(edmProperty) {
+    this.edmProperty = edmProperty;
+  }
+  toString() {
+    return `property "${this.edmProperty.xmlTagName}" has value out of predefined values set`;
+  }
+}
+
+/**
+ * @typedef {EdmPropertyEmptyValueError|EdmPropertyNonEnumValueError} EdmPropertyValidatorError
+ */
 
 export default EdmPropertyValidator;

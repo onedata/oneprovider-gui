@@ -6,6 +6,7 @@
     <VisualEdm::ValidationError
       class="edm-metadata-invalid"
       @text={{tt this "notValid"}}
+      @validator={{viewModel.validator}}
     />
   {{/if}}
   {{#if viewModel.hasExtraData}}
