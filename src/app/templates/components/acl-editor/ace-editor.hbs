@@ -85,7 +85,7 @@
         <div class="no-rules-enabled-warning">
           <OneIcon @icon="warning" class="no-rules-enabled-warning-icon"/>
           <div class="text">
-            {{tt this "noRulesEnabled"}}
+            {{tt this (if readonly "noRulesEnabledReadonly" "noRulesEnabled")}}
           </div>
           <OneLabelTip @title={{tt this "noRulesEnabledTip"}} />
         </div>
