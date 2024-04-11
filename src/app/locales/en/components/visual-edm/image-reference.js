@@ -1,3 +1,5 @@
+import { imageNotFound } from '../share-show/edm';
+
 export default {
-  couldNotLoad: 'Could not load image',
+  couldNotLoad: imageNotFound,
 };

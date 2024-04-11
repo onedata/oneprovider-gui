@@ -134,7 +134,7 @@ describe('Integration | Component | share-show/edm', function () {
       ).to.not.exist;
       expect(
         helper.element.querySelector('.representative-image-container').textContent
-      ).to.contain('Image not found');
+      ).to.contain('Cannot load representative image');
     }
   );
 });

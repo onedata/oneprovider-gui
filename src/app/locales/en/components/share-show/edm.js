@@ -3,6 +3,7 @@ import dcCommon, { editorHeaderTipCommon } from './dc-common';
 const metadataEditorIntro = dcCommon.metadataEditorIntro;
 const edmReadonlyTip = dcCommon.metadataPublicHeaderTip.edm;
 const edmIntroExtra = dcCommon.metadataEditorIntroExtra.edm;
+export const imageNotFound = 'Cannot load representative image';
 
 export default {
   header: 'Europeana Data Model (EDM) metadata',
@@ -25,5 +26,5 @@ export default {
     validatingSync: 'XML validation is pending',
     xmlNotAccepted: 'Apply the XML source first',
   },
-  imageNotFound: 'Cannot load representative image',
+  imageNotFound,
 };
