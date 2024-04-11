@@ -18,6 +18,6 @@ export default {
     group: 'group',
   },
   aceNotAccessible: 'This Access Control Entry refers to a {{subject}} that is no longer a member of this space.',
-  noRulesEnabled: 'No rules enabled',
-  noRulesEnabledTip: 'This set of rules effectively <strong>denies</strong> everything for the selected entity.',
+  noRulesEnabled: 'Select at least one operation',
+  noRulesEnabledTip: 'An entry that does not allow or deny anything is pointless — it will not impact the permissions for this principal in any way.',
 };
