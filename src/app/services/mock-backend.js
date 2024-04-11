@@ -1794,8 +1794,6 @@ export default Service.extend(...mixins, {
       identifier: 'EVERYONE@',
       aceFlags: 0,
       aceMask: 0,
-      subject: null,
-      subjectType: 'user',
     };
     const aclRecord = this.store.createRecord('acl', {
       list: [aceEveryone],
