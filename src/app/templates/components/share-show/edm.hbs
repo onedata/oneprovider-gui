@@ -115,9 +115,9 @@
   {{/unless}}
 </div>
 
-{{#if readonly}}
-  <div class="hidden-xs hidden-sm col-md-4 col-lg-5 col-open-data-logo">
-    {{#if visualEdmViewModel.representativeImageReference}}
+{{#if isRepresentativeImageInParent}}
+  <div class="col-md-4 col-lg-5 col-open-data-logo">
+    {{#if imageUrl}}
       <div class="representative-image-container">
         {{#if representativeImageError}}
           <div class="representative-image representative-image-load-error">
@@ -128,8 +128,8 @@
         {{else}}
           <img
             class="representative-image"
-            src={{visualEdmViewModel.representativeImageReference}}
-            alt={{visualEdmViewModel.representativeImageReference}}
+            src={{imageUrl}}
+            alt={{imageUrl}}
             onerror={{action "handleRepresentativeImageError"}}
           />
         {{/if}}

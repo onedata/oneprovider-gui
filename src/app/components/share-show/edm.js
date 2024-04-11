@@ -8,15 +8,16 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import { not, and, raw, or, bool, conditional, eq, notEqual, array } from 'ember-awesome-macros';
+import { and, raw, or, bool, conditional, eq, notEqual, array } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { set, setProperties, computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { not, reads } from '@ember/object/computed';
 import { debounce } from '@ember/runloop';
 import { dasherize } from '@ember/string';
+import { inject as service } from '@ember/service';
 
 const defaultMode = 'visual';
 
@@ -34,6 +35,8 @@ export default Component.extend(I18n, {
     'readonly:readonly',
     'syncStateClass',
   ],
+
+  media: service(),
 
   /**
    * @override
@@ -212,6 +215,16 @@ export default Component.extend(I18n, {
 
   isVisualModeDisabled: notEqual('modelXmlSyncState', raw(EdmModelXmlSyncState.Synced)),
 
+  imageUrl: reads('visualEdmViewModel.representativeImageReference'),
+
+  isRepresentativeImageInParent: computed(
+    'readonly',
+    'media.{isMobile,isTablet}',
+    function isRepresentativeImageShown() {
+      return this.readonly && !this.media.isMobile && !this.media.isTablet;
+    }
+  ),
+
   init() {
     this._super(...arguments);
     const metadataFactory = EdmMetadataFactory;
@@ -231,13 +244,16 @@ export default Component.extend(I18n, {
     }
     if (!this.isXmlValueInvalid) {
       const validator = EdmMetadataValidator.create({ edmMetadata });
-      this.set('visualEdmViewModel', VisualEdmViewModel.create({
-        edmMetadata,
-        validator: validator,
-        isReadOnly: this.readonly,
-        // FIXME: warunkowość
-        isRepresentativeImageShown: false,
-      }));
+      const visualEdmViewModel = VisualEdmViewModel.extend({
+          isRepresentativeImageShown: not('container.isRepresentativeImageInParent'),
+          isReadOnly: reads('container.readonly'),
+        })
+        .create({
+          container: this,
+          edmMetadata,
+          validator,
+        });
+      this.set('visualEdmViewModel', visualEdmViewModel);
     }
   },
 

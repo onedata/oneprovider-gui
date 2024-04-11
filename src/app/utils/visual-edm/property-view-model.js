@@ -160,7 +160,7 @@ const PropertyViewModel = EmberObject.extend({
     'visualEdmViewModel.{isReadOnly,isRepresentativeImageShown}',
     'model.xmlTagName',
     function isImageRendered() {
-      return this.isRepresentativeImageShown &&
+      return this.visualEdmViewModel.isRepresentativeImageShown &&
         this.visualEdmViewModel.isReadOnly &&
         this.model.xmlTagName === 'edm:object';
     }
