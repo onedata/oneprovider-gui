@@ -223,7 +223,7 @@
             <td class="property-name">
               <div>
                 {{tt this "mtime"}}
-                {{one-label-tip title=(tt this "mtimeTooltip")}}
+                {{one-label-tip title=(tt this "tip.modification")}}
               </div>
               <div class="property-subname">
                 ({{tt this "mtimeSubname"}})
@@ -238,7 +238,7 @@
           <tr class="file-info-row-atime-time">
             <td class="property-name">
               {{tt this "atime"}}
-              {{one-label-tip title=(tt this "atimeTooltip")}}
+              {{one-label-tip title=(tt this "tip.atime")}}
             </td>
             <td class="property-value">
               {{#truncated-string}}
@@ -250,7 +250,7 @@
             <td class="property-name">
               <div>
                 {{tt this "ctime"}}
-                {{one-label-tip title=(tt this "ctimeTooltip")}}
+                {{one-label-tip title=(tt this "tip.ctime")}}
               </div>
               <div class="property-subname">
                 ({{tt this "ctimeSubname"}})

@@ -1326,6 +1326,7 @@ export default BaseBrowserModel.extend(...mixins, {
       ...(this.disabledColumns ?? [])
     );
     const columns = {};
+    const columnsTimesWidth = 130;
     for (const columnName of columnsOrder) {
       switch (columnName) {
         case 'size':
@@ -1333,13 +1334,17 @@ export default BaseBrowserModel.extend(...mixins, {
             isVisible: true,
             isEnabled: true,
             width: 140,
+            hasSubname: false,
+            hasTooltip: false,
           });
           break;
         case 'modification':
           columns.modification = EmberObject.create({
             isVisible: true,
             isEnabled: true,
-            width: 130,
+            width: columnsTimesWidth,
+            hasSubname: true,
+            hasTooltip: true,
           });
           break;
         case 'owner':
@@ -1347,6 +1352,8 @@ export default BaseBrowserModel.extend(...mixins, {
             isVisible: true,
             isEnabled: true,
             width: 200,
+            hasSubname: false,
+            hasTooltip: false,
           });
           break;
         case 'replication':
@@ -1354,6 +1361,8 @@ export default BaseBrowserModel.extend(...mixins, {
             isVisible: false,
             isEnabled: false,
             width: 160,
+            hasSubname: false,
+            hasTooltip: true,
           });
           break;
         case 'qos':
@@ -1361,20 +1370,26 @@ export default BaseBrowserModel.extend(...mixins, {
             isVisible: false,
             isEnabled: false,
             width: 100,
+            hasSubname: false,
+            hasTooltip: true,
           });
           break;
         case 'atime':
           columns.atime = EmberObject.create({
             isVisible: false,
             isEnabled: false,
-            width: 130,
+            width: columnsTimesWidth,
+            hasSubname: false,
+            hasTooltip: true,
           });
           break;
         case 'ctime':
           columns.ctime = EmberObject.create({
             isVisible: false,
             isEnabled: false,
-            width: 130,
+            width: columnsTimesWidth,
+            hasSubname: true,
+            hasTooltip: true,
           });
           break;
         default:

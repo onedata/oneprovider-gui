@@ -5,7 +5,7 @@
   }}
 >
   <div class="fb-table-first-col-container">
-    <div class="table-header-text">{{tt this "headers.files"}}</div>
+    <div class="table-header-text">{{tt this "headers.name.files"}}</div>
     {{#if renderArchiveDipSwitch}}
       {{archive-dip-switch
         disabled=(not isArchiveDipAvailable)
@@ -41,20 +41,20 @@
       <div class="column-info-container">
         <span class="column-name">
           {{one-icon icon="drag" class="column-move-icon"}}
-          {{tt this (concat "headers." columnName)}}
-          {{#if (contains columnName columnsNamesWithTooltip)}}
+          {{tt this (concat "headers.name." columnName)}}
+          {{#if (get columnsConfiguration (concat "columns." columnName ".hasTooltip"))}}
             {{#one-icon icon="browser-info" class="column-info-icon"}}
               {{one-tooltip
                 title=(tt this
-                  (concat "headers." columnName "Tooltip") oneprovider=currentProviderName
+                  (concat "headers.tip." columnName) oneprovider=currentProviderName
                 )
               }}
             {{/one-icon}}
           {{/if}}
         </span>
-        {{#if (or (eq columnName "ctime") (eq columnName "modification"))}}
+        {{#if (get columnsConfiguration (concat "columns." columnName ".hasSubname"))}}
           <span class="column-subname">
-            ({{tt this (concat "headers." columnName "Subname")}})
+            ({{tt this (concat "headers.subname." columnName)}})
           </span>
         {{/if}}
       </div>

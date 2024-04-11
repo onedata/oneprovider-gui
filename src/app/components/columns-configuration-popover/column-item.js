@@ -14,7 +14,7 @@ import { computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import { reads } from '@ember/object/computed';
-import { promise } from 'ember-awesome-macros';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export default Component.extend(I18n, {
   tagName: 'li',
@@ -89,13 +89,6 @@ export default Component.extend(I18n, {
   dragEndAction: notImplementedIgnore,
 
   /**
-   * @type {Array<String>}
-   */
-  columnsNamesWithTooltip: Object.freeze(
-    ['qos', 'replication', 'modification', 'atime', 'ctime']
-  ),
-
-  /**
    * @type {boolean}
    */
   isArrowTooltipVisible: true,
@@ -111,9 +104,9 @@ export default Component.extend(I18n, {
   /**
    * @type {PromiseObject<Models.Provider>}
    */
-  currentProviderProxy: promise.object(computed(function currentProviderProxy() {
-    return this.get('providerManager').getCurrentProvider();
-  })),
+  currentProviderProxy: computed(function currentProviderProxy() {
+    return promiseObject(this.get('providerManager').getCurrentProvider());
+  }),
 
   /**
    * @type {ComputedProperty<String>}

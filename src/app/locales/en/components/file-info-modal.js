@@ -1,3 +1,5 @@
+import browserColumns from './-browser-columns-name/-browser-columns';
+
 const fileLinkAuthentication =
   'It only works for logged-in users that have access to this {{type}}. To obtain a public link, use the Share function.';
 
@@ -15,12 +17,10 @@ export default {
   cdmiObjectId: 'File ID',
   mtime: 'Modified',
   mtimeSubname: 'content',
-  mtimeTooltip: 'Last time the item\'s content was modified',
   atime: 'Accessed',
-  atimeTooltip: 'Last time the item was accessed',
   ctime: 'Changed',
   ctimeSubname: 'metadata',
-  ctimeTooltip: 'Last time the item\'s metadata was changed',
+  tip: browserColumns.tip,
   owner: 'Owner',
   size: 'Size',
   fileLink: '{{type}} link',

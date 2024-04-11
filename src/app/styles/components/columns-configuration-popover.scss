@@ -18,7 +18,7 @@
 
     .subname-text {
       font-size: 80%;
-      color: change-color($main-text-color-inactive, $lightness: 60%);
+      opacity: $disabled-opacity;
     }
 
     .column-item .draggable-object {

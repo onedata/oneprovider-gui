@@ -64,12 +64,10 @@
     .fb-files-table {
       border-collapse: separate;
     }
-    td.multiline, td.table-col-time {
+    td.multiline {
       vertical-align: middle;
       padding-top: 8px;
       padding-bottom: 8px;
-    }
-    td.multiline {
       white-space: nowrap;
     }
     th.fb-table-secondary-col {

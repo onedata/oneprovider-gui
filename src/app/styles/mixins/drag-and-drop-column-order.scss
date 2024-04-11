@@ -50,6 +50,9 @@
     left: -1.35em;
     top: 0.2em;
   }
+  .column-info-container {
+    position: relative;
+  }
   .column-name {
     position: relative;
   }
@@ -59,7 +62,7 @@
     left: 50%;
     transform: translateX(-50%);
     font-size: 80%;
-    color: change-color($main-text-color-inactive, $lightness: 60%);
+    opacity: $disabled-opacity;
     font-weight: normal;
   }
   .column-move-icon {

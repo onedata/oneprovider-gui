@@ -18,17 +18,17 @@
     class="column-name-label"
   >
     <span class="one-label checkbox-label">
-      <span>{{tt this (concat translationKey "." columnName)}}</span>
-      {{#if (or (eq columnName "modification") (eq columnName "ctime"))}}
+      <span>{{tt this (concat translationKey ".name." columnName)}}</span>
+      {{#if columnValue.hasSubname}}
         <span class="subname-text">
-          &nbsp;({{tt this (concat translationKey "." columnName "Subname")}})
+          &nbsp;({{tt this (concat translationKey ".subname." columnName)}})
         </span>
       {{/if}}
-      {{#if (contains columnName columnsNamesWithTooltip)}}
+      {{#if columnValue.hasTooltip}}
         {{#one-icon icon="browser-info" class="column-info-icon"}}
           {{one-tooltip
             title=(tt this
-              (concat translationKey "." columnName "Tooltip")
+              (concat translationKey ".tip." columnName)
               oneprovider=currentProviderName
             )
           }}
