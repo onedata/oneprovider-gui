@@ -16,9 +16,9 @@
       }
     }
   }
-  .share-intro-filename {
+  .share-name-intro {
+    margin-top: 1.4em;
     @include font-semibold;
-    word-break: break-all;
   }
   .new-share-name-form-group {
     margin-bottom: 0;
