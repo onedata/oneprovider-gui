@@ -8,7 +8,7 @@ export default {
   creatingShare: 'creating share',
   createNew: 'Create',
   publishText: 'Publish as an Open Data record',
-  publishTip: 'Choose this option to create a share and directly proceed to publish it as an Open Data record. The shared data collection will be registered in a handle service; assigned a persistent identifier (e.g. PID or DOI) and exposed for discovery by Open Data indexes via OAI PMH protocol. This process will make your data collection publicly available (without an account in Onedata) and anyone will be able to look it up in the Open Data indexes.',
+  publishTip: 'Choose this option to create a share and directly proceed to publish it as an Open Data record. The shared data collection will be registered in a handle service — assigned a persistent identifier (e.g. PID or DOI) and exposed for discovery by Open Data indexes via OAI PMH protocol. This process will make your data collection publicly available (without an account in Onedata) and anyone will be able to look it up in the Open Data indexes.',
   publishImpossibleTip: noHandleServicesText,
   validations: {
     nameTooShort: 'Name must have at least {{length}} characters',
