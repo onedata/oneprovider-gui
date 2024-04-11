@@ -1,4 +1,5 @@
 import headerManagemenet from './share-show/header-management';
+import headerPublic from './share-show/header-public';
 import publicUrlViewer from './share-show/public-url-viewer';
 import paneDescription from './share-show/pane-description';
 import paneFiles from './share-show/pane-files';
@@ -25,6 +26,7 @@ export default {
 
   // sub-components
   headerManagemenet,
+  headerPublic,
   publicUrlViewer,
   paneDescription,
   paneFiles,
