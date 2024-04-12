@@ -12,7 +12,7 @@ export default _.merge({}, BaseBrowserModel, {
     recallInfo: 'Recall information',
     download: 'Download',
     downloadTar: 'Download (tar)',
-    share: 'Share',
+    share: 'Share / Publish',
     metadata: 'Metadata',
     datasets: 'Datasets',
     permissions: 'Permissions',

@@ -1,9 +1,12 @@
 /**
- * Container for signed-in user shares list and file browser to use in an iframe with
- * injected properties.
+ * Container for signed-in user shares list for single space and file browser to use in an
+ * iframe with injected properties.
+ *
+ * It should be displayed for single space's Shares tab. The global Shares tab for Onezone
+ * is in another component - `ContentPrivateShare`.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -38,12 +41,14 @@ export default OneEmbeddedComponent.extend(
     /**
      * @override
      */
-    iframeInjectedProperties: Object.freeze(['spaceId', 'shareId', 'dirId']),
+    iframeInjectedProperties: Object.freeze(['spaceId', 'shareId', 'dirId', 'tabId']),
 
     /**
      * @override
      */
-    iframeInjectedNavigationProperties: Object.freeze(['spaceId', 'shareId', 'dirId']),
+    iframeInjectedNavigationProperties: Object.freeze(
+      ['spaceId', 'shareId', 'dirId', 'tabId']
+    ),
 
     actions: {
       getShareUrl({ shareId }) {
