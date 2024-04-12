@@ -125,7 +125,7 @@ class EdmObjectMissingPropertiesError {
     this.properties = properties;
   }
   toString() {
-    return `missing object mandatory properties: ${', '.join(this.properties)}`;
+    return `missing object mandatory properties: ${this.properties.join(', ')}`;
   }
 }
 
