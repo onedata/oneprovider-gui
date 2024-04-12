@@ -8,12 +8,15 @@
   }
   .one-collapsible-list-item-header {
     .one-icon-tag {
-      color: $color-one-white;
+      color: $color-one-warning;
     }
     .one-icon-tag-circle {
       transition: transition-ease(background-color);
     }
     &.has-active-permissions {
+      .one-icon-tag {
+        color: $color-one-white;
+      }
       &.type-allow {
         .one-icon-tag-circle {
           background-color: $color-one-success;

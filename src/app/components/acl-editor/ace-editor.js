@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
-import { reads, collect } from '@ember/object/computed';
+import { reads, collect, not } from '@ember/object/computed';
 import { or } from 'ember-awesome-macros';
 import { numberToTree, treeToNumber } from 'oneprovider-gui/utils/acl-permissions-converter';
 import aclPermissionsSpecification from 'oneprovider-gui/utils/acl-permissions-specification';
@@ -322,12 +322,15 @@ export default Component.extend(I18n, {
    * True if there are no toggles enabled for the ACE - no operations are selected.
    * @type {ComputedProperty<boolean>}
    */
-  hasNoRulesEnabled: computed(
-    'ace.aceMask',
-    function hasNoRulesEnabled() {
-      return !this.ace.aceMask;
-    }
-  ),
+  hasNoRulesEnabled: not('hasActivePermissions'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  headerTagIcon: computed('hasNoRulesEnabled', 'aceType', function headerTagIcon() {
+    return this.hasNoRulesEnabled ?
+      'sign-warning-rounded' : (this.aceType === 'allow' ? 'checked' : 'x');
+  }),
 
   init() {
     this._super(...arguments);

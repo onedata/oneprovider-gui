@@ -1,12 +1,13 @@
 {{#listItem.header class=(concat-classes
   (concat "type-" aceType)
-  (if hasActivePermissions "has-active-permissions")
+  (if hasActivePermissions "has-active-permissions" "has-no-rules-enabled")
 )}}
   <span class="item-icon-container">
     {{one-icon-tagged
       class="item-icon"
       icon=icon
-      tagIcon=(if (eq aceType "allow") "checked" "x")
+      tagIcon=headerTagIcon
+      shadowType=(if hasNoRulesEnabled "none" "circle")
     }}
     {{one-tooltip title=tooltipText}}
   </span>
