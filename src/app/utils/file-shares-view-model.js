@@ -6,7 +6,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
@@ -30,6 +30,7 @@ export default EmberObject.extend(...mixins, {
   globalNotify: service(),
   appProxy: service(),
   modalManager: service(),
+  parentAppNavigation: service(),
 
   /**
    * @override
@@ -99,6 +100,22 @@ export default EmberObject.extend(...mixins, {
   openShareCreator() {
     this.modalManager.show('share-modal', {
       file: this.file,
+      onSubmitted: (share, isPublishing) => {
+        if (isPublishing) {
+          this.openShareOpenData(share);
+        }
+      },
     });
+  },
+
+  /**
+   * @param {Models.Share} share
+   */
+  openShareOpenData(share) {
+    const url = this.appProxy.callParent('getShareUrl', {
+      shareId: get(share, 'entityId'),
+      tabId: 'opendata',
+    });
+    this.parentAppNavigation.openUrl(url);
   },
 });

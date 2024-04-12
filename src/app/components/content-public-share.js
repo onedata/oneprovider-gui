@@ -44,9 +44,15 @@ export default OneEmbeddedComponent.extend(
     dirId: undefined,
 
     /**
+     * Initial tab for `ShareShow` component, it should be injected but not updated
+     * @type {string}
+     */
+    tabId: undefined,
+
+    /**
      * @override
      */
-    iframeInjectedProperties: Object.freeze(['shareId', 'dirId']),
+    iframeInjectedProperties: Object.freeze(['shareId', 'dirId', 'tabId']),
 
     /**
      * @override

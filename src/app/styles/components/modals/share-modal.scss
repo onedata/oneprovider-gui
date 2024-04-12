@@ -16,11 +16,31 @@
       }
     }
   }
-  .share-intro-filename {
+  .share-name-intro {
+    margin-top: 1.4em;
     @include font-semibold;
-    word-break: break-all;
   }
   .new-share-name-form-group {
     margin-bottom: 0;
+  }
+  .publish-row {
+    display: flex;
+    align-items: center;
+    margin-top: 0.8em;
+  }
+  .publish-checkbox-group {
+    display: flex;
+    align-items: center;
+    &.disabled {
+      opacity: $disabled-opacity;
+      cursor: not-allowed;
+    }
+  }
+  .text-publish {
+    margin-left: 0.8em;
+  }
+  .publish-label-tip {
+    margin-left: 0.5em;
+    line-height: 0;
   }
 }

@@ -51,6 +51,7 @@ export default Component.extend(...mixins, {
   shareManager: service(),
   globalNotify: service(),
   modalManager: service(),
+  handleManager: service(),
 
   /**
    * @override
@@ -97,6 +98,10 @@ export default Component.extend(...mixins, {
 
   newShareName: '',
 
+  hasAnyHandleService: undefined,
+
+  isPublishCheckboxChecked: false,
+
   //#endregion
 
   /**
@@ -112,7 +117,7 @@ export default Component.extend(...mixins, {
   file: reads('modalOptions.file'),
 
   /**
-   * @type {ComputedProperty<() => void>}
+   * @type {ComputedProperty<(share: Models.Share, isPublishing: boolean) => void>}
    */
   onSubmitted: reads('modalOptions.onSubmitted'),
 
@@ -178,8 +183,29 @@ export default Component.extend(...mixins, {
 
   publicShareUrl: reads('share.publicUrl'),
 
+  isPublishDisabled: computed(
+    'hasAnyHandleService',
+    'isSaving',
+    function isPublishDisabled() {
+      return !this.hasAnyHandleService || this.isSaving;
+    }
+  ),
+
+  publishTip: computed(
+    'hasAnyHandleService',
+    function publishTip() {
+      return this.t(this.hasAnyHandleService ? 'publishTip' : 'publishImpossibleTip');
+    },
+  ),
+
   init() {
     this._super(...arguments);
+    this.handleManager.getHandleServiceCount().then(handleServiceCount => {
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
+      this.set('hasAnyHandleService', Boolean(handleServiceCount));
+    });
     waitForRender().then(() => {
       this.setInitialShareName();
       this.focusInput();
@@ -207,38 +233,48 @@ export default Component.extend(...mixins, {
     this.modalManager.hide(this.modalId);
   },
 
+  async submitNew() {
+    if (this.validationError) {
+      return;
+    }
+    const {
+      shareManager,
+      globalNotify,
+      file,
+      newShareName: name,
+    } = this.getProperties('shareManager', 'globalNotify', 'file', 'newShareName');
+    this.set('isSaving', true);
+    try {
+      let share;
+      try {
+        share = await shareManager.createShare(file, name.trim());
+      } catch (error) {
+        globalNotify.backendError(this.t('creatingShare'), error);
+        throw error;
+      }
+      try {
+        await file.reload();
+        await file.hasMany('shareRecords');
+      } finally {
+        this.onSubmitted?.(share, this.isPublishCheckboxChecked);
+        this.close();
+      }
+    } finally {
+      safeExec(this, 'set', 'isSaving', false);
+    }
+  },
+
   actions: {
     async submitNew() {
-      if (this.validationError) {
-        return;
-      }
-      const {
-        shareManager,
-        globalNotify,
-        file,
-        newShareName: name,
-      } = this.getProperties('shareManager', 'globalNotify', 'file', 'newShareName');
-      this.set('isSaving', true);
-      try {
-        try {
-          await shareManager.createShare(file, name.trim());
-        } catch (error) {
-          globalNotify.backendError(this.t('creatingShare'), error);
-          throw error;
-        }
-        try {
-          await file.reload();
-          await file.hasMany('shareRecords');
-        } finally {
-          this.onSubmitted?.();
-          this.close();
-        }
-      } finally {
-        safeExec(this, 'set', 'isSaving', false);
-      }
+      return await this.submitNew();
     },
     onHide() {
       this.close();
+    },
+    togglePublishCheckbox() {
+      if (!this.isPublishDisabled) {
+        this.set('isPublishCheckboxChecked', !this.isPublishCheckboxChecked);
+      }
     },
   },
 });
