@@ -13,6 +13,15 @@ export default Service.extend({
   store: service(),
   currentUser: service(),
 
+  /**
+   * @returns {Promise<number>}
+   */
+  async getHandleServiceCount() {
+    const user = await this.currentUser.getCurrentUserRecord();
+    const handleServiceList = await user.getRelation('effHandleServiceList');
+    return get(handleServiceList, 'list').length;
+  },
+
   getHandleServices() {
     return this.get('currentUser').getCurrentUserRecord()
       .then(user => user.getRelation('effHandleServiceList', { reload: true }))
