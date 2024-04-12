@@ -318,6 +318,10 @@ export default Component.extend(I18n, {
    */
   actionsArray: collect('moveUpAction', 'moveDownAction', 'removeAction'),
 
+  /**
+   * True if there are no toggles enabled for the ACE - no operations are selected.
+   * @type {ComputedProperty<boolean>}
+   */
   hasNoRulesEnabled: computed(
     'ace.aceMask',
     function hasNoRulesEnabled() {

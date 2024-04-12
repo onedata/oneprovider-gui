@@ -16,6 +16,12 @@ import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specificati
 import { guidFor } from '@ember/object/internals';
 import sleep from 'onedata-gui-common/utils/sleep';
 
+/**
+ * @typedef {object} AclEditorListItem
+ * @property {string} id GUID of ACE object.
+ * @property {Ace} ace
+ */
+
 export default Component.extend(I18n, {
   classNames: ['acl-editor'],
   classNameBindings: ['readonly'],
@@ -91,6 +97,9 @@ export default Component.extend(I18n, {
    */
   subjectsList: array.concat('sortedGroupsAndUsers', 'systemSubjects'),
 
+  /**
+   * @type {ComputedProperty<Array<AclEditorListItem>>}
+   */
   aceListItems: computed('acl.[]', function aceListItems() {
     const x = this.acl?.map(ace => ({
       id: guidFor(ace),
