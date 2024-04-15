@@ -50,7 +50,7 @@ describe('Integration | Component | visual-edm', function () {
     expect(propertyValues).to.include('2018-03-13');
   });
 
-  it('renders ProvidedCHO with "about" and some EDM properties in readonly mode', async function () {
+  it('renders ProvidedCHO with some EDM properties in readonly mode', async function () {
     const factory = EdmMetadataFactory;
     const metadata = factory.createEmptyMetadata();
     const propertyFactory = new EdmPropertyFactory(metadata);
@@ -77,7 +77,6 @@ describe('Integration | Component | visual-edm', function () {
     await helper.render();
 
     const expectedStrings = [
-      resourceId,
       'Contributor to the creation of the original object',
       'ERIAC',
       'Creation date of the original object',
