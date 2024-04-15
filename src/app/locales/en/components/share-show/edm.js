@@ -18,13 +18,13 @@ export default {
   definitionValid: 'Metadata definition is valid.',
   definitionValidating: 'Validating...',
   synchronizedButton: 'XML synchronized',
-  synchronizedButtonTip: 'The XML source is synchronized with the visual editor. If you change the XML content manually, you will be asked to apply changes which will also apply XML formatting.',
+  synchronizedButtonTip: 'The XML source is aligned with the visual metadata editor.',
   submitDisabledReason: {
     empty: 'Metadata must not be empty',
     invalid: 'Metadata is not valid',
     xmlNotValid: 'XML is not valid',
     validatingSync: 'XML validation is pending',
-    xmlNotAccepted: 'Apply the XML source first',
+    xmlNotAccepted: 'You must first apply changes to the XML source',
   },
   imageNotFound,
 };
