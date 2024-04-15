@@ -358,7 +358,6 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
     <dc:type>a</dc:type>
     <dcterms:created>a</dcterms:created>
     <edm:type>a</edm:type>
-    <edm:dataProvider>a</edm:dataProvider>
   </edm:ProvidedCHO>
   <ore:Aggregation>
     <edm:dataProvider>a</edm:dataProvider>
