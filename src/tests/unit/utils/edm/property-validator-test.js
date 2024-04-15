@@ -49,6 +49,19 @@ describe('Unit | Utility | edm/property-validator', function () {
       expect(helper.validator.isValid).to.be.true;
     }
   );
+
+  it('has isValid = false if property has an value containig only whitespaces', function () {
+    // given
+    const helper = new Helper();
+
+    // when
+    helper.initProperty('dc', 'description');
+    helper.property.setSupportedValue('   ');
+    helper.initValidator();
+
+    // then
+    expect(helper.validator.isValid).to.be.false;
+  });
 });
 
 class Helper {

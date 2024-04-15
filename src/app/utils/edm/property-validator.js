@@ -32,7 +32,7 @@ const EdmPropertyValidator = EmberObject.extend({
           new EdmPropertyNonEnumValueError(this.edmProperty),
         ];
     } else {
-      return supportedValue ? [] : [
+      return supportedValue?.trim() ? [] : [
         new EdmPropertyEmptyValueError(this.edmProperty),
       ];
     }
