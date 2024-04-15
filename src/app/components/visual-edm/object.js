@@ -89,7 +89,7 @@ export default Component.extend(I18n, {
           value: attrs[name],
         };
       });
-      return result;
+      return result.filter(result => Boolean(result));
     }
   ),
 

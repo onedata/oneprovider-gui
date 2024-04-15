@@ -277,7 +277,7 @@ export const exampleEdmEuropeanaXml = `<?xml version="1.0"  encoding="UTF-8" ?>
       <edm:dataProvider>Ajuntament de Girona</edm:dataProvider>
       <edm:isShownAt rdf:resource="https://sgdap.girona.cat/fotoweb/archives/5002-Fotografia/FOTOGRAFIA/Col-leccio_Basseda/Positius_directe_camera/044161.jpg.info"/>
       <edm:isShownBy rdf:resource="https://weave-3dviewer.com/asset/5c545fe8-43e1-4020-8457-70c164e4b504"/>
-      <edm:object rdf:resource="http://sgdap.girona.cat/sdam/imatges/044161.jpg"/>
+      <edm:object rdf:resource="https://m.media-amazon.com/images/I/71DuF5drPIL._UF1000,1000_QL80_.jpg"/>
       <edm:provider>Photoconsortium</edm:provider>
       <edm:rights rdf:resource="http://creativecommons.org/publicdomain/mark/1.0/"/>
     </ore:Aggregation>

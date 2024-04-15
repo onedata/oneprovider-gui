@@ -14,10 +14,11 @@ import { sortProperties } from './sort';
 
 /**
  * @typedef {Object} EdmObjectAttrs
- * @property {string} about Mandatory `rdf:about` property.
+ * @property {string} about `rdf:about` property - effectively should be the URL to share
+ *   in Onedata.
  */
 
-const shownAttrs = Object.freeze(['about']);
+const shownAttrs = Object.freeze([]);
 const shownXmlAttrs = Object.freeze(['rdf:about']);
 
 export default class EdmObject {
