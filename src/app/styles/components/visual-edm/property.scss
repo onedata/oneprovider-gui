@@ -99,9 +99,6 @@
     padding-left: 1em;
     font-size: $font-size-small;
   }
-  .edm-property-attrs-container {
-
-  }
   .label-icon {
     align-self: center;
     font-size: 120%;
@@ -111,7 +108,6 @@
     margin-top: 0.8em;
     margin-bottom: 0.2em;
   }
-
   @media (max-width: 920px) {
     .edm-property-name-container {
       flex-wrap: wrap;
@@ -175,3 +171,11 @@
     }
   }
 }
+
+.edm-property-value-dropdown, .edm-property-value-dropdown-trigger {
+  .predefined-label + .predefined-value {
+    margin-left: 0.3em;
+    opacity: $disabled-opacity;
+  }
+}
+

@@ -106,8 +106,8 @@
             />
           {{else if (eq inputType "dropdown")}}
             <OneDropdown
-              @triggerClass="small property-value-dropdown-trigger"
-              @dropdownClass="small property-value-dropdown"
+              @triggerClass="small edm-property-value-dropdown-trigger"
+              @dropdownClass="small edm-property-value-dropdown"
               @options={{viewModel.predefinedValueOptions}}
               @selected={{viewModel.selectedPredefinedValueOption}}
               @onChange={{action "changeSelectedPredefinedValueOption"}}
@@ -119,7 +119,12 @@
               <div class="option-container">
                 {{#truncated-string}}
                   <span class="text">
-                    {{option.label}}
+                    <span class="predefined-label">
+                      {{option.label}}
+                    </span>
+                    {{#unless (eq option.label option.value)}}
+                      <span class="predefined-value">({{option.value}})</span>
+                    {{/unless}}
                   </span>
                 {{/truncated-string}}
               </div>
