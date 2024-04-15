@@ -16,6 +16,13 @@
     margin-top: 0.75em;
     display: flex;
     align-items: center;
+    @media (max-width: 900px) {
+      flex-wrap: wrap;
+      row-gap: 0.5em;
+      .edm-property-value-label {
+        flex-basis: 100%;
+      }
+    }
   }
   .edm-property-value-label {
     display: flex;
@@ -98,6 +105,9 @@
     margin-left: auto;
     padding-left: 1em;
     font-size: $font-size-small;
+    @media (max-width: 420px) {
+      display: none;
+    }
   }
   .label-icon {
     align-self: center;
@@ -122,6 +132,13 @@
     }
     .edm-property-type + .edm-property-lang-separator {
       display: none;
+    }
+    // style for properties not having other options than value and delete
+    &.no-options {
+      .edm-property-type {
+        flex-basis: auto;
+        padding-bottom: initial;
+      }
     }
   }
   @media (max-width: 800px) {

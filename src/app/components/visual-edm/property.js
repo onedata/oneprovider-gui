@@ -8,7 +8,7 @@
 
 import Component from '@ember/component';
 import { set, computed, observer } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, and } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { htmlSafe } from '@ember/string';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
@@ -22,6 +22,7 @@ import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend(I18n, {
   classNames: ['visual-edm-property'],
+  classNameBindings: ['noOptions'],
 
   i18nPrefix: 'components.visualEdm.property',
 
@@ -142,6 +143,10 @@ export default Component.extend(I18n, {
   inputType: reads('viewModel.inputType'),
 
   isReadOnly: reads('visualEdmViewModel.isReadOnly'),
+
+  noOptions: computed('viewModel.{isAnyValueType,isLangConfigurable}', function noOptions() {
+    return !this.viewModel.isAnyValueType && !this.viewModel.isLangConfigurable;
+  }),
 
   animateAttentionObserver: observer(
     'viewModel.isAnimateAttentionQueued',
