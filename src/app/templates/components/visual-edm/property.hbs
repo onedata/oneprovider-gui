@@ -85,7 +85,13 @@
         {{#if (eq inputType "textarea")}}
           {{value}}
         {{else}}
-          <TruncatedString>{{value}}</TruncatedString>
+          <TruncatedString>
+            {{#if isValueLink}}
+              <a href={{value}} class="navy underlined">{{value}}</a>
+            {{else}}
+              {{value}}
+            {{/if}}
+          </TruncatedString>
         {{/if}}
       {{else}}
         <div class={{viewModel.formGroupClassName}}>

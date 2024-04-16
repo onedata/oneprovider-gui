@@ -8,13 +8,14 @@
 
 import Component from '@ember/component';
 import { set, computed, observer } from '@ember/object';
-import { reads, and } from '@ember/object/computed';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { htmlSafe } from '@ember/string';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import { EdmPropertyValueType, EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import sleep from 'onedata-gui-common/utils/sleep';
+import isUrl from 'onedata-gui-common/utils/is-url';
 
 /**
  * @typedef {EdmPropertyValueType.Literal|EdmPropertyValueType.Reference} VisualEdmPropertyValueType
@@ -146,6 +147,10 @@ export default Component.extend(I18n, {
 
   noOptions: computed('viewModel.{isAnyValueType,isLangConfigurable}', function noOptions() {
     return !this.viewModel.isAnyValueType && !this.viewModel.isLangConfigurable;
+  }),
+
+  isValueLink: computed('value', function isValueLink() {
+    return isUrl(this.value);
   }),
 
   animateAttentionObserver: observer(
