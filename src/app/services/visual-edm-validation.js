@@ -5,10 +5,14 @@ import {
   EdmObjectMissingPropertiesError,
   EdmObjectPropertiesMaxSingleError,
 } from 'oneprovider-gui/utils/edm/object-validator';
-import { EdmPropertyEmptyValueError } from 'oneprovider-gui/utils/edm/property-validator';
+import {
+  EdmPropertyEmptyValueError,
+  EdmPropertyNonEnumValueError,
+} from 'oneprovider-gui/utils/edm/property-validator';
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import { htmlSafe } from '@ember/string';
 import { sortProperties } from '../utils/edm/sort';
+import { empty } from '@ember/object/computed';
 
 export default Service.extend(I18n, {
   i18n: service(),
@@ -25,27 +29,40 @@ export default Service.extend(I18n, {
   stringify(errors) {
     const messages = [];
     let emptyProperties = [];
+    let invalidEnumProperties = [];
     for (const error of errors) {
       if (error instanceof EdmPropertyEmptyValueError) {
         emptyProperties.push(error.edmProperty);
+      } else if (error instanceof EdmPropertyNonEnumValueError) {
+        invalidEnumProperties.push(error.edmProperty);
       } else {
-        // FIXME: lepsza obsługa
         messages.push(error.toString());
       }
     }
     emptyProperties = sortProperties(emptyProperties, 'visual');
+    invalidEnumProperties = sortProperties(invalidEnumProperties, 'visual');
     if (emptyProperties.length) {
-      const propertyString = joinStrings(
-        this.i18n,
-        emptyProperties.map(property => `<code>${property.xmlTagName}</code>`),
-        'and'
-      );
       messages.push(
         this.t(`valueEmpty.${emptyProperties.length === 1 ? 'singular' : 'plural'}`, {
-          propertyString: htmlSafe(propertyString),
+          propertyString: this.createPropertyString(emptyProperties),
+        })
+      );
+    }
+    if (invalidEnumProperties.length) {
+      messages.push(
+        this.t(`valueInvalidEnum.${invalidEnumProperties.length === 1 ? 'singular' : 'plural'}`, {
+          propertyString: this.createPropertyString(invalidEnumProperties),
         })
       );
     }
     return messages;
+  },
+
+  createPropertyString(edmProperties) {
+    return htmlSafe(joinStrings(
+      this.i18n,
+      edmProperties.map(property => `<code>${property.xmlTagName}</code>`),
+      'and'
+    ));
   },
 });

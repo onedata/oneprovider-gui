@@ -25,17 +25,19 @@ const EdmPropertyValidator = EmberObject.extend({
    */
   errors: computed('edmProperty', function errors() {
     const supportedValue = this.edmProperty.getSupportedValue();
+    if (!supportedValue?.trim()) {
+      return [
+        new EdmPropertyEmptyValueError(this.edmProperty),
+      ];
+    }
     if (this.edmProperty.hasPredefinedValues) {
       return this.edmProperty.predefinedValues
         .map(({ value }) => value)
         .includes(supportedValue) ? [] : [
           new EdmPropertyNonEnumValueError(this.edmProperty),
         ];
-    } else {
-      return supportedValue?.trim() ? [] : [
-        new EdmPropertyEmptyValueError(this.edmProperty),
-      ];
     }
+    return [];
   }),
 
   updateValue() {
@@ -52,7 +54,7 @@ export class EdmPropertyEmptyValueError {
   }
 }
 
-class EdmPropertyNonEnumValueError {
+export class EdmPropertyNonEnumValueError {
   constructor(edmProperty) {
     this.edmProperty = edmProperty;
   }
