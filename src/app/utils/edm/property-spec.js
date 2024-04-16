@@ -40,6 +40,7 @@ import EdmObjectType from './object-type';
  * @property {string} [def] Default value.
  * @property {boolean} [long] The string value is typically long and could contain line
  *   breaks.
+ * @property {string} [example] The example of value displayed in tooltip.
  */
 
 /**

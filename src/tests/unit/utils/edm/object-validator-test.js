@@ -10,6 +10,7 @@ import {
   EdmPropertyRecommendation,
   allSpecs,
 } from 'oneprovider-gui/utils/edm/property-spec';
+import { makeAllPropertiesValid } from '../../../helpers/edm-utils';
 
 describe('Unit | Utility | edm/object-validator', function () {
   it('is valid if object has all mandatory properties and all properties are valid', function () {
@@ -101,12 +102,6 @@ class Helper {
     return this.validator;
   }
   makeAllPropertiesValid() {
-    for (const property of this.object.edmProperties) {
-      if (property.hasPredefinedValues) {
-        property.setSupportedValue(property.predefinedValues[0].value);
-      } else {
-        property.setSupportedValue('dummy');
-      }
-    }
+    return makeAllPropertiesValid(this.object);
   }
 }

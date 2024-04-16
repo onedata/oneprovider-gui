@@ -104,7 +104,7 @@ const EdmMetadataValidator = EmberObject.extend({
   },
 });
 
-class EdmMetadataInvalidObjectOcurrence {
+export class EdmMetadataInvalidObjectOcurrence {
   constructor(edmObjectType, expectedOccurence) {
     this.edmObjectType = edmObjectType;
     this.expectedOccurence = expectedOccurence;
@@ -113,5 +113,13 @@ class EdmMetadataInvalidObjectOcurrence {
     return `EDM object of type "${this.edmObjectType}" should occur extactly ${this.expectedOccurence} time(s)`;
   }
 }
+
+/**
+ * @typedef {EdmMetadataInvalidObjectOcurrence} EdmMetadataValidatorError
+ */
+
+/**
+ * @typedef {EdmMetadataValidatorError|EdmObjectValidatorError|EdmPropertyValidatorError} EdmValidatorError
+ */
 
 export default EdmMetadataValidator;

@@ -44,7 +44,7 @@ const PropertyGroupViewModel = EmberObject.extend({
     function propertiesViewModels() {
       const newProperties = this.edmProperties.map(edmProperty => {
         const validator = this.objectViewModel.validator?.propertyValidators.find(v =>
-          v.edmProperty === edmProperty
+          v.edmProperty.equals(edmProperty)
         );
         return PropertyViewModel.create({
           propertyGroupViewModel: this,

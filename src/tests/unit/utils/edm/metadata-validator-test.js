@@ -13,9 +13,9 @@ describe('Unit | Utility | edm/metadata-validator', function () {
   });
 
   it('is valid if all objects are valid', function () {
-    const helper = new Helper();
-    helper.initMetadata();
-    for (const object of helper.metadata.edmObjects) {
+    this.helper = new Helper();
+    this.helper.initMetadata();
+    for (const object of this.helper.metadata.edmObjects) {
       for (const property of object.edmProperties) {
         if (property.hasPredefinedValues) {
           property.setSupportedValue(property.predefinedValues[0].value);
@@ -24,25 +24,25 @@ describe('Unit | Utility | edm/metadata-validator', function () {
         }
       }
     }
-    helper.initValidator();
+    this.helper.initValidator();
 
-    expect(helper.validator.isValid).to.be.true;
+    expect(this.helper.validator.isValid).to.be.true;
   });
 
   it('destroys all property validators on destroy', async function () {
     // given
-    const helper = new Helper();
-    helper.initMetadata();
-    helper.initValidator();
+    this.helper = new Helper();
+    this.helper.initMetadata();
+    this.helper.initValidator();
     const propertyValidators = [];
-    for (const objectValidator of helper.validator.objectValidators) {
+    for (const objectValidator of this.helper.validator.objectValidators) {
       propertyValidators.push(...objectValidator.propertyValidators);
     }
 
     // when
-    helper.validator.destroy();
+    this.helper.validator.destroy();
     await settled();
-    expect(helper.validator.isDestroyed).to.be.true;
+    expect(this.helper.validator.isDestroyed).to.be.true;
 
     // then
     for (const propertyValidator of propertyValidators) {

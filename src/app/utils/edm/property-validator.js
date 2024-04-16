@@ -43,7 +43,7 @@ const EdmPropertyValidator = EmberObject.extend({
   },
 });
 
-class EdmPropertyEmptyValueError {
+export class EdmPropertyEmptyValueError {
   constructor(edmProperty) {
     this.edmProperty = edmProperty;
   }

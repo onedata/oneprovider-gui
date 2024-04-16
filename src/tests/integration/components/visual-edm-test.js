@@ -10,10 +10,10 @@ import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import { findByText } from '../../helpers/find';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
-import { afterEach } from 'mocha';
+import { makeAllPropertiesValid } from '../../helpers/edm-utils';
 
 describe('Integration | Component | visual-edm', function () {
-  setupRenderingTest();
+  const { afterEach } = setupRenderingTest();
 
   afterEach(function () {
     this.helper?.destroy();
@@ -743,6 +743,61 @@ describe('Integration | Component | visual-edm', function () {
 
       // then
       expect(find('.edm-property-value .form-group')).to.have.class('has-error');
+    }
+  );
+
+  it('shows validation error in object section if some property value is empty',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory;
+      const metadata = factory.createInitialMetadata();
+      for (const edmObject of metadata.edmObjects) {
+        makeAllPropertiesValid(edmObject);
+      }
+      metadata
+        .edmObjects[0]
+        .edmProperties
+        .find(property => property.edmPropertyType === 'title')
+        .setSupportedValue('');
+
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+
+      // then
+      const validationElement =
+        helper.getObjectElement(0).querySelector('.visual-edm-validation-error');
+      expect(validationElement).to.exist;
+      expect(validationElement.textContent)
+        .to.contain('property dc:title has empty value');
+    }
+  );
+
+  it('shows empty property validation error in object section after new property is being added',
+    async function () {
+      // given
+      const factory = EdmMetadataFactory;
+      const metadata = factory.createInitialMetadata();
+      for (const edmObject of metadata.edmObjects) {
+        makeAllPropertiesValid(edmObject);
+      }
+
+      const helper = new Helper(this, metadata);
+      helper.visualEdmViewModel.set('isReadOnly', false);
+
+      // when
+      await helper.render();
+      await click(helper.getObjectElement(0).querySelector('.add-edm-property-btn'));
+      await click(findByText('Creator of the model', '.add-property-selector li'));
+
+      // then
+      const validationElement =
+        helper.getObjectElement(0).querySelector('.visual-edm-validation-error');
+      expect(validationElement).to.exist;
+      expect(validationElement.textContent)
+        .to.contain('property dc:creator has empty value');
     }
   );
 });

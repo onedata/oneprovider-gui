@@ -91,7 +91,7 @@ const EdmObjectValidator = EmberObject.extend({
   },
 
   updateValue() {
-    this.notifyPropertyChange('edmProperty');
+    this.notifyPropertyChange('edmObject');
   },
 
   getPropertyValidators() {
@@ -155,7 +155,7 @@ function getSinglePropertyTags() {
   return singlePropertyTags;
 }
 
-class EdmObjectMissingPropertiesError {
+export class EdmObjectMissingPropertiesError {
   /**
    * @param {string} properties XML tag name of properties.
    */
@@ -167,7 +167,7 @@ class EdmObjectMissingPropertiesError {
   }
 }
 
-class EdmObjectPropertiesMaxSingleError {
+export class EdmObjectPropertiesMaxSingleError {
   /**
    * @param {string} properties XML tag name of properties.
    */
@@ -178,5 +178,9 @@ class EdmObjectPropertiesMaxSingleError {
     return `these properties can occur only once in object: ${this.properties.join(', ')}`;
   }
 }
+
+/**
+ * @typedef {EdmObjectMissingPropertiesError|EdmObjectPropertiesMaxSingleError} EdmObjectValidatorError
+ */
 
 export default EdmObjectValidator;

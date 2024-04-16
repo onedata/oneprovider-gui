@@ -9,9 +9,12 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { computed } from '@ember/object';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['visual-edm-validation-error', 'edm-info-row', 'warning'],
+
+  visualEdmValidation: service(),
 
   /**
    * @type {EdmMetadataValidator|EdmObjectValidator|EdmPropertyValidator}
@@ -25,9 +28,12 @@ export default Component.extend(I18n, {
   text: undefined,
 
   /**
-   * @type {Array<string>}
+   * @type {Array<SafeString>}
    */
   errorMessages: computed('validator.errors', function errorMessages() {
-    return this.validator?.errors?.map(error => error.toString());
+    if (!this.validator) {
+      return;
+    }
+    return this.visualEdmValidation.stringify(this.validator.errors);
   }),
 });

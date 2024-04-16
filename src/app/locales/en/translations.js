@@ -51,6 +51,7 @@ import visualEdm from './components/visual-edm';
 import storageLocationPerProviderTable from './components/storage-location-per-provider-table';
 
 import uploadManager from './services/upload-manager';
+import visualEdmValidation from './services/visual-edm-validation';
 
 import handleMultiFilesOperation from './utils/handle-multi-files-operation';
 import baseBrowserModel from './utils/base-browser-model';
@@ -127,6 +128,7 @@ const translations = {
   },
   services: {
     uploadManager,
+    visualEdmValidation,
   },
   utils: {
     handleMultiFilesOperation,

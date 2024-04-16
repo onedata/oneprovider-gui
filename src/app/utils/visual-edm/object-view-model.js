@@ -32,7 +32,7 @@ const ObjectViewModel = EmberObject.extend({
   /**
    * @type {EdmObjectValidator}
    */
-  objectValidator: undefined,
+  validator: undefined,
 
   /**
    * @type {ComputedProperty<EdmPropertyGroup>}

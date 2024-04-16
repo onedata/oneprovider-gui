@@ -48,7 +48,7 @@ const objectsOrder = [
  * @param {'visual'|'xml'} mode
  * @returns {Array<EdmProperty>}
  */
-export function sortProperties(edmProperties, mode) {
+export function sortProperties(edmProperties, mode = 'visual') {
   switch (mode) {
     case 'visual':
       return [...edmProperties].sort(propertyComparatorVisual);
@@ -56,7 +56,6 @@ export function sortProperties(edmProperties, mode) {
     default:
       return _.sortBy(edmProperties, 'xmlTagName');
   }
-
 }
 
 /**
