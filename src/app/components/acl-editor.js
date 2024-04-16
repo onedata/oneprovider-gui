@@ -13,6 +13,14 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { array } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
+import { guidFor } from '@ember/object/internals';
+import sleep from 'onedata-gui-common/utils/sleep';
+
+/**
+ * @typedef {object} AclEditorListItem
+ * @property {string} id GUID of ACE object.
+ * @property {Ace} ace
+ */
 
 export default Component.extend(I18n, {
   classNames: ['acl-editor'],
@@ -90,6 +98,17 @@ export default Component.extend(I18n, {
   subjectsList: array.concat('sortedGroupsAndUsers', 'systemSubjects'),
 
   /**
+   * @type {ComputedProperty<Array<AclEditorListItem>>}
+   */
+  aceListItems: computed('acl.[]', function aceListItems() {
+    const x = this.acl?.map(ace => ({
+      id: guidFor(ace),
+      ace,
+    })) ?? [];
+    return x;
+  }),
+
+  /**
    * @returns {undefined}
    */
   notifyAboutChange() {
@@ -98,6 +117,46 @@ export default Component.extend(I18n, {
       onChange,
     } = this.getProperties('acl', 'onChange');
     onChange(acl);
+  },
+
+  addEntity(entity) {
+    const modelName = get(entity, 'constructor.modelName');
+    const subjectType = modelName || get(entity, 'equivalentType') || 'group';
+    const aceFlags = get(entity, 'constructor.modelName') === 'group' ?
+      AceFlagsMasks.IDENTIFIER_GROUP : AceFlagsMasks.NO_FLAGS;
+
+    const newAce = {
+      aceMask: 0,
+      aceType: 'ALLOW',
+      identifier: get(entity, 'entityId'),
+      aceFlags,
+      subject: entity,
+      subjectType,
+    };
+    this.get('acl').pushObject(newAce);
+    (async () => {
+      await sleep(0);
+      this.expandAce(guidFor(newAce));
+    })();
+    this.notifyAboutChange();
+  },
+
+  expandAce(aceId) {
+    const aceItemElement = this.element?.querySelector(`#ace-item-${aceId}`);
+    if (!aceItemElement) {
+      console.warn('AclEditor: New ACE item not found on list');
+    }
+
+    aceItemElement
+      ?.querySelector('.one-collapsible-list-item-header')
+      ?.click();
+
+    const onTransitionEnd = () => {
+      aceItemElement.scrollIntoView();
+      aceItemElement.removeEventListener('transitionend', onTransitionEnd);
+    };
+
+    aceItemElement.addEventListener('transitionend', onTransitionEnd);
   },
 
   actions: {
@@ -132,21 +191,7 @@ export default Component.extend(I18n, {
       this.notifyAboutChange();
     },
     addEntitySelected(entity) {
-      const modelName = get(entity, 'constructor.modelName');
-      const subjectType = modelName || get(entity, 'equivalentType') || 'group';
-      const aceFlags = get(entity, 'constructor.modelName') === 'group' ?
-        AceFlagsMasks.IDENTIFIER_GROUP : AceFlagsMasks.NO_FLAGS;
-
-      const newAce = {
-        aceMask: 0,
-        aceType: 'ALLOW',
-        identifier: get(entity, 'entityId'),
-        aceFlags,
-        subject: entity,
-        subjectType,
-      };
-      this.get('acl').pushObject(newAce);
-      this.notifyAboutChange();
+      this.addEntity(entity);
     },
   },
 });
