@@ -1,4 +1,4 @@
-import browserColumns from './-browser-columns-name/-browser-columns';
+import browserColumns from './-browser-columns-name/filesystem';
 
 const fileLinkAuthentication =
   'It only works for logged-in users that have access to this {{type}}. To obtain a public link, use the Share function.';

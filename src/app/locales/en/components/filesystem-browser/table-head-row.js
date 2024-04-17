@@ -1,4 +1,4 @@
-import headers from '../-browser-columns-name/-browser-columns';
+import headers from '../-browser-columns-name/filesystem';
 
 export default {
   headers,

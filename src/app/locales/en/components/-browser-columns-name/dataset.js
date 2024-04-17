@@ -1,5 +1,7 @@
 export default {
-  datasets: 'Datasets',
-  archives: 'Archives',
-  created: 'Created at',
+  name: {
+    datasets: 'Datasets',
+    archives: 'Archives',
+    created: 'Created at',
+  },
 };

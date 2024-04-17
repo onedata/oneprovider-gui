@@ -105,7 +105,7 @@ export default Component.extend(I18n, {
    * @type {PromiseObject<Models.Provider>}
    */
   currentProviderProxy: computed(function currentProviderProxy() {
-    return promiseObject(this.get('providerManager').getCurrentProvider());
+    return promiseObject(this.providerManager.getCurrentProvider());
   }),
 
   /**
