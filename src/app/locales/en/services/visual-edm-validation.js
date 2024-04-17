@@ -20,5 +20,19 @@ export default {
       plural: 'missing {{propertyString}} mandatory properties for {{objectType}}',
     },
   },
+  exceedingProperties: {
+    object: {
+      singular: 'the {{propertyString}} property can only appear single time',
+      plural: 'the {{propertyString}} properties can only appear in single instances',
+    },
+    metadata: {
+      singular: 'the {{propertyString}} property can only appear single time in the "{{objectType}}"',
+      plural: 'the {{propertyString}} properties can only appear in single instances in the "{{objectType}}"',
+    },
+  },
+  objectOccurrence: {
+    singular: 'there should be excatly one "{{objectType}}" object in the metadata',
+    plural: '"{{objectType}}" object should occur exactly {{expectedOccurence}} times in the metadata',
+  },
   objectTypeName,
 };

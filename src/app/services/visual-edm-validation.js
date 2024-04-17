@@ -1,4 +1,10 @@
-// FIXME: jsdoc
+/**
+ * Provides human-readable texts for the EDM validators.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2024 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import Service, { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
@@ -13,11 +19,10 @@ import {
 } from 'oneprovider-gui/utils/edm/property-validator';
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import { htmlSafe } from '@ember/string';
-import { sortProperties } from '../utils/edm/sort';
-import { tagToPropertyDataMap } from '../utils/edm/property-spec';
-import EdmObjectValidator from '../utils/edm/object-validator';
-import EdmMetadataValidator from '../utils/edm/metadata-validator';
-import EdmPropertyValidator from '../utils/edm/property-validator';
+import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
+import { tagToPropertyDataMap } from 'oneprovider-gui/utils/edm/property-spec';
+import EdmObjectValidator from 'oneprovider-gui/utils/edm/object-validator';
+import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 
 /**
  * @typedef {'visual'|'xml'} EdmValidationMessageViewType
@@ -74,6 +79,19 @@ export default Service.extend(I18n, {
           error.propertyTags,
           viewType
         ));
+      } else if (error instanceof EdmObjectPropertiesMaxSingleError) {
+        messages.push(this.createExceedingPropertiesMessage(
+          validationContext,
+          error.edmObject.edmObjectType,
+          error.properties,
+          viewType
+        ));
+      } else if (error instanceof EdmMetadataInvalidObjectOcurrence) {
+        messages.push(this.createObjectOccurrenceMessage(
+          error.edmObjectType,
+          error.expectedOccurence,
+          viewType
+        ));
       } else {
         messages.push(error.toString());
       }
@@ -99,6 +117,16 @@ export default Service.extend(I18n, {
 
   translateObjectType(edmObjectType) {
     return this.t(`objectTypeName.${edmObjectType}`, { defaultValue: edmObjectType });
+  },
+
+  createObjectOccurrenceMessage(edmObjectType, expectedOccurence) {
+    const quantity = expectedOccurence === 1 ? 'singular' : 'plural';
+    return this.t(
+      `objectOccurrence.${quantity}`, {
+        objectType: this.translateObjectType(edmObjectType),
+        expectedOccurence,
+      }
+    );
   },
 
   createEmptyValuesMessage(edmProperties, viewType, edmObjectType) {
@@ -145,6 +173,33 @@ export default Service.extend(I18n, {
     const edmObjectType = edmObject.edmObjectType;
     return this.t(
       `missingProperties.${validationContext}.${quantity}`, {
+        objectType: this.translateObjectType(edmObjectType),
+        propertyString: this.createPropertiesString(
+          propertiesData,
+          viewType,
+          edmObjectType
+        ),
+      }
+    );
+  },
+
+  /**
+   * @param {EdmValidationMessageContext} validationContext
+   * @param {EdmObjectType} edmObjectType
+   * @param {string} propertyTags XML tags with namespaces.
+   * @param {EdmValidationMessageViewType} viewType
+   * @returns
+   */
+  createExceedingPropertiesMessage(
+    validationContext,
+    edmObjectType,
+    propertyTags,
+    viewType
+  ) {
+    const propertiesData = propertyTags.map(tag => tagToPropertyDataMap[tag]);
+    const quantity = propertyTags.length === 1 ? 'singular' : 'plural';
+    return this.t(
+      `exceedingProperties.${validationContext}.${quantity}`, {
         objectType: this.translateObjectType(edmObjectType),
         propertyString: this.createPropertiesString(
           propertiesData,

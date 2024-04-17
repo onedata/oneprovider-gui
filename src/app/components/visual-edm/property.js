@@ -7,10 +7,10 @@
  */
 
 import Component from '@ember/component';
+import { inject as service } from '@ember/service';
 import { set, computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import { htmlSafe } from '@ember/string';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import { EdmPropertyValueType, EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
 import animateCss from 'onedata-gui-common/utils/animate-css';
@@ -25,6 +25,11 @@ export default Component.extend(I18n, {
   classNames: ['visual-edm-property'],
   classNameBindings: ['noOptions'],
 
+  visualEdmTranslation: service(),
+
+  /**
+   * @override
+   */
   i18nPrefix: 'components.visualEdm.property',
 
   /**
@@ -61,25 +66,13 @@ export default Component.extend(I18n, {
    */
   displayedPropertyName: computed(
     'viewModel.model.{namespace,edmPropertyType}',
+    'edmObjectModel.edmObjectType',
     function displayedPropertyName() {
-      let text;
-      text = this.t(
-        `propertyName.${this.viewModel.model.namespace}.${this.viewModel.model.edmPropertyType}.${this.edmObjectModel.edmObjectType}`, {}, {
-          defaultValue: null,
-        }
+      return this.visualEdmTranslation.getDisplayedPropertyName(
+        this.viewModel.model.namespace,
+        this.viewModel.model.edmPropertyType,
+        this.edmObjectModel.edmObjectType
       );
-      if (text) {
-        return text;
-      }
-      text = this.t(
-        `propertyName.${this.viewModel.model.namespace}.${this.viewModel.model.edmPropertyType}`, {}, {
-          defaultValue: null,
-        }
-      );
-      if (text) {
-        return text;
-      }
-      return htmlSafe(humanizeString(this.viewModel.model.edmPropertyType));
     }
   ),
 

@@ -72,7 +72,9 @@ const EdmObjectValidator = EmberObject.extend({
         );
       }
       if (exceedingProperties.length) {
-        result.push(new EdmObjectPropertiesMaxSingleError(exceedingProperties));
+        result.push(new EdmObjectPropertiesMaxSingleError(
+          this.edmObject, exceedingProperties
+        ));
       }
 
       const propertiesErrors = _.flatten(this.propertyValidators.map(validator =>
@@ -88,7 +90,6 @@ const EdmObjectValidator = EmberObject.extend({
         validator.errors
       )));
 
-      // TODO: VFS-11912 Check if any property does not exceeds max occurrences
       return result;
     }
   ),
@@ -182,9 +183,11 @@ export class EdmObjectMissingPropertiesError {
 
 export class EdmObjectPropertiesMaxSingleError {
   /**
+   * @param {EdmObject} edmObject
    * @param {string} properties XML tag name of properties.
    */
-  constructor(properties) {
+  constructor(edmObject, properties) {
+    this.edmObject = edmObject;
     this.properties = properties;
   }
   toString() {

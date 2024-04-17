@@ -349,6 +349,7 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
   xmlns:ore="http://www.openarchives.org/ore/terms/">
   <edm:ProvidedCHO>
     <dc:contributor>a</dc:contributor>
+    <dc:title>Some title</dc:title>
     <dc:creator>a</dc:creator>
     <dc:description>a</dc:description>
     <dc:format>IGES</dc:format>

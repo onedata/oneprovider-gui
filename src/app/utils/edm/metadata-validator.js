@@ -59,13 +59,13 @@ const EdmMetadataValidator = EmberObject.extend({
         obj.edmObjectType === EdmObjectType.ProvidedCHO
       ).length === 1;
       if (!isSingleProvidedCHO) {
-        result.push(EdmMetadataInvalidObjectOcurrence(EdmObjectType.ProvidedCHO, 1));
+        result.push(new EdmMetadataInvalidObjectOcurrence(EdmObjectType.ProvidedCHO, 1));
       }
       const isSingleAggregation = this.edmMetadata.edmObjects.filter(obj =>
-        obj.edmObjectType === EdmObjectType.ProvidedCHO
+        obj.edmObjectType === EdmObjectType.Aggregation
       ).length === 1;
       if (!isSingleAggregation) {
-        result.push(EdmMetadataInvalidObjectOcurrence(EdmObjectType.ProvidedCHO, 1));
+        result.push(new EdmMetadataInvalidObjectOcurrence(EdmObjectType.Aggregation, 5));
       }
       result.push(..._.flatten(this.objectValidators.map(validator =>
         validator.errors
@@ -110,7 +110,7 @@ export class EdmMetadataInvalidObjectOcurrence {
     this.expectedOccurence = expectedOccurence;
   }
   toString() {
-    return `EDM object of type "${this.edmObjectType}" should occur extactly ${this.expectedOccurence} time(s)`;
+    return `EDM object of type "${this.edmObjectType}" should occur exactly ${this.expectedOccurence} time(s)`;
   }
 }
 
