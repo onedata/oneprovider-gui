@@ -271,6 +271,7 @@ export default Service.extend(...mixins, {
     await this.createArchivesMock(store);
     await this.createAtmWorkflowExecutionRecords(store);
     await this.createRecallState(store);
+    await this.createAcl();
     const user = await this.createUserRecord(store, listRecords);
     const effSpaceList = await user.get('effSpaceList');
     const effSpaceListList = await get(effSpaceList, 'list');
@@ -1785,6 +1786,26 @@ export default Service.extend(...mixins, {
       userRecord.set(camelize('eff-' + lr.constructor.modelName), lr)
     );
     return userRecord.save();
+  },
+
+  async createAcl() {
+    const aceEveryone = {
+      aceType: 'ALLOW',
+      identifier: 'EVERYONE@',
+      aceFlags: 0,
+      aceMask: 0,
+    };
+    const aclRecord = this.store.createRecord('acl', {
+      list: [aceEveryone],
+    });
+    await aclRecord.save();
+    this.set('entityRecords.acl', [aclRecord]);
+    await allFulfilled(
+      [...this.entityRecords.file, ...this.entityRecords.chainDir].map(file => {
+        set(file, 'acl', aclRecord);
+        return file.save();
+      })
+    );
   },
 });
 

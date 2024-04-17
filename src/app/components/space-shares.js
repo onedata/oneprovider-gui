@@ -62,6 +62,12 @@ export default Component.extend(createDataProxyMixin('shares'), {
    */
   shareId: undefined,
 
+  /**
+   * @virtual optional
+   * @type {ShareShowTabId}
+   */
+  initialTabId: undefined,
+
   shareActions: collect('btnDelete', 'btnRename'),
 
   spaceProxy: promise.object(computed('spaceId', function spacesProxy() {

@@ -12,7 +12,8 @@
   {{/modal.header}}
   {{#modal.body}}
     <div class="share-modal-loadable-row loadable-row">
-      <p>{{tt this "setName"}}:</p>
+      <p>{{tt this "intro"}}</p>
+      <p class="share-name-intro">{{tt this "shareNameIntro"}}</p>
       <div class="row">
         {{#bs-form class="form-horizontal without-labels" as |form|}}
           {{#form.group
@@ -42,6 +43,29 @@
             </div>
           {{/form.group}}
         {{/bs-form}}
+      </div>
+      <div class="row publish-row">
+        <div class="publish-checkbox-group {{if isPublishDisabled "disabled"}}">
+          <OneCheckbox
+            class="one-checkbox-understand"
+            @checked={{isPublishCheckboxChecked}}
+            @isReadOnly={{isPublishDisabled}}
+            @update={{action "togglePublishCheckbox"}}
+          />
+          <div
+            class="text-publish {{unless isPublishDisabled "clickable"}}"
+            onclick={{unless isPublishDisabled (action "togglePublishCheckbox")}}
+          >
+            {{tt this "publishText"}}
+          </div>
+        </div>
+        {{#if publishTip}}
+          <OneLabelTip
+            class="publish-label-tip"
+            @tooltipClass="tooltip-lg"
+            @title={{publishTip}}
+          />
+        {{/if}}
       </div>
     </div>
   {{/modal.body}}

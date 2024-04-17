@@ -7,6 +7,8 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11536 Added atime and ctime info to columns in file browser and to file details
+* VFS-11801 Improved UX of ACL editor: including auto expand, no rules warning
+* VFS-11761 Added quick share publish toggle to share modal
 * VFS-11845 Fixed exiting `ember serve` on error and SCSS hot reloading
 * VFS-10262 Made i18n mixin non-component
 * VFS-11811 Changed the order of physical locations
