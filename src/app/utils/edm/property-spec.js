@@ -8,6 +8,7 @@
  */
 
 import EdmObjectType from './object-type';
+import _ from 'lodash';
 
 /**
  * @typedef {'dc'|'dcterms'|'edm'|'owl'} EdmPropertyNamespace
@@ -454,6 +455,14 @@ function createAllPropertiesCreationData() {
  * @type {Array<EdmPropertyCreationData>}
  */
 export const allPropertyData = Object.freeze(createAllPropertiesCreationData());
+
+/**
+ * @type {Object<string, EdmPropertyCreationData>}
+ */
+export const tagToPropertyDataMap = _.zipObject(
+  allPropertyData.map(p => p.xmlTagName),
+  allPropertyData
+);
 
 function get3DFormats() {
   return [

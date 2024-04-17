@@ -17,6 +17,12 @@ export default Component.extend(I18n, {
   visualEdmValidation: service(),
 
   /**
+   * @virtual
+   * @type {EdmValidationMessageViewType}
+   */
+  viewType: 'visual',
+
+  /**
    * @type {EdmMetadataValidator|EdmObjectValidator|EdmPropertyValidator}
    */
   validator: undefined,
@@ -30,10 +36,13 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<SafeString>}
    */
-  errorMessages: computed('validator.errors', function errorMessages() {
+  errorMessages: computed('validator.errors', 'viewType', function errorMessages() {
     if (!this.validator) {
       return;
     }
-    return this.visualEdmValidation.stringify(this.validator.errors);
+    return this.visualEdmValidation.getErrorMessages(
+      this.validator,
+      this.viewType
+    );
   }),
 });

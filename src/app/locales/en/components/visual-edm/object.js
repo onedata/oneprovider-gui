@@ -1,11 +1,13 @@
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 
+export const objectTypeName = Object.freeze({
+  [EdmObjectType.Aggregation]: 'Aggregation',
+  [EdmObjectType.ProvidedCHO]: 'Provided Cultural Heritage Object',
+  [EdmObjectType.WebResource]: 'Web Resource',
+});
+
 export default {
-  objectTypeName: {
-    [EdmObjectType.Aggregation]: 'Aggregation',
-    [EdmObjectType.ProvidedCHO]: 'Provided Cultural Heritage Object',
-    [EdmObjectType.WebResource]: 'Web Resource',
-  },
+  objectTypeName,
   listButtons: {
     addProperty: 'Add property',
   },

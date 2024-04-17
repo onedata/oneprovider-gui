@@ -21,12 +21,13 @@ describe('Integration | Component | visual-edm/validation-error', function () {
     this.validator.destroy();
   });
 
-  it('renders text about missing values of properties using object validator', async function () {
+  it('renders text about missing values of properties using object validator (XML)', async function () {
     this.metadata = EdmMetadataFactory.createInitialMetadata();
     this.objectFactory = new EdmObjectFactory(this.metadata);
     this.propertyFactory = new EdmPropertyFactory(this.metadata);
     this.object = this.objectFactory.createInitialObject(EdmObjectType.ProvidedCHO);
     this.validator = EdmObjectValidator.create({ edmObject: this.object });
+    this.viewType = 'xml';
     makeAllPropertiesValid(this.object);
     setValueByTag(this.object, 'dc:title', '');
     setValueByTag(this.object, 'dc:description', '');
@@ -37,6 +38,24 @@ describe('Integration | Component | visual-edm/validation-error', function () {
       'properties dc:title and dc:description have empty values'
     );
   });
+
+  it('renders text about missing values of properties using object validator (visual)', async function () {
+    this.metadata = EdmMetadataFactory.createInitialMetadata();
+    this.objectFactory = new EdmObjectFactory(this.metadata);
+    this.propertyFactory = new EdmPropertyFactory(this.metadata);
+    this.object = this.objectFactory.createInitialObject(EdmObjectType.ProvidedCHO);
+    this.validator = EdmObjectValidator.create({ edmObject: this.object });
+    this.viewType = 'visual';
+    makeAllPropertiesValid(this.object);
+    setValueByTag(this.object, 'dc:title', '');
+    setValueByTag(this.object, 'dc:creator', '');
+
+    await renderComponent(this);
+
+    expect(getElement().querySelector('.edm-info-row-text').textContent).to.contain(
+      'properties "Title" and "Creator of the model" have empty values'
+    );
+  });
 });
 
 function setValueByTag(edmObject, xmlTagName, value) {
@@ -44,11 +63,11 @@ function setValueByTag(edmObject, xmlTagName, value) {
     .setSupportedValue(value);
 }
 
-async function renderComponent(mochaContext) {
-  mochaContext.set('validator', mochaContext.validator);
+async function renderComponent() {
   await render(hbs`<VisualEdm::ValidationError
     @text="Validation test"
     @validator={{validator}}
+    @viewType={{viewType}}
   />`);
 }
 

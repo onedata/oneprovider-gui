@@ -9,12 +9,16 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import { htmlSafe } from '@ember/string';
-import humanizeString from 'oneprovider-gui/utils/humanize-string';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['visual-edm-property-group', 'edm-property-group-box'],
 
+  visualEdmTranslation: service(),
+
+  /**
+   * @override
+   */
   i18nPrefix: 'components.visualEdm.property',
 
   /**
@@ -27,26 +31,13 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<SafeString>}
    */
   displayedPropertyName: computed(
-    'viewModel.{namespace,edmPropertyType}',
+    'viewModel.{namespace,edmPropertyType,edmObjectType}',
     function displayedPropertyName() {
-      let text;
-      text = this.t(
-        `propertyName.${this.viewModel.namespace}.${this.viewModel.edmPropertyType}.${this.viewModel.edmObjectType}`, {}, {
-          defaultValue: null,
-        }
+      return this.visualEdmTranslation(
+        this.viewModel.namespace,
+        this.viewModel.edmPropertyType,
+        this.viewModel.edmObjectType
       );
-      if (text) {
-        return text;
-      }
-      text = this.t(
-        `propertyName.${this.viewModel.namespace}.${this.viewModel.edmPropertyType}`, {}, {
-          defaultValue: null,
-        }
-      );
-      if (text) {
-        return text;
-      }
-      return htmlSafe(humanizeString(this.viewModel.edmPropertyType));
     }
   ),
 });

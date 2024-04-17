@@ -771,7 +771,7 @@ describe('Integration | Component | visual-edm', function () {
         helper.getObjectElement(0).querySelector('.visual-edm-validation-error');
       expect(validationElement).to.exist;
       expect(validationElement.textContent)
-        .to.contain('property dc:title has empty value');
+        .to.contain('property "Title" has empty value');
     }
   );
 
@@ -797,7 +797,7 @@ describe('Integration | Component | visual-edm', function () {
         helper.getObjectElement(0).querySelector('.visual-edm-validation-error');
       expect(validationElement).to.exist;
       expect(validationElement.textContent)
-        .to.contain('property dc:creator has empty value');
+        .to.contain('property "Creator of the model" has empty value');
     }
   );
 });

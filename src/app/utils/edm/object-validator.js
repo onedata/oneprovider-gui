@@ -67,10 +67,21 @@ const EdmObjectValidator = EmberObject.extend({
         tagCountMapping[xmlTag] > 1
       );
       if (missingProperties.length) {
-        result.push(new EdmObjectMissingPropertiesError(missingProperties));
+        result.push(
+          new EdmObjectMissingPropertiesError(this.edmObject, missingProperties)
+        );
       }
       if (exceedingProperties.length) {
         result.push(new EdmObjectPropertiesMaxSingleError(exceedingProperties));
+      }
+
+      const propertiesErrors = _.flatten(this.propertyValidators.map(validator =>
+        validator.errors
+      ));
+
+      const edmObjectType = this.edmObject.edmObjectType;
+      for (const error of propertiesErrors) {
+        error.edmObjectType = edmObjectType;
       }
 
       result.push(..._.flatten(this.propertyValidators.map(validator =>
@@ -157,13 +168,15 @@ function getSinglePropertyTags() {
 
 export class EdmObjectMissingPropertiesError {
   /**
-   * @param {string} properties XML tag name of properties.
+   * @param {EdmObject} edmObject
+   * @param {string} propertyTags XML tag name of properties.
    */
-  constructor(properties) {
-    this.properties = properties;
+  constructor(edmObject, propertyTags) {
+    this.edmObject = edmObject;
+    this.propertyTags = propertyTags;
   }
   toString() {
-    return `missing object mandatory properties: ${this.properties.join(', ')}`;
+    return `missing ${this.edmObject.edmObjectType} object mandatory properties: ${this.propertyTags.join(', ')}`;
   }
 }
 

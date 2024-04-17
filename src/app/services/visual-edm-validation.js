@@ -1,3 +1,5 @@
+// FIXME: jsdoc
+
 import Service, { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { EdmMetadataInvalidObjectOcurrence } from 'oneprovider-gui/utils/edm/metadata-validator';
@@ -12,10 +14,22 @@ import {
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import { htmlSafe } from '@ember/string';
 import { sortProperties } from '../utils/edm/sort';
-import { empty } from '@ember/object/computed';
+import { tagToPropertyDataMap } from '../utils/edm/property-spec';
+import EdmObjectValidator from '../utils/edm/object-validator';
+import EdmMetadataValidator from '../utils/edm/metadata-validator';
+import EdmPropertyValidator from '../utils/edm/property-validator';
+
+/**
+ * @typedef {'visual'|'xml'} EdmValidationMessageViewType
+ */
+
+/**
+ * @typedef {'metadata'|'object'} EdmValidationMessageContext
+ */
 
 export default Service.extend(I18n, {
   i18n: service(),
+  visualEdmTranslation: service(),
 
   /**
    * @override
@@ -23,18 +37,43 @@ export default Service.extend(I18n, {
   i18nPrefix: 'services.visualEdmValidation',
 
   /**
-   * @param {Array<EdmValidatorError>} errors
+   * @param {EdmMetadataValidator|EdmObjectValidator|EdmPropertyValidator} validator
+   * @param {EdmValidationMessageViewType} viewType
    * @returns {Array<SafeString>}
    */
-  stringify(errors) {
+  getErrorMessages(validator, viewType = 'visual') {
+    let validationContext;
+    let edmObjectType;
+    switch (validator.constructor) {
+      case EdmObjectValidator:
+        validationContext = 'object';
+        edmObjectType = validator.edmObject.edmObjectType;
+        break;
+      case EdmMetadataValidator:
+        validationContext = 'metadata';
+        break;
+      default:
+        throw new Error(
+          `${validator.constructor} is not supported validator type in the messages translator
+        `);
+    }
+
     const messages = [];
     let emptyProperties = [];
     let invalidEnumProperties = [];
+    const errors = validator.errors;
     for (const error of errors) {
       if (error instanceof EdmPropertyEmptyValueError) {
         emptyProperties.push(error.edmProperty);
       } else if (error instanceof EdmPropertyNonEnumValueError) {
         invalidEnumProperties.push(error.edmProperty);
+      } else if (error instanceof EdmObjectMissingPropertiesError) {
+        messages.push(this.createMissingPropertiesMessage(
+          validationContext,
+          error.edmObject,
+          error.propertyTags,
+          viewType
+        ));
       } else {
         messages.push(error.toString());
       }
@@ -42,27 +81,122 @@ export default Service.extend(I18n, {
     emptyProperties = sortProperties(emptyProperties, 'visual');
     invalidEnumProperties = sortProperties(invalidEnumProperties, 'visual');
     if (emptyProperties.length) {
-      messages.push(
-        this.t(`valueEmpty.${emptyProperties.length === 1 ? 'singular' : 'plural'}`, {
-          propertyString: this.createPropertyString(emptyProperties),
-        })
-      );
+      messages.push(this.createEmptyValuesMessage(
+        emptyProperties,
+        viewType,
+        edmObjectType
+      ));
     }
     if (invalidEnumProperties.length) {
-      messages.push(
-        this.t(`valueInvalidEnum.${invalidEnumProperties.length === 1 ? 'singular' : 'plural'}`, {
-          propertyString: this.createPropertyString(invalidEnumProperties),
-        })
-      );
+      messages.push(this.createInvalidEnumValuesMessage(
+        invalidEnumProperties,
+        viewType,
+        edmObjectType
+      ));
     }
     return messages;
   },
 
-  createPropertyString(edmProperties) {
+  translateObjectType(edmObjectType) {
+    return this.t(`objectTypeName.${edmObjectType}`, { defaultValue: edmObjectType });
+  },
+
+  createEmptyValuesMessage(edmProperties, viewType, edmObjectType) {
+    if (!edmProperties?.length) {
+      return;
+    }
+    const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
+    return this.t(
+      `valueEmpty.${quantity}`, {
+        propertyString: this.createPropertiesString(
+          edmProperties,
+          viewType,
+          edmObjectType
+        ),
+      }
+    );
+  },
+
+  createInvalidEnumValuesMessage(edmProperties, viewType, edmObjectType) {
+    if (!edmProperties?.length) {
+      return;
+    }
+    return this.t(
+      `valueInvalidEnum.${edmProperties.length === 1 ? 'singular' : 'plural'}`, {
+        propertyString: this.createPropertiesString(
+          edmProperties,
+          viewType,
+          edmObjectType,
+        ),
+      }
+    );
+  },
+
+  /**
+   * @param {EdmValidationMessageContext} validationContext
+   * @param {EdmObject} edmObject
+   * @param {string} propertyTags XML tags with namespaces.
+   * @param {EdmValidationMessageViewType} viewType
+   * @returns
+   */
+  createMissingPropertiesMessage(validationContext, edmObject, propertyTags, viewType) {
+    const propertiesData = propertyTags.map(tag => tagToPropertyDataMap[tag]);
+    const quantity = propertyTags.length === 1 ? 'singular' : 'plural';
+    const edmObjectType = edmObject.edmObjectType;
+    return this.t(
+      `missingProperties.${validationContext}.${quantity}`, {
+        objectType: this.translateObjectType(edmObjectType),
+        propertyString: this.createPropertiesString(
+          propertiesData,
+          viewType,
+          edmObjectType
+        ),
+      }
+    );
+  },
+
+  /**
+   * @param {Array<EdmProperty|EdmPropertyCreationData>} properties
+   * @param {EdmValidationMessageViewType} viewType
+   * @param {EdmObjectType} objectType
+   * @returns {Array<SafeString>}
+   */
+  createPropertiesString(properties, viewType, objectType) {
     return htmlSafe(joinStrings(
       this.i18n,
-      edmProperties.map(property => `<code>${property.xmlTagName}</code>`),
+      properties.map(property => this.createPropertyString(
+        property,
+        viewType,
+        objectType
+      )),
       'and'
     ));
+  },
+
+  translatePropertyName(tagName, objectType) {
+    const [namespace, name] = tagName.split(':');
+    return this.visualEdmTranslation.getDisplayedPropertyName(
+      namespace,
+      name,
+      objectType
+    );
+  },
+
+  /**
+   * @param {Array<EdmProperty|EdmPropertyCreationData>} property
+   * @param {EdmValidationMessageViewType} viewType
+   * @param {EdmObjectType} objectType
+   * @returns {SafeString}
+   */
+  createPropertyString(property, viewType, objectType) {
+    const tagName = property.xmlTagName;
+    switch (viewType) {
+      case 'visual':
+        return `"${this.translatePropertyName(tagName, objectType)}"`;
+      case 'xml':
+        return `<code>${tagName}</code>`;
+      default:
+        break;
+    }
   },
 });

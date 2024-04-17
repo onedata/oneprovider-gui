@@ -46,6 +46,8 @@ const EdmPropertyValidator = EmberObject.extend({
 });
 
 export class EdmPropertyEmptyValueError {
+  edmObjectType = null;
+
   constructor(edmProperty) {
     this.edmProperty = edmProperty;
   }
@@ -55,6 +57,8 @@ export class EdmPropertyEmptyValueError {
 }
 
 export class EdmPropertyNonEnumValueError {
+  edmObjectType = null;
+
   constructor(edmProperty) {
     this.edmProperty = edmProperty;
   }
