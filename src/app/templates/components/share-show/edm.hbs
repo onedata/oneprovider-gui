@@ -83,12 +83,13 @@
             </div>
           </div>
         {{/if}}
-        <div class="btn-tooltip-container">
+        <div class="synchronized-xml-btn-container btn-tooltip-container">
           {{#if isApplyXmlButtonShown}}
             <OneButton
               class="apply-xml-btn"
               @disabled={{isApplyXmlButtonDisabled}}
               @onClick={{action "acceptXml"}}
+              @size={{if media.isMobile "sm"}}
             >
               {{tt this "applyAndFormatXml"}}
             </OneButton>
@@ -99,6 +100,7 @@
             <OneButton
               class="synchronized-xml-btn"
               @disabled={{true}}
+              @size={{if media.isMobile "sm"}}
             >
               {{tt this "synchronizedButton"}}
             </OneButton>
