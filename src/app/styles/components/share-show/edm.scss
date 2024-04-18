@@ -45,11 +45,11 @@
   }
   .representative-image-container {
     position: sticky;
-    top: calc(var(--representative-image-top, 150px) + 20px);
+    top: calc(var(--representative-image-top) + 20px);
     width: 100%;
     padding-left: 20px;
-    // 88px is the arbitrary spacing to rendered visual-edm from top on share-show
-    margin-top: 88px;
+    // 68px is the arbitrary spacing to rendered visual-edm from top on share-show
+    margin-top: 68px;
     img {
       max-width: 100%;
     }

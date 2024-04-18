@@ -2,9 +2,12 @@
   height: auto;
   overflow: hidden;
 
+  margin-top: 0;
+
   // override default spacing of iconified block
-  &, &.iconified-block + .iconified-block.modern-iconified-block {
+  &.iconified-block + .iconified-block.modern-iconified-block {
     margin-top: var(--visual-edm-items-spacing);
+
   }
 
   .edm-object-iconified-block-row {
