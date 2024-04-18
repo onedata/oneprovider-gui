@@ -1,5 +1,8 @@
 @use 'sass:color';
 
+// the arbitrary spacing to rendered visual-edm from top on share-show
+$share-show-edm-empirical-header-height: 68px;
+
 .share-show-edm {
   .col-edm-editor {
     display: flex;
@@ -48,10 +51,10 @@
     top: calc(var(--representative-image-top) + 20px);
     width: 100%;
     padding-left: 20px;
-    // 68px is the arbitrary spacing to rendered visual-edm from top on share-show
     margin-top: 68px;
     img {
       max-width: 100%;
+      max-height: var(--edm-representative-image-max-height, auto);
     }
   }
 
@@ -93,9 +96,15 @@
 .share-show {
   &.share-show-public {
     --representative-image-top: #{$share-show-content-header-height-public};
+    .edm-mode-xml {
+      --edm-representative-image-max-height: calc(100vh - var(--representative-image-top) - #{$share-show-edm-empirical-header-height} - #{$content-col-padding} - #{$iconified-block-border-width * 2} - #{$share-show-public-footer-height});
+    }
   }
   &.share-show-private {
     --representative-image-top: #{$share-show-content-header-height-private};
+    .edm-mode-xml {
+      --edm-representative-image-max-height: calc(100vh - var(--representative-image-top) - #{$share-show-edm-empirical-header-height} - #{$content-col-padding} - #{$iconified-block-border-width * 2});
+    }
   }
   .share-show-edm {
     // a fill-flex-using column is added in share-show, because of layout we need this

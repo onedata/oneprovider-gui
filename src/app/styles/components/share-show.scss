@@ -185,6 +185,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     line-height: $share-show-public-footer-height;
     margin-left: -$content-col-padding;
     margin-right: -$content-col-padding;
+    margin-top: $content-col-padding;
   }
 
   // Open Data logo commonly used by metadata presenters
@@ -208,6 +209,9 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
 }
 
 .open-data-metadata-editor {
+  &.form-group.readonly {
+    margin-bottom: 0;
+  }
   h1 {
     @include font-semibold;
     font-size: 1.6em;

@@ -34,6 +34,7 @@ export default Component.extend(I18n, {
     'isValid::invalid-metadata',
     'readonly:readonly',
     'syncStateClass',
+    'modeClass',
   ],
 
   media: service(),
@@ -191,6 +192,10 @@ export default Component.extend(I18n, {
 
   syncStateClass: computed('modelXmlSyncState', function syncStateClass() {
     return `xml-sync-${dasherize(this.modelXmlSyncState)}`;
+  }),
+
+  modeClass: computed('mode', function modeClass() {
+    return `edm-mode-${this.mode}`;
   }),
 
   submitDisabledReason: or(
