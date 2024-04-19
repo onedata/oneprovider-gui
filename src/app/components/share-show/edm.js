@@ -84,12 +84,12 @@ export default Component.extend(I18n, {
    * Last XML value that is synchronized between visual and XML editor.
    * @type {string}
    */
-  acceptedXmlValue: '',
+  acceptedXmlValue: undefined,
 
   /**
    * @type {string}
    */
-  currentXmlValue: '',
+  currentXmlValue: undefined,
 
   modelXmlSyncState: EdmModelXmlSyncState.Synced,
 
@@ -275,9 +275,12 @@ export default Component.extend(I18n, {
   },
 
   setupAceEditor(aceEditor) {
+    // TODO: VFS-11950 Make this hack global (ACE editor wrapper)
+    const aceSession = aceEditor.getSession();
+    aceSession.getUndoManager().reset();
     this.set('aceEditor', aceEditor);
     this.annotationChanged();
-    aceEditor.getSession().on('changeAnnotation', () => {
+    aceSession.on('changeAnnotation', () => {
       this.annotationChanged();
     });
   },
