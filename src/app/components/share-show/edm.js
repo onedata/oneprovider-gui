@@ -15,7 +15,7 @@ import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-g
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { set, setProperties, computed } from '@ember/object';
 import { not, reads } from '@ember/object/computed';
-import { debounce } from '@ember/runloop';
+import { cancel, debounce } from '@ember/runloop';
 import { dasherize } from '@ember/string';
 import { inject as service } from '@ember/service';
 
@@ -94,6 +94,12 @@ export default Component.extend(I18n, {
   modelXmlSyncState: EdmModelXmlSyncState.Synced,
 
   representativeImageError: undefined,
+
+  /**
+   * Return value from `debounce` scheduling `validateSourceModelSync`.
+   * @type {any}
+   */
+  pendingValidationTimer: undefined,
 
   //#endregion
 
@@ -356,6 +362,7 @@ export default Component.extend(I18n, {
     this.set('currentXmlValue', value);
     if (this.currentXmlValue && this.currentXmlValue === this.acceptedXmlValue) {
       this.setModelXmlSyncState(EdmModelXmlSyncState.Synced);
+      cancel(this.pendingValidationTimer);
     } else if (invalidate && prevXmlValue != null) {
       this.invalidateSourceModelSync();
     }
@@ -365,7 +372,8 @@ export default Component.extend(I18n, {
 
   invalidateSourceModelSync() {
     this.setModelXmlSyncState(EdmModelXmlSyncState.Waiting);
-    debounce(this, 'validateSourceModelSync', 500);
+    const pendingValidationTimer = debounce(this, 'validateSourceModelSync', 500);
+    this.set('pendingValidationTimer', pendingValidationTimer);
   },
 
   validateSourceModelSync() {
