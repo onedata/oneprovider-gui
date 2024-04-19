@@ -54,6 +54,7 @@ export function stringifyXmlDocument(xmlDocument) {
   let str = xmlFormat(xmlSerializer.serializeToString(xmlDocument), {
     indentation: '  ',
     collapseContent: true,
+    lineSeparator: '\n',
   });
   try {
     str = str.replace(/(<\?xml version="1.0" encoding="UTF-8"\?>)/, '$1\n');
