@@ -356,7 +356,7 @@ export default Component.extend(I18n, {
     this.set('currentXmlValue', value);
     if (this.currentXmlValue && this.currentXmlValue === this.acceptedXmlValue) {
       this.setModelXmlSyncState(EdmModelXmlSyncState.Synced);
-    } else if (invalidate && prevXmlValue) {
+    } else if (invalidate && prevXmlValue != null) {
       this.invalidateSourceModelSync();
     }
     // onUpdateXml could be not available in readonly mode
