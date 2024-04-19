@@ -352,7 +352,6 @@ export default Component.extend(I18n, {
     // TODO: VFS-11911 try to optimize: update model, do not create new model instance
     try {
       if (this.checkAceErrors()) {
-        debugger;
         this.setModelXmlSyncState(EdmModelXmlSyncState.NotParseable);
         return;
       }
@@ -397,7 +396,6 @@ export default Component.extend(I18n, {
 
   setModelXmlSyncState(newState) {
     if (this.modelXmlSyncState !== newState) {
-      debugger;
       this.set('modelXmlSyncState', newState);
     }
   },
