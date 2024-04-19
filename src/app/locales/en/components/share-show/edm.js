@@ -27,4 +27,5 @@ export default {
     xmlNotAccepted: 'You must first apply changes to the XML source',
   },
   imageNotFound,
+  xmlInvalid: 'XML data is invalid',
 };

@@ -143,7 +143,7 @@ export default Component.extend(I18n, {
     function validator() {
       switch (this.modelXmlSyncState) {
         case EdmModelXmlSyncState.Synced:
-          return this.visualEdmViewModel.validator;
+          return this.visualEdmViewModel?.validator;
         case EdmModelXmlSyncState.Parseable:
           return this.notAcceptedSourceValidator;
         default:
@@ -241,7 +241,7 @@ export default Component.extend(I18n, {
         if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
           throw error;
         }
-        this.set('isXmlValueInvalid', true);
+        this.setIsXmlValueInvalid(true);
       }
     } else {
       edmMetadata = this.readonly ?
@@ -249,16 +249,10 @@ export default Component.extend(I18n, {
     }
     if (!this.isXmlValueInvalid) {
       const validator = EdmMetadataValidator.create({ edmMetadata });
-      const visualEdmViewModel = VisualEdmViewModel.extend({
-          isRepresentativeImageShown: not('container.isRepresentativeImageInParent'),
-          isReadOnly: reads('container.readonly'),
-        })
-        .create({
-          container: this,
-          edmMetadata,
-          validator,
-        });
-      this.set('visualEdmViewModel', visualEdmViewModel);
+      this.initVisualEdmViewModel({
+        validator,
+        edmMetadata,
+      });
     }
 
     this.set('notAcceptedSourceValidator', EdmMetadataValidator.create());
@@ -272,6 +266,19 @@ export default Component.extend(I18n, {
     this.visualEdmViewModel.validator?.destroy();
     this.visualEdmViewModel?.destroy();
     this.notAcceptedSourceValidator?.destroy();
+  },
+
+  initVisualEdmViewModel({ edmMetadata, validator }) {
+    const visualEdmViewModel = VisualEdmViewModel.extend({
+        isRepresentativeImageShown: not('container.isRepresentativeImageInParent'),
+        isReadOnly: reads('container.readonly'),
+      })
+      .create({
+        container: this,
+        edmMetadata,
+        validator,
+      });
+    this.set('visualEdmViewModel', visualEdmViewModel);
   },
 
   setupAceEditor(aceEditor) {
@@ -314,19 +321,30 @@ export default Component.extend(I18n, {
     try {
       edmMetadata = EdmMetadataFactory.fromXml(this.currentXmlValue);
       validator = EdmMetadataValidator.create({ edmMetadata });
-      this.set('isXmlValueInvalid', false);
+      this.setIsXmlValueInvalid(false);
     } catch (error) {
       if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
         throw error;
       }
-      this.set('isXmlValueInvalid', true);
+      this.setIsXmlValueInvalid(true);
     }
     if (!this.isXmlValueInvalid) {
-      this.visualEdmViewModel.validator?.destroy();
-      setProperties(this.visualEdmViewModel, {
-        edmMetadata,
-        validator,
-      });
+      if (this.visualEdmViewModel) {
+        this.visualEdmViewModel.validator?.destroy();
+        setProperties(this.visualEdmViewModel, {
+          edmMetadata,
+          validator,
+        });
+      } else {
+        // There could be almost impossible case, when visualEdmViewModel is not
+        // initialized because input has been not parseable from start - so check if
+        // visualEdmViewModel is not nullish.
+        this.initVisualEdmViewModel({
+          edmMetadata,
+          validator,
+        });
+      }
+      this.setModelXmlSyncState(EdmModelXmlSyncState.Synced);
     }
   },
 
@@ -400,6 +418,13 @@ export default Component.extend(I18n, {
   setModelXmlSyncState(newState) {
     if (this.modelXmlSyncState !== newState) {
       this.set('modelXmlSyncState', newState);
+    }
+  },
+
+  setIsXmlValueInvalid(isInvalid = true) {
+    this.set('isXmlValueInvalid', isInvalid);
+    if (isInvalid) {
+      this.setModelXmlSyncState(EdmModelXmlSyncState.NotParseable);
     }
   },
 

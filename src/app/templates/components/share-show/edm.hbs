@@ -11,7 +11,7 @@
       @isVisualModeDisabled={{isVisualModeDisabled}}
       @visualModeTip={{if
         isVisualModeDisabled
-        (tt this "submitDisabledReason.xmlNotAccepted")
+        (tt this (if readonly "xmlInvalid" "submitDisabledReason.xmlNotAccepted"))
       }}
       @onModeChange={{action "changeMode"}}
     />
