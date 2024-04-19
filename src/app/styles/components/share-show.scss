@@ -141,7 +141,6 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
 
   &.share-show-private {
     padding-top: $share-show-content-header-height-private;
-    padding-bottom: $content-col-padding;
 
     .share-header-container {
       height: $share-show-content-header-height-private;
@@ -209,7 +208,8 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
 }
 
 .open-data-metadata-editor {
-  &.form-group.readonly {
+  padding-bottom: $content-col-padding;
+  &.form-group {
     margin-bottom: 0;
   }
   h1 {
