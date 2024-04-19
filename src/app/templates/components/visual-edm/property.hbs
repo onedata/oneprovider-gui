@@ -3,6 +3,9 @@
     <TruncatedString class="edm-property-type">
       {{displayedPropertyName}}{{if isReadOnly ":"}}
     </TruncatedString>
+    {{#if tip}}
+      <OneLabelTip @title={{tip}} />
+    {{/if}}
     {{#unless isReadOnly}}
       {{#if viewModel.isAnyValueType}}
         <div class="edm-property-resource-toggle">

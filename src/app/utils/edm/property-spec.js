@@ -108,6 +108,7 @@ export const allSpecs = Object.freeze({
       lang: true,
       rec: Rec.Recommended,
       max: Max.Any,
+      example: 'name of the donor',
     },
     coverage: { obj: [EdmObjectType.ProvidedCHO] },
     creator: {
@@ -117,6 +118,7 @@ export const allSpecs = Object.freeze({
       lang: true,
       rec: Rec.Recommended,
       max: Max.Any,
+      example: 'Anyone who contributed to the creation of the 3D model, donor, etc.',
     },
     date: { obj: [EdmObjectType.ProvidedCHO] },
     description: {
@@ -127,6 +129,7 @@ export const allSpecs = Object.freeze({
       max: Max.Single,
       lang: true,
       long: true,
+      example: 'Studio portrait of a young woman with a necklace',
     },
     format: {
       val: EdmPropertyValueType.Literal,
@@ -141,6 +144,7 @@ export const allSpecs = Object.freeze({
         label: formatLiteral,
         value: formatLiteral,
       })),
+      example: 'portrait / trombone / building / black-and-white photography',
     },
     identifier: {
       val: EdmPropertyValueType.Literal,
@@ -149,6 +153,7 @@ export const allSpecs = Object.freeze({
       lang: true,
       rec: Rec.None,
       max: Max.Single,
+      example: 'RP-T1952-380',
     },
     language: {
       val: EdmPropertyValueType.Literal,
@@ -176,6 +181,7 @@ export const allSpecs = Object.freeze({
       lang: true,
       rec: Rec.None,
       max: Max.Any,
+      example: 'Copyright © British Library Board',
     },
     source: { obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
     subject: {
@@ -185,6 +191,7 @@ export const allSpecs = Object.freeze({
       rec: Rec.Mandatory,
       max: Max.Single,
       lang: true,
+      example: 'portrait / trombone / building / black-and-white photography',
     },
     title: {
       val: EdmPropertyValueType.Literal,
@@ -193,6 +200,7 @@ export const allSpecs = Object.freeze({
       rec: Rec.Mandatory,
       max: Max.Single,
       lang: true,
+      example: 'Portrait of a young woman / Saint Paul\'s Cathedral / Mona Lisa',
     },
     type: {
       val: EdmPropertyValueType.Any,
@@ -201,6 +209,7 @@ export const allSpecs = Object.freeze({
       rec: Rec.Mandatory,
       max: Max.Single,
       lang: true,
+      example: 'trombone / musical instrument / church / still image / painting / building',
     },
   },
   dcterms: {
@@ -216,6 +225,7 @@ export const allSpecs = Object.freeze({
         [EdmObjectType.ProvidedCHO]: Max.Any,
         [EdmObjectType.WebResource]: Max.Single,
       },
+      example: '1900-02-21',
     },
     extent: {
       val: EdmPropertyValueType.Any,
@@ -224,6 +234,7 @@ export const allSpecs = Object.freeze({
       lang: true,
       rec: Rec.None,
       max: Max.Any,
+      example: '13 cm (width) / 20 cm (length) / 10 cm (height)',
     },
     hasFormat: { obj: [EdmObjectType.ProvidedCHO] },
     hasPart: { obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
@@ -242,6 +253,7 @@ export const allSpecs = Object.freeze({
       rec: Rec.None,
       max: Max.Any,
       lang: true,
+      example: 'Crace Collection of Maps of London / EUreka3D / Church of...',
     },
     isReferencedBy: { obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
     isReplacedBy: { obj: [EdmObjectType.ProvidedCHO] },
@@ -255,6 +267,7 @@ export const allSpecs = Object.freeze({
       lang: true,
       rec: Rec.None,
       max: Max.Any,
+      example: 'Metal',
     },
     provenance: { obj: [EdmObjectType.ProvidedCHO] },
     references: { obj: [EdmObjectType.ProvidedCHO] },
@@ -285,6 +298,7 @@ export const allSpecs = Object.freeze({
       obj: [EdmObjectType.ProvidedCHO],
       rec: Rec.None,
       max: Max.Single,
+      example: 'http://sws.geonames.org/2950159',
     },
     dataProvider: {
       val: EdmPropertyValueType.Any,
@@ -293,6 +307,7 @@ export const allSpecs = Object.freeze({
       lang: true,
       rec: Rec.Mandatory,
       max: Max.Single,
+      example: 'Zuidwestbrabants Museum',
     },
     hasMet: { obj: [EdmObjectType.ProvidedCHO] },
     hasType: { obj: [EdmObjectType.ProvidedCHO] },

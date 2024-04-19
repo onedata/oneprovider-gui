@@ -37,6 +37,10 @@
     @include font-semibold;
     font-size: 110%;
   }
+  .edm-property-type + .one-label-tip {
+    margin-left: 0.5em;
+    line-height: 0;
+  }
   .edm-property-value {
     flex-grow: 1;
     &.readonly {

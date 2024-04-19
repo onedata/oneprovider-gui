@@ -117,6 +117,10 @@ class EdmProperty {
     return this.spec?.long || false;
   }
 
+  get example() {
+    return this.spec.example;
+  }
+
   /**
    * Sets either value or resource attribute depending on the supported value type.
    * @param {string} value

@@ -105,4 +105,5 @@ export default {
     [EdmPropertyRecommendation.Recommended]: 'recommended',
     [EdmPropertyRecommendation.Mandatory]: 'mandatory',
   },
+  example: '<strong>Example:</strong> {{exampleValue}}',
 };

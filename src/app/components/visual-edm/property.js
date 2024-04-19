@@ -146,6 +146,14 @@ export default Component.extend(I18n, {
     return isUrl(this.value);
   }),
 
+  tip: computed('viewModel.model.example', function tip() {
+    const exampleValue = this.viewModel.model.example;
+    if (!exampleValue) {
+      return null;
+    }
+    return this.t('example', { exampleValue });
+  }),
+
   animateAttentionObserver: observer(
     'viewModel.isAnimateAttentionQueued',
     function animateAttentionObserver() {
