@@ -214,8 +214,14 @@ export const allSpecs = Object.freeze({
       max: Max.Single,
       lang: true,
       example: {
-        [EdmObjectType.ProvidedCHO]: 'trombone / musical instrument / church / still image / painting / building',
+        // TODO: VFS-11911 Maybe there should be example of AAT link - it depends of
+        // future tooltip desciption
+        [
+          EdmObjectType.ProvidedCHO
+        ]: '(literal) trombone / musical instrument / church / still image / painting / building',
       },
+      // TODO: VFS-11911 According to the EU3D spreadsheet, this could be a "Getty
+      // Glossary" enun, but currently there is no valueset provided
     },
   },
   dcterms: {
