@@ -146,13 +146,20 @@ export default Component.extend(I18n, {
     return isUrl(this.value);
   }),
 
-  tip: computed('viewModel.model.example', function tip() {
-    const exampleValue = this.viewModel.model.example;
-    if (!exampleValue) {
-      return null;
+  tip: computed(
+    'viewModel.model.example',
+    'edmObjectModel.edmObjectType',
+    function tip() {
+      let exampleValue = this.viewModel.model.example;
+      if (exampleValue && typeof exampleValue === 'object') {
+        exampleValue = exampleValue[this.edmObjectModel.edmObjectType];
+      }
+      if (!exampleValue) {
+        return null;
+      }
+      return this.t('example', { exampleValue });
     }
-    return this.t('example', { exampleValue });
-  }),
+  ),
 
   animateAttentionObserver: observer(
     'viewModel.isAnimateAttentionQueued',

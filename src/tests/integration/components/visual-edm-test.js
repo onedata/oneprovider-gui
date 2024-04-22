@@ -410,7 +410,6 @@ describe('Integration | Component | visual-edm', function () {
         'Contributor to the creation of the original object',
         'Creator of the model',
         'Creation date of the original object',
-        '3D format',
         'Internal ID',
         'Language of inscriptions in the object',
         'Dimensions with units',
@@ -515,19 +514,15 @@ describe('Integration | Component | visual-edm', function () {
         'Asset type',
         'Subject',
         'Type of object',
-        'Contributor to the creation of the original object',
-        'Creator of the model',
-        'Creation date of the original object',
-        '3D format',
-        'Language of inscriptions in the object',
       ];
       for (const label of expectedChoPropertyLabels) {
         expect(choPropertyLabels).to.include(label);
       }
       const expectedAggregationPropertyLabels = [
         'Content provider institution',
-        'Representative image',
         'Name of organisation uploading the data',
+        // TODO: VFS-11911 According to the official docs, this should be present
+        // in the Aggregation object, but in the EU3D it appears in the CHO
         'Copyright licence URL of the original object',
       ];
       const aggregationPropertyLabels = Array.from(
@@ -561,30 +556,6 @@ describe('Integration | Component | visual-edm', function () {
     expect(
       helper.getPropertyElement(0, 0).textContent
     ).to.contain('mandatory');
-  });
-
-  it('shows "recommended" label for property which recommendation is Recommended', async function () {
-    // given
-    const factory = EdmMetadataFactory;
-    const metadata = factory.createEmptyMetadata();
-    const propertyFactory = new EdmPropertyFactory(metadata);
-    const objectFactory = new EdmObjectFactory(metadata);
-    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
-      edmProperties: [
-        propertyFactory.createProperty('dc', 'contributor'),
-      ],
-    });
-    metadata.edmObjects = [providedCho];
-    const helper = new Helper(this, metadata);
-    helper.visualEdmViewModel.set('isReadOnly', false);
-
-    // when
-    await helper.render();
-
-    // then
-    expect(
-      helper.getPropertyElement(0, 0).textContent
-    ).to.contain('recommended');
   });
 
   it('shows "optional" label for property which recommendation is None', async function () {

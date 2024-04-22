@@ -117,6 +117,11 @@ class EdmProperty {
     return this.spec?.long || false;
   }
 
+  /**
+   * Can contain string with property value examples or mapping of object type and
+   * examples specific for the type of object in which the property is in.
+   * @returns {string|Object<EdmObjectType, string>}
+   */
   get example() {
     return this.spec.example;
   }

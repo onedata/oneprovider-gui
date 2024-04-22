@@ -1,6 +1,7 @@
 // Known, but non-customly translated properties are commented-out — their labels should
 // be auto-generated.
 
+import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
 import { EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
 
@@ -9,8 +10,8 @@ export const propertyName = {
     contributor: 'Contributor to the creation of the original object',
     // coverage: '',
     creator: {
-      ProvidedCHO: 'Creator of the model',
-      WebResource: 'Creator of the original object',
+      [EdmObjectType.ProvidedCHO]: 'Creator of the model',
+      [EdmObjectType.WebResource]: 'Creator of the original object',
     },
     // date: '',
     description: 'Description',
@@ -23,16 +24,22 @@ export const propertyName = {
     // source: '',
     subject: 'Subject',
     title: 'Title',
-    type: 'Type of object',
+    type: {
+      [EdmObjectType.ProvidedCHO]: 'Type of object',
+      [EdmObjectType.WebResource]: 'Type',
+    },
   },
   dcterms: {
     // alternative: '',
     // conformsTo: '',
     created: {
-      ProvidedCHO: 'Creation date of the original object',
-      WebResource: 'Digitisation date',
+      [EdmObjectType.ProvidedCHO]: 'Creation date of the original object',
+      [EdmObjectType.WebResource]: 'Digitisation date',
     },
-    extent: 'Dimensions with units',
+    extent: {
+      [EdmObjectType.ProvidedCHO]: 'Dimensions with units',
+      [EdmObjectType.WebResource]: 'Size of file',
+    },
     // hasFormat: '',
     // hasPart: '',
     // hasVersion: '',
@@ -72,7 +79,12 @@ export const propertyName = {
     object: 'Representative image',
     provider: 'Name of organisation uploading the data',
     // realizes: '',
-    rights: 'Copyright licence URL of the original object',
+    rights: {
+      // TODO: VFS-11911 According to the official docs, this should be present
+      // in the Aggregation object, but in the EU3D it appears in the CHO
+      [EdmObjectType.Aggregation]: 'Copyright licence URL of the original object',
+      [EdmObjectType.WebResource]: 'Copyright licence URL of the digital object',
+    },
     type: 'Asset type',
     // ugc: '',
   },
@@ -102,6 +114,7 @@ export default {
   },
   recommendation: {
     [EdmPropertyRecommendation.None]: 'optional',
+    /** @deprecated Currently has no usages. */
     [EdmPropertyRecommendation.Recommended]: 'recommended',
     [EdmPropertyRecommendation.Mandatory]: 'mandatory',
   },

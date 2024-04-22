@@ -74,6 +74,7 @@ export const EdmPropertyRecommendation = Object.freeze({
   /**
    * It is recommended to have at least single occurrence of the property in the object,
    * but lack of the property does not cause validation error.
+   * @deprecated This was designed in the early versions of GUI, but now it has no usages.
    */
   Recommended: 'recommended',
   /** It is completely optional to have the property in the object. */
@@ -97,8 +98,6 @@ export const EdmPropertyMaxOccurrences = Object.freeze({
 const Rec = EdmPropertyRecommendation;
 const Max = EdmPropertyMaxOccurrences;
 
-// TODO: VFS-11912 Fill-in lang specifications as in Europeana spreadsheet
-
 export const allSpecs = Object.freeze({
   dc: {
     contributor: {
@@ -106,7 +105,7 @@ export const allSpecs = Object.freeze({
       basic: true,
       obj: [EdmObjectType.ProvidedCHO],
       lang: true,
-      rec: Rec.Recommended,
+      rec: Rec.None,
       max: Max.Any,
       example: 'name of the donor',
     },
@@ -116,7 +115,7 @@ export const allSpecs = Object.freeze({
       basic: true,
       obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
       lang: true,
-      rec: Rec.Recommended,
+      rec: Rec.None,
       max: Max.Any,
       example: 'Anyone who contributed to the creation of the 3D model, donor, etc.',
     },
@@ -134,17 +133,20 @@ export const allSpecs = Object.freeze({
     format: {
       val: EdmPropertyValueType.Literal,
       basic: true,
-      obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
-      // TODO: VFS-11912 To be determined with Europeana spreadsheet
+      // According to the official EDM spec this could be used in CHO, but in the EU3D it
+      // should be available only in the WR. For the code simplicity, we are currently not
+      // displaying it in the CHO.
+      // TODO: VFS-11911 We could add CHO object type here and make basic property
+      // to be object-type-specific, because in CHO we don't want this property to be
+      // selected in the dropdown.
+      obj: [EdmObjectType.WebResource],
       lang: false,
-      // TODO: VFS-11912 To be determined with Europeana spreadsheet
-      rec: Rec.Mandatory,
-      max: Max.Single,
+      rec: Rec.None,
+      max: Max.Any,
       predef: get3DFormats().map(formatLiteral => ({
         label: formatLiteral,
         value: formatLiteral,
       })),
-      example: 'portrait / trombone / building / black-and-white photography',
     },
     identifier: {
       val: EdmPropertyValueType.Literal,
@@ -159,13 +161,14 @@ export const allSpecs = Object.freeze({
       val: EdmPropertyValueType.Literal,
       basic: true,
       obj: [EdmObjectType.ProvidedCHO],
-      rec: Rec.Mandatory,
+      rec: Rec.None,
       max: Max.Any,
     },
     publisher: { obj: [EdmObjectType.ProvidedCHO] },
     relation: {
       val: EdmPropertyValueType.Reference,
       basic: true,
+      // TODO: VFS-11952 it is Aggregation in the EU3D spreedsheet, but not in official spec
       obj: [EdmObjectType.ProvidedCHO],
       rec: Rec.None,
       max: Max.Any,
@@ -204,12 +207,15 @@ export const allSpecs = Object.freeze({
     },
     type: {
       val: EdmPropertyValueType.Any,
+      // TODO: VFS-11911 Maybe it should be not available in the WR selector
       basic: true,
       obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
       rec: Rec.Mandatory,
       max: Max.Single,
       lang: true,
-      example: 'trombone / musical instrument / church / still image / painting / building',
+      example: {
+        [EdmObjectType.ProvidedCHO]: 'trombone / musical instrument / church / still image / painting / building',
+      },
     },
   },
   dcterms: {
@@ -220,7 +226,7 @@ export const allSpecs = Object.freeze({
       basic: true,
       obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
       lang: true,
-      rec: Rec.Recommended,
+      rec: Rec.None,
       max: {
         [EdmObjectType.ProvidedCHO]: Max.Any,
         [EdmObjectType.WebResource]: Max.Single,
@@ -234,7 +240,11 @@ export const allSpecs = Object.freeze({
       lang: true,
       rec: Rec.None,
       max: Max.Any,
-      example: '13 cm (width) / 20 cm (length) / 10 cm (height)',
+      // TODO: VFS-11952 asked in EU3D spreedsheet if it is valid
+      example: {
+        [EdmObjectType.ProvidedCHO]: '13 cm (width) / 20 cm (length) / 10 cm (height)',
+        [EdmObjectType.WebResource]: '200 MB',
+      },
     },
     hasFormat: { obj: [EdmObjectType.ProvidedCHO] },
     hasPart: { obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
@@ -242,6 +252,7 @@ export const allSpecs = Object.freeze({
     isFormatOf: {
       val: EdmPropertyValueType.Reference,
       basic: true,
+      // TODO: VFS-11952 it is Aggregation in EU3D spreedsheet, but not in official docs
       obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
       rec: Rec.None,
       max: Max.Any,
@@ -265,7 +276,7 @@ export const allSpecs = Object.freeze({
       basic: true,
       obj: [EdmObjectType.ProvidedCHO],
       lang: true,
-      rec: Rec.None,
+      rec: Rec.Mandatory,
       max: Max.Any,
       example: 'Metal',
     },
@@ -323,7 +334,7 @@ export const allSpecs = Object.freeze({
       basic: true,
       obj: [EdmObjectType.Aggregation],
       rec: Rec.None,
-      max: Max.Any,
+      max: Max.Single,
     },
     isShownBy: {
       val: EdmPropertyValueType.Reference,
@@ -338,10 +349,16 @@ export const allSpecs = Object.freeze({
       val: EdmPropertyValueType.Reference,
       basic: true,
       obj: [EdmObjectType.Aggregation],
-      rec: Rec.Recommended,
+      rec: Rec.None,
       max: Max.Single,
     },
     provider: {
+      // TODO: VFS-11952 possible change in future from EU3D
+      // Comment of EUreka3D:
+      // In future this should be a limited list of values, BUT for the time being we
+      // agreed to use "Photoconsortium" for all EUreka3D content. So we will not ask the
+      // user for the time being (although alternatively we could use a combo box with
+      // only one available option)
       val: EdmPropertyValueType.Literal,
       basic: true,
       obj: [EdmObjectType.Aggregation],
@@ -357,6 +374,11 @@ export const allSpecs = Object.freeze({
     rights: {
       basic: true,
       val: EdmPropertyValueType.Reference,
+      // TODO: VFS-11911 According to the official docs, this should be present
+      // in the Aggregation object, but in the EU3D it appears in the CHO
+      obj: [EdmObjectType.Aggregation, EdmObjectType.WebResource],
+      rec: Rec.Mandatory,
+      max: Max.Single,
       // Predefined values from
       // https://europeana.atlassian.net/wiki/spaces/EF/pages/1503756289/Providing+copyright+metadata+to+Europeana#Available-values
       predef: [
@@ -420,9 +442,6 @@ export const allSpecs = Object.freeze({
           value: 'https://creativecommons.org/publicdomain/mark/1.0/',
         },
       ],
-      obj: [EdmObjectType.Aggregation, EdmObjectType.WebResource],
-      rec: Rec.Mandatory,
-      max: Max.Single,
     },
     type: {
       val: EdmPropertyValueType.Literal,

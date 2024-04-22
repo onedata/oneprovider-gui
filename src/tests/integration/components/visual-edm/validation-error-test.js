@@ -1,16 +1,12 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll, fillIn, click, focus, blur } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
-import { findByText } from '../../helpers/find';
-import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
-// import { afterEach } from 'mocha';
 import EdmObjectValidator from 'oneprovider-gui/utils/edm/object-validator';
 import { makeAllPropertiesValid } from '../../../helpers/edm-utils';
 
@@ -48,12 +44,12 @@ describe('Integration | Component | visual-edm/validation-error', function () {
     this.viewType = 'visual';
     makeAllPropertiesValid(this.object);
     setValueByTag(this.object, 'dc:title', '');
-    setValueByTag(this.object, 'dc:creator', '');
+    setValueByTag(this.object, 'dc:description', '');
 
     await renderComponent(this);
 
     expect(getElement().querySelector('.edm-info-row-text').textContent).to.contain(
-      'properties "Title" and "Creator of the model" have empty values'
+      'properties "Title" and "Description" have empty values'
     );
   });
 });

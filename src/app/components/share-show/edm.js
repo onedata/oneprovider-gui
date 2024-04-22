@@ -290,7 +290,8 @@ export default Component.extend(I18n, {
   setupAceEditor(aceEditor) {
     // TODO: VFS-11950 Make this hack global (ACE editor wrapper)
     const aceSession = aceEditor.getSession();
-    aceSession.getUndoManager().reset();
+    // optional chaining, because tests has specific ACE editor replacement
+    aceSession.getUndoManager?.().reset();
     this.set('aceEditor', aceEditor);
     this.annotationChanged();
     aceSession.on('changeAnnotation', () => {
@@ -305,7 +306,8 @@ export default Component.extend(I18n, {
   },
 
   checkAceErrors() {
-    const annotations = this.aceEditor.getSession().getAnnotations();
+    // optional chaining, because tests has specific ACE editor replacement
+    const annotations = this.aceEditor.getSession().getAnnotations?.();
     return annotations?.some(annotation => annotation.type === 'error');
   },
 
