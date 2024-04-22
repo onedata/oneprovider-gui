@@ -101,6 +101,8 @@ export default BaseBrowserModel.extend(...mixins, {
   workflowManager: service(),
   modalManager: service(),
   media: service(),
+  appProxy: service(),
+  parentAppNavigation: service(),
 
   /**
    * @override
@@ -1821,8 +1823,12 @@ export default BaseBrowserModel.extend(...mixins, {
     } else {
       await this.modalManager.show('share-modal', {
         file,
-        onSubmitted: () => {
-          this.openInfo([file], 'shares');
+        onSubmitted: (share, isPublishing) => {
+          if (isPublishing) {
+            this.openShareOpenData(share);
+          } else {
+            this.openInfo([file], 'shares');
+          }
         },
       }).hiddenPromise;
     }
@@ -1834,5 +1840,16 @@ export default BaseBrowserModel.extend(...mixins, {
 
   enableUploadArea() {
     this.uploadManager.assignUploadDrop(this.uploadManager.dropElement);
+  },
+
+  /**
+   * @param {Models.Share} share
+   */
+  openShareOpenData(share) {
+    const url = this.appProxy.callParent('getShareUrl', {
+      shareId: get(share, 'entityId'),
+      tabId: 'opendata',
+    });
+    this.parentAppNavigation.openUrl(url);
   },
 });

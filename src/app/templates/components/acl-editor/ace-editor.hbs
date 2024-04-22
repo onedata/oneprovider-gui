@@ -1,12 +1,13 @@
-{{#listItem.header disableToggleIcon=true class=(concat-classes
+{{#listItem.header class=(concat-classes
   (concat "type-" aceType)
-  (if hasActivePermissions 'has-active-permissions')
+  (if hasActivePermissions "has-active-permissions" "has-no-rules-enabled")
 )}}
   <span class="item-icon-container">
     {{one-icon-tagged
       class="item-icon"
       icon=icon
-      tagIcon=(if (eq aceType "allow") "checked" "x")
+      tagIcon=headerTagIcon
+      shadowType=(if hasNoRulesEnabled "none" "circle")
     }}
     {{one-tooltip title=tooltipText}}
   </span>
@@ -48,37 +49,48 @@
 {{#listItem.content}}
   <div class="ace-editor-form type-{{aceType}}">
     <div class="ace-type-presenter">
-      <label class="ace-type-label">{{tt this "aceType"}}</label>
-      {{#bs-button-group
-        class=(concat-classes
-          "ace-type-selector"
-          (if readonly "disabled")
-        )
-        value=aceType
-        type="radio"
-        onChange=(if readonly (no-action) (action "aceTypeChanged"))
-      as |bg|}}
-        {{#bg.button
-          type=(if (eq aceType "allow") "primary" "default")
+      <div class="ace-type-switch-container">
+        <label class="ace-type-label">{{tt this "aceType"}}</label>
+        {{#bs-button-group
           class=(concat-classes
-            "btn-sm ace-type ace-type-allow"
+            "ace-type-selector"
             (if readonly "disabled")
           )
-          value="allow"
-        }}
-          {{one-icon icon="checkbox-filled"}} {{tt this "aceTypes.allow"}}
-        {{/bg.button}}
-        {{#bg.button
-          type=(if (eq aceType "deny") "danger" "default")
-          class=(concat-classes
-            "btn-sm ace-type ace-type-deny"
-            (if readonly "disabled")
-          )
-          value="deny"
-        }}
-          {{one-icon icon="checkbox-filled-x"}}{{tt this "aceTypes.deny"}}
-        {{/bg.button}}
-      {{/bs-button-group}}
+          value=aceType
+          type="radio"
+          onChange=(if readonly (no-action) (action "aceTypeChanged"))
+        as |bg|}}
+          {{#bg.button
+            type=(if (and (not hasNoRulesEnabled) (eq aceType "allow")) "primary" "default")
+            class=(concat-classes
+              "btn-sm ace-type ace-type-allow"
+              (if readonly "disabled")
+            )
+            value="allow"
+          }}
+            {{one-icon icon="checkbox-filled"}} {{tt this "aceTypes.allow"}}
+          {{/bg.button}}
+          {{#bg.button
+            type=(if (and (not hasNoRulesEnabled) (eq aceType "deny")) "danger" "default")
+            class=(concat-classes
+              "btn-sm ace-type ace-type-deny"
+              (if readonly "disabled")
+            )
+            value="deny"
+          }}
+            {{one-icon icon="checkbox-filled-x"}}{{tt this "aceTypes.deny"}}
+          {{/bg.button}}
+        {{/bs-button-group}}
+      </div>
+      {{#if hasNoRulesEnabled}}
+        <div class="no-rules-enabled-warning">
+          <OneIcon @icon="warning" class="no-rules-enabled-warning-icon"/>
+          <div class="text">
+            {{tt this (if readonly "noRulesEnabledReadonly" "noRulesEnabled")}}
+          </div>
+          <OneLabelTip @title={{tt this "noRulesEnabledTip"}} />
+        </div>
+      {{/if}}
     </div>
     {{#render-later triggerRender=listItem.isActive}}
       {{privileges-tree-editor

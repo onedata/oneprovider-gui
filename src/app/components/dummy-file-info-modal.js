@@ -22,13 +22,16 @@ export default Component.extend({
 
   // uncomment for multi files
   files: collect(
-    //   // a directory with QoS
+    // 'mockBackend.entityRecords.file.0'
+    // a directory with QoS
     'mockBackend.entityRecords.chainDir.2',
     //   'mockBackend.entityRecords.chainDir.3',
     //   'mockBackend.entityRecords.chainDir.4',
   ),
 
   previewMode: false,
+
+  initialTab: 'general',
 
   init() {
     this._super(...arguments);

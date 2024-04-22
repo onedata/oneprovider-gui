@@ -22,6 +22,10 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { resolve } from 'rsvp';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 
+/**
+ * @typedef {'opendata'|'description'|'files'} ShareShowTabId
+ */
+
 const mixins = [
   I18n,
   createDataProxyMixin('shareRootDeleted'),
@@ -55,6 +59,12 @@ export default Component.extend(...mixins, {
    * @type {String}
    */
   dirId: undefined,
+
+  /**
+   * @virtual optional
+   * @type {ShareShowTabId}
+   */
+  initialTabId: undefined,
 
   /**
    * @virtual optional
@@ -93,8 +103,7 @@ export default Component.extend(...mixins, {
   navigateDirTarget: '_top',
 
   /**
-   * One of: opendata, description, files
-   * @type {String}
+   * @type {ShareShowTabId}
    */
   activeTab: undefined,
 
@@ -201,15 +210,24 @@ export default Component.extend(...mixins, {
 
   init() {
     this._super(...arguments);
-    this.get('handleStateProxy').then((handleState) => {
-      if (handleState === 'available') {
-        this.set('activeTab', 'opendata');
-      } else if (this.get('share.description')) {
-        this.set('activeTab', 'description');
-      } else {
-        this.set('activeTab', 'files');
+    (async () => {
+      if (this.initialTabId) {
+        const tabIds = await this.tabIdsProxy;
+        if (tabIds.includes(this.initialTabId)) {
+          this.set('activeTab', this.initialTabId);
+        }
       }
-    });
+      if (!this.activeTab) {
+        const handleState = await this.handleStateProxy;
+        if (handleState === 'available') {
+          this.set('activeTab', 'opendata');
+        } else if (this.get('share.description')) {
+          this.set('activeTab', 'description');
+        } else {
+          this.set('activeTab', 'files');
+        }
+      }
+    })();
   },
 
   /**
