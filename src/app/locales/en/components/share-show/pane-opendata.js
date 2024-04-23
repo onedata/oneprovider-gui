@@ -32,5 +32,4 @@ export default {
     title: 'No handle services available',
     content: noHandleServicesText,
   },
-  noMetadata: 'This dataset has no metadata attached.',
 };
