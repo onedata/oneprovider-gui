@@ -2,10 +2,10 @@
   <div class="edm-property-name-container">
     <TruncatedString class="edm-property-type">
       {{displayedPropertyName}}{{if isReadOnly ":"}}
+      {{#if tip}}
+        <OneLabelTip class="edm-property-type-label-tip" @title={{tip}} />
+      {{/if}}
     </TruncatedString>
-    {{#if tip}}
-      <OneLabelTip @title={{tip}} />
-    {{/if}}
     {{#unless isReadOnly}}
       {{#if viewModel.isAnyValueType}}
         <div class="edm-property-resource-toggle">
@@ -40,16 +40,32 @@
           <div class="edm-property-lang-label">
             {{tt this "language"}}:
           </div>
-          <input
-            class="form-control input-sm edm-property-lang-input"
-            value={{viewModel.lang}}
-            oninput={{action "changeLanguage" value="target.value"}}
-          />
-          {{#if viewModel.isLangDefault}}
-            <div class="edm-property-lang-default">
-              {{tt this "defaultLanguage"}}
+          {{!-- FIXME: wyszukiwać za pomocą labeli i kodu? --}}
+          <OneDropdown
+            @triggerClass="small edm-lang-dropdown-trigger edm-dropdown-trigger"
+            @dropdownClass="small edm-lang-dropdown edm-dropdown"
+            @options={{langOptions}}
+            @selected={{viewModel.selectedLangOption}}
+            @onChange={{action "changeLanguage"}}
+            @searchEnabled={{true}}
+            @matcher={{action "matchLangOption"}}
+            as |option|
+          >
+            <div class="option-container">
+              {{#truncated-string}}
+                <span class="text">
+                  <span
+                    class="predefined-label {{unless option.value "predefined-label-default"}}"
+                  >
+                    {{option.label}}
+                  </span>
+                  {{#if (and option.value (not-eq option.label option.value))}}
+                    <span class="predefined-value">({{option.value}})</span>
+                  {{/if}}
+                </span>
+              {{/truncated-string}}
             </div>
-          {{/if}}
+          </OneDropdown>
         </div>
       {{/if}}
       <div class="header-quantity-section">

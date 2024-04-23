@@ -65,7 +65,7 @@ const EdmMetadataValidator = EmberObject.extend({
         obj.edmObjectType === EdmObjectType.Aggregation
       ).length === 1;
       if (!isSingleAggregation) {
-        result.push(new EdmMetadataInvalidObjectOcurrence(EdmObjectType.Aggregation, 5));
+        result.push(new EdmMetadataInvalidObjectOcurrence(EdmObjectType.Aggregation, 1));
       }
       result.push(..._.flatten(this.objectValidators.map(validator =>
         validator.errors

@@ -9,8 +9,16 @@
 import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { eq, raw, conditional, not } from 'ember-awesome-macros';
-import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
-import { EdmPropertyRecommendation } from '../edm/property-spec';
+import {
+  EdmPropertyRecommendation,
+  EdmPropertyValueType,
+  langSelectorSpec,
+} from '../edm/property-spec';
+
+const langOptionsMapping = langSelectorSpec.reduce((mapping, option) => {
+  mapping[option.value] = option;
+  return mapping;
+}, {});
 
 const PropertyViewModel = EmberObject.extend({
   /**
@@ -49,6 +57,11 @@ const PropertyViewModel = EmberObject.extend({
    * @type {boolean}
    */
   isAnimateAttentionQueued: false,
+
+  /**
+   * @type {Array<{ label: string, value: string }>}
+   */
+  langSelectorSpec,
 
   /**
    * Cannot use `reads` here, because Ember internals crash on "magic" Proxy constructor
@@ -128,6 +141,13 @@ const PropertyViewModel = EmberObject.extend({
    */
   lang: computed('model.attrs', function lang() {
     return this.model.attrs.lang;
+  }),
+
+  /**
+   * @type {{ label: string, value: string }}
+   */
+  selectedLangOption: computed('lang', function selectedLangOption() {
+    return langOptionsMapping[this.lang || ''] || langOptionsMapping[0];
   }),
 
   isLangDefault: not('lang'),

@@ -3,7 +3,7 @@
   <span class="edm-info-row-text">
     <strong>{{text}}{{if errorMessages.length ":" "."}}</strong>
     {{#each errorMessages as |message index|}}
-      <span>{{message}}</span>{{if (not-eq index (sub errorMessages.length 1)) ";"}}
+      <span>{{message}}</span>{{if (eq index (sub errorMessages.length 1)) "." ";"}}
     {{/each}}
   </span>
 </div>

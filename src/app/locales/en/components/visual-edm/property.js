@@ -5,7 +5,7 @@ import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 import { EdmPropertyValueType } from 'oneprovider-gui/utils/edm/property-spec';
 import { EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
 
-// TODO: VFS-11911 Add property hints when they will be available in the EU3D spreadsheet
+// TODO: VFS-11952 Add property hints when they will be available in the EU3D spreadsheet
 // and implement this in property specs
 
 export const propertyName = {
@@ -83,7 +83,7 @@ export const propertyName = {
     provider: 'Name of organisation uploading the data',
     // realizes: '',
     rights: {
-      // TODO: VFS-11911 According to the official docs, this should be present
+      // TODO: VFS-11952 According to the official docs, this should be present
       // in the Aggregation object, but in the EU3D it appears in the CHO
       [EdmObjectType.Aggregation]: 'Copyright licence URL of the original object',
       [EdmObjectType.WebResource]: 'Copyright licence URL of the digital object',
@@ -107,7 +107,6 @@ export default {
     [EdmPropertyValueType.Reference]: 'Reference',
   },
   language: 'Language',
-  defaultLanguage: 'using default',
   deletePropertyTip: 'Delete this property value',
   cannotDeleteOnlyMandatory: 'Cannot delete the only value of mandatory property',
   propertyName,

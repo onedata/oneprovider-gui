@@ -11,6 +11,7 @@ import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import { findByText } from '../../helpers/find';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { makeAllPropertiesValid } from '../../helpers/edm-utils';
+import OneDropdownHelper from '../../helpers/one-dropdown';
 
 describe('Integration | Component | visual-edm', function () {
   const { afterEach } = setupRenderingTest();
@@ -292,9 +293,8 @@ describe('Integration | Component | visual-edm', function () {
 
       // when
       await helper.render();
-      const edmPropertyLangInput = find('.edm-property-lang-input');
-
-      await fillIn(edmPropertyLangInput, 'pl');
+      const langDropdown = new OneDropdownHelper('.edm-lang-dropdown-trigger');
+      await langDropdown.selectOptionByText('Polish');
 
       // then
       expect(metadata.edmObjects[0].edmProperties[0].attrs.lang).to.equal('pl');
@@ -521,7 +521,7 @@ describe('Integration | Component | visual-edm', function () {
       const expectedAggregationPropertyLabels = [
         'Content provider institution',
         'Name of organisation uploading the data',
-        // TODO: VFS-11911 According to the official docs, this should be present
+        // TODO: VFS-11952 According to the official docs, this should be present
         // in the Aggregation object, but in the EU3D it appears in the CHO
         'Copyright licence URL of the original object',
       ];

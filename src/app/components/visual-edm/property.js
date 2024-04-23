@@ -12,7 +12,11 @@ import { set, computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
-import { EdmPropertyValueType, EdmPropertyRecommendation } from 'oneprovider-gui/utils/edm/property-spec';
+import {
+  EdmPropertyValueType,
+  EdmPropertyRecommendation,
+  langSelectorSpec,
+} from 'oneprovider-gui/utils/edm/property-spec';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import sleep from 'onedata-gui-common/utils/sleep';
 import isUrl from 'onedata-gui-common/utils/is-url';
@@ -20,6 +24,23 @@ import isUrl from 'onedata-gui-common/utils/is-url';
 /**
  * @typedef {EdmPropertyValueType.Literal|EdmPropertyValueType.Reference} VisualEdmPropertyValueType
  */
+
+class PropertyLangOption {
+  constructor(langSpec) {
+    this.label = langSpec.label;
+    this.value = langSpec.value;
+    this.labelLower = this.label.toLocaleLowerCase();
+  }
+  matchesSearchString(searchString) {
+    return this.labelLower.includes(searchString) || this.value.includes(searchString);
+  }
+}
+
+function generateLangOptions(specs) {
+  return specs.map(spec => new PropertyLangOption(spec));
+}
+
+const langOptions = generateLangOptions(langSelectorSpec);
 
 export default Component.extend(I18n, {
   classNames: ['visual-edm-property'],
@@ -58,6 +79,11 @@ export default Component.extend(I18n, {
    * @type {EdmPropertyValueType}
    */
   EdmPropertyValueType,
+
+  /**
+   * @type {Array<{ label: string, value: string }>}
+   */
+  langOptions,
 
   value: reads('viewModel.value'),
 
@@ -114,7 +140,7 @@ export default Component.extend(I18n, {
     'isReadOnly',
     function attrItems() {
       const attrs = this.viewModel.model.attrs;
-      // TODO: VFS-11911 Consider showing more attributes (or simplify code)
+      // TODO: VFS-11952 Consider showing more attributes (or simplify code)
       const shownAttrs = this.isLangDefault ? [] : ['lang'];
       let result = shownAttrs.map(name => {
         const foundTranslation = this.t(
@@ -147,9 +173,14 @@ export default Component.extend(I18n, {
   }),
 
   tip: computed(
+    'isReadOnly',
     'viewModel.model.example',
     'edmObjectModel.edmObjectType',
     function tip() {
+      if (this.isReadOnly) {
+        // currently tip is built only for examples - in readonly mode example is unwanted
+        return;
+      }
       let exampleValue = this.viewModel.model.example;
       if (exampleValue && typeof exampleValue === 'object') {
         exampleValue = exampleValue[this.edmObjectModel.edmObjectType];
@@ -211,14 +242,17 @@ export default Component.extend(I18n, {
     changeValue(newValue) {
       this.viewModel.changeValue(newValue);
     },
-    changeLanguage(newValue) {
-      this.viewModel.changeAttribute('lang', newValue || null);
+    changeLanguage(option) {
+      this.viewModel.changeAttribute('lang', option.value || null);
     },
     deleteProperty() {
       this.viewModel.deleteProperty();
     },
     handleInputBlur() {
       set(this.viewModel, 'wasInputFocused', true);
+    },
+    matchLangOption(option, searchString) {
+      return option.matchesSearchString(searchString) ? 1 : -1;
     },
   },
 });

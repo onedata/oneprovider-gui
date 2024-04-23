@@ -11,6 +11,8 @@
   .edm-property-name-container {
     display: flex;
     align-items: center;
+    row-gap: 10px;
+    margin-bottom: 10px;
   }
   .edm-property-value-container {
     margin-top: 0.75em;
@@ -37,8 +39,9 @@
     @include font-semibold;
     font-size: 110%;
   }
-  .edm-property-type + .one-label-tip {
+  .edm-property-type-label-tip {
     margin-left: 0.5em;
+    padding-right: 0.2em;
     line-height: 0;
   }
   .edm-property-value {
@@ -74,12 +77,6 @@
   .edm-property-lang-label {
     font-size: $font-size-small;
     margin-right: 10px;
-  }
-  .edm-property-lang-default {
-    font-size: $font-size-small;
-    margin-right: 10px;
-    opacity: $disabled-opacity;
-    font-style: italic;
   }
   .edm-property-lang-input {
     padding: 2px 6px;
@@ -125,11 +122,9 @@
   @media (max-width: 920px) {
     .edm-property-name-container {
       flex-wrap: wrap;
-      margin-bottom: 16px;
     }
     .edm-property-type {
       flex-basis: 100%;
-      padding-bottom: 10px;
     }
     .edm-property-resource-toggle {
       margin-left: 0;
@@ -148,15 +143,9 @@
   @media (max-width: 800px) {
     .edm-property-resource-toggle {
       flex-basis: 100%;
-      margin-bottom: 14px;
     }
 
     .edm-property-lang-separator {
-      display: none;
-    }
-  }
-  @media (max-width: 520px) {
-    .edm-property-lang-default {
       display: none;
     }
   }
@@ -200,3 +189,33 @@
   }
 }
 
+.ember-power-select-trigger.small.edm-lang-dropdown-trigger {
+  margin-right: 10px;
+	width: 9em;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	padding-left: 8px;
+	min-height: auto;
+  .ember-power-select-status-icon {
+    top: 0.3em;
+    right: 1.6em;
+  }
+}
+
+.ember-power-select-dropdown.small.edm-lang-dropdown .ember-power-select-option,
+.ember-power-select-trigger.small.edm-lang-dropdown-trigger {
+  padding-left: 8px;
+  .predefined-label + .predefined-value {
+    margin-left: 0.1em;
+    opacity: $disabled-opacity;
+  }
+  .predefined-label-default {
+    opacity: $disabled-opacity;
+  }
+}
+
+.ember-power-select-dropdown.small.edm-lang-dropdown .ember-power-select-option {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-right: 0;
+}
