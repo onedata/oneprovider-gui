@@ -380,8 +380,6 @@ export const allSpecs = Object.freeze({
     rights: {
       basic: true,
       val: EdmPropertyValueType.Reference,
-      // TODO: VFS-11952 According to the official docs, this should be present
-      // in the Aggregation object, but in the EU3D it appears in the CHO
       obj: [EdmObjectType.Aggregation, EdmObjectType.WebResource],
       rec: Rec.Mandatory,
       max: Max.Single,
