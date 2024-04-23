@@ -12,7 +12,6 @@
     display: flex;
     align-items: center;
     row-gap: 10px;
-    margin-bottom: 10px;
   }
   .edm-property-value-container {
     margin-top: 0.75em;
@@ -152,6 +151,9 @@
 }
 
 .visual-edm.readonly {
+  .edm-object-title-row {
+    flex-wrap: nowrap;
+  }
   .edm-property-value-label {
     display: none;
   }
@@ -161,6 +163,14 @@
     .edm-property-type {
       font-size: 100%;
     }
+    // max width is value adjusted empirically for longest labels
+    @media (max-width: 520px) {
+      flex-direction: column;
+      row-gap: 0.3em;
+      .edm-property-name-container, .edm-property-value-container {
+        max-width: 100%;
+      }
+    }
   }
   .edm-property-value-container {
     margin-top: 0;
@@ -168,8 +178,8 @@
   }
   .edm-property-name-container {
     margin-right: 0.8em;
+    margin-bottom: 0;
   }
-
   @media (max-width: 920px) {
     .edm-property-name-container {
       flex-wrap: nowrap;

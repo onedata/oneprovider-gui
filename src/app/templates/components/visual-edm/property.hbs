@@ -40,7 +40,6 @@
           <div class="edm-property-lang-label">
             {{tt this "language"}}:
           </div>
-          {{!-- FIXME: wyszukiwać za pomocą labeli i kodu? --}}
           <OneDropdown
             @triggerClass="small edm-lang-dropdown-trigger edm-dropdown-trigger"
             @dropdownClass="small edm-lang-dropdown edm-dropdown"
@@ -101,16 +100,12 @@
       (if isReadOnly "readonly")
     }}>
       {{#if isReadOnly}}
-        {{#if (eq inputType "textarea")}}
-          {{value}}
-        {{else}}
-          <TruncatedString>
-            {{#if isValueLink}}
-              <a href={{value}} class="navy underlined">{{value}}</a>
-            {{else}}
-              {{value}}
-            {{/if}}
+        {{#if isValueLink}}
+          <TruncatedString @tooltipClass="tooltip-lg tooltip-text-left">
+            <a href={{value}} class="navy underlined">{{value}}</a>
           </TruncatedString>
+        {{else}}
+          {{value}}
         {{/if}}
       {{else}}
         <div class={{viewModel.formGroupClassName}}>
