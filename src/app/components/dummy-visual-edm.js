@@ -21,7 +21,7 @@ export default Component.extend({
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       edmMetadata,
       validator: EdmMetadataValidator.create({ edmMetadata }),
-      isReadOnly: true,
+      isReadOnly: false,
     }));
   },
 

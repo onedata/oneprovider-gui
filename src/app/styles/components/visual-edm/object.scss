@@ -39,6 +39,11 @@
   .edm-object-type {
     @include font-semibold;
   }
+  .edm-object-type-label-tip {
+    margin-left: 0.6em;
+    margin-bottom: -0.1em;
+    line-height: 0;
+  }
   .edm-attr-container {
     display: flex;
     margin-top: 0.25em;

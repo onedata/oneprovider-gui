@@ -5,7 +5,9 @@
   <div class="basic-info-row">
     <div class="row edm-object-iconified-block-row title-row edm-object-title-row">
       <div class="edm-object-type item-name">{{objectTypeName}}</div>
-      <OneIcon class="hint-trigger" @icon="sign-info-rounded" />
+      {{#if objectTypeTip}}
+        <OneLabelTip class="edm-object-type-label-tip" @title={{objectTypeTip}}/>
+      {{/if}}
       {{#if isDeletable}}
         <div
           class="edm-delete-btn edm-object-delete-btn"
