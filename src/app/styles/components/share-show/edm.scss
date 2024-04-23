@@ -64,9 +64,19 @@ $share-show-edm-empirical-header-height: 68px;
       }
     }
   }
-  .synchronized-xml-btn {
-    &:hover {
-      cursor: default;
+  .apply-xml-buttons-container {
+    display: flex;
+    gap: 0.6em;
+    margin-left: auto;
+    @media (max-width: $screen-xs-max) {
+      flex-wrap: wrap;
+      margin-right: auto;
+      .btn-tooltip-container {
+        flex-grow: 1;
+        .btn {
+          min-width: 100%;
+        }
+      }
     }
   }
   .representative-image-container {

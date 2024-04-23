@@ -8,16 +8,21 @@
 {{/if}}
 <div class="row row-submit">
   <div class="col-xs-12 col-centered col-submit-center btn-toolbar">
-    {{#bs-button
-      class="btn-back"
-      type="warning"
-      disabled=isCancelDisabled
-      onClick=(action "cancel")
-    }}
-      <span class="text">
-        {{tt this "cancel"}}
-      </span>
-    {{/bs-button}}
+    <div class="btn-tooltip-container">
+      {{#bs-button
+        class="btn-back"
+        type="warning"
+        disabled=isCancelDisabled
+        onClick=(action "cancel")
+      }}
+        <span class="text">
+          {{tt this "cancel"}}
+        </span>
+      {{/bs-button}}
+      {{#if cancelButtonTip}}
+        {{one-tooltip title=cancelButtonTip}}
+      {{/if}}
+    </div>
     <div class="btn-tooltip-container">
       {{#one-button
         type="primary"

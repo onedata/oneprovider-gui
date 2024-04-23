@@ -53,6 +53,18 @@ export default Component.extend(I18n, {
    */
   isSubmitDisabled: false,
 
+  /**
+   * @virtual optional
+   * @type {SafeString|string}
+   */
+  submitButtonTip: undefined,
+
+  /**
+   * @virtual optional
+   * @type {SafeString|string}
+   */
+  cancelButtonTip: undefined,
+
   //#endregion
 
   actions: {

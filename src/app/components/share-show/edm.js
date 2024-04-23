@@ -14,7 +14,7 @@ import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { set, setProperties, computed } from '@ember/object';
-import { not, reads } from '@ember/object/computed';
+import { not, reads, equal } from '@ember/object/computed';
 import { cancel, debounce } from '@ember/runloop';
 import { dasherize } from '@ember/string';
 import { inject as service } from '@ember/service';
@@ -162,9 +162,11 @@ export default Component.extend(I18n, {
 
   isSubmitDisabled: bool('submitDisabledReason'),
 
+  isCancelDisabled: bool('cancelDisabledReason'),
+
   isXmlNotParseable: eq('modelXmlSyncState', raw(EdmModelXmlSyncState.NotParseable)),
 
-  isApplyXmlButtonShown: array.includes(
+  areApplyXmlButtonsShown: array.includes(
     raw([
       EdmModelXmlSyncState.Parseable,
       EdmModelXmlSyncState.NotParseable,
@@ -185,6 +187,14 @@ export default Component.extend(I18n, {
       computedT('submitDisabledReason.validatingSync')
     ),
   ),
+
+  discardXmlButtonTip: computed('modelXmlSyncState', function discardXmlButtonTip() {
+    if (this.modelXmlSyncState === EdmModelXmlSyncState.Waiting) {
+      return this.t('submitDisabledReason.validatingSync');
+    }
+  }),
+
+  isDiscardXmlButtonDisabled: equal('modelXmlSyncState', EdmModelXmlSyncState.Waiting),
 
   /**
    * Classname added to columns to center the form content, as it is too wide
@@ -223,6 +233,12 @@ export default Component.extend(I18n, {
     ),
     raw(null),
   ),
+
+  cancelDisabledReason: computed('modelXmlSyncState', function cancelDisabledReason() {
+    if (this.modelXmlSyncState !== EdmModelXmlSyncState.Synced) {
+      return this.t('submitDisabledReason.xmlNotAccepted');
+    }
+  }),
 
   isVisualModeDisabled: notEqual('modelXmlSyncState', raw(EdmModelXmlSyncState.Synced)),
 
@@ -403,6 +419,10 @@ export default Component.extend(I18n, {
     this.setModelXmlSyncState(EdmModelXmlSyncState.Synced);
   },
 
+  discardXml() {
+    this.changeSource(this.acceptedXmlValue);
+  },
+
   /**
    * @param {'visual'|'xml'} newMode
    */
@@ -468,6 +488,9 @@ export default Component.extend(I18n, {
     },
     acceptXml() {
       this.acceptXml();
+    },
+    discardXml() {
+      this.discardXml();
     },
     handleRepresentativeImageError(error) {
       this.set('representativeImageError', error);

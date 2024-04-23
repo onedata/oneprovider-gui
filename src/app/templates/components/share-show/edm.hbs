@@ -83,35 +83,45 @@
             </div>
           </div>
         {{/if}}
-        <div class="synchronized-xml-btn-container btn-tooltip-container">
-          {{#if isApplyXmlButtonShown}}
-            <OneButton
-              class="apply-xml-btn"
-              @disabled={{isApplyXmlButtonDisabled}}
-              @onClick={{action "acceptXml"}}
-              @size={{if media.isMobile "sm"}}
-            >
-              {{tt this "applyAndFormatXml"}}
-            </OneButton>
-            {{#if applyXmlButtonTip}}
-              <OneTooltip @title={{applyXmlButtonTip}} />
-            {{/if}}
-          {{else}}
-            <OneButton
-              class="synchronized-xml-btn"
-              @disabled={{true}}
-              @size={{if media.isMobile "sm"}}
-            >
-              {{tt this "synchronizedButton"}}
-            </OneButton>
-            <OneTooltip @title={{tt this "synchronizedButtonTip"}} />
-          {{/if}}
-        </div>
+        {{#if areApplyXmlButtonsShown}}
+          <div class="apply-xml-buttons-container">
+            <div class="synchronized-xml-btn-container btn-tooltip-container">
+              <OneButton
+                class="discard-xml-btn"
+                @disabled={{isDiscardXmlButtonDisabled}}
+                @onClick={{action "discardXml"}}
+                @size="sm"
+                @type="warning"
+              >
+                {{tt this "discardXmlChanges"}}
+              </OneButton>
+              {{#if discardXmlButtonTip}}
+                <OneTooltip @title={{discardXmlButtonTip}} />
+              {{/if}}
+            </div>
+            <div class="synchronized-xml-btn-container btn-tooltip-container">
+              <OneButton
+                class="apply-xml-btn"
+                @disabled={{isApplyXmlButtonDisabled}}
+                @onClick={{action "acceptXml"}}
+                @size="sm"
+                @type="primary"
+              >
+                {{tt this "applyAndFormatXml"}}
+              </OneButton>
+              {{#if applyXmlButtonTip}}
+                <OneTooltip @title={{applyXmlButtonTip}} />
+              {{/if}}
+            </div>
+          </div>
+        {{/if}}
       </div>
     {{/if}}
     <ShareShow::MetadataEditorFooter
       @isSubmitDisabled={{isSubmitDisabled}}
+      @isCancelDisabled={{isCancelDisabled}}
       @submitButtonTip={{submitDisabledReason}}
+      @cancelButtonTip={{cancelDisabledReason}}
       @handleService={{handleService}}
       @onCancel={{action "back"}}
       @onSubmit={{action "submit"}}
