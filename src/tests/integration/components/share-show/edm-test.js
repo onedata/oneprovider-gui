@@ -4,6 +4,7 @@ import { setupRenderingTest } from 'ember-mocha';
 import { render, find, click, blur, focus, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { replaceEmberAceWithTextarea } from '../../../helpers/ember-ace';
+import { Promise } from 'rsvp';
 
 describe('Integration | Component | share-show/edm', function () {
   setupRenderingTest();
@@ -125,8 +126,12 @@ describe('Integration | Component | share-show/edm', function () {
 
       // when
       await helper.render();
-      // wait for image to load (fail to load)
-      await settled();
+      const img = helper.element.querySelector('.representative-image-container img');
+      await new Promise((resolve) => {
+        img.addEventListener('error', () => {
+          resolve();
+        });
+      });
 
       // then
       expect(
