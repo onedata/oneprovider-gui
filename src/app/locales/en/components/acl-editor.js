@@ -2,11 +2,11 @@ import aceEditor from './acl-editor/ace-editor';
 
 export default {
   permissionGroups: {
-    data: 'Data',
+    content: 'Content',
     acl: 'ACL',
     metadata: 'Metadata',
     attributes: 'Attributes',
-    general: 'General',
+    deletion: 'Deletion',
   },
   permissions: {
     read_object: 'Read',
