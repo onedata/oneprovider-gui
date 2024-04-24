@@ -1,23 +1,16 @@
 /**
- * Implementation of table headers for archive-filesystem-browser.
+ * Implementation of table first cells for archive-filesystem-browser.
  *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import FilesystemTableHeadRow from 'oneprovider-gui/components/filesystem-browser/table-head-row';
+import FbTableHeadFirstCell from 'oneprovider-gui/components/file-browser/fb-table-head-first-cell';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { or, raw } from 'ember-awesome-macros';
 
-export default FilesystemTableHeadRow.extend({
-  classNames: ['archive-filesystem-table-head-row'],
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.archiveFilesystemBrowser.tableHeadRow',
-
+export default FbTableHeadFirstCell.extend({
   /**
    * @type {ComputedProperty<Boolean>}
    */
@@ -50,5 +43,4 @@ export default FilesystemTableHeadRow.extend({
     'browserModel.onArchiveDipModeChange',
     raw(notImplementedThrow)
   ),
-
 });

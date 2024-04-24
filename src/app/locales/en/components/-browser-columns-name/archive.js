@@ -1,4 +1,5 @@
 export default {
+  firstColumnName: 'Archives',
   archives: 'Archives',
   state: 'State',
   incremental: 'Base archive',

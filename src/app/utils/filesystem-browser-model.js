@@ -250,7 +250,22 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @override
    */
-  headRowComponentName: 'filesystem-browser/table-head-row',
+  headFirstCellComponentName: 'filesystem-browser/table-head-first-cell',
+
+  /**
+   * @override
+   */
+  headRowTranslation: 'components.filesystemBrowser.tableHeadRow',
+
+  /**
+   * @override
+   */
+  headRowClass: 'filesystem-table-head-row',
+
+  /**
+   * @override
+   */
+  firstColumnClass: 'fb-table-col-files',
 
   /**
    * @override

@@ -1,1 +1,45 @@
-<th class="fb-table-col-items">{{tt this "items"}}</th>
+{{#component headFirstCellComponentName
+  browserModel=browserModel
+}}
+  {{yield}}
+{{/component}}
+{{#each columnsConfiguration.columnsOrder as |columnName i|}}
+  {{#if (get columnsConfiguration (concat "columns." columnName ".isVisible"))}}
+    <th
+      class={{concat-classes
+        (concat "fb-table-col-" columnName)
+        "fb-table-secondary-col"
+        "hidden-xs"
+        (if isDropBorderShown "border-dashed")
+      }}
+      style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
+      draggable=true
+      ondragstart={{action "headingDragAction" columnName}}
+      ondragend={{action "headingDragEndAction"}}
+    >
+      <span class="column-name">
+        {{one-icon icon="drag" class="column-move-icon"}}
+        {{tt this (concat "headers." columnName)}}
+      </span>
+      {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
+        {{#one-icon icon="browser-info" class="column-info-icon"}}
+          {{one-tooltip
+            title=(tt this (concat columnName "Tooltip") oneprovider=currentProviderName)
+          }}
+        {{/one-icon}}
+      {{/if}}
+      <div
+        class="draggable-area"
+        ondragover={{action "headingDragOverAction"}}
+        ondragleave={{action "headingDragLeaveAction"}}
+        ondrop={{action "headingDropAction" (add i 1)}}
+      >
+      </div>
+    </th>
+  {{/if}}
+{{/each}}
+{{columns-configuration-cell
+  columnsConfiguration=columnsConfiguration
+  dragStartAction=(if (not isShareRoot) (action "checkboxDragStart"))
+  dragEndAction=(if (not isShareRoot) (action "checkboxDragEnd"))
+}}

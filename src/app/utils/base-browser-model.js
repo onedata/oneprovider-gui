@@ -156,6 +156,30 @@ export default EmberObject.extend(...mixins, {
    * @virtual
    * @type {String}
    */
+  headFirstCellComponentName: '',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  headRowTranslation: '',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  headRowClass: '',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  firstColumnClass: '',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
   dirLoadErrorComponentName: '',
 
   /**

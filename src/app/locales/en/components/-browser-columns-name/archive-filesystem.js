@@ -1,4 +1,5 @@
 export default {
+  firstColumnName: 'Files',
   size: 'Size',
   owner: 'Owner',
   modification: 'Modification',

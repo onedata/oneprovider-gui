@@ -18,13 +18,23 @@ const mixins = [
 
 export default Component.extend(...mixins, {
   tagName: 'tr',
-  classNames: ['fb-table-head-row'],
+  classNameBindings: ['browserModel.headRowClass'],
+
+  /**
+   * @override
+   */
+  i18nPrefix: reads('browserModel.headRowTranslation'),
 
   /**
    * @virtual
    * @type {Utils.BaseBrowserModel}
    */
   browserModel: undefined,
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  headFirstCellComponentName: reads('browserModel.headFirstCellComponentName'),
 
   /**
    * @type {ComputedProperty<Utils.ColumnsConfiguration>}

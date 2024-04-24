@@ -1,18 +1,18 @@
 /**
- * Implementation of table headers for filesystem-browser.
+ * Implementation of first cell in table for filesystem-browser.
  *
- * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @author Agnieszka Warchoł
+ * @copyright (C) 2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import FbTableHeadRow from 'oneprovider-gui/components/file-browser/fb-table-head-row';
+import FbTableHeadFirstCell from 'oneprovider-gui/components/file-browser/fb-table-head-first-cell';
 import { reads } from '@ember/object/computed';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 import { observer, computed } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { or, promise } from 'ember-awesome-macros';
+import { or } from 'ember-awesome-macros';
 import globals from 'onedata-gui-common/utils/globals';
 import { inject as service } from '@ember/service';
 
@@ -20,22 +20,22 @@ const mixins = [
   WindowResizeHandler,
 ];
 
-export default FbTableHeadRow.extend(...mixins, {
-  classNames: ['filesystem-table-head-row'],
+export default FbTableHeadFirstCell.extend(...mixins, {
+  attributeBindings: ['colspan'],
 
-  providerManager: service(),
+  media: service(),
 
   /**
-   * @override
+   * @type {number}
    */
-  i18nPrefix: 'components.filesystemBrowser.tableHeadRow',
+  colspan: computed('media.isMobile', function colspan() {
+    return this.media.isMobile ? 2 : 1;
+  }),
 
   /**
    * @type {ComputedProperty<string>}
    */
   jumpControlValue: reads('browserModel.jumpControlValue'),
-
-  //#region state
 
   /**
    * Value controlled by `autoSetHideJumpControl`.
@@ -43,23 +43,9 @@ export default FbTableHeadRow.extend(...mixins, {
    */
   noSpaceForJumpControl: false,
 
-  //#endregion
-
   isShareRoot: reads('browserModel.dir.isShareRoot'),
 
   effIsJumpControlHidden: or('isShareRoot', 'noSpaceForJumpControl'),
-
-  /**
-   * @type {PromiseObject<Models.Provider>}
-   */
-  currentProviderProxy: promise.object(computed(function currentProviderProxy() {
-    return this.get('providerManager').getCurrentProvider();
-  })),
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  currentProviderName: reads('currentProviderProxy.content.name'),
 
   dirObserver: observer('browserModel.dir', async function dirObserver() {
     // let header display feature tags for new dir
@@ -98,20 +84,6 @@ export default FbTableHeadRow.extend(...mixins, {
   actions: {
     changeJumpControlValue(value) {
       this.get('browserModel').changeJumpControlValue(value);
-    },
-    headingDragAction(columnName, event) {
-      if (!this.browserModel.readonlyFilesystem) {
-        this.browserModel.disableUploadArea();
-      }
-      event.dataTransfer.setData('text', columnName);
-
-      this.set('isDropBorderShown', true);
-    },
-    headingDragEndAction() {
-      if (!this.browserModel.readonlyFilesystem) {
-        this.browserModel.enableUploadArea();
-      }
-      this.set('isDropBorderShown', false);
     },
   },
 });

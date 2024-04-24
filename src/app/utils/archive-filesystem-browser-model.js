@@ -108,7 +108,22 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  headRowComponentName: 'archive-filesystem-browser/table-head-row',
+  headFirstCellComponentName: 'archive-filesystem-browser/table-head-first-cell',
+
+  /**
+   * @override
+   */
+  headRowTranslation: 'components.archiveFilesystemBrowser.tableHeadRow',
+
+  /**
+   * @override
+   */
+  headRowClass: 'archive-filesystem-table-head-row',
+
+  /**
+   * @override
+   */
+  firstColumnClass: 'fb-table-col-files',
 
   /**
    * @override
