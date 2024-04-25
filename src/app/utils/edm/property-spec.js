@@ -442,6 +442,9 @@ export const allSpecs = Object.freeze({
       obj: [EdmObjectType.ProvidedCHO],
       rec: Rec.Mandatory,
       max: Max.Single,
+      predef: ['3D', 'TEXT', 'VIDEO', 'SOUND', 'IMAGE-2D'].map(value =>
+        ({ value, label: value })
+      ),
     },
     ugc: { obj: [EdmObjectType.Aggregation] },
   },
