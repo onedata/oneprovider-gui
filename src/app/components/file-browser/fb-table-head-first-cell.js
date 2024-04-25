@@ -8,12 +8,10 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
 import { reads } from '@ember/object/computed';
 
 const mixins = [
   I18n,
-  DragAndDropColumnOrderMixin,
 ];
 
 export default Component.extend(...mixins, {
@@ -40,25 +38,14 @@ export default Component.extend(...mixins, {
   isDropBorderShown: false,
 
   actions: {
-    checkboxDragStart() {
-      this.browserModel.disableUploadArea();
+    headingDragOverAction(event) {
+      this.headingDragOverAction(event);
     },
-    checkboxDragEnd() {
-      this.browserModel.enableUploadArea();
+    headingDragLeaveAction() {
+      this.headingDragLeaveAction();
     },
-    headingDragAction(columnName, event) {
-      if (!this.browserModel.readonlyFilesystem) {
-        this.browserModel.disableUploadArea();
-      }
-      event.dataTransfer.setData('text', columnName);
-
-      this.set('isDropBorderShown', true);
-    },
-    headingDragEndAction() {
-      if (!this.browserModel.readonlyFilesystem) {
-        this.browserModel.enableUploadArea();
-      }
-      this.set('isDropBorderShown', false);
+    headingDropAction(index, event) {
+      this.headingDropAction(index, event);
     },
   },
 });
