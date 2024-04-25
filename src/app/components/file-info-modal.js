@@ -546,7 +546,20 @@ export default Component.extend(...mixins, {
 
   cdmiObjectId: reads('file.cdmiObjectId'),
 
+  /**
+   * @type {number}
+   */
   mtime: reads('file.mtime'),
+
+  /**
+   * @type {number}
+   */
+  atime: reads('file.atime'),
+
+  /**
+   * @type {number}
+   */
+  ctime: reads('file.ctime'),
 
   fileSize: reads('file.size'),
 

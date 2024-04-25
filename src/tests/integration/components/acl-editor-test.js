@@ -85,7 +85,7 @@ describe('Integration | Component | acl-editor', function () {
 
     const toCheck = [{
       name: 'User 1',
-      selected: ['field-data-read_object'],
+      selected: ['field-content-read_object'],
     }, {
       name: 'Group 1',
       selected: [
@@ -256,7 +256,7 @@ describe('Integration | Component | acl-editor', function () {
 
     const selectorPrefix = '.one-collapsible-list-item:first-child ';
     return click(selectorPrefix + '.one-collapsible-list-item-header')
-      .then(() => click(selectorPrefix + '.field-data-write_object'))
+      .then(() => click(selectorPrefix + '.field-content-write_object'))
       .then(() => expect(changeSpy).to.be.calledWith(targetAcl));
   });
 
@@ -278,7 +278,7 @@ describe('Integration | Component | acl-editor', function () {
 
     const selectorPrefix = '.one-collapsible-list-item:first-child ';
     return click(selectorPrefix + '.one-collapsible-list-item-header')
-      .then(() => click(selectorPrefix + '.field-data-read_object'))
+      .then(() => click(selectorPrefix + '.field-content-read_object'))
       .then(() => expect(changeSpy).to.be.calledWith(targetAcl));
   });
 });

@@ -700,16 +700,22 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         isVisible: true,
         isEnabled: true,
         width: 200,
+        hasSubname: false,
+        hasTooltip: false,
       }),
       incremental: EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 180,
+        hasSubname: false,
+        hasTooltip: false,
       }),
       creator: EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 200,
+        hasSubname: false,
+        hasTooltip: false,
       }),
     };
     const columnsOrder = ['state', 'incremental', 'creator'];

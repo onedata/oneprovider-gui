@@ -2,12 +2,12 @@
  * Specification of permissions used in ACLs.
  *
  * @author Michał Borzęcki
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 export default [{
-    groupName: 'data',
+    groupName: 'content',
     icon: 'browser-directory',
     privileges: [{
         name: 'read_object',
@@ -89,8 +89,8 @@ export default [{
     ],
   },
   {
-    groupName: 'general',
-    icon: 'browser-permission',
+    groupName: 'deletion',
+    icon: 'browser-delete',
     privileges: [{
       name: 'delete',
       context: ['dir', 'file'],

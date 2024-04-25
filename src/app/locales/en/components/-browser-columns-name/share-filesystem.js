@@ -1,5 +1,5 @@
+import headers from './filesystem';
+
 export default {
-  firstColumnName: 'Files',
-  size: 'Size',
-  modification: 'Modification',
+  headers,
 };
