@@ -59,12 +59,17 @@
       </td>
     {{else if (eq columnName "modification")}}
       <td
-        class="fb-table-col-modification hidden-xs"
+        class="fb-table-col-modification table-col-time multiline hidden-xs"
         style={{columnsConfiguration.columnsStyle.modification}}
       >
-        <span class="file-item-text">
-          {{date-format file.effFile.mtime format="dateWithMinutes" blank="—"}}
-        </span>
+        <div class="file-item-text">
+          <div class="date-text">
+            {{date-format file.effFile.mtime format="date" blank="—"}}
+          </div>
+          <div class="time-text">
+            {{date-format file.effFile.mtime format="timeWithSeconds" blank="—"}}
+          </div>
+        </div>
       </td>
     {{else if (eq columnName "owner")}}
       <td
@@ -137,6 +142,34 @@
             </span>
           {{/if}}
         </span>
+      </td>
+    {{else if (eq columnName "atime")}}
+      <td
+        class="fb-table-col-atime table-col-time multiline hidden-xs"
+        style={{columnsConfiguration.columnsStyle.atime}}
+      >
+        <div class="file-item-text">
+          <div class="date-text">
+            {{date-format file.effFile.atime format="date" blank="—"}}
+          </div>
+          <div class="time-text">
+            {{date-format file.effFile.atime format="timeWithSeconds" blank="—"}}
+          </div>
+        </div>
+      </td>
+    {{else if (eq columnName "ctime")}}
+      <td
+        class="fb-table-col-ctime table-col-time multiline hidden-xs"
+        style={{columnsConfiguration.columnsStyle.ctime}}
+      >
+        <div class="file-item-text">
+          <div class="date-text">
+            {{date-format file.effFile.ctime format="date" blank="—"}}
+          </div>
+          <div class="time-text">
+            {{date-format file.effFile.ctime format="timeWithSeconds" blank="—"}}
+          </div>
+        </div>
       </td>
     {{/if}}
   {{/if}}

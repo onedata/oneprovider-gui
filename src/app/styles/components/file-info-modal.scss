@@ -195,6 +195,11 @@
         width: auto;
       }
     }
+    .property-subname {
+      font-size: 80%;
+      opacity: $disabled-opacity;
+      font-weight: normal;
+    }
     td.property-value {
       padding-right: 0;
       @media (max-width: $screen-xs-max) {

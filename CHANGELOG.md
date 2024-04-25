@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11536 Added atime and ctime info to columns in file browser and to file details
 * VFS-11923 Changed ACL group names (data -> content, general -> deletion)
 * VFS-11801 Improved UX of ACL editor: including auto expand, no rules warning
 * VFS-11761 Added quick share publish toggle to share modal
