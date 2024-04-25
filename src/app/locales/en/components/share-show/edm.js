@@ -27,4 +27,5 @@ export default {
   },
   imageNotFound,
   xmlInvalid: 'XML data is invalid',
+  xmlParseError: 'XML syntax error or invalid EDM XML structure',
 };

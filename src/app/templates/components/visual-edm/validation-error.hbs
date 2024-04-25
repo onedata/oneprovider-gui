@@ -1,9 +1,13 @@
 <div class="edm-info-row-inner">
   <OneIcon @icon="sign-warning-rounded" class="edm-info-row-icon" />
   <span class="edm-info-row-text">
-    <strong>{{text}}{{if errorMessages.length ":" "."}}</strong>
-    {{#each errorMessages as |message index|}}
-      <span>{{message}}</span>{{if (eq index (sub errorMessages.length 1)) "." ";"}}
-    {{/each}}
+    <strong>{{text}}{{if (or errorMessages.length customMessage) ":" "."}}</strong>
+    {{#if customMessage}}
+      {{customMessage}}.
+    {{else}}
+      {{#each errorMessages as |message index|}}
+        <span>{{message}}</span>{{if (eq index (sub errorMessages.length 1)) "." ";"}}
+      {{/each}}
+    {{/if}}
   </span>
 </div>

@@ -66,10 +66,28 @@ export default class EdmMetadataFactory {
   }
 
   static validateXmlDocument(xmlDocument) {
-    if (xmlDocument.children[0]?.tagName !== 'rdf:RDF') {
+    if (
+      xmlDocument.children.length !== 1 ||
+      xmlDocument.children[0]?.tagName !== 'rdf:RDF' ||
+      findParserErrorElement(xmlDocument)
+    ) {
       return false;
     }
     return true;
+  }
+}
+
+function findParserErrorElement(element) {
+  const childrenToCheck = [];
+  for (const child of element.children) {
+    if (child.tagName === 'parsererror') {
+      return child;
+    } else {
+      childrenToCheck.push(child);
+    }
+  }
+  for (const child of childrenToCheck) {
+    return findParserErrorElement(child);
   }
 }
 

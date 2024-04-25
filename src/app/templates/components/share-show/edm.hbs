@@ -71,6 +71,7 @@
             class="edm-metadata-invalid"
             @text={{tt this "notValid"}}
             @validator={{validator}}
+            @customMessage={{if isXmlNotParseable (tt this "xmlParseError")}}
             @viewType="xml"
           />
         {{else}}
