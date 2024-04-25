@@ -41,12 +41,14 @@
   .edm-property-type-label-tip {
     margin-left: 0.5em;
     padding-right: 0.2em;
-    line-height: 0;
+    font-size: $font-size-base;
   }
   .edm-property-value {
     flex-grow: 1;
+    max-width: 100%;
     &.readonly {
       overflow: hidden;
+      max-width: auto;
     }
     .form-group {
       margin-bottom: 0;
@@ -91,6 +93,7 @@
   .header-lang-section {
     display: flex;
     align-items: baseline;
+    max-width: 100%;
   }
   .header-quantity-section {
     display: flex;
@@ -201,7 +204,7 @@
 
 .ember-power-select-trigger.small.edm-lang-dropdown-trigger {
   margin-right: 10px;
-	width: 9em;
+	width: 12em;
 	padding-top: 3px;
 	padding-bottom: 3px;
 	padding-left: 8px;
