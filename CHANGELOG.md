@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11731 Fixed unexpected auto scroll of the file list after closing a modal
 * VFS-11536 Added atime and ctime info to columns in file browser and to file details
 * VFS-11923 Changed ACL group names (data -> content, general -> deletion)
 * VFS-11801 Improved UX of ACL editor: including auto expand, no rules warning

@@ -636,6 +636,14 @@ export default Component.extend(...mixins, {
 
   /**
    * @override
+   */
+  didInsertElement() {
+    this._super(...arguments);
+    this.applyScrollOnFocusHack(this.element);
+  },
+
+  /**
+   * @override
    * @param {KeyboardEvent} event
    */
   keyDown(event) {
@@ -663,6 +671,30 @@ export default Component.extend(...mixins, {
     } finally {
       this._super(...arguments);
     }
+  },
+
+  /**
+   * There is an addon (ember-focus-trap) that invokes `.focus()` on `fb-table` element.
+   * When the focus if invoked as a function without `preventScroll` set to false,
+   * Chromium and WebKit browsers invoke strange scroll to put the fb-table on the top of
+   * the nearest scroll ancestor. This does not occur on Firefox.
+   *
+   * To prevent that, we cannot listen on the `focus` or `focusin` events because they are
+   * not fired when the `focus()` method is invoked. Instead we override the original
+   * methods set `preventScroll` to true (if not provided) to prevent this strange
+   * behavior.
+   *
+   * @param {HTMLElement} element `FbTable` main element.
+   */
+  applyScrollOnFocusHack(element) {
+    const originalFocus = element.focus;
+    element.focus = function (options) {
+      let effOptions = options;
+      if (effOptions?.preventScroll === undefined) {
+        effOptions = { ...options, preventScroll: true };
+      }
+      originalFocus.bind(this)(effOptions);
+    };
   },
 
   async jumpToSelection() {
