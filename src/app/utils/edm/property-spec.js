@@ -365,8 +365,8 @@ export const allSpecs = Object.freeze({
       rec: Rec.Mandatory,
       max: Max.Single,
       predef: [{
-        label: 'Phoconsortium',
-        value: 'Phoconsortium',
+        label: 'Photoconsortium',
+        value: 'Photoconsortium',
       }],
       def: 'Phoconsortium',
     },
@@ -377,35 +377,31 @@ export const allSpecs = Object.freeze({
       obj: [EdmObjectType.Aggregation, EdmObjectType.WebResource],
       rec: Rec.Mandatory,
       max: Max.Single,
-      // Predefined values from
-      // https://europeana.atlassian.net/wiki/spaces/EF/pages/1503756289/Providing+copyright+metadata+to+Europeana#Available-values
-      predef: [
-        // Creative Commons Licenses
-        {
+      // Predefined values from EUreka 3D specification
+      predef: [{
           label: 'CC BY 4.0',
-          value: 'https://creativecommons.org/licenses/by/4.0/',
+          value: 'http://creativecommons.org/licenses/by/4.0/',
         },
         {
           label: 'CC BY-SA 4.0',
-          value: 'https://creativecommons.org/licenses/by-sa/4.0/',
+          value: 'http://creativecommons.org/licenses/by-sa/4.0/',
         },
         {
           label: 'CC BY-ND 4.0',
-          value: 'https://creativecommons.org/licenses/by-nd/4.0/',
+          value: 'http://creativecommons.org/licenses/by-nd/4.0/',
         },
         {
           label: 'CC BY-NC 4.0',
-          value: 'https://creativecommons.org/licenses/by-nc/4.0/',
+          value: 'http://creativecommons.org/licenses/by-nc/4.0/',
         },
         {
           label: 'CC BY-NC-SA 4.0',
-          value: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+          value: 'http://creativecommons.org/licenses/by-nc-sa/4.0/',
         },
         {
           label: 'CC BY-NC-ND 4.0',
-          value: 'https://creativecommons.org/licenses/by-nc-nd/4.0/',
+          value: 'http://creativecommons.org/licenses/by-nc-nd/4.0/',
         },
-        // Rights Statements provided by RightsStatements.org
         {
           label: 'NoC-NC',
           value: 'http://rightsstatements.org/vocab/NoC-NC/1.0/',
@@ -423,21 +419,20 @@ export const allSpecs = Object.freeze({
           value: 'http://rightsstatements.org/vocab/InC-EDU/1.0/',
         },
         {
-          label: 'InC-EU-OW',
+          label: 'InC-OW-EU',
           value: 'http://rightsstatements.org/vocab/InC-OW-EU/1.0/',
         },
         {
           label: 'CNE',
           value: 'http://rightsstatements.org/vocab/CNE/1.0/',
         },
-        // Creative Commons Public Domain Tools
         {
           label: 'CC0 1.0',
-          value: 'https://creativecommons.org/publicdomain/zero/1.0/',
+          value: 'http://creativecommons.org/publicdomain/zero/1.0/',
         },
         {
-          label: 'PDM 1.0',
-          value: 'https://creativecommons.org/publicdomain/mark/1.0/',
+          label: 'Public Domain Mark',
+          value: 'http://creativecommons.org/publicdomain/mark/1.0/',
         },
       ],
     },

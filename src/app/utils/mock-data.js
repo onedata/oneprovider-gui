@@ -362,7 +362,7 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
   <ore:Aggregation>
     <edm:dataProvider>a</edm:dataProvider>
     <edm:object rdf:resource="https://onedata.org/assets/images/logo.svg"/>
-    <edm:provider>Phoconsortium</edm:provider>
-    <edm:rights rdf:resource="https://creativecommons.org/licenses/by-sa/4.0/"/>
+    <edm:provider>Photoconsortium</edm:provider>
+    <edm:rights rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/"/>
   </ore:Aggregation>
 </rdf:RDF>`;
