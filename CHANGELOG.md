@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11731 Fixed unexpected auto scroll of the file list after closing a modal
 * VFS-11923 Changed ACL group names (data -> content, general -> deletion)
 * VFS-11801 Improved UX of ACL editor: including auto expand, no rules warning
 * VFS-11761 Added quick share publish toggle to share modal
