@@ -368,7 +368,7 @@ export const allSpecs = Object.freeze({
         label: 'Photoconsortium',
         value: 'Photoconsortium',
       }],
-      def: 'Phoconsortium',
+      def: 'Photoconsortium',
     },
     realizes: { obj: [EdmObjectType.ProvidedCHO] },
     rights: {
