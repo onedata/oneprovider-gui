@@ -24,8 +24,7 @@
       <div class="column-info-container">
         <span class="column-name">
           {{one-icon icon="drag" class="column-move-icon"}}
-            {{tt this (concat "headers.name." columnName)}}
-
+          {{tt this (concat "headers.name." columnName)}}
           {{#if (get columnsConfiguration (concat "columns." columnName ".hasTooltip"))}}
             {{#one-icon icon="browser-info" class="column-info-icon"}}
               {{one-tooltip
