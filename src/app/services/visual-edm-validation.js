@@ -8,7 +8,7 @@
 
 import Service, { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import { EdmMetadataInvalidObjectOcurrence } from 'oneprovider-gui/utils/edm/metadata-validator';
+import { EdmMetadataInvalidObjectOcurrenceError } from 'oneprovider-gui/utils/edm/metadata-validator';
 import {
   EdmObjectMissingPropertiesError,
   EdmObjectPropertiesMaxSingleError,
@@ -86,7 +86,7 @@ export default Service.extend(I18n, {
           error.properties,
           viewType
         ));
-      } else if (error instanceof EdmMetadataInvalidObjectOcurrence) {
+      } else if (error instanceof EdmMetadataInvalidObjectOcurrenceError) {
         messages.push(this.createObjectOccurrenceMessage(
           error.edmObjectType,
           error.expectedOccurence,

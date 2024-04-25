@@ -59,13 +59,13 @@ const EdmMetadataValidator = EmberObject.extend({
         obj.edmObjectType === EdmObjectType.ProvidedCHO
       ).length === 1;
       if (!isSingleProvidedCHO) {
-        result.push(new EdmMetadataInvalidObjectOcurrence(EdmObjectType.ProvidedCHO, 1));
+        result.push(new EdmMetadataInvalidObjectOcurrenceError(EdmObjectType.ProvidedCHO, 1));
       }
       const isSingleAggregation = this.edmMetadata.edmObjects.filter(obj =>
         obj.edmObjectType === EdmObjectType.Aggregation
       ).length === 1;
       if (!isSingleAggregation) {
-        result.push(new EdmMetadataInvalidObjectOcurrence(EdmObjectType.Aggregation, 1));
+        result.push(new EdmMetadataInvalidObjectOcurrenceError(EdmObjectType.Aggregation, 1));
       }
       result.push(..._.flatten(this.objectValidators.map(validator =>
         validator.errors
