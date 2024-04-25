@@ -56,7 +56,11 @@
                   <span
                     class="predefined-label {{unless option.value "predefined-label-default"}}"
                   >
-                    {{option.label}}
+                    {{#if option.label}}
+                      {{option.label}}
+                    {{else}}
+                      <em>{{tt this "unknownDropdownOption"}}</em>
+                    {{/if}}
                   </span>
                   {{#if (and option.value (not-eq option.label option.value))}}
                     <span class="predefined-value">({{option.value}})</span>
@@ -140,7 +144,11 @@
                 {{#truncated-string}}
                   <span class="text">
                     <span class="predefined-label">
-                      {{option.label}}
+                      {{#if option.label}}
+                        {{option.label}}
+                      {{else}}
+                        <em>{{tt this "unknownDropdownOption"}}</em>
+                      {{/if}}
                     </span>
                     {{#unless (eq option.label option.value)}}
                       <span class="predefined-value">({{option.value}})</span>

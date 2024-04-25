@@ -146,9 +146,12 @@ const PropertyViewModel = EmberObject.extend({
   /**
    * @type {{ label: string, value: string }}
    */
-  selectedLangOption: computed('lang', function selectedLangOption() {
-    return langOptionsMapping[this.lang || ''] || langOptionsMapping[0];
-  }),
+  selectedLangOption: computed(
+    'lang',
+    function selectedLangOption() {
+      return langOptionsMapping[this.lang || ''] || { value: this.lang };
+    }
+  ),
 
   isLangDefault: not('lang'),
 
@@ -172,6 +175,15 @@ const PropertyViewModel = EmberObject.extend({
     'predefinedValueOptions',
     'value',
     function selectedPredefinedValueOption() {
+      if (!this.value) {
+        return;
+      }
+      const predefinedOption = this.predefinedValueOptions?.find(({ value }) =>
+        value === this.value
+      );
+      if (!predefinedOption) {
+        return { value: this.value };
+      }
       return this.predefinedValueOptions?.find(({ value }) => value === this.value);
     }
   ),
@@ -199,6 +211,9 @@ const PropertyViewModel = EmberObject.extend({
       );
     } else {
       this.set('valueType', this.model.supportedValueType);
+    }
+    if (this.value) {
+      this.set('wasInputFocused', true);
     }
   },
 

@@ -119,4 +119,5 @@ export default {
     [EdmPropertyRecommendation.Mandatory]: 'mandatory',
   },
   example: '<strong>Example:</strong> {{exampleValue}}',
+  unknownDropdownOption: 'Unknown',
 };
