@@ -23,6 +23,7 @@ import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
 import { tagToPropertyDataMap } from 'oneprovider-gui/utils/edm/property-spec';
 import EdmObjectValidator from 'oneprovider-gui/utils/edm/object-validator';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
+import _ from 'lodash';
 
 /**
  * @typedef {'visual'|'xml'} EdmValidationMessageViewType
@@ -96,8 +97,14 @@ export default Service.extend(I18n, {
         messages.push(error.toString());
       }
     }
-    emptyProperties = sortProperties(emptyProperties, 'visual');
-    invalidEnumProperties = sortProperties(invalidEnumProperties, 'visual');
+    emptyProperties = sortProperties(
+      _.uniqBy(emptyProperties, 'xmlTagName'),
+      viewType
+    );
+    invalidEnumProperties = sortProperties(
+      _.uniqBy(invalidEnumProperties, 'xmlTagName'),
+      viewType
+    );
     if (emptyProperties.length) {
       messages.push(this.createEmptyValuesMessage(
         emptyProperties,
