@@ -29,6 +29,12 @@ export default Component.extend({
 
   /**
    * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
+   * @virtual
    * @type {() => void}
    */
   onClose: undefined,
@@ -115,6 +121,7 @@ export default Component.extend({
    */
   executionDataFetcher: computed(
     'atmWorkflowExecutionProxy.isFulfilled',
+    'space.entityId',
     function executionDataFetcher() {
       const {
         isFulfilled,
@@ -124,6 +131,7 @@ export default Component.extend({
       if (isFulfilled) {
         return ExecutionDataFetcher.create({
           ownerSource: this,
+          spaceId: this.space?.entityId,
           atmWorkflowExecution,
         });
       }

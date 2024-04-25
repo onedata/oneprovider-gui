@@ -1,0 +1,51 @@
+{{#global-modal
+  classNames="modal-content-overlay"
+  modalId=modalId
+  size="sm"
+  as |modal|
+}}
+
+  {{#modal.header}}
+    <h1>{{header}}</h1>
+    {{#if subheader}}
+      <h2 class="normal-case">
+        <TruncatedString>{{subheader}}</TruncatedString>
+      </h2>
+    {{/if}}
+  {{/modal.header}}
+
+  {{#modal.body}}
+    <PromiseProxyContainer @proxy={{records}}>
+      {{#if records.length}}
+        <ResourcesList
+          @listHeader={{listHeader}}
+          @items={{listItems}}
+          @isResourceWithAdditionalInfo={{true}}
+          @selectionMode={{if allowMany "multi" "single"}}
+          @onSelectionChange={{action "selectionChanged"}}
+        />
+      {{else}}
+        <p><em>{{tt this "nothingToShow"}}</em></p>
+      {{/if}}
+    </PromiseProxyContainer>
+  {{/modal.body}}
+
+  {{#modal.footer class="btn-toolbar"}}
+    <OneButton
+      class="btn-cancel"
+      @type="default"
+      @onClick={{modal.close}}
+    >
+      {{tt this "cancelBtn"}}
+    </OneButton>
+    <OneButton
+      class="btn-confirm"
+      @type="success"
+      @disabled={{not selectedRecords.length}}
+      @onClick={{action modal.submit selectedRecords}}
+    >
+      {{tt this "confirmBtn"}}
+    </OneButton>
+  {{/modal.footer}}
+
+{{/global-modal}}

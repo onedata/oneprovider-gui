@@ -4,4 +4,9 @@ export default {
     buttonText: 'Use selected items ({{itemsCount}})',
   },
   itemsSelectorSubheader: 'for <strong>{{storeName}}</strong> store',
+  groupSelectorHeader: {
+    single: 'Select a group',
+    multi: 'Select groups',
+  },
+  groupSelectorListHeader: 'Groups',
 };
