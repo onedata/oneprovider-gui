@@ -65,18 +65,12 @@ export const EdmPropertyValueType = Object.freeze({
 });
 
 /**
- * Is the presence of property mandatory for the object, only recommended or completely
- * optional? Based on Eureka3D recommendations.
+ * Is the presence of property mandatory for the object or optional?
+ * Based on Eureka3D recommendations.
  */
 export const EdmPropertyRecommendation = Object.freeze({
   /** There should be at least single occurrence of the property in the object. */
   Mandatory: 'mandatory',
-  /**
-   * It is recommended to have at least single occurrence of the property in the object,
-   * but lack of the property does not cause validation error.
-   * @deprecated This was designed in the early versions of GUI, but now it has no usages.
-   */
-  Recommended: 'recommended',
   /** It is completely optional to have the property in the object. */
   None: 'none',
 });

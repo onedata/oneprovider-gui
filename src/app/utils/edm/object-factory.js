@@ -83,8 +83,7 @@ class EdmObjectFactory {
  */
 function createInitialPropertyMap() {
   const initialPropertyItems = allPropertyData.filter(item => {
-    return item.spec.rec === EdmPropertyRecommendation.Mandatory ||
-      item.spec.rec === EdmPropertyRecommendation.Recommended;
+    return item.spec.rec === EdmPropertyRecommendation.Mandatory;
   });
   const propertyItems = {
     [EdmObjectType.ProvidedCHO]: [],

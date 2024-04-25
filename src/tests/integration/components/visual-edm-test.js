@@ -483,7 +483,7 @@ describe('Integration | Component | visual-edm', function () {
     }
   );
 
-  it('renders with initial objects with required and recommended properties when used with initial metadata',
+  it('renders with initial objects with required properties when used with initial metadata',
     async function () {
       // given
       const helper = new Helper(

@@ -116,8 +116,6 @@ export default {
   },
   recommendation: {
     [EdmPropertyRecommendation.None]: 'optional',
-    /** @deprecated Currently has no usages. */
-    [EdmPropertyRecommendation.Recommended]: 'recommended',
     [EdmPropertyRecommendation.Mandatory]: 'mandatory',
   },
   example: '<strong>Example:</strong> {{exampleValue}}',
