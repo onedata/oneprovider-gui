@@ -263,11 +263,15 @@ export default BaseBrowserModel.extend(I18n, {
         isVisible: true,
         isEnabled: true,
         width: 150,
+        hasSubname: false,
+        hasTooltip: false,
       }),
       created: EmberObject.create({
         isVisible: true,
         isEnabled: true,
         width: 200,
+        hasSubname: false,
+        hasTooltip: false,
       }),
     };
     const columnsOrder = ['archives', 'created'];

@@ -42,12 +42,14 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
 
   it('renders modification date', async function () {
     const date = moment('2022-05-18T08:50:00+00:00').unix();
-    const dateReadable = /18 May 2022 \d+:50/;
+    const dateReadable = /18 May 2022/;
+    const timeReadable = /\d+:50/;
     this.set('file', createFile({ mtime: date }));
 
     await renderComponent(this);
 
-    expect(find('.fb-table-col-modification').textContent).to.match(dateReadable);
+    expect(find('.fb-table-col-modification .date-text').textContent).to.match(dateReadable);
+    expect(find('.fb-table-col-modification .time-text').textContent).to.match(timeReadable);
   });
 
   it('does not render "hard links" file tag, when hardlinks count equals 1', async function () {

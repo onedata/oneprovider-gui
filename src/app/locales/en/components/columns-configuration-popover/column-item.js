@@ -9,10 +9,10 @@ export default {
   noViewTip: 'Column hidden due to limited horizontal space. Try resizing the browser window, decreasing zoom or disabling other columns.',
   moveUp: 'Change order<br/>(move backward)',
   moveDown: 'Change order<br/>(move forward)',
-  archiveFilesystem,
+  archiveFilesystem: archiveFilesystem.headers,
   archive,
   dataset,
   filesystem,
-  shareFilesystem,
+  shareFilesystem: shareFilesystem.headers,
   transfer,
 };

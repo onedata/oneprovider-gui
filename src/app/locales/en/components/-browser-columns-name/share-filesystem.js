@@ -1,4 +1,5 @@
+import headers from './filesystem';
+
 export default {
-  size: 'Size',
-  modification: 'Modification',
+  headers,
 };

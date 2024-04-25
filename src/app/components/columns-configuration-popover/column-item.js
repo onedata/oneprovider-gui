@@ -13,12 +13,15 @@ import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import { reads } from '@ember/object/computed';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export default Component.extend(I18n, {
   tagName: 'li',
   classNames: ['column-item'],
 
   i18n: service(),
+  providerManager: service(),
 
   /**
    * @override
@@ -97,6 +100,18 @@ export default Component.extend(I18n, {
   checkboxInputId: computed('columnName', function checkboxInputId() {
     return `${this.elementId}-${this.columnName}Checkbox`;
   }),
+
+  /**
+   * @type {PromiseObject<Models.Provider>}
+   */
+  currentProviderProxy: computed(function currentProviderProxy() {
+    return promiseObject(this.providerManager.getCurrentProvider());
+  }),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  currentProviderName: reads('currentProviderProxy.content.name'),
 
   actions: {
     checkboxChanged(columnName, newValue) {
