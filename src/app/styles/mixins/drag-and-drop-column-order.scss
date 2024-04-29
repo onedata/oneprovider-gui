@@ -27,7 +27,7 @@
     border-right-style: dashed;
     border-right-color: $table-border-color;
   }
-  th:hover .column-move-icon{
+  th:hover .column-move-icon {
     @media (hover: hover) {
       visibility: visible;
       cursor: grab;
@@ -50,8 +50,20 @@
     left: -1.35em;
     top: 0.2em;
   }
+  .column-info-container {
+    position: relative;
+  }
   .column-name {
     position: relative;
+  }
+  .column-subname {
+    position: absolute;
+    top: 1.5em;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 80%;
+    opacity: $disabled-opacity;
+    font-weight: normal;
   }
   .column-move-icon {
     opacity: 0.6;

@@ -6,7 +6,7 @@
   colspan={{if (media "isMobile") "2" "1"}}
 >
   <div class="fb-table-first-col-container">
-    <div class="table-header-text">{{tt this "headers.files"}}</div>
+    <div class="table-header-text">{{tt this "headers.name.files"}}</div>
     {{!--
       table-header-jump-control flex element is intentionally left rendered even
       if file-browser/jump-control component is not rendered to keep space
@@ -44,17 +44,27 @@
       ondragstart={{action "headingDragAction" columnName}}
       ondragend={{action "headingDragEndAction"}}
     >
-      <span class="column-name">
-        {{one-icon icon="drag" class="column-move-icon"}}
-        {{tt this (concat "headers." columnName)}}
-      </span>
-      {{#if (or (eq columnName "replication") (eq columnName "qos"))}}
-        {{#one-icon icon="browser-info" class="column-info-icon"}}
-          {{one-tooltip
-            title=(tt this (concat columnName "Tooltip") oneprovider=currentProviderName)
-          }}
-        {{/one-icon}}
-      {{/if}}
+      <div class="column-info-container">
+        <span class="column-name">
+          {{one-icon icon="drag" class="column-move-icon"}}
+            {{tt this (concat "headers.name." columnName)}}
+
+          {{#if (get columnsConfiguration (concat "columns." columnName ".hasTooltip"))}}
+            {{#one-icon icon="browser-info" class="column-info-icon"}}
+              {{one-tooltip
+                title=(tt this
+                  (concat "headers.tip." columnName) oneprovider=currentProviderName
+                )
+              }}
+            {{/one-icon}}
+          {{/if}}
+        </span>
+        {{#if (get columnsConfiguration (concat "columns." columnName ".hasSubname"))}}
+          <div class="column-subname">
+            ({{tt this (concat "headers.subname." columnName)}})
+          </div>
+        {{/if}}
+      </div>
       <div
         class="draggable-area"
         ondragover={{action "headingDragOverAction"}}

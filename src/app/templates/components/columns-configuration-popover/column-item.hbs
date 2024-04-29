@@ -18,7 +18,24 @@
     class="column-name-label"
   >
     <span class="one-label checkbox-label">
-      <span>{{tt this (concat translationKey "." columnName)}}</span>
+      <span class="name-text">
+        {{tt this (concat translationKey ".name." columnName)}}
+      </span>
+      {{#if columnValue.hasSubname}}
+        <span class="subname-text">
+          &nbsp;({{tt this (concat translationKey ".subname." columnName)}})
+        </span>
+      {{/if}}
+      {{#if columnValue.hasTooltip}}
+        {{#one-icon icon="browser-info" class="column-info-icon"}}
+          {{one-tooltip
+            title=(tt this
+              (concat translationKey ".tip." columnName)
+              oneprovider=currentProviderName
+            )
+          }}
+        {{/one-icon}}
+      {{/if}}
       {{#if (and
         (not (get columnValue "isVisible"))
         (get columnValue "isEnabled")
