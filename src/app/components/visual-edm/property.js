@@ -15,8 +15,8 @@ import humanizeString from 'oneprovider-gui/utils/humanize-string';
 import {
   EdmPropertyValueType,
   EdmPropertyRecommendation,
-  langSelectorSpec,
 } from 'oneprovider-gui/utils/edm/property-spec';
+import { getLangSelectorOptions } from 'oneprovider-gui/utils/edm/lang-spec';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import sleep from 'onedata-gui-common/utils/sleep';
 import isUrl from 'onedata-gui-common/utils/is-url';
@@ -39,8 +39,6 @@ class PropertyLangOption {
 function generateLangOptions(specs) {
   return specs.map(spec => new PropertyLangOption(spec));
 }
-
-const langOptions = generateLangOptions(langSelectorSpec);
 
 export default Component.extend(I18n, {
   classNames: ['visual-edm-property'],
@@ -83,7 +81,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<{ label: string, value: string }>}
    */
-  langOptions,
+  langOptions: undefined,
 
   value: reads('viewModel.value'),
 
@@ -198,6 +196,11 @@ export default Component.extend(I18n, {
       this.tryExecuteAnimateAttention();
     }
   ),
+
+  init() {
+    this._super(...arguments);
+    this.set('langOptions', getLangSelectorOptions());
+  },
 
   /**
    * @override

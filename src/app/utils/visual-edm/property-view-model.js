@@ -12,13 +12,8 @@ import { eq, raw, conditional, not } from 'ember-awesome-macros';
 import {
   EdmPropertyRecommendation,
   EdmPropertyValueType,
-  langSelectorSpec,
 } from '../edm/property-spec';
-
-const langOptionsMapping = langSelectorSpec.reduce((mapping, option) => {
-  mapping[option.value] = option;
-  return mapping;
-}, {});
+import { getLangSelectorOptions } from '../edm/lang-spec';
 
 const PropertyViewModel = EmberObject.extend({
   /**
@@ -57,11 +52,6 @@ const PropertyViewModel = EmberObject.extend({
    * @type {boolean}
    */
   isAnimateAttentionQueued: false,
-
-  /**
-   * @type {Array<{ label: string, value: string }>}
-   */
-  langSelectorSpec,
 
   /**
    * Cannot use `reads` here, because Ember internals crash on "magic" Proxy constructor
@@ -148,8 +138,9 @@ const PropertyViewModel = EmberObject.extend({
    */
   selectedLangOption: computed(
     'lang',
+    'langOptionsMapping',
     function selectedLangOption() {
-      return langOptionsMapping[this.lang || ''] || { value: this.lang };
+      return this.langOptionsMapping[this.lang || ''] || { value: this.lang };
     }
   ),
 
@@ -215,6 +206,10 @@ const PropertyViewModel = EmberObject.extend({
     if (this.value) {
       this.set('wasInputFocused', true);
     }
+    this.set('langOptionsMapping', getLangSelectorOptions().reduce((mapping, option) => {
+      mapping[option.value] = option;
+      return mapping;
+    }, {}));
   },
 
   animateAttention() {
