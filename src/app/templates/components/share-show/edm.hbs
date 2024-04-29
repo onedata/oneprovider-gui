@@ -15,6 +15,20 @@
       }}
       @onModeChange={{action "changeMode"}}
     />
+    <div class="btn-tooltip-container">
+      <OneButton
+        class="modify-metadata-btn"
+        @onClick={{action "startModify"}}
+        @size="sm"
+        @disabled={{isModifyingExistingMetadata}}
+      >
+        <OneIcon @icon="browser-rename" />
+        {{tt this "modify"}}
+      </OneButton>
+      {{#if isModifyingExistingMetadata}}
+        <OneTooltip @title={{tt this "modifyingTip"}} />
+      {{/if}}
+    </div>
   </div>
 
   {{#unless (or readonly (media "isMobile"))}}
@@ -124,6 +138,8 @@
       @submitButtonTip={{submitDisabledReason}}
       @cancelButtonTip={{cancelDisabledReason}}
       @handleService={{handleService}}
+      @mode={{editMode}}
+      @isEditorModified={{visualEdmViewModel.isModified}}
       @onCancel={{action "back"}}
       @onSubmit={{action "submit"}}
     />

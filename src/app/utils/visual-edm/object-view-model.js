@@ -97,6 +97,7 @@ const ObjectViewModel = EmberObject.extend({
       item.name
     );
     this.model.addProperty(newEdmProperty);
+    this.visualEdmViewModel.markAsModified();
     this.updateView();
     const pvm = this.findPropertyViewModel(newEdmProperty);
     pvm.animateAttention();

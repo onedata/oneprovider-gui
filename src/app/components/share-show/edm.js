@@ -53,7 +53,7 @@ export default Component.extend(I18n, {
   xmlValue: undefined,
 
   /**
-   * @virtual
+   * @virtual optional
    * @type {Models.HandleService}
    */
   handleService: undefined,
@@ -66,15 +66,33 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {() => Promise}
+   * @type {(metadataXml: string) => Promise}
    */
   onSubmit: undefined,
+
+  /**
+   * @virtual optional
+   * @type {(metadataXml: string) => Promise}
+   */
+  onModify: undefined,
+
+  /**
+   * @virtual optional
+   * @type {(isEditMode: boolean) => void}
+   */
+  onChangeEditMode: undefined,
 
   /**
    * @virtual
    * @type {() => void}
    */
   onBack: undefined,
+
+  /**
+   * @virtual optional
+   * @type {boolean}
+   */
+  isPublished: false,
 
   //#endregion
 
@@ -158,6 +176,14 @@ export default Component.extend(I18n, {
     }
   ),
 
+  isModifyingExistingMetadata: computed(
+    'isPublished',
+    'readonly',
+    function isModifyingExistingMetadata() {
+      return this.isPublished && !this.readonly;
+    }
+  ),
+
   isEmpty: not('currentXmlValue'),
 
   isSubmitDisabled: bool('submitDisabledReason'),
@@ -214,24 +240,30 @@ export default Component.extend(I18n, {
     return `edm-mode-${this.mode}`;
   }),
 
-  submitDisabledReason: or(
-    and(
-      eq('modelXmlSyncState', raw(EdmModelXmlSyncState.Waiting)),
-      computedT('submitDisabledReason.validatingSync')
-    ),
-    and(
-      'isXmlNotParseable',
-      computedT('submitDisabledReason.xmlNotValid')
-    ),
-    and(
-      notEqual('modelXmlSyncState', raw(EdmModelXmlSyncState.Synced)),
-      computedT('submitDisabledReason.xmlNotAccepted')
-    ),
-    and(
-      not('isValid'),
-      computedT('submitDisabledReason.invalid')
-    ),
-    raw(null),
+  submitDisabledReason: computed(
+    'modelXmlSyncState',
+    'isXmlNotParseable',
+    'isValid',
+    'editMode',
+    'visualEdmViewModel.isModified',
+    function submitDisabledReason() {
+      if (this.modelXmlSyncState === EdmModelXmlSyncState.Waiting) {
+        return this.t('submitDisabledReason.validatingSync');
+      }
+      if (this.isXmlNotParseable) {
+        return this.t('submitDisabledReason.xmlNotValid');
+      }
+      if (this.modelXmlSyncState !== EdmModelXmlSyncState.Synced) {
+        return this.t('submitDisabledReason.xmlNotAccepted');
+      }
+      if (!this.isValid) {
+        return this.t('submitDisabledReason.invalid');
+      }
+      if (this.editMode === 'edit' && !this.visualEdmViewModel.isModified) {
+        return this.t('submitDisabledReason.noChanges');
+      }
+      return null;
+    }
   ),
 
   cancelDisabledReason: computed('modelXmlSyncState', function cancelDisabledReason() {
@@ -252,8 +284,33 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * @type {MetadataEditorEditMode}
+   */
+  editMode: computed('readonly', 'isPublished', function footerMode() {
+    if (this.readonly) {
+      return 'show';
+    }
+    return this.isPublished ? 'edit' : 'create';
+  }),
+
   init() {
     this._super(...arguments);
+    this.initMetadataModel();
+    this.set('notAcceptedSourceValidator', EdmMetadataValidator.create());
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    this._super(...arguments);
+    this.visualEdmViewModel.validator?.destroy();
+    this.visualEdmViewModel?.destroy();
+    this.notAcceptedSourceValidator?.destroy();
+  },
+
+  initMetadataModel() {
     const metadataFactory = EdmMetadataFactory;
     let edmMetadata;
     if (this.xmlValue) {
@@ -276,18 +333,6 @@ export default Component.extend(I18n, {
         edmMetadata,
       });
     }
-
-    this.set('notAcceptedSourceValidator', EdmMetadataValidator.create());
-  },
-
-  /**
-   * @override
-   */
-  willDestroy() {
-    this._super(...arguments);
-    this.visualEdmViewModel.validator?.destroy();
-    this.visualEdmViewModel?.destroy();
-    this.notAcceptedSourceValidator?.destroy();
   },
 
   initVisualEdmViewModel({ edmMetadata, validator }) {
@@ -327,9 +372,15 @@ export default Component.extend(I18n, {
     return annotations?.some(annotation => annotation.type === 'error');
   },
 
-  submit() {
+  async submit() {
     this.replaceCurrentXmlValueUsingModel();
-    return this.onSubmit(this.currentXmlValue);
+    await this.onSubmit(this.currentXmlValue);
+  },
+
+  async submitMetadataUpdate() {
+    this.replaceCurrentXmlValueUsingModel();
+    await this.onModify(this.currentXmlValue);
+    this.onChangeEditMode?.(false);
   },
 
   replaceCurrentXmlValueUsingModel() {
@@ -481,10 +532,19 @@ export default Component.extend(I18n, {
     },
     // TODO: VFS-11645 Ask for unsaved changed when cancelling and chaning view
     back() {
-      this.onBack();
+      if (this.isPublished) {
+        this.onChangeEditMode(false);
+        this.initMetadataModel();
+      } else {
+        this.onBack();
+      }
     },
     submit() {
-      return this.submit();
+      if (this.isPublished) {
+        return this.submitMetadataUpdate();
+      } else {
+        return this.submit();
+      }
     },
     acceptXml() {
       this.acceptXml();
@@ -494,6 +554,11 @@ export default Component.extend(I18n, {
     },
     handleRepresentativeImageError(error) {
       this.set('representativeImageError', error);
+    },
+    startModify() {
+      if (!this.isModifyingExistingMetadata) {
+        this.onChangeEditMode(true);
+      }
     },
   },
 });

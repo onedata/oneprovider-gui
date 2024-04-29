@@ -5,9 +5,13 @@
         <ShareShow::Edm
           class="fill-flex-using-column"
           @xmlValue={{xml}}
-          @readonly={{true}}
+          @onModify={{action "modifyMetadata"}}
+          @isPublished={{true}}
+          @onChangeEditMode={{action "changeEditMode"}}
+          @readonly={{not isModifyingExistingMetadata}}
         />
       {{else}}
+        {{!-- FIXME: if edit clicked - use dceditor --}}
         <ShareShow::DcPreview
           class="fill-flex-using-column"
           @xml={{xml}}

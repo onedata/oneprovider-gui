@@ -13,8 +13,22 @@ $share-show-edm-empirical-header-height: 68px;
     flex-basis: 180px;
   }
   .metadata-header-section-content {
+    gap: 1.5em;
+    align-items: center;
+    // make all buttons same height as we use btn-group
+    .btn-sm {
+      height: 30px;
+    }
     .main-header {
       flex-grow: 1;
+    }
+  }
+  .modify-metadata-btn.btn {
+    .oneicon {
+      font-size: 1.5em;
+      font-size: 1.5em;
+      top: 0.2em;
+      margin-right: 0;
     }
   }
   .apply-xml-btn {

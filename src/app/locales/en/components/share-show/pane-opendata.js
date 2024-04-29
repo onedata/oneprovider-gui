@@ -34,4 +34,5 @@ export default {
     title: 'No handle services available',
     content: noHandleServicesText,
   },
+  modifyingMetadata: 'modifying metadata',
 };

@@ -8,7 +8,7 @@
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import { computed, get, observer } from '@ember/object';
+import { computed, get, set, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
@@ -18,12 +18,17 @@ import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { MetadataType } from 'oneprovider-gui/models/handle';
 
+/**
+ * @typedef {'show'|'edit'|'create'} MetadataEditorEditMode
+ */
+
 export default Component.extend(I18n, {
   classNames: ['share-show-pane-opendata', 'pane-opendata', 'row'],
 
   fileManager: service(),
   currentUser: service(),
   handleManager: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -56,6 +61,11 @@ export default Component.extend(I18n, {
    * @type {HandleModel.MetadataType}
    */
   selectedMetadataType: undefined,
+
+  /**
+   * @type {boolean}
+   */
+  isModifyingExistingMetadata: false,
 
   /**
    * Imported for access in the template.
@@ -162,6 +172,22 @@ export default Component.extend(I18n, {
     });
   },
 
+  async modifyMetadata(metadataString) {
+    if (!this.handle) {
+      throw new Error(
+        'PaneOpendata: no handle object to modify (maybe not loaded yet)'
+      );
+    }
+    set(this.handle, 'metadataString', metadataString);
+    try {
+      await this.handle.save();
+    } catch (error) {
+      this.globalNotify.backendError(this.t('modifyingMetadata'), error);
+      throw error;
+    }
+    this.set('xml', get(this.handle, 'metadataString'));
+  },
+
   actions: {
     async submit(xml) {
       if (!this.selectedMetadataType || !this.selectedHandleService) {
@@ -185,6 +211,12 @@ export default Component.extend(I18n, {
     },
     updateXml(xml) {
       this.set('xml', xml);
+    },
+    async modifyMetadata(metadataXml) {
+      await this.modifyMetadata(metadataXml);
+    },
+    changeEditMode(isEditing) {
+      this.set('isModifyingExistingMetadata', isEditing);
     },
   },
 });

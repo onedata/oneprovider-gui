@@ -227,11 +227,13 @@ const PropertyViewModel = EmberObject.extend({
     } else {
       this.model.value = newValue;
     }
+    this.visualEdmViewModel.markAsModified();
     this.updateView();
   },
 
   changeAttribute(attributeName, newValue) {
     this.model.attrs[attributeName] = newValue;
+    this.visualEdmViewModel.markAsModified();
     this.updateView();
   },
 

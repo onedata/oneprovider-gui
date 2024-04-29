@@ -3,4 +3,6 @@ export default {
   cancel: 'Cancel',
   publish: 'Publish',
   asOpenData: 'as Open Data',
+  save: 'Save',
+  discard: 'Discard changes',
 };
