@@ -75,7 +75,7 @@ import fileQosViewModel from './utils/file-qos-view-model';
 import fileDistributionViewModel from './utils/file-distribution-view-model';
 import archivePropertiesViewModel from './utils/archive-properties-view-model';
 import itemsTooltipContent from './utils/items-tooltip-content';
-import propertySpec from './utils/property-spec';
+import langSpec from './utils/lang-spec';
 
 const translations = {
   components: {
@@ -151,7 +151,7 @@ const translations = {
     fileInfo,
     archivePropertiesViewModel,
     itemsTooltipContent,
-    propertySpec,
+    langSpec,
     archiveForm: {
       baseModel: archiveFormBaseModel,
       viewModel: archiveFormViewModel,

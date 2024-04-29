@@ -25,21 +25,6 @@ import isUrl from 'onedata-gui-common/utils/is-url';
  * @typedef {EdmPropertyValueType.Literal|EdmPropertyValueType.Reference} VisualEdmPropertyValueType
  */
 
-class PropertyLangOption {
-  constructor(langSpec) {
-    this.label = langSpec.label;
-    this.value = langSpec.value;
-    this.labelLower = this.label.toLocaleLowerCase();
-  }
-  matchesSearchString(searchString) {
-    return this.labelLower.includes(searchString) || this.value.includes(searchString);
-  }
-}
-
-function generateLangOptions(specs) {
-  return specs.map(spec => new PropertyLangOption(spec));
-}
-
 export default Component.extend(I18n, {
   classNames: ['visual-edm-property'],
   classNameBindings: ['noOptions'],

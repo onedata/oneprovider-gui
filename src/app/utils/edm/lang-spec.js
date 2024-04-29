@@ -10,18 +10,18 @@
 
 import { t } from 'onedata-gui-common/utils/i18n/t';
 
-/**
- * @param {Array<string>} langCodes
- * @returns {Array<{ label: string, value: string }>}
- */
-function createLangSelectorSpec(langCodes) {
-  return [
-    { label: t('utils.propertySpec.lang.default'), value: '' },
-    ...langCodes.map(value => ({ label: t(`utils.propertySpec.lang.${value}`), value })),
-  ];
+class PropertyLangOption {
+  constructor(langSpec) {
+    this.label = langSpec.label;
+    this.value = langSpec.value;
+    this.labelLower = String(this.label).toLocaleLowerCase();
+  }
+  matchesSearchString(searchString) {
+    return this.labelLower.includes(searchString) || this.value.includes(searchString);
+  }
 }
 
-const langCodes = [
+const langCodes = Object.freeze([
   'af',
   'am',
   'ar',
@@ -149,13 +149,33 @@ const langCodes = [
   'yo',
   'zh',
   'zu',
-];
+]);
 
-let langSelectorSpec;
+/**
+ * @param {Array<string>} langCodes
+ * @returns {Array<{ label: string, value: string }>}
+ */
+function createLangSelectorSpec(langCodes) {
+  return [
+    { label: t('utils.langSpec.default'), value: '' },
+    ...langCodes.map(value => ({ label: t(`utils.langSpec.lang.${value}`), value })),
+  ];
+}
+
+/**
+ *
+ * @param {Array<{ label: string, value: string }>} specs
+ * @returns {Array<PropertyLangOption>}
+ */
+function generateLangOptions(specs) {
+  return specs.map(spec => new PropertyLangOption(spec));
+}
+
+let langSelectorOptions;
 
 export function getLangSelectorOptions() {
-  if (!langSelectorSpec) {
-    langSelectorSpec = createLangSelectorSpec(langCodes);
+  if (!langSelectorOptions) {
+    langSelectorOptions = generateLangOptions(createLangSelectorSpec(langCodes));
   }
-  return langSelectorSpec;
+  return langSelectorOptions;
 }

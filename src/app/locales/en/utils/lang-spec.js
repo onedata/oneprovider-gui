@@ -1,4 +1,5 @@
 export default {
+  default: 'Default',
   lang: {
     af: 'Afrikaans',
     am: 'Amharic',
