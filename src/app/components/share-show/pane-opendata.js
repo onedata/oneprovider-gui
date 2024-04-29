@@ -66,7 +66,11 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<HandleModel.MetadataType>}
    */
-  metadataTypes: Object.freeze([MetadataType.Dc, MetadataType.Edm]),
+  metadataTypes: Object.freeze([
+    MetadataType.Dc,
+    // TODO: VFS-11983 unlock EDM metadata type in editor
+    // MetadataType.Edm,
+  ]),
 
   isEdmMetadataType: eq('selectedMetadataType', raw(MetadataType.Edm)),
 

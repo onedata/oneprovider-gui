@@ -6,7 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
-* VFS-11912 Added visual editor for Open Data metadata in Europeana Data Model format
+* VFS-11912 Added visual editor for Open Data metadata in Europeana Data Model format (currently disabled)
 * VFS-11801 Improved UX of ACL editor: including auto expand, no rules warning
 * VFS-11761 Added quick share publish toggle to share modal
 * VFS-11845 Fixed exiting `ember serve` on error and SCSS hot reloading
