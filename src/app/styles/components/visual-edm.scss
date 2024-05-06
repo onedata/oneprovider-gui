@@ -1,0 +1,95 @@
+.visual-edm {
+  --visual-edm-items-spacing: 20px;
+
+  .edm-attr-container {
+    display: flex;
+    align-items: baseline;
+    .edm-attr-value {
+      flex-grow: 1;
+    }
+  }
+
+  .objects-list-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--visual-edm-items-spacing);
+  }
+
+  .separator {
+    padding-left: 8px;
+    padding-right: 14px;
+    &::after {
+      height: 32px;
+      content: " ";
+      border-left: 1px solid;
+      border-color: $main-border-color;
+    }
+  }
+
+  .edm-metadata-invalid {
+    margin-top: 1em;
+  }
+
+  .visual-edm-object-list {
+    padding-left: 0;
+  }
+
+  // Contextual style for components inside visual-edm block
+  .visual-edm-extra-data-info {
+    margin-top: 1em;
+  }
+
+  // Common styles for sub-components
+  .edm-delete-btn {
+    font-size: 180%;
+    cursor: pointer;
+    &:hover {
+      color: $color-one-danger;
+    }
+    &.disabled {
+      color: $main-text-color-disabled;
+      &:hover {
+        color: $main-text-color-disabled;
+      }
+    }
+  }
+}
+
+.edm-info-row {
+  display: flex;
+  .edm-info-row-inner {
+    display: flex;
+    align-items: center;
+  }
+  .edm-info-row-icon {
+    // make line-height the same for all icons (icons use different sizes)
+    line-height: 14px;
+    width: 14px;
+    color: var(--edm-info-row-icon-color, inherit);
+    font-size: 110%;
+    &.oneicon-checkbox-filled {
+      font-size: 170%;
+      margin-left: -0.15em;
+      margin-right: 0.15em;
+    }
+  }
+  .edm-info-row-icon + .edm-info-row-text {
+    margin-left: 0.8em;
+  }
+  &.warning {
+    --edm-info-row-icon-color: #{$color-one-warning};
+  }
+  &.info {
+    --edm-info-row-icon-color: #{$color-one-azure};
+  }
+  &.success {
+    --edm-info-row-icon-color: #{$color-one-success};
+  }
+}
+
+@import './visual-edm/image-reference';
+@import './visual-edm/object';
+@import './visual-edm/property-group';
+@import './visual-edm/add-property-selector';
+@import './visual-edm/property';
+@import './visual-edm/validation-error';

@@ -1,0 +1,30 @@
+.visual-edm-property-group {
+  margin-top: 0.75em;
+  &:first-child {
+    margin-top: 0;
+  }
+}
+.edm-attrs-container {
+  padding-inline-start: 0;
+  li {
+    :first-of-type {
+      margin-top: 0.2em;
+    }
+    &::before {
+      content: '↳';
+      margin-right: 0.5em;
+    }
+  }
+}
+
+.edm-property-group-box {
+  border: 1px solid $main-border-color;
+  border-radius: $border-radius-base;
+  background-color: $main-tabbed-content-background;
+  @media (min-width: $screen-sm-min) {
+    .one-collapsible-list-header {
+      padding-top: $padding-large-vertical * 1.75;
+      padding-bottom: $padding-large-vertical * 1.75;
+    }
+  }
+}

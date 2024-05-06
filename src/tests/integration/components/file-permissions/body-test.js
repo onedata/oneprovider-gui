@@ -61,7 +61,6 @@ describe('Integration | Component | file-permissions/body', function () {
       const alertElement = find('.alert');
       expect(alertElement).to.exist;
       expect(alertElement).to.have.class('alert-info');
-      console.log(alertElement.innerHTML);
       expect(alertElement).to.contain.text(
         'Selected items have different POSIX permissions.'
       );

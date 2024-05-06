@@ -1,0 +1,91 @@
+<div class="icon-section">
+  <OneIcon @icon={{objectIcon}} />
+</div>
+<div class="content-section">
+  <div class="basic-info-row">
+    <div class="row edm-object-iconified-block-row title-row edm-object-title-row">
+      <div class="edm-object-type item-name">{{objectTypeName}}</div>
+      {{#if objectTypeTip}}
+        <OneLabelTip class="edm-object-type-label-tip" @title={{objectTypeTip}}/>
+      {{/if}}
+      {{#if isDeletable}}
+        <div
+          class="edm-delete-btn edm-object-delete-btn"
+          onclick={{action "deleteObject"}}
+        >
+          <OneIcon class="edm-property-delete-icon" @icon="browser-delete">
+            <OneTooltip @title={{deleteObjectTip}} />
+          </OneIcon>
+        </div>
+      {{/if}}
+    </div>
+  </div>
+  {{#if attrItems}}
+    <ul class={{concat-classes
+      "edm-object-attrs-container"
+      "edm-object-list-container"
+      "edm-attrs-container"
+      (if (not attrItems.length) "hidden")
+    }}>
+      {{#each attrItems as |attrItem|}}
+        <li class="edm-attr-container">
+          <div class="edm-attr-name"><span class="name-value">{{attrItem.name}}</span>:</div>
+          <div class="edm-attr-value">
+            {{#if visualEdmViewModel.isReadOnly}}
+              {{attrItem.value}}
+            {{else}}
+              <input class="form-control input-sm" value={{attrItem.value}} />
+            {{/if}}
+          </div>
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+  <div class={{concat-classes
+    "edm-object-properties-container"
+    "edm-object-list-container"
+    "main-content-row"
+    "row"
+    "edm-object-iconified-block-row"
+    (if (not viewModel.edmPropertyGroups.length) "hidden")
+  }}>
+    {{#each viewModel.edmPropertyGroups as |propertyGroupViewModel|}}
+      <VisualEdm::PropertyGroup @viewModel={{propertyGroupViewModel}} />
+    {{/each}}
+  </div>
+  {{#unless visualEdmViewModel.isReadOnly}}
+    <div class="properties-list-buttons">
+      <OneButton
+        class="add-edm-property-btn"
+        @type="default"
+        @size="sm"
+        @onClick={{action "toggleAddPropertyOpen"}}
+      >
+        <OneIcon @icon="plus" />
+        <span class="text">{{tt this "listButtons.addProperty"}}</span>
+        {{!-- <OneIcon class="menu-trigger-arrow" @icon="arrow-down" /> --}}
+      </OneButton>
+      <RenderLater @triggerRender={{isAddPropertyOpened}}>
+        <VisualEdm::AddPropertySelector
+          @edmObjectViewModel={{viewModel}}
+          @opened={{isAddPropertyOpened}}
+          @triggerSelector={{addPropertyButtonSelector}}
+          @onPropertyAdd={{action "addProperty"}}
+          @onCancel={{action "cancelPropertySelect"}}
+        />
+      </RenderLater>
+    </div>
+  {{/unless}}
+  {{#if viewModel.validator.isError}}
+    <VisualEdm::ValidationError
+      class="edm-object-invalid"
+      @text={{tt this "notValid" objectType=objectTypeName}}
+      @validator={{viewModel.validator}}
+      @viewType="visual"
+    />
+  {{/if}}
+  {{#if viewModel.model.hasExtraData}}
+    <VisualEdm::ExtraDataInfo @model={{viewModel.model}}/>
+  {{/if}}
+</div>
+{{yield}}

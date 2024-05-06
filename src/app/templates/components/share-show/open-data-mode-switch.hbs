@@ -1,16 +1,30 @@
-{{#bs-button-group
-  value=mode
+<BsButtonGroup
   class="dublin-core-metadata-mode-btn-group"
-  type="radio"
-  onChange=(action onModeChange)
+  @value={{mode}}
+  @type="radio"
+  @onChange={{action "changeMode"}}
   as |bg|
-}}
-  {{#bg.button type="default" class="btn-sm btn-visual-editor" value="visual"}}
-    {{one-icon icon="visual-editor"}}
+>
+  <bg.button
+    class="btn-sm btn-visual-editor {{if isVisualModeDisabled "disabled"}}"
+    @type="default"
+    @value="visual"
+  >
+    <OneIcon @icon="visual-editor" />
     <span class="text">{{tt this "visual"}}</span>
-  {{/bg.button}}
-  {{#bg.button type="default" class="btn-sm btn-xml-editor" value="xml"}}
-    {{one-icon icon="xml-file"}}
+    {{#if visualModeTip}}
+      <OneTooltip @title={{visualModeTip}} />
+    {{/if}}
+  </bg.button>
+  <bg.button
+    class="btn-sm btn-xml-editor {{if isXmlModeDisabled "disabled"}}"
+    @type="default"
+    @value="xml"
+  >
+    <OneIcon @icon="xml-file" />
     <span class="text">{{tt this "xml"}}</span>
-  {{/bg.button}}
-{{/bs-button-group}}
+    {{#if xmlModeTip}}
+      <OneTooltip @title={{xmlModeTip}} />
+    {{/if}}
+  </bg.button>
+</BsButtonGroup>

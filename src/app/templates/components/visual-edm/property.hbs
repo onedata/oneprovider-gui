@@ -1,0 +1,187 @@
+<div class="edm-property-key-value">
+  <div class="edm-property-name-container">
+    <TruncatedString class="edm-property-type">
+      {{displayedPropertyName}}{{if isReadOnly ":"}}
+      {{#if tip}}
+        <OneLabelTip class="edm-property-type-label-tip" @title={{tip}} />
+      {{/if}}
+    </TruncatedString>
+    {{#unless isReadOnly}}
+      {{#if viewModel.isAnyValueType}}
+        <div class="edm-property-resource-toggle">
+          <BsButtonGroup
+            @value={{valueType}}
+            @type="radio"
+            @onChange={{action "changeValueType"}}
+            as |bg|
+          >
+            <bg.button
+              class="btn-sm"
+              data-value-type={{EdmPropertyValueType.Literal}}
+              @type="default"
+              @value={{EdmPropertyValueType.Literal}}
+            >
+              {{tt this (concat "valueType." EdmPropertyValueType.Literal)}}
+            </bg.button>
+            <bg.button
+              class="btn-sm"
+              data-value-type={{EdmPropertyValueType.Reference}}
+              @type="default"
+              @value={{EdmPropertyValueType.Reference}}
+            >
+              {{tt this (concat "valueType." EdmPropertyValueType.Reference)}}
+            </bg.button>
+          </BsButtonGroup>
+        </div>
+      {{/if}}
+      {{#if viewModel.isLangConfigurable}}
+        <div class="separator edm-property-lang-separator"></div>
+        <div class="header-lang-section">
+          <div class="edm-property-lang-label">
+            {{tt this "language"}}:
+          </div>
+          <OneDropdown
+            @triggerClass="small edm-lang-dropdown-trigger edm-dropdown-trigger"
+            @dropdownClass="small edm-lang-dropdown edm-dropdown"
+            @options={{langOptions}}
+            @selected={{viewModel.selectedLangOption}}
+            @onChange={{action "changeLanguage"}}
+            @searchEnabled={{true}}
+            @matcher={{action "matchLangOption"}}
+            as |option|
+          >
+            <div class="option-container">
+              {{#truncated-string}}
+                <span class="text">
+                  <span
+                    class="predefined-label {{unless option.value "predefined-label-default"}}"
+                  >
+                    {{#if option.label}}
+                      {{option.label}}
+                    {{else}}
+                      <em>{{tt this "unknownDropdownOption"}}</em>
+                    {{/if}}
+                  </span>
+                  {{#if (and option.value (not-eq option.label option.value))}}
+                    <span class="predefined-value">({{option.value}})</span>
+                  {{/if}}
+                </span>
+              {{/truncated-string}}
+            </div>
+          </OneDropdown>
+        </div>
+      {{/if}}
+      <div class="header-quantity-section">
+        {{#if viewModel.isFirstPropertyInGroup}}
+          <div class={{recommendationClassName}}>
+            {{recommendationLabel}}
+          </div>
+        {{/if}}
+        <div
+          class={{concat-classes
+            "edm-delete-btn edm-property-delete-btn"
+            (if viewModel.isDeleteDisabled "disabled")
+          }}
+          onclick={{unless viewModel.isDeleteDisabled (action "deleteProperty")}}
+        >
+          <OneIcon
+            class="edm-property-delete-icon"
+            @icon="browser-delete"
+          >
+            <OneTooltip @title={{deleteButtonTip}} />
+          </OneIcon>
+        </div>
+      </div>
+    {{/unless}}
+  </div>
+  <div class="edm-property-value-container">
+    <div class="edm-property-value-label">
+      <OneIcon class="label-icon" @icon={{viewModel.valueIcon}} />
+      {{tt this (concat "valueLabel." valueType)}}:
+    </div>
+    <div class={{concat-classes
+      "edm-property-value"
+      (if isReadOnly "readonly")
+    }}>
+      {{#if isReadOnly}}
+        {{#if isValueLink}}
+          <TruncatedString @tooltipClass="tooltip-lg tooltip-text-left">
+            <a href={{value}} class="navy underlined">{{value}}</a>
+          </TruncatedString>
+        {{else}}
+          {{value}}
+        {{/if}}
+      {{else}}
+        <div class={{viewModel.formGroupClassName}}>
+          {{#if (eq inputType "input")}}
+            <input
+              class="form-control input-sm"
+              value={{value}}
+              oninput={{action "changeValue" value="target.value"}}
+              onblur={{action "handleInputBlur"}}
+            />
+          {{else if (eq inputType "textarea")}}
+            <textarea
+              class="form-control input-sm"
+              value={{value}}
+              rows="4"
+              oninput={{action "changeValue" value="target.value"}}
+              onblur={{action "handleInputBlur"}}
+            />
+          {{else if (eq inputType "dropdown")}}
+            <OneDropdown
+              @triggerClass="small edm-property-value-dropdown-trigger"
+              @dropdownClass="small edm-property-value-dropdown"
+              @options={{viewModel.predefinedValueOptions}}
+              @selected={{viewModel.selectedPredefinedValueOption}}
+              @onChange={{action "changeSelectedPredefinedValueOption"}}
+              @searchEnabled={{true}}
+              @searchField="label"
+              @onBlur={{action "handleInputBlur"}}
+              as |option|
+            >
+              <div class="option-container">
+                {{#truncated-string}}
+                  <span class="text">
+                    <span class="predefined-label">
+                      {{#if option.label}}
+                        {{option.label}}
+                      {{else}}
+                        <em>{{tt this "unknownDropdownOption"}}</em>
+                      {{/if}}
+                    </span>
+                    {{#unless (eq option.label option.value)}}
+                      <span class="predefined-value">({{option.value}})</span>
+                    {{/unless}}
+                  </span>
+                {{/truncated-string}}
+              </div>
+            </OneDropdown>
+          {{/if}}
+        </div>
+      {{/if}}
+    </div>
+  </div>
+</div>
+
+{{#if viewModel.isImageRendered}}
+  <VisualEdm::ImageReference @reference={{value}} />
+{{/if}}
+
+{{#if isReadOnly}}
+  <ul class="edm-property-attrs-container edm-property-list-container edm-attrs-container">
+    {{#each attrItems as |attrItem|}}
+      <li class="edm-attr-container">
+        <div class="edm-attr-name"><span class="name-value">{{attrItem.name}}</span>:</div>
+        <div class="edm-attr-value">
+          {{attrItem.value}}
+        </div>
+      </li>
+    {{/each}}
+  </ul>
+{{/if}}
+
+{{#if viewModel.model.hasExtraData}}
+  <VisualEdm::ExtraDataInfo @model={{viewModel.model}}/>
+{{/if}}
+{{yield}}

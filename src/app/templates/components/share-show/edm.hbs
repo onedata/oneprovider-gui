@@ -1,0 +1,157 @@
+<div class={{concat-classes "col-edm-editor full-height" colClassname}}>
+  <div class="metadata-header-section-content">
+    <h1 class="section-name main-header">
+      {{tt this (if (media "isMobile") "headerMobile" "header")}}
+      {{#if (or readonly (media "isMobile"))}}
+        <OneLabelTip @title={{tt this "readonlyHeaderTip"}} />
+      {{/if}}
+    </h1>
+    <ShareShow::OpenDataModeSwitch
+      @mode={{mode}}
+      @isVisualModeDisabled={{isVisualModeDisabled}}
+      @visualModeTip={{if
+        isVisualModeDisabled
+        (tt this (if readonly "xmlInvalid" "submitDisabledReason.xmlNotAccepted"))
+      }}
+      @onModeChange={{action "changeMode"}}
+    />
+  </div>
+
+  {{#unless (or readonly (media "isMobile"))}}
+    <p class="metadata-text">
+      {{tt this "metadataEditorIntro"}}
+    </p>
+    <p class="metadata-text">
+      {{tt this "introExtra"}}
+      <OneLabelTip @title={{tt this "introTip"}} />
+    </p>
+  {{/unless}}
+
+  {{#if (eq mode "visual")}}
+    {{#if isXmlValueInvalid}}
+      <div class="xml-value-invalid-info alert alert-warning">
+        {{tt this "invalidXml"}}
+      </div>
+    {{else}}
+      <VisualEdm @viewModel={{visualEdmViewModel}} />
+    {{/if}}
+  {{else if (eq mode "xml")}}
+    <EmberAce
+      class="ember-ace ember-ace-edm-source"
+      @editorClass="full-height"
+      @value={{currentXmlValue}}
+      @worker="ace/mode/xml_worker"
+      @mode="ace/mode/xml"
+      @theme="ace/theme/textmate"
+      @tabSize=2
+      @useWrapMode={{true}}
+      @highlightActiveLine={{true}}
+      @showLineNumbers={{true}}
+      @showPrintMargin={{false}}
+      @readOnly={{readonly}}
+      @ready={{action "aceEditorReady"}}
+      @update={{action "sourceChanged"}}
+    />
+  {{/if}}
+
+  {{#unless readonly}}
+    {{#if (eq mode "xml")}}
+      <div class="xml-source-validation-row">
+        {{#if (eq modelXmlSyncState "waiting")}}
+          <div class="edm-info-row info">
+            <div class="edm-info-row-inner">
+              <OneIcon @icon="sign-info-rounded" class="edm-info-row-icon" />
+              <span class="edm-info-row-text">
+                {{tt this "definitionValidating"}}
+              </span>
+            </div>
+          </div>
+        {{else if (or validator.isError isXmlNotParseable)}}
+          <VisualEdm::ValidationError
+            class="edm-metadata-invalid"
+            @text={{tt this "notValid"}}
+            @validator={{validator}}
+            @customMessage={{if isXmlNotParseable (tt this "xmlParseError")}}
+            @viewType="xml"
+          />
+        {{else}}
+          <div class="edm-info-row success">
+            <div class="edm-info-row-inner">
+              <OneIcon @icon="checkbox-filled" class="edm-info-row-icon" />
+              <span class="edm-info-row-text">
+                {{tt this "definitionValid"}}
+              </span>
+            </div>
+          </div>
+        {{/if}}
+        {{#if areApplyXmlButtonsShown}}
+          <div class="apply-xml-buttons-container">
+            <div class="synchronized-xml-btn-container btn-tooltip-container">
+              <OneButton
+                class="discard-xml-btn"
+                @disabled={{isDiscardXmlButtonDisabled}}
+                @onClick={{action "discardXml"}}
+                @size="sm"
+                @type="warning"
+              >
+                {{tt this "discardXmlChanges"}}
+              </OneButton>
+              {{#if discardXmlButtonTip}}
+                <OneTooltip @title={{discardXmlButtonTip}} />
+              {{/if}}
+            </div>
+            <div class="synchronized-xml-btn-container btn-tooltip-container">
+              <OneButton
+                class="apply-xml-btn"
+                @disabled={{isApplyXmlButtonDisabled}}
+                @onClick={{action "acceptXml"}}
+                @size="sm"
+                @type="primary"
+              >
+                {{tt this "applyAndFormatXml"}}
+              </OneButton>
+              {{#if applyXmlButtonTip}}
+                <OneTooltip @title={{applyXmlButtonTip}} />
+              {{/if}}
+            </div>
+          </div>
+        {{/if}}
+      </div>
+    {{/if}}
+    <ShareShow::MetadataEditorFooter
+      @isSubmitDisabled={{isSubmitDisabled}}
+      @isCancelDisabled={{isCancelDisabled}}
+      @submitButtonTip={{submitDisabledReason}}
+      @cancelButtonTip={{cancelDisabledReason}}
+      @handleService={{handleService}}
+      @onCancel={{action "back"}}
+      @onSubmit={{action "submit"}}
+    />
+  {{/unless}}
+</div>
+
+{{#if isRepresentativeImageInParent}}
+  <div class="col-md-4 col-lg-5 col-open-data-logo">
+    {{#if imageUrl}}
+      <div class="representative-image-container">
+        {{#if representativeImageError}}
+          <div class="representative-image representative-image-load-error">
+            <div class="text-container">
+              {{tt this "imageNotFound"}}
+            </div>
+          </div>
+        {{else}}
+          <img
+            class="representative-image"
+            src={{imageUrl}}
+            alt={{imageUrl}}
+            onerror={{action "handleRepresentativeImageError"}}
+          />
+        {{/if}}
+      </div>
+    {{else}}
+      <div class="open-data-logo">
+      </div>
+    {{/if}}
+  </div>
+{{/if}}

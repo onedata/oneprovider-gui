@@ -47,9 +47,12 @@ import fileCommon from './components/file-common';
 import apiSamples from './components/api-samples';
 import columnsConfigurationPopover from './components/columns-configuration-popover';
 import columnsConfigurationCell from './components/columns-configuration-cell';
+import visualEdm from './components/visual-edm';
 import storageLocationPerProviderTable from './components/storage-location-per-provider-table';
 
 import uploadManager from './services/upload-manager';
+import visualEdmValidation from './services/visual-edm-validation';
+import visualEdmTranslation from './services/visual-edm-translation';
 
 import handleMultiFilesOperation from './utils/handle-multi-files-operation';
 import baseBrowserModel from './utils/base-browser-model';
@@ -72,6 +75,7 @@ import fileQosViewModel from './utils/file-qos-view-model';
 import fileDistributionViewModel from './utils/file-distribution-view-model';
 import archivePropertiesViewModel from './utils/archive-properties-view-model';
 import itemsTooltipContent from './utils/items-tooltip-content';
+import langSpec from './utils/lang-spec';
 
 const translations = {
   components: {
@@ -121,10 +125,13 @@ const translations = {
     apiSamples,
     columnsConfigurationPopover,
     columnsConfigurationCell,
+    visualEdm,
     storageLocationPerProviderTable,
   },
   services: {
     uploadManager,
+    visualEdmValidation,
+    visualEdmTranslation,
   },
   utils: {
     handleMultiFilesOperation,
@@ -144,6 +151,7 @@ const translations = {
     fileInfo,
     archivePropertiesViewModel,
     itemsTooltipContent,
+    langSpec,
     archiveForm: {
       baseModel: archiveFormBaseModel,
       viewModel: archiveFormViewModel,

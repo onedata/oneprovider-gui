@@ -38,6 +38,7 @@ import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-sto
 import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
+  exampleEdmMetadata,
 } from 'oneprovider-gui/utils/mock-data';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
@@ -47,11 +48,26 @@ import {
   atmWorkflowExecutionPhases,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 import globals from 'onedata-gui-common/utils/globals';
+import { MetadataType } from 'oneprovider-gui/models/handle';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
 const username = 'admin';
+
+const metadataMixinMap = {
+  dc: {
+    metadataString: exampleDublinCore,
+    metadataPrefix: MetadataType.Dc,
+  },
+  edm: {
+    metadataString: exampleEdmMetadata,
+    metadataPrefix: MetadataType.Edm,
+  },
+};
+
+// Set dc or edm from metatadataMixins for share with Open Data
+const metadataMixin = metadataMixinMap.dc;
 
 const modelTypes = [
   'provider',
@@ -441,12 +457,12 @@ export default Service.extend(...mixins, {
     const handlePrivate = store.createRecord('handle', {
       url: 'http://hdl.handle.net/21.T15999/zppPvhg',
       handleService: this.get('entityRecords.handleService')[0],
-      metadataString: exampleDublinCore,
+      ...metadataMixin,
     });
     const handlePublic = store.createRecord('handle', {
       url: 'http://hdl.handle.net/21.T15999/zppPvhg',
       handleService: null,
-      metadataString: exampleDublinCore,
+      ...metadataMixin,
     });
     const spaceId = this.get('entityRecords.space.0.entityId');
     const shares = ['private', 'public'].map(scope => {

@@ -1,0 +1,146 @@
+@use 'sass:color';
+
+// the arbitrary spacing to rendered visual-edm from top on share-show
+$share-show-edm-empirical-header-height: 68px;
+
+.share-show-edm {
+  .col-edm-editor {
+    display: flex;
+    flex-direction: column;
+  }
+  .ember-ace-edm-source {
+    flex-grow: 1;
+    flex-basis: 180px;
+  }
+  .metadata-header-section-content {
+    .main-header {
+      flex-grow: 1;
+    }
+  }
+  .apply-xml-btn {
+    align-self: flex-end;
+    margin-top: 1em;
+  }
+  .xml-source-validation-row {
+    $small-screen-breakpoint: 900px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1em;
+    margin-top: 1em;
+    .apply-xml-btn {
+      margin-top: 0;
+      margin-left: auto;
+    }
+    @media (max-width: $small-screen-breakpoint) {
+      flex-direction: column-reverse;
+      .synchronized-xml-btn-container {
+        align-self: center;
+      }
+      .visual-edm-validation-error {
+        margin-bottom: 1em;
+      }
+    }
+    @media (min-width: #{$small-screen-breakpoint - 1px}) {
+      overflow-y: hidden;
+      height: 5em;
+      .visual-edm-validation-error {
+        position: relative;
+        height: 4.5em;
+        max-height: 4.5em;
+        overflow: hidden;
+        .edm-info-row-text {
+          align-self: flex-start;
+        }
+        &::after {
+          content: ' ';
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+          height: 1.5em;
+          background: linear-gradient(transparent 0%, white 100%);
+          z-index: 1;
+        }
+      }
+    }
+  }
+  .apply-xml-buttons-container {
+    display: flex;
+    gap: 0.6em;
+    margin-left: auto;
+    @media (max-width: $screen-xs-max) {
+      flex-wrap: wrap;
+      margin-right: auto;
+      .btn-tooltip-container {
+        flex-grow: 1;
+        .btn {
+          min-width: 100%;
+        }
+      }
+    }
+  }
+  .representative-image-container {
+    position: sticky;
+    top: calc(var(--representative-image-top) + 20px);
+    width: 100%;
+    padding-left: 20px;
+    margin-top: 68px;
+    img {
+      max-width: 100%;
+      max-height: var(--edm-representative-image-max-height, auto);
+    }
+  }
+
+  .representative-image {
+    border: $iconified-block-border-width solid $default-iconified-block-border-color;
+    border-radius: $iconified-block-border-radius;
+  }
+
+  .representative-image-load-error {
+    display: flex;
+    max-width: 300px;
+    height: 200px;
+    background: repeating-linear-gradient(
+      45deg,
+      $default-iconified-block-icon-background-color,
+      $default-iconified-block-icon-background-color 10px,
+      transparent 10px,
+      transparent 20px
+    );
+    .text-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+      opacity: $disabled-opacity;
+      text-align: center;
+    }
+  }
+
+  &.xml-sync-waiting {
+    .xml-source-validation-row {
+      .edm-info-row {
+        opacity: $disabled-opacity;
+      }
+    }
+  }
+}
+
+.share-show {
+  &.share-show-public {
+    --representative-image-top: #{$share-show-content-header-height-public};
+    .edm-mode-xml {
+      --edm-representative-image-max-height: calc(100vh - var(--representative-image-top) - #{$share-show-edm-empirical-header-height} - #{$content-col-padding} - #{$iconified-block-border-width * 2} - #{$share-show-public-footer-height});
+    }
+  }
+  &.share-show-private {
+    --representative-image-top: #{$share-show-content-header-height-private};
+    .edm-mode-xml {
+      --edm-representative-image-max-height: calc(100vh - var(--representative-image-top) - #{$share-show-edm-empirical-header-height} - #{$content-col-padding} - #{$iconified-block-border-width * 2});
+    }
+  }
+  .share-show-edm {
+    // a fill-flex-using column is added in share-show, because of layout we need this
+    flex-direction: row;
+  }
+}

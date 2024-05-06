@@ -1,28 +1,45 @@
 {{#promise-proxy-container proxy=handleProxy}}
   {{#if handle}}
-    {{share-show/open-data-preview
-      class="fill-flex-using-column"
-      xml=xml
-      handleUrl=handle.url
-      handleServiceName=handle.handleService.name
-    }}
+    {{#if xml}}
+      {{#if (eq selectedMetadataType MetadataType.Edm)}}
+        <ShareShow::Edm
+          class="fill-flex-using-column"
+          @xmlValue={{xml}}
+          @readonly={{true}}
+        />
+      {{else}}
+        <ShareShow::DcPreview
+          class="fill-flex-using-column"
+          @xml={{xml}}
+          @handleUrl={{handle.url}}
+          @handleServiceName={{handle.handleService.name}}
+        />
+      {{/if}}
+    {{else}}
+      <p class="no-metadata-info">
+        {{tt this "noMetadata"}}
+      </p>
+    {{/if}}
   {{else}}
     {{#promise-proxy-container proxy=handleServicesProxy}}
       {{#if handleServices.length}}
         {{#one-carousel
           activeSlideId=activeSlideOfCreator
           animated=false
-          class="opendata-one-carousel"
+          class="opendata-one-carousel full-height"
           as |carousel|
         }}
           {{#carousel.slide slideId="welcome"}}
             {{#content-info
-              class="scroll-breakpoint-700 fill-flex-using-column content-info-publish-open-data-welcome"
+              class=(concat-classes
+                "fill-flex-using-column content-info-publish-open-data-welcome"
+                "scroll-breakpoint-900"
+              )
               header=(tt this "publishWelcome.title")
               text=(tt this "publishWelcome.content")
               buttonAction=(action (mut publishOpenDataStarted) true)
               buttonLabel=(tt this "publishWelcome.publishButton")
-              buttonDisabled=(not selectedHandleService)
+              buttonDisabled=isWelcomeProceedDisabled
             }}
               <p>
                 {{tt this "publishWelcome.handleServiceText"}}
@@ -53,17 +70,58 @@
                   </div>
                 </OneDropdown>
               </div>
+              <p class="metadata-type-text">
+                {{tt this "publishWelcome.metadataTypeText"}}
+                {{#one-label-tip tooltipClass="tooltip-lg tooltip-text-left"}}
+                  <p>{{tt this "publishWelcome.metadataTypeMore.intro"}}</p>
+                  <p>{{tt this "publishWelcome.metadataTypeMore.dublinCore"}}</p>
+                  {{!-- TODO: VFS-11983 Revert the commit after 1be5aa28c86a765a6de1433289cc969bd6b6163b — to revert text for multiple metadata formats --}}
+                  {{!-- <p>{{tt this "publishWelcome.metadataTypeMore.edm"}}</p> --}}
+                  <p>{{tt this "publishWelcome.metadataTypeMore.outro"}}</p>
+                {{/one-label-tip}}
+              </p>
+              <div class="row row-metadata-type-select">
+                <OneDropdown
+                  @triggerClass="select-metadata-type"
+                  @dropdownClass="select-metadata-type"
+                  @placeholder={{tt this "publishWelcome.selectMetadataTypePlaceholder"}}
+                  @selected={{selectedMetadataType}}
+                  @options={{metadataTypes}}
+                  @searchEnabled={{false}}
+                  @onChange={{action (mut selectedMetadataType)}}
+                  as |metadataType|
+                >
+                  <div class="option-container">
+                    {{#truncated-string}}
+                      {{tt this (concat "publishWelcome.metadataTypes." metadataType)}}
+                    {{/truncated-string}}
+                  </div>
+                </OneDropdown>
+              </div>
             {{/content-info}}
           {{/carousel.slide}}
-          {{#carousel.slide slideId="createMetadata"}}
-            {{share-show/open-data-editor
-              xml=xml
-              initialData=initialData
-              handleService=selectedHandleService
-              updateXml=(action "updateXml")
-              submit=(action "submit")
-              back=(action "back")
-            }}
+          {{#carousel.slide slideId="createMetadata" class="full-height" as |slide|}}
+            {{#if (eq slide.state "active-from-right")}}
+              {{#if (eq selectedMetadataType MetadataType.Edm)}}
+                <ShareShow::Edm
+                  class="full-height"
+                  @initialData={{initialData}}
+                  @handleService={{selectedHandleService}}
+                  @onUpdateXml={{action "updateXml"}}
+                  @onSubmit={{action "submit"}}
+                  @onBack={{action "back"}}
+                />
+              {{else if (eq selectedMetadataType MetadataType.Dc)}}
+                <ShareShow::DcEditor
+                  @xml={{xml}}
+                  @initialData={{initialData}}
+                  @handleService={{selectedHandleService}}
+                  @onUpdateXml={{action "updateXml"}}
+                  @onSubmit={{action "submit"}}
+                  @onBack={{action "back"}}
+                />
+              {{/if}}
+            {{/if}}
           {{/carousel.slide}}
         {{/one-carousel}}
       {{else}}

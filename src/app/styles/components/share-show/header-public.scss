@@ -28,9 +28,27 @@
     overflow: hidden;
   }
   .share-logo {
-    font-size: 78px;
-    padding-right: $share-show-content-padding-horizontal;
-    line-height: 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-right: 4px;
+    padding-right: 0;
+    width: 100px;
+    .one-icon {
+      font-size: 78px;
+    }
+    .open-data-logo-badge {
+      font-size: 11px;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 0.05em 0.5em;
+      background: $color-one-red;
+      border-radius: 8px;
+      text-transform: uppercase;
+      @include font-semibold;
+      color: #fff;
+    }
   }
   .share-name-section {
     flex-grow: 1;

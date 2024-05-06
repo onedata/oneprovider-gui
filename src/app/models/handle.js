@@ -12,8 +12,21 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 
 export const entityType = 'op_handle';
 
+/**
+ * @typedef {'oai_dc'|'edm'} HandleModel.MetadataType
+ */
+
+/**
+ * @type {Object<string, HandleModel.MetadataType>}
+ */
+export const MetadataType = Object.freeze({
+  Dc: 'oai_dc',
+  Edm: 'edm',
+});
+
 export default Model.extend(GraphSingleModelMixin, {
   url: attr('string'),
+  metadataPrefix: attr('string'),
   metadataString: attr('string'),
   handleService: belongsTo('handle-service'),
 }).reopenClass(StaticGraphModelMixin);

@@ -2,7 +2,7 @@
  * Content for "opendata" tab for single share
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2023 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -13,9 +13,10 @@ import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import moment from 'moment';
-import { conditional, raw } from 'ember-awesome-macros';
+import { conditional, raw, not, or, eq } from 'ember-awesome-macros';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { MetadataType } from 'oneprovider-gui/models/handle';
 
 export default Component.extend(I18n, {
   classNames: ['share-show-pane-opendata', 'pane-opendata', 'row'],
@@ -35,7 +36,13 @@ export default Component.extend(I18n, {
   share: undefined,
 
   /**
-   * Current XML content od Dublin Core Metadata.
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
+   * Current XML content of Open Data metadata.
    * @type {String}
    */
   xml: undefined,
@@ -44,6 +51,33 @@ export default Component.extend(I18n, {
    * @type {Models.HandleService}
    */
   selectedHandleService: undefined,
+
+  /**
+   * @type {HandleModel.MetadataType}
+   */
+  selectedMetadataType: undefined,
+
+  /**
+   * Imported for access in the template.
+   * @type {Object<string, MetadataType>}
+   */
+  MetadataType,
+
+  /**
+   * @type {Array<HandleModel.MetadataType>}
+   */
+  metadataTypes: Object.freeze([
+    MetadataType.Dc,
+    // TODO: VFS-11983 unlock EDM metadata type in editor
+    // MetadataType.Edm,
+  ]),
+
+  isEdmMetadataType: eq('selectedMetadataType', raw(MetadataType.Edm)),
+
+  isWelcomeProceedDisabled: or(
+    not('selectedHandleService'),
+    not('selectedMetadataType')
+  ),
 
   /**
    * @type {ComputedProperty<String>}
@@ -55,8 +89,9 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * Default data for Dublin Core form.
-   * No dependent keys, because it is computed once.
+   * Data for generating default XML metadata. It can be intepreted in various ways
+   * by the specific metadata editor (eg. Dublin Core, EDM)
+   * No dependent keys, because it should be computed once.
    * @type {ComputedProperty<Object>}
    */
   initialData: computed(function initialData() {
@@ -65,6 +100,7 @@ export default Component.extend(I18n, {
       creator: this.get('currentUser.userProxy.content.name'),
       description: '',
       date: moment().format('YYYY-MM-DD'),
+      shareUrl: this.get('share.publicUrl'),
     };
   }),
 
@@ -110,42 +146,42 @@ export default Component.extend(I18n, {
     this.loadXml();
   },
 
-  loadXml() {
-    return this.get('handleProxy').then(handle => {
-      safeExec(this, () => {
-        if (handle) {
-          const metadataString = get(handle, 'metadataString');
-          if (metadataString) {
-            this.set('xml', metadataString);
-          } else {
-            this.set('noMetadata', true);
-          }
+  async loadXml() {
+    const handle = await this.handleProxy;
+    safeExec(this, () => {
+      if (handle) {
+        const metadataString = get(handle, 'metadataString');
+        const metadataPrefix = get(handle, 'metadataPrefix');
+        if (metadataString) {
+          this.setProperties({
+            xml: metadataString,
+            selectedMetadataType: metadataPrefix,
+          });
         }
-      });
+      }
     });
   },
 
   actions: {
-    submit(xml, handleServiceId) {
-      const {
-        share,
-        handleManager,
-      } = this.getProperties('share', 'handleManager');
-      return handleManager.createHandle(share, handleServiceId, xml)
-        .then(() => {
-          safeExec(this, 'loadXml');
-        });
-    },
-    xmlChanged(xml) {
-      this.set('xml', xml);
-    },
-    toggleEditorMode() {
-      const editorMode = this.get('editorMode');
-      const newMode = (editorMode === 'visual') ? 'xml' : 'visual';
-      this.set('editorMode', newMode);
+    async submit(xml) {
+      if (!this.selectedMetadataType || !this.selectedHandleService) {
+        throw new Error('no selectedMetadataType or selectedHandleService specified');
+      }
+      await this.handleManager.createHandle({
+        share: this.share,
+        metadataPrefix: this.selectedMetadataType,
+        metadataString: xml,
+        handleServiceId: get(this.selectedHandleService, 'entityId'),
+      });
+      safeExec(this, 'loadXml');
     },
     back() {
-      this.set('publishOpenDataStarted', false);
+      this.setProperties({
+        publishOpenDataStarted: false,
+        xml: undefined,
+        selectedHandleService: undefined,
+        selectedMetadataType: undefined,
+      });
     },
     updateXml(xml) {
       this.set('xml', xml);
