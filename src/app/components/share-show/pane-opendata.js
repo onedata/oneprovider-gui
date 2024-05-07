@@ -47,6 +47,12 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * @virtual
+   * @type {boolean}
+   */
+  publicMode: false,
+
+  /**
    * Current XML content of Open Data metadata.
    * @type {String}
    */

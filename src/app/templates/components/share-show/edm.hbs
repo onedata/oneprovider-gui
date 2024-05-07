@@ -15,6 +15,7 @@
       }}
       @onModeChange={{action "changeMode"}}
     />
+    {{#if isModifyButtonShown}}
     <div class="btn-tooltip-container">
       <OneButton
         class="modify-metadata-btn"
@@ -29,6 +30,7 @@
         <OneTooltip @title={{tt this "modifyingTip"}} />
       {{/if}}
     </div>
+    {{/if}}
   </div>
 
   {{#unless (or readonly (media "isMobile"))}}

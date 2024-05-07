@@ -53,6 +53,12 @@ export default Component.extend(I18n, {
   xmlValue: undefined,
 
   /**
+   * @virtual
+   * @type {boolean}
+   */
+  isPublicView: false,
+
+  /**
    * @virtual optional
    * @type {Models.HandleService}
    */
@@ -135,8 +141,6 @@ export default Component.extend(I18n, {
 
   aceEditor: undefined,
 
-  isValid: reads('validator.isValid'),
-
   isXmlValueInvalid: false,
 
   /**
@@ -156,6 +160,16 @@ export default Component.extend(I18n, {
   notAcceptedSourceValidator: undefined,
 
   //#endregion
+
+  isValid: reads('validator.isValid'),
+
+  isModifyButtonShown: computed(
+    'isPublicView',
+    'editMode',
+    function isModifyButtonShown() {
+      return !this.isPublicView && (this.editMode === 'show' || this.editMode === 'edit');
+    }
+  ),
 
   /**
    * @type {EdmMetadataValidator|null}

@@ -7,8 +7,9 @@
           @xmlValue={{xml}}
           @onModify={{action "modifyMetadata"}}
           @isPublished={{true}}
-          @onChangeEditMode={{action "changeEditMode"}}
           @readonly={{not isModifyingExistingMetadata}}
+          @isPublicView={{publicMode}}
+          @onChangeEditMode={{action "changeEditMode"}}
         />
       {{else}}
         {{!-- FIXME: if edit clicked - use dceditor --}}
@@ -17,6 +18,7 @@
           @xml={{xml}}
           @handleUrl={{handle.url}}
           @handleServiceName={{handle.handleService.name}}
+          @isPublicView={{publicMode}}
         />
       {{/if}}
     {{else}}
@@ -111,6 +113,7 @@
                   class="full-height"
                   @initialData={{initialData}}
                   @handleService={{selectedHandleService}}
+                  @isPublicView={{false}}
                   @onUpdateXml={{action "updateXml"}}
                   @onSubmit={{action "submit"}}
                   @onBack={{action "back"}}
@@ -120,6 +123,7 @@
                   @xml={{xml}}
                   @initialData={{initialData}}
                   @handleService={{selectedHandleService}}
+                  @isPublicView={{false}}
                   @onUpdateXml={{action "updateXml"}}
                   @onSubmit={{action "submit"}}
                   @onBack={{action "back"}}
