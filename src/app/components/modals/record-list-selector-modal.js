@@ -51,6 +51,11 @@ export default Component.extend(I18n, {
   selectedRecords: undefined,
 
   /**
+   * @type {Map<GraphSingleModel, ResourceListItem>}
+   */
+  listItemsCache: undefined,
+
+  /**
    * @type {ComputedProperty<PromiseArray<GraphSingleModel>>}
    */
   records: reads('modalOptions.records'),
@@ -91,11 +96,6 @@ export default Component.extend(I18n, {
       return newListItem;
     }) ?? [];
   }),
-
-  /**
-   * @type {Map<GraphSingleModel, ResourceListItem>}
-   */
-  listItemsCache: undefined,
 
   /**
    * @override

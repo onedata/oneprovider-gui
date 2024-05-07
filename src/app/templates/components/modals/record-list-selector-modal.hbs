@@ -1,20 +1,20 @@
-{{#global-modal
-  classNames="modal-content-overlay"
-  modalId=modalId
-  size="sm"
+<GlobalModal
+  @classNames="modal-content-overlay"
+  @modalId={{modalId}}
+  @size="sm"
   as |modal|
-}}
+>
 
-  {{#modal.header}}
+  <modal.header>
     <h1>{{header}}</h1>
     {{#if subheader}}
       <h2 class="normal-case">
         <TruncatedString>{{subheader}}</TruncatedString>
       </h2>
     {{/if}}
-  {{/modal.header}}
+  </modal.header>
 
-  {{#modal.body}}
+  <modal.body>
     <PromiseProxyContainer @proxy={{records}}>
       {{#if records.length}}
         <ResourcesList
@@ -28,9 +28,9 @@
         <p><em>{{tt this "nothingToShow"}}</em></p>
       {{/if}}
     </PromiseProxyContainer>
-  {{/modal.body}}
+  </modal.body>
 
-  {{#modal.footer class="btn-toolbar"}}
+  <modal.footer class="btn-toolbar">
     <OneButton
       class="btn-cancel"
       @type="default"
@@ -46,6 +46,6 @@
     >
       {{tt this "confirmBtn"}}
     </OneButton>
-  {{/modal.footer}}
+  </modal.footer>
 
-{{/global-modal}}
+</GlobalModal>
