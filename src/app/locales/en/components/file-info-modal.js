@@ -1,3 +1,5 @@
+import browserColumns from './-browser-columns-name/filesystem';
+
 const fileLinkAuthentication =
   'It only works for logged-in users that have access to this {{type}}. To obtain a public link, use the Share function.';
 
@@ -13,7 +15,12 @@ export default {
   unknownSpaceInSymlink: 'unknown space',
   spaceId: 'Space ID',
   cdmiObjectId: 'File ID',
-  mtime: 'Modified at',
+  mtime: 'Modified',
+  mtimeSubname: 'content',
+  atime: 'Accessed',
+  ctime: 'Changed',
+  ctimeSubname: 'metadata',
+  tip: browserColumns.tip,
   owner: 'Owner',
   size: 'Size',
   fileLink: '{{type}} link',

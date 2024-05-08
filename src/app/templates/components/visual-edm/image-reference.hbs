@@ -1,0 +1,12 @@
+{{#if loadError}}
+  <div class="img-load-error">
+    {{tt this "couldNotLoad"}}
+  </div>
+{{else}}
+  <img
+    src={{reference}}
+    alt={{reference}}
+    onerror={{action "handleImageLoadError"}}
+    onload={{action "handleImageLoaded"}}
+  />
+{{/if}}

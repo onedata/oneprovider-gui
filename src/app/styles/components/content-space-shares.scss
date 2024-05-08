@@ -1,4 +1,5 @@
 .content-space-shares {
+  padding-bottom: 0;
   + .ps__rail-x + .ps__rail-y {
     z-index: $zindex-file-browser-head + 1;
   }

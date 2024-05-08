@@ -28,6 +28,8 @@ import { reads } from '@ember/object/computed';
  * @property {boolean} isVisible
  * @property {boolean} isEnabled
  * @property {number} width
+ * @property {boolean} hasSubname
+ * @property {boolean} hasTooltip
  */
 
 /**

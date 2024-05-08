@@ -4,7 +4,7 @@
     (if isDropBorderShown "border-dashed")
   }}
 >
-  {{tt this "headers.datasets"}}
+  {{tt this "headers.name.datasets"}}
   <div
     class="draggable-area"
     ondragover={{action "headingDragOverAction"}}
@@ -29,7 +29,7 @@
     >
       <span class="column-name">
         {{one-icon icon="drag" class="column-move-icon"}}
-        {{tt this (concat "headers." columnName)}}
+        {{tt this (concat "headers.name." columnName)}}
       </span>
       <div
         class="draggable-area"

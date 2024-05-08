@@ -7,6 +7,10 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11946 Added new type to the automation - group
+* VFS-11912 Added visual editor for Open Data metadata in Europeana Data Model format (currently disabled)
+* VFS-11731 Fixed unexpected auto scroll of the file list after closing a modal
+* VFS-11536 Added atime and ctime info to columns in file browser and to file details
+* VFS-11923 Changed ACL group names (data -> content, general -> deletion)
 * VFS-11801 Improved UX of ACL editor: including auto expand, no rules warning
 * VFS-11761 Added quick share publish toggle to share modal
 * VFS-11845 Fixed exiting `ember serve` on error and SCSS hot reloading

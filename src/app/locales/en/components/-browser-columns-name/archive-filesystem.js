@@ -1,7 +1,5 @@
+import headers from './filesystem';
+
 export default {
-  size: 'Size',
-  owner: 'Owner',
-  modification: 'Modification',
-  replication: 'Replication',
-  qos: 'QoS',
+  headers,
 };
