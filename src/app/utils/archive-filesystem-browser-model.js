@@ -138,6 +138,16 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
+  isUsingUploadArea: false,
+
+  /**
+   * @override
+   */
+  headRowComponentName: '',
+
+  /**
+   * @override
+   */
   fileFeatures: Object.freeze([
     ..._.without(defaultFilesystemFeatures, 'effDatasetInheritancePath'),
     Object.freeze({ key: 'archiveCreating', noticeLevel: 'warning' }),

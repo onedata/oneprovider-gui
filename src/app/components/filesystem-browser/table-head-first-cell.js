@@ -12,7 +12,7 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-res
 import { observer, computed } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { or } from 'ember-awesome-macros';
+import { or } from '@ember/object/computed';
 import globals from 'onedata-gui-common/utils/globals';
 import { inject as service } from '@ember/service';
 
@@ -26,7 +26,7 @@ export default FbTableHeadFirstCell.extend(...mixins, {
   media: service(),
 
   /**
-   * @type {number}
+   * @type {ComputedProperty<number>}
    */
   colspan: computed('media.isMobile', function colspan() {
     return this.media.isMobile ? 2 : 1;

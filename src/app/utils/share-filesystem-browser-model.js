@@ -51,6 +51,16 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
+  isUsingUploadArea: false,
+
+  /**
+   * @override
+   */
+  headRowComponentName: '',
+
+  /**
+   * @override
+   */
   listingRequirement: computed(
     'dir',
     'listedFilesProperties',

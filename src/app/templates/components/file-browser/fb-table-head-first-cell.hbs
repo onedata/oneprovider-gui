@@ -1,4 +1,8 @@
-{{tt this "headers.name.firstColumnName"}}
+<div class="fb-table-first-col-container">
+  <div class="table-header-text">{{tt this "headers.name.firstColumnName"}}</div>
+  <div class="spacer"></div>
+  <div class="table-header-status-bar">{{yield}}</div>
+</div>
 <div
   class="draggable-area"
   ondragover={{action "headingDragOverAction"}}

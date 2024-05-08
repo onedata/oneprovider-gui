@@ -1,5 +1,5 @@
 /**
- * Implementation of table first cells for archive-filesystem-browser.
+ * Implementation of table first cell for archive-filesystem-browser.
  *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH

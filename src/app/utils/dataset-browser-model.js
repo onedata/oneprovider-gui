@@ -118,11 +118,6 @@ export default BaseBrowserModel.extend(I18n, {
   /**
    * @override
    */
-  headFirstCellComponentName: 'file-browser/fb-table-head-first-cell',
-
-  /**
-   * @override
-   */
   headRowTranslation: 'components.datasetBrowser.tableHeadRow',
 
   /**

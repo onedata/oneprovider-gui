@@ -252,6 +252,11 @@ export default EmberObject.extend(...mixins, {
    */
   isListPollingEnabled: true,
 
+  /**
+   * @type {boolean}
+   */
+  isUsingUploadArea: false,
+
   getCurrentDirMenuButtons(availableActions) {
     return availableActions;
   },

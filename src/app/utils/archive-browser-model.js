@@ -157,11 +157,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  headFirstCellComponentName: 'file-browser/fb-table-head-first-cell',
-
-  /**
-   * @override
-   */
   headRowClass: 'archive-table-head-row',
 
   /**

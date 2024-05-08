@@ -48,31 +48,17 @@ export default Component.extend(...mixins, {
 
   actions: {
     checkboxDragStart() {
-      if (this.browserModel.browserPersistedConfigurationKey === 'filesystem') {
-        this.browserModel.disableUploadArea();
-      }
+
     },
     checkboxDragEnd() {
-      if (this.browserModel.browserPersistedConfigurationKey === 'filesystem') {
-        this.browserModel.enableUploadArea();
-      }
+
     },
     headingDragAction(columnName, event) {
-      if (this.browserModel.browserPersistedConfigurationKey === 'filesystem' &&
-        !this.browserModel.readonlyFilesystem
-      ) {
-        this.browserModel.disableUploadArea();
-      }
       event.dataTransfer.setData('text', columnName);
 
       this.set('isDropBorderShown', true);
     },
     headingDragEndAction() {
-      if (this.browserModel.browserPersistedConfigurationKey === 'filesystem' &&
-        !this.browserModel.readonlyFilesystem
-      ) {
-        this.browserModel.enableUploadArea();
-      }
       this.set('isDropBorderShown', false);
     },
   },

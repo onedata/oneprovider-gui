@@ -253,6 +253,11 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @override
    */
+  headRowComponentName: 'filesystem-browser/table-head-row',
+
+  /**
+   * @override
+   */
   headFirstCellComponentName: 'filesystem-browser/table-head-first-cell',
 
   /**
@@ -279,6 +284,11 @@ export default BaseBrowserModel.extend(...mixins, {
    * @override
    */
   dirLoadErrorComponentName: 'filesystem-browser/dir-load-error',
+
+  /**
+   * @override
+   */
+  isUsingUploadArea: true,
 
   /**
    * @override

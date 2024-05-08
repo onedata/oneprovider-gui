@@ -1,5 +1,5 @@
 /**
- * First cell of file browser table header (thead)
+ * First cell (th) of file browser table header (thead).
  *
  * @author Agnieszka Warchoł
  * @copyright (C) 2024 ACK CYFRONET AGH
