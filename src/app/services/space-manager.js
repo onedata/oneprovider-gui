@@ -7,11 +7,11 @@
  */
 
 import Service from '@ember/service';
-import { getProperties, set } from '@ember/object';
+import { get, getProperties, set } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { inject as service } from '@ember/service';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, allSettled } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 /**
@@ -28,6 +28,12 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
  * @typedef {Object} DirStatsServiceState
  * @property {string} status One of `enabled`, `disabled`, `stopping`, `initializing`
  * @property {number} since
+ */
+
+/**
+ * @typedef {Object} RecordListContainer<T>
+ * @property {Array<T>} records
+ * @property {boolean} mightBeIncomplete
  */
 
 /**
@@ -48,6 +54,7 @@ export default Service.extend({
   onedataGraph: service(),
   store: service(),
   providerManager: service(),
+  groupManager: service(),
 
   /**
    * Mapping (space ID) -> PromiseObject<DirStatsServiceState>
@@ -185,6 +192,49 @@ export default Service.extend({
     } else {
       return this.dirsStatsServiceStateCache[spaceId] = promiseObject(promise);
     }
+  },
+
+  /**
+   * @public
+   * @param {string} spaceId
+   * @returns {Promise<RecordListContainer<Models.Group>>}
+   */
+  async getSpaceEffGroups(spaceId) {
+    const space = await this.getSpace(spaceId);
+    let mightBeIncomplete = false;
+    let records;
+    try {
+      records = await get(await get(space, 'effGroupList'), 'list');
+    } catch (error) {
+      if (error?.id !== 'forbidden') {
+        console.error(
+          `Could not get space "${spaceId}" effective group list due to error.`,
+          error
+        );
+      }
+
+      mightBeIncomplete = true;
+
+      const inferredGroupIdsGri = getGri(spaceId, {
+        aspect: 'infer_accessible_eff_groups',
+        scope: 'private',
+      });
+      const inferredGroupIds = (await this.onedataGraph.request({
+        gri: inferredGroupIdsGri,
+        operation: 'create',
+        subscribe: false,
+      })).list;
+      records = (await allSettled(
+        inferredGroupIds.map((groupId) =>
+          this.groupManager.getGroupById(groupId, { throughSpaceId: spaceId })
+        )
+      )).filter(({ state }) => state === 'fulfilled').map(({ value }) => value);
+    }
+
+    return {
+      records,
+      mightBeIncomplete,
+    };
   },
 });
 

@@ -1,5 +1,5 @@
 <GlobalModal
-  @classNames="modal-content-overlay"
+  @classNames="modal-content-overlay record-list-selector-modal"
   @modalId={{modalId}}
   @size="sm"
   as |modal|
@@ -15,8 +15,16 @@
   </modal.header>
 
   <modal.body>
-    <PromiseProxyContainer @proxy={{records}}>
-      {{#if records.length}}
+    <PromiseProxyContainer @proxy={{recordListContainer}}>
+      {{#if (and recordListContainer.content.mightBeIncomplete incompleteListText)}}
+        <div class="alert alert-warning">
+          {{incompleteListText}}
+          {{#if incompleteListTipText}}
+            <OneLabelTip @title={{incompleteListTipText}} />
+          {{/if}}
+        </div>
+      {{/if}}
+      {{#if recordListContainer.content.records.length}}
         <ResourcesList
           @listHeader={{listHeader}}
           @items={{listItems}}

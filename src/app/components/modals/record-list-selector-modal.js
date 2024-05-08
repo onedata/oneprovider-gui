@@ -15,11 +15,13 @@ import { ResourceListItem } from 'onedata-gui-common/components/resources-list';
 
 /**
  * @typedef {Object} RecordListSelectorModalOptions
- * @property {PromiseArray<GraphSingleModel>} records
+ * @property {PromiseObject<RecordListContainer<GraphSingleModel>>} recordListContainer
  * @property {boolean} allowMany
  * @property {SafeString} header
  * @property {SafeString} [subheader]
  * @property {SafeString} [listHeader]
+ * @property {SafeString} [incompleteListText]
+ * @property {SafeString} [incompleteListTipText]
  */
 
 export default Component.extend(I18n, {
@@ -56,9 +58,9 @@ export default Component.extend(I18n, {
   listItemsCache: undefined,
 
   /**
-   * @type {ComputedProperty<PromiseArray<GraphSingleModel>>}
+   * @type {ComputedProperty<PromiseObject<RecordListContainer<GraphSingleModel>>>}
    */
-  records: reads('modalOptions.records'),
+  recordListContainer: reads('modalOptions.recordListContainer'),
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -81,11 +83,21 @@ export default Component.extend(I18n, {
   listHeader: reads('modalOptions.listHeader'),
 
   /**
+   * @type {ComputedProperty<SafeString | undefined>}
+   */
+  incompleteListText: reads('modalOptions.incompleteListText'),
+
+  /**
+   * @type {ComputedProperty<SafeString | undefined>}
+   */
+  incompleteListTipText: reads('modalOptions.incompleteListTipText'),
+
+  /**
    * @type {ComputedProperty<ResourceListItem>}
    */
-  listItems: computed('records.[]', function listItems() {
+  listItems: computed('recordListContainer.content.records.[]', function listItems() {
     const { listItemsCache } = this;
-    return this.records?.content?.map((record) => {
+    return this.recordListContainer?.content?.records?.map((record) => {
       const listItem = listItemsCache.get(record);
       if (listItem) {
         return listItem;

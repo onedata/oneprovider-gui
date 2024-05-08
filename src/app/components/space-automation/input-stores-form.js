@@ -32,7 +32,7 @@ import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/exec
 import { isAtmDataSpecMatchingFilters } from 'onedata-gui-common/utils/atm-workflow/data-spec/filters';
 import { AtmDataSpecType } from 'onedata-gui-common/utils/atm-workflow/data-spec/types';
 import globals from 'onedata-gui-common/utils/globals';
-import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export const executeWorkflowDataLocalStorageKey = 'executeWorkflowInputData';
 
@@ -41,6 +41,7 @@ export default Component.extend(I18n, {
   classNameBindings: ['isDisabled:form-disabled:form-enabled'],
 
   i18n: service(),
+  spaceManager: service(),
   modalManager: service(),
 
   /**
@@ -382,13 +383,15 @@ export default Component.extend(I18n, {
   }) {
     let wasSubmitted = false;
     await this.modalManager.show('record-list-selector-modal', {
-      records: promiseArray(
-        get(this.space, 'effGroupList').then((list) => get(list, 'list'))
+      recordListContainer: promiseObject(
+        this.spaceManager.getSpaceEffGroups(get(this.space, 'entityId'))
       ),
       allowMany,
-      header: this.t(`groupSelectorHeader.${allowMany ? 'multi' : 'single'}`),
+      header: this.t(`groupSelector.header.${allowMany ? 'multi' : 'single'}`),
       subheader: this.t('itemsSelectorSubheader', { storeName: atmStore.name }),
-      listHeader: this.t('groupSelectorListHeader'),
+      listHeader: this.t('groupSelector.listHeader'),
+      incompleteListText: this.t('groupSelector.incompleteListText'),
+      incompleteListTipText: this.t('groupSelector.incompleteListTipText'),
       onSubmit(selectedRecords) {
         wasSubmitted = true;
         const atmGroups = selectedRecords.map((record) => ({
