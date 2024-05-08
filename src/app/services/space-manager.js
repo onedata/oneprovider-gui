@@ -204,7 +204,8 @@ export default Service.extend({
     let mightBeIncomplete = false;
     let records;
     try {
-      records = await get(await get(space, 'effGroupList'), 'list');
+      const effGroupList = await get(space, 'effGroupList');
+      records = effGroupList && await get(effGroupList, 'list');
     } catch (error) {
       if (error?.id !== 'forbidden') {
         console.error(
@@ -212,7 +213,9 @@ export default Service.extend({
           error
         );
       }
+    }
 
+    if (!records) {
       mightBeIncomplete = true;
 
       const inferredGroupIdsGri = getGri(spaceId, {
