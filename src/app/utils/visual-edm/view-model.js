@@ -35,6 +35,8 @@ const VisualEdmViewModel = EmberObject.extend({
 
   isReadOnly: false,
 
+  isDisabled: false,
+
   //#region state
 
   component: undefined,
@@ -118,6 +120,9 @@ const VisualEdmViewModel = EmberObject.extend({
   },
 
   addWebResource() {
+    if (this.isReadOnly || this.isDisabled) {
+      return;
+    }
     const factory = new EdmObjectFactory(this.edmMetadata);
     const object = factory.createInitialObject(EdmObjectType.WebResource);
     this.edmMetadata.addObject(object);
@@ -130,6 +135,9 @@ const VisualEdmViewModel = EmberObject.extend({
    * @param {EdmObject} object
    */
   deleteObject(object) {
+    if (this.isReadOnly || this.isDisabled) {
+      return;
+    }
     this.edmMetadata.deleteObject(object);
     this.markAsModified();
     this.updateView();

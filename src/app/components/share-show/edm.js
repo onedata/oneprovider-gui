@@ -8,16 +8,18 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import { and, raw, or, bool, conditional, eq, notEqual, array } from 'ember-awesome-macros';
+import { and, raw, or, conditional, eq, notEqual, array } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
-import { set, setProperties, computed } from '@ember/object';
-import { not, reads, equal } from '@ember/object/computed';
+import { set, setProperties, computed, observer } from '@ember/object';
+import { not, reads, or as emberOr } from '@ember/object/computed';
 import { cancel, debounce } from '@ember/runloop';
 import { dasherize } from '@ember/string';
 import { inject as service } from '@ember/service';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 
 const defaultMode = 'visual';
 
@@ -101,6 +103,12 @@ export default Component.extend(I18n, {
    */
   isPublished: false,
 
+  /**
+   * @virtual optional
+   * @type {boolean}
+   */
+  isDisabled: false,
+
   //#endregion
 
   //#region state
@@ -125,6 +133,11 @@ export default Component.extend(I18n, {
    * @type {any}
    */
   pendingValidationTimer: undefined,
+
+  /**
+   * @type {boolean}
+   */
+  isSaving: false,
 
   //#endregion
 
@@ -207,9 +220,9 @@ export default Component.extend(I18n, {
 
   isEmpty: not('currentXmlValue'),
 
-  isSubmitDisabled: bool('submitDisabledReason'),
+  isSubmitDisabled: emberOr('isEffDisabled', 'submitDisabledReason'),
 
-  isCancelDisabled: bool('cancelDisabledReason'),
+  isCancelDisabled: emberOr('isEffDisabled', 'cancelDisabledReason'),
 
   isXmlNotParseable: eq('modelXmlSyncState', raw(EdmModelXmlSyncState.NotParseable)),
 
@@ -223,6 +236,7 @@ export default Component.extend(I18n, {
   ),
 
   isApplyXmlButtonDisabled: or(
+    'isEffDisabled',
     'isXmlNotParseable',
     eq('modelXmlSyncState', raw(EdmModelXmlSyncState.Waiting)),
   ),
@@ -241,7 +255,14 @@ export default Component.extend(I18n, {
     }
   }),
 
-  isDiscardXmlButtonDisabled: equal('modelXmlSyncState', EdmModelXmlSyncState.Waiting),
+  isDiscardXmlButtonDisabled: computed(
+    'modelXmlSyncState',
+    'isEffDisabled',
+    function isDiscardXmlButtonDisabled() {
+      return this.isEffDisabled ||
+        this.modelXmlSyncState === EdmModelXmlSyncState.Waiting;
+    }
+  ),
 
   /**
    * Classname added to columns to center the form content, as it is too wide
@@ -315,6 +336,13 @@ export default Component.extend(I18n, {
     return this.isPublished ? 'edit' : 'create';
   }),
 
+  isEffDisabled: emberOr('isDisabled', 'isSaving'),
+
+  xmlObserver: observer('xmlValue', function xmlObserver() {
+    this.initMetadataModel();
+    this.replaceCurrentXmlValueUsingModel();
+  }),
+
   init() {
     this._super(...arguments);
     this.initMetadataModel();
@@ -360,6 +388,7 @@ export default Component.extend(I18n, {
     const visualEdmViewModel = VisualEdmViewModel.extend({
         isRepresentativeImageShown: not('container.isRepresentativeImageInParent'),
         isReadOnly: reads('container.isReadOnly'),
+        isDisabled: reads('container.isDisabled'),
       })
       .create({
         container: this,
@@ -402,6 +431,7 @@ export default Component.extend(I18n, {
     this.replaceCurrentXmlValueUsingModel();
     await this.onModify(this.currentXmlValue);
     this.onChangeEditMode?.(false);
+    this.replaceModelUsingCurrentXml();
   },
 
   replaceCurrentXmlValueUsingModel() {
@@ -443,6 +473,9 @@ export default Component.extend(I18n, {
         });
       }
       this.setModelXmlSyncState(EdmModelXmlSyncState.Synced);
+      if (this.isModifyingExistingMetadata) {
+        this.visualEdmViewModel.markAsModified();
+      }
     }
   },
 
@@ -539,6 +572,12 @@ export default Component.extend(I18n, {
     this.notAcceptedSourceValidator.set('edmMetadata', edmMetadata);
   },
 
+  scrollTop() {
+    if (this.element) {
+      scrollTopClosest(this.element);
+    }
+  },
+
   actions: {
     /**
      * @param {'visual'|'xml'} newMode
@@ -558,15 +597,22 @@ export default Component.extend(I18n, {
       if (this.isPublished) {
         this.onChangeEditMode(false);
         this.initMetadataModel();
+        this.scrollTop();
       } else {
         this.onBack();
       }
     },
-    submit() {
-      if (this.isPublished) {
-        return this.submitMetadataUpdate();
-      } else {
-        return this.submit();
+    async submit() {
+      this.set('isSaving', true);
+      try {
+        if (this.isPublished) {
+          await this.submitMetadataUpdate();
+          this.scrollTop();
+        } else {
+          await this.submit();
+        }
+      } finally {
+        safeExec(this, 'set', 'isSaving', false);
       }
     },
     acceptXml() {

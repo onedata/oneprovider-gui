@@ -64,7 +64,7 @@
       @highlightActiveLine={{true}}
       @showLineNumbers={{true}}
       @showPrintMargin={{false}}
-      @readOnly={{isReadOnly}}
+      @readOnly={{or isReadOnly isEffDisabled}}
       @ready={{action "aceEditorReady"}}
       @update={{action "sourceChanged"}}
     />

@@ -2,7 +2,7 @@
  * Content for "opendata" tab for single share
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2023 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -17,7 +17,6 @@ import { conditional, raw, not, or, eq } from 'ember-awesome-macros';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { MetadataType } from 'oneprovider-gui/models/handle';
-
 /**
  * @typedef {'show'|'edit'|'create'} MetadataEditorEditMode
  */
@@ -72,6 +71,11 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   isModifyingExistingMetadata: false,
+
+  /**
+   * @type {'visual'|'xml'}
+   */
+  dcViewMode: 'visual',
 
   /**
    * Imported for access in the template.
@@ -187,11 +191,13 @@ export default Component.extend(I18n, {
     set(this.handle, 'metadataString', metadataString);
     try {
       await this.handle.save();
+      await this.handle.reload();
     } catch (error) {
       this.globalNotify.backendError(this.t('modifyingMetadata'), error);
       throw error;
     }
-    this.set('xml', get(this.handle, 'metadataString'));
+    const newMetadataString = get(this.handle, 'metadataString');
+    this.set('xml', newMetadataString);
   },
 
   actions: {
@@ -223,6 +229,9 @@ export default Component.extend(I18n, {
     },
     changeEditMode(isEditing) {
       this.set('isModifyingExistingMetadata', isEditing);
+    },
+    changeDcViewMode(mode) {
+      this.set('dcViewMode', mode);
     },
   },
 });

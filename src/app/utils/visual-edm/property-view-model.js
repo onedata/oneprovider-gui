@@ -38,6 +38,8 @@ const PropertyViewModel = EmberObject.extend({
 
   visualEdmViewModel: reads('objectViewModel.visualEdmViewModel'),
 
+  isDisabled: reads('visualEdmViewModel.isDisabled'),
+
   /**
    * @type {boolean}
    */
@@ -71,9 +73,17 @@ const PropertyViewModel = EmberObject.extend({
   isUsingReference: reads('model.isUsingResource'),
 
   isDeleteDisabled: computed(
-    'objectViewModel.singleInstancePropertyTags',
-    'isTheOnlyPropertyInGroup',
+    'isDeleteDisabledForMandatory',
+    'isDisabled',
     function isDeleteDisabled() {
+      return this.isDisabled || this.isDeleteDisabledForMandatory;
+    }
+  ),
+
+  isDeleteDisabledForMandatory: computed(
+    'model',
+    'isTheOnlyPropertyInGroup',
+    function isDeleteDisabledForMandatory() {
       return this.model.recommendation === EdmPropertyRecommendation.Mandatory &&
         this.isTheOnlyPropertyInGroup;
     }
@@ -222,6 +232,9 @@ const PropertyViewModel = EmberObject.extend({
   },
 
   changeValue(newValue) {
+    if (this.isDisabled) {
+      return;
+    }
     if (this.valueType === EdmPropertyValueType.Reference) {
       this.model.attrs.resource = newValue;
     } else {
@@ -232,13 +245,16 @@ const PropertyViewModel = EmberObject.extend({
   },
 
   changeAttribute(attributeName, newValue) {
+    if (this.isDisabled) {
+      return;
+    }
     this.model.attrs[attributeName] = newValue;
     this.visualEdmViewModel.markAsModified();
     this.updateView();
   },
 
   changeValueType(valueType) {
-    if (valueType === this.valueType) {
+    if (this.isDisabled || valueType === this.valueType) {
       return;
     }
     const prevValue = this.value;
@@ -253,6 +269,7 @@ const PropertyViewModel = EmberObject.extend({
 
   deleteProperty() {
     this.propertyGroupViewModel.objectViewModel.model.deleteProperty(this.model);
+    this.visualEdmViewModel.markAsModified();
     this.propertyGroupViewModel.objectViewModel.updateView();
   },
 
