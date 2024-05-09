@@ -28,8 +28,22 @@ export default Component.extend(I18n, {
   xmlValue: undefined,
 
   /**
-   * One of: visual, xml
-   * @type {String}
+   * Set the initial mode.
+   * Note that changing this property after component is rendered does not change the
+   * mode.
+   * @virtual optional
+   * @type {'visual'|'xml'}
+   */
+  initialMode: undefined,
+
+  /**
+   * @virtual optional
+   * @type {(mode: 'visual'|'xml') => void}
+   */
+  onModeChange: undefined,
+
+  /**
+   * @type {'visual'|'xml'}
    */
   mode: defaultMode,
 
@@ -42,10 +56,20 @@ export default Component.extend(I18n, {
   groupedEntries: undefined,
 
   modeScrollObserver: observer('mode', function modeScrollObserver() {
-    scrollTopClosest(this.get('element'));
+    this.scrollTop();
   }),
 
+  scrollTop() {
+    if (this.element) {
+      scrollTopClosest(this.element);
+    }
+  },
+
   changeMode(mode) {
-    this.set('mode', mode);
+    if (typeof this.onModeChange === 'function') {
+      this.onModeChange(mode);
+    } else {
+      this.set('mode', mode);
+    }
   },
 });

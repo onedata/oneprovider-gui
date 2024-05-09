@@ -18,6 +18,8 @@
             @handleService={{selectedHandleService}}
             @isPublished={{true}}
             @readonly={{false}}
+            @mode={{dcViewMode}}
+            @onModeChange={{action "changeDcViewMode"}}
             @onUpdateXml={{action "updateXml"}}
             @onModify={{action "modifyMetadata"}}
             @onBack={{action "back"}}
@@ -30,6 +32,8 @@
             @handleUrl={{handle.url}}
             @handleServiceName={{handle.handleService.name}}
             @isPublicView={{publicMode}}
+            @mode={{dcViewMode}}
+            @onModeChange={{action "changeDcViewMode"}}
             @onChangeEditMode={{action "changeEditMode"}}
           />
         {{/if}}

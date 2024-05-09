@@ -226,6 +226,7 @@ export default Dc.extend(I18n, {
       try {
         if (this.isPublished) {
           await this.submitMetadataUpdate();
+          this.scrollTop();
         } else {
           await this.submit();
         }
@@ -261,6 +262,7 @@ export default Dc.extend(I18n, {
       if (this.isPublished) {
         this.onChangeEditMode(false);
         this.set('currentXmlValue', this.xmlValue);
+        this.scrollTop();
       } else {
         this.onBack();
       }
