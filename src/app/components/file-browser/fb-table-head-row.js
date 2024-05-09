@@ -49,10 +49,10 @@ export default Component.extend(...mixins, {
 
   actions: {
     checkboxDragStart() {
-
+      // Invoked when column drag is started only when browserModel.isUsingUploadArea is true
     },
     checkboxDragEnd() {
-
+      // Invoked when column drag is started only when browserModel.isUsingUploadArea is true
     },
     headingDragAction(columnName, event) {
       event.dataTransfer.setData('text', columnName);

@@ -14,9 +14,11 @@ export default FbTableHeadRow.extend({
 
   actions: {
     checkboxDragStart() {
+      this._super(...arguments);
       this.browserModel.disableUploadArea();
     },
     checkboxDragEnd() {
+      this._super(...arguments);
       this.browserModel.enableUploadArea();
     },
     headingDragAction(columnName, event) {
