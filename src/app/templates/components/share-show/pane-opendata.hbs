@@ -7,19 +7,32 @@
           @xmlValue={{xml}}
           @onModify={{action "modifyMetadata"}}
           @isPublished={{true}}
-          @readonly={{not isModifyingExistingMetadata}}
+          @isReadOnly={{not isModifyingExistingMetadata}}
           @isPublicView={{publicMode}}
           @onChangeEditMode={{action "changeEditMode"}}
         />
       {{else}}
-        {{!-- FIXME: if edit clicked - use dceditor --}}
-        <ShareShow::DcPreview
-          class="fill-flex-using-column"
-          @xml={{xml}}
-          @handleUrl={{handle.url}}
-          @handleServiceName={{handle.handleService.name}}
-          @isPublicView={{publicMode}}
-        />
+        {{#if (and (not publicMode) isModifyingExistingMetadata)}}
+          <ShareShow::DcEditor
+            @xmlValue={{xml}}
+            @handleService={{selectedHandleService}}
+            @isPublished={{true}}
+            @readonly={{false}}
+            @onUpdateXml={{action "updateXml"}}
+            @onModify={{action "modifyMetadata"}}
+            @onBack={{action "back"}}
+            @onChangeEditMode={{action "changeEditMode"}}
+          />
+        {{else}}
+          <ShareShow::DcPreview
+            class="fill-flex-using-column"
+            @xmlValue={{xml}}
+            @handleUrl={{handle.url}}
+            @handleServiceName={{handle.handleService.name}}
+            @isPublicView={{publicMode}}
+            @onChangeEditMode={{action "changeEditMode"}}
+          />
+        {{/if}}
       {{/if}}
     {{else}}
       <p class="no-metadata-info">
@@ -113,6 +126,8 @@
                   class="full-height"
                   @initialData={{initialData}}
                   @handleService={{selectedHandleService}}
+                  @isReadOnly={{false}}
+                  @isPublished={{false}}
                   @isPublicView={{false}}
                   @onUpdateXml={{action "updateXml"}}
                   @onSubmit={{action "submit"}}
@@ -120,9 +135,11 @@
                 />
               {{else if (eq selectedMetadataType MetadataType.Dc)}}
                 <ShareShow::DcEditor
-                  @xml={{xml}}
+                  @xmlValue={{xml}}
                   @initialData={{initialData}}
                   @handleService={{selectedHandleService}}
+                  @readonly={{false}}
+                  @isPublished={{false}}
                   @isPublicView={{false}}
                   @onUpdateXml={{action "updateXml"}}
                   @onSubmit={{action "submit"}}

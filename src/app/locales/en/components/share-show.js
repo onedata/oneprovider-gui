@@ -23,7 +23,9 @@ export default {
     filesDeleted: 'Files <span class="text-danger">(deleted)</span>',
     publishOpenData: 'Publish as Open Data',
   },
-
+  // used accross misc components
+  modifyButton: 'Modify',
+  modifyingButtonTip: 'Modify the metadata in the editor below and use the buttons at the bottom to save changes or cancel',
   // sub-components
   headerManagemenet,
   headerPublic,

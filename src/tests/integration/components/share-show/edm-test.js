@@ -18,7 +18,7 @@ describe('Integration | Component | share-show/edm', function () {
       // given
       const helper = new Helper(this);
       helper.xmlValue = generateExampleXmls().helloWorldTitle;
-      helper.readonly = true;
+      helper.isReadOnly = true;
 
       // when
       await helper.render();
@@ -34,7 +34,7 @@ describe('Integration | Component | share-show/edm', function () {
       // given
       const helper = new Helper(this);
       helper.xmlValue = generateExampleXmls().helloWorldTitle;
-      helper.readonly = true;
+      helper.isReadOnly = true;
 
       // when
       await helper.render();
@@ -61,7 +61,7 @@ describe('Integration | Component | share-show/edm', function () {
       // given
       const helper = new Helper(this);
       helper.xmlValue = generateExampleXmls().emptyTitle;
-      helper.readonly = false;
+      helper.isReadOnly = false;
 
       // when
       await helper.render();
@@ -82,12 +82,12 @@ describe('Integration | Component | share-show/edm', function () {
     }
   );
 
-  it('renders open data logo in readonly mode if representative image is not provided',
+  it('renders open data logo in isReadOnly mode if representative image is not provided',
     async function () {
       // given
       const helper = new Helper(this);
       helper.xmlValue = generateExampleXmls().helloWorldTitle;
-      helper.readonly = true;
+      helper.isReadOnly = true;
 
       // when
       await helper.render();
@@ -102,7 +102,7 @@ describe('Integration | Component | share-show/edm', function () {
       // given
       const helper = new Helper(this);
       helper.xmlValue = generateExampleXmls().withImage;
-      helper.readonly = true;
+      helper.isReadOnly = true;
 
       // when
       await helper.render();
@@ -122,7 +122,7 @@ describe('Integration | Component | share-show/edm', function () {
       // given
       const helper = new Helper(this);
       helper.xmlValue = generateExampleXmls().withInvalidImage;
-      helper.readonly = true;
+      helper.isReadOnly = true;
 
       // when
       await helper.render();
@@ -148,7 +148,7 @@ class Helper {
   /** @type {string} */
   xmlValue = undefined;
   /** @type {boolean} */
-  readonly = false;
+  isReadOnly = false;
 
   constructor(mochaContext) {
     /** @type {Mocha.Context} */
@@ -169,10 +169,9 @@ class Helper {
   async render() {
     this.mochaContext.setProperties({
       xmlValue: this.xmlValue,
-      // using _readonly because readonly is reserved in Mocha
-      _readonly: this.readonly,
+      isReadOnly: this.isReadOnly,
     });
-    await render(hbs`<ShareShow::Edm @xmlValue={{xmlValue}} @readonly={{_readonly}} />`);
+    await render(hbs`<ShareShow::Edm @xmlValue={{xmlValue}} @isReadOnly={{isReadOnly}} />`);
   }
 }
 
@@ -180,33 +179,33 @@ function generateExampleXmls() {
   return {
     helloWorldTitle: `<?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
-  <edm:ProvidedCHO>
-    <dc:title>Hello world</dc:title>
-  </edm:ProvidedCHO>
+    <edm:ProvidedCHO>
+      <dc:title>Hello world</dc:title>
+    </edm:ProvidedCHO>
 </rdf:RDF>`,
     emptyTitle: `<?xml version="1.0" encoding="UTF-8"?>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
-      <edm:ProvidedCHO>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+    <edm:ProvidedCHO>
         <dc:title></dc:title>
-      </edm:ProvidedCHO>
-    </rdf:RDF>`,
+    </edm:ProvidedCHO>
+</rdf:RDF>`,
     withImage: `<?xml version="1.0" encoding="UTF-8"?>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
-      <edm:ProvidedCHO>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+    <edm:ProvidedCHO>
         <dc:title>Hello world</dc:title>
-      </edm:ProvidedCHO>
-      <ore:Aggregation>
+    </edm:ProvidedCHO>
+    <ore:Aggregation>
         <edm:object rdf:resource="/assets/images/oneprovider-logo.svg"/>
-      </ore:Aggregation>
-    </rdf:RDF>`,
+    </ore:Aggregation>
+</rdf:RDF>`,
     withInvalidImage: `<?xml version="1.0" encoding="UTF-8"?>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
-      <edm:ProvidedCHO>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+    <edm:ProvidedCHO>
         <dc:title>Hello world</dc:title>
-      </edm:ProvidedCHO>
-      <ore:Aggregation>
+    </edm:ProvidedCHO>
+    <ore:Aggregation>
         <edm:object rdf:resource="not-existing.svg"/>
-      </ore:Aggregation>
-    </rdf:RDF>`,
+    </ore:Aggregation>
+</rdf:RDF>`,
   };
 }

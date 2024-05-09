@@ -14,14 +14,34 @@ export default Dc.extend({
   classNames: ['share-show-dc-preview'],
 
   /**
+   * DC preview can be rendered both in authenticated or unauthenticated (public) mode.
+   * Set to true if it is rendered in public mode to hide some features.
+   * @virtual optional
+   * @type {boolean}
+   */
+  isPublicView: false,
+
+  /**
+   * @virtual optional
+   * @type {(isEditMode: boolean) => void}
+   */
+  onChangeEditMode: undefined,
+
+  /**
    * For format reference see `util:dublin-core-xml-generator#groupedEntries`.
    * @override
    * @type {Array<{ type: String, value: String }>}
    */
-  groupedEntries: computed('xml', function groupedEntries() {
+  groupedEntries: computed('xmlValue', function groupedEntries() {
     return get(
-      dublinCoreXmlParser.create({ xmlSource: this.get('xml') }),
+      dublinCoreXmlParser.create({ xmlSource: this.get('xmlValue') }),
       'groupedEntries'
     );
   }),
+
+  actions: {
+    startModify() {
+      this.onChangeEditMode?.(true);
+    },
+  },
 });

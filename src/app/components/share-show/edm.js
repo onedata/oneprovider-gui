@@ -32,7 +32,7 @@ export default Component.extend(I18n, {
   classNames: ['share-show-edm', 'open-data-metadata-editor', 'form-group'],
   classNameBindings: [
     'isValid::invalid-metadata',
-    'readonly:readonly',
+    'isReadOnly:readonly',
     'syncStateClass',
     'modeClass',
   ],
@@ -95,6 +95,7 @@ export default Component.extend(I18n, {
   onBack: undefined,
 
   /**
+   * Set to true if metadata is already published.
    * @virtual optional
    * @type {boolean}
    */
@@ -133,7 +134,13 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {boolean}
    */
-  readonly: false,
+  isReadOnly: false,
+
+  /**
+   * Number of spaces in XML indent.
+   * @type {number}
+   */
+  tabSize: 4,
 
   //#endregion
 
@@ -192,9 +199,9 @@ export default Component.extend(I18n, {
 
   isModifyingExistingMetadata: computed(
     'isPublished',
-    'readonly',
+    'isReadOnly',
     function isModifyingExistingMetadata() {
-      return this.isPublished && !this.readonly;
+      return this.isPublished && !this.isReadOnly;
     }
   ),
 
@@ -241,7 +248,7 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   colClassname: conditional(
-    'readonly',
+    'isReadOnly',
     raw('col-xs-12 col-md-8 col-lg-7'),
     raw('col-xs-12 col-md-8 col-centered'),
   ),
@@ -291,18 +298,18 @@ export default Component.extend(I18n, {
   imageUrl: reads('visualEdmViewModel.representativeImageReference'),
 
   isRepresentativeImageInParent: computed(
-    'readonly',
+    'isReadOnly',
     'media.{isMobile,isTablet}',
     function isRepresentativeImageShown() {
-      return this.readonly && !this.media.isMobile && !this.media.isTablet;
+      return this.isReadOnly && !this.media.isMobile && !this.media.isTablet;
     }
   ),
 
   /**
    * @type {MetadataEditorEditMode}
    */
-  editMode: computed('readonly', 'isPublished', function footerMode() {
-    if (this.readonly) {
+  editMode: computed('isReadOnly', 'isPublished', function editMode() {
+    if (this.isReadOnly) {
       return 'show';
     }
     return this.isPublished ? 'edit' : 'create';
@@ -337,7 +344,7 @@ export default Component.extend(I18n, {
         this.setIsXmlValueInvalid(true);
       }
     } else {
-      edmMetadata = this.readonly ?
+      edmMetadata = this.isReadOnly ?
         metadataFactory.createEmptyMetadata() : metadataFactory.createInitialMetadata();
     }
     if (!this.isXmlValueInvalid) {
@@ -352,7 +359,7 @@ export default Component.extend(I18n, {
   initVisualEdmViewModel({ edmMetadata, validator }) {
     const visualEdmViewModel = VisualEdmViewModel.extend({
         isRepresentativeImageShown: not('container.isRepresentativeImageInParent'),
-        isReadOnly: reads('container.readonly'),
+        isReadOnly: reads('container.isReadOnly'),
       })
       .create({
         container: this,
@@ -398,7 +405,9 @@ export default Component.extend(I18n, {
   },
 
   replaceCurrentXmlValueUsingModel() {
-    const xmlValue = this.visualEdmViewModel.edmMetadata.stringify();
+    const xmlValue = this.visualEdmViewModel.edmMetadata.stringify({
+      tabSize: this.tabSize,
+    });
     this.changeSource(xmlValue, false);
     this.set('acceptedXmlValue', xmlValue);
   },
@@ -449,7 +458,7 @@ export default Component.extend(I18n, {
     } else if (invalidate && prevXmlValue != null) {
       this.invalidateSourceModelSync();
     }
-    // onUpdateXml could be not available in readonly mode
+    // onUpdateXml could be not available in isReadOnly mode
     this.onUpdateXml?.(value);
   },
 

@@ -21,11 +21,11 @@ describe('Unit | Utility | edm/metadata', function () {
       // then
       const expectedXmlRe = new RegExp(`<\\?xml version="1.0" encoding="UTF-8"\\?>\\s*
 <rdf:RDF\\s*
-  xmlns:rdf="http://www\\.w3\\.org/1999/02/22-rdf-syntax-ns#"\\s*
-  xmlns:dc="http://purl\\.org/dc/elements/1\\.1/"\\s*
-  xmlns:dcterms="http://purl\\.org/dc/terms/"\\s*
-  xmlns:edm="http://www.europeana\\.eu/schemas/edm/"\\s*
-  xmlns:ore="http://www.openarchives\\.org/ore/terms/"/>`, 'm');
+    xmlns:rdf="http://www\\.w3\\.org/1999/02/22-rdf-syntax-ns#"\\s*
+    xmlns:dc="http://purl\\.org/dc/elements/1\\.1/"\\s*
+    xmlns:dcterms="http://purl\\.org/dc/terms/"\\s*
+    xmlns:edm="http://www.europeana\\.eu/schemas/edm/"\\s*
+    xmlns:ore="http://www.openarchives\\.org/ore/terms/"/>`, 'm');
       expect(resultXml).to.match(expectedXmlRe);
     }
   );

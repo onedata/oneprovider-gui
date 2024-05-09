@@ -18,8 +18,6 @@ export default {
   notValid: 'Metadata definition is not valid',
   definitionValid: 'Metadata definition is valid.',
   definitionValidating: 'Validating...',
-  modify: 'Modify',
-  modifyingTip: 'Modify the metadata in the editor below and use the buttons at the bottom to save changes or cancel',
   submitDisabledReason: {
     empty: 'Metadata must not be empty',
     invalid: 'Metadata is not valid',

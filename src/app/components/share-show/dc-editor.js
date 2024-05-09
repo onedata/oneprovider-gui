@@ -2,19 +2,20 @@
  * Dublin Core metadata editor with visual (form) and XML (text) modes.
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2023 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import EmberObject, { get, set, computed, observer } from '@ember/object';
+import { bool } from '@ember/object/computed';
 import dcXmlGenerator from 'oneprovider-gui/utils/dublin-core-xml-generator';
-import dublinCoreXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
+import DublinCoreXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import plainCopy from 'onedata-gui-common/utils/plain-copy';
 import { A } from '@ember/array';
 import { dcElements } from 'oneprovider-gui/utils/dublin-core-xml-parser';
 import _ from 'lodash';
-import { isEmpty, array, or } from 'ember-awesome-macros';
+import { array } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import Dc from './-dc';
@@ -46,6 +47,12 @@ export default Dc.extend(I18n, {
   onSubmit: undefined,
 
   /**
+   * @virtual optional
+   * @type {(metadataXml: string) => Promise}
+   */
+  onModify: undefined,
+
+  /**
    * @virtual
    * @type {() => void}
    */
@@ -58,10 +65,39 @@ export default Dc.extend(I18n, {
   onUpdateXml: notImplementedIgnore,
 
   /**
+   * @virtual optional
+   * @type {(isEditMode: boolean) => void}
+   */
+  onChangeEditMode: undefined,
+
+  //#region state
+
+  /**
+   * @type {string}
+   */
+  currentXmlValue: undefined,
+
+  //#endregion
+
+  /**
    * Classname added to columns to center the form content, as it is too wide
    * @type {String}
    */
   colClassname: 'col-xs-12 col-md-8 col-centered',
+
+  /**
+   * @type {MetadataEditorEditMode}
+   */
+  editMode: computed('isPublished', function editMode() {
+    return this.isPublished ? 'edit' : 'create';
+  }),
+
+  isModifyButtonShown: computed(
+    'editMode',
+    function isModifyButtonShown() {
+      return this.editMode !== 'create';
+    }
+  ),
 
   /**
    * Metadata group names that should be available in "add element" selector
@@ -80,35 +116,53 @@ export default Dc.extend(I18n, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  submitDisabled: or('parserError', isEmpty('handleService')),
+  submitDisabled: bool('parserError'),
 
-  xmlObserver: observer('xml', function xmlObserver() {
-    const xml = this.get('xml');
-    if (xml != null) {
-      const parser = dublinCoreXmlParser.create({
-        xmlSource: xml,
-        preserveEmptyValues: true,
-      });
-      this.setProperties({
-        groupedEntries: parser.getEmberGroupedEntries(),
-        parserError: get(parser, 'error'),
-      });
-    }
+  xmlObserver: observer('xmlValue', function xmlObserver() {
+    this.set('currentXmlValue', this.xmlValue);
+    this.initMetadataModelFromCurrentXmlValue();
   }),
 
   modeObserver: observer('mode', function modeObserver() {
     // TODO: VFS-11646 Do replace the whole XML - replace only changed parts to not
     // destroy the unsupported parts of XML.
-    this.onUpdateXml(this.getXml());
+    switch (this.mode) {
+      case 'xml':
+        this.updateXmlValueFromModel();
+        break;
+      case 'visual':
+        this.initMetadataModelFromCurrentXmlValue();
+        break;
+      default:
+        break;
+    }
   }),
 
   init() {
     this._super(...arguments);
-    if (this.get('xml')) {
+    if (this.xmlValue) {
       this.xmlObserver();
     } else {
       this.set('groupedEntries', this.getInitialGroupedEntries());
     }
+  },
+
+  updateXmlValueFromModel() {
+    this.set('currentXmlValue', this.getXml());
+  },
+
+  initMetadataModelFromCurrentXmlValue() {
+    if (this.currentXmlValue === '') {
+      return;
+    }
+    const parser = DublinCoreXmlParser.create({
+      xmlSource: this.currentXmlValue,
+      preserveEmptyValues: true,
+    });
+    this.setProperties({
+      groupedEntries: parser.getEmberGroupedEntries(),
+      parserError: parser.error,
+    });
   },
 
   /**
@@ -140,6 +194,26 @@ export default Dc.extend(I18n, {
     return get(generator, 'xml');
   },
 
+  async submit() {
+    if (this.mode === 'visual') {
+      this.updateXmlValueFromModel();
+    }
+    try {
+      await this.onSubmit(this.currentXmlValue);
+    } catch (error) {
+      this.globalNotify.backendError(this.t('editor.publishingData'), error);
+      throw error;
+    }
+  },
+
+  async submitMetadataUpdate() {
+    if (this.mode === 'visual') {
+      this.updateXmlValueFromModel();
+    }
+    await this.onModify(this.currentXmlValue);
+    this.onChangeEditMode?.(false);
+  },
+
   actions: {
     setValue(type, index, inputEvent) {
       const value = inputEvent.target.value;
@@ -148,14 +222,13 @@ export default Dc.extend(I18n, {
       set(values, String(index), value);
     },
     async submit() {
-      const currentXml = this.getXml();
-      this.onUpdateXml(currentXml);
       this.set('formDisabled', true);
       try {
-        await this.onSubmit(currentXml);
-      } catch (error) {
-        this.globalNotify.backendError(this.t('editor.publishingData'), error);
-        throw error;
+        if (this.isPublished) {
+          await this.submitMetadataUpdate();
+        } else {
+          await this.submit();
+        }
       } finally {
         safeExec(this, 'set', 'formDisabled', false);
       }
@@ -185,10 +258,15 @@ export default Dc.extend(I18n, {
     },
     // TODO: VFS-11645 Ask for unsaved changed when cancelling and chaning view
     back() {
-      this.onBack();
+      if (this.isPublished) {
+        this.onChangeEditMode(false);
+        this.set('currentXmlValue', this.xmlValue);
+      } else {
+        this.onBack();
+      }
     },
     updateXml(value) {
-      this.onUpdateXml(value);
+      this.set('currentXmlValue', value);
     },
   },
 });

@@ -25,7 +25,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {String}
    */
-  xml: undefined,
+  xmlValue: undefined,
 
   /**
    * One of: visual, xml
