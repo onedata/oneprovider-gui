@@ -32,9 +32,10 @@ export default Component.extend(...mixins, {
   browserModel: undefined,
 
   /**
-   * @type {ComputedProperty<string>}
+   * @virtual
+   * @type {string}
    */
-  headFirstCellComponentName: reads('browserModel.headFirstCellComponentName'),
+  headFirstCellComponentName: undefined,
 
   /**
    * @type {ComputedProperty<Utils.ColumnsConfiguration>}
