@@ -11,6 +11,7 @@
  */
 
 import Component from '@ember/component';
+import { MetadataType } from 'oneprovider-gui/models/handle';
 import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
 import { reads, equal } from '@ember/object/computed';
@@ -199,6 +200,25 @@ export default Component.extend(...mixins, {
   })),
 
   handleState: reads('handleStateProxy.content'),
+
+  navTabsShareModeClassname: computed(
+    'tabIss',
+    function navTabsShareModeClassname() {
+      const classes = ['nav-tabs-share-mode'];
+      for (const tabId of this.tabIds) {
+        classes.push(`with-tab-${tabId}`);
+      }
+      return classes.join(' ');
+    }
+  ),
+
+  areEuLogosShown: computed('share.handle.content', function areEuLogosShown() {
+    const handle = this.get('share.handle.content');
+    if (!handle) {
+      return false;
+    }
+    return get(handle, 'metadataPrefix') === MetadataType.Edm;
+  }),
 
   shareObserver: observer('share', function shareObserver() {
     this.updateShareRootDeletedProxy();

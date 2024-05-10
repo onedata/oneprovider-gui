@@ -26,7 +26,11 @@ export const MetadataType = Object.freeze({
 
 export default Model.extend(GraphSingleModelMixin, {
   url: attr('string'),
-  metadataPrefix: attr('string'),
   metadataString: attr('string'),
   handleService: belongsTo('handle-service'),
+
+  /**
+   * @type {MetadataType}
+   */
+  metadataPrefix: attr('string'),
 }).reopenClass(StaticGraphModelMixin);
