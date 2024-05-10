@@ -47,12 +47,6 @@ export default Dc.extend(I18n, {
   onSubmit: undefined,
 
   /**
-   * @virtual optional
-   * @type {(metadataXml: string) => Promise}
-   */
-  onModify: undefined,
-
-  /**
    * @virtual
    * @type {() => void}
    */
@@ -63,6 +57,12 @@ export default Dc.extend(I18n, {
    * @type {Function}
    */
   onUpdateXml: notImplementedIgnore,
+
+  /**
+   * @virtual optional
+   * @type {(metadataXml: string) => Promise}
+   */
+  onModify: undefined,
 
   /**
    * @virtual optional
@@ -92,6 +92,9 @@ export default Dc.extend(I18n, {
     return this.isPublished ? 'edit' : 'create';
   }),
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
   isModifyButtonShown: computed(
     'editMode',
     function isModifyButtonShown() {
