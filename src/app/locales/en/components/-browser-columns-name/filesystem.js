@@ -1,6 +1,6 @@
 export default {
   name: {
-    files: 'Files',
+    firstColumnName: 'Files',
     size: 'Size',
     owner: 'Owner',
     modification: 'Modified',

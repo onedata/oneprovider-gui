@@ -258,12 +258,37 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @override
    */
+  headFirstCellComponentName: 'filesystem-browser/table-head-first-cell',
+
+  /**
+   * @override
+   */
+  headRowTranslation: 'components.filesystemBrowser.tableHeadRow',
+
+  /**
+   * @override
+   */
+  headRowClass: 'filesystem-table-head-row',
+
+  /**
+   * @override
+   */
+  firstColumnClass: 'fb-table-col-files',
+
+  /**
+   * @override
+   */
   emptyDirComponentName: 'filesystem-browser/empty-dir',
 
   /**
    * @override
    */
   dirLoadErrorComponentName: 'filesystem-browser/dir-load-error',
+
+  /**
+   * @override
+   */
+  isUsingUploadArea: true,
 
   /**
    * @override
