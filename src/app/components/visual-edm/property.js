@@ -110,12 +110,21 @@ export default Component.extend(I18n, {
     }
   ),
 
-  deleteButtonTip: computed('viewModel.isDeleteDisabled', function deleteButtonTip() {
-    return this.t(
-      this.viewModel.isDeleteDisabled ?
-      'cannotDeleteOnlyMandatory' : 'deletePropertyTip'
-    );
-  }),
+  /**
+   * @type {ComputedProperty<SafeString|undefined>}
+   */
+  deleteButtonTip: computed(
+    'viewModel.{isDeleteDisabled,isDeleteDisabledForMandatory}',
+    function deleteButtonTip() {
+      if (this.viewModel.isDeleteDisabled) {
+        if (this.viewModel.isDeleteDisabledForMandatory) {
+          return this.t('cannotDeleteOnlyMandatory');
+        }
+      } else {
+        return this.t('deletePropertyTip');
+      }
+    }
+  ),
 
   attrItems: computed(
     'viewModel.model.attrs',

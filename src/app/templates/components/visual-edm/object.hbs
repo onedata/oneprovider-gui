@@ -10,8 +10,11 @@
       {{/if}}
       {{#if isDeletable}}
         <div
-          class="edm-delete-btn edm-object-delete-btn"
-          onclick={{action "deleteObject"}}
+          class={{concat-classes
+            "edm-delete-btn edm-object-delete-btn"
+            (if viewModel.isDisabled "disabled")
+          }}
+          onclick={{unless viewModel.isDisabled (action "deleteObject")}}
         >
           <OneIcon class="edm-property-delete-icon" @icon="browser-delete">
             <OneTooltip @title={{deleteObjectTip}} />
@@ -59,6 +62,7 @@
         class="add-edm-property-btn"
         @type="default"
         @size="sm"
+        @disabled={{viewModel.isDisabled}}
         @onClick={{action "toggleAddPropertyOpen"}}
       >
         <OneIcon @icon="plus" />

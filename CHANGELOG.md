@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11970 Added support for modifying existing Open Data metadata
 * VFS-11912 Added visual editor for Open Data metadata in Europeana Data Model format (currently disabled)
 * VFS-11731 Fixed unexpected auto scroll of the file list after closing a modal
 * VFS-11536 Added atime and ctime info to columns in file browser and to file details

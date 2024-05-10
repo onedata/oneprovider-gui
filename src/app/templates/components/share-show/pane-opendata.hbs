@@ -5,15 +5,38 @@
         <ShareShow::Edm
           class="fill-flex-using-column"
           @xmlValue={{xml}}
-          @readonly={{true}}
+          @onModify={{action "modifyMetadata"}}
+          @isPublished={{true}}
+          @isReadOnly={{not isModifyingExistingMetadata}}
+          @isPublicView={{publicMode}}
+          @onChangeEditMode={{action "changeEditMode"}}
         />
       {{else}}
-        <ShareShow::DcPreview
-          class="fill-flex-using-column"
-          @xml={{xml}}
-          @handleUrl={{handle.url}}
-          @handleServiceName={{handle.handleService.name}}
-        />
+        {{#if (and (not publicMode) isModifyingExistingMetadata)}}
+          <ShareShow::DcEditor
+            @xmlValue={{xml}}
+            @handleService={{selectedHandleService}}
+            @isPublished={{true}}
+            @readonly={{false}}
+            @mode={{dcViewMode}}
+            @onModeChange={{action "changeDcViewMode"}}
+            @onUpdateXml={{action "updateXml"}}
+            @onModify={{action "modifyMetadata"}}
+            @onBack={{action "back"}}
+            @onChangeEditMode={{action "changeEditMode"}}
+          />
+        {{else}}
+          <ShareShow::DcPreview
+            class="fill-flex-using-column"
+            @xmlValue={{xml}}
+            @handleUrl={{handle.url}}
+            @handleServiceName={{handle.handleService.name}}
+            @isPublicView={{publicMode}}
+            @mode={{dcViewMode}}
+            @onModeChange={{action "changeDcViewMode"}}
+            @onChangeEditMode={{action "changeEditMode"}}
+          />
+        {{/if}}
       {{/if}}
     {{else}}
       <p class="no-metadata-info">
@@ -107,15 +130,21 @@
                   class="full-height"
                   @initialData={{initialData}}
                   @handleService={{selectedHandleService}}
+                  @isReadOnly={{false}}
+                  @isPublished={{false}}
+                  @isPublicView={{false}}
                   @onUpdateXml={{action "updateXml"}}
                   @onSubmit={{action "submit"}}
                   @onBack={{action "back"}}
                 />
               {{else if (eq selectedMetadataType MetadataType.Dc)}}
                 <ShareShow::DcEditor
-                  @xml={{xml}}
+                  @xmlValue={{xml}}
                   @initialData={{initialData}}
                   @handleService={{selectedHandleService}}
+                  @readonly={{false}}
+                  @isPublished={{false}}
+                  @isPublicView={{false}}
                   @onUpdateXml={{action "updateXml"}}
                   @onSubmit={{action "submit"}}
                   @onBack={{action "back"}}

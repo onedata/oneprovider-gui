@@ -2,13 +2,13 @@
  * Content for "opendata" tab for single share
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2023 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import { computed, get, observer } from '@ember/object';
+import { computed, get, set, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
@@ -17,6 +17,9 @@ import { conditional, raw, not, or, eq } from 'ember-awesome-macros';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { MetadataType } from 'oneprovider-gui/models/handle';
+/**
+ * @typedef {'show'|'edit'|'create'} MetadataEditorEditMode
+ */
 
 export default Component.extend(I18n, {
   classNames: ['share-show-pane-opendata', 'pane-opendata', 'row'],
@@ -24,6 +27,7 @@ export default Component.extend(I18n, {
   fileManager: service(),
   currentUser: service(),
   handleManager: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -42,6 +46,12 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * @virtual
+   * @type {boolean}
+   */
+  publicMode: false,
+
+  /**
    * Current XML content of Open Data metadata.
    * @type {String}
    */
@@ -56,6 +66,16 @@ export default Component.extend(I18n, {
    * @type {HandleModel.MetadataType}
    */
   selectedMetadataType: undefined,
+
+  /**
+   * @type {boolean}
+   */
+  isModifyingExistingMetadata: false,
+
+  /**
+   * @type {'visual'|'xml'}
+   */
+  dcViewMode: 'visual',
 
   /**
    * Imported for access in the template.
@@ -162,6 +182,24 @@ export default Component.extend(I18n, {
     });
   },
 
+  async modifyMetadata(metadataString) {
+    if (!this.handle) {
+      throw new Error(
+        'PaneOpendata: no handle object to modify (maybe not loaded yet)'
+      );
+    }
+    set(this.handle, 'metadataString', metadataString);
+    try {
+      await this.handle.save();
+      await this.handle.reload();
+    } catch (error) {
+      this.globalNotify.backendError(this.t('modifyingMetadata'), error);
+      throw error;
+    }
+    const newMetadataString = get(this.handle, 'metadataString');
+    this.set('xml', newMetadataString);
+  },
+
   actions: {
     async submit(xml) {
       if (!this.selectedMetadataType || !this.selectedHandleService) {
@@ -185,6 +223,15 @@ export default Component.extend(I18n, {
     },
     updateXml(xml) {
       this.set('xml', xml);
+    },
+    async modifyMetadata(metadataXml) {
+      await this.modifyMetadata(metadataXml);
+    },
+    changeEditMode(isEditing) {
+      this.set('isModifyingExistingMetadata', isEditing);
+    },
+    changeDcViewMode(mode) {
+      this.set('dcViewMode', mode);
     },
   },
 });

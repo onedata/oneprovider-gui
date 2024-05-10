@@ -5,6 +5,18 @@
       {{one-label-tip title=(tt this "common.metadataPublicHeaderTip.dc")}}
     </h1>
     {{share-show/open-data-mode-switch mode=mode onModeChange=(action changeMode)}}
+    {{#unless isPublicView}}
+      <div class="btn-tooltip-container">
+        <OneButton
+          class="modify-metadata-btn"
+          @size="sm"
+          @onClick={{action "startModify"}}
+        >
+          <OneIcon @icon="browser-rename" />
+          {{t "components.shareShow.modifyButton"}}
+        </OneButton>
+      </div>
+    {{/unless}}
   </div>
 </div>
 <div class="row-metadata-presenter">
@@ -29,7 +41,7 @@
           {{one-clipboard-line
             inputClass="open-data-xml-textarea"
             type="textarea"
-            value=xml
+            value=xmlValue
           }}
         {{/carousel.slide}}
       {{/one-carousel}}

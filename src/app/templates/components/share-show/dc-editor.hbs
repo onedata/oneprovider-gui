@@ -12,6 +12,19 @@
       {{/if}}
     </h1>
     {{share-show/open-data-mode-switch mode=mode onModeChange=(action changeMode)}}
+    {{#if isModifyButtonShown}}
+      <div class="btn-tooltip-container">
+        <OneButton
+          class="modify-metadata-btn"
+          @size="sm"
+          @disabled={{true}}
+        >
+          <OneIcon @icon="browser-rename" />
+          {{t "components.shareShow.modifyButton"}}
+        </OneButton>
+        <OneTooltip @title={{t "components.shareShow.modifyingButtonTip"}} />
+      </div>
+    {{/if}}
   </div>
 </div>
 
@@ -121,7 +134,7 @@
     {{#carousel.slide slideId="xml"}}
       <div class="form-group open-data-xml-form-group {{if parserError "has-error"}}">
         <textarea
-          value={{xml}}
+          value={{currentXmlValue}}
           oninput={{action "updateXml" value="target.value"}}
           placeholder={{tt this "editor.xmlTextareaPlaceholder"}}
           disabled={{formDisabled}}
@@ -140,11 +153,12 @@
   {{/one-carousel}}
 </div>
 
-{{share-show/metadata-editor-footer
-  class=(concat-classes colClassname "col-open-data-editor-additional")
-  handleService=handleService
-  isCancelDisabled=formDisabled
-  isSubmitDisabled=submitDisabled
-  onCancel=(action "back")
-  onSubmit=(action "submit")
-}}
+<ShareShow::MetadataEditorFooter
+  class={{concat-classes colClassname "col-open-data-editor-additional"}}
+  @handleService={{handleService}}
+  @isCancelDisabled={{formDisabled}}
+  @isSubmitDisabled={{submitDisabled}}
+  @editMode={{editMode}}
+  @onCancel={{action "back"}}
+  @onSubmit={{action "submit"}}
+/>
