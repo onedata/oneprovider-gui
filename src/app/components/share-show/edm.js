@@ -61,12 +61,6 @@ export default Component.extend(I18n, {
   isPublicView: false,
 
   /**
-   * @virtual optional
-   * @type {Models.HandleService}
-   */
-  handleService: undefined,
-
-  /**
    * @virtual
    * @type {(xml: string) => void}
    */
@@ -77,6 +71,12 @@ export default Component.extend(I18n, {
    * @type {(metadataXml: string) => Promise}
    */
   onSubmit: undefined,
+
+  /**
+   * @virtual
+   * @type {() => void}
+   */
+  onBack: undefined,
 
   /**
    * @virtual optional
@@ -91,10 +91,10 @@ export default Component.extend(I18n, {
   onChangeEditMode: undefined,
 
   /**
-   * @virtual
-   * @type {() => void}
+   * @virtual optional
+   * @type {Models.HandleService}
    */
-  onBack: undefined,
+  handleService: undefined,
 
   /**
    * Set to true if metadata is already published.
