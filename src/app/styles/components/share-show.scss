@@ -12,6 +12,18 @@ $share-show-metadata-header-height-empirical: 70px;
 $share-show-metadata-stacked-header-height-empirical: 100px;
 
 .share-show {
+  @mixin small-eu-logos {
+    .eu-logo {
+      height: 36px;
+    }
+    .logo-eureka3d {
+      width: 100px;
+    }
+    .logo-europeana {
+      width: 120px;
+    }
+  }
+
   // more compact files header, because of shares header
   .file-browser-head-container {
     padding-top: 0;
@@ -77,26 +89,26 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
   .logo-eureka3d {
     background-image: url($root-url + 'images/logo-eureka3d.svg');
     width: 140px;
-    @media (max-width: 630px) {
+    @media (max-width: 580px) {
       display: none;
     }
   }
   .logo-europeana {
     background-image: url($root-url + 'images/logo-europeana.svg');
     width: 160px;
-    @media (max-width: 400px) {
+    @media (max-width: 360px) {
       display: none;
     }
   }
   // description tab shrinks the space for logos
   .nav-tabs-share-mode.with-tab-description + .eu-logo-container {
     .logo-eureka3d {
-      @media (max-width: 780px) {
+      @media (max-width: 680px) {
         display: none;
       }
     }
     .logo-europeana {
-      @media (max-width: 600px) {
+      @media (max-width: 560px) {
         display: none;
       }
     }
@@ -189,6 +201,9 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
         padding-left: $share-show-content-padding-horizontal;
       }
     }
+    @media (max-width: $screen-sm-max) {
+      @include small-eu-logos;
+    }
   }
 
   &.share-show-private {
@@ -230,16 +245,15 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       // will not stretch horizontally, until it has no space provided by content-info
       min-height: calc(100vh - #{$share-show-content-header-height-private + 2 * $content-col-padding});
     }
-    .eu-logo {
-      height: 36px;
+    .eu-logo-container {
+      @media (max-width: $screen-sm-max) {
+        display: none;
+      }
     }
-    .logo-eureka3d {
-      width: 100px;
-    }
-    .logo-europeana {
-      width: 120px;
-    }
+    @include small-eu-logos;
   }
+
+
   .public-footer {
     height: $share-show-public-footer-height;
     line-height: $share-show-public-footer-height;
