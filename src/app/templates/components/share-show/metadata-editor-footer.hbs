@@ -1,0 +1,46 @@
+{{#if handleService}}
+  <p class="row-publish-info">
+    {{tt this "publishInfo"
+      handleServiceName=handleService.name
+      handleServiceId=handleService.entityId
+    }}
+  </p>
+{{/if}}
+<div class="row row-submit">
+  <div class="col-xs-12 col-centered col-submit-center btn-toolbar">
+    <div class="btn-tooltip-container">
+      {{#bs-button
+        class="btn-back"
+        type="warning"
+        disabled=isCancelDisabled
+        onClick=(action "cancel")
+      }}
+        <span class="text">
+          {{tt this (if (and (not isCreateMode) isEditorModified) "discard" "cancel")}}
+        </span>
+      {{/bs-button}}
+      {{#if cancelButtonTip}}
+        {{one-tooltip title=cancelButtonTip}}
+      {{/if}}
+    </div>
+    <div class="btn-tooltip-container">
+      {{#one-button
+        type="primary"
+        buttonType="submit"
+        onClick=(action "submit")
+        disabled=isSubmitDisabled
+        class="btn-submit"
+      }}
+        {{tt this (if isCreateMode "publish" "save")}}
+        {{#if isCreateMode}}
+          <span class="hidden-custom-xs">
+            {{tt this "asOpenData"}}
+          </span>
+        {{/if}}
+      {{/one-button}}
+      {{#if submitButtonTip}}
+        {{one-tooltip title=submitButtonTip}}
+      {{/if}}
+    </div>
+  </div>
+</div>

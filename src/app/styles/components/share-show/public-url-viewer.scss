@@ -2,14 +2,47 @@
   .input-group-addon-text.truncate {
     max-width: 18em;
   }
-  .compact-url-type-selector-arrow.inline-icon-container {
+  .compact-url-type-selector-container {
+    display: flex;
+    align-items: center;
+  }
+  .compact-url-type-selector-icon {
+    font-size: 180%;
+  }
+  .compact-url-type-selector-arrow {
     margin-left: -0.2em;
     width: 1.4em;
-    .oneicon {
-      font-size: 120%;
-    }
+    font-size: 120%;
   }
   .clipboard-line-public-url {
     flex-grow: 1;
   }
+  .url-type-info-icon {
+    font-size: 180%;
+  }
+  .url-type-info-container {
+    display: flex;
+    align-items: center;
+    .url-type-info-icon + .input-handle-service-name {
+      margin-left: 0.5em;
+    }
+  }
+  .input-handle-service-name {
+    max-width: 200px;
+  }
+  .input-group-addon.url-type-info-trigger {
+    &.input-group-addon-text {
+      .url-type-info-icon {
+        margin-left: -0.3em;
+        margin-right: -0.1em;
+      }
+    }
+    &.input-group-addon-icon {
+      .url-type-info-icon {
+        margin-left: 0.1em;
+        margin-right: 0.15em;
+      }
+    }
+  }
+
 }

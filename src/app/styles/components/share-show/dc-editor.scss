@@ -1,0 +1,77 @@
+.share-show-dc-editor {
+  .one-carousel-slide[data-one-carousel-slide-id=xml] {
+    padding-right: $open-data-remove-col-width;
+  }
+
+  .col-open-data-editor-additional {
+    padding-right: $open-data-remove-col-width;
+  }
+
+  .row-metadata-form.no-entries + .row-metadata-group-add {
+    margin-top: 20px;
+  }
+
+  .metadata-group {
+    margin-top: 1em;
+    .metadata-group-header {
+      display: flex;
+      align-items: baseline;
+      padding-right: $open-data-remove-col-width;
+      .metadata-group-name {
+        flex-grow: 1;
+      }
+    }
+    .metadata-value {
+      background-color: $color-one-light-blue;
+      padding: 18px;
+    }
+    .metadata-value + .metadata-value {
+      margin-top: 15px
+    }
+    .entry-value-group + .entry-value-group {
+      margin-top: 0.9em
+    }
+    .entry-value-group {
+      display: flex;
+      align-items: center;
+      .remove-icon {
+        flex: 0 0 $open-data-remove-col-width;
+        text-align: right;
+      }
+      textarea.form-control {
+        resize: vertical;
+        + .remove-icon {
+          align-self: flex-start;
+          padding-top: 0.4em;
+        }
+      }
+    }
+    .group-add-entry {
+      flex-shrink: 1;
+      overflow: hidden;
+      margin-left: $padding-small-horizontal;
+      .btn {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+  .row-metadata-group-add {
+    padding-right: $open-data-remove-col-width;
+  }
+  .row-metadata-group-add {
+    margin-top: 3em;
+  }
+  .open-data-xml-form-group {
+    margin-bottom: 0;
+    &:not(.has-error) {
+      .form-message {
+        color: transparent;
+      }
+    }
+  }
+  .metadata-editor-footer {
+    margin-top: 3em;
+  }
+}

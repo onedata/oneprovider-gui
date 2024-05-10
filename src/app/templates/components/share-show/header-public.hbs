@@ -1,6 +1,9 @@
 <div class="share-head">
   <div class="share-logo hidden-custom-xs">
     {{one-icon icon="globe-filled"}}
+    {{#if share.hasHandle}}
+      <div class="open-data-logo-badge">{{tt this "openData"}}</div>
+    {{/if}}
   </div>
   <div class="share-name-section">
     {{#truncated-string class="share-name"}}

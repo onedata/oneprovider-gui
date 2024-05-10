@@ -1,0 +1,164 @@
+<div class="metadata-header-section">
+  <div
+    class={{concat-classes
+      colClassname
+      "col-open-data-editor-additional metadata-header-section-content"
+    }}
+  >
+    <h1 class="section-name">
+      {{tt this (if (media "isMobile") "common.metadataMobile" "common.metadata")}}
+      {{#if (media "isMobile")}}
+        {{one-label-tip title=(tt this "common.metadataPublicHeaderTip.dc")}}
+      {{/if}}
+    </h1>
+    {{share-show/open-data-mode-switch mode=mode onModeChange=(action changeMode)}}
+    {{#if isModifyButtonShown}}
+      <div class="btn-tooltip-container">
+        <OneButton
+          class="modify-metadata-btn"
+          @size="sm"
+          @disabled={{true}}
+        >
+          <OneIcon @icon="browser-rename" />
+          {{t "components.shareShow.modifyButton"}}
+        </OneButton>
+        <OneTooltip @title={{t "components.shareShow.modifyingButtonTip"}} />
+      </div>
+    {{/if}}
+  </div>
+</div>
+
+{{#unless (media "isMobile")}}
+  <div class={{concat-classes colClassname "col-open-data-editor-additional"}}>
+    <p class="metadata-text">
+      {{tt this "common.metadataEditorIntro"}}
+    </p>
+    <p class="metadata-text">
+      {{tt this "common.metadataEditorIntroExtra.dc"}}
+      {{one-label-tip title=(tt this "editor.metadataTextMore")}}
+    </p>
+  </div>
+{{/unless}}
+
+<div class={{concat-classes colClassname "col-open-data-editor-main"}}>
+  {{#one-carousel animated=false activeSlideId=mode as |carousel|}}
+    {{#carousel.slide slideId="visual"}}
+      <div class="row row-metadata-form {{if (eq groupedEntries.length 0) "no-entries"}}">
+        {{#each groupedEntries as |group|}}
+          <div class="metadata-group">
+            <div class="metadata-group-header">
+              <h2 class="metadata-group-name">
+                {{tt this (concat "common.dcElementNames." group.type)}}
+              </h2>
+              <div class="group-add-entry">
+                {{#bs-button
+                  type="default"
+                  class="btn-sm btn-add-entry"
+                  disabled=formDisabled
+                  onClick=(action "addEntry" group.type)
+                }}
+                  {{one-icon class="add-icon" icon="add-filled"}}
+                  <span class="text">
+                    {{tt this "editor.add"}}
+                    {{lowercase (tt this (concat "common.dcElementNames." group.type))}}
+                  </span>
+                {{/bs-button}}
+              </div>
+            </div>
+            {{#each group.values as |value index|}}
+              <div class="entry-value-group">
+                {{#if (eq group.type "description")}}
+                  <textarea
+                    class="form-control"
+                    data-dc-element-type={{group.type}}
+                    rows="4"
+                    value={{value}}
+                    placeholder={{tt
+                      this
+                      "editor.inputPlaceholder"
+                      type=(lowercase
+                        (tt this (concat "common.dcElementNames." group.type))
+                      )
+                    }}
+                    disabled={{formDisabled}}
+                    oninput={{action "setValue" group.type index}}
+                  ></textarea>
+                {{else}}
+                  <input
+                    class="form-control"
+                    type="text"
+                    data-dc-element-type={{group.type}}
+                    value={{value}}
+                    disabled={{formDisabled}}
+                    placeholder={{tt
+                      this
+                      "editor.inputPlaceholder"
+                      type=(lowercase
+                        (tt this (concat "common.dcElementNames." group.type))
+                      )
+                    }}
+                    oninput={{action "setValue" group.type index}}
+                  >
+                {{/if}}
+                {{remove-icon
+                  isDisabled=formDisabled
+                  onClick=(action "removeEntry" group.type index)
+                }}
+              </div>
+            {{/each}}
+          </div>
+        {{/each}}
+      </div>
+      <div class="row-metadata-group-add">
+        <h2>{{tt this "editor.moreElements"}}</h2>
+        <OneDropdown
+          @triggerClass="add-metadata-group"
+          @dropdownClass="add-metadata-group-dropdown"
+          @options={{metadataGroupAddListSorted}}
+          @disabled={{formDisabled}}
+          @onChange={{action "addMetadataGroup"}}
+          @placeholder={{tt this "editor.addMetadataGroup"}}
+          @searchEnabled={{true}}
+          as |groupType|
+        >
+          <div class="option-container" data-group-type={{groupType}}>
+            {{#truncated-string}}
+              <span class="text">
+                {{tt this (concat "common.dcElementNames." groupType)}}
+              </span>
+            {{/truncated-string}}
+          </div>
+        </OneDropdown>
+      </div>
+    {{/carousel.slide}}
+    {{#carousel.slide slideId="xml"}}
+      <div class="form-group open-data-xml-form-group {{if parserError "has-error"}}">
+        <textarea
+          value={{currentXmlValue}}
+          oninput={{action "updateXml" value="target.value"}}
+          placeholder={{tt this "editor.xmlTextareaPlaceholder"}}
+          disabled={{formDisabled}}
+          class="no-resize code-textarea open-data-xml-textarea form-control"
+        ></textarea>
+        <div class="form-message text-right">
+          {{#if parserError}}
+            {{tt this "editor.xmlParserError"}}
+          {{else}}
+            {{!-- just hold space for error text --}}
+            &nbsp;
+          {{/if}}
+        </div>
+      </div>
+    {{/carousel.slide}}
+  {{/one-carousel}}
+</div>
+
+<ShareShow::MetadataEditorFooter
+  class={{concat-classes colClassname "col-open-data-editor-additional"}}
+  @handleService={{handleService}}
+  @isCancelDisabled={{formDisabled}}
+  @isSubmitDisabled={{submitDisabled}}
+  @editMode={{editMode}}
+  @onCancel={{action "back"}}
+  @onSubmit={{action "submit"}}
+/>

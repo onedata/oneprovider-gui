@@ -46,6 +46,9 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     // overflow cannot be hidden, because of sticky elements inside
     overflow: visible;
   }
+  .metadata-type-text {
+    margin-top: 1.6em;
+  }
 
   @media (max-width: $share-show-tabs-stack-width) {
     .bs-tab-onedata.tab-share-show-mode .nav-tabs.nav > li > a {
@@ -69,7 +72,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     // There is also a 2px embedded iframe bug caused by perfect-scroll usage
     margin-bottom: -$content-col-padding + 2px;
 
-    .open-data-preview {
+    .share-show-dc-preview {
       // restore bottom padding, which was removed in share-show-public for footer
       padding-bottom: $content-col-padding;
       .metadata-header-section {
@@ -138,7 +141,6 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
 
   &.share-show-private {
     padding-top: $share-show-content-header-height-private;
-    padding-bottom: $content-col-padding;
 
     .share-header-container {
       height: $share-show-content-header-height-private;
@@ -156,7 +158,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
         top: $share-show-content-header-height-private;
       }
     }
-    .open-data-preview {
+    .share-show-dc-preview {
       textarea.open-data-xml-textarea {
         // the non-variable value is typical height of metadata-header-section,
         // because its height is dynamic
@@ -182,13 +184,75 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     line-height: $share-show-public-footer-height;
     margin-left: -$content-col-padding;
     margin-right: -$content-col-padding;
+    margin-top: $content-col-padding;
+  }
+
+  // Open Data logo commonly used by metadata presenters
+  .col-open-data-logo {
+    .open-data-logo {
+      $open-data-logo-size: 200px;
+      position: sticky;
+      top: calc(50% + #{$share-show-content-padding-horizontal});
+      height: $open-data-logo-size;
+      width: 100%;
+      background-image: url($root-url + 'images/open-data.svg');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: contain;
+      transition: all 0.2s ease;
+      @media (max-height: #{$share-show-content-header-height-public + $share-show-public-footer-height + $open-data-logo-size}) {
+        display: none;
+      }
+    }
+  }
+  .metadata-header-section-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5em;
+    align-items: center;
+    padding-top: 20px;
+    margin-bottom: 20px;
+    // make all buttons same height as we use btn-group
+    .btn-sm {
+      height: 30px;
+    }
+    .modify-metadata-btn.btn {
+      .oneicon {
+        font-size: 1.5em;
+        top: 0.2em;
+        margin-right: 0;
+      }
+    }
+    > * {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.open-data-metadata-editor {
+  padding-bottom: $content-col-padding;
+  &.form-group {
+    margin-bottom: 0;
+  }
+  h1 {
+    @include font-semibold;
+    font-size: 1.6em;
+  }
+  h2 {
+    @include font-semibold;
+    font-size: 1.3em;
+    margin-bottom: 1em;
   }
 }
 
 @import './share-show/header-management';
 @import './share-show/header-public';
 @import './share-show/public-url-viewer';
-@import './share-show/open-data';
-@import './share-show/open-data-editor';
-@import './share-show/open-data-preview';
+@import './share-show/dc';
+@import './share-show/dc-editor';
+@import './share-show/dc-preview';
 @import './share-show/markdown-editor';
+@import './share-show/edm';
+@import './share-show/metadata-editor-footer';
+@import './share-show/pane-opendata';

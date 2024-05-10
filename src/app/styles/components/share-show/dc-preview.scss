@@ -1,0 +1,17 @@
+.share-show-dc-preview {
+  .open-data-value {
+    background-color: $color-one-light-blue;
+    padding: $padding-large-vertical;
+  }
+  .metadata-group {
+    margin-top: 1.1 * $padding-large-horizontal;
+  }
+  .metadata-value + .metadata-value {
+    margin-top: $padding-base-horizontal;
+  }
+  .row-metadata-presenter {
+    display: flex;
+    flex-grow: 1;
+    margin-bottom: 3em;
+  }
+}

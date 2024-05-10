@@ -1,0 +1,58 @@
+<div class="metadata-header-section">
+  <div class="metadata-header-section-content">
+    <h1 class="section-name">
+      {{tt this (if (media "isMobile") "common.metadataMobile" "common.metadata")}}
+      {{one-label-tip title=(tt this "common.metadataPublicHeaderTip.dc")}}
+    </h1>
+    {{share-show/open-data-mode-switch mode=mode onModeChange=(action changeMode)}}
+    {{#unless isPublicView}}
+      <div class="btn-tooltip-container">
+        <OneButton
+          class="modify-metadata-btn"
+          @size="sm"
+          @onClick={{action "startModify"}}
+        >
+          <OneIcon @icon="browser-rename" />
+          {{t "components.shareShow.modifyButton"}}
+        </OneButton>
+      </div>
+    {{/unless}}
+  </div>
+</div>
+<div class="row-metadata-presenter">
+  {{#if groupedEntries.length}}
+    <div class="col-xs-12 col-md-8 col-lg-7">
+      {{#one-carousel animated=false activeSlideId=mode as |carousel|}}
+        {{#carousel.slide slideId="visual"}}
+          {{#each groupedEntries as |group|}}
+            <div class="metadata-group">
+              <h2 class="metadata-group-name">
+                {{tt this (concat "common.dcElementNames." group.type)}}
+              </h2>
+              {{#each group.values as |value|}}
+                <div class="metadata-value open-data-value">
+                  {{value}}
+                </div>
+              {{/each}}
+            </div>
+          {{/each}}
+        {{/carousel.slide}}
+        {{#carousel.slide slideId="xml"}}
+          {{one-clipboard-line
+            inputClass="open-data-xml-textarea"
+            type="textarea"
+            value=xmlValue
+          }}
+        {{/carousel.slide}}
+      {{/one-carousel}}
+    </div>
+    <div class="hidden-xs hidden-sm col-md-4 col-lg-5 col-open-data-logo">
+      <div class="open-data-logo">
+      </div>
+    </div>
+  {{else}}
+    <p class="no-dublin-core">
+      {{tt this "preview.noMetadata"}}
+    </p>
+  {{/if}}
+</div>
