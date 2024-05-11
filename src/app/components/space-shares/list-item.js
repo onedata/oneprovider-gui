@@ -19,6 +19,8 @@ import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden'
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { bool } from '@ember/object/computed';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const mixins = [
   I18n,
@@ -39,6 +41,12 @@ export default Component.extend(...mixins, {
    * @type {Function}
    */
   getShareUrl: undefined,
+
+  /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
 
   /**
    * @virtual
@@ -63,6 +71,11 @@ export default Component.extend(...mixins, {
    * @type {Function}
    */
   startRenameShare: notImplementedThrow,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasManageSharesPrivilege: bool('space.privileges.manageShares'),
 
   /**
    * @override
@@ -114,10 +127,19 @@ export default Component.extend(...mixins, {
     return guidFor(this);
   }),
 
-  btnRemove: computed(function btnRemove() {
+  btnRemove: computed('hasManageSharesPrivilege', function btnRemove() {
+    const disabledTip = this.hasManageSharesPrivilege ?
+      null :
+      insufficientPrivilegesMessage({
+        i18n: this.i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_manage_shares',
+      });
     return {
       title: this.t('removeShare'),
       icon: 'x',
+      disabled: Boolean(disabledTip),
+      tip: disabledTip,
       action: () => {
         const {
           startRemoveShare,
@@ -129,10 +151,19 @@ export default Component.extend(...mixins, {
     };
   }),
 
-  btnRename: computed(function btnRename() {
+  btnRename: computed('hasManageSharesPrivilege', function btnRename() {
+    const disabledTip = this.hasManageSharesPrivilege ?
+      null :
+      insufficientPrivilegesMessage({
+        i18n: this.i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_manage_shares',
+      });
     return {
       title: this.t('rename'),
       icon: 'browser-rename',
+      disabled: Boolean(disabledTip),
+      tip: disabledTip,
       action: () => {
         const {
           startRenameShare,
