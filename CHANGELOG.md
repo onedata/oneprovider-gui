@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11080 Fixed disappearing of the share from the list after delete failure; blocking actions without permissions
 * VFS-11479 Refactored table head row components
 * VFS-11970 Added support for modifying existing Open Data metadata
 * VFS-11912 Added visual editor for Open Data metadata in Europeana Data Model format (currently disabled)

@@ -77,7 +77,6 @@ export default ProceedProcessModal.extend({
         })
         .catch(error => {
           globalNotify.backendError(this.t('deletingShare'), error);
-          share.rollbackAttributes();
           this.close();
         });
     };
