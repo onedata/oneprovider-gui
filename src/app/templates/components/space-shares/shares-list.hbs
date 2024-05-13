@@ -3,6 +3,7 @@
     <div class="one-collapsible-list">
       {{#each sharesProxy.content as |share|}}
         {{space-shares/list-item
+          space=space
           share=share
           pointsToDeletedFile=(contains share sharesWithDeletedFiles)
           getShareUrl=(action "getShareUrl")

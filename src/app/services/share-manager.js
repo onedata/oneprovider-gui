@@ -34,8 +34,18 @@ export default Service.extend({
       .save();
   },
 
-  removeShare(share) {
-    return share.destroyRecord();
+  async removeShare(share) {
+    try {
+      return await share.destroyRecord();
+    } catch (error) {
+      try {
+        share.rollbackAttributes();
+        await share.reload();
+      } catch {
+        // ignore reload errors
+      }
+      throw error;
+    }
   },
 
   renameShare(share, name) {
