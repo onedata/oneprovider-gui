@@ -45,6 +45,8 @@ const ObjectViewModel = EmberObject.extend({
 
   edmObjectType: reads('model.edmObjectType'),
 
+  isDisabled: reads('visualEdmViewModel.isDisabled'),
+
   /**
    * @override
    */
@@ -91,18 +93,25 @@ const ObjectViewModel = EmberObject.extend({
   },
 
   addProperty(item) {
+    if (this.isDisabled) {
+      return;
+    }
     const factory = new EdmPropertyFactory(this.visualEdmViewModel.edmMetadata);
     const newEdmProperty = factory.createProperty(
       item.namespace,
       item.name
     );
     this.model.addProperty(newEdmProperty);
+    this.visualEdmViewModel.markAsModified();
     this.updateView();
     const pvm = this.findPropertyViewModel(newEdmProperty);
     pvm.animateAttention();
   },
 
   deleteObject() {
+    if (this.isDisabled) {
+      return;
+    }
     this.visualEdmViewModel.deleteObject(this.model);
   },
 

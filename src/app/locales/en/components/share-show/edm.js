@@ -24,6 +24,7 @@ export default {
     xmlNotValid: 'XML is not valid',
     validatingSync: 'XML validation is pending',
     xmlNotAccepted: 'You must first apply or discard changes to the XML source',
+    noChanges: 'There are no changes in the metadata',
   },
   imageNotFound,
   xmlInvalid: 'XML data is invalid',

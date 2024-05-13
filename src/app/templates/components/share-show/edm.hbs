@@ -2,7 +2,7 @@
   <div class="metadata-header-section-content">
     <h1 class="section-name main-header">
       {{tt this (if (media "isMobile") "headerMobile" "header")}}
-      {{#if (or readonly (media "isMobile"))}}
+      {{#if (or isReadOnly (media "isMobile"))}}
         <OneLabelTip @title={{tt this "readonlyHeaderTip"}} />
       {{/if}}
     </h1>
@@ -11,13 +11,29 @@
       @isVisualModeDisabled={{isVisualModeDisabled}}
       @visualModeTip={{if
         isVisualModeDisabled
-        (tt this (if readonly "xmlInvalid" "submitDisabledReason.xmlNotAccepted"))
+        (tt this (if isReadOnly "xmlInvalid" "submitDisabledReason.xmlNotAccepted"))
       }}
       @onModeChange={{action "changeMode"}}
     />
+    {{#if isModifyButtonShown}}
+      <div class="btn-tooltip-container">
+        <OneButton
+          class="modify-metadata-btn"
+          @onClick={{action "startModify"}}
+          @size="sm"
+          @disabled={{isModifyingExistingMetadata}}
+        >
+          <OneIcon @icon="browser-rename" />
+          {{t "components.shareShow.modifyButton"}}
+        </OneButton>
+        {{#if isModifyingExistingMetadata}}
+          <OneTooltip @title={{t "components.shareShow.modifyingButtonTip"}} />
+        {{/if}}
+      </div>
+    {{/if}}
   </div>
 
-  {{#unless (or readonly (media "isMobile"))}}
+  {{#unless (or isReadOnly (media "isMobile"))}}
     <p class="metadata-text">
       {{tt this "metadataEditorIntro"}}
     </p>
@@ -43,18 +59,18 @@
       @worker="ace/mode/xml_worker"
       @mode="ace/mode/xml"
       @theme="ace/theme/textmate"
-      @tabSize=2
+      @tabSize={{tabSize}}
       @useWrapMode={{true}}
       @highlightActiveLine={{true}}
       @showLineNumbers={{true}}
       @showPrintMargin={{false}}
-      @readOnly={{readonly}}
+      @readOnly={{or isReadOnly isEffDisabled}}
       @ready={{action "aceEditorReady"}}
       @update={{action "sourceChanged"}}
     />
   {{/if}}
 
-  {{#unless readonly}}
+  {{#unless isReadOnly}}
     {{#if (eq mode "xml")}}
       <div class="xml-source-validation-row">
         {{#if (eq modelXmlSyncState "waiting")}}
@@ -124,6 +140,8 @@
       @submitButtonTip={{submitDisabledReason}}
       @cancelButtonTip={{cancelDisabledReason}}
       @handleService={{handleService}}
+      @mode={{editMode}}
+      @isEditorModified={{visualEdmViewModel.isModified}}
       @onCancel={{action "back"}}
       @onSubmit={{action "submit"}}
     />

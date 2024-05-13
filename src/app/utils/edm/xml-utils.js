@@ -14,6 +14,11 @@ import { EdmObjectTagName } from './object-type';
 const supportedObjectTagSet = Object.freeze(new Set(Object.values(EdmObjectTagName)));
 
 /**
+ * @typedef {Object} EdmXmlStringifyOptions
+ * @param {number} tabSize
+ */
+
+/**
  * @param {Node} xmlNode
  * @returns {boolean}
  */
@@ -47,19 +52,21 @@ export function isEmptyXmlNode(xmlNode) {
 
 /**
  * @param {XMLDocument} xmlDocument
+ * @param {EdmXmlStringifyOptions} [options]
  * @returns {string}
  */
-export function stringifyXmlDocument(xmlDocument) {
+export function stringifyXmlDocument(xmlDocument, { tabSize } = {}) {
   const xmlSerializer = new XMLSerializer();
+  const tabSpaces = ' '.repeat(tabSize ?? 4);
   let str = xmlFormat(xmlSerializer.serializeToString(xmlDocument), {
-    indentation: '  ',
+    indentation: tabSpaces,
     collapseContent: true,
     lineSeparator: '\n',
   });
   try {
     str = str.replace(/(<\?xml version="1.0" encoding="UTF-8"\?>)/, '$1\n');
     const namespaces = str.match(/<rdf:RDF\s*(.*?)\s*>\s*(\n|$)/)[1]
-      .replaceAll(/(xmlns:)\s*/g, '\n  $1');
+      .replaceAll(/(xmlns:)\s*/g, `\n${tabSpaces}$1`);
     str = str.replace(/<rdf:RDF\s*.*?\s*>/, `<rdf:RDF ${namespaces}>`);
   } catch {
     console.error('Failed to properly format EDM metadata XML');

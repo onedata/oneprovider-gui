@@ -8,16 +8,18 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import { and, raw, or, bool, conditional, eq, notEqual, array } from 'ember-awesome-macros';
+import { and, raw, or, conditional, eq, notEqual, array } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
-import { set, setProperties, computed } from '@ember/object';
-import { not, reads, equal } from '@ember/object/computed';
+import { set, setProperties, computed, observer } from '@ember/object';
+import { not, reads, or as emberOr } from '@ember/object/computed';
 import { cancel, debounce } from '@ember/runloop';
 import { dasherize } from '@ember/string';
 import { inject as service } from '@ember/service';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 
 const defaultMode = 'visual';
 
@@ -32,7 +34,7 @@ export default Component.extend(I18n, {
   classNames: ['share-show-edm', 'open-data-metadata-editor', 'form-group'],
   classNameBindings: [
     'isValid::invalid-metadata',
-    'readonly:readonly',
+    'isReadOnly:readonly',
     'syncStateClass',
     'modeClass',
   ],
@@ -54,9 +56,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.HandleService}
+   * @type {boolean}
    */
-  handleService: undefined,
+  isPublicView: false,
 
   /**
    * @virtual
@@ -66,7 +68,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {() => Promise}
+   * @type {(metadataXml: string) => Promise}
    */
   onSubmit: undefined,
 
@@ -75,6 +77,37 @@ export default Component.extend(I18n, {
    * @type {() => void}
    */
   onBack: undefined,
+
+  /**
+   * @virtual optional
+   * @type {(metadataXml: string) => Promise}
+   */
+  onModify: undefined,
+
+  /**
+   * @virtual optional
+   * @type {(isEditMode: boolean) => void}
+   */
+  onChangeEditMode: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Models.HandleService}
+   */
+  handleService: undefined,
+
+  /**
+   * Set to true if metadata is already published.
+   * @virtual optional
+   * @type {boolean}
+   */
+  isPublished: false,
+
+  /**
+   * @virtual optional
+   * @type {boolean}
+   */
+  isDisabled: false,
 
   //#endregion
 
@@ -101,6 +134,11 @@ export default Component.extend(I18n, {
    */
   pendingValidationTimer: undefined,
 
+  /**
+   * @type {boolean}
+   */
+  isSaving: false,
+
   //#endregion
 
   //#region configuration
@@ -109,15 +147,19 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {boolean}
    */
-  readonly: false,
+  isReadOnly: false,
+
+  /**
+   * Number of spaces in XML indent.
+   * @type {number}
+   */
+  tabSize: 4,
 
   //#endregion
 
   //#region state
 
   aceEditor: undefined,
-
-  isValid: reads('validator.isValid'),
 
   isXmlValueInvalid: false,
 
@@ -139,6 +181,16 @@ export default Component.extend(I18n, {
 
   //#endregion
 
+  isValid: reads('validator.isValid'),
+
+  isModifyButtonShown: computed(
+    'isPublicView',
+    'editMode',
+    function isModifyButtonShown() {
+      return !this.isPublicView && (this.editMode === 'show' || this.editMode === 'edit');
+    }
+  ),
+
   /**
    * @type {EdmMetadataValidator|null}
    */
@@ -158,11 +210,19 @@ export default Component.extend(I18n, {
     }
   ),
 
+  isModifyingExistingMetadata: computed(
+    'isPublished',
+    'isReadOnly',
+    function isModifyingExistingMetadata() {
+      return this.isPublished && !this.isReadOnly;
+    }
+  ),
+
   isEmpty: not('currentXmlValue'),
 
-  isSubmitDisabled: bool('submitDisabledReason'),
+  isSubmitDisabled: emberOr('isEffDisabled', 'submitDisabledReason'),
 
-  isCancelDisabled: bool('cancelDisabledReason'),
+  isCancelDisabled: emberOr('isEffDisabled', 'cancelDisabledReason'),
 
   isXmlNotParseable: eq('modelXmlSyncState', raw(EdmModelXmlSyncState.NotParseable)),
 
@@ -176,6 +236,7 @@ export default Component.extend(I18n, {
   ),
 
   isApplyXmlButtonDisabled: or(
+    'isEffDisabled',
     'isXmlNotParseable',
     eq('modelXmlSyncState', raw(EdmModelXmlSyncState.Waiting)),
   ),
@@ -194,14 +255,21 @@ export default Component.extend(I18n, {
     }
   }),
 
-  isDiscardXmlButtonDisabled: equal('modelXmlSyncState', EdmModelXmlSyncState.Waiting),
+  isDiscardXmlButtonDisabled: computed(
+    'modelXmlSyncState',
+    'isEffDisabled',
+    function isDiscardXmlButtonDisabled() {
+      return this.isEffDisabled ||
+        this.modelXmlSyncState === EdmModelXmlSyncState.Waiting;
+    }
+  ),
 
   /**
    * Classname added to columns to center the form content, as it is too wide
    * @type {String}
    */
   colClassname: conditional(
-    'readonly',
+    'isReadOnly',
     raw('col-xs-12 col-md-8 col-lg-7'),
     raw('col-xs-12 col-md-8 col-centered'),
   ),
@@ -214,24 +282,30 @@ export default Component.extend(I18n, {
     return `edm-mode-${this.mode}`;
   }),
 
-  submitDisabledReason: or(
-    and(
-      eq('modelXmlSyncState', raw(EdmModelXmlSyncState.Waiting)),
-      computedT('submitDisabledReason.validatingSync')
-    ),
-    and(
-      'isXmlNotParseable',
-      computedT('submitDisabledReason.xmlNotValid')
-    ),
-    and(
-      notEqual('modelXmlSyncState', raw(EdmModelXmlSyncState.Synced)),
-      computedT('submitDisabledReason.xmlNotAccepted')
-    ),
-    and(
-      not('isValid'),
-      computedT('submitDisabledReason.invalid')
-    ),
-    raw(null),
+  submitDisabledReason: computed(
+    'modelXmlSyncState',
+    'isXmlNotParseable',
+    'isValid',
+    'editMode',
+    'visualEdmViewModel.isModified',
+    function submitDisabledReason() {
+      if (this.modelXmlSyncState === EdmModelXmlSyncState.Waiting) {
+        return this.t('submitDisabledReason.validatingSync');
+      }
+      if (this.isXmlNotParseable) {
+        return this.t('submitDisabledReason.xmlNotValid');
+      }
+      if (this.modelXmlSyncState !== EdmModelXmlSyncState.Synced) {
+        return this.t('submitDisabledReason.xmlNotAccepted');
+      }
+      if (!this.isValid) {
+        return this.t('submitDisabledReason.invalid');
+      }
+      if (this.editMode === 'edit' && !this.visualEdmViewModel.isModified) {
+        return this.t('submitDisabledReason.noChanges');
+      }
+      return null;
+    }
   ),
 
   cancelDisabledReason: computed('modelXmlSyncState', function cancelDisabledReason() {
@@ -245,38 +319,33 @@ export default Component.extend(I18n, {
   imageUrl: reads('visualEdmViewModel.representativeImageReference'),
 
   isRepresentativeImageInParent: computed(
-    'readonly',
+    'isReadOnly',
     'media.{isMobile,isTablet}',
     function isRepresentativeImageShown() {
-      return this.readonly && !this.media.isMobile && !this.media.isTablet;
+      return this.isReadOnly && !this.media.isMobile && !this.media.isTablet;
     }
   ),
 
+  /**
+   * @type {MetadataEditorEditMode}
+   */
+  editMode: computed('isReadOnly', 'isPublished', function editMode() {
+    if (this.isReadOnly) {
+      return 'show';
+    }
+    return this.isPublished ? 'edit' : 'create';
+  }),
+
+  isEffDisabled: emberOr('isDisabled', 'isSaving'),
+
+  xmlObserver: observer('xmlValue', function xmlObserver() {
+    this.initMetadataModel();
+    this.replaceCurrentXmlValueUsingModel();
+  }),
+
   init() {
     this._super(...arguments);
-    const metadataFactory = EdmMetadataFactory;
-    let edmMetadata;
-    if (this.xmlValue) {
-      try {
-        edmMetadata = metadataFactory.fromXml(this.xmlValue);
-      } catch (error) {
-        if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
-          throw error;
-        }
-        this.setIsXmlValueInvalid(true);
-      }
-    } else {
-      edmMetadata = this.readonly ?
-        metadataFactory.createEmptyMetadata() : metadataFactory.createInitialMetadata();
-    }
-    if (!this.isXmlValueInvalid) {
-      const validator = EdmMetadataValidator.create({ edmMetadata });
-      this.initVisualEdmViewModel({
-        validator,
-        edmMetadata,
-      });
-    }
-
+    this.initMetadataModel();
     this.set('notAcceptedSourceValidator', EdmMetadataValidator.create());
   },
 
@@ -290,10 +359,36 @@ export default Component.extend(I18n, {
     this.notAcceptedSourceValidator?.destroy();
   },
 
+  initMetadataModel() {
+    const metadataFactory = EdmMetadataFactory;
+    let edmMetadata;
+    if (this.xmlValue) {
+      try {
+        edmMetadata = metadataFactory.fromXml(this.xmlValue);
+      } catch (error) {
+        if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
+          throw error;
+        }
+        this.setIsXmlValueInvalid(true);
+      }
+    } else {
+      edmMetadata = this.isReadOnly ?
+        metadataFactory.createEmptyMetadata() : metadataFactory.createInitialMetadata();
+    }
+    if (!this.isXmlValueInvalid) {
+      const validator = EdmMetadataValidator.create({ edmMetadata });
+      this.initVisualEdmViewModel({
+        validator,
+        edmMetadata,
+      });
+    }
+  },
+
   initVisualEdmViewModel({ edmMetadata, validator }) {
     const visualEdmViewModel = VisualEdmViewModel.extend({
         isRepresentativeImageShown: not('container.isRepresentativeImageInParent'),
-        isReadOnly: reads('container.readonly'),
+        isReadOnly: reads('container.isReadOnly'),
+        isDisabled: reads('container.isDisabled'),
       })
       .create({
         container: this,
@@ -327,13 +422,22 @@ export default Component.extend(I18n, {
     return annotations?.some(annotation => annotation.type === 'error');
   },
 
-  submit() {
+  async submit() {
     this.replaceCurrentXmlValueUsingModel();
-    return this.onSubmit(this.currentXmlValue);
+    await this.onSubmit(this.currentXmlValue);
+  },
+
+  async submitMetadataUpdate() {
+    this.replaceCurrentXmlValueUsingModel();
+    await this.onModify(this.currentXmlValue);
+    this.onChangeEditMode?.(false);
+    this.replaceModelUsingCurrentXml();
   },
 
   replaceCurrentXmlValueUsingModel() {
-    const xmlValue = this.visualEdmViewModel.edmMetadata.stringify();
+    const xmlValue = this.visualEdmViewModel.edmMetadata.stringify({
+      tabSize: this.tabSize,
+    });
     this.changeSource(xmlValue, false);
     this.set('acceptedXmlValue', xmlValue);
   },
@@ -369,6 +473,9 @@ export default Component.extend(I18n, {
         });
       }
       this.setModelXmlSyncState(EdmModelXmlSyncState.Synced);
+      if (this.isModifyingExistingMetadata) {
+        this.visualEdmViewModel.markAsModified();
+      }
     }
   },
 
@@ -384,7 +491,7 @@ export default Component.extend(I18n, {
     } else if (invalidate && prevXmlValue != null) {
       this.invalidateSourceModelSync();
     }
-    // onUpdateXml could be not available in readonly mode
+    // onUpdateXml could be not available in isReadOnly mode
     this.onUpdateXml?.(value);
   },
 
@@ -465,6 +572,12 @@ export default Component.extend(I18n, {
     this.notAcceptedSourceValidator.set('edmMetadata', edmMetadata);
   },
 
+  scrollTop() {
+    if (this.element) {
+      scrollTopClosest(this.element);
+    }
+  },
+
   actions: {
     /**
      * @param {'visual'|'xml'} newMode
@@ -481,10 +594,26 @@ export default Component.extend(I18n, {
     },
     // TODO: VFS-11645 Ask for unsaved changed when cancelling and chaning view
     back() {
-      this.onBack();
+      if (this.isPublished) {
+        this.onChangeEditMode(false);
+        this.initMetadataModel();
+        this.scrollTop();
+      } else {
+        this.onBack();
+      }
     },
-    submit() {
-      return this.submit();
+    async submit() {
+      this.set('isSaving', true);
+      try {
+        if (this.isPublished) {
+          await this.submitMetadataUpdate();
+          this.scrollTop();
+        } else {
+          await this.submit();
+        }
+      } finally {
+        safeExec(this, 'set', 'isSaving', false);
+      }
     },
     acceptXml() {
       this.acceptXml();
@@ -494,6 +623,11 @@ export default Component.extend(I18n, {
     },
     handleRepresentativeImageError(error) {
       this.set('representativeImageError', error);
+    },
+    startModify() {
+      if (!this.isModifyingExistingMetadata) {
+        this.onChangeEditMode(true);
+      }
     },
   },
 });

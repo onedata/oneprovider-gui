@@ -7,6 +7,7 @@
  */
 
 import Component from '@ember/component';
+import { equal } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
 
 export default Component.extend(I18n, {
@@ -37,6 +38,11 @@ export default Component.extend(I18n, {
    */
   onCancel: undefined,
 
+  /**
+   * @type {MetadataEditorEditMode}
+   */
+  editMode: undefined,
+
   //#endregion
 
   //#region configuration
@@ -64,6 +70,14 @@ export default Component.extend(I18n, {
    * @type {SafeString|string}
    */
   cancelButtonTip: undefined,
+
+  /**
+   * @virtual optional
+   * @type {boolean}
+   */
+  isEditorModified: false,
+
+  isCreateMode: equal('editMode', 'create'),
 
   //#endregion
 

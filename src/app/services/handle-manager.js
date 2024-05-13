@@ -30,7 +30,6 @@ export default Service.extend({
   },
 
   /**
-   *
    * @param {Object} options
    * @param {Models.Share} options.share
    * @param {string} options.handleServiceId

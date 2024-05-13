@@ -20,6 +20,7 @@
               data-value-type={{EdmPropertyValueType.Literal}}
               @type="default"
               @value={{EdmPropertyValueType.Literal}}
+              @disabled={{viewModel.isDisabled}}
             >
               {{tt this (concat "valueType." EdmPropertyValueType.Literal)}}
             </bg.button>
@@ -28,6 +29,7 @@
               data-value-type={{EdmPropertyValueType.Reference}}
               @type="default"
               @value={{EdmPropertyValueType.Reference}}
+              @disabled={{viewModel.isDisabled}}
             >
               {{tt this (concat "valueType." EdmPropertyValueType.Reference)}}
             </bg.button>
@@ -48,6 +50,7 @@
             @onChange={{action "changeLanguage"}}
             @searchEnabled={{true}}
             @matcher={{action "matchLangOption"}}
+            @disabled={{viewModel.isDisabled}}
             as |option|
           >
             <div class="option-container">
@@ -88,7 +91,9 @@
             class="edm-property-delete-icon"
             @icon="browser-delete"
           >
-            <OneTooltip @title={{deleteButtonTip}} />
+            {{#if deleteButtonTip}}
+              <OneTooltip @title={{deleteButtonTip}} />
+            {{/if}}
           </OneIcon>
         </div>
       </div>
@@ -106,7 +111,7 @@
       {{#if isReadOnly}}
         {{#if isValueLink}}
           <TruncatedString @tooltipClass="tooltip-lg tooltip-text-left">
-            <a href={{value}} class="navy underlined">{{value}}</a>
+            <a href={{value}} class="navy underlined" target="_blank">{{value}}</a>
           </TruncatedString>
         {{else}}
           {{value}}
@@ -117,6 +122,7 @@
             <input
               class="form-control input-sm"
               value={{value}}
+              disabled={{viewModel.isDisabled}}
               oninput={{action "changeValue" value="target.value"}}
               onblur={{action "handleInputBlur"}}
             />
@@ -124,6 +130,7 @@
             <textarea
               class="form-control input-sm"
               value={{value}}
+              disabled={{viewModel.isDisabled}}
               rows="4"
               oninput={{action "changeValue" value="target.value"}}
               onblur={{action "handleInputBlur"}}
@@ -134,6 +141,7 @@
               @dropdownClass="small edm-property-value-dropdown"
               @options={{viewModel.predefinedValueOptions}}
               @selected={{viewModel.selectedPredefinedValueOption}}
+              @disabled={{viewModel.isDisabled}}
               @onChange={{action "changeSelectedPredefinedValueOption"}}
               @searchEnabled={{true}}
               @searchField="label"

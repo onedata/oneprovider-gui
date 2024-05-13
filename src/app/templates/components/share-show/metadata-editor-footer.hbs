@@ -16,7 +16,7 @@
         onClick=(action "cancel")
       }}
         <span class="text">
-          {{tt this "cancel"}}
+          {{tt this (if (and (not isCreateMode) isEditorModified) "discard" "cancel")}}
         </span>
       {{/bs-button}}
       {{#if cancelButtonTip}}
@@ -31,8 +31,12 @@
         disabled=isSubmitDisabled
         class="btn-submit"
       }}
-        {{tt this "publish"}}
-        <span class="hidden-custom-xs">{{tt this "asOpenData"}}</span>
+        {{tt this (if isCreateMode "publish" "save")}}
+        {{#if isCreateMode}}
+          <span class="hidden-custom-xs">
+            {{tt this "asOpenData"}}
+          </span>
+        {{/if}}
       {{/one-button}}
       {{#if submitButtonTip}}
         {{one-tooltip title=submitButtonTip}}

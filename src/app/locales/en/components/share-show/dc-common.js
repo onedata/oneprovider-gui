@@ -36,4 +36,5 @@ export default {
     dc: createEditorIntroExtra('DC'),
     edm: createEditorIntroExtra('EDM'),
   },
+  modify: 'Modify',
 };

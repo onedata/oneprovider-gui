@@ -106,8 +106,12 @@ export default class EdmMetadata {
     this.#edmObjects = this.#edmObjectsList.toArray();
   }
 
-  stringify() {
-    return stringifyXmlDocument(this.xmlDocument);
+  /**
+   * @param {EdmXmlStringifyOptions} edmXmlStringifyOptions
+   * @returns {string}
+   */
+  stringify(edmXmlStringifyOptions) {
+    return stringifyXmlDocument(this.xmlDocument, edmXmlStringifyOptions);
   }
 
   sort() {

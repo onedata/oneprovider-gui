@@ -22,6 +22,7 @@ export default Component.extend({
       edmMetadata,
       validator: EdmMetadataValidator.create({ edmMetadata }),
       isReadOnly: false,
+      isDisabled: false,
     }));
   },
 

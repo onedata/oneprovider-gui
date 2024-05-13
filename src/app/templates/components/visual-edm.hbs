@@ -18,8 +18,9 @@
       <OneButton
         class="add-web-resource-btn"
         @type="default"
-        @onClick={{action "addWebResource"
-      }}>
+        @onClick={{action "addWebResource"}}
+        @disabled={{viewModel.isDisabled}}
+      >
         <OneIcon @icon="plus" />
         <span class="text">
           {{tt this "listButtons.addWebResource"}}
