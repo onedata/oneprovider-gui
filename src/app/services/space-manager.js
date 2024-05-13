@@ -195,12 +195,18 @@ export default Service.extend({
   },
 
   /**
+   * Returns a structure with a space effective groups. When user has enough
+   * permissions, it will return a complete sequence of groups. In other
+   * cases, it will try to return at least these groups, which are accessible
+   * for the current user.
    * @public
-   * @param {string} spaceId
+   * @param {string | Models.Space} spaceIdOrRecord
    * @returns {Promise<RecordListContainer<Models.Group>>}
    */
-  async getSpaceEffGroups(spaceId) {
-    const space = await this.getSpace(spaceId);
+  async getSpaceEffGroups(spaceIdOrRecord) {
+    const space = typeof spaceIdOrRecord === 'string' ?
+      await this.getSpace(spaceIdOrRecord) : spaceIdOrRecord;
+    const spaceId = get(space, 'entityId');
     let mightBeIncomplete = false;
     let records;
     try {
