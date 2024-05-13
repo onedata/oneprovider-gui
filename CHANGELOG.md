@@ -1,6 +1,7 @@
 # Release notes for project oneprovider-gui
 
-## CHANGELOG
+CHANGELOG
+---------
 
 ### Latest changes
 
