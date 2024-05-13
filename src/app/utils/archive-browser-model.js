@@ -152,7 +152,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  headRowComponentName: 'archive-browser/table-head-row',
+  headRowTranslation: 'components.archiveBrowser.tableHeadRow',
+
+  /**
+   * @override
+   */
+  headRowClass: 'archive-table-head-row',
+
+  /**
+   * @override
+   */
+  firstColumnClass: 'fb-table-col-archives',
 
   /**
    * @override

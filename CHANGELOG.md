@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11952 Improved EDM GUI (v1.1): fixed property spec, fixed validation, added EU project logos
+* VFS-11479 Refactored table head row components
 * VFS-11970 Added support for modifying existing Open Data metadata
 * VFS-11912 Added visual editor for Open Data metadata in Europeana Data Model format (currently disabled)
 * VFS-11731 Fixed unexpected auto scroll of the file list after closing a modal

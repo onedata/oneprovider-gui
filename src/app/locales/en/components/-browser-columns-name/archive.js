@@ -1,6 +1,6 @@
 export default {
   name: {
-    archives: 'Archives',
+    firstColumnName: 'Archives',
     state: 'State',
     incremental: 'Base archive',
     creator: 'Creator',

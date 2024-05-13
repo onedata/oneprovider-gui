@@ -18,13 +18,24 @@ const mixins = [
 
 export default Component.extend(...mixins, {
   tagName: 'tr',
-  classNames: ['fb-table-head-row'],
+  classNameBindings: ['browserModel.headRowClass'],
+
+  /**
+   * @override
+   */
+  i18nPrefix: reads('browserModel.headRowTranslation'),
 
   /**
    * @virtual
    * @type {Utils.BaseBrowserModel}
    */
   browserModel: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  headFirstCellComponentName: undefined,
 
   /**
    * @type {ComputedProperty<Utils.ColumnsConfiguration>}
@@ -38,10 +49,20 @@ export default Component.extend(...mixins, {
 
   actions: {
     checkboxDragStart() {
-      this.browserModel.disableUploadArea();
+      // Invoked when item in columns configuration popover drag is started
+      // only when browserModel.isUsingUploadArea is true
     },
     checkboxDragEnd() {
-      this.browserModel.enableUploadArea();
+      // Invoked when item in columns configuration popover drag is ended
+      // only when browserModel.isUsingUploadArea is true
+    },
+    headingDragAction(columnName, event) {
+      event.dataTransfer.setData('text', columnName);
+
+      this.set('isDropBorderShown', true);
+    },
+    headingDragEndAction() {
+      this.set('isDropBorderShown', false);
     },
   },
 });

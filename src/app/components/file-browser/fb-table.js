@@ -257,6 +257,11 @@ export default Component.extend(...mixins, {
     raw('file-browser/fb-table-head-row')
   ),
 
+  headFirstCellComponentName: or(
+    'browserModel.headFirstCellComponentName',
+    raw('file-browser/fb-table-head-first-cell')
+  ),
+
   rowComponentName: or(
     'browserModel.rowComponentName',
     raw('file-browser/fb-table-row')

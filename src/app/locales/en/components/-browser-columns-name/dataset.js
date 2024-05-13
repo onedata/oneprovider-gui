@@ -1,6 +1,6 @@
 export default {
   name: {
-    datasets: 'Datasets',
+    firstColumnName: 'Datasets',
     archives: 'Archives',
     created: 'Created at',
   },
