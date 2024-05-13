@@ -88,8 +88,7 @@ export default Component.extend(I18n, {
    */
   metadataTypes: Object.freeze([
     MetadataType.Dc,
-    // TODO: VFS-11983 unlock EDM metadata type in editor
-    // MetadataType.Edm,
+    MetadataType.Edm,
   ]),
 
   isEdmMetadataType: eq('selectedMetadataType', raw(MetadataType.Edm)),

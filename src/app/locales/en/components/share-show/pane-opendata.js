@@ -16,11 +16,9 @@ export default {
     handleServiceTextMore,
     metadataTypeText: 'Choose the metadata type for the record',
     metadataTypeMore: {
-      // TODO: VFS-11983 Revert the commit after 1be5aa28c86a765a6de1433289cc969bd6b6163b — to revert text for multiple metadata formats
-      intro: 'Metadata provides detailed information about the Open Data record for its consumers and is used for indexing in Open Data search engines. Onedata supports the following metadata format:',
-      dublinCore: '<strong>Dublin Core (DC)</strong> – an open, interchangeable metadata standard for describing online resources; it is developed by the Dublin Core Metadata Initiative.',
-      // TODO: VFS-11983 Revert the commit after 1be5aa28c86a765a6de1433289cc969bd6b6163b — to revert text for multiple metadata formats
-      // edm: '<strong>Europeana Data Model (EDM)</strong> – a standardized data model developed by Europeana, the European digital library; provides a comprehensive and semantically rich framework for describing cultural heritage resources.',
+      intro: 'Metadata provides detailed information about the Open Data record for its consumers and is used for indexing in Open Data search engines. Onedata supports the following metadata formats:',
+      dublinCore: '<strong>Dublin Core (DC)</strong> – an open, interchangeable metadata standard for describing online resources; it is developed by the Dublin Core Metadata Initiative,',
+      edm: '<strong>Europeana Data Model (EDM)</strong> – a standardized data model developed by Europeana, the European digital library; provides a comprehensive and semantically rich framework for describing cultural heritage resources.',
       outro: 'The metadata will be registered alongside the persistent identifier and visible in Open Data indexing services.',
     },
     metadataTypes: {
