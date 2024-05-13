@@ -2,12 +2,13 @@
  * List of shares for single space
  *
  * @author Jakub Liput
- * @copyright (C) 2020-2023 ACK CYFRONET AGH
+ * @copyright (C) 2020-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { all as allFulfilled } from 'rsvp';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -38,9 +39,9 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {String}
+   * @type {Models.Space}
    */
-  spaceId: undefined,
+  space: undefined,
 
   /**
    * @virtual
@@ -59,6 +60,11 @@ export default Component.extend(...mixins, {
    * @type {Function}
    */
   startRenameShare: notImplementedThrow,
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  spaceId: reads('space.entityId'),
 
   /**
    * @override

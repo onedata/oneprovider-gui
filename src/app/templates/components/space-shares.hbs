@@ -16,7 +16,7 @@
   {{/promise-proxy-container}}
 {{else}}
   {{space-shares/shares-list
-    spaceId=spaceId
+    space=spaceProxy.content
     sharesProxy=sharesProxy
     getShareUrl=(action "getShareUrl")
     getDataUrl=(action "getDataUrl")

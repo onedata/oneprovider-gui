@@ -429,9 +429,15 @@ export default Component.extend(I18n, {
 
   async submitMetadataUpdate() {
     this.replaceCurrentXmlValueUsingModel();
+    const prevInjectedXmlValue = this.xmlValue;
     await this.onModify(this.currentXmlValue);
     this.onChangeEditMode?.(false);
-    this.replaceModelUsingCurrentXml();
+    // Trigger observer, because sometimes the newly injected xmlValue is the same as
+    // former xmlValue. It occurs when user only deletes the auto-generated fields and
+    // they are automatically added by backend.
+    if (prevInjectedXmlValue === this.xmlValue) {
+      this.notifyPropertyChange('xmlValue');
+    }
   },
 
   replaceCurrentXmlValueUsingModel() {

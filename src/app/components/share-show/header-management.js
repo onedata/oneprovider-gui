@@ -2,12 +2,12 @@
  * Header for single share view for signed-in user that allows to modify the share.
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 import { Promise, hash as hashFulfilled } from 'rsvp';
 import { computed, getProperties } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, bool } from '@ember/object/computed';
 import { collect, tag, conditional, raw, promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -16,6 +16,7 @@ import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 import { inject as service } from '@ember/service';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import globals from 'onedata-gui-common/utils/globals';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 export default HeaderBaseComponent.extend(I18n, {
   classNames: [
@@ -23,6 +24,7 @@ export default HeaderBaseComponent.extend(I18n, {
     'share-show-header-management',
   ],
 
+  i18n: service(),
   filesViewResolver: service(),
 
   /**
@@ -84,12 +86,26 @@ export default HeaderBaseComponent.extend(I18n, {
   menuActions: collect('btnRename', 'btnRemove'),
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasManageSharesPrivilege: bool('space.privileges.manageShares'),
+
+  /**
    * @type {ComputedProperty<Object>}
    */
-  btnRemove: computed(function btnRemove() {
+  btnRemove: computed('hasManageSharesPrivilege', function btnRemove() {
+    const disabledTip = this.hasManageSharesPrivilege ?
+      null :
+      insufficientPrivilegesMessage({
+        i18n: this.i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_manage_shares',
+      });
     return {
       title: this.t('remove'),
       icon: 'x',
+      disabled: Boolean(disabledTip),
+      tip: disabledTip,
       action: () => {
         this.set('removeShareOpened', true);
       },
@@ -100,10 +116,19 @@ export default HeaderBaseComponent.extend(I18n, {
   /**
    * @type {ComputedProperty<Object>}
    */
-  btnRename: computed(function btnRename() {
+  btnRename: computed('hasManageSharesPrivilege', function btnRename() {
+    const disabledTip = this.hasManageSharesPrivilege ?
+      null :
+      insufficientPrivilegesMessage({
+        i18n: this.i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_manage_shares',
+      });
     return {
       title: this.t('rename'),
       icon: 'browser-rename',
+      disabled: Boolean(disabledTip),
+      tip: disabledTip,
       action: () => {
         this.set('renameShareOpened', true);
       },
