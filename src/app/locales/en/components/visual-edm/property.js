@@ -15,8 +15,8 @@ export const propertyName = {
     contributor: 'Contributor to the creation of the original object',
     // coverage: '',
     creator: {
-      [EdmObjectType.ProvidedCHO]: 'Creator of the model',
-      [EdmObjectType.WebResource]: 'Creator of the original object',
+      [EdmObjectType.ProvidedCHO]: 'Creator of the original object',
+      [EdmObjectType.WebResource]: 'Creator of the model',
     },
     // date: '',
     description: 'Description',

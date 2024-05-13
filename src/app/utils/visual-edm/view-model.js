@@ -139,6 +139,7 @@ const VisualEdmViewModel = EmberObject.extend({
       return;
     }
     this.edmMetadata.deleteObject(object);
+    this.validator?.updateValue();
     this.markAsModified();
     this.updateView();
   },

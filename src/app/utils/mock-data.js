@@ -27,24 +27,29 @@ export const exampleDublinCore = `<?xml version="1.0" encoding="UTF-8"?>
 
 export const exampleEdmMetadata = `<?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:edm="http://www.europeana.eu/schemas/edm/"
     xmlns:ore="http://www.openarchives.org/ore/terms/"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 >
     <edm:ProvidedCHO rdf:about="#exampleMet0">
-        <dc:title>My share 1</dc:title>
-        <dc:language>en</dc:language>
-        <dc:type>dataset</dc:type>
-        <edm:type>TEXT</edm:type>
         <dc:creator>Stub user</dc:creator>
         <dc:date>2023-12-20</dc:date>
+        <dc:description>the example</dc:description>
+        <dc:language>en</dc:language>
+        <dc:subject>portrait</dc:subject>
+        <dc:title>My share 1</dc:title>
+        <dc:type>dataset</dc:type>
+        <dcterms:medium>wood</dcterms:medium>
+        <edm:type>TEXT</edm:type>
     </edm:ProvidedCHO>
     <ore:Aggregation rdf:about="#exampleMet0_AGG">
         <edm:aggregatedCHO rdf:resource="#exampleMet0"/>
         <edm:dataProvider>Stub user</edm:dataProvider>
         <edm:isShownAt rdf:resource="https://onezone.local-onedata.org:9192/shares/share-space-0-1"/>
-        <edm:provider>Stub user</edm:provider>
+        <edm:object rdf:resource="https://m.media-amazon.com/images/I/71DuF5drPIL._UF1000,1000_QL80_.jpg"/>
+        <edm:provider>Photoconsortium</edm:provider>
         <edm:rights rdf:resource="http://rightsstatements.org/vocab/NoC-OKLR/1.0/"/>
     </ore:Aggregation>
 </rdf:RDF>`;
@@ -342,27 +347,28 @@ export const exampleEdmSurplusXml = `<?xml version="1.0" encoding="UTF-8"?>
 export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
 
 <rdf:RDF
-  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-  xmlns:dc="http://purl.org/dc/elements/1.1/"
-  xmlns:dcterms="http://purl.org/dc/terms/"
-  xmlns:edm="http://www.europeana.eu/schemas/edm/"
-  xmlns:ore="http://www.openarchives.org/ore/terms/">
-  <edm:ProvidedCHO>
-    <dc:contributor>a</dc:contributor>
-    <dc:title xml:lang="en">Hello world</dc:title>
-    <dc:creator>a</dc:creator>
-    <dc:description>a</dc:description>
-    <dc:format>IGES</dc:format>
-    <dc:language>a</dc:language>
-    <dc:subject>a</dc:subject>
-    <dc:type>some type</dc:type>
-    <dcterms:created>a</dcterms:created>
-    <edm:type>VIDEO</edm:type>
-  </edm:ProvidedCHO>
-  <ore:Aggregation>
-    <edm:dataProvider>a</edm:dataProvider>
-    <edm:object rdf:resource="https://onedata.org/assets/images/logo.svg"/>
-    <edm:provider>Photoconsortium</edm:provider>
-    <edm:rights rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/"/>
-  </ore:Aggregation>
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:edm="http://www.europeana.eu/schemas/edm/"
+    xmlns:ore="http://www.openarchives.org/ore/terms/">
+    <edm:ProvidedCHO>
+        <dc:contributor>a</dc:contributor>
+        <dc:title xml:lang="en">Hello world</dc:title>
+        <dc:creator>a</dc:creator>
+        <dc:description>a</dc:description>
+        <dc:format>IGES</dc:format>
+        <dc:language>a</dc:language>
+        <dc:subject>a</dc:subject>
+        <dc:type>some type</dc:type>
+        <dcterms:created>a</dcterms:created>
+        <dcterms:medium>wood</dcterms:medium>
+        <edm:type>VIDEO</edm:type>
+    </edm:ProvidedCHO>
+    <ore:Aggregation>
+        <edm:dataProvider>a</edm:dataProvider>
+        <edm:object rdf:resource="https://onedata.org/assets/images/logo.svg"/>
+        <edm:provider>Photoconsortium</edm:provider>
+        <edm:rights rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/"/>
+    </ore:Aggregation>
 </rdf:RDF>`;

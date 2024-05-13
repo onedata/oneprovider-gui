@@ -23,7 +23,7 @@
     }}
       {{#bs-nav
         type="tabs"
-        class="nav-tabs-share-mode"
+        class=navTabsShareModeClassname
         as |nav|
       }}
         {{#each tabIds as |tabId|}}
@@ -55,6 +55,20 @@
           {{/nav.item}}
         {{/each}}
       {{/bs-nav}}
+      {{#if areEuLogosShown}}
+        <div class="eu-logo-container">
+          <a
+            href="https://eureka3d.eu"
+            target="_blank"
+            class="eu-logo logo-eureka3d"
+          ></a>
+          <a
+            href="https://www.europeana.eu"
+            target="_blank"
+            class="eu-logo logo-europeana"
+          ></a>
+        </div>
+      {{/if}}
     {{/bs-tab}}
   </div>
 

@@ -408,7 +408,7 @@ describe('Integration | Component | visual-edm', function () {
         'Subject',
         'Type of object',
         'Contributor to the creation of the original object',
-        'Creator of the model',
+        'Creator of the original object',
         'Creation date of the original object',
         'Internal ID',
         'Language of inscriptions in the object',
@@ -455,9 +455,9 @@ describe('Integration | Component | visual-edm', function () {
 
       // when/then - ProvidedCHO
       propertyLabels = await getSelectorOptions(0);
-      expect(propertyLabels, 'ProvidedCHO').to.include('Creator of the model');
       expect(propertyLabels, 'ProvidedCHO')
-        .to.not.include('Creator of the original object');
+        .to.include('Creator of the original object');
+      expect(propertyLabels, 'ProvidedCHO').to.not.include('Creator of the model');
       expect(propertyLabels, 'ProvidedCHO')
         .to.include('Language of inscriptions in the object');
       expect(propertyLabels, 'ProvidedCHO')
@@ -474,8 +474,9 @@ describe('Integration | Component | visual-edm', function () {
 
       // when/then - WebResource
       propertyLabels = await getSelectorOptions(2);
-      expect(propertyLabels, 'WebResource').to.not.include('Creator of the model');
-      expect(propertyLabels, 'WebResource').to.include('Creator of the original object');
+      expect(propertyLabels, 'WebResource')
+        .to.not.include('Creator of the original object');
+      expect(propertyLabels, 'WebResource').to.include('Creator of the model');
       expect(propertyLabels, 'WebResource')
         .to.not.include('Language of inscriptions in the object');
       expect(propertyLabels, 'WebResource')
@@ -761,14 +762,14 @@ describe('Integration | Component | visual-edm', function () {
       // when
       await helper.render();
       await click(helper.getObjectElement(0).querySelector('.add-edm-property-btn'));
-      await click(findByText('Creator of the model', '.add-property-selector li'));
+      await click(findByText('Creator of the original object', '.add-property-selector li'));
 
       // then
       const validationElement =
         helper.getObjectElement(0).querySelector('.visual-edm-validation-error');
       expect(validationElement).to.exist;
       expect(validationElement.textContent)
-        .to.contain('property "Creator of the model" has empty value');
+        .to.contain('property "Creator of the original object" has empty value');
     }
   );
 });
