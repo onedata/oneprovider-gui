@@ -202,7 +202,7 @@ export default Component.extend(...mixins, {
   handleState: reads('handleStateProxy.content'),
 
   navTabsShareModeClassname: computed(
-    'tabIss',
+    'tabIds',
     function navTabsShareModeClassname() {
       const classes = ['nav-tabs-share-mode'];
       for (const tabId of this.tabIds) {
