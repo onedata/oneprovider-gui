@@ -67,7 +67,7 @@ const metadataMixinMap = {
 };
 
 // Set dc or edm from metatadataMixins for share with Open Data
-const metadataMixin = metadataMixinMap.dc;
+const metadataMixin = metadataMixinMap.edm;
 
 const modelTypes = [
   'provider',
