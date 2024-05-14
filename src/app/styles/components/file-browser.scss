@@ -136,12 +136,11 @@
 
   .file-action-refresh {
     > .one-icon {
-      position: relative;
+      white-space: nowrap;
       &::after {
-        position: absolute;
         content: '';
-        right: 0;
-        bottom: 0;
+        display: inline-block;
+        margin-left: -18px;
         border-radius: 100%;
         background-color: var(--refresh-action-indicator-color, $color-one-success);
         height: 10px;

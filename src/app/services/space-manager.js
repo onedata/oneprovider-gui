@@ -7,11 +7,11 @@
  */
 
 import Service from '@ember/service';
-import { getProperties, set } from '@ember/object';
+import { get, getProperties, set } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { inject as service } from '@ember/service';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, allSettled } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 /**
@@ -28,6 +28,12 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
  * @typedef {Object} DirStatsServiceState
  * @property {string} status One of `enabled`, `disabled`, `stopping`, `initializing`
  * @property {number} since
+ */
+
+/**
+ * @typedef {Object} RecordListContainer<T>
+ * @property {Array<T>} records
+ * @property {boolean} mightBeIncomplete
  */
 
 /**
@@ -48,6 +54,7 @@ export default Service.extend({
   onedataGraph: service(),
   store: service(),
   providerManager: service(),
+  groupManager: service(),
 
   /**
    * Mapping (space ID) -> PromiseObject<DirStatsServiceState>
@@ -185,6 +192,58 @@ export default Service.extend({
     } else {
       return this.dirsStatsServiceStateCache[spaceId] = promiseObject(promise);
     }
+  },
+
+  /**
+   * Returns a structure with a space effective groups. When user has enough
+   * permissions, it will return a complete sequence of groups. In other
+   * cases, it will try to return at least these groups, which are accessible
+   * for the current user.
+   * @public
+   * @param {string | Models.Space} spaceIdOrRecord
+   * @returns {Promise<RecordListContainer<Models.Group>>}
+   */
+  async getSpaceEffGroups(spaceIdOrRecord) {
+    const space = typeof spaceIdOrRecord === 'string' ?
+      await this.getSpace(spaceIdOrRecord) : spaceIdOrRecord;
+    const spaceId = get(space, 'entityId');
+    let mightBeIncomplete = false;
+    let records;
+    try {
+      const effGroupList = await get(space, 'effGroupList');
+      records = effGroupList && await get(effGroupList, 'list');
+    } catch (error) {
+      if (error?.id !== 'forbidden') {
+        console.error(
+          `Could not get space "${spaceId}" effective group list due to error.`,
+          error
+        );
+      }
+    }
+
+    if (!records) {
+      mightBeIncomplete = true;
+
+      const inferredGroupIdsGri = getGri(spaceId, {
+        aspect: 'infer_accessible_eff_groups',
+        scope: 'private',
+      });
+      const inferredGroupIds = (await this.onedataGraph.request({
+        gri: inferredGroupIdsGri,
+        operation: 'create',
+        subscribe: false,
+      })).list;
+      records = (await allSettled(
+        inferredGroupIds.map((groupId) =>
+          this.groupManager.getGroupById(groupId, { throughSpaceId: spaceId })
+        )
+      )).filter(({ state }) => state === 'fulfilled').map(({ value }) => value);
+    }
+
+    return {
+      records,
+      mightBeIncomplete,
+    };
   },
 });
 

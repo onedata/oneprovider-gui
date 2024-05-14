@@ -32,6 +32,7 @@ import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/exec
 import { isAtmDataSpecMatchingFilters } from 'onedata-gui-common/utils/atm-workflow/data-spec/filters';
 import { AtmDataSpecType } from 'onedata-gui-common/utils/atm-workflow/data-spec/types';
 import globals from 'onedata-gui-common/utils/globals';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export const executeWorkflowDataLocalStorageKey = 'executeWorkflowInputData';
 
@@ -40,6 +41,8 @@ export default Component.extend(I18n, {
   classNameBindings: ['isDisabled:form-disabled:form-enabled'],
 
   i18n: service(),
+  spaceManager: service(),
+  modalManager: service(),
 
   /**
    * @override
@@ -314,13 +317,19 @@ export default Component.extend(I18n, {
    * @returns {AtmValueEditorContext}
    */
   createAtmValueEditorContext(atmStore) {
-    const editorContext = ExecutionDataFetcher.create({ ownerSource: this })
+    const editorContext = ExecutionDataFetcher.create({
+        ownerSource: this,
+        spaceId: this.space?.entityId,
+      })
       .getStoreContentPresenterContext();
     editorContext.selectFiles = (selectorConfig) => {
       this.startFilesSelection(atmStore, selectorConfig);
     };
     editorContext.selectDatasets = (selectorConfig) => {
       this.startDatasetsSelection(atmStore, selectorConfig);
+    };
+    editorContext.selectGroups = (selectorConfig) => {
+      this.startGroupsSelection(atmStore, selectorConfig);
     };
     return editorContext;
   },
@@ -365,6 +374,35 @@ export default Component.extend(I18n, {
     });
 
     this.startItemsSelection({ atmStore, selectorModel, onSelected, onCancelled });
+  },
+
+  async startGroupsSelection(atmStore, {
+    allowMany,
+    onSelected,
+    onCancelled,
+  }) {
+    let wasSubmitted = false;
+    await this.modalManager.show('record-list-selector-modal', {
+      recordListContainer: promiseObject(
+        this.spaceManager.getSpaceEffGroups(get(this.space, 'entityId'))
+      ),
+      allowMany,
+      header: this.t(`groupSelector.header.${allowMany ? 'multi' : 'single'}`),
+      subheader: this.t('itemsSelectorSubheader', { storeName: atmStore.name }),
+      listHeader: this.t('groupSelector.listHeader'),
+      incompleteListText: this.t('groupSelector.incompleteListText'),
+      incompleteListTipText: this.t('groupSelector.incompleteListTipText'),
+      onSubmit(selectedRecords) {
+        wasSubmitted = true;
+        const atmGroups = selectedRecords.map((record) => ({
+          groupId: get(record, 'entityId'),
+        }));
+        onSelected(atmGroups);
+      },
+    }).hiddenPromise;
+    if (!wasSubmitted) {
+      onCancelled();
+    }
   },
 
   startItemsSelection({ atmStore, selectorModel, onSelected, onCancelled }) {

@@ -1,12 +1,12 @@
 # Release notes for project oneprovider-gui
 
-
 CHANGELOG
 ---------
 
 ### Latest changes
 
 * VFS-11154 Fixed wrong overflow message in items tooltip content
+* VFS-11946 Added new type to the automation - group
 * VFS-11080 Fixed disappearing of the share from the list after delete failure; blocking actions without permissions
 * VFS-11952 Improved EDM GUI (v1.1): fixed property spec, fixed validation, added EU project logos
 * VFS-11479 Refactored table head row components
@@ -281,7 +281,7 @@ CHANGELOG
 * VFS-8755 Fixed randomly failing tests
 * VFS-8639 Removed iterator strategy from workflows
 * VFS-8255 Added workflows and lambdas revisions
-* VFS-8561 Added support for "verifying" and "verification_failed" archive state
+* VFS-8561 Added support for "verifying" and "verification\_failed" archive state
 * VFS-8287 Added manual reruns and retries of a workflow lane run
 * VFS-8653 Added "follow symlinks" option when creating archive
 * VFS-8604 Fixed auto update of share name in breadcrumbs after rename
@@ -351,7 +351,7 @@ CHANGELOG
 * VFS-7368 Added support for compressed directory and multiple files download
 * VFS-7427 Changed copiable REST URLs into curl commands
 * VFS-7293 Added copyable REST URLs for shares and shared files, shares UX improvements
-* VFS-7385 Removed op_replica occurrences
+* VFS-7385 Removed op\_replica occurrences
 * VFS-6842 Fixed JS console errors while scrolling file transfers list
 * VFS-7349 Fixed share root dir view crash after adding isLast flag support
 * VFS-7316 Added ANONYMOUS special ACE subject

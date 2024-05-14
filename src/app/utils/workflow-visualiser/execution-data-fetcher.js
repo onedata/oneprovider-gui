@@ -11,7 +11,11 @@
  * @property {Object<string, AtmFile|null>} symbolicLinkTargetById
  * @property {Object<string, string|null>} filePathById
  * @property {Object<string, string|null>} fileUrlById
+ * @property {Object<string, AtmFile|null>} fileDetailsById
  * @property {Object<string, string|null>} datasetUrlById
+ * @property {Object<string, AtmDataset|null>} datasetDetailsById
+ * @property {Object<string, string|null>} groupUrlById
+ * @property {Object<string, AtmGroup|null>} groupDetailsById
  */
 
 import ExecutionDataFetcher from 'onedata-gui-common/utils/workflow-visualiser/execution-data-fetcher';
@@ -46,6 +50,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   parentAppNavigation: service(),
   fileManager: service(),
   datasetManager: service(),
+  groupManager: service(),
   filesViewResolver: service(),
   appProxy: service(),
 
@@ -59,6 +64,12 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
    * @type {Models.AtmWorkflowExecution}
    */
   atmWorkflowExecution: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  spaceId: undefined,
 
   /**
    * Mapping: (atmTaskExecutionInstanceId: string) -> Model.AtmTaskExecution
@@ -90,6 +101,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         fileDetailsById: {},
         datasetUrlById: {},
         datasetDetailsById: {},
+        groupUrlById: {},
+        groupDetailsById: {},
       },
     });
   },
@@ -180,7 +193,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       getFileDetailsById: this.getFileDetailsById.bind(this),
       getDatasetUrlById: this.getDatasetUrlById.bind(this),
       getDatasetDetailsById: this.getDatasetDetailsById.bind(this),
-      // Using `_blank` to open file/dataset URLs in a new tab
+      getGroupUrlById: this.getGroupUrlById.bind(this),
+      getGroupDetailsById: this.getGroupDetailsById.bind(this),
+      // Using `_blank` to open file/dataset/group URLs in a new tab
       linkTarget: '_blank',
     };
   },
@@ -792,6 +807,51 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     };
 
     cache.datasetDetailsById[datasetId] = result;
+    return result;
+  },
+
+  /**
+   * @param {string} groupId
+   * @returns {Promise<string|null>}
+   */
+  async getGroupUrlById(groupId) {
+    if (!groupId) {
+      return null;
+    }
+    const cache = this.atmStoreContentPresentersCache;
+    if (groupId in cache.groupUrlById) {
+      return cache.groupUrlById[groupId];
+    }
+    const result = this.appProxy.callParent('getGroupUrl', {
+      groupId,
+    }) || null;
+    cache.groupUrlById[groupId] = result;
+    return result;
+  },
+
+  /**
+   * @param {string} groupId
+   * @returns {Promise<AtmGroup|null>}
+   */
+  async getGroupDetailsById(groupId) {
+    if (!groupId) {
+      return null;
+    }
+    const cache = this.atmStoreContentPresentersCache;
+    if (groupId in cache.groupDetailsById) {
+      return cache.groupDetailsById[groupId];
+    }
+
+    const group = await this.groupManager.getGroupById(groupId, {
+      throughSpaceId: this.spaceId,
+    });
+    const result = {
+      groupId,
+      name: get(group, 'name'),
+      type: get(group, 'type'),
+    };
+
+    cache.groupDetailsById[groupId] = result;
     return result;
   },
 
