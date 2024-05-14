@@ -78,6 +78,7 @@
       {{#bsTab.pane elementId="preview" class="fill-flex-using-column"}}
         {{#if (and (eq bsTab.activeId "preview") atmWorkflowExecutionIdInPreview)}}
           {{space-automation/atm-workflow-execution-preview
+            space=space
             class="fill-flex-using-column"
             atmWorkflowExecutionProxy=atmWorkflowExecutionForPreviewProxy
             onClose=(action "closeWorkflowPreview")

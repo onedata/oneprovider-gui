@@ -13,4 +13,9 @@ export const entityType = 'op_group';
 
 export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),
+
+  /**
+   * @type {GroupType}
+   */
+  type: attr('string'),
 }).reopenClass(StaticGraphModelMixin);
