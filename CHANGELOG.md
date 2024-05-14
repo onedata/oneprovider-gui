@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11154 Fixed wrong overflow message in items tooltip content
 * VFS-11080 Fixed disappearing of the share from the list after delete failure; blocking actions without permissions
 * VFS-11952 Improved EDM GUI (v1.1): fixed property spec, fixed validation, added EU project logos
 * VFS-11479 Refactored table head row components
