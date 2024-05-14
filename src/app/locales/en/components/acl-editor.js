@@ -27,5 +27,6 @@ export default {
   addUserOrGroup: 'Add user or group...',
   noAce: 'No Access Control Entries specified.',
   posixPermissionsWillApply: 'POSIX permissions will be applied.',
+  subjectListInferred: 'List of available users and groups may be incomplete due to lack of the privileges in the space.',
   aceEditor,
 };

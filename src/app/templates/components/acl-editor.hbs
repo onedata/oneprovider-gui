@@ -53,6 +53,17 @@
             {{/truncated-string}}
           </div>
         </OneDropdown>
+        {{#if hasInferredSubjectList}}
+          <div class="subjects-inferred-warning">
+            <OneIcon
+              @icon="sign-warning-rounded"
+              class="subjects-inferred-warning-icon"
+            />
+            <div class="subjects-inferred-warning-text">
+              {{tt this "subjectListInferred"}}
+            </div>
+          </div>
+        {{/if}}
       {{/listItem.header}}
     {{/list.item}}
   {{/unless}}
