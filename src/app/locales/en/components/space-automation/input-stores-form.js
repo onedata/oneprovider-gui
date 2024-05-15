@@ -11,6 +11,6 @@ export default {
     },
     listHeader: 'Groups',
     incompleteListText: 'Some space groups may not be visible due to limited privileges.',
-    incompleteListTipText: 'Since you do not have the <strong>view members</strong> privilege in this space, you cannot view its full member list. You can however see the member groups that you belong to.',
+    incompleteListTipText: 'Since you do not have the <strong>view space</strong> privilege in this space, you cannot view its full member list. You can however see the member groups that you belong to.',
   },
 };
