@@ -87,4 +87,10 @@ export default Component.extend(I18n, {
     });
     this.set('itemsTooltipContent', itemsTooltipContent);
   },
+
+  actions: {
+    onItemsTooltipShown() {
+      this.itemsTooltipContent.onItemsTooltipShown(...arguments);
+    },
+  },
 });
