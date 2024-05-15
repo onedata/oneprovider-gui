@@ -27,6 +27,7 @@ export default {
   addUserOrGroup: 'Add user or group...',
   noAce: 'No Access Control Entries specified.',
   posixPermissionsWillApply: 'POSIX permissions will be applied.',
-  subjectListInferred: 'List of available users and groups may be incomplete due to lack of the privileges in the space.',
+  subjectListInferred: 'Some space members may not be visible due to limited privileges.',
+  subjectListInferredTip: 'Since you do not have the <strong>view space</strong> privilege in this space, you cannot view its full member list. You can however see the member groups that you belong to and the members of those groups (if your privileges are sufficient).',
   aceEditor,
 };

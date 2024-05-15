@@ -200,6 +200,9 @@
         font-size: 120%;
         color: $color-one-warning;
       }
+      .subjects-inferred-warning-text + .one-label-tip {
+        line-height: 0;
+      }
     }
   }
 
