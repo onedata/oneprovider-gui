@@ -66,6 +66,13 @@ export default Component.extend(I18n, {
   systemSubjects: undefined,
 
   /**
+   * Set to true if list of group or users might be incomplete due to lack of permissions.
+   * @virtual optional
+   * @type {boolean}
+   */
+  hasInferredSubjectList: false,
+
+  /**
    * @virtual optional
    * @type {Boolean}
    */
