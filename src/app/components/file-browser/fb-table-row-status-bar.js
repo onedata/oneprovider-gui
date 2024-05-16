@@ -2,7 +2,7 @@
  * Status bar section with tags for item row
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2022 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -10,6 +10,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { inject as service } from '@ember/service';
+import { or } from '@ember/object/computed';
 
 export default Component.extend(I18n, {
   tagName: 'div',
@@ -82,4 +83,10 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   inheritedIcon: 'inheritance',
+
+  /**
+   * If set to true, tags will not provide actions on click.
+   * @type {ComputedProperty<Boolean>}
+   */
+  isEffDisabled: or('disabled', 'browserModel.disableStatusBar'),
 });
