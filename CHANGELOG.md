@@ -1,10 +1,10 @@
 # Release notes for project oneprovider-gui
 
-CHANGELOG
----------
+## CHANGELOG
 
 ### Latest changes
 
+* VFS-12016 Changed fetching records to start with no auth hint
 * VFS-9157 Added file info modal in files selector view
 * VFS-11154 Fixed wrong overflow message in items tooltip content
 * VFS-11946 Fixed ACL view crash when user has no view space privilege
