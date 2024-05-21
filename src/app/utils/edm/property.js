@@ -86,7 +86,7 @@ class EdmProperty {
   }
 
   get isUsingResource() {
-    return Boolean(!this.value && this.attrs.resource);
+    return Boolean(!this.value && this.attrs.resource != null);
   }
 
   get supportedValueType() {

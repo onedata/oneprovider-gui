@@ -14,6 +14,7 @@ import {
   EdmObjectPropertiesMaxSingleError,
 } from 'oneprovider-gui/utils/edm/object-validator';
 import {
+  EdmPropertyBothValueTypesError,
   EdmPropertyEmptyValueError,
   EdmPropertyNonEnumValueError,
 } from 'oneprovider-gui/utils/edm/property-validator';
@@ -65,11 +66,14 @@ export default Service.extend(I18n, {
     }
 
     const messages = [];
+    let bothValueProperties = [];
     let emptyProperties = [];
     let invalidEnumProperties = [];
     const errors = validator.errors;
     for (const error of errors) {
-      if (error instanceof EdmPropertyEmptyValueError) {
+      if (error instanceof EdmPropertyBothValueTypesError) {
+        bothValueProperties.push(error.edmProperty);
+      } else if (error instanceof EdmPropertyEmptyValueError) {
         emptyProperties.push(error.edmProperty);
       } else if (error instanceof EdmPropertyNonEnumValueError) {
         invalidEnumProperties.push(error.edmProperty);
@@ -97,6 +101,10 @@ export default Service.extend(I18n, {
         messages.push(error.toString());
       }
     }
+    bothValueProperties = sortProperties(
+      _.uniqBy(bothValueProperties, 'xmlTagName'),
+      viewType
+    );
     emptyProperties = sortProperties(
       _.uniqBy(emptyProperties, 'xmlTagName'),
       viewType
@@ -105,6 +113,13 @@ export default Service.extend(I18n, {
       _.uniqBy(invalidEnumProperties, 'xmlTagName'),
       viewType
     );
+    if (bothValueProperties.length) {
+      messages.push(this.createBothValueMessage(
+        bothValueProperties,
+        viewType,
+        edmObjectType
+      ));
+    }
     if (emptyProperties.length) {
       messages.push(this.createEmptyValuesMessage(
         emptyProperties,
@@ -132,6 +147,22 @@ export default Service.extend(I18n, {
       `objectOccurrence.${quantity}`, {
         objectType: this.translateObjectType(edmObjectType),
         expectedOccurence,
+      }
+    );
+  },
+
+  createBothValueMessage(edmProperties, viewType, edmObjectType) {
+    if (!edmProperties?.length) {
+      return;
+    }
+    const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
+    return this.t(
+      `valueBoth.${quantity}`, {
+        propertyString: this.createPropertiesString(
+          edmProperties,
+          viewType,
+          edmObjectType
+        ),
       }
     );
   },

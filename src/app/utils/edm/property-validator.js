@@ -24,6 +24,11 @@ const EdmPropertyValidator = EmberObject.extend({
    * @type {ComputedProperty<Array<EdmPropertyValidatorError>>}
    */
   errors: computed('edmProperty', function errors() {
+    if (this.edmProperty.value != null && this.edmProperty.attrs.resource != null) {
+      return [
+        new EdmPropertyBothValueTypesError(this.edmProperty),
+      ];
+    }
     const supportedValue = this.edmProperty.getSupportedValue();
     if (!supportedValue?.trim()) {
       return [
@@ -44,6 +49,15 @@ const EdmPropertyValidator = EmberObject.extend({
     this.notifyPropertyChange('edmProperty');
   },
 });
+
+export class EdmPropertyBothValueTypesError {
+  constructor(edmProperty) {
+    this.edmProperty = edmProperty;
+  }
+  toString() {
+    return `both value and reference specified in ${this.edmProperty.xmlTagName}`;
+  }
+}
 
 export class EdmPropertyEmptyValueError {
   edmObjectType = null;
