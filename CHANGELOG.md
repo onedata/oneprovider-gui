@@ -5,6 +5,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-11764 Changed documentation links to use topics
 * VFS-11154 Fixed wrong overflow message in items tooltip content
 * VFS-11946 Fixed ACL view crash when user has no view space privilege
 * VFS-11946 Added new type to the automation - group
