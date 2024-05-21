@@ -63,7 +63,7 @@ export default BaseModel.extend(...mixins, {
    */
   initialRequiredDataProxy: computed(
     'initialDirProxy',
-    'selectorModel.dirStatsServiceStateProxy',
+    'dirStatsServiceStateProxy',
     function initialRequiredDataProxy() {
       return promiseObject(allFulfilled([
         this.initialDirProxy,
