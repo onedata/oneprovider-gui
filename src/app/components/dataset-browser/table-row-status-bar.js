@@ -26,12 +26,6 @@ export default FbTableRowStatusBar.extend({
   dataset: reads('file'),
 
   /**
-   * If set to true, tags will not provide actions on click.
-   * @type {ComputedProperty<Boolean>}
-   */
-  disabled: reads('browserModel.disableStatusBar'),
-
-  /**
    * If true, should display dataset tag
    * @type {ComputedProperty<Boolean>}
    */

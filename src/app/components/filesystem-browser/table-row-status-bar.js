@@ -26,12 +26,6 @@ export default FbTableRowStatusBar.extend({
    */
   i18nPrefix: 'components.filesystemBrowser.tableRowStatusBar',
 
-  /**
-   * If set to true, tags will not provide actions on click.
-   * @type {ComputedProperty<Boolean>}
-   */
-  disabled: reads('browserModel.disableStatusBar'),
-
   type: reads('file.type'),
 
   isSymlink: reads('fileRowModel.isSymlink'),
@@ -107,4 +101,31 @@ export default FbTableRowStatusBar.extend({
   hasCustomMetadata: reads('file.hasCustomMetadata'),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
+
+  actions: {
+    /**
+     * @param {Models.File} file
+     */
+    handleShareBadgeClick(file) {
+      if (get(file, 'isShared')) {
+        this.invokeFileAction(file, 'info', 'shares');
+      } else {
+        this.invokeFileAction(file, 'share');
+      }
+    },
+
+    /**
+     * @param {Models.File} file
+     */
+    handleMetadataBadgeClick(file) {
+      this.invokeFileAction(file, 'info', 'metadata');
+    },
+
+    /**
+     * @param {Models.File} file
+     */
+    handleAclBadgeClick(file) {
+      this.invokeFileAction(file, 'info', 'permissions');
+    },
+  },
 });

@@ -25,18 +25,19 @@
         space=space
         contentScroll=contentScroll
         selectedItems=browserSelectedItems
+        dirStatsServiceState=selectorModel.dirStatsServiceStateProxy.content
         resolveFileParentFun=(action "resolveItemParent")
         changeSelectedItems=(action "changeSelectedItems")
         updateDirEntityId=(action "updateDirEntityId")
       }}
-    {{/promise-proxy-container}}
 
-    {{#if selectorModel.browserExtensionComponentName}}
-      {{component selectorModel.browserExtensionComponentName
-        selectorModel=selectorModel
-        browserModel=browserModel
-      }}
-    {{/if}}
+      {{#if selectorModel.browserExtensionComponentName}}
+        {{component selectorModel.browserExtensionComponentName
+          selectorModel=selectorModel
+          browserModel=browserModel
+        }}
+      {{/if}}
+    {{/promise-proxy-container}}
   </div>
 {{/modal.body}}
 

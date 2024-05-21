@@ -15,14 +15,23 @@ import { inject as service } from '@ember/service';
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import _ from 'lodash';
+import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { all as allFulfilled } from 'rsvp';
+
+const mixins = [
+  I18n,
+  InfoModalBrowserSupport,
+];
 
 /**
  * @implements {FilesystemSelectBrowserExtensionModel}
  */
-export default BaseModel.extend(I18n, {
+export default BaseModel.extend(...mixins, {
   fileManager: service(),
   i18n: service(),
   uploadManager: service(),
+  spaceManager: service(),
 
   /**
    * @override
@@ -52,6 +61,20 @@ export default BaseModel.extend(I18n, {
   /**
    * @override
    */
+  initialRequiredDataProxy: computed(
+    'initialDirProxy',
+    'dirStatsServiceStateProxy',
+    function initialRequiredDataProxy() {
+      return promiseObject(allFulfilled([
+        this.initialDirProxy,
+        this.dirStatsServiceStateProxy,
+      ]));
+    }
+  ),
+
+  /**
+   * @override
+   */
   browserModel: computed(function browserModel() {
     return SelectorFilesystemBrowserModel
       .extend({
@@ -63,6 +86,7 @@ export default BaseModel.extend(I18n, {
         onSubmitSingleItem: this.submitSingleFilesystemItem.bind(this),
         openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
         openRename: this.openRenameModal.bind(this),
+        openInfo: this.openInfoModal.bind(this),
       });
   }),
 
@@ -141,6 +165,18 @@ export default BaseModel.extend(I18n, {
       } else {
         return base;
       }
+    }
+  ),
+
+  /**
+   * @type {PromiseObject<DirStatsServiceState>}
+   */
+  dirStatsServiceStateProxy: computed(
+    'space.entityId',
+    function dirStatsServiceStateProxy() {
+      return promiseObject(
+        this.spaceManager.getDirStatsServiceState(get(this.space, 'entityId'))
+      );
     }
   ),
 
@@ -252,4 +288,10 @@ export default BaseModel.extend(I18n, {
   closeRenameModal() {
     this.set('fileToRename', null);
   },
+
+  /**
+   * Dummy implementation needed for info modal mixin to not crash.
+   * The selector has own implementation of this action in `ItemsSelectBrowser` component.
+   */
+  changeSelectedItems() {},
 });
