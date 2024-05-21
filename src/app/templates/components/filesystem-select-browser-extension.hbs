@@ -8,6 +8,19 @@
   </div>
 </div>
 
+{{#if selectorModel.filesToShowInfo}}
+  <FileInfoModal
+    @open={{true}}
+    @space={{selectorModel.space}}
+    @previewMode={{false}}
+    @browserModel={{browserModel}}
+    @files={{selectorModel.filesToShowInfo}}
+    @initialTab={{selectorModel.showInfoInitialTab}}
+    @dirStatsServiceState={{selectorModel.dirStatsServiceStateProxy.content}}
+    @onHide={{action closeInfoModal}}
+  />
+{{/if}}
+
 {{#if createItemParentDir}}
   {{file-browser/fb-create-item-modal
     open=true

@@ -1,12 +1,12 @@
 {{#if (and (not previewMode) (gt hardlinkCount 1))}}
   <div
-    class="file-status-tag file-status-hardlinks {{if disabled "file-status-tag-disabled"}}"
+    class="file-status-tag file-status-hardlinks {{if isEffDisabled "file-status-tag-disabled"}}"
     {{action
-      (if disabled
+      (if isEffDisabled
         (no-action)
         (action invokeFileAction file "info" "hardlinks")
       )
-      bubbles=(bool disabled)
+      bubbles=(bool isEffDisabled)
     }}
   >
     {{tt this "status.hardlinks" hardlinkCount=hardlinkCount}}
@@ -14,17 +14,17 @@
 {{/if}}
 {{#if (and (not previewMode) (not isSymlink) isShared)}}
   <div
-    class="file-status-tag-group {{if (not disabled) "clickable"}}"
+    class="file-status-tag-group {{if (not isEffDisabled) "clickable"}}"
     {{action
-      (if disabled
+      (if isEffDisabled
         (no-action)
-        (action invokeFileAction file "share")
+        (action "handleShareBadgeClick" file)
       )
-      bubbles=(bool disabled)
+      bubbles=(bool isEffDisabled)
     }}
   >
     <div
-      class="file-status-tag file-status-shared {{if disabled "file-status-tag-disabled"}}"
+      class="file-status-tag file-status-shared {{if isEffDisabled "file-status-tag-disabled"}}"
     >
       {{tt this "status.shared"}}
     </div>
@@ -55,13 +55,13 @@
 {{/if}}
 {{#if (and (not isSymlink) hasCustomMetadata)}}
   <div
-    class="file-status-tag file-status-metadata {{if disabled "file-status-tag-disabled" "clickable"}}"
+    class="file-status-tag file-status-metadata {{if isEffDisabled "file-status-tag-disabled" "clickable"}}"
     {{action
-      (if disabled
+      (if isEffDisabled
         (no-action)
-        (action invokeFileAction file "metadata")
+        (action "handleMetadataBadgeClick" file)
       )
-      bubbles=(bool disabled)
+      bubbles=(bool isEffDisabled)
     }}
   >
     {{tt this "status.metadata"}}
@@ -72,15 +72,15 @@
     class={{concat-classes
       "file-status-tag file-status-acl"
       (if previewMode "file-status-tag-warning")
-      (if disabled "file-status-tag-disabled")
-      (if (not (or disabled previewMode)) "clickable")
+      (if isEffDisabled "file-status-tag-disabled")
+      (if (not (or isEffDisabled previewMode)) "clickable")
     }}
     {{action
-      (if (or disabled previewMode)
+      (if (or isEffDisabled previewMode)
         (no-action)
-        (action invokeFileAction file "permissions")
+        (action "handleAclBadgeClick" file)
       )
-      bubbles=(bool disabled)
+      bubbles=(bool isEffDisabled)
     }}
   >
     {{tt this "status.acl"}}
@@ -94,7 +94,7 @@
   {{filesystem-browser/file-features
     browserModel=browserModel
     item=file
-    disabled=disabled
+    disabled=isEffDisabled
     isFileConsumerDisabled=true
     onInvokeItemAction=(action invokeFileAction)
   }}

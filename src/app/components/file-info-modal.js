@@ -40,6 +40,7 @@ import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mi
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 const mixins = [
   I18n,
@@ -179,7 +180,7 @@ export default Component.extend(...mixins, {
     // file is diplayed.
     if (this.files?.length === 1) {
       // TODO: VFS-11449 optional file size fetch
-      const properties = ['mtime'];
+      const properties = ['mtime', 'ctime'];
       if (!this.previewMode) {
         properties.push('owner', 'hardlinkCount');
       }
@@ -855,6 +856,14 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  showStorageLocations: computed(
+    'itemType',
+    'previewMode',
+    function showStorageLocations() {
+      return this.itemType === LegacyFileType.Regular && !this.previewMode;
+    }
+  ),
+
   hardlinksAutoUpdater: observer('file.hardlinkCount', function hardlinksAutoUpdater() {
     if (this.activeTab === 'hardlinks') {
       this.updateFileHardlinksProxy();
@@ -879,7 +888,7 @@ export default Component.extend(...mixins, {
     this.activeTabModel?.notifyPropertyChange('isActive');
 
     // check just the first file, because all files should have the same scope
-    if (get(this.file, 'scope') !== 'public') {
+    if (this.showStorageLocations && get(this.file, 'scope') !== 'public') {
       this.currentProviderLocationsProxy.then(currentProviderLocations => {
         if (currentProviderLocations.length === 0 && !this.areStorageLocationsExpanded) {
           this.set('areStorageLocationsExpanded', true);
