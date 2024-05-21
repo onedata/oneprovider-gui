@@ -45,6 +45,7 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
+   * @type {Utils.ItemsSelectBrowser.BaseModel}
    */
   selectorModel: undefined,
 

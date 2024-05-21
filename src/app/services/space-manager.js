@@ -170,7 +170,7 @@ export default Service.extend({
   /**
    * @param {string} spaceId
    * @param {boolean} [reload]
-   * @returns {PromiseObject<DirStatsServiceState>}
+   * @returns {Promise<PromiseObject<DirStatsServiceState>>}
    */
   async getDirStatsServiceState(spaceId, reload = false) {
     const existingProxy = this.dirsStatsServiceStateCache[spaceId];
