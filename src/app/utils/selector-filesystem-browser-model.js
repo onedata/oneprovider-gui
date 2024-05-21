@@ -38,6 +38,7 @@ export default FilesystemBrowserModel.extend({
    */
   buttonNames: array.concat(
     raw([
+      'btnInfo',
       'btnUpload',
       'btnNewDirectory',
       'btnRefresh',

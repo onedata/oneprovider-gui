@@ -43,13 +43,13 @@ export default Component.extend(I18n, {
 
   file: reads('browserModel.dir'),
 
+  previewMode: reads('browserModel.previewMode'),
+
   /**
    * If set to true, tags will not provide actions on click.
    * @type {ComputedProperty<Boolean>}
    */
-  disabled: reads('browserModel.disableStatusBar'),
-
-  previewMode: reads('browserModel.previewMode'),
+  isEffDisabled: reads('browserModel.disableStatusBar'),
 
   actions: {
     changeTagHover(tag, isHovered) {

@@ -3,14 +3,14 @@
     class={{concat-classes
       "file-status-tag archive-failed-tag"
       "file-status-tag-danger"
-      (if disabled "file-status-tag-disabled")
+      (if isEffDisabled "file-status-tag-disabled")
     }}
     {{action
-      (if disabled
+      (if isEffDisabled
         (no-action)
         (action invokeFileAction archive "showAuditLog")
       )
-      bubbles=(bool disabled)
+      bubbles=(bool isEffDisabled)
     }}
   >
     {{tt this "status.failed"}}
@@ -20,7 +20,7 @@
 {{#if showBagitTag}}
   <div class={{concat-classes
     "file-status-tag archive-bagit-tag"
-    (if disabled "file-status-tag-disabled")
+    (if isEffDisabled "file-status-tag-disabled")
   }}>
     {{tt this "status.bagit"}}
   </div>
@@ -29,14 +29,14 @@
   <div
     class={{concat-classes
       "file-status-tag archive-dip-tag"
-      (if disabled "file-status-tag-disabled")
+      (if isEffDisabled "file-status-tag-disabled")
     }}
     {{action
-      (if disabled
+      (if isEffDisabled
         (no-action)
         (action invokeFileAction archive "browseDip")
       )
-      bubbles=(bool disabled)
+      bubbles=(bool isEffDisabled)
     }}
   >
     {{tt this "status.dip"}}
