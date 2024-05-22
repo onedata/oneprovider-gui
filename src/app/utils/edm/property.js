@@ -127,7 +127,8 @@ class EdmProperty {
   }
 
   /**
-   * Sets either value or resource attribute depending on the supported value type.
+   * Sets either value or resource attribute depending on the supported value type and
+   * removes value from the other value types.
    * @param {string} value
    */
   setSupportedValue(value) {
@@ -135,9 +136,11 @@ class EdmProperty {
       case EdmPropertyValueType.Any:
       case EdmPropertyValueType.Literal:
         this.value = value;
+        this.attrs.resource = null;
         break;
       case EdmPropertyValueType.Reference:
         this.attrs.resource = value;
+        this.value = null;
         break;
       default:
         break;

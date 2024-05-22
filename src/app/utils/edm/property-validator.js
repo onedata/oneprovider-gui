@@ -24,7 +24,7 @@ const EdmPropertyValidator = EmberObject.extend({
    * @type {ComputedProperty<Array<EdmPropertyValidatorError>>}
    */
   errors: computed('edmProperty', function errors() {
-    if (this.edmProperty.value != null && this.edmProperty.attrs.resource != null) {
+    if (this.edmProperty.value && this.edmProperty.attrs.resource != null) {
       return [
         new EdmPropertyBothValueTypesError(this.edmProperty),
       ];
