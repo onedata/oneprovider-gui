@@ -6,6 +6,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-11996 Fixed showing unknown owner in file details and in file browser
+* VFS-11681 Updated builder docker image and using "npx ember"
 * VFS-9157 Added file info modal in files selector view
 * VFS-11154 Fixed wrong overflow message in items tooltip content
 * VFS-11946 Fixed ACL view crash when user has no view space privilege
