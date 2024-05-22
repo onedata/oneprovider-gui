@@ -5,6 +5,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-12017 Fixed inserting both value and resource in EDM XML via visual editor; added validator for both value and resource
 * VFS-11996 Fixed showing unknown owner in file details and in file browser
 * VFS-11681 Updated builder docker image and using "npx ember"
 * VFS-9157 Added file info modal in files selector view

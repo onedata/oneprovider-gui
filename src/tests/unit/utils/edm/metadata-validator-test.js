@@ -6,6 +6,7 @@ import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { afterEach } from 'mocha';
 import { settled } from '@ember/test-helpers';
+import { makeAllPropertiesValid } from '../../../helpers/edm-utils';
 
 describe('Unit | Utility | edm/metadata-validator', function () {
   afterEach(function () {
@@ -15,14 +16,8 @@ describe('Unit | Utility | edm/metadata-validator', function () {
   it('is valid if all objects are valid', function () {
     this.helper = new Helper();
     this.helper.initMetadata();
-    for (const object of this.helper.metadata.edmObjects) {
-      for (const property of object.edmProperties) {
-        if (property.hasPredefinedValues) {
-          property.setSupportedValue(property.predefinedValues[0].value);
-        } else {
-          property.setSupportedValue('dummy');
-        }
-      }
+    for (const edmObject of this.helper.metadata.edmObjects) {
+      makeAllPropertiesValid(edmObject);
     }
     this.helper.initValidator();
 
