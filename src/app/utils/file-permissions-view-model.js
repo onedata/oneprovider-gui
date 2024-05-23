@@ -35,6 +35,8 @@ import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import ignoreForbiddenError from 'onedata-gui-common/utils/ignore-forbidden-error';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const mixins = [
   OwnerInjector,
@@ -55,6 +57,7 @@ export default EmberObject.extend(...mixins, {
   globalNotify: service(),
   fileManager: service(),
   currentUser: service(),
+  spaceManager: service(),
 
   /**
    * @override
@@ -532,6 +535,15 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<PromiseObject<RecordListContainer<Models.Group>>>}
+   */
+  spaceGroupsContainerProxy: computed(function spaceGroupsContainerProxy() {
+    return promiseObject(this.spaceManager.getSpaceEffGroups(this.space));
+  }),
+
+  hasInferredSubjectList: bool('spaceGroupsContainerProxy.content.mightBeIncomplete'),
+
   init() {
     this._super(...arguments);
     this.clearEditedPermissionsTypes();
@@ -558,7 +570,15 @@ export default EmberObject.extend(...mixins, {
    * @override
    */
   async fetchSpaceUsers() {
-    const effUserList = await get(this.space, 'effUserList');
+    let effUserList;
+    try {
+      effUserList = await get(this.space, 'effUserList');
+    } catch (error) {
+      ignoreForbiddenError(error);
+    }
+    if (!effUserList) {
+      return [this.currentUser.user];
+    }
     return get(effUserList, 'list');
   },
 
@@ -566,8 +586,7 @@ export default EmberObject.extend(...mixins, {
    * @override
    */
   async fetchSpaceGroups() {
-    const effGroupList = await get(this.space, 'effGroupList');
-    return get(effGroupList, 'list');
+    return (await this.spaceGroupsContainerProxy).records;
   },
 
   /**
@@ -602,13 +621,13 @@ export default EmberObject.extend(...mixins, {
         let subject;
         let subjectType;
         if (identifier.indexOf('@') !== -1) {
-          subject = systemSubjects.findBy('entityId', identifier);
+          subject = systemSubjects.find(sub => get(sub, 'entityId') === identifier);
           subjectType = get(subject, 'equivalentType') || 'group';
         } else if (aceFlags & AceFlagsMasks.IDENTIFIER_GROUP) {
-          subject = groups.findBy('entityId', identifier);
+          subject = groups.find(group => get(group, 'entityId') === identifier);
           subjectType = 'group';
         } else {
-          subject = users.findBy('entityId', identifier);
+          subject = users.find(user => get(user, 'entityId') === identifier);
           subjectType = 'user';
         }
         subject = subject ? this.stripSubject(subject) : null;

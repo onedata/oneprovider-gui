@@ -301,7 +301,7 @@ describe('Integration | Component | visual-edm', function () {
     }
   );
 
-  it('adds WebResource object when clicking on "Add Web Resource" button', async function () {
+  it('adds WebResource object when clicking on "Add Digital Object" button', async function () {
     // given
     const factory = EdmMetadataFactory;
     const metadata = factory.createEmptyMetadata();
@@ -315,12 +315,12 @@ describe('Integration | Component | visual-edm', function () {
 
     // when
     await helper.render();
-    await click(helper.addWebResourceButton);
+    await click(helper.addDigitalObjectButton);
 
     // then
     expect(metadata.edmObjects).to.have.lengthOf(2);
     expect(helper.getObjectElement(1)).to.exist;
-    expect(helper.getObjectElement(1).textContent).to.contain('Web Resource');
+    expect(helper.getObjectElement(1).textContent).to.contain('Digital Object');
   });
 
   it('removes WebResource object when clicking on trash button in object', async function () {
@@ -463,17 +463,8 @@ describe('Integration | Component | visual-edm', function () {
       expect(propertyLabels, 'ProvidedCHO')
         .to.not.include('Content provider institution');
 
-      // when/then - Aggregation
-      propertyLabels = await getSelectorOptions(1);
-      expect(propertyLabels, 'Aggregation').to.not.include('Creator of the model');
-      expect(propertyLabels, 'Aggregation')
-        .to.not.include('Creator of the original object');
-      expect(propertyLabels, 'Aggregation')
-        .to.not.include('Language of inscriptions in the object');
-      expect(propertyLabels, 'Aggregation').to.include('Content provider institution');
-
       // when/then - WebResource
-      propertyLabels = await getSelectorOptions(2);
+      propertyLabels = await getSelectorOptions(1);
       expect(propertyLabels, 'WebResource')
         .to.not.include('Creator of the original object');
       expect(propertyLabels, 'WebResource').to.include('Creator of the model');
@@ -481,6 +472,15 @@ describe('Integration | Component | visual-edm', function () {
         .to.not.include('Language of inscriptions in the object');
       expect(propertyLabels, 'WebResource')
         .to.not.include('Content provider institution');
+
+      // when/then - Aggregation
+      propertyLabels = await getSelectorOptions(2);
+      expect(propertyLabels, 'Aggregation').to.not.include('Creator of the model');
+      expect(propertyLabels, 'Aggregation')
+        .to.not.include('Creator of the original object');
+      expect(propertyLabels, 'Aggregation')
+        .to.not.include('Language of inscriptions in the object');
+      expect(propertyLabels, 'Aggregation').to.include('Content provider institution');
     }
   );
 
@@ -502,7 +502,7 @@ describe('Integration | Component | visual-edm', function () {
       ).to.have.lengthOf(2);
       expect(
         helper.getObjectElement(0).querySelector('.edm-object-type').textContent.trim()
-      ).to.equal('Provided Cultural Heritage Object');
+      ).to.equal('Cultural Heritage Object');
       expect(
         helper.getObjectElement(1).querySelector('.edm-object-type').textContent.trim()
       ).to.equal('Aggregation');
@@ -812,8 +812,8 @@ class Helper {
   set visualEdmViewModel(value) {
     this.#visualEdmViewModel = value;
   }
-  get addWebResourceButton() {
-    return this.element.querySelector('.add-web-resource-btn');
+  get addDigitalObjectButton() {
+    return this.element.querySelector('.add-digital-object-btn');
   }
   async render() {
     this.mochaContext.setProperties({

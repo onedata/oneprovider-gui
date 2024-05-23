@@ -9,7 +9,8 @@
 
 import { InvalidEdmObjectType } from './object';
 import EdmObjectFactory from './object-factory';
-import { supportedEdmObjectTypes } from './object-type';
+import EdmObjectType, { EdmObjectTagName, supportedEdmObjectTypes } from './object-type';
+import _ from 'lodash';
 
 export default class EdmObjectsList {
   /**
@@ -40,6 +41,16 @@ export default class EdmObjectsList {
    * @param {EdmObject} edmObject
    */
   addObject(edmObject) {
+    if (edmObject.edmObjectType === EdmObjectType.WebResource) {
+      const lastCho = _.findLast(
+        Array.from(this.xmlElement.children),
+        element => element.tagName === EdmObjectTagName[EdmObjectType.ProvidedCHO]
+      );
+      if (lastCho) {
+        lastCho.insertAdjacentElement('afterend', edmObject.xmlElement);
+        return;
+      }
+    }
     this.xmlElement.appendChild(edmObject.xmlElement);
   }
 

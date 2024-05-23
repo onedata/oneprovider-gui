@@ -83,5 +83,9 @@ export default Component.extend(...mixins, {
     return this.get('selectorModel').closeRenameModal(...args);
   },
 
+  closeInfoModal() {
+    this.selectorModel.closeInfoModal();
+  },
+
   //#endregion
 });

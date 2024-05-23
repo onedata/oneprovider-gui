@@ -172,20 +172,37 @@
   }
 
   .add-user-group-ace {
+    $vertical-padding: 10px;
     .list-header-row {
       padding-right: $padding-large-vertical;
+      padding-top: $vertical-padding;
+      padding-bottom: $vertical-padding;
     }
     .header-content-container {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
     }
     .ember-basic-dropdown-trigger {
       flex-grow: 1;
-      display: inline-block;
-      height: 0;
       min-width: 0;
-      margin-top: -$input-height-base * 0.5;
-      margin-bottom: -$input-height-base * 0.5;
+    }
+    .subjects-inferred-warning {
+      display: flex;
+      flex-basis: 100%;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding-left: 6px;
+      padding-right: 6px;
+      margin-top: $vertical-padding;
+      .subjects-inferred-warning-icon {
+        font-size: 120%;
+        color: $color-one-warning;
+      }
+      .subjects-inferred-warning-text + .one-label-tip {
+        line-height: 0;
+      }
     }
   }
 

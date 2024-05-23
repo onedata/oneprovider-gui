@@ -1,6 +1,7 @@
 {{#truncated-string
   customTooltipText=truncatedTextTip
   tooltipClass=truncatedTextTooltipClass
+  tooltipOnShown=(action "onItemsTooltipShown")
 }}
   {{#if icon}}
     <div class={{concat-classes

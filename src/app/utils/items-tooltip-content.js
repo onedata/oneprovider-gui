@@ -2,7 +2,7 @@
  * Exposes HTML with list of items, eg. files to use in tooltip with proper classname.
  *
  * @author Jakub Liput
- * @copyright (C) 2023 ACK CYFRONET AGH
+ * @copyright (C) 2023-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -101,7 +101,9 @@ export default EmberObject.extend(I18n, OwnerInjector, {
     const tooltipInner = ulElement.closest('.tooltip-inner');
     const isOverflown = Math.floor(dom.height(ulElement)) > Math.floor(dom.height(
       tooltipInner,
-      dom.LayoutBox.ContentBox
+      // Using padding box, not content box, because tooltip ul element uses negative
+      // margins and can overflow padding of its container.
+      dom.LayoutBox.PaddingBox
     ));
     if (this.isOverflown !== isOverflown) {
       this.set('isOverflown', isOverflown);

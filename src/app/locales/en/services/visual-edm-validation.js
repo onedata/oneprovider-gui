@@ -2,6 +2,10 @@ import { objectTypeName } from '../components/visual-edm/object';
 
 export default {
   tooMuchObjectOccurrences: 'there must be exactly {{count}} occurrences of {{objectTypes}}',
+  valueBoth: {
+    singular: 'property {{propertyString}} has both value and reference/resource specified',
+    plural: 'properties {{propertyString}} have both value and reference/resource specified',
+  },
   valueEmpty: {
     singular: 'property {{propertyString}} has empty value',
     plural: 'properties {{propertyString}} have empty values',
