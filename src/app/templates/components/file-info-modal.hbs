@@ -273,10 +273,14 @@
                   sizeClass="xs"
                   spinnerBlockClass="loading-owner-full-name"
                 }}
-                  {{record-info-with-icon
-                    record=owner
-                    errorReason=errorReasonForOwnerProxy
-                  }}
+                  {{#if owner}}
+                    {{record-info-with-icon
+                      record=owner
+                      errorReason=errorReasonForOwnerProxy
+                    }}
+                  {{else}}
+                    —
+                  {{/if}}
                 {{/loading-container}}
               </td>
             </tr>

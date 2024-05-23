@@ -6,7 +6,7 @@ import extraDataInfo from './visual-edm/extra-data-info';
 
 export default {
   listButtons: {
-    addWebResource: 'Add Web Resource',
+    addWebResource: 'Add Digital Object',
   },
   notValid: 'Metadata definition is not valid',
   object,

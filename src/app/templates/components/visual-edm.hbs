@@ -1,7 +1,39 @@
 <ul class="visual-edm-object-list">
-  {{#each viewModel.objects as |objectViewModel|}}
+  {{#each viewModel.choViewModels as |objectViewModel|}}
     <VisualEdm::Object @viewModel={{objectViewModel}} />
   {{/each}}
+
+  {{#each viewModel.digitalObjectsViewModels as |objectViewModel|}}
+    <VisualEdm::Object @viewModel={{objectViewModel}} />
+  {{/each}}
+
+  {{#if viewModel.isAddDigitalObjectShown}}
+    <li class="iconified-block modern-iconified-block">
+      <div class="icon-section">
+        <OneIcon class="icon-placeholder" />
+      </div>
+      <div class="content-section">
+        <div class="objects-list-buttons">
+          <OneButton
+            class="add-digital-object-btn"
+            @type="default"
+            @onClick={{action "addWebResource"}}
+            @disabled={{viewModel.isDisabled}}
+          >
+            <OneIcon @icon="plus" />
+            <span class="text">
+              {{tt this "listButtons.addWebResource"}}
+            </span>
+          </OneButton>
+        </div>
+      </div>
+    </li>
+  {{/if}}
+
+  {{#each viewModel.aggregationViewModels as |objectViewModel|}}
+    <VisualEdm::Object @viewModel={{objectViewModel}} />
+  {{/each}}
+
   {{#if viewModel.validator.isError}}
     <VisualEdm::ValidationError
       class="edm-metadata-invalid"
@@ -13,19 +45,4 @@
   {{#if viewModel.hasExtraData}}
     <VisualEdm::ExtraDataInfo @model={{model}}/>
   {{/if}}
-  {{#unless viewModel.isReadOnly}}
-    <div class="objects-list-buttons">
-      <OneButton
-        class="add-web-resource-btn"
-        @type="default"
-        @onClick={{action "addWebResource"}}
-        @disabled={{viewModel.isDisabled}}
-      >
-        <OneIcon @icon="plus" />
-        <span class="text">
-          {{tt this "listButtons.addWebResource"}}
-        </span>
-      </OneButton>
-    </div>
-  {{/unless}}
 </ul>

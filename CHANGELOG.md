@@ -5,6 +5,11 @@
 ### Latest changes
 
 * VFS-12016 Changed fetching records to start with no auth hint
+* VFS-12020 Changed UX of EDM editor to allow adding only single Web Resource (now called "Digital Object")
+* VFS-11764 Changed documentation links to use topics
+* VFS-12017 Fixed inserting both value and resource in EDM XML via visual editor; added validator for both value and resource
+* VFS-11996 Fixed showing unknown owner in file details and in file browser
+* VFS-11681 Updated builder docker image and using "npx ember"
 * VFS-9157 Added file info modal in files selector view
 * VFS-11154 Fixed wrong overflow message in items tooltip content
 * VFS-11946 Fixed ACL view crash when user has no view space privilege
