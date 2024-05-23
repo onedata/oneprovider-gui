@@ -6,6 +6,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-12020 Changed UX of EDM editor to allow adding only single Web Resource (now called "Digital Object")
+* VFS-11764 Changed documentation links to use topics
 * VFS-12017 Fixed inserting both value and resource in EDM XML via visual editor; added validator for both value and resource
 * VFS-11996 Fixed showing unknown owner in file details and in file browser
 * VFS-11681 Updated builder docker image and using "npx ember"
