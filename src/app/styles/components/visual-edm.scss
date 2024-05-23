@@ -1,6 +1,15 @@
 .visual-edm {
   --visual-edm-items-spacing: 20px;
 
+  // override default spacing of iconified block
+  .iconified-block.modern-iconified-block + .iconified-block.modern-iconified-block {
+    margin-top: var(--visual-edm-items-spacing);
+  }
+
+  .icon-placeholder {
+    opacity: 0;
+  }
+
   .edm-attr-container {
     display: flex;
     align-items: baseline;
@@ -11,8 +20,7 @@
 
   .objects-list-buttons {
     display: flex;
-    justify-content: center;
-    margin-top: var(--visual-edm-items-spacing);
+    justify-content: flex-start;
   }
 
   .separator {

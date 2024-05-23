@@ -80,6 +80,35 @@ const VisualEdmViewModel = EmberObject.extend({
     }
   ),
 
+  isAddDigitalObjectShown: computed(
+    'isReadOnly',
+    'digitalObjectsViewModels',
+    function isAddDigitalObjectShown() {
+      return !this.isReadOnly && !this.digitalObjectsViewModels.length;
+    }
+  ),
+
+  digitalObjectsViewModels: computed(
+    'objects.[]',
+    function digitalObjectsViewModels() {
+      return this.objects.filter(obj => obj.edmObjectType === EdmObjectType.WebResource);
+    }
+  ),
+
+  choViewModels: computed(
+    'objects.[]',
+    function choViewModels() {
+      return this.objects.filter(obj => obj.edmObjectType === EdmObjectType.ProvidedCHO);
+    }
+  ),
+
+  aggregationViewModels: computed(
+    'objects.[]',
+    function aggregationViewModels() {
+      return this.objects.filter(obj => obj.edmObjectType === EdmObjectType.Aggregation);
+    }
+  ),
+
   init() {
     this._super(...arguments);
     if (!this.edmMetadata) {
