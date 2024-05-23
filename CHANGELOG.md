@@ -1,11 +1,11 @@
 # Release notes for project oneprovider-gui
 
-CHANGELOG
----------
+## CHANGELOG
 
 ### Latest changes
 
 * VFS-11983 Enabled EDM editor for newly created Open Data metadata
+* VFS-12016 Changed fetching records to start with no auth hint
 * VFS-12020 Changed UX of EDM editor to allow adding only single Web Resource (now called "Digital Object")
 * VFS-11764 Changed documentation links to use topics
 * VFS-12017 Fixed inserting both value and resource in EDM XML via visual editor; added validator for both value and resource
