@@ -86,7 +86,7 @@
     {{else if (eq columnName "replication")}}
       <td class="fb-table-col-replication hidden-xs">
         <span
-          class="file-item-text"
+          class="file-item-text clickable"
           onclick={{action "invokeFileAction" file "info" "distribution"}}
         >
           {{#if (eq percentageReplication null)}}
