@@ -12,7 +12,7 @@ import { bool, array, raw, conditional, and } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
-import { get, computed } from '@ember/object';
+import { get, set, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -302,6 +302,14 @@ export default FilesystemBrowserModel.extend({
       file: item,
       archive,
     });
+  },
+
+  createColumnsConfiguration() {
+    const configuration = this._super(...arguments);
+    // there is AIP/DIP switch instead "jump" input in archive filesystem browser,
+    // so we have more space
+    set(configuration, 'firstColumnWidth', 220);
+    return configuration;
   },
 
   /**
