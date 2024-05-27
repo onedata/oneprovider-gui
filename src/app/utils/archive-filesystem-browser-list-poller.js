@@ -5,13 +5,14 @@
  * property.
  *
  * @author Jakub Liput
- * @copyright (C) 2023 ACK CYFRONET AGH
+ * @copyright (C) 2023-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import { all as allFulfilled } from 'rsvp';
 import FilesystemBrowserListPoller from 'oneprovider-gui/utils/filesystem-browser-list-poller';
 import { reads } from '@ember/object/computed';
+import { computed } from '@ember/object';
 
 export default FilesystemBrowserListPoller.extend({
   /**
@@ -20,11 +21,14 @@ export default FilesystemBrowserListPoller.extend({
   archive: reads('browserModel.archive'),
 
   /**
+   * In archive filesystem browser, polling is enabled when archive is being
+   * built or there are columns that can change over time (eg. replication).
+   * In case of archive creation, we want to observe changes quickly.
    * @override
-   * In archive filesystem browser, polling is enabled only when archive is being
-   * built and we want to observe changes quickly.
    */
-  pollInterval: 2000,
+  pollInterval: computed('browserModel.isFilesystemLive', function pollInterval() {
+    return this.browserModel.isFilesystemLive ? 2000 : this._super(...arguments);
+  }),
 
   /**
    * @override

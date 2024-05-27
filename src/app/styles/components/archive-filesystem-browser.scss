@@ -1,5 +1,7 @@
 .archive-filesystem-browser {
   .dip-switch {
+    // prevent stacking the buttons
+    display: flex;
     margin-bottom: -1em;
     margin-left: 2em;
     transform: translateY(-0.5em);

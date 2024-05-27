@@ -3,7 +3,7 @@
  * for browsing archive files.
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,8 +12,8 @@ import { bool, array, raw, conditional, and } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
-import { get, computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { get, set, computed } from '@ember/object';
+import { or, reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import FileInArchive from 'oneprovider-gui/utils/file-in-archive';
@@ -92,7 +92,7 @@ export default FilesystemBrowserModel.extend({
    * If archive is not being created, the filesystem of archive should not change.
    * @override
    */
-  isListPollingEnabled: reads('isFilesystemLive'),
+  isListPollingEnabled: or('isFilesystemLive', 'areLiveColumnsVisible'),
 
   /**
    * @override
@@ -159,14 +159,19 @@ export default FilesystemBrowserModel.extend({
    * @override
    */
   refreshBtnClass: computed(
-    'isFilesystemLive',
+    'areLiveColumnsVisible',
+    'anyDataLoadError',
+    'selectedItemsOutOfScope',
     // inherited
     'browserListPoller.isPollingEnabled',
     function refreshBtnClass() {
-      if (this.isFilesystemLive) {
-        return this._super(...arguments);
-      } else {
+      if (
+        !this.areLiveColumnsVisible &&
+        !this.browserListPoller.isPollingEnabled
+      ) {
         return 'refresh-indicator-info';
+      } else {
+        return this._super(...arguments);
       }
     }
   ),
@@ -177,18 +182,38 @@ export default FilesystemBrowserModel.extend({
   refreshBtnTip: computed(
     'isFilesystemLive',
     // inherited dependencies
-    'renderableSelectedItemsOutOfScope',
-    'renderableDirLoadError',
+    'selectedItemsOutOfScope',
+    'anyDataLoadError',
     'browserListPoller.{pollInterval,isPollingEnabled}',
     'lastRefreshTime',
     function refreshBtnTip() {
       if (this.isFilesystemLive) {
+        return this._super(...arguments);
+      }
+      const pollingIntervalSecs =
+        Math.floor(this.browserListPoller?.pollInterval / 1000);
+      if (this.areLiveColumnsVisible) {
+        if (this.browserListPoller.isPollingEnabled) {
+          return this.t('refreshLiveColumns', {
+            pollingIntervalSecs: pollingIntervalSecs,
+          });
+        } else {
+          return this._super(...arguments);
+        }
+      }
+      if (this.browserListPoller.isPollingEnabled) {
         return this._super(...arguments);
       } else {
         return this.t('refreshNonLive');
       }
     }
   ),
+
+  isReplicationColumnVisible: reads('columnsConfiguration.columns.replication.isVisible'),
+
+  isQosColumnVisible: reads('columnsConfiguration.columns.qos.isVisible'),
+
+  areLiveColumnsVisible: or('isReplicationColumnVisible', 'isQosColumnVisible'),
 
   /**
    * @type {Utils.ModalManager.ModalInstance}
@@ -302,6 +327,14 @@ export default FilesystemBrowserModel.extend({
       file: item,
       archive,
     });
+  },
+
+  createColumnsConfiguration() {
+    const configuration = this._super(...arguments);
+    // there is AIP/DIP switch instead "jump" input in archive filesystem browser,
+    // so we have more space
+    set(configuration, 'firstColumnWidth', 220);
+    return configuration;
   },
 
   /**
