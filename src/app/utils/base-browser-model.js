@@ -230,6 +230,14 @@ export default EmberObject.extend(...mixins, {
   singleSelect: false,
 
   /**
+   * Invoked right after the `dir` changes, so it is going to be rendered in the view.
+   * It is a place suitable for doing newly opened dir handling.
+   * @virtual optional
+   * @type {(dir: Models.File) => Promise}
+   */
+  onDidChangeDir: undefined,
+
+  /**
    * @type {Utils.ColumnsConfiguration}
    */
   columnsConfiguration: undefined,
@@ -594,6 +602,10 @@ export default EmberObject.extend(...mixins, {
     },
   ),
 
+  dirObserver: observer('dir', function dirObserver() {
+    this.onDidChangeDir?.(this.dir);
+  }),
+
   init() {
     this._super(...arguments);
     this.set('lastRefreshTime', Date.now());
@@ -681,15 +693,15 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @param {Object} dir file-like object
-   * @param {Function} updateBrowserDir A standard procedure of file
+   * @param {Function} [pdateBrowserDir A standard procedure of file
    *   browser that must be invoked to really change the dir in browser.
    *   If you want to stop opening dir in real browser, do not invoke this callback.
    *   The first argument if dir to be effectively opened - if you invoke the function
    *   without arguments it will open `dir` by default.
    * @returns {Promise<void>}
    */
-  async onChangeDir(dir, updateBrowserDir) {
-    return await updateBrowserDir(dir);
+  async onWillChangeDir(dir, updateBrowserDir) {
+    return await updateBrowserDir?.(dir);
   },
 
   /**
