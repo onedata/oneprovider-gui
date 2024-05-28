@@ -1491,13 +1491,6 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @override
    */
-  async onWillChangeDir(targetDir, updateBrowserDir) {
-    await updateBrowserDir?.(targetDir);
-  },
-
-  /**
-   * @override
-   */
   async onDidChangeDir(targetDir) {
     this.changeJumpControlValue('');
     // TODO: VFS-7961 after modification of uploadManager global state, there should be revert

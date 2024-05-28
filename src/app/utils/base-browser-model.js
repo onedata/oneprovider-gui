@@ -693,7 +693,7 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @param {Object} dir file-like object
-   * @param {Function} [pdateBrowserDir A standard procedure of file
+   * @param {Function} updateBrowserDir A standard procedure of file
    *   browser that must be invoked to really change the dir in browser.
    *   If you want to stop opening dir in real browser, do not invoke this callback.
    *   The first argument if dir to be effectively opened - if you invoke the function
