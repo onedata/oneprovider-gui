@@ -217,27 +217,40 @@ export default OneEmbeddedComponent.extend(
               fileManager.getFileById(id)
             ));
 
-            const validFiles = await files.filter(file => {
-              const fileId = file && file.relationEntityId('parent');
-              if (!fileId) {
-                return false;
-              }
-              // filter out files that have other parents than opened dir
-              return fileId === get(dir, 'entityId');
-            });
-
-            (async () => {
-              if (this.willRedirectToOtherBrowser) {
-                return;
-              }
-              if (validFiles.length < selected.length) {
-                if (selected.length === 1) {
-                  this.alert.warning(this.t('selectedNotFound.single'));
-                } else if (selected.length > 1) {
-                  this.alert.warning(this.t('selectedNotFound.many'));
+            /**
+             * Selected files for jump can be only ones that have the current dir as their
+             * parent.
+             * @type {Array<Models.File>}
+             */
+            let validFiles;
+            if (files.length === 1 && files[0] === dir) {
+              // A special case when the injected selection is only a current dir -
+              // do not perform jump, but rather select it to perform some futher action.
+              validFiles = [];
+              this.changeSelectedItems([dir]);
+            } else {
+              validFiles = files.filter(file => {
+                const fileParentId = file && file.relationEntityId('parent');
+                if (!fileParentId) {
+                  return false;
                 }
-              }
-            })();
+                // filter out files that have other parents than opened dir
+                return fileParentId === get(dir, 'entityId');
+              });
+              // show warning alert if the file was not found
+              (async () => {
+                if (
+                  !this.willRedirectToOtherBrowser &&
+                  validFiles.length < selected.length
+                ) {
+                  if (selected.length === 1) {
+                    this.alert.warning(this.t('selectedNotFound.single'));
+                  } else if (selected.length > 1) {
+                    this.alert.warning(this.t('selectedNotFound.many'));
+                  }
+                }
+              })();
+            }
             return validFiles;
           } catch (error) {
             console.error(
@@ -247,7 +260,6 @@ export default OneEmbeddedComponent.extend(
         }
       })
     ),
-
     /**
      * @type {ComputedProperty<SpacePrivileges>}
      */

@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-11566 Fixed handling space root directory using global file link
 * VFS-11476 Improved UX for replication and QoS columns in archive filesystem browser
 * VFS-12016 Changed fetching records to start with no auth hint
 * VFS-12020 Changed UX of EDM editor to allow adding only single Web Resource (now called "Digital Object")
