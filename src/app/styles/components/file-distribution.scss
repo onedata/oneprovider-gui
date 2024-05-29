@@ -66,6 +66,17 @@
         @include font-monospace();
         font-size: 80%;
         margin-top: 2px;
+
+        .na-location-info-icon {
+          align-content: end;
+          font-size: 130%;
+          opacity: 0.4;
+        }
+
+        .na-location-text {
+          padding-left: 4px;
+          @include font-regular;
+        }
       }
 
       .storage-file-path-clipboard {
