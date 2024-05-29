@@ -23,6 +23,6 @@ export default {
   disabledEvictionNoBlocks: 'Eviction is not possible unless some data blocks on this Oneprovider are redundant.',
   buttonTip: 'Copy storage file path to clipboard',
   at: 'at',
-  na: 'n/a',
+  na: 'not applicable',
   naTooltip: 'not available...',
 };

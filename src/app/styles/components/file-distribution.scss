@@ -76,6 +76,8 @@
         .na-location-text {
           padding-left: 4px;
           @include font-regular;
+          font-style: italic;
+          opacity: $disabled-opacity;
         }
       }
 
