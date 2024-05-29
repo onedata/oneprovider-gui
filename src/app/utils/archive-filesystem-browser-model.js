@@ -288,13 +288,13 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  async onChangeDir(targetDir, updateBrowserDir) {
+  async onWillChangeDir(targetDir, updateBrowserDir) {
     let shouldChangeDir = true;
     if (get(targetDir, 'type') === 'symlink') {
       shouldChangeDir = !(await this.handlePotentialExternalSymlink(targetDir));
     }
     if (shouldChangeDir) {
-      await updateBrowserDir(targetDir);
+      await updateBrowserDir?.(targetDir);
     }
   },
 
