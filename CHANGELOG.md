@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-11566 Fixed handling space root directory using global file link
 * VFS-8554 Fixed uploading files to wrong directory after changing directory via URL
 * VFS-11476 Improved UX for replication and QoS columns in archive filesystem browser
 * VFS-12016 Changed fetching records to start with no auth hint
