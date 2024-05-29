@@ -800,7 +800,7 @@ export default Component.extend(I18n, {
     const dirId = get(dir, 'entityId');
     loadingIconFileIds.pushObject(dirId);
     try {
-      await browserModel.onChangeDir(dir, async (effDir = dir) => {
+      await browserModel.onWillChangeDir(dir, async (effDir = dir) => {
         await updateDirEntityId(get(effDir, 'entityId'));
         containerScrollTop(0);
       });
