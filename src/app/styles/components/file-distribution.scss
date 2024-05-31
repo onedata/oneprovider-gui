@@ -8,6 +8,12 @@
     min-height: 1em;
     display: flex;
     justify-content: space-between;
+
+    .no-transfers-info-icon {
+      font-size: 100%;
+      vertical-align: baseline;
+      opacity: 0.4;
+    }
   }
 }
 

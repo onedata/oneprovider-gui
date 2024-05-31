@@ -24,5 +24,5 @@ export default {
   buttonTip: 'Copy storage file path to clipboard',
   at: 'at',
   na: 'not applicable',
-  naTooltip: 'not available...',
+  naTooltip: 'No replica has been created on this storage system yet.',
 };

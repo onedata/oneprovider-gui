@@ -72,6 +72,14 @@
                   <a class="link-to-transfers link-to-transfers-ended" href={{navigateTransfersHref}} target={{navigateTransfersTarget}}>{{tt this "endedTransfersLink"}}</a>.
                 {{else}}
                   {{tt this "noTransfersText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
+                  {{#one-icon icon="sign-question-rounded" class="no-transfers-info-icon"}}
+                    {{one-tooltip
+                      title=(tt this
+                        "noTransfersTooltip"
+                        elementType=(tt this fileDistributionData.firstObject.fileType)
+                      )
+                    }}
+                  {{/one-icon}}
                 {{/if}}
               {{/if}}
             </p>
