@@ -98,7 +98,7 @@ export default Component.extend(I18n, {
     return this.t('blocksSize', {
       size: bytesToString(fileSizeOnStorage),
       blockCount,
-      blockNoun: blockCount > 1 ? this.t('blocks') : this.t('block'),
+      blockNoun: blockCount === 1 ? this.t('block') : this.t('blocks'),
     });
   }),
 
