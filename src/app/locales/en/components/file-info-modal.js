@@ -23,7 +23,7 @@ export default {
   tip: browserColumns.tip,
   owner: 'Owner',
   size: 'Size',
-  fileLink: '{{type}} link',
+  fileLink: 'Browser link',
   fileLinkLabel: {
     show: 'Show',
     download: 'Download',
