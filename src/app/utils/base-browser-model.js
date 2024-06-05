@@ -230,6 +230,14 @@ export default EmberObject.extend(...mixins, {
   singleSelect: false,
 
   /**
+   * Invoked right after the `dir` changes, so it is going to be rendered in the view.
+   * It is a place suitable for doing newly opened dir handling.
+   * @virtual optional
+   * @type {(dir: Models.File) => Promise}
+   */
+  onDidChangeDir: undefined,
+
+  /**
    * @type {Utils.ColumnsConfiguration}
    */
   columnsConfiguration: undefined,
@@ -594,6 +602,10 @@ export default EmberObject.extend(...mixins, {
     },
   ),
 
+  dirObserver: observer('dir', function dirObserver() {
+    this.onDidChangeDir?.(this.dir);
+  }),
+
   init() {
     this._super(...arguments);
     this.set('lastRefreshTime', Date.now());
@@ -688,8 +700,8 @@ export default EmberObject.extend(...mixins, {
    *   without arguments it will open `dir` by default.
    * @returns {Promise<void>}
    */
-  async onChangeDir(dir, updateBrowserDir) {
-    return await updateBrowserDir(dir);
+  async onWillChangeDir(dir, updateBrowserDir) {
+    return await updateBrowserDir?.(dir);
   },
 
   /**
