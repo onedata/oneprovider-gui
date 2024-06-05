@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-11707 Changed class names in public share view to bypass some web browser extensions blocking
 * VFS-11457 Changed contextual file link label in file details modal to universal "Browser link"
 * VFS-11566 Fixed handling space root directory using global file link
 * VFS-8554 Fixed uploading files to wrong directory after changing directory via URL
