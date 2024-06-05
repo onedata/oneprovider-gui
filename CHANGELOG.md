@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-10231 Changed showing storage location when is not available
 * VFS-11707 Changed class names in public share view to bypass some web browser extensions blocking
 * VFS-11457 Changed contextual file link label in file details modal to universal "Browser link"
 * VFS-11566 Fixed handling space root directory using global file link

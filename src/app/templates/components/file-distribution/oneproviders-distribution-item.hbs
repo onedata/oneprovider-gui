@@ -1,7 +1,6 @@
 <div class="oneproviders-distribution-item-content">
   <div class={{concat-classes
     "name-section"
-    (if (not storageFileLocation) "center-name-section")
   }}>
     <div class="distribution-row-name">
       {{#truncated-string tagName="span" class="storage-name-container"}}
@@ -13,8 +12,8 @@
         class="oneprovider-name"
       }}
     </div>
-    {{#if storageFileLocation}}
-      <div class="distribution-row-name path-container">
+    <div class="distribution-row-name path-container">
+      {{#if storageFileLocation}}
         {{clipboard-line
           value=storageFileLocation
           size="sm"
@@ -22,8 +21,13 @@
           buttonTip=(tt this "buttonTip")
           enableValueTip=true
         }}
-      </div>
-    {{/if}}
+      {{else}}
+        {{#one-icon icon="browser-info" class="na-location-info-icon"}}
+          {{one-tooltip title=(tt this "naTooltip")}}
+        {{/one-icon}}
+        <span class="na-location-text">{{tt this "na"}}</span>
+      {{/if}}
+    </div>
   </div>
   {{#one-pill-button
     menuItems=actionsArray
