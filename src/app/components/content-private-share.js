@@ -11,14 +11,30 @@
 
 import { inject as service } from '@ember/service';
 import ContentPublicShare from 'oneprovider-gui/components/content-public-share';
+import { computed, get } from '@ember/object';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { all as allFulfilled } from 'rsvp';
 
 export default ContentPublicShare.extend({
   guiContext: service(),
+  spaceManager: service(),
 
   /**
    * @override
    */
   scope: 'private',
+
+  spaceProxy: computed('shareProxy.content.spaceId', function spaceProxy() {
+    const promise = (async () => {
+      const spaceId = get(await this.shareProxy, 'spaceId');
+      return await this.spaceManager.getSpace(spaceId);
+    })();
+    return promiseObject(promise);
+  }),
+
+  requiredDataProxy: computed('spaceProxy', 'shareProxy', function requiredDataProxy() {
+    return allFulfilled([this.spaceProxy, this.shareProxy]);
+  }),
 
   actions: {
     getDataUrl({ dirId }) {
