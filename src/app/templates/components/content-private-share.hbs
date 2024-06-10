@@ -1,12 +1,12 @@
 {{#promise-proxy-container
-  proxy=shareProxy
+  proxy=requiredDataProxy
   spinnerBlockClass="absolute-middle-centered"
 }}
   {{share-show
     share=shareProxy.content
     dirId=dirId
     initialTabId=tabId
-    space=space
+    space=spaceProxy.content
     updateDirId=(action "updateDirId")
     getDataUrl=(action "getDataUrl")
     onShowShareList=(action "onShowShareList")

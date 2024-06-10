@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12042 Fixed always disabled share actions when accessed via Shares main menu
 * VFS-10231 Changed showing storage location when is not available
 * VFS-11707 Changed class names in public share view to bypass some web browser extensions blocking
 * VFS-11457 Changed contextual file link label in file details modal to universal "Browser link"
