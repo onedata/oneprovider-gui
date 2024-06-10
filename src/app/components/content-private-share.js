@@ -32,8 +32,11 @@ export default ContentPublicShare.extend({
     return promiseObject(promise);
   }),
 
+  /**
+   * @type {PromiseObject<Array<PromiseObject>>}
+   */
   requiredDataProxy: computed('spaceProxy', 'shareProxy', function requiredDataProxy() {
-    return allFulfilled([this.spaceProxy, this.shareProxy]);
+    return promiseObject(allFulfilled([this.spaceProxy, this.shareProxy]));
   }),
 
   actions: {
