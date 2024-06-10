@@ -8,6 +8,12 @@
     min-height: 1em;
     display: flex;
     justify-content: space-between;
+
+    .no-transfers-info-icon {
+      font-size: 100%;
+      vertical-align: baseline;
+      opacity: 0.4;
+    }
   }
 }
 
@@ -66,6 +72,19 @@
         @include font-monospace();
         font-size: 80%;
         margin-top: 2px;
+
+        .na-location-info-icon {
+          align-content: end;
+          font-size: 130%;
+          opacity: 0.4;
+        }
+
+        .na-location-text {
+          padding-left: 4px;
+          @include font-regular;
+          font-style: italic;
+          opacity: $disabled-opacity;
+        }
       }
 
       .storage-file-path-clipboard {

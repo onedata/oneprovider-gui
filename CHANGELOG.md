@@ -5,6 +5,13 @@
 ### Latest changes
 
 * VFS-11983 Enabled EDM editor for newly created Open Data metadata
+* VFS-12042 Fixed always disabled share actions when accessed via Shares main menu
+* VFS-10231 Changed showing storage location when is not available
+* VFS-11707 Changed class names in public share view to bypass some web browser extensions blocking
+* VFS-11457 Changed contextual file link label in file details modal to universal "Browser link"
+* VFS-11566 Fixed handling space root directory using global file link
+* VFS-8554 Fixed uploading files to wrong directory after changing directory via URL
+* VFS-11476 Improved UX for replication and QoS columns in archive filesystem browser
 * VFS-12016 Changed fetching records to start with no auth hint
 * VFS-12020 Changed UX of EDM editor to allow adding only single Web Resource (now called "Digital Object")
 * VFS-11764 Changed documentation links to use topics

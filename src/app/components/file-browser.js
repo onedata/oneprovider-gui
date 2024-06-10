@@ -643,10 +643,15 @@ export default Component.extend(I18n, {
     'selectedItems',
   ),
 
-  bindBrowserModel: observer('browserModel', function bindBrowserModel() {
+  handleBrowserModelSet: observer('browserModel', function handleBrowserModelSet() {
     const browserModel = this.get('browserModel');
     if (browserModel) {
       set(browserModel, 'browserInstance', this);
+      (async () => {
+        await waitForRender();
+        this.browserModel.mount(this.element);
+        this.browserModel.onInsertElement();
+      })();
     }
   }),
 
@@ -671,7 +676,7 @@ export default Component.extend(I18n, {
         'component:file-browser#init: no browserModel provided'
       );
     }
-    this.bindBrowserModel();
+    this.handleBrowserModelSet();
   },
 
   didInsertElement() {
@@ -690,9 +695,6 @@ export default Component.extend(I18n, {
       'contextmenu',
       this.currentDirContextMenuHandler
     );
-
-    this.browserModel.mount(this.element);
-    this.browserModel.onInsertElement();
   },
 
   willDestroyElement() {
@@ -798,7 +800,7 @@ export default Component.extend(I18n, {
     const dirId = get(dir, 'entityId');
     loadingIconFileIds.pushObject(dirId);
     try {
-      await browserModel.onChangeDir(dir, async (effDir = dir) => {
+      await browserModel.onWillChangeDir(dir, async (effDir = dir) => {
         await updateDirEntityId(get(effDir, 'entityId'));
         containerScrollTop(0);
       });

@@ -1442,17 +1442,7 @@ export default BaseBrowserModel.extend(...mixins, {
   async invokeCommand(command) {
     switch (command) {
       case 'download': {
-        await this.initialLoad;
-        await this.selectedItemsForJumpProxy;
-        await waitForRender();
-        if (!this.selectedItems?.length) {
-          break;
-        }
-        if (this.selectedItems.length === 1) {
-          this.openConfirmDownload(this.selectedItems[0]);
-        } else {
-          this.downloadFiles(this.selectedItems);
-        }
+        await this.handleDownloadCommand();
         break;
       }
       default:
@@ -1462,6 +1452,20 @@ export default BaseBrowserModel.extend(...mixins, {
           );
         }
         break;
+    }
+  },
+
+  async handleDownloadCommand() {
+    await this.initialLoad;
+    await this.selectedItemsForJumpProxy;
+    await waitForRender();
+    if (!this.selectedItems?.length) {
+      return;
+    }
+    if (this.selectedItems.length === 1) {
+      this.openConfirmDownload(this.selectedItems[0]);
+    } else {
+      this.downloadFiles(this.selectedItems);
     }
   },
 
@@ -1491,8 +1495,7 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @override
    */
-  async onChangeDir(targetDir, updateBrowserDir) {
-    await updateBrowserDir(targetDir);
+  async onDidChangeDir(targetDir) {
     this.changeJumpControlValue('');
     // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
     // if using selector inside filesystem browser

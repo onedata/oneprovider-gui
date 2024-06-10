@@ -28,7 +28,10 @@
     margin-top: 1px;
   }
   .columns-configuration-button {
+    --columns-configuration-button-pull-down: 8px;
     line-height: 1;
     font-size: 200%;
+    margin-bottom: calc(0 - var(--columns-configuration-button-pull-down));
+    margin-top: var(--columns-configuration-button-pull-down);
   }
 }
