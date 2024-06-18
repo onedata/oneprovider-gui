@@ -20,7 +20,7 @@
     <div class="selection-validation-error text-danger">{{validationError}}</div>
   {{/if}}
 </div>
-{{#bs-button
+{{#one-button
   onClick=onCancel
   type="default"
   class="close-btn"
@@ -28,7 +28,7 @@
   {{tt this "cancel"}}
 {{/one-button}}
 <div class="btn-tooltip-container">
-  {{#bs-button
+  {{#one-button
     onClick=onSubmit
     class="btn btn-primary submit-selection-btn"
     disabled=submitDisabled

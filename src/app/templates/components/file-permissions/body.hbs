@@ -46,7 +46,7 @@
         {{/if}}
         {{tt this "youCanReset.posix"}}
         <div class="row alert-simple-info-btn">
-          {{#bs-button
+          {{#one-button
             class="btn btn-warning btn-sm open-posix-editor reset-permissions-btn"
             onClick=(action "acceptPosixIncompatibility")
           }}
@@ -122,7 +122,7 @@
                 {{/if}}
                 {{tt this "youCanReset.acl"}}
                 <div class="row alert-simple-info-btn">
-                  {{#bs-button
+                  {{#one-button
                     class="btn btn-warning btn-sm open-acl-editor reset-permissions-btn"
                     onClick=(action "acceptAclIncompatibility")
                   }}
