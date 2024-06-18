@@ -56,9 +56,9 @@
 
 {{#modal.footer}}
   <div class="archives-delete-part archives-delete-footer">
-    {{#bs-button disabled=processing onClick=(action "close") class="cancel"}}
+    {{#one-button disabled=processing onClick=(action "close") class="cancel"}}
       {{tt this "footer.cancel"}}
-    {{/bs-button}}
+    {{/one-button}}
     <div class="btn-tooltip-container">
       {{#one-button
         type="danger"

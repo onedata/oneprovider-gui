@@ -26,7 +26,7 @@
   class="close-btn"
 }}
   {{tt this "cancel"}}
-{{/bs-button}}
+{{/one-button}}
 <div class="btn-tooltip-container">
   {{#bs-button
     onClick=onSubmit
@@ -34,7 +34,7 @@
     disabled=submitDisabled
   }}
     {{submitLabel}}
-  {{/bs-button}}
+  {{/one-button}}
   {{#if validationError}}
     {{one-tooltip title=validationError}}
   {{/if}}
