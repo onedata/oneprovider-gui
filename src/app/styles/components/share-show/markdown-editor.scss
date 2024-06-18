@@ -11,10 +11,10 @@
 
 .share-show-markdown-editor {
   $content-margin-top: $content-col-padding + $share-show-description-bar-height - $content-row-vertical-padding;
-  
+
   .editor-current-mode-bar {
     position: fixed;
-    top: $share-show-content-header-height-private;
+    top: var(--share-show-content-header-height);
     left: 0;
     z-index: 1;
     height: $share-show-description-bar-height;
@@ -27,7 +27,7 @@
   }
   .share-edit-actions-toolbar {
     position: fixed;
-    top: $share-show-content-header-height-private;
+    top: var(--share-show-content-header-height);
     right: 0;
     height: $share-show-description-bar-height;
     line-height: $share-show-description-bar-height;
