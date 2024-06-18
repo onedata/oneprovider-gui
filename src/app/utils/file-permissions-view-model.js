@@ -336,7 +336,7 @@ export default EmberObject.extend(...mixins, {
    */
   filesHaveCompatiblePosixPermissions: isEveryTheSame(
     'files',
-    raw('posixPermissions')
+    'posixPermissions'
   ),
 
   ownersCount: computed(
