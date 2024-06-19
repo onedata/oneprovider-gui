@@ -30,6 +30,7 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { getFileGri } from 'oneprovider-gui/models/file';
+import Looper from 'onedata-gui-common/utils/looper';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -284,6 +285,26 @@ export default OneEmbeddedComponent.extend(
       }
     )),
 
+    newDirStatsServiceState: undefined,
+
+    /**
+     * @type {ComputedProperty<boolean>}
+     */
+    isChangeStatus: computed(
+      'dirStatsServiceStateProxy',
+      'newDirStatsServiceState',
+      function () {
+        if (this.dirStatsServiceStateProxy.content && this.newDirStatsServiceState) {
+          if (this.dirStatsServiceStateProxy.content.status !==
+            this.newDirStatsServiceState.status
+          ) {
+            return true;
+          }
+        }
+        return false;
+      }
+    ),
+
     /**
      * NOTE: observing only space, because it should reload initial dir after whole space change
      * @type {PromiseObject<Models.File>}
@@ -447,6 +468,12 @@ export default OneEmbeddedComponent.extend(
       this._super(...arguments);
       this.set('browserModel', this.createBrowserModel());
       this.fileActionObserver();
+      const updater = Looper.create({
+        immediate: false,
+        interval: 10000,
+      });
+      updater.on('tick', () => this.getDirStatsServiceState());
+      this.set('updater', updater);
     },
 
     /**
@@ -455,9 +482,22 @@ export default OneEmbeddedComponent.extend(
     willDestroyElement() {
       try {
         this.browserModel?.destroy?.();
+        this.get('updater')?.destroy();
       } finally {
         this._super(...arguments);
       }
+    },
+
+    async getDirStatsServiceState() {
+      const status = await this.spaceManager.getDirStatsServiceState(
+        this.spaceEntityId,
+        true
+      );
+      this.set('newDirStatsServiceState', status);
+      if (this.newDirStatsServiceState.status === 'enabled') {
+        this.get('updater').destroy();
+      }
+      this.notifyPropertyChange('newDirStatsServiceState');
     },
 
     getItemById(itemId) {

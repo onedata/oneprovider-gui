@@ -7,7 +7,10 @@
     selectedItems=selectedItems
     selectedItemsForJumpProxy=selectedItemsForJumpProxy
     isSpaceOwned=spaceProxy.currentUserIsOwner
-    dirStatsServiceState=dirStatsServiceStateProxy.content
+    dirStatsServiceState=(if isChangeStatus
+      newDirStatsServiceState
+      dirStatsServiceStateProxy.content
+    )
     getItemByIdFun=(action getItemById)
     changeSelectedItems=(action "changeSelectedItems")
     updateDirEntityId=(action "updateDirEntityId")
@@ -48,7 +51,10 @@
       browserModel=browserModel
       getDataUrl=(action "getFileUrl")
       onHide=(action closeInfoModal)
-      dirStatsServiceState=dirStatsServiceStateProxy.content
+      dirStatsServiceState=(if isChangeStatus
+        newDirStatsServiceState
+        dirStatsServiceStateProxy.content
+      )
       getProvidersUrl=(action "getProvidersUrl")
     }}
   {{/if}}
