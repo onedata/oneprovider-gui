@@ -20,7 +20,7 @@ import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-sto
 import { allSettled } from 'rsvp';
 import { reads } from '@ember/object/computed';
 import { bool, promise } from 'ember-awesome-macros';
-import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
+import { destroyablePromiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import AllKnownAtmWorkflowSchemasProxyArray from 'oneprovider-gui/utils/workflow-manager/all-known-atm-workflow-schemas-proxy-array';
 import config from 'ember-get-config';
 
@@ -503,14 +503,14 @@ export default Service.extend({
    * @returns {PromiseArray<Models.AtmWorkflowSchema>}
    */
   getAllKnownAtmWorkflowSchemas() {
-    return promiseArray(
-      this.get('currentUser').getCurrentUserRecord().then(user => {
-        const knownAtmWorkflowSchemasProxy =
-          AllKnownAtmWorkflowSchemasProxyArray.create({ user });
-        return knownAtmWorkflowSchemasProxy.initAsync()
-          .then(() => knownAtmWorkflowSchemasProxy);
-      })
-    );
+    const promise = (async () => {
+      const user = await this.currentUser.getCurrentUserRecord();
+      const knownAtmWorkflowSchemasProxy =
+        AllKnownAtmWorkflowSchemasProxyArray.create({ user });
+      await knownAtmWorkflowSchemasProxy.initAsync();
+      return knownAtmWorkflowSchemasProxy;
+    })();
+    return destroyablePromiseArray(promise);
   },
 
   async pushAtmWorkflowExecutionSummariesToStore(atmWorkflowExecutionSummariesAttrs) {

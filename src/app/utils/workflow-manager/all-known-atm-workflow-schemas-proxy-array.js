@@ -71,7 +71,7 @@ export default ArrayProxy.extend({
       const {
         isFulfilled,
         content,
-      } = getProperties(this.get('atmWorkflowSchemasProxy'), 'isFulfilled', 'content');
+      } = getProperties(this.atmWorkflowSchemasProxy, 'isFulfilled', 'content');
 
       if (isFulfilled) {
         this.set('content', ConflictIdsArray.create({

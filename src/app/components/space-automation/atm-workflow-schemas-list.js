@@ -157,6 +157,17 @@ export default Component.extend(I18n, {
     });
   },
 
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.cacheFor('atmWorkflowSchemasProxy')?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
   actions: {
     changeSearchValue(newValue) {
       debounce(this, 'set', 'searchValue', newValue, typingActionDebouce);

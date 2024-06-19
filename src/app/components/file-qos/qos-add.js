@@ -95,6 +95,11 @@ export default Component.extend(...mixins, {
   queryBuilderValid: true,
 
   /**
+   * @type {Utils.QueryBuilder.RootOperatorQueryBlock}
+   */
+  rootQueryBlock: undefined,
+
+  /**
    * @type {ComputedProperty<Array<QueryProperty>>}
    */
   queryProperties: reads('queryPropertiesProxy.content'),
@@ -159,15 +164,6 @@ export default Component.extend(...mixins, {
     return guidFor(this);
   }),
 
-  /**
-   * @type {Utils.QueryBuilder.RootOperatorQueryBlock}
-   */
-  rootQueryBlock: computed(function rootQueryBlock() {
-    const rootBlock = RootOperatorQueryBlock.create();
-    this.attachRootBlockNotifiers(rootBlock);
-    return rootBlock;
-  }),
-
   isValidObserver: observer('update', 'isValid', function isValidObserver() {
     const {
       update,
@@ -175,6 +171,24 @@ export default Component.extend(...mixins, {
     } = this.getProperties('update', 'isValid');
     update(undefined, isValid);
   }),
+
+  init() {
+    this._super(...arguments);
+    const rootBlock = RootOperatorQueryBlock.create();
+    this.attachRootBlockNotifiers(rootBlock);
+    this.set('rootBlock', rootBlock);
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.rootQueryBlock?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
 
   closeForm() {
     this.get('closeAddEntry')();
@@ -260,6 +274,7 @@ export default Component.extend(...mixins, {
               storages,
             });
             this.attachRootBlockNotifiers(rootBlock);
+            this.rootQueryBlock?.destroy();
             this.set('rootQueryBlock', rootBlock);
             rootBlock.notifyUpdate();
           } catch (error) {

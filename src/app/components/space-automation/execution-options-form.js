@@ -47,6 +47,17 @@ export default Component.extend(I18n, {
   }),
 
   /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.cacheFor('form')?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  /**
    * @returns {void}
    */
   propagateValueChange() {

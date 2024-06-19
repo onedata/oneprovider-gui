@@ -8,7 +8,11 @@
 
 import Component from '@ember/component';
 import qosRpnToQueryBlock from 'oneprovider-gui/utils/qos-rpn-to-query-block';
-import { computed } from '@ember/object';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 export default Component.extend({
   classNames: ['qos-expression-viewer'],
@@ -50,7 +54,7 @@ export default Component.extend({
    * Root object of expression tree, one of expression part objects
    * @type {ComputedProperty<Utils.RootOperatorQueryBlock>}
    */
-  rootQueryBlock: computed(
+  rootQueryBlock: destroyableComputed(
     'expressionRpn',
     'queryProperties',
     'providers',
@@ -79,4 +83,20 @@ export default Component.extend({
       }
     }
   ),
+
+  init() {
+    initDestroyableCache(this);
+    this._super(...arguments);
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
+  },
 });

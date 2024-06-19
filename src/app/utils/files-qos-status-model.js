@@ -94,7 +94,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @override
    */
-  destroy() {
+  willDestroy() {
     try {
       this.updater?.destroy();
     } finally {

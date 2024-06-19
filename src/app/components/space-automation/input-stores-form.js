@@ -157,7 +157,7 @@ export default Component.extend(I18n, {
    */
   fields: computed(function fields() {
     return FormFieldsRootGroup.extend({
-      i18nPrefix: tag `${'component.i18nPrefix'}.fields`,
+      i18nPrefix: tag`${'component.i18nPrefix'}.fields`,
       ownerSource: reads('component'),
       isEnabled: not('component.isDisabled'),
       onValueChange() {
@@ -273,6 +273,17 @@ export default Component.extend(I18n, {
     this._super(...arguments);
     this.loadDataFromLocalStorage();
     this.defaultFormValuesObserver();
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.cacheFor('fields')?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   loadDataFromLocalStorage() {

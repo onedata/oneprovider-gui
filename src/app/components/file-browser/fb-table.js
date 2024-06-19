@@ -39,6 +39,11 @@ import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 /**
  * API object exposed by `fb-table` component, be used to control the component and read
@@ -435,7 +440,7 @@ export default Component.extend(...mixins, {
   }),
 
   // TODO: VFS-8809 migrate to InfiniteScroll toolkit
-  filesArray: computed('dir.entityId', 'browserModel', function filesArray() {
+  filesArray: destroyableComputed('dir.entityId', 'browserModel', function filesArray() {
     const dirId = this.get('dir.entityId');
     const selectedItemsForJump = this.get('selectedItemsForJump');
     let initialJumpIndex;
@@ -625,6 +630,7 @@ export default Component.extend(...mixins, {
   }),
 
   init() {
+    initDestroyableCache(this);
     this._super(...arguments);
     if (!this.loadingIconFileIds) {
       this.set('loadingIconFileIds', A());
@@ -637,6 +643,17 @@ export default Component.extend(...mixins, {
       });
     }
     this.listWatcherObserver();
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   /**

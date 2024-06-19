@@ -51,6 +51,11 @@ export default Component.extend(I18n, {
   duplicateNameHashMapper: undefined,
 
   /**
+   * @type {Map<AuditLogEntry<ArchiveAuditLogEntryContent>, Utils.ArchiveAuditLogEntryModel>}
+   */
+  entryModelsCache: undefined,
+
+  /**
    * @type {ComputedProperty<PromiseObject<Utils.BrowsableDataset>>}
    */
   browsableDatasetProxy: promise.object(computed(
@@ -160,7 +165,19 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
+    this.set('entryModelsCache', new Map());
     this.set('duplicateNameHashMapper', DuplicateNameHashMapper.create());
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.entryModelsCache?.forEach(entryModel => entryModel?.destroy());
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   /**
@@ -184,6 +201,7 @@ export default Component.extend(I18n, {
    * @param {Utils.ArchiveAuditLogEntryModel} entryModel
    */
   registerLogEntry(entryModel) {
+    this.entryModelsCache.set(entryModel.logEntry, entryModel);
     this.duplicateNameHashMapper.addPair(
       entryModel.fileName,
       entryModel.relativePath
@@ -192,6 +210,10 @@ export default Component.extend(I18n, {
 
   actions: {
     createEntryModelForRow(logEntry) {
+      const cached = this.entryModelsCache.get(logEntry);
+      if (cached) {
+        return cached;
+      }
       const entryModel = this.createEntryModel(logEntry);
       // MUST NOT be invoked within current render, because it modified template data
       (async () => {

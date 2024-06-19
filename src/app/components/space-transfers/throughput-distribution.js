@@ -762,6 +762,7 @@ export default Component.extend(
       } = this.getProperties('updaterEnabled', 'timeUnit', 'timeStatForUnitProxy');
       timeStatForUnitProxy
         .catch(error => safeExec(this, 'set', '_statsError', error));
+      this.updater?.destroy();
       this.setProperties({
         _statsError: null,
         updater: TransferTimeStatUpdater.create({

@@ -2,7 +2,7 @@
  * Modal with detailed views about file or directory.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2023 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -23,7 +23,7 @@ import {
   not,
   writable,
 } from 'ember-awesome-macros';
-import EmberObject, { computed, get, set, getProperties, observer } from '@ember/object';
+import { computed, get, set, getProperties, observer } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
@@ -34,6 +34,7 @@ import _ from 'lodash';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import TabModelFactory from 'oneprovider-gui/utils/file-info/tab-model-factory';
 import TabItem from 'oneprovider-gui/utils/file-info/tab-item';
+import TabModels from 'oneprovider-gui/utils/file-info/tab-models';
 import { commonActionIcons } from 'oneprovider-gui/utils/filesystem-browser-model';
 import { guidFor } from '@ember/object/internals';
 import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
@@ -780,57 +781,7 @@ export default Component.extend(...mixins, {
     }),
 
   tabModels: computed(function tabModels() {
-    return EmberObject.extend({
-      tabOptions: reads('fileInfoModal.tabOptions'),
-      previewMode: reads('fileInfoModal.previewMode'),
-      tabModelFactory: reads('fileInfoModal.tabModelFactory'),
-
-      size: computed(function size() {
-        return this.tabModelFactory.createTabModel('size');
-      }),
-
-      metadata: computed(
-        'tabModelFactory',
-        'previewMode',
-        'tabOptions.metadata',
-        function metadata() {
-          return this.tabModelFactory.createTabModel('metadata', {
-            previewMode: this.previewMode,
-            ...this.tabOptions?.metadata,
-          });
-        }
-      ),
-
-      permissions: computed(
-        'tabModelFactory',
-        'previewMode',
-        'tabOptions.permissions',
-        function permissions() {
-          return this.tabModelFactory.createTabModel('permissions', {
-            readonly: this.previewMode,
-            ...this.tabOptions?.permissions,
-          });
-        }
-      ),
-
-      shares: computed(
-        'tabModelFactory',
-        'tabOptions.shares',
-        function shares() {
-          return this.tabModelFactory.createTabModel('shares', {
-            ...this.tabOptions?.shares,
-          });
-        }
-      ),
-
-      qos: computed(function qos() {
-        return this.tabModelFactory.createTabModel('qos');
-      }),
-
-      distribution: computed(function distribution() {
-        return this.tabModelFactory.createTabModel('distribution');
-      }),
-    }).create({
+    return TabModels.create({
       fileInfoModal: this,
     });
   }),

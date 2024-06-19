@@ -89,7 +89,10 @@ export default EmberObject.extend({
     this.getProperties('_interval');
   },
 
-  destroy() {
+  /**
+   * @override
+   */
+  willDestroy() {
     try {
       const _watcher = this.get('_watcher');
       if (_watcher) {

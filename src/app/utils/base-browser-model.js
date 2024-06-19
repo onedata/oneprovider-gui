@@ -682,6 +682,9 @@ export default EmberObject.extend(...mixins, {
   },
 
   initBrowserListPoller() {
+    if (this.browserListPoller) {
+      this.browserListPoller.destroy();
+    }
     this.set('browserListPoller', this.createBrowserListPoller());
   },
 

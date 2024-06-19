@@ -20,13 +20,14 @@ describe('Unit | Utility | archive-filesystem-browser-list-poller', function () 
   afterEach(function () {
     this.get('fakeClock').restore();
     this.browserListWatcher?.destroy();
+    this.browserModelMock?.destroy();
   });
 
   it('invokes refresh and archive reload in intervals if browerModel has polling enabled', async function () {
     const archiveMock = {
       reload: sinon.spy(),
     };
-    const browserModelMock = createBrowserModel(this, {
+    this.browserModelMock = createBrowserModel(this, {
       archive: archiveMock,
       dir: {},
       refresh: sinon.spy(),
@@ -34,22 +35,22 @@ describe('Unit | Utility | archive-filesystem-browser-list-poller', function () 
     });
     this.browserListPoller = ArchiveFilesystemBrowserListPoller
       .create({
-        browserModel: browserModelMock,
+        browserModel: this.browserModelMock,
       });
     const pollInterval = this.browserListPoller.pollInterval;
     const fakeClock = this.get('fakeClock');
 
     fakeClock.tick(pollInterval + 1);
     await settled();
-    expect(browserModelMock.refresh).to.have.callCount(1);
+    expect(this.browserModelMock.refresh).to.have.callCount(1);
     expect(archiveMock.reload).to.have.callCount(1);
     fakeClock.tick(pollInterval + 1);
     await settled();
-    expect(browserModelMock.refresh).to.have.callCount(2);
+    expect(this.browserModelMock.refresh).to.have.callCount(2);
     expect(archiveMock.reload).to.have.callCount(2);
     fakeClock.tick(pollInterval + 1);
     await settled();
-    expect(browserModelMock.refresh).to.have.callCount(3);
+    expect(this.browserModelMock.refresh).to.have.callCount(3);
     expect(archiveMock.reload).to.have.callCount(3);
   });
 });

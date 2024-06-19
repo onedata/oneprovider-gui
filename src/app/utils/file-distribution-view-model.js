@@ -16,6 +16,11 @@ import { raw, array, sum, gt } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { getOwner } from '@ember/application';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 const mixins = [
   OwnerInjector,
@@ -183,19 +188,31 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {Ember.ComputedProperty<Array<Utils.FileDistributionDataContainer>>}
    */
-  fileDistributionData: computed('files.[]', function fileDistributionData() {
+  fileDistributionData: destroyableComputed('files.[]', function fileDistributionData() {
     return this.files.map(file =>
       FileDistributionDataContainer.create(getOwner(this).ownerInjection(), { file })
     );
   }),
 
   init() {
+    initDestroyableCache(this);
     this._super(...arguments);
 
     this.set(
       'activeTab',
       this.get('files.length') > 1 ? 'summary' : 'details'
     );
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   /**

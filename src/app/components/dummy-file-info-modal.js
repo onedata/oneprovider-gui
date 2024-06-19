@@ -40,6 +40,13 @@ export default Component.extend({
     }));
   },
 
+  /**
+   * @override
+   */
+  willDestroy() {
+    this.browserModel?.destroy();
+  },
+
   actions: {
     closeInfoModal() {
       this.set('files', null);
