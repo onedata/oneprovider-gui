@@ -1,13 +1,32 @@
 @import 'onedata-gui-common';
 
-$file-browser-header-height: 62px;
 $file-browser-item-height: 32px;
 // the same padding as distance of provider tab icon in Onezone GUI
 $file-browser-padding-left: 12px;
 // light padding at the right to make some space for scrollbar rail
 $file-browser-padding-right: 16px;
-$fb-table-margin-top: $file-browser-header-height;
 $zindex-file-browser-head: $zindex-modal-background - 10;
+$share-low-screen: 720px;
+$share-ultra-low-screen: 550px;
+
+body {
+  --file-browser-header-height: 62px;
+}
+
+@media (max-height: $share-ultra-low-screen) and (max-width: $screen-xs-max) {
+  .filesystem-table-head-row {
+    height: 0 !important;
+    th {
+      padding: 0 !important;
+      > * {
+        display: none !important;
+      }
+    }
+  }
+  .share-show.share-show-public .share-show-pane-container.share-show-pane-container-files .table-bottom-spacing {
+    height: 0;
+  }
+}
 
 @import 'layout';
 @import 'dummy';

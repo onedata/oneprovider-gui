@@ -2,11 +2,6 @@
   display: flex;
   align-items: center;
   padding-top: 1.5em;
-  @media (max-width: 400px) {
-    .hidden-custom-xs {
-      display: none;
-    }
-  }
   .share-header-public-url {
     display: flex;
     justify-content: center;
@@ -34,6 +29,9 @@
     margin-right: 4px;
     padding-right: 0;
     width: 100px;
+    @media (max-width: 400px) {
+      display: none;
+    }
     .one-icon {
       font-size: 78px;
     }

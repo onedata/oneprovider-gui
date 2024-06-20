@@ -129,7 +129,7 @@
   }
   .fb-table-thead {
     position: sticky;
-    top: $fb-table-margin-top;
+    top: var(--file-browser-header-height);
     z-index: $tbody-z-index + 1;
     th {
       background-color: white;

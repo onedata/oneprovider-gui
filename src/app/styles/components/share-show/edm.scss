@@ -128,15 +128,13 @@ $share-show-edm-empirical-header-height: 68px;
 
 .share-show {
   &.share-show-public {
-    --representative-image-top: #{$share-show-content-header-height-public};
     .edm-mode-xml {
-      --edm-representative-image-max-height: calc(100vh - var(--representative-image-top) - #{$share-show-edm-empirical-header-height} - #{$content-col-padding} - #{$iconified-block-border-width * 2} - #{$share-show-public-footer-height});
+      --edm-representative-image-max-height: calc(100vh - var(--share-show-content-header-height) - #{$share-show-edm-empirical-header-height} - #{$content-col-padding} - #{$iconified-block-border-width * 2} - #{$share-show-public-footer-height});
     }
   }
   &.share-show-private {
-    --representative-image-top: #{$share-show-content-header-height-private};
     .edm-mode-xml {
-      --edm-representative-image-max-height: calc(100vh - var(--representative-image-top) - #{$share-show-edm-empirical-header-height} - #{$content-col-padding} - #{$iconified-block-border-width * 2});
+      --edm-representative-image-max-height: calc(100vh - var(--share-show-content-header-height) - #{$share-show-edm-empirical-header-height} - #{$content-col-padding} - #{$iconified-block-border-width * 2});
     }
   }
   .share-show-edm {
