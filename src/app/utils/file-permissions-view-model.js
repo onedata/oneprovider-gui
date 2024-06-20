@@ -834,6 +834,7 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @param {FilePermissionsType} tabId
+   * @returns {Promise<false|undefined>}
    */
   async changeTab(tabId) {
     if (

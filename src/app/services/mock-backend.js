@@ -1362,6 +1362,7 @@ export default Service.extend(...mixins, {
 
   /**
    * Requires entityRecords: provider, storage
+   * @returns {Promise<Array<Models.FileDistribution>>}
    */
   async createFileDistribution(store) {
     // NOTE: assuming that list of providers and storages are the same lenght
@@ -1401,6 +1402,7 @@ export default Service.extend(...mixins, {
 
   /**
    * Requires entityRecords: provider, storage
+   * @returns {Promise<Array<Models.StorageLocationInfo>>}
    */
   async createStorageLocationInfoRecords(store) {
     // NOTE: assuming that list of providers and storages are the same lenght

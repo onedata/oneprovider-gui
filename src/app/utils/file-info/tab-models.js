@@ -6,7 +6,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { computed } from '@ember/object';
+import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
 import {
   destroyDestroyableComputedValues,

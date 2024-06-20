@@ -178,7 +178,7 @@ export default Component.extend(I18n, {
   },
 
   /**
-   * @returns {void}
+   * @returns {Promise}
    */
   async changeTabToDefault() {
     await this.changeTab(this.availableTabs[0]);
@@ -202,6 +202,7 @@ export default Component.extend(I18n, {
     },
     /**
      * @param {ArchiveDetailsModalTabId} tabId
+     * @returns {Promise}
      */
     async changeTab(tabId) {
       return this.changeTab(tabId);

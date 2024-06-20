@@ -927,7 +927,7 @@ export default Component.extend(...mixins, {
    * from outside this component.
    * @param {boolean} forced If set to true - queue reload even if there is reload already
    *   in the processing queue.
-   * @return {Promise}
+   * @returns {Promise}
    */
   async refreshFileList(forced = false) {
     const {
