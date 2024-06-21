@@ -310,8 +310,8 @@ async function renderComponent(testCase) {
 
 function createDefaultDataset(mochaContext) {
   const store = lookupService(mochaContext, 'store');
-  return mochaContext, store.createRecord('dataset', {
-    name: 'Default dataset',
+  return store.createRecord('dataset', {
+    rootFilePath: '/test/Default dataset',
     state: 'attached',
   });
 }
