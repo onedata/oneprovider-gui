@@ -18,6 +18,7 @@ import { inject as service } from '@ember/service';
 import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 import { htmlSafe } from '@ember/string';
 import { translateFileType } from 'onedata-gui-common/utils/file';
+import PosixPermissions from 'oneprovider-gui/utils/posix-permissions';
 
 export default FbTableRowColumns.extend(I18n, {
   i18n: service(),
@@ -45,6 +46,11 @@ export default FbTableRowColumns.extend(I18n, {
    * @type {DirStatsServiceState}
    */
   dirStatsServiceState: undefined,
+
+  /**
+   * @type {Utils.PosixPermissions}
+   */
+  permissions: undefined,
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -197,6 +203,14 @@ export default FbTableRowColumns.extend(I18n, {
       return htmlSafe(`width: ${left}%;`);
     }
   ),
+
+  init() {
+    this._super(...arguments);
+
+    const initialPermissionsObject = PosixPermissions.create();
+    initialPermissionsObject.fromOctalRepresentation(this.file.effFile.posixPermissions);
+    this.set('permissions', initialPermissionsObject);
+  },
 
   actions: {
     invokeFileAction(file, btnId, ...args) {

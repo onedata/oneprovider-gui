@@ -171,6 +171,23 @@
           </div>
         </div>
       </td>
+    {{else if (eq columnName "posixPermissions")}}
+      <td
+        class="fb-table-col-posix table-col-posix multiline hidden-xs"
+        style={{columnsConfiguration.columnsStyle.posixPermissions}}
+      >
+        <div
+          class="file-item-text"
+          onclick={{action "invokeFileAction" file "info" "permissions"}}
+        >
+          <div class="string-posix-text">
+            {{permissions.stringRepresentation}}
+          </div>
+          <div class="octal-posix-text">
+            {{file.effFile.posixPermissions}}
+          </div>
+        </div>
+      </td>
     {{/if}}
   {{/if}}
 {{/each}}
