@@ -144,6 +144,12 @@ export default OneEmbeddedComponent.extend(
     selectedItems: undefined,
 
     /**
+     * @virtual
+     * @type {DirStatsServiceState}
+     */
+    newDirStatsServiceState: undefined,
+
+    /**
      * Used by `fileActionObserver` to prevent multiple async invocations which is unsafe.
      * @type {boolean}
      */
@@ -285,23 +291,32 @@ export default OneEmbeddedComponent.extend(
       }
     )),
 
-    newDirStatsServiceState: undefined,
-
     /**
      * @type {ComputedProperty<boolean>}
      */
-    isChangeStatus: computed(
+    isStatusChanged: computed(
       'dirStatsServiceStateProxy',
       'newDirStatsServiceState',
-      function () {
-        if (this.dirStatsServiceStateProxy.content && this.newDirStatsServiceState) {
-          if (this.dirStatsServiceStateProxy.content.status !==
+      function isStatusChanged() {
+        return this.dirStatsServiceStateProxy.content && this.newDirStatsServiceState &&
+          (
+            this.dirStatsServiceStateProxy.content.status !==
             this.newDirStatsServiceState.status
-          ) {
-            return true;
-          }
-        }
-        return false;
+          );
+      }
+    ),
+
+    /**
+     * @type {ComputedProperty<DirStatsServiceState>}
+     */
+    effDirStatsServiceState: computed(
+      'isStatusChanged',
+      'newDirStatsServiceState',
+      'dirStatsServiceStateProxy.content',
+      function effDirStatsServiceState() {
+        return this.isStatusChanged ?
+          this.newDirStatsServiceState :
+          this.dirStatsServiceStateProxy.content;
       }
     ),
 
@@ -482,7 +497,7 @@ export default OneEmbeddedComponent.extend(
     willDestroyElement() {
       try {
         this.browserModel?.destroy?.();
-        this.get('updater')?.destroy();
+        this.updater?.destroy();
       } finally {
         this._super(...arguments);
       }
@@ -494,10 +509,9 @@ export default OneEmbeddedComponent.extend(
         true
       );
       this.set('newDirStatsServiceState', status);
-      if (this.newDirStatsServiceState.status === 'enabled') {
+      if (status === 'enabled') {
         this.get('updater').destroy();
       }
-      this.notifyPropertyChange('newDirStatsServiceState');
     },
 
     getItemById(itemId) {
