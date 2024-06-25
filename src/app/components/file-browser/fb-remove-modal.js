@@ -14,12 +14,13 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import { inject as service } from '@ember/service';
-import { bool, sum, array, and, raw } from 'ember-awesome-macros';
+import { bool, and } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import computedSumBy from 'onedata-gui-common/utils/computed-sum-by';
 
 const mixins = [
   I18n,
@@ -130,14 +131,19 @@ export default Component.extend(...mixins, {
   filesToRemoveCount: reads('files.length'),
 
   /**
-   * @type {ComputedProperty<Number>}
+   * @type {ComputedProperty<number>}
    */
-  sharedFilesToRemoveCount: array.length(array.filterBy('files', raw('sharesCount'))),
+  sharedFilesToRemoveCount: computed(
+    'files.@each.sharesCount',
+    function sharedFilesToRemoveCount() {
+      return this.files.filter(file => file && get(file, 'sharesCount')).length;
+    }
+  ),
 
   /**
-   * @type {ComputedProperty<Number>}
+   * @type {ComputedProperty<number>}
    */
-  sharesToRemoveCount: sum(array.compact(array.mapBy('files', raw('sharesCount')))),
+  sharesToRemoveCount: computedSumBy('files', 'sharesCount'),
 
   /**
    * @type {ComputedProperty<Boolean>}

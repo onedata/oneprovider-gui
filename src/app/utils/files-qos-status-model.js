@@ -7,12 +7,13 @@
  */
 
 import EmberObject, { computed, observer } from '@ember/object';
+import { mapBy } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import QosFileItem from 'oneprovider-gui/utils/qos-file-item';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { all as allFulfilled } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
-import { conditional, equal, raw, array } from 'ember-awesome-macros';
+import { conditional, equal, raw } from 'ember-awesome-macros';
 
 const mixins = [
   OwnerInjector,
@@ -42,9 +43,9 @@ export default EmberObject.extend(...mixins, {
   }),
 
   /**
-   * @type {Array<String>}
+   * @type {Array<QosStatus>}
    */
-  filesStatus: array.mapBy('fileItems', raw('fileQosStatus')),
+  filesStatus: mapBy('fileItems', 'fileQosStatus'),
 
   /**
    * One of: error, loading, pending, impossible, fulfilled, unknown

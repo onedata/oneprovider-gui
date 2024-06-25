@@ -10,7 +10,6 @@ import EmberObject, { set, get, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import {
-  array,
   conditional,
   raw,
   equal,
@@ -296,17 +295,16 @@ export default EmberObject.extend(...mixins, {
    * Initial selected permissions type for viewing/editing inferred from files.
    * @type {Ember.ComputedProperty<FilePermissionsType>}
    */
-  initialActivePermissionsType: conditional(
-    array.isEvery('files', raw('activePermissionsType'), raw('posix')),
-    raw('posix'),
-    raw('acl')
+  initialActivePermissionsType: computed(
+    'files.@each.activePermissionsType',
+    function initialActivePermissionsType() {
+      return this.files?.every(file =>
+        file && get(file, 'activePermissionsType') === 'posix'
+      ) ? 'posix' : 'acl';
+    }
   ),
 
-  filesHaveTheSamePermissionsType: array.isEvery(
-    'files',
-    raw('activePermissionsType'),
-    'files.0.activePermissionsType'
-  ),
+  filesHaveTheSamePermissionsType: isEveryTheSame('files', 'activePermissionsType'),
 
   /**
    * Posix permissions octal value inferred from files permissions. Fallbacks

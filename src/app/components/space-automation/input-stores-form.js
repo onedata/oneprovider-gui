@@ -12,7 +12,7 @@ import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fi
 import FormFieldsCollectionGroup from 'onedata-gui-common/utils/form-component/form-fields-collection-group';
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
 import HiddenField from 'onedata-gui-common/utils/form-component/hidden-field';
-import { tag, not, raw, conditional, array } from 'ember-awesome-macros';
+import { tag, not, raw, conditional } from 'ember-awesome-macros';
 import { computed, observer, get, defineProperty } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -187,8 +187,11 @@ export default Component.extend(I18n, {
         );
       }),
 
-      useSelectionPossibilitesCount: array.length(
-        array.filterBy('fields', raw('storeUseSelectionData'))
+      useSelectionPossibilitesCount: computed(
+        'fields.@each.storeUseSelectionData',
+        function useSelectionPossibilitesCount() {
+          return this.fields.filter(field => field.storeUseSelectionData).length;
+        }
       ),
 
       init() {

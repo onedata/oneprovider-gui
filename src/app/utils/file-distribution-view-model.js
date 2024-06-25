@@ -12,7 +12,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { Promise, resolve, allSettled } from 'rsvp';
-import { raw, array, sum, gt } from 'ember-awesome-macros';
+import { array, gt } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { getOwner } from '@ember/application';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
@@ -21,6 +21,9 @@ import {
   destroyableComputed,
   initDestroyableCache,
 } from 'onedata-gui-common/utils/destroyable-computed';
+import computedSumBy from 'onedata-gui-common/utils/computed-sum-by';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import { filterBy } from '@ember/object/computed';
 
 const mixins = [
   OwnerInjector,
@@ -67,11 +70,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {Ember.ComputedProperty<Array<Models.File>>}
    */
-  filesOfTypeFile: array.filterBy(
-    'files',
-    raw('type'),
-    raw('file')
-  ),
+  filesOfTypeFile: filterBy('files', 'type', LegacyFileType.Regular),
 
   /**
    * @type {Ember.ComputedProperty<number>}
@@ -93,19 +92,19 @@ export default EmberObject.extend(...mixins, {
    * if array is empty, the sum is 0
    * if one of element in array is null, the sum is also null
    */
-  itemsSize: sum(array.mapBy('files', raw('size'))),
+  itemsSize: computedSumBy('files', 'size'),
 
   /**
    * @type {Ember.ComputedProperty<number>}
    */
-  filesSize: sum(array.mapBy('filesOfTypeFile', raw('size'))),
+  filesSize: computedSumBy('filesOfTypeFile', 'size'),
 
   /**
    * @type {Ember.ComputedProperty<number>}
    * if array is empty, the sum is 0
    * if one of element in array is null, the sum is also null
    */
-  dirsSize: sum(array.mapBy('filesOfTypeDir', raw('size'))),
+  dirsSize: computedSumBy('filesOfTypeDir', 'size'),
 
   /**
    * @type {ComputedProperty<String>}

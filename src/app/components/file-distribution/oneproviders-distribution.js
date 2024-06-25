@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import { observer, get, set, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, notEmpty, array, equal, and, promise } from 'ember-awesome-macros';
+import { conditional, raw, notEmpty, array, equal, promise } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -19,6 +19,7 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import _ from 'lodash';
 import sortByProperties from 'onedata-gui-common/utils/ember/sort-by-properties';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 export default Component.extend(I18n, {
   classNames: ['oneproviders-distribution'],
@@ -368,9 +369,12 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasSingleRegFile: and(
-    equal('fileDistributionData.length', raw(1)),
-    array.isEvery('fileDistributionData', raw('fileType'), raw('file'))
+  hasSingleRegFile: computed(
+    'fileDistributionData.{length,0.fileType}',
+    function hasSingleRegFile() {
+      return this.fileDistributionData?.length === 1 &&
+        this.fileDistributionData[0].fileType === LegacyFileType.File;
+    }
   ),
 
   init() {
