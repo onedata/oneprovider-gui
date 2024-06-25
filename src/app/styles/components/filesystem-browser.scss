@@ -168,6 +168,7 @@
 
       .string-posix-text {
         @include font-monospace();
+        line-height: 1.6;
       }
 
       .octal-posix-text {
