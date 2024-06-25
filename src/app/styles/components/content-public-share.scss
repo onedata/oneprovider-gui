@@ -2,4 +2,7 @@
   + .ps__rail-x + .ps__rail-y {
     z-index: $zindex-file-browser-head + 1;
   }
+  @media (max-height: $share-low-screen) {
+    --file-browser-header-height: 52px;
+  }
 }

@@ -5,6 +5,7 @@
 ### Latest changes
 
 * VFS-11862 Added polling for dir stats status when disabled
+* VFS-11795 Improved public share view layout to better support small screens
 * VFS-12053 Removed OpenData emblem from public share description view
 * VFS-11983 Enabled EDM editor for newly created Open Data metadata
 * VFS-12042 Fixed always disabled share actions when accessed via Shares main menu

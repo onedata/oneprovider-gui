@@ -1,8 +1,6 @@
 $share-show-description-bar-height: 60px;
 // this padding aligns content to first icon in tab bar
 $share-show-content-padding-horizontal: 12px;
-$share-show-content-header-height-public: 200px;
-$share-show-content-header-height-private: 150px;
 $share-show-public-section-border-width: 2px;
 $share-show-public-section-border: $share-show-public-section-border-width solid $color-one-semiwhite;
 $share-show-public-footer-height: 88px;
@@ -11,23 +9,152 @@ $share-show-tabs-metadata-header-width: 410px;
 $share-show-metadata-header-height-empirical: 70px;
 $share-show-metadata-stacked-header-height-empirical: 100px;
 
+@mixin small-eu-logos {
+  .eu-logo {
+    height: 36px;
+  }
+  .logo-eureka3d {
+    width: 100px;
+  }
+  .logo-europeana {
+    width: 120px;
+  }
+}
+
 .share-show {
-  @mixin small-eu-logos {
-    .eu-logo {
-      height: 36px;
+  padding-top: var(--share-show-content-header-height);
+
+  @media (max-height: $share-low-screen) {
+    .share-show-header-public {
+      padding-top: 0;
     }
-    .logo-eureka3d {
-      width: 100px;
+    .share-show.share-show-public .share-header-container {
+      height: 160px;
     }
-    .logo-europeana {
-      width: 120px;
+  }
+  @media (max-width: $share-show-tabs-stack-width) {
+    .bs-tab-onedata.tab-share-show-mode .nav-tabs.nav > li > a {
+      padding: 20px 28px;
+      .one-label.tab-name {
+        display: none;
+      }
+      .tab-icon {
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        margin-top: 0;
+        font-size: 36px;
+      }
     }
+  }
+
+  &.share-show-public {
+    --share-show-content-header-height: 200px;
+    @media (max-height: $share-low-screen) {
+      --share-show-content-header-height: 150px;
+    }
+
+    padding-bottom: 0;
+    // Because of footer, we must remove padding added by generic one-embedded-component
+    // There is also a 2px embedded iframe bug caused by perfect-scroll usage
+    margin-bottom: -$content-col-padding + 2px;
+
+    .share-show-dc-preview {
+      // restore bottom padding, which was removed in share-show-public for footer
+      padding-bottom: $content-col-padding;
+      .metadata-header-section {
+        top: var(--share-show-content-header-height);
+      }
+      textarea.open-data-xml-textarea {
+        // the non-variable value is typical height of metadata-header-section,
+        // because its height is dynamic
+        --vertical-elements-height: calc(var(--share-show-content-header-height) + #{$share-show-public-footer-height + 2 * $content-col-padding});
+        height: calc(100vh - var(--vertical-elements-height) - #{$share-show-metadata-header-height-empirical});
+        // when the metadata-header-sections can stack horizontally
+        @media (max-width: $share-show-tabs-metadata-header-width) {
+          height: calc(100vh - var(--vertical-elements-height) - #{$share-show-metadata-stacked-header-height-empirical});
+        }
+      }
+    }
+    .share-header-container {
+      overflow: hidden;
+      background-color: $color-one-white;
+      @media (max-width: $screen-xs-max) {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .bs-tab-modern .nav-tabs li.active > a {
+        border-bottom-color: $color-one-red;
+      }
+      .bs-tab-modern .nav-tabs li > a:hover {
+        border-bottom-color: lighten($color-one-red, 25);
+      }
+      &::after {
+        position: absolute;
+        content: ' ';
+        bottom: 0;
+        left: 0;
+        border-bottom: $share-show-public-section-border;
+        width: 100%;
+        z-index: -1;
+      }
+    }
+    .fb-table {
+      .fb-table-thead {
+        top: calc(var(--share-show-content-header-height) + var(--file-browser-header-height));
+      }
+    }
+    .share-show-pane-container {
+      &.share-show-pane-container-files {
+        .table-bottom-spacing {
+          // do not need original large bottom spacing, because there is a footer
+          height: $share-show-public-footer-height * 0.5;
+        }
+      }
+      .share-show-pane-description {
+        padding-left: $share-show-content-padding-horizontal;
+      }
+    }
+    @media (max-width: $screen-sm-max) {
+      @include small-eu-logos;
+    }
+  }
+
+  &.share-show-private {
+    --share-show-content-header-height: 150px;
+    .share-show-dc-preview {
+      textarea.open-data-xml-textarea {
+        // the non-variable value is typical height of metadata-header-section,
+        // because its height is dynamic
+        --vertical-elements-height: calc(
+          var(--share-show-content-header-height)
+          + #{$content-col-padding}
+        );
+        height: calc(100vh - var(--vertical-elements-height) - #{$share-show-metadata-header-height-empirical});
+        // when the metadata-header-sections can stack horizontally
+        @media (max-width: $share-show-tabs-metadata-header-width) {
+          height: calc(100vh - var(--vertical-elements-height) - #{$share-show-metadata-stacked-header-height-empirical});
+        }
+      }
+    }
+    .eu-logo-container {
+      @media (max-width: $screen-sm-max) {
+        display: none;
+      }
+    }
+    @include small-eu-logos;
+  }
+
+  .content-info {
+    // must be forced, because one-carousel stretched as its content and absolute map
+    // will not stretch horizontally, until it has no space provided by content-info
+    min-height: calc(100vh - var(--share-show-content-header-height) + #{2 * $content-col-padding});
   }
 
   // more compact files header, because of shares header
   .file-browser-head-container {
     padding-top: 0;
   }
+
   .share-header-container {
     position: fixed;
     display: flex;
@@ -36,12 +163,14 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     top: 0;
     left: 0;
     right: 0;
+    height: var(--share-show-content-header-height);
     z-index: $zindex-file-browser-head;
     padding-top: $content-row-vertical-padding;
     padding-left: $content-col-padding;
     padding-right: $content-col-padding;
     background-color: $main-tabbed-content-background;
   }
+
   .tab-share-show-mode {
     position: absolute;
     top: auto;
@@ -54,13 +183,16 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       color: $color-one-blue-gray;
     }
   }
+
   .content-info {
     position: relative;
   }
+
   .opendata-one-carousel {
     // overflow cannot be hidden, because of sticky elements inside
     overflow: visible;
   }
+
   .metadata-type-text {
     margin-top: 1.6em;
   }
@@ -71,14 +203,17 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     align-items: center;
     margin-top: auto;
   }
+
   .nav-tabs-share-mode {
     align-self: flex-end;
   }
+
   .eu-logo-container {
     margin-left: auto;
     display: flex;
     gap: 20px;
   }
+
   .eu-logo {
     background-repeat: no-repeat;
     background-position: center;
@@ -86,6 +221,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     height: 50px;
     display: block;
   }
+
   .logo-eureka3d {
     background-image: url($root-url + 'images/logo-eureka3d.svg');
     width: 140px;
@@ -93,6 +229,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       display: none;
     }
   }
+
   .logo-europeana {
     background-image: url($root-url + 'images/logo-europeana.svg');
     width: 160px;
@@ -114,145 +251,21 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     }
   }
 
-  @media (max-width: $share-show-tabs-stack-width) {
-    .bs-tab-onedata.tab-share-show-mode .nav-tabs.nav > li > a {
-      padding: 20px 28px;
-      .one-label.tab-name {
-        display: none;
-      }
-      .tab-icon {
-        left: 50%;
-        transform: translateX(-50%) translateY(-50%);
-        margin-top: 0;
-        font-size: 36px;
-      }
+  .file-browser-head-container {
+    top: var(--share-show-content-header-height);
+  }
+
+  .fb-table {
+    .fb-table-thead {
+      top: calc(var(--share-show-content-header-height) + var(--file-browser-header-height));
     }
   }
 
-  &.share-show-public {
-    padding-top: $share-show-content-header-height-public;
-    padding-bottom: 0;
-    // Because of footer, we must remove padding added by generic one-embedded-component
-    // There is also a 2px embedded iframe bug caused by perfect-scroll usage
-    margin-bottom: -$content-col-padding + 2px;
-
-    .share-show-dc-preview {
-      // restore bottom padding, which was removed in share-show-public for footer
-      padding-bottom: $content-col-padding;
-      .metadata-header-section {
-        top: $share-show-content-header-height-public;
-      }
-      textarea.open-data-xml-textarea {
-        // the non-variable value is typical height of metadata-header-section,
-        // because its height is dynamic
-        $vertical-elements-height: #{
-          $share-show-content-header-height-public
-          + $share-show-public-footer-height
-          + 2 * $content-col-padding
-        };
-        height: calc(100vh - #{$vertical-elements-height} - #{$share-show-metadata-header-height-empirical});
-        // when the metadata-header-sections can stack horizontally
-        @media (max-width: $share-show-tabs-metadata-header-width) {
-          height: calc(100vh - #{$vertical-elements-height} - #{$share-show-metadata-stacked-header-height-empirical});
-        }
-      }
-    }
-    .content-info {
-      // must be forced, because one-carousel stretched as its content and absolute map
-      // will not stretch horizontally, until it has no space provided by content-info
-      min-height: calc(100vh - #{$share-show-content-header-height-public + 2 * $content-col-padding});
-    }
-    .share-header-container {
-      height: $share-show-content-header-height-public;
-      overflow: hidden;
-      background-color: $color-one-white;
-      .bs-tab-modern .nav-tabs li.active > a {
-        border-bottom-color: $color-one-red;
-      }
-      .bs-tab-modern .nav-tabs li > a:hover {
-        border-bottom-color: lighten($color-one-red, 25);
-      }
-      &::after {
-        position: absolute;
-        content: ' ';
-        bottom: 0;
-        left: 0;
-        border-bottom: $share-show-public-section-border;
-        width: 100%;
-        z-index: -1;
-      }
-    }
-    .file-browser-head-container {
-      top: $share-show-content-header-height-public;
-    }
-    .fb-table {
-      .fb-table-thead {
-        top: $share-show-content-header-height-public + $fb-table-margin-top;
-      }
-    }
-    .share-show-pane-container {
-      &.share-show-pane-container-files {
-        .table-bottom-spacing {
-          // do not need original large bottom spacing, because there is a footer
-          height: $share-show-public-footer-height * 0.5;
-        }
-      }
-      .share-show-pane-description {
-        padding-left: $share-show-content-padding-horizontal;
-      }
-    }
-    @media (max-width: $screen-sm-max) {
-      @include small-eu-logos;
+  .open-data {
+    .metadata-header-section {
+      top: var(--share-show-content-header-height);
     }
   }
-
-  &.share-show-private {
-    padding-top: $share-show-content-header-height-private;
-
-    .share-header-container {
-      height: $share-show-content-header-height-private;
-    }
-    .file-browser-head-container {
-      top: $share-show-content-header-height-private;
-    }
-    .fb-table {
-      .fb-table-thead {
-        top: $share-show-content-header-height-private + $fb-table-margin-top;
-      }
-    }
-    .open-data {
-      .metadata-header-section {
-        top: $share-show-content-header-height-private;
-      }
-    }
-    .share-show-dc-preview {
-      textarea.open-data-xml-textarea {
-        // the non-variable value is typical height of metadata-header-section,
-        // because its height is dynamic
-        $vertical-elements-height: #{
-          $share-show-content-header-height-public
-          + $content-col-padding
-        };
-        height: calc(100vh - #{$vertical-elements-height} - #{$share-show-metadata-header-height-empirical});
-        // when the metadata-header-sections can stack horizontally
-        @media (max-width: $share-show-tabs-metadata-header-width) {
-          height: calc(100vh - #{$vertical-elements-height} - #{$share-show-metadata-stacked-header-height-empirical});
-        }
-      }
-    }
-    .content-info {
-      // must be forced, because one-carousel stretched as its content and absolute map
-      // will not stretch horizontally, until it has no space provided by content-info
-      min-height: calc(100vh - #{$share-show-content-header-height-private + 2 * $content-col-padding});
-    }
-    .eu-logo-container {
-      @media (max-width: $screen-sm-max) {
-        display: none;
-      }
-    }
-    @include small-eu-logos;
-  }
-
 
   .public-footer {
     height: $share-show-public-footer-height;
@@ -275,11 +288,12 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       background-position: center center;
       background-size: contain;
       transition: all 0.2s ease;
-      @media (max-height: #{$share-show-content-header-height-public + $share-show-public-footer-height + $open-data-logo-size}) {
+      @media (max-height: calc(var(--share-show-content-header-height) + #{$share-show-public-footer-height $open-data-logo-size})) {
         display: none;
       }
     }
   }
+
   .metadata-header-section-content {
     display: flex;
     flex-wrap: wrap;
