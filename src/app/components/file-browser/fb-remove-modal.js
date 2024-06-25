@@ -19,6 +19,7 @@ import { resolve, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 const mixins = [
   I18n,
@@ -115,9 +116,13 @@ export default Component.extend(...mixins, {
   filesProcessedCount: 0,
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  filesContainDirectory: array.isAny('files', raw('type'), raw('dir')),
+  filesContainDirectory: computed('files.@each.type', function filesContainDirectory() {
+    return this.files?.some(file =>
+      file && get(file, 'type') === LegacyFileType.Directory
+    );
+  }),
 
   /**
    * @type {ComputedProperty<Number>}

@@ -211,9 +211,11 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  isDistributionLoading: array.isAny(
-    'fileDistributionData',
-    raw('isFileDistributionLoading')
+  isDistributionLoading: computed(
+    'fileDistributionData.@each.isFileDistributionLoading',
+    function isDistributionLoading() {
+      return this.fileDistributionData?.some(data => data.isFileDistributionLoading);
+    }
   ),
 
   /**

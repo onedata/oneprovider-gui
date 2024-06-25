@@ -233,10 +233,15 @@ export default Component.extend(
       'providersItems',
     ),
 
-    selectedProviderItem: array.findBy(
-      '_providersOptions',
-      raw('id'),
-      'transferStatProviderId'
+    selectedProviderItem: computed(
+      '_providersOptions.@each.id',
+      'transferStatProviderId',
+      function selectedProviderItem() {
+        const transferStatProviderId = this.transferStatProviderId;
+        return this._providersOptions?.find(option =>
+          option?.id === transferStatProviderId
+        );
+      }
     ),
 
     /**

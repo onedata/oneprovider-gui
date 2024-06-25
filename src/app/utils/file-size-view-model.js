@@ -16,7 +16,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { SpaceSizeStatsType } from 'oneprovider-gui/services/production/file-manager';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import Looper from 'onedata-gui-common/utils/looper';
-import installGetByProperty from '../../lib/onedata-gui-common/addon/utils/install-get-by-property';
+import installGetByProperty from 'onedata-gui-common/utils/install-get-by-property';
 
 const mixins = [
   OwnerInjector,

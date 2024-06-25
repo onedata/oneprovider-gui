@@ -1271,7 +1271,12 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  selectedItemsContainsRecalling: array.isAny('selectedItems', raw('isRecalling')),
+  selectedItemsContainsRecalling: computed(
+    'selectedItems.@each.isRecalling',
+    function selectedItemsContainsRecalling() {
+      return this.selectedItems?.some(item => item && get(item, 'isRecalling'));
+    }
+  ),
 
   /**
    * @type {ComputedProperty<boolean>}

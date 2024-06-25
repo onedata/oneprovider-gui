@@ -192,9 +192,14 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * True if any file metadata is protected.
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  metadataIsProtected: array.isAny('files', raw('metadataIsProtected')),
+  metadataIsProtected: computed(
+    'files.@each.metadataIsProtected',
+    function metadataIsProtected() {
+      return this.files?.some(file => file && get(file, 'metadataIsProtected'));
+    }
+  ),
 
   /**
    * @type {ComputedProperty<Boolean>}

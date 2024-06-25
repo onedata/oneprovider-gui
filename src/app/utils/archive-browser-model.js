@@ -18,7 +18,7 @@ import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import { all as allFulfilled, allSettled } from 'rsvp';
-import { conditional, equal, raw, array, and, or } from 'ember-awesome-macros';
+import { conditional, equal, raw, and } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import _ from 'lodash';
@@ -224,33 +224,39 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   browserPersistedConfigurationKey: 'archive',
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  isAnySelectedDeleting: array.isAny('selectedItems', raw('state'), raw('deleting')),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isAnySelectedCreating: array.isAny(
-    'selectedItems',
-    raw('metaState'),
-    raw('creating')
+  isAnySelectedDeleting: computed(
+    'selectedItems.@each.state',
+    function isAnySelectedDeleting() {
+      this.selectedItems?.some(item => item && get(item, 'state') === 'deleting');
+    }
   ),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  isAnySelectedEndedIncomplete: or(
-    array.isAny(
-      'selectedItems',
-      raw('metaState'),
-      raw('failed')
-    ),
-    array.isAny(
-      'selectedItems',
-      raw('metaState'),
-      raw('cancelled')
-    ),
+  isAnySelectedCreating: computed(
+    'selectedItems.@each.metaState',
+    function isAnySelectedCreating() {
+      return this.selectedItems?.some(item =>
+        item && get(item, 'metaState') === 'creating'
+      );
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isAnySelectedEndedIncomplete: computed(
+    'selectedItems.@each.metaState',
+    function isAnySelectedEndedIncomplete() {
+      return this.selectedItems?.some(item =>
+        item && (
+          get(item, 'metaState') === 'failed' || get(item, 'metaState') === 'cancelled'
+        )
+      );
+    },
   ),
 
   /**
