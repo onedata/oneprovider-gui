@@ -7,11 +7,12 @@
  */
 
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { htmlSafe } from '@ember/string';
-import { getBy, array, raw, conditional } from 'ember-awesome-macros';
+import { raw, conditional } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
+import includes from 'onedata-gui-common/macros/includes';
 
 export default Component.extend(I18n, {
   classNames: ['archive-state'],
@@ -40,6 +41,14 @@ export default Component.extend(I18n, {
     destroying: '',
   }),
 
+  /**
+   * @type {ComputedProperty<Array<ArchiveState>>}
+   */
+  hiddenDetailsStates: Object.freeze([
+    'pending',
+    'deleting',
+  ]),
+
   stateTypeText: computed(
     'archive.state',
     function stateTypeText() {
@@ -51,20 +60,18 @@ export default Component.extend(I18n, {
     }
   ),
 
-  /**
-   * @type {ComputedProperty<Array<ArchiveState>>}
-   */
-  hiddenDetailsStates: raw([
-    'pending',
-    'deleting',
-  ]),
-
-  isStateDetailsHidden: array.includes(
+  isStateDetailsHidden: includes(
     'hiddenDetailsStates',
     'archive.state'
   ),
 
-  stateTypeTextClass: getBy('stateClassMapping', 'archive.metaState'),
+  stateTypeTextClass: computed(
+    'stateClassMapping',
+    'archive.metaState',
+    function stateTypeTextClass() {
+      return this.stateClassMapping[get(this.archive, 'metaState')];
+    }
+  ),
 
   stateDetailsTextClass: conditional(
     'isStateDetailsHidden',

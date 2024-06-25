@@ -18,7 +18,7 @@
 
 import Component from '@ember/component';
 import EmberObject, { computed, observer } from '@ember/object';
-import { and, notEqual, raw, not, conditional, array, collect, getBy, or } from 'ember-awesome-macros';
+import { and, notEqual, raw, not, conditional, array, collect } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { defineProperty } from '@ember/object';
 
@@ -48,6 +48,11 @@ import { defineProperty } from '@ember/object';
  * @property {String} [key]
  * @property {ItemFeatureNoticeLevel} [noticeLevel]
  */
+
+const tagNoticeLevelClasses = Object.freeze({
+  warning: 'file-status-tag-warning',
+  danger: 'file-status-tag-danger',
+});
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -228,16 +233,9 @@ export default Component.extend(I18n, {
       'default';
   }),
 
-  tagNoticeLevelClass: or(
-    getBy(
-      raw({
-        warning: 'file-status-tag-warning',
-        danger: 'file-status-tag-danger',
-      }),
-      'activeNoticeLevel'
-    ),
-    raw('file-status-tag-inherited')
-  ),
+  tagNoticeLevelClass: computed('activeNoticeLevel', function tagNoticeLevelClass() {
+    return tagNoticeLevelClasses[this.activeNoticeLevel] ?? 'file-status-tag-inherited';
+  }),
 
   tagClasses: array.concat(
     collect('tagNoticeLevelClass'),

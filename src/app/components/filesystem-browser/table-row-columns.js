@@ -9,7 +9,7 @@
  */
 
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
-import { raw, array, promise, or, eq, and, getBy, not } from 'ember-awesome-macros';
+import { raw, array, promise, or, eq, and, not } from 'ember-awesome-macros';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -128,7 +128,9 @@ export default FbTableRowColumns.extend(I18n, {
    * QoS fulfillment icon name
    * @type {ComputedProperty<string>}
    */
-  statusIcon: getBy(raw(qosStatusIcons), 'qosStatus'),
+  statusIcon: computed('qosStatus', function statusIcon() {
+    return qosStatusIcons[this.qosStatus];
+  }),
 
   /**
    * @type {ComputedProperty<boolean>}

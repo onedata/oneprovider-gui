@@ -10,12 +10,13 @@
 import EmberObject, { computed, observer, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { eq, getBy } from 'ember-awesome-macros';
+import { eq } from 'ember-awesome-macros';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { SpaceSizeStatsType } from 'oneprovider-gui/services/production/file-manager';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import Looper from 'onedata-gui-common/utils/looper';
+import installGetByProperty from '../../lib/onedata-gui-common/addon/utils/install-get-by-property';
 
 const mixins = [
   OwnerInjector,
@@ -105,7 +106,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<DirCurrentSizeStats | undefined>}
    */
-  latestDirSizeStatsValues: getBy('completeLatestDirSizeStatsValues', 'activeTab'),
+  latestDirSizeStatsValues: undefined,
 
   /**
    * @type {ComputedProperty<{ [key in SpaceSizeStatsType]?: number }>}
@@ -128,7 +129,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<number | undefined>}
    */
-  totalPhysicalSize: getBy('completeTotalPhysicalSizes', 'activeTab'),
+  totalPhysicalSize: undefined,
 
   isActiveObserver: observer('isActive', function isActiveObserver() {
     const newUpdateInterval = this.isActive ?
@@ -141,6 +142,20 @@ export default EmberObject.extend(...mixins, {
    */
   init() {
     this._super(...arguments);
+
+    installGetByProperty(
+      this,
+      'latestDirSizeStatsValues',
+      'completeLatestDirSizeStatsValues',
+      'activeTab',
+    );
+
+    installGetByProperty(
+      this,
+      'totalPhysicalSize',
+      'completeTotalPhysicalSizes',
+      'activeTab',
+    );
 
     const completeLatestDirSizeStatsValuesUpdater = Looper.create({
       immediate: true,

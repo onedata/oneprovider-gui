@@ -12,8 +12,8 @@ import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fi
 import FormFieldsCollectionGroup from 'onedata-gui-common/utils/form-component/form-fields-collection-group';
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
 import HiddenField from 'onedata-gui-common/utils/form-component/hidden-field';
-import { tag, not, getBy, raw, conditional, array } from 'ember-awesome-macros';
-import { computed, observer, get } from '@ember/object';
+import { tag, not, raw, conditional, array } from 'ember-awesome-macros';
+import { computed, observer, get, defineProperty } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { scheduleOnce } from '@ember/runloop';
@@ -178,10 +178,24 @@ export default Component.extend(I18n, {
   inputStoresFieldsCollectionGroup: computed(function inputStoresFieldsCollectionGroup() {
     const component = this;
     return FormFieldsCollectionGroup.extend({
-      defaultValue: getBy('component', tag `defaultFormValues.${'path'}`),
+      defineDefaultValue: observer('path', function defineDefaultValue() {
+        const defaultValueComponentPath = `defaultFormValues.${this.path}`;
+        defineProperty(
+          this,
+          'defaultValue',
+          reads(`component.${defaultValueComponentPath}`)
+        );
+      }),
+
       useSelectionPossibilitesCount: array.length(
         array.filterBy('fields', raw('storeUseSelectionData'))
       ),
+
+      init() {
+        this.defineDefaultValue();
+        this._super(...arguments);
+      },
+
       fieldFactoryMethod(uniqueFieldValueName) {
         return FormFieldsGroup.extend({
           context: reads('value.context'),

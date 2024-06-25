@@ -8,8 +8,8 @@
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
+import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { raw, or, getBy } from 'ember-awesome-macros';
 
 export default Component.extend({
   tagName: 'td',
@@ -38,8 +38,7 @@ export default Component.extend({
    */
   severity: reads('entryModel.severity'),
 
-  icon: or(
-    getBy('severityToIconMapping', 'severity'),
-    raw('browser-info')
-  ),
+  icon: computed('severityToIconMapping', 'severity', function icon() {
+    return this.severityToIconMapping?.[this.severity] ?? 'browser-info';
+  }),
 });
