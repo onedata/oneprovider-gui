@@ -48,11 +48,6 @@ export default FbTableRowColumns.extend(I18n, {
   dirStatsServiceState: undefined,
 
   /**
-   * @type {Utils.PosixPermissions}
-   */
-  permissions: undefined,
-
-  /**
    * @type {ComputedProperty<boolean>}
    */
   isDirStatsServiceStarted: array.includes(
@@ -204,13 +199,14 @@ export default FbTableRowColumns.extend(I18n, {
     }
   ),
 
-  init() {
-    this._super(...arguments);
-
+  /**
+   * @type {Utils.PosixPermissions}
+   */
+  permissions: computed('file.effFile.posixPermissions', function permissions() {
     const initialPermissionsObject = PosixPermissions.create();
     initialPermissionsObject.fromOctalRepresentation(this.file.effFile.posixPermissions);
-    this.set('permissions', initialPermissionsObject);
-  },
+    return initialPermissionsObject;
+  }),
 
   actions: {
     invokeFileAction(file, btnId, ...args) {
