@@ -144,7 +144,6 @@ export default OneEmbeddedComponent.extend(
     selectedItems: undefined,
 
     /**
-     * @virtual
      * @type {DirStatsServiceState}
      */
     newDirStatsServiceState: undefined,
@@ -504,12 +503,12 @@ export default OneEmbeddedComponent.extend(
     },
 
     async getDirStatsServiceState() {
-      const status = await this.spaceManager.getDirStatsServiceState(
+      const dirStatsServiceState = await this.spaceManager.getDirStatsServiceState(
         this.spaceEntityId,
         true
       );
-      this.set('newDirStatsServiceState', status);
-      if (status === 'enabled') {
+      this.set('newDirStatsServiceState', dirStatsServiceState);
+      if (dirStatsServiceState.status === 'enabled') {
         this.get('updater').destroy();
       }
     },
