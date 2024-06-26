@@ -636,6 +636,7 @@ export default EmberObject.extend(...mixins, {
   willDestroy() {
     try {
       this.browserListPoller?.destroy();
+      this.cacheFor('btnRefresh')?.destroy();
     } finally {
       this._super(...arguments);
     }

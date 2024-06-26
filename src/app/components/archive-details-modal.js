@@ -93,6 +93,7 @@ export default Component.extend(I18n, {
     'space',
     'options.properties',
     function archivePropertiesViewModelReloader() {
+      this.destroyArchivePropertiesViewModel();
       this.createArchivePropertiesViewModel();
     }
   ),

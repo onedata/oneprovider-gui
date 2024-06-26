@@ -140,9 +140,9 @@ export default EmberObject.extend(...mixins, {
   /**
    * @override
    */
-  destroy() {
+  willDestroy() {
     try {
-      this.formModel?.destroy();
+      this.cacheFor('formModel')?.destroy();
     } finally {
       this._super(...arguments);
     }
