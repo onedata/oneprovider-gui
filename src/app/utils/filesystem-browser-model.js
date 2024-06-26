@@ -1835,7 +1835,12 @@ export default BaseBrowserModel.extend(...mixins, {
     );
 
     const throttledRefresh = createThrottledFunction(
-      () => fbTableApi.refresh(),
+      () => {
+        if (this.isDestroyed) {
+          return;
+        }
+        return fbTableApi.refresh();
+      },
       1000
     );
 
@@ -1877,7 +1882,12 @@ export default BaseBrowserModel.extend(...mixins, {
     );
 
     const throttledRefresh = createThrottledFunction(
-      () => fbTableApi.refresh(),
+      () => {
+        if (this.isDestroyed) {
+          return;
+        }
+        return fbTableApi.refresh();
+      },
       1000
     );
 

@@ -114,8 +114,8 @@ export default Component.extend(I18n, {
     return this.alertClassMapping?.[this.status] ?? 'alert-light';
   }),
 
-  statusIcon: computed('statusIconMapping', 'status', function alertClass() {
-    return this.alertClassMapping?.[this.status] ?? 'browser-info';
+  statusIcon: computed('statusIconMapping', 'status', function statusIcon() {
+    return this.statusIconMapping?.[this.status] ?? 'browser-info';
   }),
 
   /**

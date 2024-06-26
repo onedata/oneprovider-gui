@@ -822,14 +822,10 @@ export default Component.extend(...mixins, {
    * @returns {{ element: HTMLElement, renderedRowIndex: Number }}
    */
   getFirstVisibleRow() {
-    const {
-      viewTester,
-      element,
-    } = this.getProperties('viewTester', 'element');
     let firstRow;
     let renderedRowIndex;
-    $(element).find('[data-row-id]').each((index, element) => {
-      if (viewTester.isInView(element)) {
+    $(this.element).find('[data-row-id]').each((index, element) => {
+      if (this.viewTester.isInView(element)) {
         renderedRowIndex = index;
         firstRow = element;
         return false;
@@ -930,6 +926,9 @@ export default Component.extend(...mixins, {
    * @returns {Promise}
    */
   async refreshFileList(forced = false) {
+    if (this.isDestroyed) {
+      return;
+    }
     const {
       dir,
       filesArray,

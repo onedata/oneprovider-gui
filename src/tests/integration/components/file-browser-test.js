@@ -63,6 +63,7 @@ describe('Integration | Component | file-browser (main component)', function () 
       name,
       type: 'dir',
     });
+    await dir.save();
     this.set('dir', dir);
     mockRootFiles({
       testCase: this,
@@ -85,6 +86,7 @@ describe('Integration | Component | file-browser (main component)', function () 
       index: 'Some Space',
       type: 'dir',
     });
+    await rootDir.save();
 
     const dirs = _.range(0, numberOfDirs).map(i => (this.store.createRecord('file', {
       id: getFileGri(`file-${i}`),
@@ -96,6 +98,7 @@ describe('Integration | Component | file-browser (main component)', function () 
     for (let i = 0; i < numberOfDirs; ++i) {
       dirs[i].set('parent', i > 0 ? dirs[i - 1] : rootDir);
     }
+    await allFulfilled(dirs.map(dir => dir.save()));
 
     this.setProperties({
       dir: rootDir,
@@ -217,6 +220,7 @@ describe('Integration | Component | file-browser (main component)', function () 
       name,
       type: 'dir',
     });
+    await dir.save();
     const files = [];
     const fileManager = lookupService(this, 'fileManager');
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
@@ -247,11 +251,13 @@ describe('Integration | Component | file-browser (main component)', function () 
       name,
       type: 'dir',
     });
+    await dir.save();
     const f1 = this.store.createRecord('file', {
       id: getFileGri('f1'),
       name: 'File 1',
       index: 'File 1',
     });
+    await f1.save();
     const files = [f1];
     this.set('dir', dir);
     this.setProperties({
@@ -285,6 +291,7 @@ describe('Integration | Component | file-browser (main component)', function () 
         index: 'Test directory',
         type: 'dir',
       });
+      await dir.save();
 
       const dirs = [dir];
 
@@ -346,6 +353,7 @@ describe('Integration | Component | file-browser (main component)', function () 
         name,
         type: 'dir',
       });
+      await dir.save();
       const files = _.range(4).map(i => {
         const id = getFileGri(`f${i}`);
         const name = `File ${i}`;
@@ -355,6 +363,7 @@ describe('Integration | Component | file-browser (main component)', function () 
           index: name,
         });
       });
+      await allFulfilled(files.map(file => file.save()));
       const selectedFile = files[1];
       const selectedItemsForJump = [selectedFile];
       this.setProperties({
@@ -703,7 +712,7 @@ function testOpenDatasetsModal(openDescription, openFunction) {
 
 function testOpenFileInfo({ openDescription, tabName, openFunction }) {
   it(`invokes info modal opening with tab "${tabName}" when ${openDescription}`, async function () {
-    whenRootDirectoryHasOneItem(this);
+    await whenRootDirectoryHasOneItem(this);
     whenHaveSpaceViewPrivileges(this);
 
     const openInfo = sinon.spy();
@@ -900,13 +909,14 @@ function destroyFakeClock(testCase) {
   }
 }
 
-function whenRootDirectoryHasOneItem(testCase, { itemType = 'file' } = {}) {
+async function whenRootDirectoryHasOneItem(testCase, { itemType = 'file' } = {}) {
   const dir = testCase.store.createRecord('file', {
     id: getFileGri('root'),
     name: 'Test directory',
     index: 'Test directory',
     type: 'dir',
   });
+  await dir.save();
 
   const item1 = testCase.store.createRecord('file', {
     id: getFileGri('i1'),
@@ -915,6 +925,7 @@ function whenRootDirectoryHasOneItem(testCase, { itemType = 'file' } = {}) {
     type: itemType,
     parent: dir,
   });
+  await item1.save();
 
   testCase.setProperties({ dir, item1, selectedItems: [] });
   stubSimpleFetch(testCase, dir, [item1]);
