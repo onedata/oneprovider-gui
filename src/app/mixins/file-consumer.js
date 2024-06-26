@@ -52,7 +52,7 @@ export default Mixin.create({
    */
   willDestroy() {
     try {
-      this.fileConsumerModel.destroy();
+      this.fileConsumerModel?.destroy();
     } finally {
       this._super(...arguments);
     }

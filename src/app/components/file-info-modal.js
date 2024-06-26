@@ -620,7 +620,10 @@ export default Component.extend(...mixins, {
         this.space &&
         get(path[0], 'entityId') !== this.space.relationEntityId('rootDir')
       ) {
-        const fileArchiveInfo = FileArchiveInfo.create({ file: this.file });
+        const fileArchiveInfo = FileArchiveInfo.create({
+          file: this.file,
+          ownerSource: this,
+        });
         const isInArchive = await fileArchiveInfo.isInArchiveProxy;
         if (isInArchive) {
           path.unshift(await get(this.space, 'rootDir'));

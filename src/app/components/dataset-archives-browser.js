@@ -545,22 +545,27 @@ export default Component.extend(...mixins, {
         'fileBrowserModelOptions',
       );
       let newBrowserModel;
-      switch (viewMode) {
-        case 'files':
-          newBrowserModel =
-            await this.createFilesystemBrowserModel(filesystemBrowserModelOptions);
-          break;
-        case 'archives':
-          newBrowserModel = this.createArchiveBrowserModel(archiveBrowserModelOptions);
-          break;
-        default:
-          throw new Error(
-            `component:dataset-archives-browser#switchBrowserModel: not supported viewMode: ${viewMode}`
-          );
+      try {
+        switch (viewMode) {
+          case 'files':
+            newBrowserModel =
+              await this.createFilesystemBrowserModel(filesystemBrowserModelOptions);
+            break;
+          case 'archives':
+            newBrowserModel = this.createArchiveBrowserModel(archiveBrowserModelOptions);
+            break;
+          default:
+            throw new Error(
+              `component:dataset-archives-browser#switchBrowserModel: not supported viewMode: ${viewMode}`
+            );
+        }
+      } finally {
+        this.browserModelCache.add(newBrowserModel);
       }
       this.set('browserModel', newBrowserModel);
       if (currentBrowserModel) {
         currentBrowserModel.destroy();
+        this.browserModelCache.delete(currentBrowserModel);
       }
     }
   ),
@@ -597,6 +602,7 @@ export default Component.extend(...mixins, {
   ),
 
   init() {
+    this.set('browserModelCache', new Set());
     this._super(...arguments);
     this.switchBrowserModel();
     this.fileActionObserver();
@@ -604,10 +610,7 @@ export default Component.extend(...mixins, {
 
   willDestroyElement() {
     try {
-      const browserModel = this.get('browserModel');
-      if (browserModel) {
-        browserModel.destroy();
-      }
+      this.browserModelCache.forEach((browserModel) => browserModel.destroy());
     } finally {
       this._super(...arguments);
     }

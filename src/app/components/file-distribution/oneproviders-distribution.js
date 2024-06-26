@@ -384,9 +384,9 @@ export default Component.extend(I18n, {
     this.set('shouldUpdate', true);
   },
 
-  willDestroyElement() {
+  willDestroy() {
     try {
-      this.get('fileDistributionData').setEach('keepDataUpdated', false);
+      this.fileDistributionData?.forEach(data => data.destroy());
     } finally {
       this._super(...arguments);
     }

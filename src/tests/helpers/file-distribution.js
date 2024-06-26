@@ -27,6 +27,7 @@ export default class FileDistributionHelper {
     this.providers = [];
     /** @type {Models.FileDistribution} */
     this.distribution = null;
+    this.viewModelsCache = new Set();
   }
   async createFile(properties = {}) {
     return await this.store.createRecord('file', {
@@ -45,12 +46,14 @@ export default class FileDistributionHelper {
     if (!this.space) {
       throw new Error('space in helper not implemented');
     }
-    return FileDistributionViewModel.create({
+    const viewModel = FileDistributionViewModel.create({
       ownerSource: this.context.owner,
       space: this.space,
       files: this.files,
       ...this.viewModelOptions,
     });
+    this.viewModelsCache.add(viewModel);
+    return viewModel;
   }
   async beforeRender() {
     this.context.setProperties({
@@ -105,6 +108,11 @@ export default class FileDistributionHelper {
       ...data,
     }).save();
   }
+
+  destroy() {
+    this.viewModelsCache.forEach(viewModel => viewModel.destroy());
+  }
+
   async givenSingleFile(data) {
     this.files = [
       await this.createFile(data),

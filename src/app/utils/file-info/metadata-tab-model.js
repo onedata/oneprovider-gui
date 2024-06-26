@@ -156,6 +156,17 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @override
    */
+  willDestroy() {
+    try {
+      this.viewModel?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  /**
+   * @override
+   */
   checkClose() {
     return this.viewModel.checkCurrentTabClose();
   },

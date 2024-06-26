@@ -2,7 +2,7 @@
  * Entry with information about an effective dataset for file/directory.
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2023 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -15,7 +15,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import protectionIcons from 'oneprovider-gui/utils/dataset-protection/protection-icons';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import { DynamicOwnerInjector } from 'onedata-gui-common/mixins/owner-injector';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -137,7 +137,7 @@ export default Component.extend(I18n, {
 });
 
 function createToggleViewModel(datasetItem, protectionType) {
-  return EmberObject.extend(I18n, DynamicOwnerInjector, {
+  return EmberObject.extend(I18n, OwnerInjector, {
     i18n: service(),
 
     /**
@@ -150,11 +150,6 @@ function createToggleViewModel(datasetItem, protectionType) {
      * @type {Components.DatasetProtection.DatasetItem}
      */
     datasetItem: undefined,
-
-    /**
-     * @override
-     */
-    ownerSource: reads('datasetItem'),
 
     protectionType,
 
@@ -196,5 +191,8 @@ function createToggleViewModel(datasetItem, protectionType) {
         );
       };
     }),
-  }).create({ datasetItem });
+  }).create({
+    datasetItem,
+    ownerSource: datasetItem,
+  });
 }

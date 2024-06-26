@@ -550,30 +550,35 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('has active "Distribution" tab and renders distribution view body when initialTab = distribution is given',
     async function () {
-      const fileDistributionHelper = new FileDistributionHelper(this);
-      await fileDistributionHelper.givenSingleFileWithDistribution();
-      fileDistributionHelper.givenNoTransfersForSingleFile();
-      this.setProperties({
-        tabOptions: {
-          qos: {
-            isVisible: false,
+      let fileDistributionHelper;
+      try {
+        fileDistributionHelper = new FileDistributionHelper(this);
+        await fileDistributionHelper.givenSingleFileWithDistribution();
+        fileDistributionHelper.givenNoTransfersForSingleFile();
+        this.setProperties({
+          tabOptions: {
+            qos: {
+              isVisible: false,
+            },
+            shares: {
+              isVisible: false,
+            },
           },
-          shares: {
-            isVisible: false,
-          },
-        },
-        initialTab: 'distribution',
-        space: fileDistributionHelper.space,
-        files: fileDistributionHelper.files,
-      });
+          initialTab: 'distribution',
+          space: fileDistributionHelper.space,
+          files: fileDistributionHelper.files,
+        });
 
-      await renderComponent();
+        await renderComponent();
 
-      const sharesNav = find('.nav-link-distribution');
-      expect(sharesNav).to.exist;
-      expect(sharesNav).to.have.class('active');
-      expect(sharesNav).to.have.trimmed.text('Distribution');
-      expect(find('.modal-body .file-distribution-body')).to.exist;
+        const sharesNav = find('.nav-link-distribution');
+        expect(sharesNav).to.exist;
+        expect(sharesNav).to.have.class('active');
+        expect(sharesNav).to.have.trimmed.text('Distribution');
+        expect(find('.modal-body .file-distribution-body')).to.exist;
+      } finally {
+        fileDistributionHelper.destroy();
+      }
     }
   );
 
