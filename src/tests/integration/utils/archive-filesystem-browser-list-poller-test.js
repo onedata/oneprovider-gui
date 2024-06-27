@@ -19,7 +19,7 @@ describe('Unit | Utility | archive-filesystem-browser-list-poller', function () 
 
   afterEach(function () {
     this.get('fakeClock').restore();
-    this.browserListWatcher?.destroy();
+    this.browserListPoller?.destroy();
     this.browserModelMock?.destroy();
   });
 
