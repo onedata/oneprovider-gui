@@ -30,6 +30,7 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { getFileGri } from 'oneprovider-gui/models/file';
+import Looper from 'onedata-gui-common/utils/looper';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -141,6 +142,11 @@ export default OneEmbeddedComponent.extend(
      * @type {Array<Models.File>}
      */
     selectedItems: undefined,
+
+    /**
+     * @type {DirStatsServiceState}
+     */
+    newDirStatsServiceState: undefined,
 
     /**
      * Used by `fileActionObserver` to prevent multiple async invocations which is unsafe.
@@ -283,6 +289,35 @@ export default OneEmbeddedComponent.extend(
         return spaceManager.getDirStatsServiceState(spaceEntityId);
       }
     )),
+
+    /**
+     * @type {ComputedProperty<boolean>}
+     */
+    isStatusChanged: computed(
+      'dirStatsServiceStateProxy',
+      'newDirStatsServiceState',
+      function isStatusChanged() {
+        return this.dirStatsServiceStateProxy.content && this.newDirStatsServiceState &&
+          (
+            this.dirStatsServiceStateProxy.content.status !==
+            this.newDirStatsServiceState.status
+          );
+      }
+    ),
+
+    /**
+     * @type {ComputedProperty<DirStatsServiceState>}
+     */
+    effDirStatsServiceState: computed(
+      'isStatusChanged',
+      'newDirStatsServiceState',
+      'dirStatsServiceStateProxy.content',
+      function effDirStatsServiceState() {
+        return this.isStatusChanged ?
+          this.newDirStatsServiceState :
+          this.dirStatsServiceStateProxy.content;
+      }
+    ),
 
     /**
      * NOTE: observing only space, because it should reload initial dir after whole space change
@@ -447,6 +482,12 @@ export default OneEmbeddedComponent.extend(
       this._super(...arguments);
       this.set('browserModel', this.createBrowserModel());
       this.fileActionObserver();
+      const updater = Looper.create({
+        immediate: false,
+        interval: 10000,
+      });
+      updater.on('tick', () => this.getDirStatsServiceState());
+      this.set('updater', updater);
     },
 
     /**
@@ -455,8 +496,20 @@ export default OneEmbeddedComponent.extend(
     willDestroyElement() {
       try {
         this.browserModel?.destroy?.();
+        this.updater?.destroy();
       } finally {
         this._super(...arguments);
+      }
+    },
+
+    async getDirStatsServiceState() {
+      const dirStatsServiceState = await this.spaceManager.getDirStatsServiceState(
+        this.spaceEntityId,
+        true
+      );
+      this.set('newDirStatsServiceState', dirStatsServiceState);
+      if (dirStatsServiceState.status === 'enabled') {
+        this.get('updater').destroy();
       }
     },
 
