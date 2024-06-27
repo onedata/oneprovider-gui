@@ -86,4 +86,15 @@ export default ArrayProxy.extend({
   async initAsync() {
     return await this.get('atmWorkflowSchemasProxy');
   },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.content?.destroy?.();
+    } finally {
+      this._super(...arguments);
+    }
+  },
 });

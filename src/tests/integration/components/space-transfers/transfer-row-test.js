@@ -187,6 +187,7 @@ describe('Integration | Component | space-transfers/transfer-row', function () {
 
 function generateTestData(testCase) {
   const record = TransferTableRecord.create({
+    ownerSource: testCase.owner,
     transfer: {
       type: 'replication',
       entityId: '3281239312ip232813',

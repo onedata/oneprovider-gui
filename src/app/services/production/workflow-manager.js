@@ -500,7 +500,7 @@ export default Service.extend({
   },
 
   /**
-   * @returns {PromiseArray<Models.AtmWorkflowSchema>}
+   * @returns {DestroyablePromiseArray<Models.AtmWorkflowSchema>}
    */
   getAllKnownAtmWorkflowSchemas() {
     const promise = (async () => {
