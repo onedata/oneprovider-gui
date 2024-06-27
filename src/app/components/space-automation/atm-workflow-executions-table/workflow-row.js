@@ -18,6 +18,11 @@ import {
   normalizeWorkflowStatus,
   translateWorkflowStatus,
 } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -128,41 +133,47 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
-  cancelAction: computed('atmWorkflowExecutionSummary', function cancelAction() {
-    const {
-      workflowActions,
-      atmWorkflowExecutionSummary,
-    } = this.getProperties('workflowActions', 'atmWorkflowExecutionSummary');
-    const action = workflowActions.createCancelAtmWorkflowExecutionAction({
-      atmWorkflowExecution: atmWorkflowExecutionSummary,
-    });
-    action.addExecuteHook((result) => {
-      if (result?.status === 'done') {
-        this.onLifecycleChange?.('cancel');
-      }
-    });
-    return action;
-  }),
+  cancelAction: destroyableComputed(
+    'atmWorkflowExecutionSummary',
+    function cancelAction() {
+      const {
+        workflowActions,
+        atmWorkflowExecutionSummary,
+      } = this.getProperties('workflowActions', 'atmWorkflowExecutionSummary');
+      const action = workflowActions.createCancelAtmWorkflowExecutionAction({
+        atmWorkflowExecution: atmWorkflowExecutionSummary,
+      });
+      action.addExecuteHook((result) => {
+        if (result?.status === 'done') {
+          this.onLifecycleChange?.('cancel');
+        }
+      });
+      return action;
+    }
+  ),
 
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
-  forceContinueAction: computed('atmWorkflowExecutionSummary', function forceContinueAction() {
-    const action = this.workflowActions.createForceContinueAtmWorkflowExecutionAction({
-      atmWorkflowExecution: this.atmWorkflowExecutionSummary,
-    });
-    action.addExecuteHook((result) => {
-      if (result?.status === 'done') {
-        this.onLifecycleChange?.('forceContinue');
-      }
-    });
-    return action;
-  }),
+  forceContinueAction: destroyableComputed(
+    'atmWorkflowExecutionSummary',
+    function forceContinueAction() {
+      const action = this.workflowActions.createForceContinueAtmWorkflowExecutionAction({
+        atmWorkflowExecution: this.atmWorkflowExecutionSummary,
+      });
+      action.addExecuteHook((result) => {
+        if (result?.status === 'done') {
+          this.onLifecycleChange?.('forceContinue');
+        }
+      });
+      return action;
+    }
+  ),
 
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
-  pauseResumeAction: computed(
+  pauseResumeAction: destroyableComputed(
     'atmWorkflowExecutionSummary',
     function pauseResumeAction() {
       const action = this.workflowActions
@@ -181,31 +192,32 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
-  removeAction: computed('atmWorkflowExecutionSummary', function removeAction() {
-    const action = this.workflowActions.createRemoveAtmWorkflowExecutionAction({
-      atmWorkflowExecution: this.atmWorkflowExecutionSummary,
-    });
-    action.addExecuteHook((result) => {
-      if (result?.status === 'done') {
-        this.onLifecycleChange?.('remove');
-      }
-    });
-    return action;
-  }),
+  removeAction: destroyableComputed(
+    'atmWorkflowExecutionSummary',
+    function removeAction() {
+      const action = this.workflowActions.createRemoveAtmWorkflowExecutionAction({
+        atmWorkflowExecution: this.atmWorkflowExecutionSummary,
+      });
+      action.addExecuteHook((result) => {
+        if (result?.status === 'done') {
+          this.onLifecycleChange?.('remove');
+        }
+      });
+      return action;
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  copyIdAction: computed('atmWorkflowExecutionSummary', function copyIdAction() {
-    const {
-      atmWorkflowExecutionSummary,
-      clipboardActions,
-    } = this.getProperties('atmWorkflowExecutionSummary', 'clipboardActions');
-
-    return clipboardActions.createCopyRecordIdAction({
-      record: atmWorkflowExecutionSummary,
-    });
-  }),
+  copyIdAction: destroyableComputed(
+    'atmWorkflowExecutionSummary',
+    function copyIdAction() {
+      return this.clipboardActions.createCopyRecordIdAction({
+        record: this.atmWorkflowExecutionSummary,
+      });
+    }
+  ),
 
   /**
    * @type {ComputedProperty<Array<Utils.Action>>}
@@ -217,6 +229,22 @@ export default Component.extend(I18n, {
     'removeAction',
     'copyIdAction',
   ),
+
+  init() {
+    initDestroyableCache(this);
+    this._super(...arguments);
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
+  },
 
   click(event) {
     this._super(...arguments);

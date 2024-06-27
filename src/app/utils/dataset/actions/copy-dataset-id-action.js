@@ -45,6 +45,11 @@ export default BaseAction.extend({
         record: dataset,
       },
     });
-    return copyRecordIdAction.execute();
+    try {
+      return copyRecordIdAction.execute();
+    } finally {
+      copyRecordIdAction.destroy();
+    }
+
   },
 });
