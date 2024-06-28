@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { click, find, settled } from '@ember/test-this.helpers';
-import Helper from '../../this.helpers/file-permissions';
-import { registerService, lookupService } from '../../this.helpers/stub-service';
+import { click, find, settled } from '@ember/test-helpers';
+import Helper from '../../helpers/file-permissions';
+import { registerService, lookupService } from '../../helpers/stub-service';
 import { treeToNumber } from 'oneprovider-gui/utils/acl-permissions-converter';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 import { all as allFulfilled } from 'rsvp';
