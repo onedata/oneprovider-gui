@@ -580,6 +580,9 @@ export default EmberObject.extend(...mixins, {
       ignoreForbiddenError(error);
     }
     if (!effUserList) {
+      if (this.isDestroyed) {
+        return [];
+      }
       return [this.currentUser.user];
     }
     return get(effUserList, 'list');
