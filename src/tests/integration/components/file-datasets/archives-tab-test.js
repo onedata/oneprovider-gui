@@ -132,7 +132,7 @@ async function renderComponent(testCase, waitForListLoad = true) {
   const store = lookupService(testCase, 'store');
   const defaultBrowsableDataset = BrowsableDataset.create({
     content: store.createRecord('dataset', {
-      name: 'Default dataset',
+      rootFilePath: '/Default dataset',
       id: 'dataset.default_dataset_id.instance:private',
       state: 'attached',
     }),

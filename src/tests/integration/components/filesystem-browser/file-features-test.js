@@ -12,6 +12,7 @@ import { run } from '@ember/runloop';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import { set } from '@ember/object';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
+import { defineProperty } from '@ember/object';
 
 describe('Integration | Component | filesystem-browser/file-features', function () {
   const { afterEach } = setupRenderingTest();
@@ -543,8 +544,32 @@ async function createFileItem(testCase, data) {
 async function createFileItemWithRecallData(testCase, data = {}) {
   await createArchiveRecallData(testCase);
   const targetFile = testCase.get('targetFile');
+  const effData = { ...data };
+  // allow to override these properties, but not using "set"
+  if ('recallingInheritancePath' in effData) {
+    delete effData.recallingInheritancePath;
+  }
+  if ('recallingInheritancePathProxy' in effData) {
+    delete effData.recallingInheritancePathProxy;
+  }
   run(() => {
-    targetFile.setProperties(data);
+    targetFile.setProperties(effData);
+    if ('recallingInheritancePath' in data) {
+      defineProperty(
+        targetFile,
+        'recallingInheritancePath', {
+          value: data.recallingInheritancePath,
+        }
+      );
+    }
+    if ('recallingInheritancePathProxy' in data) {
+      defineProperty(
+        targetFile,
+        'recallingInheritancePathProxy', {
+          value: data.recallingInheritancePathProxy,
+        }
+      );
+    }
   });
   run(() => {
     targetFile.save();

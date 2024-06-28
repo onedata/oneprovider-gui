@@ -65,7 +65,7 @@ describe('Integration | Component | archive-recall-modal', function () {
       type: 'dir',
     }).save();
     const dataset = await store.createRecord('dataset', {
-      name: 'dataset_name',
+      rootFilePath: '/dataset_name',
     }).save();
     this.setProperties({
       dir,

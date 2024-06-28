@@ -158,7 +158,7 @@ export default BaseTabModel.extend(...mixins, {
    */
   willDestroy() {
     try {
-      this.viewModel?.destroy();
+      this.cacheFor('viewModel')?.destroy();
     } finally {
       this._super(...arguments);
     }
