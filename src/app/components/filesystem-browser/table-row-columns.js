@@ -131,6 +131,13 @@ export default FbTableRowColumns.extend(I18n, {
   statusIcon: getBy(raw(qosStatusIcons), 'qosStatus'),
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isPosixActive: computed('file.effFile.activePermissionsType', function isPosixActive() {
+    return this.file.effFile.activePermissionsType === "posix";
+  }),
+
+  /**
    * @type {ComputedProperty<string>}
    */
   fileTypeText: computed('file.type', function fileTypeText() {

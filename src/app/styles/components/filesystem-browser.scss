@@ -163,7 +163,9 @@
       cursor: pointer;
 
       &:hover {
-        text-decoration: underline;
+        .string-acl-text, .string-posix-text {
+          text-decoration: underline;
+        }
       }
 
       .string-posix-text {
@@ -172,7 +174,7 @@
       }
 
       .octal-posix-text {
-        opacity: 0.6;
+        opacity: $disabled-opacity;
         font-size: 90%;
       }
     }

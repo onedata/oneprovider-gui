@@ -86,7 +86,7 @@ const columnsRequirementsDependencies = [
   // TODO: VFS-11961 uncomment when atime will be fix
   // 'atime',
   'ctime',
-  'posixPermissions'
+  'posixPermissions',
 ].map(columnName =>
   `${columnName}.isEnabled,${columnName}.isVisible`
 ).join(',');
@@ -1432,7 +1432,7 @@ export default BaseBrowserModel.extend(...mixins, {
             isVisible: false,
             isEnabled: false,
             width: 150,
-            hasSubname: true,
+            hasSubname: false,
             hasTooltip: true,
           });
           break;

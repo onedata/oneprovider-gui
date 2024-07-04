@@ -180,12 +180,16 @@
           class="file-item-text"
           onclick={{action "invokeFileAction" file "info" "permissions"}}
         >
-          <div class="string-posix-text">
-            {{permissions.stringRepresentation}}
-          </div>
-          <div class="octal-posix-text">
-            {{file.effFile.posixPermissions}}
-          </div>
+          {{#if isPosixActive}}
+            <div class="string-posix-text">
+              {{permissions.stringRepresentation}}
+            </div>
+            <div class="octal-posix-text">
+              {{file.effFile.posixPermissions}}
+            </div>
+          {{else}}
+            <div class="string-acl-text">ACL</div>
+          {{/if}}
         </div>
       </td>
     {{/if}}

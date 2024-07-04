@@ -4,7 +4,7 @@
 
 ### Latest changes
 
-* VFS-12012 Added posix column in fb
+* VFS-12012 Added Permissions column in file browser
 * VFS-11795 Improved public share view layout to better support small screens
 * VFS-12053 Removed OpenData emblem from public share description view
 * VFS-11983 Enabled EDM editor for newly created Open Data metadata
