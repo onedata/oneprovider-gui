@@ -174,7 +174,7 @@ export default Service.extend({
    */
   async getDirStatsServiceState(spaceId, reload = false) {
     const existingProxy = this.dirsStatsServiceStateCache[spaceId];
-    if (existingProxy && (!reload || existingProxy.isPending)) {
+    if (existingProxy && (!reload && existingProxy.isPending)) {
       return existingProxy;
     }
 
@@ -185,7 +185,7 @@ export default Service.extend({
       subscribe: false,
     });
 
-    if (existingProxy?.isFulfilled) {
+    if (!reload && existingProxy?.isFulfilled) {
       const result = await promise;
       set(existingProxy, 'content', result);
       return existingProxy;
