@@ -134,7 +134,7 @@ export default FbTableRowColumns.extend(I18n, {
    * @type {ComputedProperty<boolean>}
    */
   isPosixActive: computed('file.effFile.activePermissionsType', function isPosixActive() {
-    return this.file.effFile.activePermissionsType === "posix";
+    return this.file.effFile.activePermissionsType === 'posix';
   }),
 
   /**
