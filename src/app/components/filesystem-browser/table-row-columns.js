@@ -18,6 +18,7 @@ import { inject as service } from '@ember/service';
 import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 import { htmlSafe } from '@ember/string';
 import { translateFileType } from 'onedata-gui-common/utils/file';
+import PosixPermissions from 'oneprovider-gui/utils/posix-permissions';
 
 export default FbTableRowColumns.extend(I18n, {
   i18n: service(),
@@ -130,6 +131,13 @@ export default FbTableRowColumns.extend(I18n, {
   statusIcon: getBy(raw(qosStatusIcons), 'qosStatus'),
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isPosixActive: computed('file.effFile.activePermissionsType', function isPosixActive() {
+    return this.file.effFile.activePermissionsType === 'posix';
+  }),
+
+  /**
    * @type {ComputedProperty<string>}
    */
   fileTypeText: computed('file.type', function fileTypeText() {
@@ -197,6 +205,15 @@ export default FbTableRowColumns.extend(I18n, {
       return htmlSafe(`width: ${left}%;`);
     }
   ),
+
+  /**
+   * @type {Utils.PosixPermissions}
+   */
+  permissions: computed('file.effFile.posixPermissions', function permissions() {
+    const initialPermissionsObject = PosixPermissions.create();
+    initialPermissionsObject.fromOctalRepresentation(this.file.effFile.posixPermissions);
+    return initialPermissionsObject;
+  }),
 
   actions: {
     invokeFileAction(file, btnId, ...args) {

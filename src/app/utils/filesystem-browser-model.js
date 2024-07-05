@@ -86,6 +86,7 @@ const columnsRequirementsDependencies = [
   // TODO: VFS-11961 uncomment when atime will be fix
   // 'atime',
   'ctime',
+  'posixPermissions',
 ].map(columnName =>
   `${columnName}.isEnabled,${columnName}.isVisible`
 ).join(',');
@@ -479,6 +480,9 @@ export default BaseBrowserModel.extend(...mixins, {
         }
         if (columns.qos?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('aggregateQosStatus');
+        }
+        if (columns.posixPermissions?.[columnRequirementsEnableProperty]) {
+          listedFilesPropertySet.add('posixPermissions');
         }
         // TODO: VFS-11961 uncomment when atime will be fix
         // if (columns.atime?.[columnRequirementsEnableProperty]) {
@@ -1351,7 +1355,7 @@ export default BaseBrowserModel.extend(...mixins, {
    */
   createColumnsConfiguration() {
     const columnsOrder = _.without(
-      ['size', 'modification', 'owner', 'replication', 'qos', 'ctime'],
+      ['size', 'modification', 'owner', 'replication', 'qos', 'ctime', 'posixPermissions'],
       // TODO: VFS-11961 add atime column when atime will be fix
       ...(this.disabledColumns ?? [])
     );
@@ -1420,6 +1424,15 @@ export default BaseBrowserModel.extend(...mixins, {
             isEnabled: false,
             width: columnsTimesWidth,
             hasSubname: true,
+            hasTooltip: true,
+          });
+          break;
+        case 'posixPermissions':
+          columns.posixPermissions = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
+            width: 150,
+            hasSubname: false,
             hasTooltip: true,
           });
           break;

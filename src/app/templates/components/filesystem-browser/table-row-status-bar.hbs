@@ -67,7 +67,10 @@
     {{tt this "status.metadata"}}
   </div>
 {{/if}}
-{{#if (and (not isSymlink) hasAcl)}}
+{{#if (and
+  (and (not isSymlink) hasAcl)
+  (not browserModel.columnsConfiguration.columns.posixPermissions.isVisible)
+)}}
   <div
     class={{concat-classes
       "file-status-tag file-status-acl"
