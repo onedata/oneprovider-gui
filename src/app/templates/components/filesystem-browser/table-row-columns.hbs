@@ -171,6 +171,26 @@
           </div>
         </div>
       </td>
+    {{else if (eq columnName "cdmiObjectId")}}
+      <td
+        class="fb-table-col-file-id multiline hidden-xs"
+        style={{columnsConfiguration.columnsStyle.cdmiObjectId}}
+      >
+        <div class="file-id">
+          <div class="file-id-text">
+            <div>
+              {{fileIdFirstPart}}
+            </div>
+            <div>
+              {{fileIdSecondPart}}&#8230;
+            </div>
+            {{one-tooltip title=file.effFile.cdmiObjectId}}
+          </div>
+          {{one-clipboard-line
+            rawValue=file.effFile.cdmiObjectId
+          }}
+        </div>
+      </td>
     {{/if}}
   {{/if}}
 {{/each}}

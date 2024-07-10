@@ -8,6 +8,7 @@ export default {
     qos: 'QoS',
     atime: 'Accessed',
     ctime: 'Changed',
+    cdmiObjectId: 'File ID',
   },
   tip: {
     qos: 'The aggregated fulfillment status of the imposed Quality of Service requirements.',

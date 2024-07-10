@@ -155,6 +155,33 @@
       opacity: $disabled-opacity;
     }
   }
+
+  .fb-table-col-file-id {
+    .clipboard-input {
+      position: absolute;
+      visibility: hidden;
+      border: none;
+      box-shadow: none;
+    }
+
+    .clipboard-btn {
+      position: absolute;
+      right: -3em;
+      top: -1.5em;
+      opacity: $disabled-opacity;
+    }
+
+    .file-id {
+      position: relative;
+      font-size: 80%;
+
+      .file-id-text {
+        @include font-monospace();
+        padding-left: $padding-xs-horizontal;
+        padding-right: $padding-xs-horizontal;
+      }
+    }
+  }
 }
 
 .file-status-bar {

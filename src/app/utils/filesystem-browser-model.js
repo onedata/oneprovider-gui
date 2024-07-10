@@ -86,6 +86,7 @@ const columnsRequirementsDependencies = [
   // TODO: VFS-11961 uncomment when atime will be fix
   // 'atime',
   'ctime',
+  'cdmiObjectId',
 ].map(columnName =>
   `${columnName}.isEnabled,${columnName}.isVisible`
 ).join(',');
@@ -486,6 +487,9 @@ export default BaseBrowserModel.extend(...mixins, {
         // }
         if (columns.ctime?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('ctime');
+        }
+        if (columns.cdmiObjectId?.[columnRequirementsEnableProperty]) {
+          listedFilesPropertySet.add('cdmiObjectId');
         }
       }
       return [...listedFilesPropertySet.values()];
@@ -1351,7 +1355,7 @@ export default BaseBrowserModel.extend(...mixins, {
    */
   createColumnsConfiguration() {
     const columnsOrder = _.without(
-      ['size', 'modification', 'owner', 'replication', 'qos', 'ctime'],
+      ['size', 'modification', 'owner', 'replication', 'qos', 'ctime', 'cdmiObjectId'],
       // TODO: VFS-11961 add atime column when atime will be fix
       ...(this.disabledColumns ?? [])
     );
@@ -1421,6 +1425,15 @@ export default BaseBrowserModel.extend(...mixins, {
             width: columnsTimesWidth,
             hasSubname: true,
             hasTooltip: true,
+          });
+          break;
+        case 'cdmiObjectId':
+          columns.cdmiObjectId = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
+            width: 120,
+            hasSubname: false,
+            hasTooltip: false,
           });
           break;
         default:
