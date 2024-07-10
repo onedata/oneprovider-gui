@@ -8,7 +8,7 @@ export default {
     qos: 'QoS',
     atime: 'Accessed',
     ctime: 'Changed',
-    cdmiObjectId: 'File ID',
+    fileId: 'File ID',
     posixPermissions: 'Permissions',
   },
   tip: {

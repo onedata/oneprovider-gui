@@ -166,9 +166,18 @@
 
     .clipboard-btn {
       position: absolute;
-      right: -3em;
-      top: -1.5em;
+      right: -3.2em;
+      top: -1.25em;
       opacity: $disabled-opacity;
+
+      &:hover {
+        opacity: 1;
+        color: $color-one-mint;
+      }
+
+      .copy-btn-icon {
+        line-height: 1;
+      }
     }
 
     .file-id {
