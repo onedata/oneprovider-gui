@@ -156,6 +156,42 @@
     }
   }
 
+  .fb-table-col-file-id {
+    .clipboard-input {
+      position: absolute;
+      visibility: hidden;
+      border: none;
+      box-shadow: none;
+    }
+
+    .clipboard-btn {
+      position: absolute;
+      right: -3.2em;
+      top: -1.25em;
+      opacity: $disabled-opacity;
+
+      &:hover {
+        opacity: 1;
+        color: $color-one-mint;
+      }
+
+      .copy-btn-icon {
+        line-height: 1;
+      }
+    }
+
+    .file-id {
+      position: relative;
+      font-size: 80%;
+
+      .file-id-text {
+        @include font-monospace();
+        padding-left: $padding-xs-horizontal;
+        padding-right: $padding-xs-horizontal;
+      }
+    }
+  }
+
   .table-col-posix {
     text-align: center;
 

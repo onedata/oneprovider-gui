@@ -8,6 +8,7 @@ export default {
     qos: 'QoS',
     atime: 'Accessed',
     ctime: 'Changed',
+    fileId: 'File ID',
     posixPermissions: 'Permissions',
   },
   tip: {

@@ -140,6 +140,20 @@ export default FbTableRowColumns.extend(I18n, {
   /**
    * @type {ComputedProperty<string>}
    */
+  fileIdFirstPart: computed('file.effFile.cdmiObjectId', function fileIdFirstPart() {
+    return this.file.effFile.cdmiObjectId.substr(0, 12);
+  }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  fileIdSecondPart: computed('file.effFile.cdmiObjectId', function fileIdSecondPart() {
+    return this.file.effFile.cdmiObjectId.substr(12, 11);
+  }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
   fileTypeText: computed('file.type', function fileTypeText() {
     const fileType = this.get('file.type');
     return translateFileType(this.i18n, fileType, { form: 'singular' });
