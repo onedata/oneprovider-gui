@@ -182,6 +182,30 @@
       }
     }
   }
+
+  .table-col-posix {
+    text-align: center;
+
+    .file-item-text {
+      cursor: pointer;
+
+      &:hover {
+        .string-acl-text, .string-posix-text {
+          text-decoration: underline;
+        }
+      }
+
+      .string-posix-text {
+        @include font-monospace();
+        line-height: 1.6;
+      }
+
+      .octal-posix-text {
+        opacity: $disabled-opacity;
+        font-size: 90%;
+      }
+    }
+  }
 }
 
 .file-status-bar {

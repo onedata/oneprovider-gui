@@ -14,4 +14,5 @@ export default {
     noQos: 'There are no QoS requirements defined for this {{fileType}}',
   },
   replicationRateTooltip: 'Show data distribution details',
+  acl: 'ACL',
 };
