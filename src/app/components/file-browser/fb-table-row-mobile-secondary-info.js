@@ -7,6 +7,7 @@
  */
 
 import Component from '@ember/component';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -51,16 +52,15 @@ export default Component.extend(I18n, {
   browserModel: undefined,
 
   /**
-   * @virtual optional
-   * @type {Boolean}
-   */
-  previewMode: false,
-
-  /**
    * @virtual
    * @type {Function}
    */
   invokeFileAction: notImplementedThrow,
 
   //#endregion
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  previewMode: reads('browserModel.previewMode'),
 });

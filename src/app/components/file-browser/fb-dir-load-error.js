@@ -8,6 +8,7 @@
 
 import Component from '@ember/component';
 import { get, computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
@@ -26,6 +27,11 @@ export default Component.extend(I18n, {
    * @virtual
    */
   dirLoadError: undefined,
+
+  /**
+   * @virtual
+   */
+  browserModel: undefined,
 
   /**
    * @type {ComputedProperty<object>} message object from error extractor
@@ -57,6 +63,8 @@ export default Component.extend(I18n, {
       }
     }
   ),
+
+  previewMode: reads('browserModel.previewMode'),
 
   /**
    * @type {ComputedProperty<SafeString>}

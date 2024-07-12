@@ -79,6 +79,11 @@ export default BaseModel.extend(...mixins, {
     return SelectorFilesystemBrowserModel
       .extend({
         chooseCurrentDirEnabled: reads('itemsSelectBrowser.dirIsAllowed'),
+        dirProxy: reads('itemsSelectBrowser.dirProxy'),
+        changeSelectedItems() {
+          this._super(...arguments);
+          this.itemsSelectBrowser.setSelectedItems(...arguments);
+        },
       })
       .create({
         ownerSource: this,

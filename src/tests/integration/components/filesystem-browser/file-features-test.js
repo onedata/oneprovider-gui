@@ -585,6 +585,7 @@ function whenUsedInArchiveFilesystemBrowser(
     archive = createArchiveForBrowser(testCase, archiveRootDir);
   });
   const browserModel = ArchiveFilesystemBrowserModel.create({
+    dirProxy: promiseObject((async () => null)()),
     ownerSource: testCase.owner,
     archive,
   });

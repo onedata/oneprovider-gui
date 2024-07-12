@@ -1,14 +1,11 @@
 <div class="content-file-browser content-items-browser one-embedded-component">
   {{#promise-proxy-container proxy=dirProxy}}
     {{file-browser
-      dir=dirProxy.content
       dirError=dirProxy.reason
-      previewMode=previewMode
       isSpaceOwned=spaceProxy.currentUserIsOwner
       space=spaceProxy.content
       selectedItems=selectedItems
       selectedItemsForJumpProxy=selectedItemsForJumpProxy
-      changeSelectedItems=(action "changeSelectedItems")
       browserModel=browserModel
     }}
 

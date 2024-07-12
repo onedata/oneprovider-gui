@@ -38,11 +38,20 @@ export default BaseModel.extend(I18n, {
    * @override
    */
   browserModel: computed(function browserModel() {
-    return SelectorDatasetBrowserModel.create({
-      ownerSource: this,
-      onSubmitSingleItem: this.get('onSubmitSingleItem'),
-      spaceDatasetsViewState: this.spaceDatasetsViewState,
-    });
+    return SelectorDatasetBrowserModel
+      .extend({
+        dirProxy: reads('ownerSource.dirProxy'),
+        changeSelectedItems() {
+          this._super(...arguments);
+          this.itemsSelectBrowser.setSelectedItems(...arguments);
+        },
+      })
+      .create({
+        itemsSelectBrowser: this,
+        ownerSource: this,
+        onSubmitSingleItem: this.get('onSubmitSingleItem'),
+        spaceDatasetsViewState: this.spaceDatasetsViewState,
+      });
   }),
 
   /**

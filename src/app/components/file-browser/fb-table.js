@@ -12,14 +12,12 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import EmberObject, {
   get,
   computed,
-  observer,
   setProperties,
   getProperties,
 } from '@ember/object';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
-import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import { inject as service } from '@ember/service';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -39,11 +37,7 @@ import animateCss from 'onedata-gui-common/utils/animate-css';
 import dom from 'onedata-gui-common/utils/dom';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
-import {
-  destroyDestroyableComputedValues,
-  destroyableComputed,
-  initDestroyableCache,
-} from 'onedata-gui-common/utils/destroyable-computed';
+import { syncObserver, asyncObserver } from 'onedata-gui-common/utils/observer';
 
 /**
  * API object exposed by `fb-table` component, be used to control the component and read
@@ -104,24 +98,6 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {string}
-   */
-  selectionContext: undefined,
-
-  /**
-   * @virtual optional
-   * @type {Array<models/File>}
-   */
-  selectedItemsForJump: undefined,
-
-  /**
-   * @virtual
-   * @type {Array<models/File>}
-   */
-  selectedItems: undefined,
-
-  /**
-   * @virtual
    * @type {Array<Object>}
    */
   allButtonsArray: undefined,
@@ -140,12 +116,6 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Function}
-   */
-  changeSelectedItems: notImplementedThrow,
-
-  /**
-   * @virtual
    * @type {(item: Object) => boolean}
    */
   isItemDisabledFunction: defaultIsItemDisabled,
@@ -161,12 +131,6 @@ export default Component.extend(...mixins, {
    * @type {Function}
    */
   containerScrollTop: notImplementedIgnore,
-
-  /**
-   * @virtual
-   * @type {boolean}
-   */
-  previewMode: false,
 
   /**
    * An element that serves as scrollable parent of items table.
@@ -286,7 +250,13 @@ export default Component.extend(...mixins, {
 
   dir: reads('browserModel.dir'),
 
+  selectedItems: reads('browserModel.selectedItems'),
+
   dirError: reads('browserModel.dirError'),
+
+  selectionContext: reads('browserModel.selectionContext'),
+
+  previewMode: reads('browserModel.previewMode'),
 
   /**
    * If true, files table will not jump to changed `itemsForJump` if these items are
@@ -329,16 +299,19 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<Array<String>>}
    */
-  conflictNames: computed('filesArray.sourceArray.@each.originalName', function conflictNames() {
-    const namesCount = _.countBy(
-      this.get('filesArray.sourceArray').mapBy('originalName'),
-      name => name,
-    );
-    const namesUsedMultipleTimes = Object.entries(namesCount)
-      .filter(([, count]) => count > 1)
-      .map(([name]) => name);
-    return namesUsedMultipleTimes;
-  }),
+  conflictNames: computed(
+    'filesArray.sourceArray.@each.originalName',
+    function conflictNames() {
+      const namesCount = _.countBy(
+        this.filesArray.sourceArray.map(item => get(item, 'originalName')),
+        name => name,
+      );
+      const namesUsedMultipleTimes = Object.entries(namesCount)
+        .filter(([, count]) => count > 1)
+        .map(([name]) => name);
+      return namesUsedMultipleTimes;
+    }
+  ),
 
   listLoadState: reads('browserModel.listLoadState'),
 
@@ -370,6 +343,11 @@ export default Component.extend(...mixins, {
   specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
 
   dirLoadError: reads('browserModel.dirViewLoadError'),
+
+  /**
+   * @type {ComputedProperty<Array>}
+   */
+  selectedItemsForJump: reads('browserModel.selectedItemsForJump'),
 
   isHardlinkingPossible: computed(
     'fileClipboardFiles.@each.type',
@@ -403,6 +381,10 @@ export default Component.extend(...mixins, {
       '.table-start-row',
     );
   }),
+
+  changeSelectedItems() {
+    return this.browserModel.changeSelectedItems(...arguments);
+  },
 
   /**
    * When replacing chunks array gets expanded on beginning (items are unshifted into
@@ -439,68 +421,7 @@ export default Component.extend(...mixins, {
     return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
   }),
 
-  // TODO: VFS-8809 migrate to InfiniteScroll toolkit
-  filesArray: destroyableComputed('dir.entityId', 'browserModel', function filesArray() {
-    const dirId = this.get('dir.entityId');
-    const selectedItemsForJump = this.get('selectedItemsForJump');
-    let initialJumpIndex;
-    if (!isEmpty(selectedItemsForJump)) {
-      const firstSelectedForJump = A(selectedItemsForJump).sortBy('index').objectAt(0);
-      initialJumpIndex = get(firstSelectedForJump, 'index');
-    }
-    const array = ReplacingChunksArray.create({
-      fetch: (...fetchArgs) =>
-        this.get('fetchDirChildren')(dirId, ...fetchArgs)
-        .then(({ childrenRecords, isLast }) => ({ array: childrenRecords, isLast })),
-      startIndex: 0,
-      endIndex: 50,
-      indexMargin: 10,
-      initialJumpIndex,
-    });
-    array.on(
-      'fetchPrevStarted',
-      () => this.onFetchingStateUpdate('prev', 'started')
-    );
-    array.on(
-      'fetchPrevResolved',
-      () => this.onFetchingStateUpdate('prev', 'resolved')
-    );
-    array.on(
-      'fetchPrevRejected',
-      () => this.onFetchingStateUpdate('prev', 'rejected')
-    );
-    array.on(
-      'fetchNextStarted',
-      () => this.onFetchingStateUpdate('next', 'started')
-    );
-    array.on(
-      'fetchNextResolved',
-      () => this.onFetchingStateUpdate('next', 'resolved')
-    );
-    array.on(
-      'fetchNextRejected',
-      () => this.onFetchingStateUpdate('next', 'rejected')
-    );
-    array.on(
-      'willChangeArrayBeginning',
-      async ({ updatePromise, newItemsCount }) => {
-        await updatePromise;
-        safeExec(this, () => {
-          this.adjustScroll(newItemsCount);
-        });
-      }
-    );
-    array.on(
-      'willResetArray',
-      async ({ updatePromise }) => {
-        await updatePromise;
-        safeExec(this, () => {
-          this.scrollTopAfterFrameRender();
-        });
-      }
-    );
-    return array;
-  }),
+  filesArray: reads('browserModel.itemsArray'),
 
   visibleFiles: reads('filesArray'),
 
@@ -510,16 +431,14 @@ export default Component.extend(...mixins, {
    */
   api: computed(function api() {
     return EmberObject
-      .extend({
-        itemsArray: reads('__fbTable__.filesArray'),
-      })
       .create({
-        __fbTable__: this,
-
         refresh: this.refresh.bind(this),
+        onFetchingStateUpdate: this.onFetchingStateUpdate.bind(this),
+        adjustScroll: this.adjustScroll.bind(this),
+        scrollTopAfterFrameRender: this.adjustScroll.bind(this),
 
-        forceSelectAndJump: async (items) => {
-          await this.get('changeSelectedItems')(items);
+        forceSelectAndJump: (items) => {
+          this.changeSelectedItems(items);
           return this.jumpToSelection();
         },
         jump: (item) => {
@@ -575,19 +494,18 @@ export default Component.extend(...mixins, {
     };
   }),
 
-  apiObserver: observer('registerApi', 'api', function apiObserver() {
-    const {
-      registerApi,
-      api,
-    } = this.getProperties('registerApi', 'api');
-    registerApi(api);
+  /**
+   * Sync: the fileTableApi could be needed immediately by file browser related objects.
+   */
+  apiObserver: syncObserver('registerApi', 'api', function apiObserver() {
+    this.registerApi?.(this.api);
   }),
 
   // TODO: VFS-8809 this additional observer can be helpful in generic scroll toolkit
   /**
    * Change of a start or end index could be needed after source array length change
    */
-  sourceArrayLengthObserver: observer(
+  sourceArrayLengthObserver: asyncObserver(
     'filesArray.sourceArray.length',
     async function sourceArrayLengthObserver() {
       await waitForRender();
@@ -595,18 +513,16 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  selectedItemsForJumpObserver: observer(
+  selectedItemsForJumpObserver: asyncObserver(
     'selectedItemsForJump',
     async function selectedItemsForJumpObserver() {
       const {
         selectedItems,
         selectedItemsForJump,
-        changeSelectedItems,
         disableReJumps,
       } = this.getProperties(
         'selectedItems',
         'selectedItemsForJump',
-        'changeSelectedItems',
         'disableReJumps',
       );
       if (isEmpty(selectedItemsForJump)) {
@@ -616,7 +532,7 @@ export default Component.extend(...mixins, {
       await this.get('filesArray.initialLoad');
       const alreadySelected = _.isEqual(selectedItems, selectedItemsForJump);
       if (!alreadySelected) {
-        await changeSelectedItems(selectedItemsForJump);
+        this.changeSelectedItems(selectedItemsForJump);
       }
       if (!disableReJumps || !alreadySelected) {
         await this.jumpToSelection();
@@ -624,36 +540,28 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  listWatcherObserver: observer('listWatcher', async function listWatcherObserver() {
+  listWatcherObserver: asyncObserver('listWatcher', async function listWatcherObserver() {
     await waitForRender();
     this.listWatcher?.scrollHandler();
   }),
 
   init() {
-    initDestroyableCache(this);
     this._super(...arguments);
     if (!this.loadingIconFileIds) {
       this.set('loadingIconFileIds', A());
     }
     this.fileManager.registerRefreshHandler(this);
     this.registerApi(this.api);
-    if (get(this.filesArray, 'initialJumpIndex')) {
-      get(this.filesArray, 'initialLoad').then(() => {
+    (async () => {
+      // FIXME: debug
+      const dirProxy = this.browserModel.dirProxy;
+      await dirProxy;
+      if (get(this.filesArray, 'initialJumpIndex')) {
+        await get(this.filesArray, 'initialLoad');
         this.selectedItemsForJumpObserver();
-      });
-    }
-    this.listWatcherObserver();
-  },
-
-  /**
-   * @override
-   */
-  willDestroy() {
-    try {
-      destroyDestroyableComputedValues(this);
-    } finally {
-      this._super(...arguments);
-    }
+      }
+      this.listWatcherObserver();
+    })();
   },
 
   /**
@@ -952,24 +860,20 @@ export default Component.extend(...mixins, {
     }
     const filesArrayReload = filesArray.scheduleReload(forced ? { forced: true } : {})
       .finally(async () => {
-        const {
-          selectedItems,
-          changeSelectedItems,
-        } = this.getProperties('selectedItems', 'changeSelectedItems');
         const sourceArray = get(filesArray, 'sourceArray');
         // care about selection change only if there are some items selected that are not
         // current dir
         if (
-          !isEmpty(selectedItems) &&
+          !isEmpty(this.selectedItems) &&
           !this.browserModel.isOnlyCurrentDirSelected
         ) {
-          const updatedSelectedItems = selectedItems.filter(selectedFile =>
+          const updatedSelectedItems = this.selectedItems.filter(selectedFile =>
             sourceArray.includes(selectedFile)
           );
           // refresh may result in loss of some previously selected item, so only check
           // length - checking content of array is unnecessary
-          if (selectedItems.length != updatedSelectedItems.length) {
-            changeSelectedItems(updatedSelectedItems);
+          if (this.selectedItems.length != updatedSelectedItems.length) {
+            this.changeSelectedItems(updatedSelectedItems);
           }
         }
 
@@ -1046,13 +950,20 @@ export default Component.extend(...mixins, {
     return _.difference(items, nonExistingItems);
   },
 
-  onTableScroll(items, headerVisible) {
-    if (this.get('ignoreNextScroll')) {
+  // FIXME: experimental async
+  async onTableScroll(items, headerVisible) {
+    if (!this.browserModel.dirProxy?.isSettled) {
+      if (this.browserModel.dirProxy.isRejected) {
+        return;
+      }
+      await this.browserModel.dirProxy;
+    }
+    if (this.ignoreNextScroll) {
       this.set('ignoreNextScroll', false);
       return;
     }
 
-    const filesArray = this.get('filesArray');
+    const filesArray = this.filesArray;
     const sourceArray = get(filesArray, 'sourceArray');
     const filesArrayIds = sourceArray.mapBy('entityId');
 
@@ -1108,7 +1019,7 @@ export default Component.extend(...mixins, {
   },
 
   clearFilesSelection() {
-    return this.get('changeSelectedItems')([]);
+    return this.changeSelectedItems([]);
   },
 
   /**
@@ -1169,43 +1080,31 @@ export default Component.extend(...mixins, {
   },
 
   addToSelectedItems(newFiles) {
-    const {
-      selectedItems,
-      changeSelectedItems,
-    } = this.getProperties('selectedItems', 'changeSelectedItems');
     const filesWithoutBroken = _.difference(
       newFiles.filter(f => get(f, 'type') !== 'broken'),
-      selectedItems
+      this.selectedItems
     );
-    const newSelectedItems = [...selectedItems, ...filesWithoutBroken];
+    const newSelectedItems = [...this.selectedItems, ...filesWithoutBroken];
 
-    return changeSelectedItems(newSelectedItems);
+    return this.changeSelectedItems(newSelectedItems);
   },
 
-  async selectRemoveSingleFile(file) {
-    const {
-      selectedItems,
-      changeSelectedItems,
-    } = this.getProperties('selectedItems', 'changeSelectedItems');
-    await changeSelectedItems(selectedItems.without(file));
+  selectRemoveSingleFile(file) {
+    this.changeSelectedItems(this.selectedItems.without(file));
     this.set('lastSelectedFile', null);
   },
 
   selectRemoveFiles(files) {
-    const {
-      selectedItems,
-      changeSelectedItems,
-    } = this.getProperties('selectedItems', 'changeSelectedItems');
-    return changeSelectedItems(_.difference(selectedItems, files));
+    return this.changeSelectedItems(_.difference(this.selectedItems, files));
   },
 
   async selectAddSingleFile(file) {
-    await this.addToSelectedItems([file]);
+    this.addToSelectedItems([file]);
     this.set('lastSelectedFile', file);
   },
 
   async selectOnlySingleFile(file) {
-    await this.get('changeSelectedItems')([file]);
+    this.changeSelectedItems([file]);
     this.set('lastSelectedFile', file);
   },
 

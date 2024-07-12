@@ -17,10 +17,11 @@
  */
 
 import Component from '@ember/component';
-import EmberObject, { computed, observer } from '@ember/object';
+import EmberObject, { computed } from '@ember/object';
 import { and, notEqual, raw, not, conditional, array, collect } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { defineProperty } from '@ember/object';
+import { syncObserver } from 'onedata-gui-common/utils/observer';
 
 /**
  * A source from which the feature of file comes from. Typically used by backend for
@@ -250,11 +251,13 @@ export default Component.extend(I18n, {
 
   tagClassName: array.join('tagClasses', raw(' ')),
 
-  regenerateComputedHasInheritance: observer(
+  /**
+   * Sync: defines a property.
+   */
+  regenerateComputedHasInheritance: syncObserver(
     'features',
     function regenerateComputedHasInheritance() {
-      const features = this.get('features');
-      const featuresNames = features.map(featureSpec =>
+      const featuresNames = this.features.map(featureSpec =>
         this.normalizeItemFeatureSpec(featureSpec).key
       );
       const computedHasInheritance = computed(
@@ -274,7 +277,10 @@ export default Component.extend(I18n, {
     }
   ),
 
-  regenerateComputedActiveFeatures: observer(
+  /**
+   * Sync: defines a property.
+   */
+  regenerateComputedActiveFeatures: syncObserver(
     'features',
     function regenerateComputedActiveFeatures() {
       const property = this.createArchiveFeaturesProperty();

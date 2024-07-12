@@ -1,4 +1,4 @@
-{{#if dir}}
+{{#if lastResolvedDir}}
   {{!-- TODO: VFS-9454 Introduce @ember/render-modifiers and replace code below --}}
   {{evaluate-function (action "onInsertHeaderElements")}}
   <div class="file-browser-head-container">
@@ -6,13 +6,12 @@
     <div class="fb-head-inner">
       <div class="fb-breadcrumbs-container">
         {{file-browser/fb-breadcrumbs
-          dir=dir
+          dir=lastResolvedDir
           rootDir=customRootDir
           menuButtons=currentDirMenuButtons
           parentsCache=parentsCache
           getItemByIdFun=getItemByIdFun
           resolveFileParentFun=resolveFileParentFun
-          previewMode=previewMode
           rootIcon=rootIcon
           space=space
           changeDir=(action "changeDir")
@@ -23,17 +22,17 @@
         {{#if renderSelectionToolkitDesktop}}
           {{file-browser/fb-selection-toolkit
             items=selectionToolkitItems
-            selectionContext=selectionContext
+            selectionContext=browserModel.selectionContext
             allButtonsArray=allButtonsArray
           }}
         {{/if}}
         {{file-browser/fb-toolbar
-          dir=dir
+          browserModel=browserModel
+          dir=lastResolvedDir
           buttons=toolbarButtons
-          previewMode=previewMode
           fileClipboardMode=fileClipboardMode
           fileClipboardFiles=fileClipboardFiles
-          selectionContext=selectionContext
+          selectionContext=browserModel.selectionContext
           allButtonsArray=allButtonsArray
           selectCurrentDir=(action "selectCurrentDir")
         }}
@@ -45,21 +44,16 @@
   {{file-browser/fb-table
     browserModel=browserModel
     contentScroll=contentScroll
-    selectedItems=selectedItems
-    selectedItemsForJump=selectedItemsForJump
-    selectionContext=selectionContext
     allButtonsArray=allButtonsArray
     noItemsActions=noItemsActions
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
-    previewMode=previewMode
     dirStatsServiceState=dirStatsServiceState
     isSpaceOwned=isSpaceOwned
     spacePrivileges=spacePrivileges
     loadingIconFileIds=loadingIconFileIds
     isItemDisabledFunction=isItemDisabledFunction
     invokeFileAction=(action "invokeFileAction")
-    changeSelectedItems=(action "changeSelectedItems")
     openFile=(action "openFile")
     changeDir=(action "changeDir")
     containerScrollTop=(action "containerScrollTop")
@@ -91,7 +85,7 @@
   {{file-browser/fb-selection-toolkit
     mobileMode=true
     items=selectionToolkitItems
-    selectionContext=selectionContext
+    selectionContext=browserModel.selectionContext
     allButtonsArray=allButtonsArray
   }}
 {{/if}}

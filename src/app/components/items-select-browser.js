@@ -87,8 +87,6 @@ export default Component.extend(...mixins, {
 
   dirId: reads('selectorModel.dirId'),
 
-  dir: reads('selectorModel.dir'),
-
   space: reads('selectorModel.space'),
 
   submitMode: reads('selectorModel.submitMode'),
@@ -130,13 +128,6 @@ export default Component.extend(...mixins, {
     set(selectorModel, 'itemsSelectBrowser', this);
   },
 
-  /**
-   * @override
-   */
-  changeSelectedItemsImmediately(selectedItems) {
-    this.get('selectorModel').setSelectedItems(selectedItems);
-  },
-
   submitSingleItem(item) {
     return this.get('onSubmit')([item]);
   },
@@ -150,16 +141,16 @@ export default Component.extend(...mixins, {
         onSubmit,
         selectorSelectedItems,
         submitMode,
-        dir,
-      } = this.getProperties('onSubmit', 'selectorSelectedItems', 'submitMode', 'dir');
+      } = this.getProperties('onSubmit', 'selectorSelectedItems', 'submitMode');
+      const dir = this.dirProxy.content;
+      if (!dir) {
+        return;
+      }
       const items = submitMode === 'currentDir' ? [dir] : selectorSelectedItems;
       return onSubmit(items);
     },
     updateDirEntityId(dirId) {
       this.get('selectorModel').setDirId(dirId);
-    },
-    changeSelectedItems(items) {
-      return this.changeSelectedItems(items);
     },
     resolveItemParent(item) {
       const selectorModel = this.get('selectorModel');

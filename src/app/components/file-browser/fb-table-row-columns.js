@@ -32,12 +32,6 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Boolean}
    */
-  previewMode: undefined,
-
-  /**
-   * @virtual
-   * @type {Boolean}
-   */
   nameConflict: undefined,
 
   /**
@@ -56,4 +50,9 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Utils.ColumnsConfiguration>}
    */
   columnsConfiguration: reads('browserModel.columnsConfiguration'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  previewMode: reads('browserModel.previewMode'),
 });

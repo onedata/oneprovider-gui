@@ -12,7 +12,7 @@ import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import EmberObject, { computed, get, observer } from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import {
@@ -32,6 +32,7 @@ import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 import isFileRecord from 'oneprovider-gui/utils/is-file-record';
 import _ from 'lodash';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 /**
  * Filesystem browser model supports a set of injectable string commands that allows
@@ -352,8 +353,12 @@ export default BaseBrowserModel.extend(...mixins, {
       if (this.dir && isFileRecord(this.dir)) {
         resultUsedFiles.push(this.dir);
       }
-      if (this.itemsArray) {
-        const listedFiles = this.itemsArray.sourceArray.filter(item =>
+      // Do not create itemsArray if it was not initialized yet, because
+      // it will trigger reload on init, which will fetch files without
+      // `fileRequirements` defined.
+      const itemsArray = this.cacheFor('itemsArray');
+      if (itemsArray) {
+        const listedFiles = itemsArray.sourceArray.filter(item =>
           isFileRecord(item)
         );
         resultUsedFiles.push(...listedFiles);
@@ -380,7 +385,7 @@ export default BaseBrowserModel.extend(...mixins, {
   listingRequirement: computed(
     'dir',
     'listedFilesProperties',
-    function parentDirRequirement() {
+    function listingRequirement() {
       if (!this.dir) {
         return;
       }
@@ -1332,21 +1337,14 @@ export default BaseBrowserModel.extend(...mixins, {
     return this.changeTagHover.bind(this);
   }),
 
-  animateHighlight: observer(
+  animateHighlight: asyncObserver(
     'hoveredHeaderTag',
     function animateHighlight() {
-      const {
-        hoveredHeaderTag,
-        highlightAnimationTimeoutId,
-      } = this.getProperties(
-        'hoveredHeaderTag',
-        'highlightAnimationTimeoutId'
-      );
-      if (highlightAnimationTimeoutId) {
+      if (this.highlightAnimationTimeoutId) {
         this.set('highlightAnimationTimeoutId', null);
-        clearTimeout(highlightAnimationTimeoutId);
+        clearTimeout(this.highlightAnimationTimeoutId);
       }
-      if (!hoveredHeaderTag) {
+      if (!this.hoveredHeaderTag) {
         this.set(
           'highlightAnimationTimeoutId',
           // timeout time is slightly longer than defined transition time in
@@ -1495,9 +1493,9 @@ export default BaseBrowserModel.extend(...mixins, {
     }
   },
 
+  // FIXME: test: działa tylko w normalnym browserze plików, nie działa dla archive
   async handleDownloadCommand() {
     await this.initialLoad;
-    await this.selectedItemsForJumpProxy;
     await waitForRender();
     if (!this.selectedItems?.length) {
       return;
@@ -1640,7 +1638,7 @@ export default BaseBrowserModel.extend(...mixins, {
   fetchDirChildren(dirId, ...fetchArgs) {
     // TODO: VFS-11460 It might be invoked too often - make benchmarks / fix
     // force fileRequirements change
-    this.fileConsumerModel.fileRequirementsObserver();
+    this.fileConsumerModel?.fileRequirementsObserver();
     return this.fileManager
       .fetchDirChildren(dirId, this.previewMode ? 'public' : 'private', ...fetchArgs);
   },

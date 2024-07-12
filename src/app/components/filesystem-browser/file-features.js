@@ -14,13 +14,14 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { or, not, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
-import { computed, observer, get } from '@ember/object';
+import { computed, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { inject as service } from '@ember/service';
 import { htmlSafe } from '@ember/string';
 import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percentage-progress';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 export const defaultFilesystemFeatures = Object.freeze([
   'effDatasetInheritancePath',
@@ -224,7 +225,7 @@ export default Component.extend(...mixins, {
     }
   }),
 
-  recallingInheritancePathObserver: observer(
+  recallingInheritancePathObserver: asyncObserver(
     'item.recallingInheritancePath',
     function recallingInheritancePathObserver() {
       this.tryDestroyRecallWatcher();

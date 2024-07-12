@@ -9,7 +9,6 @@
     {{#promise-proxy-container proxy=initialRequiredDataProxy}}
       {{file-browser
         browserModel=browserModel
-        dir=browsableDataset
         dirError=browsableDatasetProxy.reason
         resolveFileParentFun=(action "resolveItemParent")
         space=space
@@ -18,7 +17,6 @@
         isSpaceOwned=space.currentUserIsOwner
         contentScroll=perfectScrollbarContainer.element
         ignoreDeselectSelector=ignoreDatasetDeselectSelector
-        changeSelectedItems=(action "changeSelectedItems")
         updateDirEntityId=(action "updateDatasetId")
         onRegisterApi=(action (mut datasetBrowserApi))
       }}

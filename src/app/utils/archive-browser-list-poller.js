@@ -8,7 +8,8 @@
 
 import BrowserListPoller, { defaultPollInterval } from 'oneprovider-gui/utils/browser-list-poller';
 import { reads } from '@ember/object/computed';
-import { get, observer } from '@ember/object';
+import { get } from '@ember/object';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 const slowPollInterval = defaultPollInterval;
 
@@ -17,18 +18,19 @@ const fastPollInterval = 2000;
 export default BrowserListPoller.extend({
   archives: reads('browserModel.itemsArray'),
 
+  // FIXME: z jakiegoś niewiadomego powodu, get na browserModel.itemsArray powoduje ponowne utworzenie itemsArray
   // Using observer to change interval instead of computed property to suppress set
   // of interval property when it does not change (this would invoke).
-  archivesObserver: observer('archives.@each.metaState', function archivesObserver() {
-    if (!this.archives) {
-      return;
+  archivesObserver: asyncObserver(
+    'archives.@each.metaState',
+    function archivesObserver() {
+      this.reconfigurePollInterval();
     }
-    this.reconfigurePollInterval();
-  }),
+  ),
 
   init() {
     this._super(...arguments);
-    this.archivesObserver();
+    this.reconfigurePollInterval();
   },
 
   /**

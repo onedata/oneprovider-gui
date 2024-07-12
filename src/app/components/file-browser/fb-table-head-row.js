@@ -59,6 +59,8 @@ export default Component.extend(...mixins, {
    */
   currentProviderName: reads('currentProviderProxy.content.name'),
 
+  previewMode: reads('browserModel.previewMode'),
+
   didInsertElement() {
     this._super(...arguments);
     this.browserModel.columnsConfiguration.checkColumnsVisibility();

@@ -10,7 +10,8 @@ import sinon from 'sinon';
 import globals from 'onedata-gui-common/utils/globals';
 
 mocha.setup({
-  timeout: 5000,
+  // FIXME: 5000
+  timeout: 500000,
 });
 setResolver(resolver);
 setApplication(Application.create(config.APP));

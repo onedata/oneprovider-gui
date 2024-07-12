@@ -14,12 +14,9 @@
   {{#promise-proxy-container proxy=requiredDataProxy}}
     {{file-browser
       browserModel=browserModel
-      dir=dir
       dirError=dirProxy.reason
       customRootDir=rootDir
       selectedItems=selectedItems
-      previewMode=true
-      changeSelectedItems=(action "changeSelectedItems")
       getItemByIdFun=(action getItemById)
       resolveFileParentFun=(action "resolveFileParentFun")
       updateDirEntityId=(action "updateDirId")
@@ -29,7 +26,6 @@
   {{#if filesToShowInfo}}
     {{file-info-modal
       open=true
-      previewMode=true
       share=share
       browserModel=browserModel
       files=filesToShowInfo

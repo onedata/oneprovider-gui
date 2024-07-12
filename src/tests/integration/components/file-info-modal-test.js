@@ -18,6 +18,7 @@ import createSpace from '../../helpers/create-space';
 import DefaultUser from '../../helpers/default-user';
 import globals from 'onedata-gui-common/utils/globals';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const storageLocations = {
   locationsPerProvider: {
@@ -59,6 +60,11 @@ describe('Integration | Component | file-info-modal', function () {
   const { afterEach } = setupRenderingTest();
 
   beforeEach(async function () {
+    const onedataGraph = lookupService(this, 'onedataGraph');
+    onedataGraph.getMockChildrenSlice = function getMockChildrenSliceStub() {
+      return [];
+    };
+
     this.fileParentRoot = await createFile(this, {
       name: 'My space',
       type: 'dir',
@@ -697,7 +703,6 @@ async function renderComponent() {
     open=true
     files=(or files (array file))
     initialTab=initialTab
-    previewMode=previewMode
     share=share
     space=space
     selectedRestUrlType=selectedRestUrlType
@@ -829,6 +834,8 @@ async function givenDefaultStubs(testCase) {
   testCase.set('storageLocationsProxy', storageLocationsProxy);
   if (!testCase.get('browserModel')) {
     testCase.set('browserModel', FilesystemBrowserModel.create({
+      dirProxy: promiseObject((async () => testCase.get('fileParent1'))()),
+      previewMode: testCase.get('previewMode'),
       ownerSource: testCase.owner,
     }));
   }

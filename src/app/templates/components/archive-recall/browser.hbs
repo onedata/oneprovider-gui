@@ -1,6 +1,5 @@
 {{#promise-proxy-container proxy=browserRequiredDataProxy}}
   {{file-browser
-    dir=currentBrowsableItem
     dirError=currentBrowsableItemError
     browserModel=browserModel
     parentModalDialogSelector=parentModalDialogSelector
@@ -8,9 +7,7 @@
     isSpaceOwned=space.currentUserIsOwner
     space=space
     contentScroll=contentScroll
-    selectedItems=selectedItems
     ignoreDeselectSelector=ignoreDeselectSelector
-    changeSelectedItems=(action "changeSelectedItems")
     updateDirEntityId=(action "changeDirId")
   }}
 {{/promise-proxy-container}}

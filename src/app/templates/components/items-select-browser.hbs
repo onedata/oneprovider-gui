@@ -15,9 +15,7 @@
   >
     {{#promise-proxy-container proxy=initialRequiredDataProxy}}
       {{file-browser
-        dir=dir
         dirError=dirProxy.reason
-        previewMode=previewMode
         browserModel=browserModel
         parentModalDialogSelector=parentModalDialogSelector
         showSelectionToolkit=false
@@ -27,7 +25,6 @@
         selectedItems=browserSelectedItems
         dirStatsServiceState=selectorModel.dirStatsServiceStateProxy.content
         resolveFileParentFun=(action "resolveItemParent")
-        changeSelectedItems=(action "changeSelectedItems")
         updateDirEntityId=(action "updateDirEntityId")
       }}
 

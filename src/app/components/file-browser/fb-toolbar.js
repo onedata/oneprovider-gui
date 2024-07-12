@@ -8,7 +8,8 @@
  */
 
 import Component from '@ember/component';
-import { get, computed, observer } from '@ember/object';
+import { get, computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { cancel, later, schedule } from '@ember/runloop';
@@ -16,6 +17,7 @@ import { inject as service } from '@ember/service';
 import config from 'ember-get-config';
 import _ from 'lodash';
 import { array } from 'ember-awesome-macros';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 export default Component.extend(I18n, {
   classNames: ['fb-toolbar'],
@@ -26,6 +28,11 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbToolbar',
+
+  /**
+   * @virtual
+   */
+  browserModel: undefined,
 
   /**
    * @virtual
@@ -63,12 +70,6 @@ export default Component.extend(I18n, {
   buttons: undefined,
 
   /**
-   * @virtual optional
-   * @type {boolean}
-   */
-  previewMode: false,
-
-  /**
    * @type {Boolean}
    */
   isClipboardHintVisible: false,
@@ -77,6 +78,11 @@ export default Component.extend(I18n, {
    * @type {any}
    */
   clipboardHintHideTimer: undefined,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  previewMode: reads('browserModel.previewMode'),
 
   /**
    * @type {ComputedProperty<String>}
@@ -109,22 +115,12 @@ export default Component.extend(I18n, {
     return this.get('buttons').mapBy('id');
   }),
 
-  fileClipboardModeObserver: observer(
+  fileClipboardModeObserver: asyncObserver(
     'fileClipboardMode',
     'fileClipboardFiles',
     function fileClipboardModeObserver() {
-      const {
-        isClipboardHintVisible,
-        fileClipboardMode,
-        clipboardHintHideTimer,
-      } = this.getProperties(
-        'isClipboardHintVisible',
-        'fileClipboardMode',
-        'clipboardHintHideTimer'
-      );
-
-      cancel(clipboardHintHideTimer);
-      if (fileClipboardMode) {
+      cancel(this.clipboardHintHideTimer);
+      if (this.fileClipboardMode) {
         const timer = later(
           this,
           () => this.set('isClipboardHintVisible', false),
@@ -134,7 +130,7 @@ export default Component.extend(I18n, {
           isClipboardHintVisible: true,
           clipboardHintHideTimer: timer,
         });
-      } else if (isClipboardHintVisible) {
+      } else if (this.isClipboardHintVisible) {
         this.set('isClipboardHintVisible', false);
       }
     }

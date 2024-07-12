@@ -1,15 +1,12 @@
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
   {{file-browser
     browserModel=browserModel
-    dir=dir
     dirError=dirError
     space=spaceProxy.content
     selectedItems=selectedItems
-    selectedItemsForJumpProxy=selectedItemsForJumpProxy
     isSpaceOwned=spaceProxy.currentUserIsOwner
     dirStatsServiceState=effDirStatsServiceState
     getItemByIdFun=(action getItemById)
-    changeSelectedItems=(action "changeSelectedItems")
     updateDirEntityId=(action "updateDirEntityId")
   }}
   <div class="upload-drop-zone {{if effUploadDisabled "upload-disabled"}}">

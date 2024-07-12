@@ -10,6 +10,7 @@ import { RuntimeProperties as FileRuntimeProperties } from 'oneprovider-gui/mode
 import EmberObject, { set } from '@ember/object';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import globals from 'onedata-gui-common/utils/globals';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -26,6 +27,7 @@ describe('Integration | Component | file-browser/fb-table-row', function () {
   beforeEach(function () {
     registerService(this, 'currentUser', currentUser);
     this.set('browserModel', FilesystemBrowserModel.create({
+      dirProxy: promiseObject((async () => null)()),
       ownerSource: this.owner,
       firstColumnWidth: 20,
       loadColumnsConfigFromLocalStorage() {
@@ -411,10 +413,10 @@ function createFile(override = {}, ownerGri = userGri) {
 
 async function renderComponent(testCase) {
   testCase.set('browserModel.spacePrivileges', testCase.get('spacePrivileges'));
+  testCase.set('browserModel.previewMode', testCase.get('previewMode'));
   await render(hbs `{{file-browser/fb-table-row
     file=file
     browserModel=browserModel
-    previewMode=previewMode
     isSpaceOwned=isSpaceOwned
     spacePrivileges=spacePrivileges
   }}`);

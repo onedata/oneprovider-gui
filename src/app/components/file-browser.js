@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { observer, computed, get, set, getProperties } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/i18n';
@@ -17,7 +17,6 @@ import { notEmpty, not, raw, collect, and, or, equal, conditional, writable } fr
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { next } from '@ember/runloop';
 import $ from 'jquery';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
@@ -25,6 +24,7 @@ import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects
 import dom from 'onedata-gui-common/utils/dom';
 import globals from 'onedata-gui-common/utils/globals';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import { syncObserver } from 'onedata-gui-common/utils/observer';
 
 const defaultIsItemDisabled = () => false;
 
@@ -100,15 +100,6 @@ export default Component.extend(I18n, {
   browserModel: undefined,
 
   /**
-   * Browsable item with dir type. It is the currently displayed directory (container).
-   * Can be replaced internally with `changeDir` action.
-   * Eg. a `Models.File` object with `dir` type.
-   * @virtual
-   * @type {any}
-   */
-  dir: undefined,
-
-  /**
    * @virtual
    * @type {Object}
    */
@@ -121,15 +112,6 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @async
-   * @type {Function}
-   * @param {Array} selectedItems
-   * @returns {Promise}
-   */
-  changeSelectedItems: notImplementedThrow,
-
-  /**
-   * @virtual
    * @type {Function}
    */
   getItemByIdFun: notImplementedReject,
@@ -139,12 +121,6 @@ export default Component.extend(I18n, {
    * @type {Models.File}
    */
   customRootDir: undefined,
-
-  /**
-   * @virtual
-   * @type {boolean}
-   */
-  previewMode: false,
 
   /**
    * @virtual
@@ -196,6 +172,21 @@ export default Component.extend(I18n, {
   onRegisterApi: notImplementedIgnore,
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  previewMode: reads('browserModel.previewMode'),
+
+  /**
+   * Browsable item with dir type. It is the currently displayed directory (container).
+   * Can be replaced internally with `changeDir` action.
+   * Eg. a `Models.File` object with `dir` type.
+   * @type {ComputedProperty<any>}
+   */
+  dir: reads('browserModel.dir'),
+
+  lastResolvedDir: reads('browserModel.lastResolvedDir'),
+
+  /**
    * @type {ComputedProperty<string>}
    */
   spaceId: reads('space.entityId'),
@@ -236,21 +227,14 @@ export default Component.extend(I18n, {
    */
   fileClipboardMode: null,
 
+  contentScroll: undefined,
+
   /**
    * Array of selected file records.
    * @type {EmberArray<Models.File>}
    */
-  selectedItems: undefined,
-
-  /**
-   * Injected property to notify about external selection change, that should enable jump.
-   * @type {PromiseArray<Object>} array proxy of browsable objects (eg. file)
-   */
-  selectedItemsForJumpProxy: undefined,
-
-  contentScroll: undefined,
-
-  selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
+  // FIXME:
+  selectedItems: reads('browserModel.selectedItems'),
 
   renderSelectionToolkitDesktop: and(
     not('media.isMobile'),
@@ -315,46 +299,6 @@ export default Component.extend(I18n, {
         .some(showIn =>
           showIn.some(actionContext => anySelectedContexts.includes(actionContext))
         );
-    }
-  ),
-
-  /**
-   * One of values from `actionContext` enum object marked as "selection context" in doc
-   * @type {ComputedProperty<string>}
-   */
-  selectionContext: computed(
-    'selectedItems.[]',
-    'previewMode',
-    function selectionContext() {
-      const {
-        selectedItems,
-        previewMode,
-      } = this.getProperties('selectedItems', 'previewMode');
-      if (selectedItems) {
-        const count = get(selectedItems, 'length');
-        if (count === 0) {
-          return 'none';
-        }
-        let context;
-        if (count === 1) {
-          if (get(selectedItems[0], 'type') === 'dir') {
-            context = actionContext.singleDir;
-          } else {
-            context = actionContext.singleFile;
-          }
-        } else {
-          if (selectedItems.isAny('type', 'dir')) {
-            if (selectedItems.isAny('type', 'file')) {
-              context = actionContext.multiMixed;
-            } else {
-              context = actionContext.multiDir;
-            }
-          } else {
-            context = actionContext.multiFile;
-          }
-        }
-        return previewMode ? this.previewizeContext(context) : context;
-      }
     }
   ),
 
@@ -643,33 +587,37 @@ export default Component.extend(I18n, {
     'selectedItems',
   ),
 
-  handleBrowserModelSet: observer('browserModel', function handleBrowserModelSet() {
-    const browserModel = this.get('browserModel');
-    if (browserModel) {
-      set(browserModel, 'browserInstance', this);
-      (async () => {
-        await waitForRender();
-        this.browserModel.mount(this.element);
-        this.browserModel.onInsertElement();
-      })();
+  /**
+   * Sync: immediately set `browserInstance` on `browserModel` and then async mount.
+   */
+  handleBrowserModelSet: syncObserver('browserModel', function handleBrowserModelSet() {
+    if (!this.browserModel) {
+      return;
+    }
+    this.browserModel.bindBrowserInstance(this);
+
+    if (this.element) {
+      this.browserModel.mount(this.element);
+      this.browserModel.onInsertElement();
     }
   }),
 
-  fbTableApiObserver: observer('fbTableApi', function fbTableApiObserver() {
-    const {
-      fbTableApi,
-      onRegisterApi,
-    } = this.getProperties('fbTableApi', 'onRegisterApi');
-    if (onRegisterApi) {
-      onRegisterApi(fbTableApi);
+  /**
+   * Sync: the fileTableApi could be needed immediately by file browser related objects.
+   */
+  fbTableApiObserver: syncObserver(
+    'onRegisterApi',
+    'fbTableApi',
+    function fbTableApiObserver() {
+      this.onRegisterApi?.(this.fbTableApi);
     }
-  }),
+  ),
 
   init() {
     this._super(...arguments);
-    if (!this.get('selectedItems')) {
-      this.set('selectedItems', []);
-    }
+    // if (!this.get('selectedItems')) {
+    //   this.set('selectedItems', []);
+    // }
     this.set('loadingIconFileIds', A());
     if (!this.get('browserModel')) {
       throw new Error(
@@ -679,8 +627,14 @@ export default Component.extend(I18n, {
     this.handleBrowserModelSet();
   },
 
+  /**
+   * @override
+   */
   didInsertElement() {
     this._super(...arguments);
+
+    this.browserModel.mount(this.element);
+    this.browserModel.onInsertElement();
 
     if (!this.contentScroll) {
       this.set('contentScroll', globals.document.getElementById('content-scroll'));
@@ -699,22 +653,13 @@ export default Component.extend(I18n, {
 
   willDestroyElement() {
     this._super(...arguments);
-    const {
-      element,
-      clickOutsideDeselectHandler,
-      currentDirContextMenuHandler,
-    } = this.getProperties(
-      'element',
-      'clickOutsideDeselectHandler',
-      'currentDirContextMenuHandler',
-    );
     globals.document.body.removeEventListener(
       'click',
-      clickOutsideDeselectHandler
+      this.clickOutsideDeselectHandler
     );
-    element.removeEventListener(
+    this.element.removeEventListener(
       'contextmenu',
-      currentDirContextMenuHandler
+      this.currentDirContextMenuHandler
     );
   },
 
@@ -752,12 +697,8 @@ export default Component.extend(I18n, {
     }
   },
 
-  previewizeContext(context) {
-    return `${context}Preview`;
-  },
-
   clearFilesSelection() {
-    this.get('changeSelectedItems')([]);
+    this.changeSelectedItems([]);
   },
 
   clearFileClipboard() {
@@ -775,10 +716,14 @@ export default Component.extend(I18n, {
     this.set('fileClipboardMode', mode);
   },
 
-  async selectCurrentDir() {
+  selectCurrentDir() {
     if (this.dir) {
       return this.changeSelectedItems([this.dir]);
     }
+  },
+
+  changeSelectedItems(items) {
+    return this.browserModel.changeSelectedItems(items);
   },
 
   async changeDir(dir) {
@@ -834,18 +779,18 @@ export default Component.extend(I18n, {
       this.set('currentDirActionsOpen', _open);
     },
     changeSelectedItems(selectedItems) {
-      return this.get('changeSelectedItems')(selectedItems);
+      return this.changeSelectedItems(selectedItems);
     },
-    async invokeFileAction(file, btnId, ...actionArgs) {
+    invokeFileAction(file, btnId, ...actionArgs) {
       const selectedFiles = [file];
-      await this.get('changeSelectedItems')(selectedFiles);
+      this.changeSelectedItems(selectedFiles);
       const btn = this.get('allButtonsHash')[btnId];
       if (!btn) {
         throw new Error(
           `component:file-browser#actions.invokeFileAction: no action button with id: ${btnId}`
         );
       }
-      next(this, () => btn.action(selectedFiles, ...actionArgs));
+      btn.action(selectedFiles, ...actionArgs);
     },
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);

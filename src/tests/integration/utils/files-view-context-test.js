@@ -3,6 +3,7 @@ import { setupRenderingTest } from 'ember-mocha';
 import { expect } from 'chai';
 import FilesViewContext, { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import { get } from '@ember/object';
+import { lookupService } from '../../helpers/stub-service';
 import {
   createSpaceRootDir,
   createArchiveRootDir,
@@ -27,7 +28,12 @@ describe('Integration | Utility | files-view-context', function () {
       const datasetId = 'dataset_id_123';
       const archiveId = 'archive_id_123';
       const spaceId = 'space_id_123';
-      const archiveRootDir = createArchiveRootDir(datasetId, archiveId, spaceId);
+      const store = lookupService(this, 'store');
+      const archiveRootDir = await createArchiveRootDir(store, {
+        datasetId,
+        archiveId,
+        spaceId,
+      });
       const dir1 = createFile({
         entityId: createEntityId('dir1_id', spaceId),
         name: 'dir1',

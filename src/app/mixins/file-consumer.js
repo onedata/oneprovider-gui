@@ -41,10 +41,12 @@ export default Mixin.create({
 
   init() {
     this._super(...arguments);
-    this.fileConsumerModel = FileConsumerModel.create({
-      consumer: this,
-      ownerSource: this,
-    });
+    if (!this.fileConsumerModel) {
+      this.fileConsumerModel = FileConsumerModel.create({
+        consumer: this,
+        ownerSource: this,
+      });
+    }
   },
 
   /**

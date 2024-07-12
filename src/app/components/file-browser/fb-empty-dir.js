@@ -7,6 +7,7 @@
  */
 
 import Component from '@ember/component';
+import { reads } from '@ember/object/computed';
 
 export default Component.extend({
   classNames: ['empty-dir-box', 'dir-box'],
@@ -16,4 +17,9 @@ export default Component.extend({
    * @type {Utils.BaseBrowserModel}
    */
   browserModel: undefined,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  previewMode: reads('browserModel.previewMode'),
 });

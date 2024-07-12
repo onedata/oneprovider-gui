@@ -246,13 +246,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   browserModel: undefined,
 
-  /**
-   * Default value set on init.
-   * @type {Array<EmberObject>} a browsable item that appears on list:
-   *  dataset, archive or file
-   */
-  selectedItems: undefined,
-
   //#region browser items for various modals
 
   datasetToCreateArchive: undefined,
@@ -277,8 +270,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'datasetId',
     'selectedDatasets',
     async function selectedItemsForJumpProxy() {
-      const selectedDatasets = this.get('selectedDatasets');
-      return this.getDatasetsForView(selectedDatasets);
+      return this.getDatasetsForView(this.selectedDatasets);
     }
   )),
 
@@ -332,6 +324,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   isInRoot: bool('browsableDataset.isDatasetsRoot'),
 
+  // FIXME: czy to jest gdzieś używane?
   archive: computedLastProxyContent('archiveProxy'),
 
   currentBrowsableItemProxy: reads('browsableDatasetProxy'),
@@ -400,11 +393,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   )),
 
   /**
-   * @type {Models.Dataset}
-   */
-  browsableDataset: computedLastProxyContent('browsableDatasetProxy'),
-
-  /**
    * Proxy for whole file-browser: loading causes loading screen, recomputing causes
    * `file-browser` to be re-rendered.
    * @type {PromiseObject}
@@ -414,19 +402,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'initialBrowsableDatasetProxy',
     'initialSelectedItemsForJumpProxy',
     function initialRequiredDataProxy() {
-      const {
-        spaceProxy,
-        initialSelectedItemsForJumpProxy,
-        initialBrowsableDatasetProxy,
-      } = this.getProperties(
-        'spaceProxy',
-        'initialSelectedItemsForJumpProxy',
-        'initialBrowsableDatasetProxy',
-      );
       const proxies = [
-        spaceProxy,
-        initialSelectedItemsForJumpProxy,
-        initialBrowsableDatasetProxy,
+        this.spaceProxy,
+        this.initialBrowsableDatasetProxy,
+        this.initialSelectedItemsForJumpProxy,
       ];
       return allFulfilled(proxies);
     }
@@ -476,19 +455,22 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   clearSelectedObserver: observer(
     'attachmentState',
-    async function clearSelectedObserver() {
+    function clearSelectedObserver() {
       if (this.get('lockSelectedReset')) {
         return;
       }
       if (this.get('selectedItems.length') > 0) {
-        await this.changeSelectedItems([]);
+        this.changeSelectedItems([]);
       }
     }
   ),
 
   init() {
     this._super(...arguments);
-    this.set('browserModel', this.createDatasetBrowserModel());
+    (async () => {
+      await this.initialRequiredDataProxy;
+      this.set('browserModel', this.createDatasetBrowserModel());
+    })();
   },
 
   /**
@@ -710,7 +692,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   createDatasetBrowserModel() {
-    return DatasetBrowserModel.create({
+    return ContentSpaceDatasetsBrowserModel.create({
+      selectedItemsForJump: this.selectedItemsForJumpProxy.content,
+      contentSpaceDatasets: this,
       ownerSource: this,
       spaceDatasetsViewState: this,
       disableReJumps: true,
@@ -804,47 +788,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       this.callParent('updateDatasetId', itemId);
       await this.get('appProxy').waitForNextFlush();
     },
-    async changeSelectedItems(selectedItems) {
-      const {
-        selectedItems: currentSelectedItems,
-        browsableDataset,
-        appProxy,
-      } = this.getProperties('selectedItems', 'browsableDataset', 'appProxy');
-      const isSingleSelected = selectedItems && selectedItems.length === 1;
-
-      // clearing archive and dir clears secondary browser - it should be done only
-      // if selected dataset is changed; in other circumstances it is probably initial
-      // selection change (after jump) or some unnecessary url update
-      if (
-        !isEmpty(currentSelectedItems) &&
-        !_.isEqual(currentSelectedItems, selectedItems)
-      ) {
-        this.callParent('updateArchiveId', null);
-        this.callParent('updateDirId', null);
-        if (isSingleSelected) {
-          // When changing to other specific dataset, archiveId and dirId should be
-          // cleared before dataset change to prevent injecting wrong ids set to
-          // dataset-archives-browser (eg. incompatible dir for currently opened dataset).
-          // Unfortunately it could cause showing archives list for a short period, but in
-          // current architecture there is no simple solution for this issue.
-          // We cannot change dataset in URL here because of blink-scroll animation
-          // prevention (see comment below).
-          await appProxy.waitForNextFlush();
-        }
-      }
-
-      // Be prepared for injected selected items change which will be done async -
-      // it prevents blink animation and scrolling to selected dataset.
-      this.changeSelectedItemsImmediately(selectedItems);
-
-      // Single selected dataset should be stored in URL - user can navigate with
-      // prev/next when selects single dataset for browsing.
-      // Also a current dataset-dir could be selected, but should not be stored in URL.
-      const isChangeStoredInUrl = selectedItems.length === 1 &&
-        selectedItems[0] !== browsableDataset;
-      const externalUpdate = isChangeStoredInUrl ? selectedItems.mapBy('entityId') : null;
-      await this.updateSelectedDatasetsInUrl(externalUpdate);
-    },
     async updateArchiveId(archiveId) {
       this.callParent('updateArchiveId', archiveId);
       await this.get('appProxy').waitForNextFlush();
@@ -873,4 +816,58 @@ export default OneEmbeddedComponent.extend(...mixins, {
       }
     },
   },
+});
+
+const ContentSpaceDatasetsBrowserModel = DatasetBrowserModel.extend({
+  /**
+   * @virtual
+   * @type {Components.ContentSpaceDatasets}
+   */
+  contentSpaceDatasets: undefined,
+
+  dirProxy: reads('contentSpaceDatasets.browsableDatasetProxy'),
+
+  changeSelectedItems(newSelectedItems) {
+    const oldSelectedItems = this.selectedItems;
+    if (_.isEqual(oldSelectedItems, newSelectedItems)) {
+      return;
+    }
+
+    const isSingleSelected = newSelectedItems && newSelectedItems.length === 1;
+    const isChangeStoredInUrl =
+      newSelectedItems[0] !== this.contentSpaceDatasets.browsableDataset;
+
+    this._super(...arguments);
+
+    (async () => {
+      // Clearing archive and dir clears secondary browser - it should be done only
+      // if selected dataset is changed; in other circumstances it is probably initial
+      // selection change (after jump) or some unnecessary url update.
+      if (!isEmpty(oldSelectedItems)) {
+        this.contentSpaceDatasets.callParent('updateArchiveId', null);
+        this.contentSpaceDatasets.callParent('updateDirId', null);
+        if (isSingleSelected) {
+          // When changing to other specific dataset, archiveId and dirId should be
+          // cleared before dataset change to prevent injecting wrong ids set to
+          // dataset-archives-browser (eg. incompatible dir for currently opened dataset).
+          // Unfortunately it could cause showing archives list for a short period, but in
+          // current architecture there is no simple solution for this issue.
+          // We cannot change dataset in URL here because of blink-scroll animation
+          // prevention (see comment below).
+          await this.contentSpaceDatasets.appProxy.waitForNextFlush();
+        }
+      }
+      // Single selected dataset should be stored in URL - user can navigate with
+      // prev/next when selects single dataset for browsing.
+      // Also a current dataset-dir could be selected, but should not be stored in URL.
+      const externalUpdate = (isChangeStoredInUrl && isSingleSelected) ? [
+        get(newSelectedItems[0], 'entityId'),
+      ] : null;
+      await this.contentSpaceDatasets.updateSelectedDatasetsInUrl(externalUpdate);
+    })();
+  },
+
+  // FIXME: ???
+  // Be prepared for injected selected items change which will be done async -
+  // it prevents blink animation and scrolling to selected dataset.
 });

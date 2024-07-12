@@ -174,9 +174,9 @@ export default Component.extend(...mixins, {
 
   init() {
     this._super(...arguments);
-    const rootBlock = RootOperatorQueryBlock.create();
-    this.attachRootBlockNotifiers(rootBlock);
-    this.set('rootBlock', rootBlock);
+    const rootQueryBlock = RootOperatorQueryBlock.create();
+    this.attachRootBlockNotifiers(rootQueryBlock);
+    this.set('rootQueryBlock', rootQueryBlock);
   },
 
   /**

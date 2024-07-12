@@ -1,6 +1,5 @@
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
   {{file-browser
-    dir=currentBrowsableItem
     dirError=currentBrowsableItemProxy.reason
     browserModel=browserModel
     parentModalDialogSelector=parentModalDialogSelector
@@ -14,7 +13,6 @@
     showSelectionToolkit=showSelectionToolkit
     getItemByIdFun=(action getItemById)
     resolveFileParentFun=(action "resolveItemParent")
-    changeSelectedItems=(action "changeSelectedItems")
     updateDirEntityId=(action "updateDirEntityId")
     dirStatsServiceState=dirStatsServiceStateProxy.content
   }}

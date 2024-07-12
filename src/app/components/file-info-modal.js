@@ -23,7 +23,7 @@ import {
   not,
   writable,
 } from 'ember-awesome-macros';
-import { computed, get, set, getProperties, observer } from '@ember/object';
+import { computed, get, set, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
@@ -42,6 +42,7 @@ import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 const mixins = [
   I18n,
@@ -818,16 +819,21 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  hardlinksAutoUpdater: observer('file.hardlinkCount', function hardlinksAutoUpdater() {
-    if (this.activeTab === 'hardlinks') {
-      this.updateFileHardlinksProxy();
+  hardlinksAutoUpdater: asyncObserver(
+    'file.hardlinkCount',
+    function hardlinksAutoUpdater() {
+      if (this.activeTab === 'hardlinks') {
+        this.updateFileHardlinksProxy();
+      }
     }
-  }),
+  ),
 
-  storageLocationsAutoUpdater: observer(
+  storageLocationsAutoUpdater: asyncObserver(
     'file.{parent.name,name}',
     async function storageLocationsAutoUpdater() {
-      this.file.belongsTo('storageLocationInfo').reload();
+      if (get(this.file, 'type') === LegacyFileType.Regular) {
+        this.file.belongsTo('storageLocationInfo').reload();
+      }
     }
   ),
 

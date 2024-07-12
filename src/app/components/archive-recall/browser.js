@@ -8,14 +8,17 @@
 
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import InModalBrowserContainerBase from 'oneprovider-gui/mixins/in-modal-item-browser-container-base';
-import SelectLocationFilesystemBrowserModel from 'oneprovider-gui/utils/select-location-filesystem-browser-model';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import SelectLocationFilesystemBrowserModel from 'oneprovider-gui/utils/select-location-filesystem-browser-model';
+import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 
 const mixins = [
+  ItemBrowserContainerBase,
   InModalBrowserContainerBase,
 ];
 
@@ -90,16 +93,6 @@ export default Component.extend(...mixins, {
 
   onSelectedItemsChange: notImplementedThrow,
 
-  browserModel: computed(function browserModel() {
-    return SelectLocationFilesystemBrowserModel
-      .create({
-        ownerSource: this,
-        openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
-        openRename: this.openRenameModal.bind(this),
-        onRefresh: () => this.get('onFilesystemChange')(),
-      });
-  }),
-
   /**
    * @implements {FilesystemSelectBrowserExtensionModel}
    */
@@ -110,6 +103,31 @@ export default Component.extend(...mixins, {
    */
   fileToRename: null,
 
+  browserModel: computed(function browserModel() {
+    // FIXME: wszystkie customowe klasy modeli browserów można definiować z góry
+    return SelectLocationFilesystemBrowserModel
+      .extend({
+        dirProxy: reads('archiveRecallBrowser.currentBrowsableItemProxy'),
+        // FIXME: sprawdzić działanie archiveRecallBrowserDisabled
+        changeSelectedItems() {
+          if (!this.archiveRecallBrowser.disabled) {
+            this.archiveRecallBrowser.onSelectedItemsChange(...arguments);
+            this._super(...arguments);
+          }
+        },
+      })
+      .create({
+        archiveRecallBrowser: this,
+        ownerSource: this,
+        openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
+        openRename: this.openRenameModal.bind(this),
+        onRefresh: () => this.onFilesystemChange(),
+      });
+  }),
+
+  /**
+   * @override
+   */
   willDestroyElement() {
     try {
       this.browserModel?.destroy();
@@ -151,18 +169,6 @@ export default Component.extend(...mixins, {
   },
 
   actions: {
-    changeSelectedItems() {
-      const {
-        disabled,
-        onSelectedItemsChange,
-      } = this.getProperties(
-        'disabled',
-        'onSelectedItemsChange',
-      );
-      if (!disabled && onSelectedItemsChange) {
-        onSelectedItemsChange(...arguments);
-      }
-    },
     changeDirId() {
       const {
         disabled,

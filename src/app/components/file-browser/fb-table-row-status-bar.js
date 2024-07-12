@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { inject as service } from '@ember/service';
-import { or } from '@ember/object/computed';
+import { reads, or } from '@ember/object/computed';
 
 export default Component.extend(I18n, {
   tagName: 'div',
@@ -60,12 +60,6 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {Boolean}
-   */
-  previewMode: false,
-
-  /**
-   * @virtual optional
    * @type {SpacePrivileges}
    */
   spacePrivileges: Object.freeze({}),
@@ -77,6 +71,11 @@ export default Component.extend(I18n, {
   isSpaceOwned: false,
 
   //#endregion
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  previewMode: reads('browserModel.previewMode'),
 
   /**
    * Name of icon to indicate that some property in tag is inhertied from ancestor

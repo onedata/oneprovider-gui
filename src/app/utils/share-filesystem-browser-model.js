@@ -61,6 +61,11 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
+  previewMode: true,
+
+  /**
+   * @override
+   */
   listingRequirement: computed(
     'dir',
     'listedFilesProperties',

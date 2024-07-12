@@ -6,9 +6,9 @@ import { hbs } from 'ember-cli-htmlbars';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import Service from '@ember/service';
 import sinon from 'sinon';
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
 import Evented from '@ember/object/evented';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, resolve } from 'rsvp';
 import _ from 'lodash';
 import sleep from 'onedata-gui-common/utils/sleep';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
@@ -22,6 +22,7 @@ import {
 } from '../../helpers/item-browser';
 import globals from 'onedata-gui-common/utils/globals';
 import { getFileGri } from 'oneprovider-gui/models/file';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -342,28 +343,25 @@ describe('Integration | Component | file-browser (main component)', function () 
     },
   });
 
-  // NOTE: use "done" callback for async tests because of bug in ember test framework
   describe('selects using injected file ids', function () {
     it('visible file on list', async function () {
       const dirId = 'deid';
       const dirGri = getFileGri(dirId);
       const name = 'Test directory';
-      const dir = this.store.createRecord('file', {
+      const dir = await createFile(this, {
         id: dirGri,
         name,
         type: 'dir',
       });
-      await dir.save();
-      const files = _.range(4).map(i => {
+      const files = await allFulfilled(_.range(4).map(i => {
         const id = getFileGri(`f${i}`);
         const name = `File ${i}`;
-        return this.store.createRecord('file', {
+        return createFile(this, {
           id,
           name,
           index: name,
         });
-      });
-      await allFulfilled(files.map(file => file.save()));
+      }));
       const selectedFile = files[1];
       const selectedItemsForJump = [selectedFile];
       this.setProperties({
@@ -843,14 +841,30 @@ async function renderComponent(testCase) {
   );
   setDefaultTestProperty(testCase, 'spacePrivileges', {});
   setDefaultTestProperty(testCase, 'spaceId', 'some_space_id');
-  setDefaultTestProperty(testCase, 'browserModel', FilesystemBrowserModel.create({
-    ownerSource: testCase.owner,
-    openCreateNewDirectory: openCreateNewDirectory ||
-      notStubbed('openCreateNewDirectory'),
-    openDatasets: openDatasets || notStubbed('openDatasets'),
-    openInfo: openInfo || notStubbed('openInfo'),
-    isListPollingEnabled: false,
-  }));
+  setDefaultTestProperty(testCase, 'browserModel', FilesystemBrowserModel
+    .extend({
+      dirProxy: computed('testCase.dir', function dirProxy() {
+        return promiseObject(resolve(this.testCase.get('dir')));
+      }),
+      selectedItemsForJump: computed('testCase.selectedItemsForJump',
+        function selectedItemsForJump() {
+          // NOTE: must use computed and .get method, because using reads does not work
+          // properly with mochaContext (`get(this, 'selectedItemsForJump')` does not react
+          // to updates properly).
+          return this.testCase.get('selectedItemsForJump');
+        }
+      ),
+    })
+    .create({
+      testCase,
+      ownerSource: testCase.owner,
+      openCreateNewDirectory: openCreateNewDirectory ||
+        notStubbed('openCreateNewDirectory'),
+      openDatasets: openDatasets || notStubbed('openDatasets'),
+      openInfo: openInfo || notStubbed('openInfo'),
+      isListPollingEnabled: false,
+    })
+  );
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.set('changeSelectedItemsImmediately', function (selectedItems) {
     this.set('selectedItems', selectedItems);
@@ -859,9 +873,8 @@ async function renderComponent(testCase) {
     once(this, 'changeSelectedItemsImmediately', selectedItems);
     await sleep(0);
   });
-  await render(hbs `<div id="content-scroll">{{file-browser
+  await render(hbs`<div id="content-scroll">{{file-browser
     browserModel=browserModel
-    dir=dir
     spaceId=spaceId
     selectedItems=selectedItems
     selectedItemsForJump=selectedItemsForJump
@@ -870,7 +883,6 @@ async function renderComponent(testCase) {
     spacePrivileges=spacePrivileges
     handleFileDownloadUrl=handleFileDownloadUrl
     updateDirEntityId=(action updateDirEntityId)
-    changeSelectedItems=(action changeSelectedItems)
   }}</div>`);
 }
 

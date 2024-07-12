@@ -2,7 +2,6 @@
   <thead class="fb-table-thead">
     {{#if headRowComponentName}}
       {{#component headRowComponentName
-        previewMode=previewMode
         browserModel=browserModel
         headFirstCellComponentName=headFirstCellComponentName
       }}
@@ -38,7 +37,6 @@
         class="data-row"
         file=file
         browserModel=browserModel
-        previewMode=previewMode
         dirStatsServiceState=dirStatsServiceState
         noItemsActions=noItemsActions
         isSpaceOwned=isSpaceOwned
@@ -48,7 +46,6 @@
         isSelected=(contains file selectedItems)
         isDisabled=(contains file disabledItems)
         isLoadingOnIcon=(contains file.entityId loadingIconFileIds)
-        changeSelectedItems=changeSelectedItems
         touchTap=(action "fileTapped" file)
         touchHold=(action "fileTouchHeld" file)
         fastClick=(action "fileClicked" file)
@@ -83,7 +80,6 @@
 {{#if (and dirLoadError dirLoadErrorComponentName)}}
   {{component dirLoadErrorComponentName
     dir=dir
-    previewMode=previewMode
     dirLoadError=dirLoadError
     browserModel=browserModel
   }}
@@ -91,7 +87,6 @@
 {{#if (and hasEmptyDirClass emptyDirComponentName)}}
   {{component emptyDirComponentName
     dir=dir
-    previewMode=previewMode
     browserModel=browserModel
   }}
 {{/if}}
