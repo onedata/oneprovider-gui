@@ -83,9 +83,9 @@ const columnsRequirementsDependencies = [
   'owner',
   'replication',
   'qos',
-  // TODO: VFS-11961 uncomment when atime will be fix
-  // 'atime',
+  'atime',
   'ctime',
+  'creationTime',
   'fileId',
   'posixPermissions',
 ].map(columnName =>
@@ -485,12 +485,14 @@ export default BaseBrowserModel.extend(...mixins, {
         if (columns.posixPermissions?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('posixPermissions');
         }
-        // TODO: VFS-11961 uncomment when atime will be fix
-        // if (columns.atime?.[columnRequirementsEnableProperty]) {
-        //   listedFilesPropertySet.add('atime');
-        // }
+        if (columns.atime?.[columnRequirementsEnableProperty]) {
+          listedFilesPropertySet.add('atime');
+        }
         if (columns.ctime?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('ctime');
+        }
+        if (columns.creationTime?.[columnRequirementsEnableProperty]) {
+          listedFilesPropertySet.add('creationTime');
         }
         if (columns.fileId?.[columnRequirementsEnableProperty]) {
           listedFilesPropertySet.add('fileId');
@@ -1365,11 +1367,12 @@ export default BaseBrowserModel.extend(...mixins, {
         'owner',
         'replication',
         'qos',
+        'atime',
         'ctime',
+        'creationTime',
         'posixPermissions',
         'fileId',
       ],
-      // TODO: VFS-11961 add atime column when atime will be fix
       ...(this.disabledColumns ?? [])
     );
     const columns = {};
@@ -1421,22 +1424,30 @@ export default BaseBrowserModel.extend(...mixins, {
             hasTooltip: true,
           });
           break;
-          // TODO: VFS-11961 uncomment when atime will be fix
-          // case 'atime':
-          //   columns.atime = EmberObject.create({
-          //     isVisible: false,
-          //     isEnabled: false,
-          //     width: columnsTimesWidth,
-          //     hasSubname: false,
-          //     hasTooltip: true,
-          //   });
-          //   break;
+        case 'atime':
+          columns.atime = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
+            width: columnsTimesWidth,
+            hasSubname: false,
+            hasTooltip: true,
+          });
+          break;
         case 'ctime':
           columns.ctime = EmberObject.create({
             isVisible: false,
             isEnabled: false,
             width: columnsTimesWidth,
             hasSubname: true,
+            hasTooltip: true,
+          });
+          break;
+        case 'creationTime':
+          columns.creationTime = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
+            width: columnsTimesWidth,
+            hasSubname: false,
             hasTooltip: true,
           });
           break;

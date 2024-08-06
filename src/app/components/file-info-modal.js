@@ -562,6 +562,11 @@ export default Component.extend(...mixins, {
    */
   ctime: reads('file.ctime'),
 
+  /**
+   * @type {number}
+   */
+  creationTime: reads('file.creationTime'),
+
   fileSize: reads('file.size'),
 
   hardlinkCount: or('file.hardlinkCount', raw(1)),

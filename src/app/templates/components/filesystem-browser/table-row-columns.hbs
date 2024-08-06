@@ -171,6 +171,20 @@
           </div>
         </div>
       </td>
+    {{else if (eq columnName "creationTime")}}
+      <td
+        class="fb-table-col-creation-time table-col-time multiline hidden-xs"
+        style={{columnsConfiguration.columnsStyle.creationTime}}
+      >
+        <div class="file-item-text">
+          <div class="date-text">
+            {{date-format file.effFile.creationTime format="date" blank="—"}}
+          </div>
+          <div class="time-text">
+            {{date-format file.effFile.creationTime format="timeWithSeconds" blank="—"}}
+          </div>
+        </div>
+      </td>
     {{else if (eq columnName "posixPermissions")}}
       <td
         class="fb-table-col-posix table-col-posix multiline hidden-xs"

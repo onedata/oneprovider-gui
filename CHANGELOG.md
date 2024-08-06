@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-11948 Added creation time and atime column
 * VFS-12049 Added File ID column in file browser
 * VFS-12012 Added Permissions column in file browser
 * VFS-11862 Added polling for dir stats status when disabled
