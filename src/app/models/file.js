@@ -516,6 +516,8 @@ export default Model.extend(
      */
     ctime: attr('number'),
 
+    creationTime: attr('number'),
+
     /**
      * One of: `posix`, `acl`. Cannot be modified
      */

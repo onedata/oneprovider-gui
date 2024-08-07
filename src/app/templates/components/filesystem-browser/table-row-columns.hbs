@@ -66,9 +66,11 @@
           <div class="date-text">
             {{date-format file.effFile.mtime format="date" blank="—"}}
           </div>
-          <div class="time-text">
-            {{date-format file.effFile.mtime format="timeWithSeconds" blank="—"}}
-          </div>
+          {{#if file.effFile.mtime}}
+            <div class="time-text">
+              {{date-format file.effFile.mtime format="timeWithSeconds" blank="—"}}
+            </div>
+          {{/if}}
         </div>
       </td>
     {{else if (eq columnName "owner")}}
@@ -152,9 +154,11 @@
           <div class="date-text">
             {{date-format file.effFile.atime format="date" blank="—"}}
           </div>
-          <div class="time-text">
-            {{date-format file.effFile.atime format="timeWithSeconds" blank="—"}}
-          </div>
+          {{#if file.effFile.atime}}
+            <div class="time-text">
+              {{date-format file.effFile.atime format="timeWithSeconds" blank="—"}}
+            </div>
+          {{/if}}
         </div>
       </td>
     {{else if (eq columnName "ctime")}}
@@ -166,9 +170,27 @@
           <div class="date-text">
             {{date-format file.effFile.ctime format="date" blank="—"}}
           </div>
-          <div class="time-text">
-            {{date-format file.effFile.ctime format="timeWithSeconds" blank="—"}}
+          {{#if file.effFile.ctime}}
+            <div class="time-text">
+              {{date-format file.effFile.ctime format="timeWithSeconds" blank="—"}}
+            </div>
+          {{/if}}
+        </div>
+      </td>
+    {{else if (eq columnName "creationTime")}}
+      <td
+        class="fb-table-col-creation-time table-col-time multiline hidden-xs"
+        style={{columnsConfiguration.columnsStyle.creationTime}}
+      >
+        <div class="file-item-text">
+          <div class="date-text">
+            {{date-format file.effFile.creationTime format="date" blank="—"}}
           </div>
+          {{#if file.effFile.creationTime}}
+            <div class="time-text">
+              {{date-format file.effFile.creationTime format="timeWithSeconds" blank="—"}}
+            </div>
+          {{/if}}
         </div>
       </td>
     {{else if (eq columnName "posixPermissions")}}

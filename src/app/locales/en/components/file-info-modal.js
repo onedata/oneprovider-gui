@@ -20,6 +20,7 @@ export default {
   atime: 'Accessed',
   ctime: 'Changed',
   ctimeSubname: 'metadata',
+  creationTime: 'Created',
   tip: browserColumns.tip,
   owner: 'Owner',
   size: 'Size',

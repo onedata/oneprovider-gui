@@ -235,8 +235,7 @@
               {{/truncated-string}}
             </td>
           </tr>
-          {{!-- TODO: VFS-11961 uncomment when atime will be fix --}}
-          {{!-- <tr class="file-info-row-atime-time">
+          <tr class="file-info-row-atime-time">
             <td class="property-name">
               {{tt this "atime"}}
               {{one-label-tip title=(tt this "tip.atime")}}
@@ -246,7 +245,7 @@
                 {{date-format atime format="dateWithSeconds" blank="—"}}
               {{/truncated-string}}
             </td>
-          </tr> --}}
+          </tr>
           <tr class="file-info-row-ctime-time">
             <td class="property-name">
               <div>
@@ -260,6 +259,17 @@
             <td class="property-value">
               {{#truncated-string}}
                 {{date-format ctime format="dateWithSeconds" blank="—"}}
+              {{/truncated-string}}
+            </td>
+          </tr>
+          <tr class="file-info-row-creation-time">
+            <td class="property-name">
+              {{tt this "creationTime"}}
+              {{one-label-tip title=(tt this "tip.creationTime")}}
+            </td>
+            <td class="property-value">
+              {{#truncated-string}}
+                {{date-format creationTime format="dateWithSeconds" blank="—"}}
               {{/truncated-string}}
             </td>
           </tr>

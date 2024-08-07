@@ -41,7 +41,7 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  disabledColumns: Object.freeze(['owner', 'replication', 'qos']),
+  disabledColumns: Object.freeze(['owner', 'replication', 'qos', 'posixPermissions']),
 
   /**
    * @override
