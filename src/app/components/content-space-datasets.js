@@ -2,7 +2,7 @@
  * Container for browsing and managing datasets.
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2023 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 

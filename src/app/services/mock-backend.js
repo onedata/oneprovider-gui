@@ -2,7 +2,7 @@
  * Creates and shares a state of mocked data model
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2021 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 

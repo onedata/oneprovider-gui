@@ -3,7 +3,7 @@
  * Remember to use `destroy` on the instance when polling is not needed anymore!
  *
  * @author Jakub Liput
- * @copyright (C) 2023 ACK CYFRONET AGH
+ * @copyright (C) 2023-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 

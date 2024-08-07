@@ -2,7 +2,7 @@
  * A contaniner for creating tokenized and stylized view of QoS logical expression
  *
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
