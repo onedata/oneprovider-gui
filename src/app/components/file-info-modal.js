@@ -180,7 +180,7 @@ export default Component.extend(...mixins, {
     // file is diplayed.
     if (this.files?.length === 1) {
       // TODO: VFS-11449 optional file size fetch
-      const properties = ['mtime', 'ctime'];
+      const properties = ['mtime', 'ctime', 'atime', 'creationTime'];
       if (!this.previewMode) {
         properties.push('owner', 'hardlinkCount');
       }
