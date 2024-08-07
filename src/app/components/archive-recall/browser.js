@@ -45,11 +45,6 @@ export default Component.extend(...mixins, {
   /**
    * @virtual
    */
-  currentBrowsableItemError: undefined,
-
-  /**
-   * @virtual
-   */
   parentModalDialogSelector: '',
 
   /**

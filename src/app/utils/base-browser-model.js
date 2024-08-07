@@ -314,7 +314,6 @@ export default EmberObject.extend(...mixins, {
 
   //#region file-browser state
 
-  dirError: reads('browserInstance.dirError'),
   element: reads('browserInstance.element'),
   spacePrivileges: reads('browserInstance.spacePrivileges'),
   spaceId: reads('browserInstance.spaceId'),
@@ -368,6 +367,8 @@ export default EmberObject.extend(...mixins, {
   //#endregion
 
   dirId: reads('dirProxy.content.entityId'),
+
+  dirError: reads('dirProxy.reason'),
 
   isRootDirProxy: promise.object(computed(
     'dirProxy.content.hasParent',

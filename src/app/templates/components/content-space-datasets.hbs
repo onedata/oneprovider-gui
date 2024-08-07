@@ -9,7 +9,6 @@
     {{#promise-proxy-container proxy=initialRequiredDataProxy}}
       {{file-browser
         browserModel=browserModel
-        dirError=browsableDatasetProxy.reason
         resolveFileParentFun=(action "resolveItemParent")
         space=space
         selectedItems=selectedItems

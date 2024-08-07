@@ -424,8 +424,6 @@ export default OneEmbeddedComponent.extend(
       }
     )),
 
-    dirError: reads('dirProxy.reason'),
-
     /**
      * Sync: target space for upload should be changes as soon as possible.
      */

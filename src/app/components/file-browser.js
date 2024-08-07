@@ -101,12 +101,6 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Object}
-   */
-  dirError: undefined,
-
-  /**
-   * @virtual
    */
   updateDirEntityId: notImplementedIgnore,
 
@@ -175,6 +169,11 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<boolean>}
    */
   previewMode: reads('browserModel.previewMode'),
+
+  /**
+   * @type {ComputedProperty<any>}
+   */
+  dirError: reads('browserModel.dirError'),
 
   /**
    * Browsable item with dir type. It is the currently displayed directory (container).

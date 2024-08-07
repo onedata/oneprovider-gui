@@ -1,7 +1,6 @@
 <div class="content-file-browser content-items-browser one-embedded-component">
   {{#promise-proxy-container proxy=dirProxy}}
     {{file-browser
-      dirError=dirProxy.reason
       isSpaceOwned=spaceProxy.currentUserIsOwner
       space=spaceProxy.content
       selectedItems=selectedItems
