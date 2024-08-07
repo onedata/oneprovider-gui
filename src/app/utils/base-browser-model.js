@@ -79,6 +79,14 @@ export default EmberObject.extend(...mixins, {
   browserInstance: undefined,
 
   /**
+   * Proxy resolving currently browsed "directory" (directory for files, parent dataset,
+   * etc.).
+   * @virtual
+   * @type {PromiseObject<any>}
+   */
+  dirProxy: undefined,
+
+  /**
    * @virtual
    * @type {Array<String>}
    */
@@ -310,8 +318,6 @@ export default EmberObject.extend(...mixins, {
   element: reads('browserInstance.element'),
   spacePrivileges: reads('browserInstance.spacePrivileges'),
   spaceId: reads('browserInstance.spaceId'),
-  // FIXME: use previewMode directly in model
-  // previewMode: reads('browserInstance.previewMode'),
   isSpaceOwned: reads('browserInstance.isSpaceOwned'),
   resolveFileParentFun: reads('browserInstance.resolveFileParentFun'),
   // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
@@ -328,13 +334,6 @@ export default EmberObject.extend(...mixins, {
 
   //#region browser model state
 
-  // FIXME: opisać
-  /**
-   * @virtual
-   * @type {PromiseObject<any>}
-   */
-  dirProxy: undefined,
-
   /**
    * @type {Utils.BrowserListPoller}
    */
@@ -345,6 +344,13 @@ export default EmberObject.extend(...mixins, {
    * @type {number}
    */
   lastRefreshTime: undefined,
+
+  /**
+   * Latest error object when list load fails.
+   * If the recent list load succeeds - this should bet set to null.
+   * @type {any}
+   */
+  listLoadError: undefined,
 
   //#endregion
 
@@ -483,6 +489,7 @@ export default EmberObject.extend(...mixins, {
   listLoadState: computed(
     'dirProxy.{isFulfilled,isRejected}',
     'itemsArray.initialLoad.{isFulfilled,isRejected}',
+    'listLoadError',
     function listLoadState() {
       // listLoadState is used from the init, but we do not want to trigger creating
       // itemsArray at this point, so use it only if something else created the itemsArray
@@ -490,7 +497,12 @@ export default EmberObject.extend(...mixins, {
       const dirProxy = this.dirProxy;
       const initialLoad = this.cacheFor('itemsArray')?.initialLoad;
 
-      if (dirProxy?.isFulfilled) {
+      if (this.listLoadError) {
+        return {
+          state: BrowserListLoadState.Rejected,
+          reason: this.listLoadError,
+        };
+      } else if (dirProxy?.isFulfilled) {
         if (!initialLoad || initialLoad.isPending) {
           return {
             state: BrowserListLoadState.Pending,
@@ -523,12 +535,6 @@ export default EmberObject.extend(...mixins, {
 
   lastResolvedDir: computedLastProxyContent('dirProxy', { nullOnReject: true }),
 
-  listLoadError: conditional(
-    eq('listLoadState.state', raw('rejected')),
-    'listLoadState.reason',
-    raw(undefined),
-  ),
-
   /**
    * A last list refresh error is considered be "fatal" when it is unlikely that it will
    * disappear on list refresh, so instead of informing user about refresh error using
@@ -538,7 +544,7 @@ export default EmberObject.extend(...mixins, {
   isLastListLoadErrorFatal: computed(
     'listLoadError',
     function isLastListLoadErrorFatal() {
-      const error = this.listLoadError;
+      const error = this.lListLoadError;
       return error && (
         error.id === 'internalServerError' ||
         isPosixError(error, 'enoent') ||
@@ -564,7 +570,13 @@ export default EmberObject.extend(...mixins, {
       if (this.dirError) {
         return this.dirError;
       }
-      if (this.listLoadState.state === BrowserListLoadState.Rejected) {
+      if (
+        // TODO: VFS-12214 non-fatal errors should not be displayed instead of file list
+        // the code below is experimental to be tested using acceptance tests
+        // !this.listLoadError &&
+        // !this.dirError &&
+        this.listLoadState.state === BrowserListLoadState.Rejected
+      ) {
         return this.listLoadState.reason ?? { id: 'unknown' };
       }
     }
@@ -693,12 +705,18 @@ export default EmberObject.extend(...mixins, {
     },
   ),
 
-  // FIXME: experimental async observer
-  dirObserver: asyncObserver('dir', function dirObserver() {
-    if (!this.dir) {
-      return;
+  /**
+   * Sync observer: for some unknown reason, this observer does not fire if it is sync.
+   * Maybe it will be fixed in future versions of Ember (tested on 3.16).
+   *
+   * TODO: VFS-12210 try to use asyncObserver here (when upgrading Ember to 3.20+)
+   *
+   * @type {Ember.Observer}
+   */
+  dirObserver: syncObserver('dir', function dirObserver() {
+    if (this.dir) {
+      this.onDidChangeDir?.(this.dir);
     }
-    this.onDidChangeDir?.(this.dir);
   }),
 
   init() {
@@ -897,7 +915,7 @@ export default EmberObject.extend(...mixins, {
       globalNotify,
       fbTableApi,
       element,
-    } = this.getProperties('globalNotify', 'fbTableApi', 'element');
+    } = this;
     if (!silent) {
       animateCss(
         element.querySelector('.fb-toolbar-button.file-action-refresh'),
@@ -906,18 +924,13 @@ export default EmberObject.extend(...mixins, {
     }
     try {
       const refreshResult = await fbTableApi.refresh(!silent);
-      // FIXME: przetestować i zaimplementować te scenariusze
-      // if (this.listLoadError) {
-      //   this.changeListLoadState(BrowserListLoadState.Fulfilled);
-      // }
+      this.set('listLoadError', null);
       return refreshResult;
     } catch (error) {
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
-
-      // FIXME: przetestować i zaimplementować te scenariusze
-      // this.changeListLoadState(BrowserListLoadState.Rejected, error);
+      this.set('listLoadError', error);
 
       // notification is not shown when the error is fatal, because then it is displayed
       // as content of browser

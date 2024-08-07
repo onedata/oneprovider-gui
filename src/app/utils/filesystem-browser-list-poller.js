@@ -49,7 +49,6 @@ export default BrowserListPoller.extend(...mixins, {
     'browserModel.previewMode',
     'dir',
     function fileRequirements() {
-      // FIXME: zmienione, żeby brak browserModel powodował zwrócenie pustego
       if (!this.dir || !this.browserModel || this.browserModel.previewMode) {
         return [];
       }

@@ -414,6 +414,8 @@ export default OneEmbeddedComponent.extend(
           return resolverResult.dir;
         } else {
           if (resolverResult.url) {
+            // TODO: VFS-12215 remove legacy side-effects
+            // eslint-disable-next-line ember/no-side-effects
             this.set('willRedirectToOtherBrowser', true);
             parentAppNavigation.openUrl(resolverResult.url, true);
           }

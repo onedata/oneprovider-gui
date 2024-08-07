@@ -26,7 +26,6 @@ import {
   not,
 } from 'ember-awesome-macros';
 import { all as allFulfilled } from 'rsvp';
-import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import DatasetBrowserModel, {
   spaceDatasetsRootId,
   SpaceDatasetsRootClass,
@@ -323,9 +322,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   ),
 
   isInRoot: bool('browsableDataset.isDatasetsRoot'),
-
-  // FIXME: czy to jest gdzieś używane?
-  archive: computedLastProxyContent('archiveProxy'),
 
   currentBrowsableItemProxy: reads('browsableDatasetProxy'),
 
@@ -866,8 +862,4 @@ const ContentSpaceDatasetsBrowserModel = DatasetBrowserModel.extend({
       await this.contentSpaceDatasets.updateSelectedDatasetsInUrl(externalUpdate);
     })();
   },
-
-  // FIXME: ???
-  // Be prepared for injected selected items change which will be done async -
-  // it prevents blink animation and scrolling to selected dataset.
 });

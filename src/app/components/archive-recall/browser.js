@@ -104,25 +104,13 @@ export default Component.extend(...mixins, {
   fileToRename: null,
 
   browserModel: computed(function browserModel() {
-    // FIXME: wszystkie customowe klasy modeli browserów można definiować z góry
-    return SelectLocationFilesystemBrowserModel
-      .extend({
-        dirProxy: reads('archiveRecallBrowser.currentBrowsableItemProxy'),
-        // FIXME: sprawdzić działanie archiveRecallBrowserDisabled
-        changeSelectedItems() {
-          if (!this.archiveRecallBrowser.disabled) {
-            this.archiveRecallBrowser.onSelectedItemsChange(...arguments);
-            this._super(...arguments);
-          }
-        },
-      })
-      .create({
-        archiveRecallBrowser: this,
-        ownerSource: this,
-        openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
-        openRename: this.openRenameModal.bind(this),
-        onRefresh: () => this.onFilesystemChange(),
-      });
+    return ArchiveRecallBrowserModel.create({
+      archiveRecallBrowser: this,
+      ownerSource: this,
+      openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
+      openRename: this.openRenameModal.bind(this),
+      onRefresh: () => this.onFilesystemChange(),
+    });
   }),
 
   /**
@@ -181,5 +169,15 @@ export default Component.extend(...mixins, {
         onDirIdChange(...arguments);
       }
     },
+  },
+});
+
+const ArchiveRecallBrowserModel = SelectLocationFilesystemBrowserModel.extend({
+  dirProxy: reads('archiveRecallBrowser.currentBrowsableItemProxy'),
+  changeSelectedItems() {
+    if (!this.archiveRecallBrowser.disabled) {
+      this.archiveRecallBrowser.onSelectedItemsChange(...arguments);
+      this._super(...arguments);
+    }
   },
 });

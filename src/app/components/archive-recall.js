@@ -327,7 +327,11 @@ export default Component.extend(...mixins, {
     this.set('targetName', targetName);
   },
 
-  // FIXME: defined selectedItems
+  /**
+   * Besides storing selectedItems in the browserModel, we need to store selected items
+   * that are selected as target to recall.
+   * @param {Array<Models.File>} items
+   */
   changeSelectedItems(items) {
     this.set('selectedItems', items);
   },

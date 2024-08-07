@@ -231,9 +231,8 @@ export default Component.extend(I18n, {
 
   /**
    * Array of selected file records.
-   * @type {EmberArray<Models.File>}
+   * @type {ComputedProperty<Array<Models.File>>}
    */
-  // FIXME:
   selectedItems: reads('browserModel.selectedItems'),
 
   renderSelectionToolkitDesktop: and(
@@ -548,6 +547,8 @@ export default Component.extend(I18n, {
       if (currentDirActionsOpen) {
         globals.window.dispatchEvent(new Event('resize'));
       }
+      // TODO: VFS-12215 remove legacy side-effects
+      // eslint-disable-next-line ember/no-side-effects
       this.send('toggleCurrentDirActions', true);
     };
   }),

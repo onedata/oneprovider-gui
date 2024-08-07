@@ -553,9 +553,7 @@ export default Component.extend(...mixins, {
     this.fileManager.registerRefreshHandler(this);
     this.registerApi(this.api);
     (async () => {
-      // FIXME: debug
-      const dirProxy = this.browserModel.dirProxy;
-      await dirProxy;
+      await this.browserModel.dirProxy;
       if (get(this.filesArray, 'initialJumpIndex')) {
         await get(this.filesArray, 'initialLoad');
         this.selectedItemsForJumpObserver();
@@ -950,7 +948,6 @@ export default Component.extend(...mixins, {
     return _.difference(items, nonExistingItems);
   },
 
-  // FIXME: experimental async
   async onTableScroll(items, headerVisible) {
     if (!this.browserModel.dirProxy?.isSettled) {
       if (this.browserModel.dirProxy.isRejected) {

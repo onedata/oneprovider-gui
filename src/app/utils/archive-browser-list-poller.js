@@ -18,7 +18,6 @@ const fastPollInterval = 2000;
 export default BrowserListPoller.extend({
   archives: reads('browserModel.itemsArray'),
 
-  // FIXME: z jakiegoś niewiadomego powodu, get na browserModel.itemsArray powoduje ponowne utworzenie itemsArray
   // Using observer to change interval instead of computed property to suppress set
   // of interval property when it does not change (this would invoke).
   archivesObserver: asyncObserver(

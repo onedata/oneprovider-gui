@@ -578,9 +578,4 @@ export default Model.extend(
         return superRequests;
     }
   },
-
-  // FIXME:
-  willDestroy() {
-    this._super(...arguments);
-  },
 });

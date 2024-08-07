@@ -26,7 +26,6 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
-import sleep from 'onedata-gui-common/utils/sleep';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { getFileGri } from 'oneprovider-gui/models/file';
@@ -295,6 +294,9 @@ export default Component.extend(...mixins, {
    */
   defaultOnUpdateArchiveId: computed(function defaultOnUpdateArchiveId() {
     return (archiveId) => {
+      // This line is wrongly treated as a side effect in computed, but it is a
+      // function implementation.
+      // eslint-disable-next-line ember/no-side-effects
       this.set('archiveId', archiveId);
     };
   }),
@@ -304,6 +306,9 @@ export default Component.extend(...mixins, {
    */
   defaultOnUpdateDirId: computed(function defaultOnUpdateDirId() {
     return (dirId) => {
+      // This line is wrongly treated as a side effect in computed, but it is a
+      // function implementation.
+      // eslint-disable-next-line ember/no-side-effects
       this.set('dirId', dirId);
     };
   }),
@@ -338,14 +343,15 @@ export default Component.extend(...mixins, {
    * @implements ItemBrowserContainerBase
    */
   dirProxy: computed('datasetId', 'dirId', 'archiveProxy', function dirProxy() {
-    // FIXME: debug which property is invoking unnecessary recomputation
-    const archiveProxy = this.archiveProxy;
-    const spaceId = this.spaceId;
-    const datasetId = this.datasetId;
-    const archiveId = this.archiveId;
-    const archiveRootDirProxy = this.archiveRootDirProxy;
-    const dirId = this.dirId;
-    const selectedIds = this.selectedIds;
+    const {
+      archiveProxy,
+      spaceId,
+      datasetId,
+      archiveId,
+      archiveRootDirProxy,
+      dirId,
+      selectedIds,
+    } = this;
 
     const promise = (async () => {
       if (!archiveId) {
@@ -558,12 +564,6 @@ export default Component.extend(...mixins, {
           await this.dirProxy;
           await this.browserModel.itemsArray.initialLoad;
           await waitForRender();
-          // FIXME: poniższe może być już niepotrzebne, bo changeSelectedItems
-          // już nie jest asynchroniczne
-          // HACK: In Firefox, the command is invoked before changeSelectedItems in
-          // browser container finishes. Using sleep(0) postpones invocation in browser
-          // execution queue always after changeSelectedItems.
-          await sleep(0);
           this.browserModel.invokeCommand(this.fileAction);
         } finally {
           safeExec(this, () => {
@@ -576,19 +576,14 @@ export default Component.extend(...mixins, {
   ),
 
   init() {
-    // FIXME: zmiana na destroyable computed
-    // this.set('browserModelCache', new Set());
     initDestroyableCache(this);
     this._super(...arguments);
-    // FIXME:
-    // this.switchBrowserModel();
     this.fileActionObserver();
   },
 
   willDestroyElement() {
     try {
       destroyDestroyableComputedValues(this);
-      // this.browserModelCache.forEach((browserModel) => browserModel.destroy());
     } finally {
       this._super(...arguments);
     }

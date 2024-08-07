@@ -59,7 +59,9 @@ export default Mixin.create({
    */
   selectedItems: reads('browserModel.selectedItems'),
 
-  // FIXME: opisać syncObserver; przetestować zmianę jumpa
+  /**
+   * Sync observer: changes selectedItems immediately
+   */
   selectedItemsForJumpChanged: syncObserver(
     'selectedItemsForJumpProxy',
     async function selectedItemsForJumpChanged() {

@@ -1493,7 +1493,6 @@ export default BaseBrowserModel.extend(...mixins, {
     }
   },
 
-  // FIXME: test: działa tylko w normalnym browserze plików, nie działa dla archive
   async handleDownloadCommand() {
     await this.initialLoad;
     await waitForRender();

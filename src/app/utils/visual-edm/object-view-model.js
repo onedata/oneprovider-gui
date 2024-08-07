@@ -83,6 +83,8 @@ const ObjectViewModel = EmberObject.extend({
       })
     );
     this.destroyPrevEdmPropertyGroups();
+    // TODO: VFS-12215 remove legacy side-effects
+    // eslint-disable-next-line ember/no-side-effects
     this.set('prevEdmPropertyGroups', newGroups);
     return newGroups;
   }),
