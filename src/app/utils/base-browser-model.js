@@ -29,7 +29,7 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import { typeOf, isEmpty } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
-import { tag, raw, conditional, eq, and, promise, bool, or } from 'ember-awesome-macros';
+import { tag, raw, conditional, eq, and, promise, bool, or, writable } from 'ember-awesome-macros';
 import moment from 'moment';
 import _ from 'lodash';
 import isPosixError from 'oneprovider-gui/utils/is-posix-error';
@@ -85,6 +85,12 @@ export default EmberObject.extend(...mixins, {
    * @type {PromiseObject<any>}
    */
   dirProxy: undefined,
+
+  /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
 
   /**
    * @virtual
@@ -315,9 +321,6 @@ export default EmberObject.extend(...mixins, {
   //#region file-browser state
 
   element: reads('browserInstance.element'),
-  spacePrivileges: reads('browserInstance.spacePrivileges'),
-  spaceId: reads('browserInstance.spaceId'),
-  isSpaceOwned: reads('browserInstance.isSpaceOwned'),
   resolveFileParentFun: reads('browserInstance.resolveFileParentFun'),
   // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
   fileClipboardMode: reads('browserInstance.fileClipboardMode'),
@@ -365,6 +368,18 @@ export default EmberObject.extend(...mixins, {
   loadingIconFileIds: reads('browserInstance.loadingIconFileIds'),
 
   //#endregion
+
+  /**
+   * Is overridable only for test purposes
+   * @type {ComputedProperty<SpacePrivileges>}
+   */
+  spacePrivileges: computed('space.privileges', function spacePrivileges() {
+    return this.space?.privileges ?? {};
+  }),
+
+  spaceId: reads('space.entityId'),
+
+  isSpaceOwned: reads('space.currentUserIsOwner'),
 
   dirId: reads('dirProxy.content.entityId'),
 

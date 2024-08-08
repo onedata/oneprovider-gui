@@ -86,18 +86,6 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {SpacePrivileges}
-   */
-  spacePrivileges: Object.freeze({}),
-
-  /**
-   * @virtual
-   * @type {Boolean}
-   */
-  isSpaceOwned: undefined,
-
-  /**
-   * @virtual
    * @type {Array<Object>}
    */
   allButtonsArray: undefined,
@@ -249,6 +237,16 @@ export default Component.extend(...mixins, {
   headStatusBarComponentName: reads('browserModel.headStatusBarComponentName'),
 
   dir: reads('browserModel.dir'),
+
+  /**
+   * @type {ComputedProperty<SpacePrivileges>}
+   */
+  spacePrivileges: reads('browserModel.spacePrivileges'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSpaceOwned: reads('browserModel.isSpaceOwned'),
 
   selectedItems: reads('browserModel.selectedItems'),
 

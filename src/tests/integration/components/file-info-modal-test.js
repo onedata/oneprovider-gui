@@ -837,6 +837,7 @@ async function givenDefaultStubs(testCase) {
       dirProxy: promiseObject((async () => testCase.get('fileParent1'))()),
       previewMode: testCase.get('previewMode'),
       ownerSource: testCase.owner,
+      space: testCase.get('space'),
     }));
   }
   if (!testCase.get('file')) {

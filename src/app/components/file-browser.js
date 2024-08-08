@@ -13,7 +13,7 @@ import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
-import { notEmpty, not, raw, collect, and, or, equal, conditional, writable } from 'ember-awesome-macros';
+import { notEmpty, not, raw, collect, and, or, equal, conditional } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -117,18 +117,6 @@ export default Component.extend(I18n, {
   customRootDir: undefined,
 
   /**
-   * @virtual
-   * @type {Boolean}
-   */
-  isSpaceOwned: undefined,
-
-  /**
-   * @virtual optional
-   * @type {Models.Space}
-   */
-  space: undefined,
-
-  /**
    * @virtual optional
    * @type {Function}
    */
@@ -186,20 +174,6 @@ export default Component.extend(I18n, {
   lastResolvedDir: reads('browserModel.lastResolvedDir'),
 
   /**
-   * @type {ComputedProperty<string>}
-   */
-  spaceId: reads('space.entityId'),
-
-  /**
-   * Is overridable only for test purposes
-   * @type {ComputedProperty<SpacePrivileges>}
-   */
-  spacePrivileges: writable(or(
-    'space.privileges',
-    Object.freeze({}),
-  ), (value) => value),
-
-  /**
    * Initialized in init.
    * @type {EmberArray<String>}
    */
@@ -227,6 +201,20 @@ export default Component.extend(I18n, {
   fileClipboardMode: null,
 
   contentScroll: undefined,
+
+  /**
+   * @type {ComputedProperty<Models.Space>}
+   */
+  space: reads('browserModel.space'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSpaceOwned: reads('browserModel.isSpaceOwned'),
+
+  spaceId: reads('browserModel.spaceId'),
+
+  spacePrivileges: reads('browserModel.spacePrivileges'),
 
   /**
    * Array of selected file records.

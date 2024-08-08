@@ -88,6 +88,7 @@ export default BaseModel.extend(...mixins, {
       .create({
         ownerSource: this,
         itemsSelectBrowser: this,
+        space: this.space,
         onSubmitSingleItem: this.submitSingleFilesystemItem.bind(this),
         openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
         openRename: this.openRenameModal.bind(this),

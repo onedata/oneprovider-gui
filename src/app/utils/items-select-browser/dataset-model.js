@@ -49,6 +49,7 @@ export default BaseModel.extend(I18n, {
       .create({
         itemsSelectBrowser: this,
         ownerSource: this,
+        space: this.space,
         onSubmitSingleItem: this.get('onSubmitSingleItem'),
         spaceDatasetsViewState: this.spaceDatasetsViewState,
       });

@@ -654,6 +654,7 @@ export default Component.extend(...mixins, {
     return DatasetArchivesArchiveBrowserModel.create(Object.assign({
       datasetArchivesBrowser: this,
       ownerSource: this,
+      space: this.space,
       spaceDatasetsViewState: this,
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
@@ -673,6 +674,7 @@ export default Component.extend(...mixins, {
     return DatasetArchivesFilesystemBrowserModel.create({
       datasetArchivesBrowser: this,
       ownerSource: this,
+      space: this.space,
       archive: this.openedArchive || this.archiveProxy.content,
       onDirectoryChanged: () => this.onCloseAllModals(),
       onArchiveDipModeChange: this.changeArchiveDipMode.bind(this),

@@ -14,6 +14,16 @@ import { set } from '@ember/object';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
 import { defineProperty } from '@ember/object';
 
+const TestArchiveFilesystemBrowserModel = ArchiveFilesystemBrowserModel.extend({
+  spacePrivileges: undefined,
+  init() {
+    this._super(...arguments);
+    if (!this.spacePrivileges) {
+      this.set('spacePrivileges', {});
+    }
+  },
+});
+
 describe('Integration | Component | filesystem-browser/file-features', function () {
   const { afterEach } = setupRenderingTest();
 
@@ -584,7 +594,7 @@ function whenUsedInArchiveFilesystemBrowser(
   run(() => {
     archive = createArchiveForBrowser(testCase, archiveRootDir);
   });
-  const browserModel = ArchiveFilesystemBrowserModel.create({
+  const browserModel = TestArchiveFilesystemBrowserModel.create({
     dirProxy: promiseObject((async () => null)()),
     ownerSource: testCase.owner,
     archive,

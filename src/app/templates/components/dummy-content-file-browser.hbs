@@ -1,12 +1,6 @@
 <div class="content-file-browser content-items-browser one-embedded-component">
   {{#promise-proxy-container proxy=dirProxy}}
-    {{file-browser
-      isSpaceOwned=spaceProxy.currentUserIsOwner
-      space=spaceProxy.content
-      selectedItems=selectedItems
-      selectedItemsForJumpProxy=selectedItemsForJumpProxy
-      browserModel=browserModel
-    }}
+    {{file-browser browserModel=browserModel}}
 
     {{#if filesToRemove}}
       {{file-browser/fb-remove-modal

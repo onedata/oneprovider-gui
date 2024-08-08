@@ -37,6 +37,7 @@ export default Component.extend({
     this.set('browserModel', FilesystemBrowserModel.create({
       dirProxy: promiseObject((async () => null)()),
       ownerSource: this,
+      space: this.space,
       previewMode: false,
     }));
   },

@@ -269,7 +269,6 @@ async function renderComponent(testCase) {
     () => null,
   );
   setTestPropertyDefault(testCase, 'spacePrivileges', {});
-  setTestPropertyDefault(testCase, 'spaceId', 'some_space_id');
   setTestPropertyDefault(testCase, 'dataset', createDefaultDataset(testCase));
   const browsableDataset = testCase.get('dataset');
   const spaceDatasetsViewState = {
@@ -283,6 +282,11 @@ async function renderComponent(testCase) {
     .create({
       ownerSource: testCase.owner,
       spaceDatasetsViewState,
+      space: {
+        currentUserIsOwner: true,
+        privileges: testCase.get('spacePrivileges'),
+        entityId: 'some_space_id',
+      },
       refreshInterval: refreshInterval || 0,
       openCreateArchiveModal: openCreateArchiveModal ||
         notStubbed('openCreateArchiveModal'),
@@ -302,11 +306,7 @@ async function renderComponent(testCase) {
   await render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel
     resolveFileParentFun=resolveFileParentFun
-    spaceId=spaceId
-    spacePrivileges=spacePrivileges
-    selectedItems=selectedItems
     selectedItemsForJump=selectedItemsForJump
-    isSpaceOwned=true
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
     updateDirEntityId=(action updateDirEntityId)

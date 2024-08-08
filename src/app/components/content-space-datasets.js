@@ -689,6 +689,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   createDatasetBrowserModel() {
     return ContentSpaceDatasetsBrowserModel.create({
+      space: this.space,
       selectedItemsForJump: this.selectedItemsForJumpProxy.content,
       contentSpaceDatasets: this,
       ownerSource: this,

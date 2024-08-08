@@ -102,6 +102,7 @@ export default Component.extend(...mixins, {
     return ArchiveRecallBrowserModel.create({
       archiveRecallBrowser: this,
       ownerSource: this,
+      space: this.space,
       openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
       openRename: this.openRenameModal.bind(this),
       onRefresh: () => this.onFilesystemChange(),

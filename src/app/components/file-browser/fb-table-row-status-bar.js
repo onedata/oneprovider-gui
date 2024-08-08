@@ -58,19 +58,17 @@ export default Component.extend(I18n, {
    */
   invokeFileAction: notImplementedThrow,
 
-  /**
-   * @virtual optional
-   * @type {SpacePrivileges}
-   */
-  spacePrivileges: Object.freeze({}),
-
-  /**
-   * @virtual optional
-   * @type {Object}
-   */
-  isSpaceOwned: false,
-
   //#endregion
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSpaceOwned: reads('browserModel.isSpaceOwned'),
+
+  /**
+   * @type {ComputedProperty<SpacePrivileges>}
+   */
+  spacePrivileges: reads('browserModel.spacePrivileges'),
 
   /**
    * @type {ComputedProperty<boolean>}

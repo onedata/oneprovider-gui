@@ -71,12 +71,6 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Boolean}
-   */
-  isSpaceOwned: undefined,
-
-  /**
-   * @virtual
    */
   file: undefined,
 
@@ -214,6 +208,11 @@ export default Component.extend(...mixins, {
   isFileNameHovered: false,
 
   previewMode: reads('browserModel.previewMode'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSpaceOwned: reads('browserModel.isSpaceOwned'),
 
   statusBarComponentName: or(
     'browserModel.statusBarComponentName',

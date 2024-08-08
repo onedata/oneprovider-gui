@@ -108,11 +108,6 @@ export default Component.extend(...mixins, {
    */
   resolveItemParent: reads('selectorModel.resolveItemParent'),
 
-  /**
-   * @type {ComputedProperty<SpacePrivileges>}
-   */
-  spacePrivileges: reads('space.privileges'),
-
   modalBodyId: computed(function modalBodyId() {
     return `${guidFor(this)}-body`;
   }),

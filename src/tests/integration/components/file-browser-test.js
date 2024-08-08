@@ -858,6 +858,10 @@ async function renderComponent(testCase) {
     .create({
       testCase,
       ownerSource: testCase.owner,
+      space: {
+        entityId: testCase.get('spaceId'),
+        privileges: testCase.get('spacePrivileges'),
+      },
       openCreateNewDirectory: openCreateNewDirectory ||
         notStubbed('openCreateNewDirectory'),
       openDatasets: openDatasets || notStubbed('openDatasets'),
@@ -875,12 +879,8 @@ async function renderComponent(testCase) {
   });
   await render(hbs`<div id="content-scroll">{{file-browser
     browserModel=browserModel
-    spaceId=spaceId
-    selectedItems=selectedItems
-    selectedItemsForJump=selectedItemsForJump
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
-    spacePrivileges=spacePrivileges
     handleFileDownloadUrl=handleFileDownloadUrl
     updateDirEntityId=(action updateDirEntityId)
   }}</div>`);

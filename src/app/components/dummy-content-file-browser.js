@@ -69,6 +69,7 @@ export default Component.extend({
       .create({
         ownerSource: this,
         previewMode: false,
+        space: this.spaceProxy.content,
         openRemove: this.immediatelyRemove.bind(this),
       }));
     // list of tests

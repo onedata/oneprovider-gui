@@ -424,6 +424,8 @@ export default OneEmbeddedComponent.extend(
       }
     )),
 
+    space: reads('spaceProxy.content'),
+
     /**
      * Sync: target space for upload should be changes as soon as possible.
      */
@@ -531,6 +533,7 @@ export default OneEmbeddedComponent.extend(
         })
         .create({
           ownerSource: this,
+          space: this.space,
           openBagitUploader: this.openBagitUploader.bind(this),
           openCreateNewDirectory: (parent) => this.openCreateItemModal('dir', parent),
           openRemove: this.openRemoveModal.bind(this),

@@ -21,6 +21,18 @@ const currentUser = Service.extend({
 
 const FileMock = EmberObject.extend(FileRuntimeProperties);
 
+// const TestFilesystemBrowserModel = FilesystemBrowserModel.extend({
+//   isSpaceOwned: false,
+//   spacePrivileges: null,
+
+//   init() {
+//     this._super(...arguments);
+//     if (!this.spacePrivileges) {
+//       this.set('spacePrivileges', {});
+//     }
+//   },
+// });
+
 describe('Integration | Component | file-browser/fb-table-row', function () {
   const { afterEach } = setupRenderingTest();
 
@@ -412,13 +424,15 @@ function createFile(override = {}, ownerGri = userGri) {
 }
 
 async function renderComponent(testCase) {
-  testCase.set('browserModel.spacePrivileges', testCase.get('spacePrivileges'));
   testCase.set('browserModel.previewMode', testCase.get('previewMode'));
+  testCase.set('browserModel.space', {
+    entityId: testCase.get('spaceId') ?? 'space_id',
+    currentUserIsOwner: testCase.get('isSpaceOwned') ?? false,
+    privileges: testCase.get('spacePrivileges') ?? {},
+  });
   await render(hbs `{{file-browser/fb-table-row
     file=file
     browserModel=browserModel
-    isSpaceOwned=isSpaceOwned
-    spacePrivileges=spacePrivileges
   }}`);
 }
 
