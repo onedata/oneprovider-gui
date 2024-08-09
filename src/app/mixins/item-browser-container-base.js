@@ -90,4 +90,8 @@ export default Mixin.create({
       }
     }
   ),
+
+  changeSelectedItems(items) {
+    this.browserModel?.changeSelectedItems(items);
+  },
 });

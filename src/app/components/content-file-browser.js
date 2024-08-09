@@ -717,9 +717,6 @@ export default OneEmbeddedComponent.extend(
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
       },
-      changeSelectedItems(selectedItems) {
-        return this.changeSelectedItems(selectedItems);
-      },
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);
       },
