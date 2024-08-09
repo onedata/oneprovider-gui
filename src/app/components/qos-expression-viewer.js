@@ -87,12 +87,6 @@ export default Component.extend({
   init() {
     initDestroyableCache(this);
     this._super(...arguments);
-
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_qos_expression_viewer');
   },
 
   /**
