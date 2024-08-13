@@ -8,7 +8,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import { t } from 'onedata-gui-common/utils/i18n/t';
+import { t, isI18nAvailable } from 'onedata-gui-common/utils/i18n/t';
 
 class PropertyLangOption {
   constructor(langSpec) {
@@ -174,6 +174,9 @@ function generateLangOptions(specs) {
 let langSelectorOptions;
 
 export function getLangSelectorOptions() {
+  if (!isI18nAvailable()) {
+    throw new Error('getLangSelectorOptions: static I18n service is not available');
+  }
   if (!langSelectorOptions) {
     langSelectorOptions = generateLangOptions(createLangSelectorSpec(langCodes));
   }

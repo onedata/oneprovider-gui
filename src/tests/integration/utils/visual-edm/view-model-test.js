@@ -1,10 +1,13 @@
 import { expect } from 'chai';
-import { describe, it, afterEach } from 'mocha';
+import { describe, it } from 'mocha';
+import { setupRenderingTest } from 'ember-mocha';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import { settled } from '@ember/test-helpers';
 
-describe('Unit | Utility | visual-edm/view-model', function () {
+describe('Integration | Utility | visual-edm/view-model', function () {
+  const { afterEach } = setupRenderingTest();
+
   afterEach(function () {
     this.viewModel?.destroy();
   });

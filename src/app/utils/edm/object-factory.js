@@ -13,7 +13,7 @@ import WebResource from './objects/web-resource';
 import EdmObjectType from './object-type';
 import EdmObject, { InvalidEdmObjectType } from './object';
 import EdmMetadata from './metadata';
-import { EdmPropertyRecommendation, allPropertyData } from './property-spec';
+import { EdmPropertyRecommendation, getAllPropertyData } from './property-spec';
 import EdmPropertyFactory from './property-factory';
 
 const objectClasses = {
@@ -22,7 +22,11 @@ const objectClasses = {
   [EdmObjectType.WebResource]: WebResource,
 };
 
-const initialPropertiesMap = createInitialPropertyMap();
+let initialPropertiesMapCache;
+
+function getInitialPropertiesMap() {
+  return initialPropertiesMapCache ??= createInitialPropertyMap();
+}
 
 class EdmObjectFactory {
   /**
@@ -68,7 +72,7 @@ class EdmObjectFactory {
   createInitialObject(edmObjectType) {
     const propertyFactory = new EdmPropertyFactory(this.metadata);
     return this.createObject(edmObjectType, {
-      edmProperties: initialPropertiesMap[edmObjectType].map(propertyItem =>
+      edmProperties: getInitialPropertiesMap()[edmObjectType].map(propertyItem =>
         propertyFactory.createProperty(
           propertyItem.namespace,
           propertyItem.name
@@ -82,7 +86,7 @@ class EdmObjectFactory {
  * @returns {Object<EdmObjectType, Array<Object>}
  */
 function createInitialPropertyMap() {
-  const initialPropertyItems = allPropertyData.filter(item => {
+  const initialPropertyItems = getAllPropertyData().filter(item => {
     return item.spec.rec === EdmPropertyRecommendation.Mandatory;
   });
   const propertyItems = {

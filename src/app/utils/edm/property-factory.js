@@ -9,7 +9,7 @@
 
 import EdmProperty from './property';
 import _ from 'lodash';
-import { tagToPropertyDataMap } from './property-spec';
+import { getTagToPropertyDataMap } from './property-spec';
 import EdmMetadata from './metadata';
 
 /**
@@ -26,7 +26,7 @@ export default class EdmPropertyFactory {
    * @returns {EdmProperty}
    */
   static createPropertyFromXmlElement(xmlElement) {
-    const spec = tagToPropertyDataMap[xmlElement.tagName]?.spec;
+    const spec = getTagToPropertyDataMap()[xmlElement.tagName]?.spec;
     return new EdmProperty({
       xmlElement,
       spec,
@@ -53,7 +53,7 @@ export default class EdmPropertyFactory {
    * @returns {Utils.Edm.Property}
    */
   createProperty(namespace, propertyName, options = {}) {
-    const spec = tagToPropertyDataMap[`${namespace}:${propertyName}`]?.spec || {};
+    const spec = getTagToPropertyDataMap()[`${namespace}:${propertyName}`]?.spec || {};
     const edmProperty = new EdmProperty({
       xmlDocument: this.metadata.xmlDocument,
       namespace,

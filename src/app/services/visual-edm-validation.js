@@ -21,7 +21,7 @@ import {
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import { htmlSafe } from '@ember/string';
 import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
-import { tagToPropertyDataMap } from 'oneprovider-gui/utils/edm/property-spec';
+import { getTagToPropertyDataMap } from 'oneprovider-gui/utils/edm/property-spec';
 import EdmObjectValidator from 'oneprovider-gui/utils/edm/object-validator';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import _ from 'lodash';
@@ -206,6 +206,7 @@ export default Service.extend(I18n, {
    * @returns
    */
   createMissingPropertiesMessage(validationContext, edmObject, propertyTags, viewType) {
+    const tagToPropertyDataMap = getTagToPropertyDataMap();
     const propertiesData = propertyTags.map(tag => tagToPropertyDataMap[tag]);
     const quantity = propertyTags.length === 1 ? 'singular' : 'plural';
     const edmObjectType = edmObject.edmObjectType;
@@ -234,6 +235,7 @@ export default Service.extend(I18n, {
     propertyTags,
     viewType
   ) {
+    const tagToPropertyDataMap = getTagToPropertyDataMap();
     const propertiesData = propertyTags.map(tag => tagToPropertyDataMap[tag]);
     const quantity = propertyTags.length === 1 ? 'singular' : 'plural';
     return this.t(

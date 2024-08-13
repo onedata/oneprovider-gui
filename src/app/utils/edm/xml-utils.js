@@ -7,7 +7,7 @@
  */
 
 import globals from 'onedata-gui-common/utils/globals';
-import { allPropertyData, supportedPropertyTagSet } from './property-spec';
+import { getAllPropertyData, getSupportedPropertyTagSet } from './property-spec';
 import xmlFormat from 'xml-formatter';
 import { EdmObjectTagName } from './object-type';
 
@@ -31,15 +31,19 @@ export function isSupportedXmlObject(xmlNode) {
  * @returns {boolean}
  */
 export function isSupportedXmlProperty(xmlNode) {
-  return xmlNode instanceof Element && supportedPropertyTagSet.has(xmlNode.tagName);
+  return xmlNode instanceof Element && getSupportedPropertyTagSet().has(xmlNode.tagName);
 }
 
-export const objectSupportedPropertiesTags = createObjectSupportedPropertiesTags();
+let objectSupportedPropertiesTagsCache;
+
+export function getObjectSupportedPropertiesTags() {
+  return objectSupportedPropertiesTagsCache ??= createObjectSupportedPropertiesTags();
+}
 
 export function isXmlPropertyCompatibleWithObject(propertyXmlNode, objectXmlNode) {
   const objectTag = objectXmlNode.tagName;
   const propertyTag = propertyXmlNode.tagName;
-  return objectSupportedPropertiesTags[objectTag].has(propertyTag);
+  return getObjectSupportedPropertiesTags()[objectTag].has(propertyTag);
 }
 
 /**
@@ -76,6 +80,7 @@ export function stringifyXmlDocument(xmlDocument, { tabSize } = {}) {
 
 function createObjectSupportedPropertiesTags() {
   const mapping = [];
+  const allPropertyData = getAllPropertyData();
   for (const { xmlTagName: propertyTag, spec } of allPropertyData) {
     const objectTag = EdmObjectTagName[spec.obj];
     if (!mapping[objectTag]) {

@@ -15,7 +15,9 @@ export default {
   object: 'object',
   notValid: 'Definition of this {{objectType}} is not valid',
   objectTypeSubtitle: {
-    [EdmObjectType.Aggregation]: 'Aggregated information about all related resources pertaining to the provided CHO.',
+    [
+      EdmObjectType.Aggregation
+    ]: 'This section contains aggregated information about all related resources pertaining to the Cultural Heritage Object.',
     [
       EdmObjectType.ProvidedCHO
     ]: 'This section contains information about the physical Cultural Heritage Object.',

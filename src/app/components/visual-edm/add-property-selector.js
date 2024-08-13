@@ -11,7 +11,7 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { allPropertyData } from 'oneprovider-gui/utils/edm/property-spec';
+import { getAllPropertyData } from 'oneprovider-gui/utils/edm/property-spec';
 import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
 
 /**
@@ -100,7 +100,7 @@ export default Component.extend(I18n, {
     const items = [];
     const disabledTagSet = new Set(this.singleDisabledItemsTags);
 
-    for (const propertyData of allPropertyData) {
+    for (const propertyData of getAllPropertyData()) {
       const spec = propertyData.spec;
       if (spec.obj !== this.edmObjectType || spec.viewOnly) {
         continue;

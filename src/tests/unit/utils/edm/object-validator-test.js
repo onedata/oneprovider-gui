@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
@@ -8,11 +8,15 @@ import EdmObjectValidator from 'oneprovider-gui/utils/edm/object-validator';
 import {
   EdmPropertyMaxOccurrences,
   EdmPropertyRecommendation,
-  allSpecs,
+  getAllSpecs,
 } from 'oneprovider-gui/utils/edm/property-spec';
 import { makeAllPropertiesValid } from '../../../helpers/edm-utils';
 
 describe('Unit | Utility | edm/object-validator', function () {
+  beforeEach(function () {
+    this.allSpecs = getAllSpecs();
+  });
+
   it('is valid if object has all mandatory properties and all properties are valid', function () {
     const helper = new Helper();
     helper.initObject();
@@ -34,7 +38,7 @@ describe('Unit | Utility | edm/object-validator', function () {
 
   it('is not valid if object does not have all mandatory properties', function () {
     // prerequirement: description is mandatory
-    expect(allSpecs.dc.description[EdmObjectType.ProvidedCHO].rec)
+    expect(this.allSpecs.dc.description[EdmObjectType.ProvidedCHO].rec)
       .to.equal(EdmPropertyRecommendation.Mandatory);
 
     const helper = new Helper();
@@ -51,7 +55,7 @@ describe('Unit | Utility | edm/object-validator', function () {
 
   it('is not valid if object have some properties exceeding occurrence limit', function () {
     // prerequirement: type has max single occurrence
-    expect(allSpecs.dc.type.max)
+    expect(this.allSpecs.dc.type.max)
       .to.equal(EdmPropertyMaxOccurrences.Single);
 
     const helper = new Helper();
@@ -66,7 +70,7 @@ describe('Unit | Utility | edm/object-validator', function () {
 
   it('is valid if object have multiple properties that can be multiple', function () {
     // prerequirement: created has no occurrence limit
-    expect(allSpecs.dcterms.created[EdmObjectType.ProvidedCHO].max)
+    expect(this.allSpecs.dcterms.created[EdmObjectType.ProvidedCHO].max)
       .to.equal(EdmPropertyMaxOccurrences.Any);
 
     const helper = new Helper();

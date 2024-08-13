@@ -510,7 +510,7 @@ describe('Integration | Component | visual-edm', function () {
         .textContent
         .trim()
       ).to.equal(
-        'Aggregated information about all related resources pertaining to the provided CHO.'
+        'This section contains aggregated information about all related resources pertaining to the Cultural Heritage Object.'
       );
       const choPropertyLabels = Array.from(
         helper.getObjectElement(0).querySelectorAll('.edm-property-type')

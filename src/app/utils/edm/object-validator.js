@@ -10,19 +10,21 @@ import EmberObject, { computed } from '@ember/object';
 import { not, empty } from '@ember/object/computed';
 import EdmPropertyValidator from './property-validator';
 import EdmObjectType from './object-type';
-import { EdmPropertyMaxOccurrences, EdmPropertyRecommendation, allPropertyData } from './property-spec';
+import { EdmPropertyMaxOccurrences, EdmPropertyRecommendation, getAllPropertyData } from './property-spec';
 import _ from 'lodash';
 import { assert } from '@ember/debug';
 
-/**
- * @type {Object<string, Array<string>>}
- */
-const mandatoryPropertiesMap = getMandatoryPropertyTags();
+let mandatoryPropertyTagsCache;
 
-/**
- * @type {Object<string, Array<string>>}
- */
-const singlePropertiesMap = getSinglePropertyTags();
+function getMandatoryPropertyTags() {
+  return mandatoryPropertyTagsCache ??= createMandatoryPropertyTags();
+}
+
+let singlePropertiesMapCache;
+
+function getSinglePropertiesMap() {
+  return singlePropertiesMapCache ??= createSinglePropertyTags();
+}
 
 const EdmObjectValidator = EmberObject.extend({
   /**
@@ -57,8 +59,9 @@ const EdmObjectValidator = EmberObject.extend({
     'propertyValidators.@each.errors',
     function errors() {
       const result = [];
-      const mandatoryProperties = mandatoryPropertiesMap[this.edmObject.edmObjectType];
-      const singleProperties = singlePropertiesMap[this.edmObject.edmObjectType];
+      const mandatoryProperties =
+        getMandatoryPropertyTags()[this.edmObject.edmObjectType];
+      const singleProperties = getSinglePropertiesMap()[this.edmObject.edmObjectType];
       const tagCountMapping = _.countBy(this.edmObject.edmProperties, 'xmlTagName');
       const missingProperties = mandatoryProperties.filter(xmlTag =>
         !tagCountMapping[xmlTag]
@@ -139,8 +142,10 @@ const EdmObjectValidator = EmberObject.extend({
 /**
  * @returns {Object<string, Array<string>>}
  */
-function getMandatoryPropertyTags() {
+function createMandatoryPropertyTags() {
   const mandatoryPropertyTags = {};
+  const allPropertyData = getAllPropertyData();
+
   for (const edmObjectType of Object.keys(EdmObjectType)) {
     mandatoryPropertyTags[edmObjectType] = allPropertyData.filter(propertySpec =>
       propertySpec.spec.obj.includes(edmObjectType) &&
@@ -153,8 +158,9 @@ function getMandatoryPropertyTags() {
 /**
  * @returns {Object<string, Array<string>>}
  */
-function getSinglePropertyTags() {
+function createSinglePropertyTags() {
   const singlePropertyTags = {};
+  const allPropertyData = getAllPropertyData();
   for (const edmObjectType of Object.keys(EdmObjectType)) {
     singlePropertyTags[edmObjectType] = allPropertyData.filter(propertySpec =>
       propertySpec.spec.obj.includes(edmObjectType) &&
