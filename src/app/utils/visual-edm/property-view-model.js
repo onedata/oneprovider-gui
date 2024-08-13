@@ -140,7 +140,7 @@ const PropertyViewModel = EmberObject.extend({
    * @type {ComputedProperty<string>}
    */
   lang: computed('model.attrs', function lang() {
-    return this.model.attrs.lang;
+    return this.model.lang;
   }),
 
   /**

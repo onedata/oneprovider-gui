@@ -118,12 +118,22 @@ class EdmProperty {
   }
 
   /**
-   * Can contain string with property value examples or mapping of object type and
-   * examples specific for the type of object in which the property is in.
-   * @returns {string|Object<EdmObjectType, string>}
+   * @returns {string}
    */
   get example() {
-    return this.spec.example;
+    return this.spec?.example;
+  }
+
+  /**
+   * Language code that can be found in src/app/utils/edm/lang-spec.js
+   * @returns {string}
+   */
+  get lang() {
+    return this.attrs.lang;
+  }
+
+  set lang(value) {
+    this.attrs.lang = value;
   }
 
   /**

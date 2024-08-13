@@ -68,6 +68,9 @@ export default class EdmPropertyFactory {
     const attrs = _.cloneDeep(options);
     delete attrs.value;
     edmProperty.attrs = attrs;
+    if (typeof spec.lang === 'string' && typeof options.lang !== 'string') {
+      edmProperty.lang = spec.lang;
+    }
     return edmProperty;
   }
 }
