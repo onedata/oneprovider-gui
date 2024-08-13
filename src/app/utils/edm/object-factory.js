@@ -91,9 +91,7 @@ function createInitialPropertyMap() {
     [EdmObjectType.WebResource]: [],
   };
   for (const propertyItem of initialPropertyItems) {
-    for (const supportedObjectType of propertyItem.spec.obj) {
-      propertyItems[supportedObjectType].push(propertyItem);
-    }
+    propertyItems[propertyItem.spec.obj].push(propertyItem);
   }
   return propertyItems;
 }

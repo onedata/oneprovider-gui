@@ -358,7 +358,7 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
         <dc:creator>a</dc:creator>
         <dc:description>a</dc:description>
         <dc:format>IGES</dc:format>
-        <dc:language>a</dc:language>
+        <dc:language>pl</dc:language>
         <dc:subject>a</dc:subject>
         <dc:type>some type</dc:type>
         <dcterms:created>a</dcterms:created>

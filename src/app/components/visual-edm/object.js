@@ -106,10 +106,13 @@ export default Component.extend(I18n, {
     });
   }),
 
-  objectTypeTip: computed('viewModel.model.edmObjectType', function objectTypeTip() {
-    const type = this.viewModel.model.edmObjectType;
-    return this.t(`objectTypeTip.${type}`, {}, { defaultValue: null });
-  }),
+  objectTypeSubtitle: computed(
+    'viewModel.model.edmObjectType',
+    function objectTypeSubtitle() {
+      const type = this.viewModel.model.edmObjectType;
+      return this.t(`objectTypeSubtitle.${type}`, {}, { defaultValue: null });
+    }
+  ),
 
   closeAddProperty() {
     this.set('isAddPropertyOpened', false);

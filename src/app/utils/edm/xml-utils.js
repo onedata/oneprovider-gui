@@ -77,13 +77,11 @@ export function stringifyXmlDocument(xmlDocument, { tabSize } = {}) {
 function createObjectSupportedPropertiesTags() {
   const mapping = [];
   for (const { xmlTagName: propertyTag, spec } of allPropertyData) {
-    for (const edmObjectType of spec.obj) {
-      const objectTag = EdmObjectTagName[edmObjectType];
-      if (!mapping[objectTag]) {
-        mapping[objectTag] = new Set();
-      }
-      mapping[objectTag].add(propertyTag);
+    const objectTag = EdmObjectTagName[spec.obj];
+    if (!mapping[objectTag]) {
+      mapping[objectTag] = new Set();
     }
+    mapping[objectTag].add(propertyTag);
   }
   return mapping;
 }

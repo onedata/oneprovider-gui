@@ -34,7 +34,8 @@ describe('Unit | Utility | edm/object-validator', function () {
 
   it('is not valid if object does not have all mandatory properties', function () {
     // prerequirement: description is mandatory
-    expect(allSpecs.dc.description.rec).to.equal(EdmPropertyRecommendation.Mandatory);
+    expect(allSpecs.dc.description[EdmObjectType.ProvidedCHO].rec)
+      .to.equal(EdmPropertyRecommendation.Mandatory);
 
     const helper = new Helper();
     helper.initObject();
@@ -49,12 +50,13 @@ describe('Unit | Utility | edm/object-validator', function () {
   });
 
   it('is not valid if object have some properties exceeding occurrence limit', function () {
-    // prerequirement: description has max single occurrence
-    expect(allSpecs.dc.description.max).to.equal(EdmPropertyMaxOccurrences.Single);
+    // prerequirement: type has max single occurrence
+    expect(allSpecs.dc.type.max)
+      .to.equal(EdmPropertyMaxOccurrences.Single);
 
     const helper = new Helper();
     helper.initObject();
-    const extraDescription = helper.propertyFactory.createProperty('dc', 'description');
+    const extraDescription = helper.propertyFactory.createProperty('dc', 'type');
     helper.object.addProperty(extraDescription);
     helper.makeAllPropertiesValid();
     helper.initValidator();
@@ -64,7 +66,7 @@ describe('Unit | Utility | edm/object-validator', function () {
 
   it('is valid if object have multiple properties that can be multiple', function () {
     // prerequirement: created has no occurrence limit
-    expect(allSpecs.dcterms.created.max[EdmObjectType.ProvidedCHO])
+    expect(allSpecs.dcterms.created[EdmObjectType.ProvidedCHO].max)
       .to.equal(EdmPropertyMaxOccurrences.Any);
 
     const helper = new Helper();

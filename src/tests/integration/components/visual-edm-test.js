@@ -352,13 +352,9 @@ describe('Integration | Component | visual-edm', function () {
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
-        propertyFactory.createProperty('dcterms', 'issued'),
         propertyFactory.createProperty('dc', 'description'),
-        propertyFactory.createProperty('dc', 'date'),
         propertyFactory.createProperty('edm', 'type'),
-        propertyFactory.createProperty('dc', 'publisher'),
         propertyFactory.createProperty('dc', 'title'),
-        propertyFactory.createProperty('dcterms', 'alternative'),
       ],
     });
     metadata.edmObjects = [providedCho];
@@ -374,12 +370,8 @@ describe('Integration | Component | visual-edm', function () {
     );
     const expectedPropertyLabels = [
       'Title',
-      'Description',
-      'Asset type',
-      'Date',
-      'Publisher',
-      'Alternative',
-      'Issued',
+      'Description/Caption',
+      'Type of digital object',
     ].map(name => name + ':');
     expect(propertyLabels).to.deep.equal(expectedPropertyLabels);
   });
@@ -403,23 +395,19 @@ describe('Integration | Component | visual-edm', function () {
       const propertyLabels = findAll('.add-property-selector li').map(element => element.textContent.trim());
       const expectedPropertyLabels = [
         'Title',
-        'Description',
-        'Asset type',
+        'Description/Caption',
+        'Type of digital object',
         'Subject',
         'Type of object',
         'Contributor to the creation of the original object',
         'Creator of the original object',
         'Creation date of the original object',
-        'Internal ID',
         'Language of inscriptions in the object',
         'Dimensions with units',
         'Parent entity (collection, object, site…)',
         'Material',
         'Original location',
         'Current location',
-        'Copyright',
-        'URL for raw data',
-        'URL for paradata',
       ];
       expect(propertyLabels).to.deep.equal(expectedPropertyLabels);
     }
@@ -504,27 +492,45 @@ describe('Integration | Component | visual-edm', function () {
         helper.getObjectElement(0).querySelector('.edm-object-type').textContent.trim()
       ).to.equal('Cultural Heritage Object');
       expect(
+        helper
+        .getObjectElement(0)
+        .querySelector('.edm-object-type-subtitle')
+        .textContent
+        .trim()
+      ).to.equal(
+        'This section contains information about the physical Cultural Heritage Object.'
+      );
+      expect(
         helper.getObjectElement(1).querySelector('.edm-object-type').textContent.trim()
       ).to.equal('Aggregation');
+      expect(
+        helper
+        .getObjectElement(1)
+        .querySelector('.edm-object-type-subtitle')
+        .textContent
+        .trim()
+      ).to.equal(
+        'Aggregated information about all related resources pertaining to the provided CHO.'
+      );
       const choPropertyLabels = Array.from(
         helper.getObjectElement(0).querySelectorAll('.edm-property-type')
       ).map(element => element.textContent.trim());
       const expectedChoPropertyLabels = [
         'Title',
-        'Description',
-        'Asset type',
+        'Description/Caption',
+        'Type of digital object',
         'Subject',
         'Type of object',
+        'Material',
       ];
+      // FIXME: dojdzie obowiązkowy WebResource - dodać testy mandatory property
       for (const label of expectedChoPropertyLabels) {
         expect(choPropertyLabels).to.include(label);
       }
       const expectedAggregationPropertyLabels = [
         'Content provider institution',
         'Name of organisation uploading the data',
-        // TODO: VFS-11952 According to the official docs, this should be present
-        // in the Aggregation object, but in the EU3D it appears in the CHO
-        'Copyright licence URL of the original object',
+        'Copyright licence URL of the digital object',
       ];
       const aggregationPropertyLabels = Array.from(
         helper.getObjectElement(1).querySelectorAll('.edm-property-type')
@@ -567,7 +573,7 @@ describe('Integration | Component | visual-edm', function () {
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
-        propertyFactory.createProperty('dc', 'identifier'),
+        propertyFactory.createProperty('dc', 'contributor'),
       ],
     });
     metadata.edmObjects = [providedCho];
@@ -592,7 +598,7 @@ describe('Integration | Component | visual-edm', function () {
       const propertyFactory = new EdmPropertyFactory(metadata);
       const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
         edmProperties: [
-          propertyFactory.createProperty('dc', 'title'),
+          propertyFactory.createProperty('dc', 'type'),
         ],
       });
       metadata.edmObjects = [providedCho];
@@ -604,7 +610,7 @@ describe('Integration | Component | visual-edm', function () {
       await click(helper.getObjectElement(0).querySelector('.add-edm-property-btn'));
 
       // then
-      const titleSelectorItem = findByText('Title', '.add-property-selector li');
+      const titleSelectorItem = findByText('Type of object', '.add-property-selector li');
       expect(titleSelectorItem).to.have.class('disabled');
     }
   );

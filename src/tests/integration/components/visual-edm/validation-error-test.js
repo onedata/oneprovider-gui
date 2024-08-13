@@ -49,7 +49,7 @@ describe('Integration | Component | visual-edm/validation-error', function () {
     await renderComponent(this);
 
     expect(getElement().querySelector('.edm-info-row-text').textContent).to.contain(
-      'properties "Title" and "Description" have empty values'
+      'properties "Title" and "Description/Caption" have empty values'
     );
   });
 });

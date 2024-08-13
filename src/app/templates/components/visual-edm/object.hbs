@@ -5,9 +5,6 @@
   <div class="basic-info-row">
     <div class="row edm-object-iconified-block-row title-row edm-object-title-row">
       <div class="edm-object-type item-name">{{objectTypeName}}</div>
-      {{#if objectTypeTip}}
-        <OneLabelTip class="edm-object-type-label-tip" @title={{objectTypeTip}}/>
-      {{/if}}
       {{#if isDeletable}}
         <div
           class={{concat-classes
@@ -22,6 +19,11 @@
         </div>
       {{/if}}
     </div>
+    {{#if objectTypeSubtitle}}
+      <div class="edm-object-type-subtitle">
+        {{objectTypeSubtitle}}
+      </div>
+    {{/if}}
   </div>
   {{#if attrItems}}
     <ul class={{concat-classes
