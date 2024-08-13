@@ -361,12 +361,15 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
         <dc:language>pl</dc:language>
         <dc:subject>a</dc:subject>
         <dc:type>some type</dc:type>
-        <dcterms:created>a</dcterms:created>
+        <dcterms:created>2024-08-13</dcterms:created>
         <dcterms:medium>wood</dcterms:medium>
         <edm:type>VIDEO</edm:type>
     </edm:ProvidedCHO>
+    <edm:WebResource>
+        <dc:description>Short description of a web resource.</dc:description>
+    </edm:WebResource>
     <ore:Aggregation>
-        <edm:dataProvider>a</edm:dataProvider>
+        <edm:dataProvider>Some data provider</edm:dataProvider>
         <edm:object rdf:resource="https://onedata.org/assets/images/logo.svg"/>
         <edm:provider>Photoconsortium</edm:provider>
         <edm:rights rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/"/>

@@ -52,6 +52,7 @@ export default class EdmMetadataFactory {
     const objectFactory = new EdmObjectFactory(metadata);
     metadata.edmObjects = [
       objectFactory.createInitialObject(EdmObjectType.ProvidedCHO),
+      objectFactory.createInitialObject(EdmObjectType.WebResource),
       objectFactory.createInitialObject(EdmObjectType.Aggregation),
     ];
 

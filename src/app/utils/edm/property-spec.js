@@ -272,7 +272,6 @@ function createAllSpecs() {
         [EdmObjectType.WebResource]: {
           val: EdmPropertyValueType.Literal,
           obj: EdmObjectType.WebResource,
-          lang: true,
           rec: Rec.None,
           max: Max.Single,
           example: '1.5 MB',

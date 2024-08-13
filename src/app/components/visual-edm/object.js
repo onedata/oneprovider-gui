@@ -11,8 +11,6 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
-import { and, eq, raw, not } from 'ember-awesome-macros';
-import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 
 /**
  * @typedef {Object} EdmPropertyGroup
@@ -58,11 +56,6 @@ export default Component.extend(I18n, {
    * @type {Computed<Array<EdmProperty>>}
    */
   edmProperties: reads('viewModel.edmProperties'),
-
-  isDeletable: and(
-    eq('viewModel.model.edmObjectType', raw(EdmObjectType.WebResource)),
-    not('visualEdmViewModel.isReadOnly'),
-  ),
 
   objectTypeName: computed('viewModel.model.edmObjectType', function objectTypeName() {
     const objectType = this.viewModel.model.edmObjectType;

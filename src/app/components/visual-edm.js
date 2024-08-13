@@ -24,10 +24,4 @@ export default Component.extend(I18n, {
    * @virtual
    */
   viewModel: undefined,
-
-  actions: {
-    addWebResource() {
-      this.viewModel.addWebResource();
-    },
-  },
 });

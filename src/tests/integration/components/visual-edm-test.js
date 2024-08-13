@@ -301,49 +301,6 @@ describe('Integration | Component | visual-edm', function () {
     }
   );
 
-  it('adds WebResource object when clicking on "Add Digital Object" button', async function () {
-    // given
-    const factory = EdmMetadataFactory;
-    const metadata = factory.createEmptyMetadata();
-    const objectFactory = new EdmObjectFactory(metadata);
-    const providedCho = objectFactory.createObject(
-      EdmObjectType.ProvidedCHO, {}
-    );
-    metadata.edmObjects = [providedCho];
-    const helper = new Helper(this, metadata);
-    helper.visualEdmViewModel.set('isReadOnly', false);
-
-    // when
-    await helper.render();
-    await click(helper.addDigitalObjectButton);
-
-    // then
-    expect(metadata.edmObjects).to.have.lengthOf(2);
-    expect(helper.getObjectElement(1)).to.exist;
-    expect(helper.getObjectElement(1).textContent).to.contain('Digital Object');
-  });
-
-  it('removes WebResource object when clicking on trash button in object', async function () {
-    // given
-    const factory = EdmMetadataFactory;
-    const metadata = factory.createEmptyMetadata();
-    const objectFactory = new EdmObjectFactory(metadata);
-    const providedCHO = objectFactory.createObject(EdmObjectType.ProvidedCHO);
-    const webResource1 = objectFactory.createObject(EdmObjectType.WebResource);
-    const webResource2 = objectFactory.createObject(EdmObjectType.WebResource);
-    metadata.edmObjects = [providedCHO, webResource1, webResource2];
-    const helper = new Helper(this, metadata);
-    helper.visualEdmViewModel.set('isReadOnly', false);
-
-    // when
-    await helper.render();
-    await click(helper.getObjectElement(1).querySelector('.edm-object-delete-btn'));
-
-    // then
-    expect(metadata.edmObjects).to.have.lengthOf(2);
-    expect(helper.element.querySelectorAll('.visual-edm-object').length).to.equal(2);
-  });
-
   it('lists properties in object in the predefined order', async function () {
     // given
     const factory = EdmMetadataFactory;
@@ -487,7 +444,7 @@ describe('Integration | Component | visual-edm', function () {
       // then
       expect(
         helper.element.querySelectorAll('.visual-edm-object')
-      ).to.have.lengthOf(2);
+      ).to.have.lengthOf(3);
       expect(
         helper.getObjectElement(0).querySelector('.edm-object-type').textContent.trim()
       ).to.equal('Cultural Heritage Object');
@@ -502,7 +459,7 @@ describe('Integration | Component | visual-edm', function () {
       );
       expect(
         helper.getObjectElement(1).querySelector('.edm-object-type').textContent.trim()
-      ).to.equal('Aggregation');
+      ).to.equal('Digital Object');
       expect(
         helper
         .getObjectElement(1)
@@ -510,8 +467,21 @@ describe('Integration | Component | visual-edm', function () {
         .textContent
         .trim()
       ).to.equal(
+        'This section contains information about the digital representation of the Cultural Heritage Object (e.g. the 3D model).'
+      );
+      expect(
+        helper.getObjectElement(2).querySelector('.edm-object-type').textContent.trim()
+      ).to.equal('Aggregation');
+      expect(
+        helper
+        .getObjectElement(2)
+        .querySelector('.edm-object-type-subtitle')
+        .textContent
+        .trim()
+      ).to.equal(
         'This section contains aggregated information about all related resources pertaining to the Cultural Heritage Object.'
       );
+
       const choPropertyLabels = Array.from(
         helper.getObjectElement(0).querySelectorAll('.edm-property-type')
       ).map(element => element.textContent.trim());
@@ -523,17 +493,27 @@ describe('Integration | Component | visual-edm', function () {
         'Type of object',
         'Material',
       ];
-      // FIXME: dojdzie obowiązkowy WebResource - dodać testy mandatory property
       for (const label of expectedChoPropertyLabels) {
         expect(choPropertyLabels).to.include(label);
       }
+
+      const wrPropertyLabels = Array.from(
+        helper.getObjectElement(1).querySelectorAll('.edm-property-type')
+      ).map(element => element.textContent.trim());
+      const expectedWrPropertyLabels = [
+        'Description of digital object',
+      ];
+      for (const label of expectedWrPropertyLabels) {
+        expect(wrPropertyLabels).to.include(label);
+      }
+
       const expectedAggregationPropertyLabels = [
         'Content provider institution',
         'Name of organisation uploading the data',
         'Copyright licence URL of the digital object',
       ];
       const aggregationPropertyLabels = Array.from(
-        helper.getObjectElement(1).querySelectorAll('.edm-property-type')
+        helper.getObjectElement(2).querySelectorAll('.edm-property-type')
       ).map(element => element.textContent.trim());
       for (const label of expectedAggregationPropertyLabels) {
         expect(aggregationPropertyLabels).to.include(label);
@@ -817,9 +797,6 @@ class Helper {
   }
   set visualEdmViewModel(value) {
     this.#visualEdmViewModel = value;
-  }
-  get addDigitalObjectButton() {
-    return this.element.querySelector('.add-digital-object-btn');
   }
   async render() {
     this.mochaContext.setProperties({
