@@ -212,6 +212,7 @@ export default Component.extend(I18n, {
     'viewModel.model.placeholderExample',
     'valueType',
     function placeholder() {
+      // FIXME: ten computed odpala się przy każdym inpucie
       const placeholderExample = this.viewModel.model.placeholderExample;
       let exampleValue;
       if (typeof placeholderExample === 'object') {

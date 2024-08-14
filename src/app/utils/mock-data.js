@@ -41,7 +41,7 @@ export const exampleEdmMetadata = `<?xml version="1.0" encoding="UTF-8"?>
         <dc:subject>portrait</dc:subject>
         <dc:title>My share 1</dc:title>
         <dc:type>dataset</dc:type>
-        <dcterms:medium>wood</dcterms:medium>
+        <dcterms:medium>Wood</dcterms:medium>
         <edm:type>TEXT</edm:type>
     </edm:ProvidedCHO>
     <ore:Aggregation rdf:about="#exampleMet0_AGG">
@@ -362,7 +362,7 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
         <dc:subject>a</dc:subject>
         <dc:type>some type</dc:type>
         <dcterms:created>2024-08-13</dcterms:created>
-        <dcterms:medium>wood</dcterms:medium>
+        <dcterms:medium>Wood</dcterms:medium>
         <edm:type>VIDEO</edm:type>
     </edm:ProvidedCHO>
     <edm:WebResource>

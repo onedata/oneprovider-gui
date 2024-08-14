@@ -89,12 +89,27 @@ class EdmProperty {
     return Boolean(!this.value && this.attrs.resource != null);
   }
 
+  get currentValueType() {
+    return this.isUsingResource ?
+      EdmPropertyValueType.Reference : EdmPropertyValueType.Literal;
+  }
+
   get supportedValueType() {
     return this.spec?.val || EdmPropertyValueType.Any;
   }
 
   get predefinedValues() {
-    return this.spec?.predef;
+    const predef = this.spec?.predef;
+    if (!predef) {
+      return undefined;
+    }
+    if (Array.isArray(predef)) {
+      return predef;
+    }
+    if (typeof predef === 'object') {
+      return predef[this.currentValueType];
+    }
+    return undefined;
   }
 
   get hasPredefinedValues() {
@@ -137,10 +152,10 @@ class EdmProperty {
   }
 
   /**
-   * @type {string|{ [EdmPropertyValueType.Literal]: string, [EdmPropertyValueType.Reference]: string }}
+   * @type {string|{ [EdmPropertyValueType.Literal]: string, [EdmPropertyValueType.Reference]: string }|undefined}
    */
   get placeholderExample() {
-    return this.spec.placeholder ?? '';
+    return this.spec.placeholder ?? undefined;
   }
 
   /**
