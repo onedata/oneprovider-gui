@@ -12,6 +12,7 @@ import { findByText } from '../../helpers/find';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { makeAllPropertiesValid } from '../../helpers/edm-utils';
 import OneDropdownHelper from '../../helpers/one-dropdown';
+import _ from 'lodash';
 
 describe('Integration | Component | visual-edm', function () {
   const { afterEach } = setupRenderingTest();
@@ -41,7 +42,8 @@ describe('Integration | Component | visual-edm', function () {
 
     await helper.render();
 
-    const propertyLabels = findAll('.edm-property-type').map(element => element.textContent.trim());
+    const propertyLabels = findAll('.edm-property-type-name')
+      .map(element => element.textContent.trim());
     expect(propertyLabels).to.include('Contributor to the creation of the original object');
     expect(propertyLabels).to.include('Creation date of the original object');
 
@@ -321,14 +323,14 @@ describe('Integration | Component | visual-edm', function () {
     await helper.render();
 
     // then
-    const propertyLabels = findAll('.edm-property-type').map(element =>
+    const propertyLabels = findAll('.edm-property-type-name').map(element =>
       element.textContent.trim()
     );
     const expectedPropertyLabels = [
       'Title',
       'Description/Caption',
-      'Type of digital object',
-    ].map(name => name + ':');
+      'Category',
+    ];
     expect(propertyLabels).to.deep.equal(expectedPropertyLabels);
   });
 
@@ -348,11 +350,13 @@ describe('Integration | Component | visual-edm', function () {
       await click(helper.getObjectElement(0).querySelector('.add-edm-property-btn'));
 
       // then
-      const propertyLabels = findAll('.add-property-selector li').map(element => element.textContent.trim());
+      const propertyLabels = findAll('.add-property-selector li').map(element =>
+        element.textContent.trim()
+      );
       const expectedPropertyLabels = [
         'Title',
         'Description/Caption',
-        'Type of digital object',
+        'Category',
         'Subject',
         'Type of object',
         'Contributor to the creation of the original object',
@@ -482,12 +486,12 @@ describe('Integration | Component | visual-edm', function () {
       );
 
       const choPropertyLabels = Array.from(
-        helper.getObjectElement(0).querySelectorAll('.edm-property-type')
+        helper.getObjectElement(0).querySelectorAll('.edm-property-type-name')
       ).map(element => element.textContent.trim());
       const expectedChoPropertyLabels = [
         'Title',
         'Description/Caption',
-        'Type of digital object',
+        'Category',
         'Subject',
         'Type of object',
         'Material',
@@ -497,7 +501,7 @@ describe('Integration | Component | visual-edm', function () {
       }
 
       const wrPropertyLabels = Array.from(
-        helper.getObjectElement(1).querySelectorAll('.edm-property-type')
+        helper.getObjectElement(1).querySelectorAll('.edm-property-type-name')
       ).map(element => element.textContent.trim());
       const expectedWrPropertyLabels = [
         'Description of digital object',
@@ -512,7 +516,7 @@ describe('Integration | Component | visual-edm', function () {
         'Copyright licence URL of the digital object',
       ];
       const aggregationPropertyLabels = Array.from(
-        helper.getObjectElement(2).querySelectorAll('.edm-property-type')
+        helper.getObjectElement(2).querySelectorAll('.edm-property-type-name')
       ).map(element => element.textContent.trim());
       for (const label of expectedAggregationPropertyLabels) {
         expect(aggregationPropertyLabels).to.include(label);
@@ -765,7 +769,7 @@ describe('Integration | Component | visual-edm', function () {
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
-        propertyFactory.createProperty('dc', 'title', {
+        propertyFactory.createProperty('dc', 'type', {
           value: '',
           lang: '',
         }),
@@ -779,7 +783,7 @@ describe('Integration | Component | visual-edm', function () {
     /** @type {HTMLInputElement} */
     const propertyInput = find('.edm-property-value input');
 
-    expect(propertyInput.placeholder).to.equal('Example: Saint Paul\'s Cathedral');
+    expect(propertyInput.placeholder).to.equal('Example: Musical instrument');
   });
 });
 

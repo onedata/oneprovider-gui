@@ -105,7 +105,7 @@ const Rec = EdmPropertyRecommendation;
 const Max = EdmPropertyMaxOccurrences;
 
 const locationCommon = {
-  tip: 'Example:<br>https://www.wikidata.org/wiki/Q4093<br><br>http://sws.geonames.org/2950159<br>https://vocab.getty.edu/tgn/7006663<p>When it is a Literal, use a coordinate in this format:<br>48.833611111, 2.375833333',
+  tip: '<strong>Example:</strong><br>https://www.wikidata.org/wiki/Q4093<br>http://sws.geonames.org/2950159<br>https://vocab.getty.edu/tgn/7006663<p>When it is a literal, use a coordinate in this format:<br>48.833611111, 2.375833333',
   placeholder: {
     [EdmPropertyValueType.Literal]: '48.833611111, 2.375833333',
     [EdmPropertyValueType.Reference]: 'https://www.wikidata.org/wiki/Q4093',
@@ -230,14 +230,27 @@ function createAllSpecs() {
         },
       },
       type: {
-        val: EdmPropertyValueType.Any,
-        obj: EdmObjectType.ProvidedCHO,
-        rec: Rec.Mandatory,
-        max: Max.Single,
-        lang: true,
-        tip: 'It is suggested to use a reference from e.g. Getty glossary.<p><strong>Example of literals:</strong> musical instrument / church / still image / painting / building',
-        placeholder: {
-          [EdmPropertyValueType.Literal]: 'musical instrument',
+        [EdmObjectType.ProvidedCHO]: {
+          val: EdmPropertyValueType.Any,
+          obj: EdmObjectType.ProvidedCHO,
+          rec: Rec.Mandatory,
+          max: Max.Single,
+          lang: true,
+          tip: 'It is suggested to use a reference from e.g. Getty glossary.<p><strong>Example of literals:</strong> Musical instrument / Church / Still image / Painting / Building',
+          placeholder: {
+            [EdmPropertyValueType.Literal]: 'Musical instrument',
+          },
+        },
+        [EdmObjectType.WebResource]: {
+          val: EdmPropertyValueType.Literal,
+          obj: EdmObjectType.WebResource,
+          rec: Rec.Mandatory,
+          max: Max.Single,
+          lang: true,
+          tip: 'Photogrammetric mesh model / TLS point cloud / NURBS model',
+          placeholder: {
+            [EdmPropertyValueType.Literal]: 'Photogrammetric mesh model',
+          },
         },
       },
     },
@@ -269,6 +282,7 @@ function createAllSpecs() {
           rec: Rec.None,
           max: Max.Any,
           example: '<br>13 cm (width)<br>20 cm (length)<br>10 cm (height)',
+          placeholder: '\n13 cm (width)\n20 cm (length)\n10 cm (height)',
         },
         [EdmObjectType.WebResource]: {
           val: EdmPropertyValueType.Literal,
@@ -407,8 +421,6 @@ function createAllSpecs() {
       },
       type: {
         val: EdmPropertyValueType.Literal,
-        // This could seem to be a bug (as it is a "type of digital object") but it is
-        // the current specification from Europeana.
         obj: EdmObjectType.ProvidedCHO,
         rec: Rec.Mandatory,
         max: Max.Single,

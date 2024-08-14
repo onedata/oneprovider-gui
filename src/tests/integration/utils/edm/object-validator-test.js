@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it } from 'mocha';
+import { setupRenderingTest } from 'ember-mocha';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
@@ -12,7 +13,9 @@ import {
 } from 'oneprovider-gui/utils/edm/property-spec';
 import { makeAllPropertiesValid } from '../../../helpers/edm-utils';
 
-describe('Unit | Utility | edm/object-validator', function () {
+describe('Integration | Utility | edm/object-validator', function () {
+  const { beforeEach } = setupRenderingTest();
+
   beforeEach(function () {
     this.allSpecs = getAllSpecs();
   });
@@ -55,7 +58,7 @@ describe('Unit | Utility | edm/object-validator', function () {
 
   it('is not valid if object have some properties exceeding occurrence limit', function () {
     // prerequirement: type has max single occurrence
-    expect(this.allSpecs.dc.type.max)
+    expect(this.allSpecs.dc.type[EdmObjectType.ProvidedCHO].max)
       .to.equal(EdmPropertyMaxOccurrences.Single);
 
     const helper = new Helper();

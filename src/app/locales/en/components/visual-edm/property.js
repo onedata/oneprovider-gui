@@ -27,7 +27,10 @@ export const propertyName = {
     rights: 'Additional copyright information',
     subject: 'Subject',
     title: 'Title',
-    type: 'Type of object',
+    type: {
+      [EdmObjectType.ProvidedCHO]: 'Type of object',
+      [EdmObjectType.WebResource]: 'Type of digital object',
+    },
   },
   dcterms: {
     created: {
@@ -52,7 +55,7 @@ export const propertyName = {
     object: 'Representative image',
     provider: 'Name of organisation uploading the data',
     rights: 'Copyright licence URL of the digital object',
-    type: 'Type of digital object',
+    type: 'Category',
   },
 };
 

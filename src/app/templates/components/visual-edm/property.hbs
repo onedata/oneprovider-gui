@@ -1,9 +1,16 @@
 <div class="edm-property-key-value">
   <div class="edm-property-name-container">
     <TruncatedString class="edm-property-type">
-      {{displayedPropertyName}}{{if isReadOnly ":"}}
+      {{!-- do not break line because of colon --}}
+      <span class="edm-property-type-name">{{displayedPropertyName}}</span>{{if isReadOnly ":"}}
       {{#if tip}}
-        <OneLabelTip class="edm-property-type-label-tip" @title={{tip}} />
+        <OneIcon class={{tipClass}} @icon="sign-question-rounded" />
+        <OneWebuiPopover
+          @triggerSelector={{tipTriggerSelector}}
+          @popoverStyle="edm-property-tip-popover"
+        >
+          {{tip}}
+        </OneWebuiPopover>
       {{/if}}
     </TruncatedString>
     {{#unless isReadOnly}}

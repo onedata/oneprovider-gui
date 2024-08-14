@@ -21,6 +21,7 @@ import animateCss from 'onedata-gui-common/utils/animate-css';
 import sleep from 'onedata-gui-common/utils/sleep';
 import isUrl from 'onedata-gui-common/utils/is-url';
 import { htmlSafe } from '@ember/string';
+import { anchorizeText } from 'onedata-gui-common/utils/anchorize-text';
 
 /**
  * @typedef {EdmPropertyValueType.Literal|EdmPropertyValueType.Reference} VisualEdmPropertyValueType
@@ -167,23 +168,45 @@ export default Component.extend(I18n, {
 
   tip: computed(
     'isReadOnly',
-    'viewModel.model.example',
+    'viewModel.model.{example,spec}',
     'edmObjectModel.edmObjectType',
     function tip() {
       if (this.isReadOnly) {
         // currently tip is built only for examples - in readonly mode example is unwanted
         return;
       }
+      let tipString = '';
+      const specTip = this.viewModel.model.spec.tip;
+      if (specTip) {
+        tipString += `<p>${specTip}</p>`;
+      }
+
       let exampleValue = this.viewModel.model.example;
       if (exampleValue && typeof exampleValue === 'object') {
         exampleValue = exampleValue[this.edmObjectModel.edmObjectType];
       }
-      if (!exampleValue) {
-        return null;
+      if (exampleValue) {
+        tipString += `<p>${this.t('example', { exampleValue })}</p>`;
       }
-      return this.t('example', { exampleValue });
+
+      return tipString && htmlSafe(
+        anchorizeText(tipString, { class: 'navy underlined', target: '_blank' })
+      );
     }
   ),
+
+  /**
+   * Can be only single class, because it is used to construct `tipTriggerSelector`.
+   * @type {string}
+   */
+  tipClass: 'edm-property-type-label-tip',
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  tipTriggerSelector: computed('elementId', 'tipClass', function tipTriggerSelector() {
+    return `#${this.elementId} .${this.tipClass}`;
+  }),
 
   placeholder: computed(
     'viewModel.model.placeholderExample',
@@ -198,7 +221,7 @@ export default Component.extend(I18n, {
       }
 
       return typeof exampleValue === 'string' ?
-        this.t('examplePlaceholder', { exampleValue: htmlSafe(exampleValue) }) : '';
+        this.t('examplePlaceholder', { exampleValue }) : '';
     }
   ),
 

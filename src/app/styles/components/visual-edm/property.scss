@@ -42,6 +42,10 @@
     margin-left: 0.5em;
     padding-right: 0.2em;
     font-size: $font-size-base;
+    cursor: pointer;
+    &.one-icon {
+      color: $color-one-light-gray;
+    }
   }
   .edm-property-value {
     flex-grow: 1;
@@ -231,4 +235,10 @@
   padding-top: 6px;
   padding-bottom: 6px;
   margin-right: 0;
+}
+
+.webui-popover-edm-property-tip-popover {
+  .one-webui-popover > p:last-child {
+    margin-bottom: 0;
+  }
 }
