@@ -35,7 +35,7 @@ describe('Unit | Utility | edm/metadata', function () {
       // given
       const factory = EdmMetadataFactory;
       const metadata = factory.createEmptyMetadata();
-      const propertyFactory = new EdmPropertyFactory(metadata);
+      const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
       const resourceId = 'urn://eriac/19';
       const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {

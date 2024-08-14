@@ -52,8 +52,6 @@ class Helper {
   }
   initMetadata() {
     this.metadata = this.metadataFactory.createInitialMetadata();
-    this.objectFactory = new EdmObjectFactory(this.metadata);
-    this.propertyFactory = new EdmPropertyFactory(this.metadata);
     return this.metadata;
   }
   initValidator() {

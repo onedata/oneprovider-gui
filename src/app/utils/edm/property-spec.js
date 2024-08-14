@@ -7,10 +7,8 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-// import { getLangSelectorOptions } from './lang-spec';
 import { getLangSelectorOptions } from './lang-spec';
-import EdmObjectType from './object-type';
-import _ from 'lodash';
+import EdmObjectType, { EdmObjectTagName } from './object-type';
 
 /**
  * @typedef {'dc'|'dcterms'|'edm'} EdmPropertyNamespace
@@ -59,6 +57,7 @@ import _ from 'lodash';
 
 /**
  * @typedef {Object} EdmPropertyCreationData
+ * @property {EdmObjectType} objectType
  * @property {string} namespace
  * @property {string} name
  * @property {`${string}:${string}`} xmlTagName
@@ -236,8 +235,10 @@ function createAllSpecs() {
         rec: Rec.Mandatory,
         max: Max.Single,
         lang: true,
-        tip: 'It is suggested to use a reference from e.g. Getty glossary.<p><strong>Example of literals</strong>: Musical instrument / Church / Still image / Painting / Building',
-        placeholder: 'Musical instrument',
+        tip: 'It is suggested to use a reference from e.g. Getty glossary.<p><strong>Example of literals:</strong> musical instrument / church / still image / painting / building',
+        placeholder: {
+          [EdmPropertyValueType.Literal]: 'musical instrument',
+        },
       },
     },
     dcterms: {
@@ -308,19 +309,20 @@ function createAllSpecs() {
         max: Max.Any,
         // FIXME: predef literals only in literal mode
         predef: [
-          'Bone',
-          'Ceramic',
-          'Class',
-          'Leather',
-          'Metal',
-          'Morder',
-          'Paper',
-          'Papyrus',
-          'Plaster',
-          'Stone',
-          'Textile',
-          'Wood',
-        ].map(value => ({ value: _.lowerCase(value), label: value })),
+          'bone',
+          'ceramic',
+          'class',
+          'clay',
+          'leather',
+          'metal',
+          'morder',
+          'paper',
+          'papyrus',
+          'plaster',
+          'stone',
+          'textile',
+          'wood',
+        ].map(value => ({ value, label: value })),
       },
       spatial: {
         val: EdmPropertyValueType.Any,
@@ -447,8 +449,17 @@ export function isSpecContainer(object) {
   return possibleContainerKeys.includes(keys[0]);
 }
 
-function createPropertyCreationData(name, namespace, spec) {
+/**
+ *
+ * @param {EdmObjectType} objectType
+ * @param {string} name
+ * @param {string} namespace
+ * @param {EdmPropertySpec} spec
+ * @returns {EdmPropertyCreationData}
+ */
+function createPropertyCreationData(objectType, name, namespace, spec) {
   return Object.freeze({
+    objectType,
     name,
     namespace,
     xmlTagName: `${namespace}:${name}`,
@@ -461,14 +472,22 @@ function createPropertyCreationData(name, namespace, spec) {
 function createAllPropertiesCreationData() {
   const allSpecs = getAllSpecs();
   const items = [];
+
   for (const [namespace, namespaceSpecs] of Object.entries(allSpecs)) {
     for (const [name, specOrContainer] of Object.entries(namespaceSpecs)) {
       if (isSpecContainer(specOrContainer)) {
         for (const spec of Object.values(specOrContainer)) {
-          items.push(createPropertyCreationData(name, namespace, spec));
+          items.push(createPropertyCreationData(spec.obj, name, namespace, spec));
         }
       } else {
-        items.push(createPropertyCreationData(name, namespace, specOrContainer));
+        items.push(
+          createPropertyCreationData(
+            specOrContainer.obj,
+            name,
+            namespace,
+            specOrContainer
+          )
+        );
       }
     }
   }
@@ -484,18 +503,26 @@ export function getAllPropertyData() {
   return allPropertyDataCache ??= Object.freeze(createAllPropertiesCreationData());
 }
 
-let getTagToPropertyDataMapCache;
+let tagToPropertyDataMapCache;
 
 /**
- * Maps xmlTagName -> EdmPropertyCreationData (which contain spec)
+ * 2-level mapping: EdmObjectType -> xmlTagName -> EdmPropertyCreationData (contains spec)
  * @type {Object<string, EdmPropertyCreationData>}
  */
 export function getTagToPropertyDataMap() {
   const allPropertyData = getAllPropertyData();
-  return getTagToPropertyDataMapCache ??= _.zipObject(
-    allPropertyData.map(p => p.xmlTagName),
-    allPropertyData
-  );
+  if (!tagToPropertyDataMapCache) {
+    tagToPropertyDataMapCache = {
+      [EdmObjectTagName[EdmObjectType.ProvidedCHO]]: [],
+      [EdmObjectTagName[EdmObjectType.WebResource]]: [],
+      [EdmObjectTagName[EdmObjectType.Aggregation]]: [],
+    };
+    for (const data of allPropertyData) {
+      const targetArray = tagToPropertyDataMapCache[EdmObjectTagName[data.objectType]];
+      targetArray[data.xmlTagName] = data;
+    }
+  }
+  return tagToPropertyDataMapCache;
 }
 
 function get3DFormats() {

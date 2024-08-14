@@ -91,7 +91,10 @@ class Helper {
     this.metadataFactory = EdmMetadataFactory;
     this.metadata = this.metadataFactory.createEmptyMetadata();
     this.objectFactory = new EdmObjectFactory(this.metadata);
-    this.propertyFactory = new EdmPropertyFactory(this.metadata);
+    this.propertyFactory = new EdmPropertyFactory(
+      this.metadata,
+      EdmObjectType.ProvidedCHO
+    );
   }
   initObject() {
     this.object = this.objectFactory.createInitialObject(EdmObjectType.ProvidedCHO);

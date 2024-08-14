@@ -23,19 +23,18 @@ describe('Integration | Component | visual-edm', function () {
   it('renders ProvidedCHO with some EDM properties with values in editor mode', async function () {
     const factory = EdmMetadataFactory;
     const metadata = factory.createEmptyMetadata();
-    const propertyFactory = new EdmPropertyFactory(metadata);
     const objectFactory = new EdmObjectFactory(metadata);
-    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
-      edmProperties: [
-        propertyFactory.createProperty('dc', 'contributor', {
-          value: 'ERIAC',
-          lang: 'en',
-        }),
-        propertyFactory.createProperty('dcterms', 'created', {
-          value: '2018-03-13',
-        }),
-      ],
-    });
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
+    const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
+    providedCho.edmProperties = [
+      propertyFactory.createProperty('dc', 'contributor', {
+        value: 'ERIAC',
+        lang: 'en',
+      }),
+      propertyFactory.createProperty('dcterms', 'created', {
+        value: '2018-03-13',
+      }),
+    ];
     metadata.edmObjects = [providedCho];
     const helper = new Helper(this, metadata);
     helper.visualEdmViewModel.set('isReadOnly', false);
@@ -54,7 +53,7 @@ describe('Integration | Component | visual-edm', function () {
   it('renders ProvidedCHO with some EDM properties in readonly mode', async function () {
     const factory = EdmMetadataFactory;
     const metadata = factory.createEmptyMetadata();
-    const propertyFactory = new EdmPropertyFactory(metadata);
+    const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
     const resourceId = 'urn://eriac/19';
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
@@ -93,7 +92,7 @@ describe('Integration | Component | visual-edm', function () {
     // given
     const factory = EdmMetadataFactory;
     const metadata = factory.createEmptyMetadata();
-    const propertyFactory = new EdmPropertyFactory(metadata);
+    const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
@@ -120,7 +119,7 @@ describe('Integration | Component | visual-edm', function () {
     // given
     const factory = EdmMetadataFactory;
     const metadata = factory.createEmptyMetadata();
-    const propertyFactory = new EdmPropertyFactory(metadata);
+    const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
@@ -147,7 +146,7 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const factory = EdmMetadataFactory;
       const metadata = factory.createEmptyMetadata();
-      const propertyFactory = new EdmPropertyFactory(metadata);
+      const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(
         EdmObjectType.ProvidedCHO, {
@@ -182,7 +181,7 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const factory = EdmMetadataFactory;
       const metadata = factory.createEmptyMetadata();
-      const propertyFactory = new EdmPropertyFactory(metadata);
+      const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(
         EdmObjectType.ProvidedCHO, {
@@ -216,7 +215,7 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const factory = EdmMetadataFactory;
       const metadata = factory.createEmptyMetadata();
-      const propertyFactory = new EdmPropertyFactory(metadata);
+      const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(
         EdmObjectType.ProvidedCHO, {
@@ -276,7 +275,7 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const factory = EdmMetadataFactory;
       const metadata = factory.createEmptyMetadata();
-      const propertyFactory = new EdmPropertyFactory(metadata);
+      const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(
         EdmObjectType.ProvidedCHO, {
@@ -305,7 +304,7 @@ describe('Integration | Component | visual-edm', function () {
     // given
     const factory = EdmMetadataFactory;
     const metadata = factory.createEmptyMetadata();
-    const propertyFactory = new EdmPropertyFactory(metadata);
+    const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
@@ -525,7 +524,7 @@ describe('Integration | Component | visual-edm', function () {
     // given
     const factory = EdmMetadataFactory;
     const metadata = factory.createEmptyMetadata();
-    const propertyFactory = new EdmPropertyFactory(metadata);
+    const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
@@ -549,7 +548,7 @@ describe('Integration | Component | visual-edm', function () {
     // given
     const factory = EdmMetadataFactory;
     const metadata = factory.createEmptyMetadata();
-    const propertyFactory = new EdmPropertyFactory(metadata);
+    const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
       edmProperties: [
@@ -575,7 +574,7 @@ describe('Integration | Component | visual-edm', function () {
       const factory = EdmMetadataFactory;
       const metadata = factory.createEmptyMetadata();
       const objectFactory = new EdmObjectFactory(metadata);
-      const propertyFactory = new EdmPropertyFactory(metadata);
+      const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
         edmProperties: [
           propertyFactory.createProperty('dc', 'type'),
@@ -621,7 +620,7 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const factory = EdmMetadataFactory;
       const metadata = factory.createEmptyMetadata();
-      const propertyFactory = new EdmPropertyFactory(metadata);
+      const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
         edmProperties: [
@@ -650,7 +649,7 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const factory = EdmMetadataFactory;
       const metadata = factory.createEmptyMetadata();
-      const propertyFactory = new EdmPropertyFactory(metadata);
+      const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(
         EdmObjectType.ProvidedCHO, {
@@ -678,7 +677,7 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const factory = EdmMetadataFactory;
       const metadata = factory.createEmptyMetadata();
-      const propertyFactory = new EdmPropertyFactory(metadata);
+      const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(
         EdmObjectType.ProvidedCHO, {
@@ -758,6 +757,30 @@ describe('Integration | Component | visual-edm', function () {
         .to.contain('property "Creator of the original object" has empty value');
     }
   );
+
+  it('renders placeholder in empty input for property having placeholder example', async function () {
+    const factory = EdmMetadataFactory;
+    const metadata = factory.createEmptyMetadata();
+    const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
+    const objectFactory = new EdmObjectFactory(metadata);
+    const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO, {
+      edmProperties: [
+        propertyFactory.createProperty('dc', 'title', {
+          value: '',
+          lang: '',
+        }),
+      ],
+    });
+    metadata.edmObjects = [providedCho];
+    const helper = new Helper(this, metadata);
+    helper.visualEdmViewModel.set('isReadOnly', false);
+
+    await helper.render();
+    /** @type {HTMLInputElement} */
+    const propertyInput = find('.edm-property-value input');
+
+    expect(propertyInput.placeholder).to.equal('Example: Saint Paul\'s Cathedral');
+  });
 });
 
 class Helper {

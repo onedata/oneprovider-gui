@@ -11,15 +11,15 @@ import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 // uncomment for predefined XML
-// import { exampleEdmValidXml as exampleXml } from 'oneprovider-gui/utils/mock-data';
+import { exampleEdmValidXml as exampleXml } from 'oneprovider-gui/utils/mock-data';
 
 export default Component.extend({
   init() {
     this._super(...arguments);
     // uncomment for initial metadata
-    const edmMetadata = EdmMetadataFactory.createInitialMetadata();
+    // const edmMetadata = EdmMetadataFactory.createInitialMetadata();
     // uncomment for predefined XML
-    // const edmMetadata = EdmMetadataFactory.fromXml(exampleXml);
+    const edmMetadata = EdmMetadataFactory.fromXml(exampleXml);
     this.set('visualEdmViewModel', VisualEdmViewModel.create({
       edmMetadata,
       validator: EdmMetadataValidator.create({ edmMetadata }),

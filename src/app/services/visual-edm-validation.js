@@ -87,7 +87,7 @@ export default Service.extend(I18n, {
       } else if (error instanceof EdmObjectPropertiesMaxSingleError) {
         messages.push(this.createExceedingPropertiesMessage(
           validationContext,
-          error.edmObject.edmObjectType,
+          error.edmObject,
           error.properties,
           viewType
         ));
@@ -206,7 +206,7 @@ export default Service.extend(I18n, {
    * @returns
    */
   createMissingPropertiesMessage(validationContext, edmObject, propertyTags, viewType) {
-    const tagToPropertyDataMap = getTagToPropertyDataMap();
+    const tagToPropertyDataMap = getTagToPropertyDataMap()[edmObject.xmlTagName];
     const propertiesData = propertyTags.map(tag => tagToPropertyDataMap[tag]);
     const quantity = propertyTags.length === 1 ? 'singular' : 'plural';
     const edmObjectType = edmObject.edmObjectType;
@@ -224,27 +224,28 @@ export default Service.extend(I18n, {
 
   /**
    * @param {EdmValidationMessageContext} validationContext
-   * @param {EdmObjectType} edmObjectType
+   * @param {EdmObject} edmObject
    * @param {string} propertyTags XML tags with namespaces.
    * @param {EdmValidationMessageViewType} viewType
    * @returns
    */
   createExceedingPropertiesMessage(
     validationContext,
-    edmObjectType,
+    edmObject,
     propertyTags,
     viewType
   ) {
-    const tagToPropertyDataMap = getTagToPropertyDataMap();
+    const tagToPropertyDataMap =
+      getTagToPropertyDataMap()[edmObject.xmlTagName];
     const propertiesData = propertyTags.map(tag => tagToPropertyDataMap[tag]);
     const quantity = propertyTags.length === 1 ? 'singular' : 'plural';
     return this.t(
       `exceedingProperties.${validationContext}.${quantity}`, {
-        objectType: this.translateObjectType(edmObjectType),
+        objectType: this.translateObjectType(edmObject.edmObjectType),
         propertyString: this.createPropertiesString(
           propertiesData,
           viewType,
-          edmObjectType
+          edmObject.edmObjectType
         ),
       }
     );

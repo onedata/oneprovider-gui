@@ -20,6 +20,7 @@ import { getLangSelectorOptions } from 'oneprovider-gui/utils/edm/lang-spec';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import sleep from 'onedata-gui-common/utils/sleep';
 import isUrl from 'onedata-gui-common/utils/is-url';
+import { htmlSafe } from '@ember/string';
 
 /**
  * @typedef {EdmPropertyValueType.Literal|EdmPropertyValueType.Reference} VisualEdmPropertyValueType
@@ -181,6 +182,23 @@ export default Component.extend(I18n, {
         return null;
       }
       return this.t('example', { exampleValue });
+    }
+  ),
+
+  placeholder: computed(
+    'viewModel.model.placeholderExample',
+    'valueType',
+    function placeholder() {
+      const placeholderExample = this.viewModel.model.placeholderExample;
+      let exampleValue;
+      if (typeof placeholderExample === 'object') {
+        exampleValue = placeholderExample[this.valueType];
+      } else {
+        exampleValue = placeholderExample;
+      }
+
+      return typeof exampleValue === 'string' ?
+        this.t('examplePlaceholder', { exampleValue: htmlSafe(exampleValue) }) : '';
     }
   ),
 

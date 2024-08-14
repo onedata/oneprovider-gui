@@ -137,6 +137,13 @@ class EdmProperty {
   }
 
   /**
+   * @type {string|{ [EdmPropertyValueType.Literal]: string, [EdmPropertyValueType.Reference]: string }}
+   */
+  get placeholderExample() {
+    return this.spec.placeholder ?? '';
+  }
+
+  /**
    * Sets either value or resource attribute depending on the supported value type and
    * removes value from the other value types.
    * @param {string} value
