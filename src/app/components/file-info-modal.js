@@ -60,7 +60,7 @@ const mixins = [
  */
 
 /**
- * @typedef {'show'|'download'} FileInfoModal.FileLinkType
+ * @typedef {'show'|'download'|'publicDirectDownload'} FileInfoModal.FileLinkType
  */
 
 /**
@@ -286,28 +286,40 @@ export default Component.extend(...mixins, {
     'typeTranslation',
     'previewMode',
     'file.{type,cdmiObjectId}',
+    'apiSamples',
     function availableFileLinkModels() {
-      if (
-        !this.get('file.type') ||
-        !this.availableFileLinkTypes ||
-        // TODO: VFS-11156 Implement shared files global URLs
-        this.previewMode
-      ) {
+      if (!this.get('file.type')) {
         return [];
       }
-      return this.availableFileLinkTypes.map(fileLinkType => ({
-        type: fileLinkType,
-        url: this.appProxy.callParent('getFileGoToUrl', {
-          fileId: this.get('file.cdmiObjectId'),
-          fileAction: fileLinkType,
-        }),
-        label: this.t(`fileLinkLabel.${fileLinkType}`),
-        tip: this.t(`fileLinkTip.${fileLinkType}`, {
-          type: _.lowerCase(this.typeTranslation),
-        }, {
-          defaultValue: '',
-        }),
-      }));
+      // TODO: VFS-11156 Implement shared files global show URL
+      if (this.previewMode) {
+        const sample = this.apiSamples?.find(sample =>
+          sample.swaggerOperationId === 'get_shared_data'
+        );
+        const url = sample && (sample.apiRoot + sample.path);
+        return [{
+          type: 'publicDirectDownload',
+          url,
+          label: this.t('fileLinkLabel.publicDirectDownload'),
+          tip: this.t('fileLinkTip.publicDirectDownload', {
+            type: _.lowerCase(this.typeTranslation),
+          }),
+        }];
+      } else {
+        return ['show', 'download'].map(fileLinkType => ({
+          type: fileLinkType,
+          url: this.appProxy.callParent('getFileGoToUrl', {
+            fileId: this.get('file.cdmiObjectId'),
+            fileAction: fileLinkType,
+          }),
+          label: this.t(`fileLinkLabel.${fileLinkType}`),
+          tip: this.t(`fileLinkTip.${fileLinkType}`, {
+            type: _.lowerCase(this.typeTranslation),
+          }, {
+            defaultValue: '',
+          }),
+        }));
+      }
     }
   ),
 

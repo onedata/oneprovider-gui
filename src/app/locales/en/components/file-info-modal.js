@@ -28,10 +28,12 @@ export default {
   fileLinkLabel: {
     show: 'Show',
     download: 'Download',
+    publicDirectDownload: 'Download',
   },
   fileLinkTip: {
     show: `This link opens the file browser and selects the {{type}}. ${fileLinkAuthentication}`,
     download: `This link opens the file browser and initiates a download of the {{type}}. ${fileLinkAuthentication}`,
+    publicDirectDownload: 'This link initiates a download of the {{type}} immediately.<br>No authentication is required.',
   },
   fileType: {
     file: 'file',
