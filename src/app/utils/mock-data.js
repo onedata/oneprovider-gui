@@ -357,7 +357,6 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
         <dc:title xml:lang="en">Hello world</dc:title>
         <dc:creator>a</dc:creator>
         <dc:description>a</dc:description>
-        <dc:format>IGES</dc:format>
         <dc:language>pl</dc:language>
         <dc:subject>a</dc:subject>
         <dc:type>some type</dc:type>
@@ -366,7 +365,8 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
         <edm:type>VIDEO</edm:type>
     </edm:ProvidedCHO>
     <edm:WebResource>
-        <dc:description>Short description of a web resource.</dc:description>
+        <dc:description xml:lang="en">Short description of a web resource.</dc:description>
+        <dc:type>Photogrammetric mesh model</dc:type>
     </edm:WebResource>
     <ore:Aggregation>
         <edm:dataProvider>Some data provider</edm:dataProvider>

@@ -25,13 +25,24 @@ import EdmObjectType, { EdmObjectTagName } from './object-type';
  */
 
 /**
- * FIXME: opis
+ * Container for specs of the property with the same XML namespace and tag, but in
+ * different EDM object context.
  * @typedef {Object} EdmPropertySpecContainer
+ * @property {EdmPropertySpec} [EdmObjectType.Aggregation]
+ * @property {EdmPropertySpec} [EdmObjectType.ProvidedCHO]
+ * @property {EdmPropertySpec} [EdmObjectType.WebResource]
  */
 
 /**
- * FIXME: dodać możliwość obiektu
- * FIXME: usunięto obj
+ * Container for specs of the value in the different EdmPropertyValueType contexts.
+ * Eg. a placeholder can be different for literal values and references (or can be
+ * empty for reference).
+ * @typedef {Object} EdmPropertySpecValues
+ * @property {string} [EdmPropertyValueType.Literal]
+ * @property {string} [EdmPropertyValueType.Reference]
+ */
+
+/**
  * @typedef {Object} EdmPropertySpec
  * @property {EdmPropertyValueType} val How the data should be stored in the XML - see
  *   `EdmPropertyValueType`.
@@ -46,11 +57,12 @@ import EdmObjectType, { EdmObjectTagName } from './object-type';
  *   has predefined set of values that should be applied to the property. The `label` is
  *   shown in the visual editor and `value` is applied as property value.
  * @property {boolean|string} [lang] If truish, the optional language (`lang` XML
- *   attribute) should be set for the property. If it is a non-empty string - the language
- *   will be automatically set to the provided language code on init.
+ *   attribute) can be set for the property. If it is a non-empty string - the language
+ *   will be automatically set to the provided language code on init and can be changed
+ *   by user.
  * @property {string} [def] Default value.
  * @property {boolean} [long] The string value is typically long and could contain line
- *   breaks.
+ *   breaks. Effectively, it will be displayed as textarea in the visual editor.
  * @property {string} [example] The example of value displayed in tooltip.
  * @property {string|EdmPropertySpecValues} [placeholder] The example in the input placeholder.
  */
@@ -62,6 +74,11 @@ import EdmObjectType, { EdmObjectTagName } from './object-type';
  * @property {string} name
  * @property {`${string}:${string}`} xmlTagName
  * @property {EdmPropertySpec} spec
+ */
+
+/**
+ * Maps XML namespace -> property tag name -> EdmPropertySpec | EdmPropertySpecContainer.
+ * @typedef {Object} EdmPropertySpecMap
  */
 
 /**
@@ -105,20 +122,34 @@ const Rec = EdmPropertyRecommendation;
 const Max = EdmPropertyMaxOccurrences;
 
 const locationCommon = {
-  tip: '<strong>Example:</strong><br>https://www.wikidata.org/wiki/Q4093<br>http://sws.geonames.org/2950159<br>https://vocab.getty.edu/tgn/7006663<p>When it is a literal, use a coordinate in this format:<br>48.833611111, 2.375833333',
+  tip: '<strong>Example:</strong><br>https://www.wikidata.org/wiki/Q4093<br>http://sws.geonames.org/2950159<br>https://vocab.getty.edu/tgn/7006663<p>When it is a <strong>literal</strong>, use a coordinate in this format:<br>48.833611111, 2.375833333',
   placeholder: {
     [EdmPropertyValueType.Literal]: '48.833611111, 2.375833333',
     [EdmPropertyValueType.Reference]: 'https://www.wikidata.org/wiki/Q4093',
   },
 };
 
+/**
+ * @type {EdmPropertySpecMap}
+ */
 let allSpecsCache;
 
+/**
+ * @returns {EdmPropertySpecMap}
+ */
 export function getAllSpecs() {
   return allSpecsCache ??= createAllSpecs();
 }
 
-// FIXME: opis formatu namespace -> property tag -> spec albo specContainer
+// TODO: VFS-12238 Currently titles of properties are placed in 18n file:
+// src/app/locales/en/components/visual-edm/property.js and other strings, like tip
+// and exaples are placed in the spec. Consider moving all texts either to spec (so all
+// the data will be placed in one file which make it better to read) or to traslations
+// (which is best practice for i18n).
+
+/**
+ * @returns {EdmPropertySpecMap}
+ */
 function createAllSpecs() {
   return {
     dc: {
@@ -263,6 +294,9 @@ function createAllSpecs() {
           rec: Rec.None,
           max: Max.Any,
           example: '1900-02-21',
+          placeholder: {
+            [EdmPropertyValueType.Literal]: '1900-02-21',
+          },
         },
         [EdmObjectType.WebResource]: {
           val: EdmPropertyValueType.Any,
@@ -271,6 +305,9 @@ function createAllSpecs() {
           rec: Rec.None,
           max: Max.Single,
           example: '1900-02-21',
+          placeholder: {
+            [EdmPropertyValueType.Literal]: '1900-02-21',
+          },
         },
       },
       extent: {
@@ -283,6 +320,7 @@ function createAllSpecs() {
           max: Max.Any,
           example: '<br>13 cm (width)<br>20 cm (length)<br>10 cm (height)',
           placeholder: '\n13 cm (width)\n20 cm (length)\n10 cm (height)',
+          tip: 'References the size of the object.',
         },
         [EdmObjectType.WebResource]: {
           val: EdmPropertyValueType.Literal,
@@ -290,6 +328,7 @@ function createAllSpecs() {
           rec: Rec.None,
           max: Max.Single,
           example: '1.5 MB',
+          placeholder: '1.5 MB',
         },
       },
       isFormatOf: {
@@ -479,8 +518,6 @@ function createPropertyCreationData(objectType, name, namespace, spec) {
     spec,
   });
 }
-
-// FIXME: optymalizacja wielokrotnego tworzenia getAllSpecs
 
 function createAllPropertiesCreationData() {
   const allSpecs = getAllSpecs();

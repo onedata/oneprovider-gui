@@ -134,7 +134,7 @@ export default Component.extend(I18n, {
     'isReadOnly',
     function attrItems() {
       const attrs = this.viewModel.model.attrs;
-      // TODO: VFS-11952 Consider showing more attributes (or simplify code)
+      // TODO: VFS-12238 Consider showing more attributes (or simplify code)
       const shownAttrs = this.isLangDefault ? [] : ['lang'];
       let result = shownAttrs.map(name => {
         const foundTranslation = this.t(
@@ -186,11 +186,12 @@ export default Component.extend(I18n, {
         exampleValue = exampleValue[this.edmObjectModel.edmObjectType];
       }
       if (exampleValue) {
+        exampleValue = htmlSafe(exampleValue);
         tipString += `<p>${this.t('example', { exampleValue })}</p>`;
       }
 
       return tipString && htmlSafe(
-        anchorizeText(tipString, { class: 'navy underlined', target: '_blank' })
+        anchorizeText(tipString, { class: 'navy text-underlined', target: '_blank' })
       );
     }
   ),
@@ -209,10 +210,11 @@ export default Component.extend(I18n, {
   }),
 
   placeholder: computed(
-    'viewModel.model.placeholderExample',
+    // Do not observe model, because every updateView causes unnecessary recomputation
+    // of this property. Model is always set on init, so it should not change.
+    'viewModel',
     'valueType',
     function placeholder() {
-      // FIXME: ten computed odpala się przy każdym inpucie
       const placeholderExample = this.viewModel.model.placeholderExample;
       let exampleValue;
       if (typeof placeholderExample === 'object') {
@@ -222,7 +224,7 @@ export default Component.extend(I18n, {
       }
 
       return typeof exampleValue === 'string' ?
-        this.t('examplePlaceholder', { exampleValue }) : '';
+        this.t('examplePlaceholder', { exampleValue: htmlSafe(exampleValue) }) : '';
     }
   ),
 

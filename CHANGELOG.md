@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12232 Improved EDM GUI (v1.2): updated property and object specs, improved tooltips, added placeholders
 * VFS-11948 Added creation time and atime column
 * VFS-12049 Added File ID column in file browser
 * VFS-12012 Added Permissions column in file browser

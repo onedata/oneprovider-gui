@@ -7,9 +7,6 @@ import {
   EdmPropertyRecommendation,
 } from 'oneprovider-gui/utils/edm/property-spec';
 
-// TODO: VFS-11952 Add property hints when they will be available in the EU3D spreadsheet
-// and implement this in property specs
-
 export const propertyName = {
   dc: {
     contributor: 'Contributor to the creation of the original object',

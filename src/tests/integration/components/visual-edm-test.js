@@ -12,7 +12,6 @@ import { findByText } from '../../helpers/find';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { makeAllPropertiesValid } from '../../helpers/edm-utils';
 import OneDropdownHelper from '../../helpers/one-dropdown';
-import _ from 'lodash';
 
 describe('Integration | Component | visual-edm', function () {
   const { afterEach } = setupRenderingTest();
