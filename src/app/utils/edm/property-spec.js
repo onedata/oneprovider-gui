@@ -278,7 +278,7 @@ function createAllSpecs() {
           rec: Rec.Mandatory,
           max: Max.Single,
           lang: true,
-          tip: 'Photogrammetric mesh model / TLS point cloud / NURBS model',
+          example: 'Photogrammetric mesh model / TLS point cloud / NURBS model',
           placeholder: {
             [EdmPropertyValueType.Literal]: 'Photogrammetric mesh model',
           },

@@ -168,7 +168,9 @@ export default Component.extend(I18n, {
 
   tip: computed(
     'isReadOnly',
-    'viewModel.model.{example,spec}',
+    // Do not observe model, because every updateView causes unnecessary recomputation
+    // of this property. Model is always set on init, so it should not change.
+    'viewModel',
     'edmObjectModel.edmObjectType',
     function tip() {
       if (this.isReadOnly) {

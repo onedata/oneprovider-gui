@@ -199,10 +199,6 @@ const PropertyViewModel = EmberObject.extend({
     }
   ),
 
-  placeholder: computed('model.placeholderExample', function placeholder() {
-
-  }),
-
   init() {
     this._super(...arguments);
     if (
