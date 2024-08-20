@@ -143,8 +143,8 @@ export function getAllSpecs() {
 
 // TODO: VFS-12238 Currently titles of properties are placed in 18n file:
 // src/app/locales/en/components/visual-edm/property.js and other strings, like tip
-// and exaples are placed in the spec. Consider moving all texts either to spec (so all
-// the data will be placed in one file which make it better to read) or to traslations
+// and examples are placed in the spec. Consider moving all texts either to spec (so all
+// the data will be placed in one file which make it better to read) or to translations
 // (which is best practice for i18n).
 
 /**

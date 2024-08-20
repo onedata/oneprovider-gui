@@ -139,7 +139,7 @@ const PropertyViewModel = EmberObject.extend({
    * trying to access Proxy's properties.
    * @type {ComputedProperty<string>}
    */
-  lang: computed('model.attrs', function lang() {
+  lang: computed('model', function lang() {
     return this.model.lang;
   }),
 
