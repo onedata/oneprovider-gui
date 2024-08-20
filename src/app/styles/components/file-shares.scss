@@ -8,17 +8,40 @@
     .share-local-url {
       display: inline-block;
       max-width: 100%;
+      text-wrap: nowrap;
     }
-    .link-container {
+    .item-share-icon {
+      font-size: 1.8em;
+      margin-right: 0.4em;
+    }
+    .share-name {
+      @include font-semibold;
+    }
+    .text-container {
       overflow: hidden;
+      display: flex;
+      align-items: center;
     }
     .labels-container {
       flex-grow: 1;
       text-align: right;
+      margin-left: 2em;
+    }
+
+    .col-separator {
+      margin-left: 1em;
+      margin-right: 1em;
+      &::after {
+        height: 32px;
+        content: ' ';
+        border-left: 1px solid;
+        border-color: $main-border-color;
+      }
     }
   }
 }
 .file-shares-body {
+  padding-bottom: 2em;
   .file-shares-bottom-toolbar {
     margin-top: 2em;
   }
