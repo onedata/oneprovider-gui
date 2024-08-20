@@ -21,6 +21,8 @@ import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { reads, bool, or } from '@ember/object/computed';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 
 const mixins = [
   I18n,
@@ -247,6 +249,19 @@ export default Component.extend(...mixins, {
   isOpenDataLabelShown: reads('share.hasHandle'),
 
   isLabelsContanierShown: or('isNoPublicAccessLabelShown', 'isOpenDataLabelShown'),
+
+  shareFilePathProxy: computed(function shareFilePathProxy() {
+    const promise = (async () => {
+      const file = await this.get('share.privateRootFile');
+      if (!file) {
+        return null;
+      }
+      return stringifyFilePath(await resolveFilePath(file));
+    })();
+    return promiseObject(promise);
+  }),
+
+  shareFilePath: reads('shareFilePathProxy.content'),
 
   actions: {
     toggleActions(open) {
