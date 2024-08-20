@@ -3,6 +3,7 @@ import { describe, it } from 'mocha';
 import EdmPropertyValidator from 'oneprovider-gui/utils/edm/property-validator';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
+import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 
 describe('Unit | Utility | edm/property-validator', function () {
   it('has isValid = true if property has a non-empty value', function () {
@@ -68,7 +69,8 @@ class Helper {
   constructor() {
     this.metadataFactory = EdmMetadataFactory;
     this.metadata = this.metadataFactory.createEmptyMetadata();
-    this.propertyFactory = new EdmPropertyFactory(this.metadata);
+    this.propertyFactory =
+      new EdmPropertyFactory(this.metadata, EdmObjectType.ProvidedCHO);
   }
   initProperty(namespace, name, options = {}) {
     this.property =

@@ -5,9 +5,6 @@ import imageReference from './visual-edm/image-reference';
 import extraDataInfo from './visual-edm/extra-data-info';
 
 export default {
-  listButtons: {
-    addWebResource: 'Add Digital Object',
-  },
   notValid: 'Metadata definition is not valid',
   object,
   addPropertySelector,

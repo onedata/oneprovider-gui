@@ -6,6 +6,8 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
+import _ from 'lodash';
+
 /**
  * @typedef {keyof EdmObjectType} EdmObjectType
  */
@@ -23,5 +25,7 @@ export const EdmObjectTagName = Object.freeze({
   [EdmObjectType.ProvidedCHO]: 'edm:ProvidedCHO',
   [EdmObjectType.WebResource]: 'edm:WebResource',
 });
+
+export const TagToEdmObjectType = _.invert(EdmObjectTagName);
 
 export default EdmObjectType;

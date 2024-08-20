@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
+import { setupRenderingTest } from 'ember-mocha';
 import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
 import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
@@ -8,11 +9,17 @@ import EdmObjectValidator from 'oneprovider-gui/utils/edm/object-validator';
 import {
   EdmPropertyMaxOccurrences,
   EdmPropertyRecommendation,
-  allSpecs,
+  getAllSpecs,
 } from 'oneprovider-gui/utils/edm/property-spec';
 import { makeAllPropertiesValid } from '../../../helpers/edm-utils';
 
-describe('Unit | Utility | edm/object-validator', function () {
+describe('Integration | Utility | edm/object-validator', function () {
+  const { beforeEach } = setupRenderingTest();
+
+  beforeEach(function () {
+    this.allSpecs = getAllSpecs();
+  });
+
   it('is valid if object has all mandatory properties and all properties are valid', function () {
     const helper = new Helper();
     helper.initObject();
@@ -34,7 +41,8 @@ describe('Unit | Utility | edm/object-validator', function () {
 
   it('is not valid if object does not have all mandatory properties', function () {
     // prerequirement: description is mandatory
-    expect(allSpecs.dc.description.rec).to.equal(EdmPropertyRecommendation.Mandatory);
+    expect(this.allSpecs.dc.description[EdmObjectType.ProvidedCHO].rec)
+      .to.equal(EdmPropertyRecommendation.Mandatory);
 
     const helper = new Helper();
     helper.initObject();
@@ -49,12 +57,13 @@ describe('Unit | Utility | edm/object-validator', function () {
   });
 
   it('is not valid if object have some properties exceeding occurrence limit', function () {
-    // prerequirement: description has max single occurrence
-    expect(allSpecs.dc.description.max).to.equal(EdmPropertyMaxOccurrences.Single);
+    // prerequirement: type has max single occurrence
+    expect(this.allSpecs.dc.type[EdmObjectType.ProvidedCHO].max)
+      .to.equal(EdmPropertyMaxOccurrences.Single);
 
     const helper = new Helper();
     helper.initObject();
-    const extraDescription = helper.propertyFactory.createProperty('dc', 'description');
+    const extraDescription = helper.propertyFactory.createProperty('dc', 'type');
     helper.object.addProperty(extraDescription);
     helper.makeAllPropertiesValid();
     helper.initValidator();
@@ -64,7 +73,7 @@ describe('Unit | Utility | edm/object-validator', function () {
 
   it('is valid if object have multiple properties that can be multiple', function () {
     // prerequirement: created has no occurrence limit
-    expect(allSpecs.dcterms.created.max[EdmObjectType.ProvidedCHO])
+    expect(this.allSpecs.dcterms.created[EdmObjectType.ProvidedCHO].max)
       .to.equal(EdmPropertyMaxOccurrences.Any);
 
     const helper = new Helper();
@@ -85,7 +94,10 @@ class Helper {
     this.metadataFactory = EdmMetadataFactory;
     this.metadata = this.metadataFactory.createEmptyMetadata();
     this.objectFactory = new EdmObjectFactory(this.metadata);
-    this.propertyFactory = new EdmPropertyFactory(this.metadata);
+    this.propertyFactory = new EdmPropertyFactory(
+      this.metadata,
+      EdmObjectType.ProvidedCHO
+    );
   }
   initObject() {
     this.object = this.objectFactory.createInitialObject(EdmObjectType.ProvidedCHO);

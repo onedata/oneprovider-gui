@@ -41,7 +41,7 @@ export const exampleEdmMetadata = `<?xml version="1.0" encoding="UTF-8"?>
         <dc:subject>portrait</dc:subject>
         <dc:title>My share 1</dc:title>
         <dc:type>dataset</dc:type>
-        <dcterms:medium>wood</dcterms:medium>
+        <dcterms:medium>Wood</dcterms:medium>
         <edm:type>TEXT</edm:type>
     </edm:ProvidedCHO>
     <ore:Aggregation rdf:about="#exampleMet0_AGG">
@@ -92,53 +92,53 @@ export function createMockEdmMetadata() {
   providedCho.attrs = {
     about: resourceId,
   };
-  const propertyFactory = new EdmPropertyFactory(metadata);
+  const propertyFactories = {
+    cho: new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO),
+    agg: new EdmPropertyFactory(metadata, EdmObjectType.Aggregation),
+    wr: new EdmPropertyFactory(metadata, EdmObjectType.WebResource),
+  };
   providedCho.edmProperties = [
-    propertyFactory.createProperty('dc', 'contributor', {
+    propertyFactories.cho.createProperty('dc', 'contributor', {
       value: 'ERIAC',
       lang: 'en',
     }),
-    propertyFactory.createProperty('dc', 'contributor', {
+    propertyFactories.cho.createProperty('dc', 'contributor', {
       value: 'ERIAC Archive',
       lang: 'en',
     }),
-    propertyFactory.createProperty('dc', 'date', {
-      value: '2018-03-13',
-      lang: 'en',
-    }),
-    propertyFactory.createProperty('dc', 'description', {
+    propertyFactories.cho.createProperty('dc', 'description', {
       value: 'Artwork "Romani Kali Daj II" by Małgorzata Mirga-Tas at the exhibition "Hidden Roma Masterpieces"',
       lang: 'en',
     }),
-    propertyFactory.createProperty('dc', 'identifier', {
+    propertyFactories.cho.createProperty('dc', 'identifier', {
       value: '19',
       lang: 'en',
     }),
     // ...
-    propertyFactory.createProperty('dc', 'subject', {
+    propertyFactories.cho.createProperty('dc', 'subject', {
       resource: 'http://vocab.getty.edu/aat/300389150',
     }),
-    propertyFactory.createProperty('dc', 'subject', {
+    propertyFactories.cho.createProperty('dc', 'subject', {
       resource: 'http://www.wikidata.org/entity/Q8060',
     }),
     // ...
-    propertyFactory.createProperty('dc', 'subject', {
+    propertyFactories.cho.createProperty('dc', 'subject', {
       value: 'arts',
     }),
-    propertyFactory.createProperty('dc', 'subject', {
+    propertyFactories.cho.createProperty('dc', 'subject', {
       value: 'culture',
     }),
     // ...
-    propertyFactory.createProperty('dc', 'type', {
+    propertyFactories.cho.createProperty('dc', 'type', {
       value: 'Image',
       lang: 'en',
     }),
     // ...
-    propertyFactory.createProperty('dcterms', 'created', {
+    propertyFactories.cho.createProperty('dcterms', 'created', {
       value: '2018-03-13',
     }),
     // ...
-    propertyFactory.createProperty('edm', 'type', {
+    propertyFactories.cho.createProperty('edm', 'type', {
       value: 'IMAGE',
     }),
   ];
@@ -146,14 +146,14 @@ export function createMockEdmMetadata() {
     about: resourceId,
   };
   aggregation.edmProperties = [
-    propertyFactory.createProperty('edm', 'type', {
+    propertyFactories.agg.createProperty('edm', 'type', {
       value: 'IMAGE',
     }),
-    propertyFactory.createProperty('edm', 'dataProvider', {
+    propertyFactories.agg.createProperty('edm', 'dataProvider', {
       value: 'ERIAC',
       lang: 'en',
     }),
-    propertyFactory.createProperty('edm', 'isShownBy', {
+    propertyFactories.agg.createProperty('edm', 'isShownBy', {
       resource: 'https://eriac.org/wp-content/uploads/2018/03/IMG_1578-1200x800.jpg',
     }),
   ];
@@ -161,10 +161,10 @@ export function createMockEdmMetadata() {
     about: resourceId,
   };
   webResource.edmProperties = [
-    propertyFactory.createProperty('edm', 'aggregatedCHO', {
+    propertyFactories.wr.createProperty('edm', 'aggregatedCHO', {
       resource: resourceId,
     }),
-    propertyFactory.createProperty('edm', 'dataProvider', {
+    propertyFactories.wr.createProperty('edm', 'dataProvider', {
       value: 'ERIAC',
       lang: 'en',
     }),
@@ -357,16 +357,19 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
         <dc:title xml:lang="en">Hello world</dc:title>
         <dc:creator>a</dc:creator>
         <dc:description>a</dc:description>
-        <dc:format>IGES</dc:format>
-        <dc:language>a</dc:language>
+        <dc:language>pl</dc:language>
         <dc:subject>a</dc:subject>
         <dc:type>some type</dc:type>
-        <dcterms:created>a</dcterms:created>
-        <dcterms:medium>wood</dcterms:medium>
+        <dcterms:created>2024-08-13</dcterms:created>
+        <dcterms:medium>Wood</dcterms:medium>
         <edm:type>VIDEO</edm:type>
     </edm:ProvidedCHO>
+    <edm:WebResource>
+        <dc:description xml:lang="en">Short description of a web resource.</dc:description>
+        <dc:type>Photogrammetric mesh model</dc:type>
+    </edm:WebResource>
     <ore:Aggregation>
-        <edm:dataProvider>a</edm:dataProvider>
+        <edm:dataProvider>Some data provider</edm:dataProvider>
         <edm:object rdf:resource="https://onedata.org/assets/images/logo.svg"/>
         <edm:provider>Photoconsortium</edm:provider>
         <edm:rights rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/"/>

@@ -1,7 +1,5 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import EdmPropertyFactory from 'oneprovider-gui/utils/edm/property-factory';
-import EdmObjectFactory from 'oneprovider-gui/utils/edm/object-factory';
 import EdmMetadataFactory from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { afterEach } from 'mocha';
@@ -52,8 +50,6 @@ class Helper {
   }
   initMetadata() {
     this.metadata = this.metadataFactory.createInitialMetadata();
-    this.objectFactory = new EdmObjectFactory(this.metadata);
-    this.propertyFactory = new EdmPropertyFactory(this.metadata);
     return this.metadata;
   }
   initValidator() {
