@@ -1,6 +1,6 @@
 {{#promise-proxy-container proxy=sharesProxy}}
-  {{#if shares.length}}
-    {{#each shares as |share|}}
+  {{#if sortedShares.length}}
+    {{#each sortedShares as |share|}}
       {{file-shares/item
         share=share
         getShareUrl=(action "getShareUrl")

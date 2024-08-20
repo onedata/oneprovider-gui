@@ -19,7 +19,7 @@ import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden'
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { bool } from '@ember/object/computed';
+import { reads, bool, or } from '@ember/object/computed';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const mixins = [
@@ -195,9 +195,9 @@ export default Component.extend(...mixins, {
     return htmlSafe(getShareUrl({ shareId: get(share, 'entityId') }));
   }),
 
-  triggerClass: tag `actions-share-${'componentGuid'}`,
+  triggerClass: tag`actions-share-${'componentGuid'}`,
 
-  triggerSelector: tag `.${'triggerClass'}`,
+  triggerSelector: tag`.${'triggerClass'}`,
 
   /**
    * @type {ComputedProperty<String>}
@@ -241,6 +241,12 @@ export default Component.extend(...mixins, {
       }
     }
   )),
+
+  isNoPublicAccessLabelShown: bool('isViewForOtherForbiddenProxy.content'),
+
+  isOpenDataLabelShown: reads('share.hasHandle'),
+
+  isLabelsContanierShown: or('isNoPublicAccessLabelShown', 'isOpenDataLabelShown'),
 
   actions: {
     toggleActions(open) {

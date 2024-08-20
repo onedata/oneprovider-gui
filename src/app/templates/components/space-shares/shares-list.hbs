@@ -1,7 +1,7 @@
 {{#promise-proxy-container proxy=dataProxy}}
-  {{#if sharesProxy.length}}
+  {{#if shares.length}}
     <div class="one-collapsible-list">
-      {{#each sharesProxy.content as |share|}}
+      {{#each sortedShares as |share|}}
         {{space-shares/list-item
           space=space
           share=share

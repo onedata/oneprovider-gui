@@ -27,5 +27,9 @@
     align-self: center;
     line-height: 0;
     padding-left: 10px;
+    padding-right: 6px;
+    > .label + .label {
+      margin-left: 6px;
+    }
   }
 }
