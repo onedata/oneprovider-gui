@@ -1,24 +1,63 @@
 <a href={{href}} target={{target}} class="space-share-list-item list-item one-collapsible-list-item">
   <div class="one-collapsible-list-item-header row list-header-row truncate hoverable">
     <div class="list-header-content">
-      {{#truncated-string class="icon-with-name"}}
-        <span class="item-icon-container">
-          {{one-icon-tagged
-            icon=icon
-            class="item-icon tag-right"
-            tagIcon=(if pointsToDeletedFile "x")
-            shadowType=(if pointsToDeletedFile "circle" "none")
-          }}
-          {{#if iconTip}}
-            {{one-tooltip title=iconTip}}
-          {{/if}}
-        </span>
-        {{name-conflict tagName="span" item=share tagName="span" class="one-label share-name-header"}}
-      {{/truncated-string}}
-      {{#if isViewForOtherForbiddenProxy.content}}
+      <span class="item-icon-container">
+        {{one-icon-tagged
+          icon=icon
+          class="item-icon tag-right"
+          tagIcon=(if pointsToDeletedFile "x")
+          shadowType=(if pointsToDeletedFile "circle" "none")
+        }}
+        {{#if iconTip}}
+          {{one-tooltip title=iconTip}}
+        {{/if}}
+      </span>
+      <div class="share-name-container">
+        <TruncatedString>
+          <NameConflict
+            @tagName="span"
+            @item={{share}}
+            @tagName="span"
+            class="one-label share-name-header"
+          />
+        </TruncatedString>
+        {{#if shareFilePathProxy.isRejected}}
+          <span class="share-file-path truncate">
+            <span class="share-file-path-error">
+              {{tt this "couldNotGetPath"}}
+              {{#if shareFilePathProxy.reason}}
+                <OneTooltip @title={{shareFilePathProxy.reason}} />
+              {{/if}}
+            </span>
+          </span>
+        {{else}}
+          <TruncatedString @tooltipClass="string-path-tooltip" class="share-file-path">
+            {{#if shareFilePath}}
+              {{shareFilePath}}
+            {{else}}
+              …
+            {{/if}}
+          </TruncatedString>
+        {{/if}}
+      </div>
+      {{#if isLabelsContanierShown}}
         <div class="share-labels-container">
-          <span class="label label-warning">{{tt this "noPublicAccess"}}</span>
-          {{one-tooltip title=forbiddenTooltipTextProxy.content}}
+          {{#if isNoPublicAccessLabelShown}}
+            <span class="label label-warning">
+              <span class="text">{{tt this "noPublicAccess"}}</span>
+              <OneTooltip @title={{forbiddenTooltipTextProxy.content}} />
+            </span>
+          {{/if}}
+          {{#if isOpenDataLabelShown}}
+            <span class="label label-primary open-data-tag">
+              <span class="text">{{tt this "openData"}}</span>
+              <OneTooltip
+                @title={{tt this "openDataTip"
+                  fileType=(tt this (concat "fileType." (or share.rootFileType "item")))
+                }}
+              />
+            </span>
+          {{/if}}
         </div>
       {{/if}}
       {{one-menu-toggle

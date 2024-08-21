@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
-import { reads } from '@ember/object/computed';
+import { reads, sort } from '@ember/object/computed';
 import { computed } from '@ember/object';
 
 const mixins = [
@@ -37,6 +37,10 @@ export default Component.extend(...mixins, {
   sharesProxy: reads('viewModel.sharesProxy'),
 
   shares: reads('sharesProxy.content'),
+
+  sharesSorting: Object.freeze(['hasHandle:desc', 'name:asc']),
+
+  sortedShares: sort('shares', 'sharesSorting'),
 
   fileTypeText: computed('file.type', function fileTypeText() {
     const fileType = this.get('file.type');
