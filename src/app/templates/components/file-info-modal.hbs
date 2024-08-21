@@ -136,13 +136,13 @@
               </td>
             </tr>
           {{/if}}
-          {{#if availableFileLinkModels.length}}
+          {{#each fileLinkModelsGroups as |group|}}
             <tr class="file-info-row-gui-url">
               <td class="property-name with-input-sm">
-                {{tt this "fileLink"}}
+                {{tt this (concat "fileLink." group)}}
               </td>
               <td class="property-value">
-                {{#each availableFileLinkModels as |fileLinkModel|}}
+                {{#each (get groupedFileLinkModels group) as |fileLinkModel|}}
                   <div class="clipboard-line sm file-link-clipboard-line">
                     <div class="input-group input-group-sm">
                       <div
@@ -177,7 +177,7 @@
                 {{/each}}
               </td>
             </tr>
-          {{/if}}
+          {{/each}}
           <tr id={{cdmiRowId}} class="file-info-row-cdmi-object-id">
             <td class="property-name with-input">
               {{tt this "cdmiObjectId"}}

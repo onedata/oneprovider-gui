@@ -11,7 +11,7 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { allSpecs } from 'oneprovider-gui/utils/edm/property-spec';
+import { getAllPropertyData } from 'oneprovider-gui/utils/edm/property-spec';
 import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
 
 /**
@@ -58,7 +58,7 @@ export default Component.extend(I18n, {
   edmObjectType: reads('edmObjectViewModel.edmObjectType'),
 
   availableItems: computed('singleDisabledItemsTags',
-    function availableEdmPropertiesSpecs() {
+    function availableItems() {
       return this.createSelectorItems();
     }
   ),
@@ -95,34 +95,35 @@ export default Component.extend(I18n, {
    */
   popoverApi: undefined,
 
-  createSelectorItems(onlyBasic = true) {
+  createSelectorItems() {
     /** @type {Array<VisualEdm.AddPropertySelectorSpec>} */
     const items = [];
     const disabledTagSet = new Set(this.singleDisabledItemsTags);
-    for (const [namespace, namespaceSpecs] of Object.entries(allSpecs)) {
-      for (const [name, spec] of Object.entries(namespaceSpecs)) {
-        if (spec.obj.includes(this.edmObjectType) && (!onlyBasic || spec.basic)) {
-          const xmlTagName = `${namespace}:${name}`;
-          const label = this.t(
-              `properties.${namespace}.${name}`, {}, {
-                defaultValue: '',
-              }
-            ) ||
-            this.t(
-              `properties.${namespace}.${name}.${this.edmObjectType}`, {}, {
-                defaultValue: xmlTagName,
-              }
-            );
-          items.push(Object.freeze({
-            label,
-            name,
-            namespace,
-            xmlTagName,
-            spec,
-            disabled: disabledTagSet.has(xmlTagName),
-          }));
-        }
+
+    for (const propertyData of getAllPropertyData()) {
+      const spec = propertyData.spec;
+      if (spec.obj !== this.edmObjectType || spec.viewOnly) {
+        continue;
       }
+      const { name, namespace, xmlTagName } = propertyData;
+      const label = this.t(
+          `properties.${namespace}.${name}`, {}, {
+            defaultValue: '',
+          }
+        ) ||
+        this.t(
+          `properties.${namespace}.${name}.${this.edmObjectType}`, {}, {
+            defaultValue: xmlTagName,
+          }
+        );
+      items.push(Object.freeze({
+        label,
+        name,
+        namespace,
+        xmlTagName,
+        spec,
+        disabled: disabledTagSet.has(xmlTagName),
+      }));
     }
     return Object.freeze(sortProperties(items, 'visual'));
   },

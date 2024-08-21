@@ -11,7 +11,6 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import { reads } from '@ember/object/computed';
 import ObjectViewModel from './object-view-model';
 import EdmObjectType from '../edm/object-type';
-import EdmObjectFactory from '../edm/object-factory';
 import { sortObjects } from '../edm/sort';
 
 const VisualEdmViewModel = EmberObject.extend({
@@ -80,14 +79,6 @@ const VisualEdmViewModel = EmberObject.extend({
     }
   ),
 
-  isAddDigitalObjectShown: computed(
-    'isReadOnly',
-    'digitalObjectsViewModels',
-    function isAddDigitalObjectShown() {
-      return !this.isReadOnly && !this.digitalObjectsViewModels.length;
-    }
-  ),
-
   digitalObjectsViewModels: computed(
     'objects.[]',
     function digitalObjectsViewModels() {
@@ -146,18 +137,6 @@ const VisualEdmViewModel = EmberObject.extend({
     if (this.isModified !== isModified) {
       this.set('isModified', isModified);
     }
-  },
-
-  addWebResource() {
-    if (this.isReadOnly || this.isDisabled) {
-      return;
-    }
-    const factory = new EdmObjectFactory(this.edmMetadata);
-    const object = factory.createInitialObject(EdmObjectType.WebResource);
-    this.edmMetadata.addObject(object);
-    this.validator?.updateValue();
-    this.markAsModified();
-    this.updateView();
   },
 
   /**
