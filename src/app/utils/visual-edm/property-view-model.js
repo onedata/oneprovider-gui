@@ -7,7 +7,7 @@
  */
 
 import EmberObject, { computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, or } from '@ember/object/computed';
 import { eq, raw, conditional, not } from 'ember-awesome-macros';
 import {
   EdmPropertyRecommendation,
@@ -38,7 +38,7 @@ const PropertyViewModel = EmberObject.extend({
 
   visualEdmViewModel: reads('objectViewModel.visualEdmViewModel'),
 
-  isDisabled: reads('visualEdmViewModel.isDisabled'),
+  isDisabled: or('visualEdmViewModel.isDisabled', 'model.isAlwaysDisabled'),
 
   /**
    * @type {boolean}

@@ -21,7 +21,7 @@ describe('Integration | Component | visual-edm', function () {
   });
 
   it('renders ProvidedCHO with some EDM properties with values in editor mode', async function () {
-    const factory = EdmMetadataFactory;
+    const factory = new EdmMetadataFactory();
     const metadata = factory.createEmptyMetadata();
     const objectFactory = new EdmObjectFactory(metadata);
     const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
@@ -52,7 +52,7 @@ describe('Integration | Component | visual-edm', function () {
   });
 
   it('renders ProvidedCHO with some EDM properties in readonly mode', async function () {
-    const factory = EdmMetadataFactory;
+    const factory = new EdmMetadataFactory();
     const metadata = factory.createEmptyMetadata();
     const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
@@ -91,7 +91,7 @@ describe('Integration | Component | visual-edm', function () {
 
   it('changes model and input value when input value is changed', async function () {
     // given
-    const factory = EdmMetadataFactory;
+    const factory = new EdmMetadataFactory();
     const metadata = factory.createEmptyMetadata();
     const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
@@ -118,7 +118,7 @@ describe('Integration | Component | visual-edm', function () {
 
   it('removes property from model and view when delete icon is clicked', async function () {
     // given
-    const factory = EdmMetadataFactory;
+    const factory = new EdmMetadataFactory();
     const metadata = factory.createEmptyMetadata();
     const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
@@ -145,7 +145,7 @@ describe('Integration | Component | visual-edm', function () {
   it('changes model "value" and "resource" when type of value is changed to "reference" and filled',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
@@ -180,7 +180,7 @@ describe('Integration | Component | visual-edm', function () {
   it('changes model "value" and "resource" when type of value is changed to "value" and filled',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
@@ -214,7 +214,7 @@ describe('Integration | Component | visual-edm', function () {
   it('moves value to resource when type of value type is changed from "literal" to "reference"',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
@@ -251,7 +251,7 @@ describe('Integration | Component | visual-edm', function () {
   it('adds property to object using add property selector',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
@@ -274,7 +274,7 @@ describe('Integration | Component | visual-edm', function () {
   it('changes language attribute when changing language input',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
@@ -303,7 +303,7 @@ describe('Integration | Component | visual-edm', function () {
 
   it('lists properties in object in the predefined order', async function () {
     // given
-    const factory = EdmMetadataFactory;
+    const factory = new EdmMetadataFactory();
     const metadata = factory.createEmptyMetadata();
     const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
@@ -336,7 +336,7 @@ describe('Integration | Component | visual-edm', function () {
   it('lists properties in the predefined order in add property selector',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
@@ -375,7 +375,7 @@ describe('Integration | Component | visual-edm', function () {
   it('lists available specific properties for ProvidedCHO, Aggregation and WebResource',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
@@ -436,7 +436,7 @@ describe('Integration | Component | visual-edm', function () {
       // given
       const helper = new Helper(
         this,
-        EdmMetadataFactory.createInitialMetadata()
+        new EdmMetadataFactory().createInitialMetadata()
       );
       helper.visualEdmViewModel.set('isReadOnly', false);
 
@@ -525,7 +525,7 @@ describe('Integration | Component | visual-edm', function () {
 
   it('shows "required" label for property which recommendation is Required', async function () {
     // given
-    const factory = EdmMetadataFactory;
+    const factory = new EdmMetadataFactory();
     const metadata = factory.createEmptyMetadata();
     const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
@@ -549,7 +549,7 @@ describe('Integration | Component | visual-edm', function () {
 
   it('shows "optional" label for property which recommendation is None', async function () {
     // given
-    const factory = EdmMetadataFactory;
+    const factory = new EdmMetadataFactory();
     const metadata = factory.createEmptyMetadata();
     const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);
@@ -574,7 +574,7 @@ describe('Integration | Component | visual-edm', function () {
   it('shows property already added with single max occurence as disabled in the add property selector',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const objectFactory = new EdmObjectFactory(metadata);
       const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
@@ -600,7 +600,7 @@ describe('Integration | Component | visual-edm', function () {
   it('shows property not yet added with single max occurence as not disabled in the add property selector',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const objectFactory = new EdmObjectFactory(metadata);
       const providedCho = objectFactory.createObject(EdmObjectType.ProvidedCHO);
@@ -621,7 +621,7 @@ describe('Integration | Component | visual-edm', function () {
   it('has disabled delete button for mandatory property that has single instance',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
@@ -650,7 +650,7 @@ describe('Integration | Component | visual-edm', function () {
   it('does not render lang input for some properties',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
@@ -678,7 +678,7 @@ describe('Integration | Component | visual-edm', function () {
   it('shows validation error on property value input if it is empty after input blur',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createEmptyMetadata();
       const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
       const objectFactory = new EdmObjectFactory(metadata);
@@ -709,7 +709,7 @@ describe('Integration | Component | visual-edm', function () {
   it('shows validation error in object section if some property value is empty',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createInitialMetadata();
       for (const edmObject of metadata.edmObjects) {
         makeAllPropertiesValid(edmObject);
@@ -738,7 +738,7 @@ describe('Integration | Component | visual-edm', function () {
   it('shows empty property validation error in object section after new property is being added',
     async function () {
       // given
-      const factory = EdmMetadataFactory;
+      const factory = new EdmMetadataFactory();
       const metadata = factory.createInitialMetadata();
       for (const edmObject of metadata.edmObjects) {
         makeAllPropertiesValid(edmObject);
@@ -762,7 +762,7 @@ describe('Integration | Component | visual-edm', function () {
   );
 
   it('renders placeholder in empty input for property having placeholder example', async function () {
-    const factory = EdmMetadataFactory;
+    const factory = new EdmMetadataFactory();
     const metadata = factory.createEmptyMetadata();
     const propertyFactory = new EdmPropertyFactory(metadata, EdmObjectType.ProvidedCHO);
     const objectFactory = new EdmObjectFactory(metadata);

@@ -11,7 +11,9 @@ import EdmProperty from './property';
 import _ from 'lodash';
 import { getTagToPropertyDataMap } from './property-spec';
 import EdmMetadata from './metadata';
-import { EdmObjectTagName } from './object-type';
+import EdmObjectType, { EdmObjectTagName } from './object-type';
+import { get } from '@ember/object';
+import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 
 /**
  * @typedef {Object} EdmPropertyOptions
@@ -57,6 +59,16 @@ export default class EdmPropertyFactory {
     this.#metadata = metadata;
     this.#edmObjectType = edmObjectType;
     this.#edmObjectTagName = EdmObjectTagName[this.#edmObjectType];
+
+    // optional properties
+
+    /**
+     * Add a reference to share.rootFile to be able to set default value for file size
+     * property. If this property is not set - file size will have an undefined default
+     * value.
+     * @type {Models.File}
+     */
+    this.shareRootFile = undefined;
   }
 
   get metadata() {
@@ -88,14 +100,37 @@ export default class EdmPropertyFactory {
     });
     if (options.value) {
       edmProperty.value = options.value;
-    } else if (spec.def) {
-      edmProperty.setSupportedValue(spec.def);
+    } else {
+      this.setDefaultValue(edmProperty);
     }
     const attrs = _.cloneDeep(options);
     delete attrs.value;
     edmProperty.attrs = attrs;
     if (typeof spec.lang === 'string' && typeof options.lang !== 'string') {
       edmProperty.lang = spec.lang;
+    }
+    return edmProperty;
+  }
+
+  /**
+   * Modifies the property instance to have a default value from spec.
+   * @param {EdmProperty} edmProperty
+   * @returns {EdmProperty}
+   */
+  setDefaultValue(edmProperty) {
+    let value;
+    if (
+      edmProperty.spec.obj === EdmObjectType.WebResource &&
+      edmProperty.xmlTagName === 'dcterms:extent' &&
+      this.shareRootFile
+    ) {
+      const bytes = get(this.shareRootFile, 'size') ?? 0;
+      value = bytesToString(bytes, { format: 'windows' });
+    } else if (edmProperty.spec.def) {
+      value = edmProperty.spec.def;
+    }
+    if (value != null) {
+      edmProperty.setSupportedValue(value);
     }
     return edmProperty;
   }

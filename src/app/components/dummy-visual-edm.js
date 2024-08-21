@@ -17,7 +17,7 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     // uncomment for initial metadata
-    const edmMetadata = EdmMetadataFactory.createInitialMetadata();
+    const edmMetadata = new EdmMetadataFactory().createInitialMetadata();
     // uncomment for predefined XML
     // const edmMetadata = EdmMetadataFactory.fromXml(exampleXml);
     this.set('visualEdmViewModel', VisualEdmViewModel.create({

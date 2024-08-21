@@ -52,6 +52,8 @@ class EdmProperty {
     }
 
     this.attrs = {};
+
+    /** @type {EdmPropertySpec} */
     this.spec = options.spec || {};
   }
 
@@ -158,6 +160,10 @@ class EdmProperty {
     return this.spec.placeholder ?? undefined;
   }
 
+  get isAlwaysDisabled() {
+    return this.spec.disabled ?? false;
+  }
+
   /**
    * Sets either value or resource attribute depending on the supported value type and
    * removes value from the other value types.
@@ -203,6 +209,10 @@ class EdmProperty {
    */
   equals(edmProperty) {
     return this.xmlElement === edmProperty.xmlElement;
+  }
+
+  setDefaultValue() {
+    this.setSupportedValue(this.spec.def ?? null);
   }
 }
 

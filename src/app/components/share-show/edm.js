@@ -20,6 +20,8 @@ import { dasherize } from '@ember/string';
 import { inject as service } from '@ember/service';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
+import EdmObjectType from '../../utils/edm/object-type';
+import EdmPropertyFactory from '../../utils/edm/property-factory';
 
 const defaultMode = 'visual';
 
@@ -59,6 +61,12 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   isPublicView: false,
+
+  /**
+   * @virtual
+   * @type {Models.File}
+   */
+  shareRootFile: undefined,
 
   /**
    * @virtual
@@ -360,11 +368,12 @@ export default Component.extend(I18n, {
   },
 
   initMetadataModel() {
-    const metadataFactory = EdmMetadataFactory;
+    const metadataFactory = new EdmMetadataFactory();
+    metadataFactory.shareRootFile = this.shareRootFile;
     let edmMetadata;
     if (this.xmlValue) {
       try {
-        edmMetadata = metadataFactory.fromXml(this.xmlValue);
+        edmMetadata = EdmMetadataFactory.fromXml(this.xmlValue);
       } catch (error) {
         if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
           throw error;
@@ -392,6 +401,7 @@ export default Component.extend(I18n, {
       })
       .create({
         container: this,
+        shareRootFile: this.shareRootFile,
         edmMetadata,
         validator,
       });
@@ -545,7 +555,9 @@ export default Component.extend(I18n, {
         return;
       }
       if (this.isEmpty) {
-        const newModel = EdmMetadataFactory.createInitialMetadata();
+        const factory = new EdmMetadataFactory();
+        factory.shareRootFile = this.shareRootFile;
+        const newModel = factory.createInitialMetadata();
         set(this.visualEdmViewModel, 'edmMetadata', newModel);
       } else {
         this.replaceModelUsingCurrentXml();
@@ -631,8 +643,27 @@ export default Component.extend(I18n, {
       this.set('representativeImageError', error);
     },
     startModify() {
-      if (!this.isModifyingExistingMetadata) {
-        this.onChangeEditMode(true);
+      if (this.isModifyingExistingMetadata) {
+        return;
+      }
+      this.onChangeEditMode(true);
+      const metadata = this.visualEdmViewModel.edmMetadata;
+      const webResource = metadata.edmObjects.find(obj =>
+        obj.edmObjectType === EdmObjectType.WebResource
+      );
+      const fileSizeProperty = webResource?.edmProperties.find(property =>
+        property.xmlTagName === 'dcterms:extent'
+      );
+      if (fileSizeProperty) {
+        const oldValue = fileSizeProperty.getSupportedValue();
+        const propertyFactory =
+          new EdmPropertyFactory(metadata, EdmObjectType.WebResource);
+        propertyFactory.shareRootFile = this.shareRootFile;
+        propertyFactory.setDefaultValue(fileSizeProperty);
+        if (oldValue !== fileSizeProperty.getSupportedValue()) {
+          this.visualEdmViewModel.updateView();
+          this.visualEdmViewModel.markAsModified();
+        }
       }
     },
   },

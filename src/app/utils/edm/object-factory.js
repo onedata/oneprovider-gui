@@ -48,6 +48,16 @@ class EdmObjectFactory {
      * @type {EdmMetadata}
      */
     this.metadata = metadata;
+
+    // optional properties
+
+    /**
+     * Add a reference to share.rootFile to be able to set default value for file size
+     * property. If this property is not set - file size will have an undefined default
+     * value.
+     * @type {Models.File}
+     */
+    this.shareRootFile = undefined;
   }
 
   /**
@@ -71,6 +81,7 @@ class EdmObjectFactory {
 
   createInitialObject(edmObjectType) {
     const propertyFactory = new EdmPropertyFactory(this.metadata, edmObjectType);
+    propertyFactory.shareRootFile = this.shareRootFile;
     return this.createObject(edmObjectType, {
       edmProperties: getInitialPropertiesMap()[edmObjectType].map(propertyItem =>
         propertyFactory.createProperty(

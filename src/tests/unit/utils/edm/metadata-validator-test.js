@@ -46,7 +46,7 @@ describe('Unit | Utility | edm/metadata-validator', function () {
 
 class Helper {
   constructor() {
-    this.metadataFactory = EdmMetadataFactory;
+    this.metadataFactory = new EdmMetadataFactory();
   }
   initMetadata() {
     this.metadata = this.metadataFactory.createInitialMetadata();
