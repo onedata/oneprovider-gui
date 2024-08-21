@@ -425,8 +425,11 @@ export default Service.extend({
       // By default, the name of attribute is the same as property. If there is no such
       // attribute, it means that it could be an artificial property that was
       // created in file serializer, that does not need an attribute.
-      const attr = propertyToAttributesMap[property] ??
+      let attr = propertyToAttributesMap[property] ??
         (possibleFileRawAttributesSet.has(property) ? property : null);
+      if (!attr && property.startsWith('xattr.')) {
+        attr = property;
+      }
       if (attr) {
         if (Array.isArray(attr)) {
           attributes.push(...attr);

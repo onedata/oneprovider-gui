@@ -518,6 +518,8 @@ export default Model.extend(
 
     creationTime: attr('number'),
 
+    xattr: attr('object', { defaultValue: () => {} }),
+
     /**
      * One of: `posix`, `acl`. Cannot be modified
      */

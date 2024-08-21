@@ -328,6 +328,7 @@ export default EmberObject.extend(...mixins, {
             type: 'xattr',
             xattrKey,
             displayedName,
+            fileProperty: `xattr.${xattrKey}`,
           });
         }
       }

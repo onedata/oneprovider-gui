@@ -240,7 +240,11 @@
         style={{get columnsConfiguration.columnsStyle columnName}}
       >
         <div class="file-xattr">
-          —
+          {{#if (get file.effFile.xattr (get (get columnsConfiguration.columns columnName) "xattrKey"))}}
+            {{get file.effFile.xattr (get (get columnsConfiguration.columns columnName) "xattrKey")}}
+          {{else}}
+            —
+          {{/if}}
         </div>
       </td>
     {{/if}}
