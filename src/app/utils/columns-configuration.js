@@ -168,7 +168,9 @@ export default EmberObject.extend(...mixins, {
    * @returns {void}
    */
   changeColumnVisibility(columnName, isEnabled) {
-    this.set(`columns.${columnName}.isEnabled`, isEnabled);
+    if (columnName in this.columns) {
+      this.set(`columns.${columnName}.isEnabled`, isEnabled);
+    }
     this.checkColumnsVisibility();
     const enabledColumns = [];
     for (const columName of this.columnsOrder) {
@@ -181,6 +183,74 @@ export default EmberObject.extend(...mixins, {
       `${this.persistedConfigurationKey}.enabledColumns`,
       enabledColumns.join()
     );
+  },
+
+  addNewColumn(columnName, key, type) {
+    const columnNameVariable = type + '-' + columnName.replace(' ', '-');
+    this.columns[columnNameVariable] = EmberObject.create({
+      isVisible: false,
+      isEnabled: false,
+      width: 120,
+      hasSubname: true,
+      hasTooltip: true,
+      type: type,
+      xattrKey: key,
+      displayedName: columnName,
+    });
+    globals.localStorage.setItem(
+      `${this.persistedConfigurationKey}.${columnNameVariable}`,
+      columnName + ':' + key
+    );
+    this.columnsOrder.push(columnNameVariable);
+    this.saveColumnsOrder();
+    this.changeColumnVisibility(columnNameVariable, true);
+    this.checkColumnsVisibility();
+    this.notifyPropertyChange('columnsOrder');
+  },
+
+  removeColumn(columnName) {
+    delete this.columns[columnName];
+    globals.localStorage.removeItem(
+      `${this.persistedConfigurationKey}.${columnName}`
+    );
+    const index = this.columnsOrder.indexOf(columnName);
+    this.columnsOrder.splice(index, 1);
+    this.saveColumnsOrder();
+    this.changeColumnVisibility(columnName, false);
+    this.checkColumnsVisibility();
+    this.notifyPropertyChange('columnsOrder');
+  },
+
+  modifyColumn(columnName, newColumnName, key, type) {
+    const newColumnNameVariable = type + '-' + newColumnName.replace(' ', '-');
+    const isEnabled = this.columns[columnName].isEnabled;
+    if (
+      !(newColumnNameVariable in this.columns) &&
+      columnName !== newColumnNameVariable
+    ) {
+      this.columns[newColumnNameVariable] = this.columns[columnName];
+      delete this.columns[columnName];
+      globals.localStorage.removeItem(
+        `${this.persistedConfigurationKey}.${columnName}`
+      );
+    }
+    this.set(`columns.${newColumnNameVariable}.displayedName`, newColumnName);
+    this.set(`columns.${newColumnNameVariable}.xattrKey`, key);
+    globals.localStorage.setItem(
+      `${this.persistedConfigurationKey}.${newColumnNameVariable}`,
+      newColumnName + ':' + key
+    );
+
+    const index = this.columnsOrder.indexOf(columnName);
+    this.columnsOrder[index] = newColumnNameVariable;
+    this.saveColumnsOrder();
+    if (isEnabled) {
+      this.changeColumnVisibility(columnName, false);
+      this.changeColumnVisibility(newColumnNameVariable, true);
+    }
+
+    this.checkColumnsVisibility();
+    this.notifyPropertyChange('columnsOrder');
   },
 
   saveColumnsOrder() {
@@ -242,10 +312,32 @@ export default EmberObject.extend(...mixins, {
           Boolean(enabledColumnsList?.includes(columName))
         );
       }
+      for (const columnName of enabledColumnsList) {
+        if (columnName.startsWith('xattr')) {
+          const columnProperties = globals.localStorage.getItem(
+            `${this.persistedConfigurationKey}.${columnName}`
+          ).split(':');
+          const xattrKey = columnProperties[1];
+          const displayedName = columnProperties[0];
+          this.columns[columnName] = EmberObject.create({
+            isVisible: false,
+            isEnabled: Boolean(enabledColumnsList?.includes(columnName)),
+            width: 150,
+            hasSubname: true,
+            hasTooltip: true,
+            type: 'xattr',
+            xattrKey,
+            displayedName,
+          });
+        }
+      }
     }
+
     if (columnsOrderListFromLocalStorage) {
       for (const columName of columnsOrderListFromLocalStorage) {
         if (this.columnsOrder.includes(columName)) {
+          columnsOrderList.push(columName);
+        } else if (columName.startsWith('xattr')) {
           columnsOrderList.push(columName);
         }
       }

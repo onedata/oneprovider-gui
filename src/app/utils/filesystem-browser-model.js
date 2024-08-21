@@ -1386,6 +1386,7 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 140,
             hasSubname: false,
             hasTooltip: false,
+            type: 'basic',
           });
           break;
         case 'modification':
@@ -1395,6 +1396,7 @@ export default BaseBrowserModel.extend(...mixins, {
             width: columnsTimesWidth,
             hasSubname: true,
             hasTooltip: true,
+            type: 'basic',
           });
           break;
         case 'owner':
@@ -1404,6 +1406,7 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 200,
             hasSubname: false,
             hasTooltip: false,
+            type: 'basic',
           });
           break;
         case 'replication':
@@ -1413,6 +1416,7 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 160,
             hasSubname: false,
             hasTooltip: true,
+            type: 'basic',
           });
           break;
         case 'qos':
@@ -1422,6 +1426,7 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 100,
             hasSubname: false,
             hasTooltip: true,
+            type: 'basic',
           });
           break;
         case 'atime':
@@ -1431,6 +1436,7 @@ export default BaseBrowserModel.extend(...mixins, {
             width: columnsTimesWidth,
             hasSubname: false,
             hasTooltip: true,
+            type: 'basic',
           });
           break;
         case 'ctime':
@@ -1440,6 +1446,7 @@ export default BaseBrowserModel.extend(...mixins, {
             width: columnsTimesWidth,
             hasSubname: true,
             hasTooltip: true,
+            type: 'basic',
           });
           break;
         case 'creationTime':
@@ -1449,6 +1456,7 @@ export default BaseBrowserModel.extend(...mixins, {
             width: columnsTimesWidth,
             hasSubname: false,
             hasTooltip: true,
+            type: 'basic',
           });
           break;
         case 'fileId':
@@ -1458,6 +1466,7 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 120,
             hasSubname: false,
             hasTooltip: false,
+            type: 'basic',
           });
           break;
         case 'posixPermissions':
@@ -1467,6 +1476,7 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 150,
             hasSubname: false,
             hasTooltip: true,
+            type: 'basic',
           });
           break;
         default:

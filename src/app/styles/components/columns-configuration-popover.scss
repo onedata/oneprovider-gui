@@ -1,14 +1,22 @@
 .webui-popover-columns-configuration {
   .webui-popover-content {
-    padding-top: $padding-xs-horizontal;
-    padding-bottom: $padding-xs-horizontal;
-    @media (hover: hover) {
-      padding-left: $padding-xs-horizontal;
-    }
+    padding: 0;
+
   }
   @media (hover: none) {
     .column-move-icon {
       display: none;
+    }
+  }
+  .columns-configuration-list {
+    max-height: 30vh;
+    padding: $padding-xs-horizontal $padding-base-vertical;
+    @media (hover: hover) {
+      padding-left: $padding-xs-horizontal;
+    }
+
+    &.on-bottom + .add-new-column {
+      @include hide-before-shadow;
     }
   }
   .columns-list {
@@ -33,34 +41,74 @@
         cursor: auto;
       }
 
-      .arrows-container {
-        display: flex;
-        cursor: pointer;
-        align-items: center;
+
+
+      .icons-container {
+        display: inline-flex;
+        justify-content: flex-end;
+        width: 7em;
 
         @media (hover: none) {
-          visibility: visible;
-        }
-        @media (hover: hover) {
-          visibility: hidden;
+        width: 10em;
         }
 
-        .oneicon {
-          font-size: 120%;
-          font-weight: bold;
+        .icon-container .oneicon {
           vertical-align: middle;
         }
+
+        .remove-column, .modify-column {
+          cursor: pointer;
+          visibility: hidden;
+
+          .oneicon {
+            font-weight: bold;
+            font-size: 120%;
+          }
+        }
+
+        .remove-column:hover {
+          color: $color-one-red;
+        }
+
+        .modify-column:hover {
+          color: $color-one-orange;
+        }
+
+        .column-info-icon {
+          font-size: 140%;
+          opacity: 0.6;
+        }
+
+        .no-view-icon {
+          font-size: 160%;
+        }
+
+        .arrows-container {
+          display: flex;
+          cursor: pointer;
+          align-items: center;
+
+          @media (hover: hover) {
+            display: none;
+          }
+
+          .oneicon {
+            font-size: 120%;
+            font-weight: bold;
+          }
+        }
+      }
+
+      .filter-column-checkbox {
+        min-width: 16px;
       }
 
       label.column-name-label {
         display: inline-flex;
+        align-items: baseline;
         flex-grow: 1;
-        padding-right: 2.2em;
         min-width: 12.3em;
-
-        @media (hover: hover) {
-          padding-right: 0;
-        }
+        padding-right: 0.35em;
 
         .checkbox-label {
           position: relative;
@@ -69,25 +117,6 @@
 
       &:last-child {
         margin-bottom: 0;
-      }
-
-      .column-info-icon {
-        font-size: 140%;
-        vertical-align: middle;
-        opacity: 0.6;
-        position: absolute;
-        right: -1.3em;
-        top: 50%;
-        transform: translateY(-45%);
-      }
-
-      .oneicon-no-view {
-        font-size: 160%;
-        vertical-align: middle;
-        position: absolute;
-        right: -2.2em;
-        top: 50%;
-        transform: translateY(-45%);
       }
 
       label {
@@ -105,6 +134,20 @@
           opacity: $disabled-opacity;
           cursor: grab;
         }
+        &:hover .remove-column .oneicon-close {
+          visibility: visible;
+        }
+        &:hover .modify-column .oneicon-browser-rename {
+          visibility: visible;
+        }
+      }
+      @media (hover: none) {
+        .remove-column .oneicon-close {
+          visibility: visible;
+        }
+        .modify-column .oneicon-browser-rename {
+          visibility: visible;
+        }
       }
 
       .column-move-icon {
@@ -116,6 +159,35 @@
       vertical-align: middle;
     }
   }
+
+  .add-new-column {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 23px;
+    cursor: pointer;
+    position: sticky;
+    bottom: 0px;
+    @include before-top-shadow;
+    @include content-shadow-leftovers;
+
+    .new-column-text {
+      font-style: italic;
+      padding-left: 3px;
+      opacity: 0.6;
+    }
+
+    .add-new-column-btn {
+      display: inline-block;
+      font-size: 0.42em;
+      padding: 0.4em;
+      background-color: $color-one-mint;
+      border-color: $color-one-mint;
+
+      .adder-icon {
+        left: 0;
+      }
+    }
+  }
   .draggable-object-target {
     height: 10px;
 
@@ -123,6 +195,41 @@
       border: 1px dashed darken($color-one-gray-sand, 10%);
       background-color: rgba($color-one-gray-sand, 0.75);
       border-radius: $border-radius-small;
+    }
+  }
+  .xattr-column-add, .xattr-column-modify {
+    padding: 12px;
+    width: 252px;
+
+    h1 {
+      display: inline-flex;
+      justify-content: center;
+
+      .go-back-button {
+        cursor: pointer;
+        font-size: 120%;
+      }
+    }
+
+    .back-icon {
+      font-weight: bold;
+      vertical-align: bottom;
+      margin-left: -5px;
+    }
+
+    .add-button, .back-button, .modify-button {
+      padding-top: 10px;
+      text-align: right;
+    }
+
+    .back-column-btn {
+      margin-right: 5px;
+    }
+
+    .xattr-footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: baseline;
     }
   }
 }

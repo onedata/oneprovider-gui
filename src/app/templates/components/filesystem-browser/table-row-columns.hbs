@@ -234,6 +234,15 @@
           }}
         </div>
       </td>
+    {{else if (eq (get (get columnsConfiguration.columns columnName) "type") "xattr")}}
+      <td
+        class="fb-table-col-xattr hidden-xs"
+        style={{get columnsConfiguration.columnsStyle columnName}}
+      >
+        <div class="file-xattr">
+          —
+        </div>
+      </td>
     {{/if}}
   {{/if}}
 {{/each}}

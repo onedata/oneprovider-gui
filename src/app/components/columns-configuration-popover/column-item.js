@@ -22,6 +22,7 @@ export default Component.extend(I18n, {
 
   i18n: service(),
   providerManager: service(),
+  media: service(),
 
   /**
    * @override
@@ -75,6 +76,18 @@ export default Component.extend(I18n, {
    * @type {(columnName: string) => void}
    */
   moveColumnUp: notImplementedWarn,
+
+  /**
+   * @virtual
+   * @type {(columnName: string) => void}
+   */
+  goXattrModify: notImplementedWarn,
+
+  /**
+   * @virtual
+   * @type {(columnName: string) => void}
+   */
+  removeColumn: notImplementedWarn,
 
   /**
    * @virtual
@@ -132,6 +145,12 @@ export default Component.extend(I18n, {
       if (this.dragEndAction) {
         return this.dragEndAction();
       }
+    },
+    goXattrModify(columnName) {
+      this.goXattrModify(columnName);
+    },
+    removeColumn(columnName) {
+      this.removeColumn(columnName);
     },
   },
 });

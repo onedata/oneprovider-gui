@@ -9,31 +9,145 @@
       onClickOutside=(action (mut isOpened) false)
       exceptSelector=triggerSelector
     }}
-      <ul class="columns-list">
-        {{one-draggable-object-target
-          action=(action "acceptDraggedElement" -1)
-          validateDragEvent=(action "validateDragEvent")
-        }}
-        {{#each columnsConfiguration.columnsOrder as |columnName index|}}
-          {{columns-configuration-popover/column-item
-            columnName=columnName
-            columnValue=(get columnsConfiguration.columns columnName)
-            translationKey=translationKey
-            isMoveUpIconDisabled=(eq index 0)
-            isMoveDownIconDisabled=(eq index lastIndexColumn)
-            isArrowTooltipVisible=isArrowTooltipVisible
-            checkboxChanged=(action "checkboxChanged")
-            moveColumnDown=(action "moveColumnDown")
-            moveColumnUp=(action "moveColumnUp")
-            dragStartAction=dragStartAction
-            dragEndAction=dragEndAction
+      {{#one-carousel animated=false activeSlideId=activeSlide as |carousel|}}
+        {{#carousel.slide slideId="column-configuration"}}
+          {{#perfect-scrollbar-element
+            class="columns-configuration-list"
+            as |perfectScrollbarContainer|
           }}
-          {{one-draggable-object-target
-            action=(action "acceptDraggedElement" index)
-            validateDragEvent=(action "validateDragEvent")
-          }}
-        {{/each}}
-      </ul>
+            <ul class="columns-list">
+              {{one-draggable-object-target
+                action=(action "acceptDraggedElement" -1)
+                validateDragEvent=(action "validateDragEvent")
+              }}
+              {{#each columnsConfiguration.columnsOrder as |columnName index|}}
+                {{columns-configuration-popover/column-item
+                  columnName=columnName
+                  columnValue=(get columnsConfiguration.columns columnName)
+                  translationKey=translationKey
+                  isMoveUpIconDisabled=(eq index 0)
+                  isMoveDownIconDisabled=(eq index lastIndexColumn)
+                  isArrowTooltipVisible=isArrowTooltipVisible
+                  checkboxChanged=(action "checkboxChanged")
+                  moveColumnDown=(action "moveColumnDown")
+                  moveColumnUp=(action "moveColumnUp")
+                  dragStartAction=dragStartAction
+                  dragEndAction=dragEndAction
+                  goXattrModify=(action "goXattrModify")
+                  removeColumn=(action "removeColumn")
+                }}
+                {{one-draggable-object-target
+                  action=(action "acceptDraggedElement" index)
+                  validateDragEvent=(action "validateDragEvent")
+                }}
+              {{/each}}
+            </ul>
+          {{/perfect-scrollbar-element}}
+          <div class="add-new-column new-column-item" onClick={{action "goXattrConfiguration"}}>
+            {{#bs-button
+              id=btnId
+              class=(concat-classes "add-new-column-btn clickable" )
+              type="default"
+            }}
+              {{one-icon icon="plus" class="adder-icon"}}
+            {{/bs-button}}
+            <span class="new-column-text">Add new xattr column</span>
+          </div>
+        {{/carousel.slide}}
+        {{#carousel.slide slideId="xattr-add"}}
+          <div class="xattr-column-add">
+            <h1>
+              <div class="go-back-button" onClick={{action "goBack"}}>
+                {{one-icon icon="arrow-left" class="back-icon"}}
+                {{one-tooltip title="Back"}}
+              </div>
+              <div>Add new xattr column</div>
+            </h1>
+            <p>Enter xattr name:</p>
+            {{form-component/field-renderer field=xattrKeyNameField}}
+            <p>Enter name of new column:</p>
+            <input
+              id={{inputId}}
+              type="text"
+              class="form-control new-item-name input-sm"
+              value={{xattrColumnName}}
+              oninput={{action (mut xattrColumnName) value="target.value"}}
+              disabled={{isSaving}}
+              autofocus=false
+            >
+            <div class="xattr-footer">
+              {{!-- <div class="back-button" onClick={{action "goBack"}}> --}}
+              <OneButton
+                @type="default"
+                @class="back-column-btn"
+                @size="sm"
+                @onClick={{action "goBack"}}
+              >
+                {{tt this "cancelBtn"}}
+              </OneButton>
+            {{!-- </div> --}}
+            <div class="add-button">
+              <OneButton
+                @type="primary"
+                @buttonType="submit"
+                @class="add-new-column-btn"
+                @size="sm"
+                @onClick={{action "addNewColumn"}}
+                @disabled={{true}}
+              >
+                {{tt this "addBtn"}}
+              </OneButton>
+            </div>
+            </div>
+          </div>
+        {{/carousel.slide}}
+        {{#carousel.slide slideId="xattr-modify"}}
+          <div class="xattr-column-modify">
+            <h1>
+              <div class="go-back-button" onClick={{action "goBack"}}>
+                {{one-icon icon="arrow-left" class="back-icon"}}
+                {{one-tooltip title="Back"}}
+              </div>
+              <div>Modify xattr column</div>
+            </h1>
+            <p>Modify key of xattr:</p>
+            {{form-component/field-renderer field=xattrKeyModifiedNameField}}
+            <p>Enter name of column:</p>
+            <input
+              id={{inputId}}
+              type="text"
+              class="form-control new-item-name input-sm"
+              value={{modifiedColumnNewValue}}
+              oninput={{action (mut modifiedColumnNewValue) value="target.value"}}
+              disabled={{isSaving}}
+              autofocus=false
+            >
+            <div class="xattr-footer">
+              <div class="cancel-button">
+                <OneButton
+                  @type="default"
+                  @class="back-column-btn"
+                  @size="sm"
+                  @onClick={{action "goBack"}}
+                >
+                  {{tt this "cancelBtn"}}
+                </OneButton>
+              </div>
+              <div class="modify-button">
+                <OneButton
+                  @type="primary"
+                  @buttonType="submit"
+                  @class="modify-column-btn"
+                  @size="sm"
+                  @onClick={{action "modifyColumn"}}
+                >
+                  {{tt this "modifyBtn"}}
+                </OneButton>
+              </div>
+            </div>
+          </div>
+        {{/carousel.slide}}
+      {{/one-carousel}}
     {{/click-outside}}
   {{/one-webui-popover}}
 {{/render-later}}

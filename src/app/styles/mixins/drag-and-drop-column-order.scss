@@ -55,6 +55,10 @@
   }
   .column-name {
     position: relative;
+
+    &:first-letter {
+      text-transform: capitalize;
+    }
   }
   .column-subname {
     position: absolute;
