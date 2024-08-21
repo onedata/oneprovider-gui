@@ -156,6 +156,33 @@
     }
   }
 
+  .fb-table-col-xattr {
+    position: relative;
+    cursor: pointer;
+
+    .info-icon-container {
+      position: absolute;
+      font-size: 180%;
+      right: 0;
+      top: 0.95em;
+      opacity: $disabled-opacity;
+    }
+    &:hover .info-icon-container {
+      opacity: 1;
+      color: $color-one-mint;
+    }
+
+    .file-xattr {
+      font-size: 80%;
+
+      .file-xattr-text {
+        @include font-monospace();
+        padding-left: $padding-xs-horizontal;
+        padding-right: $padding-xs-horizontal;
+      }
+    }
+  }
+
   .fb-table-col-file-id {
     .clipboard-input {
       position: absolute;

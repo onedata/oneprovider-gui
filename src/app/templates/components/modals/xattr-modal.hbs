@@ -1,0 +1,26 @@
+{{#global-modal
+  classNames="xattr-modal"
+  modalId=modalId
+  allowClose=true
+  onHide=(action "onHide")
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>{{tt this "header"}}</h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    {{clipboard-line
+      value=xattrValue
+      type="textarea"
+      textareaRows="3"
+      class="monospace-font compact"
+    }}
+  {{/modal.body}}
+  {{#modal.footer}}
+    {{#one-button
+      onClick=modal.close
+    }}
+      {{tt this "cancel"}}
+    {{/one-button}}
+  {{/modal.footer}}
+{{/global-modal}}
