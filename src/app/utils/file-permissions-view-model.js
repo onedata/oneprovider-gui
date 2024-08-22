@@ -2,7 +2,7 @@
  * Model and logic for file-permissions components
  *
  * @author Jakub Liput, Michał Borzęcki
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -37,6 +37,7 @@ import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import ignoreForbiddenError from 'onedata-gui-common/utils/ignore-forbidden-error';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 
 const mixins = [
   OwnerInjector,
@@ -58,6 +59,8 @@ export default EmberObject.extend(...mixins, {
   fileManager: service(),
   currentUser: service(),
   spaceManager: service(),
+  groupManager: service(),
+  userManager: service(),
 
   /**
    * @override
@@ -576,10 +579,33 @@ export default EmberObject.extend(...mixins, {
     } catch (error) {
       ignoreForbiddenError(error);
     }
-    if (!effUserList) {
-      return [this.currentUser.user];
+    if (effUserList) {
+      return get(effUserList, 'list').toArray();
+    } else {
+      const currentUser = this.currentUser.user;
+      const spaceId = this.get('space.entityId');
+      const spaceGroups = await this.spaceGroupsProxy;
+      const spaceGroupIds = spaceGroups.map(group => get(group, 'entityId'));
+      const spacePrivateGroups = await allFulfilled(spaceGroupIds.map(groupId => {
+        try {
+          return this.groupManager.getGroupById(groupId, {
+            throughSpaceId: spaceId,
+            scope: 'private',
+          });
+        } catch {
+          return null;
+        }
+      }).filter(Boolean));
+
+      const users = await onlyFulfilledValues(spacePrivateGroups.map(async (group) => {
+        const userList = await get(group, 'effUserList');
+        return (userList && get(userList, 'list'))?.toArray() ?? [];
+      }));
+      return _.uniqWith(
+        [currentUser, ..._.flatten(users)],
+        (a, b) => get(a, 'entityId') === get(b, 'entityId')
+      );
     }
-    return get(effUserList, 'list');
   },
 
   /**
