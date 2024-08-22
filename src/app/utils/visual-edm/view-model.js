@@ -28,6 +28,12 @@ const VisualEdmViewModel = EmberObject.extend({
    */
   validator: undefined,
 
+  /**
+   * @virtual optional
+   * @type {Models.File}
+   */
+  shareRootFile: undefined,
+
   //#endregion
 
   isRepresentativeImageShown: false,

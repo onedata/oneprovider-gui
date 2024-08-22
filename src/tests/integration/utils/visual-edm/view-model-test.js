@@ -14,7 +14,7 @@ describe('Integration | Utility | visual-edm/view-model', function () {
 
   it('can be created without any condition', async function () {
     // given
-    const edmMetadata = EdmMetadataFactory.createInitialMetadata();
+    const edmMetadata = new EdmMetadataFactory().createInitialMetadata();
     this.viewModel = VisualEdmViewModel.create({
       edmMetadata,
     });

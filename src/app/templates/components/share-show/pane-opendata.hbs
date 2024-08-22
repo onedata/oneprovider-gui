@@ -1,4 +1,4 @@
-{{#promise-proxy-container proxy=handleProxy}}
+<PromiseProxyContainer @proxy={{requiredDataProxy}}>
   {{#if handle}}
     {{#if xml}}
       {{#if (eq selectedMetadataType MetadataType.Edm)}}
@@ -9,6 +9,7 @@
           @isPublished={{true}}
           @isReadOnly={{not isModifyingExistingMetadata}}
           @isPublicView={{publicMode}}
+          @shareRootFile={{rootFileProxy.content}}
           @onChangeEditMode={{action "changeEditMode"}}
         />
       {{else}}
@@ -132,6 +133,7 @@
                   @isReadOnly={{false}}
                   @isPublished={{false}}
                   @isPublicView={{false}}
+                  @shareRootFile={{rootFileProxy.content}}
                   @onUpdateXml={{action "updateXml"}}
                   @onSubmit={{action "submit"}}
                   @onBack={{action "back"}}
@@ -161,4 +163,4 @@
       {{/if}}
     {{/promise-proxy-container}}
   {{/if}}
-{{/promise-proxy-container}}
+</PromiseProxyContainer>

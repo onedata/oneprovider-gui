@@ -18,7 +18,7 @@ describe('Integration | Component | visual-edm/validation-error', function () {
   });
 
   it('renders text about missing values of properties using object validator (XML)', async function () {
-    this.metadata = EdmMetadataFactory.createInitialMetadata();
+    this.metadata = new EdmMetadataFactory().createInitialMetadata();
     this.objectFactory = new EdmObjectFactory(this.metadata);
     this.propertyFactory =
       new EdmPropertyFactory(this.metadata, EdmObjectType.ProvidedCHO);
@@ -37,7 +37,7 @@ describe('Integration | Component | visual-edm/validation-error', function () {
   });
 
   it('renders text about missing values of properties using object validator (visual)', async function () {
-    this.metadata = EdmMetadataFactory.createInitialMetadata();
+    this.metadata = new EdmMetadataFactory().createInitialMetadata();
     this.objectFactory = new EdmObjectFactory(this.metadata);
     this.propertyFactory = new EdmPropertyFactory(
       this.metadata,

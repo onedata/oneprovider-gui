@@ -103,7 +103,6 @@ describe('Unit | Utility | edm/metadata', function () {
   it('includes unknown elements in XML generated from model from parsed XML',
     function () {
       // given
-      const factory = EdmMetadataFactory;
       const xmlSource = `<?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF
     xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -124,7 +123,7 @@ describe('Unit | Utility | edm/metadata', function () {
 </rdf:RDF>`;
 
       // when
-      const metadataModel = factory.fromXml(xmlSource);
+      const metadataModel = EdmMetadataFactory.fromXml(xmlSource);
       const xmlOutput = metadataModel.stringify();
 
       // then

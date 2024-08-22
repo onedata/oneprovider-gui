@@ -100,6 +100,7 @@ const ObjectViewModel = EmberObject.extend({
       this.visualEdmViewModel.edmMetadata,
       this.edmObjectType
     );
+    factory.shareRootFile = this.visualEdmViewModel.shareRootFile;
     const newEdmProperty = factory.createProperty(
       item.namespace,
       item.name

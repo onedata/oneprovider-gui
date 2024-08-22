@@ -65,6 +65,7 @@ import EdmObjectType, { EdmObjectTagName } from './object-type';
  *   breaks. Effectively, it will be displayed as textarea in the visual editor.
  * @property {string} [example] The example of value displayed in tooltip.
  * @property {string|EdmPropertySpecValues} [placeholder] The example in the input placeholder.
+ * @property {boolean} [disabled] If true, the field is always disabled.
  */
 
 /**
@@ -325,10 +326,10 @@ function createAllSpecs() {
         [EdmObjectType.WebResource]: {
           val: EdmPropertyValueType.Literal,
           obj: EdmObjectType.WebResource,
-          rec: Rec.None,
+          rec: Rec.Mandatory,
           max: Max.Single,
-          example: '1.5 MB',
-          placeholder: '1.5 MB',
+          disabled: true,
+          tip: 'This value is filled automatically.',
         },
       },
       isFormatOf: {
