@@ -22,26 +22,35 @@
       ondragend={{action "headingDragEndAction"}}
     >
       <div class="column-info-container">
-        <span class="column-name">
-          {{one-icon icon="drag" class="column-move-icon"}}
-          {{#if (eq (get columnsConfiguration (concat "columns." columnName ".type")) "xattr")}}
-            {{get columnsConfiguration (concat "columns." columnName ".displayedName")}}
-          {{else}}
-            {{tt this (concat "headers.name." columnName)}}
-          {{/if}}
-          {{#if (get columnsConfiguration (concat "columns." columnName ".hasTooltip"))}}
-            {{#one-icon icon="browser-info" class="column-info-icon"}}
-              {{one-tooltip
-                title=(if (eq (get columnsConfiguration (concat "columns." columnName ".type")) "xattr")
-                (tt this "headers.tip.xattr")
-                (tt this
-                  (concat "headers.tip." columnName) oneprovider=currentProviderName
-                )
-                )
-              }}
-            {{/one-icon}}
-          {{/if}}
-        </span>
+        <div
+          class="column-name"
+          style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
+        >
+          <div class="column-icon">
+            {{one-icon icon="drag" class="column-move-icon"}}
+          </div>
+          <TruncatedString>
+            {{#if (eq (get columnsConfiguration (concat "columns." columnName ".type")) "xattr")}}
+              {{get columnsConfiguration (concat "columns." columnName ".displayedName")}}
+            {{else}}
+              {{tt this (concat "headers.name." columnName)}}
+            {{/if}}
+          </TruncatedString>
+          <div class="column-icon">
+            {{#if (get columnsConfiguration (concat "columns." columnName ".hasTooltip"))}}
+              {{#one-icon icon="browser-info" class="column-info-icon"}}
+                {{one-tooltip
+                  title=(if (eq (get columnsConfiguration (concat "columns." columnName ".type")) "xattr")
+                  (tt this "headers.tip.xattr")
+                  (tt this
+                    (concat "headers.tip." columnName) oneprovider=currentProviderName
+                  )
+                  )
+                }}
+              {{/one-icon}}
+            {{/if}}
+          </div>
+        </div>
         {{#if (get columnsConfiguration (concat "columns." columnName ".hasSubname"))}}
           <div class="column-subname">
             {{#if (eq (get columnsConfiguration (concat "columns." columnName ".type")) "xattr")}}
