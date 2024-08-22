@@ -60,7 +60,6 @@ export default EmberObject.extend(...mixins, {
   currentUser: service(),
   spaceManager: service(),
   groupManager: service(),
-  userManager: service(),
 
   /**
    * @override
