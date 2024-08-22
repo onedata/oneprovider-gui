@@ -235,31 +235,12 @@
         </div>
       </td>
     {{else if (eq (get (get columnsConfiguration.columns columnName) "type") "xattr")}}
-      <td
-        class="fb-table-col-xattr multiline hidden-xs"
-        style={{get columnsConfiguration.columnsStyle columnName}}
-      >
-        <div class="file-xattr" onClick={{action "openXattrModal" (get xattr (get (get columnsConfiguration.columns columnName) "xattrKey"))}}>
-          {{#if (get xattr (get (get columnsConfiguration.columns columnName) "xattrKey"))}}
-            <div class="file-xattr-text">
-              <div>
-                {{get (get xattrText (get (get columnsConfiguration.columns columnName) "xattrKey")) 0}}
-              </div>
-              {{#if (get (get xattrText (get (get columnsConfiguration.columns columnName) "xattrKey")) 1)}}
-                <div>
-                  {{get (get xattrText (get (get columnsConfiguration.columns columnName) "xattrKey")) 1}}&#8230;
-                </div>
-                {{one-tooltip title=(get xattr (get (get columnsConfiguration.columns columnName) "xattrKey")) class="tooltip-text-monospace"}}
-              {{/if}}
-            </div>
-            <div class="info-icon-container">
-              <OneIcon class="info-icon" @icon="browser-info" />
-            </div>
-          {{else}}
-            —
-          {{/if}}
-        </div>
-      </td>
+      <FilesystemBrowser::TableCellXattrInfo
+        @columnInfo={{get columnsConfiguration.columns columnName}}
+        @xattrs={{xattrs}}
+        @style={{get columnsConfiguration.columnsStyle columnName}}
+        @openXattrModal={{action "openXattrModal"}}
+      />
     {{/if}}
   {{/if}}
 {{/each}}

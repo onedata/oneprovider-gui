@@ -152,18 +152,10 @@ export default FbTableRowColumns.extend(I18n, {
     return this.file.effFile.cdmiObjectId.substr(12, 11);
   }),
 
-  xattr: reads('file.effFile.xattr'),
-
-  xattrText: computed('xattr', function xattrText() {
-    const xattrTextObject = {};
-    for (const name in this.xattr) {
-      xattrTextObject[name] = [
-        this.xattr[name].substr(0, 12),
-        this.xattr[name].substr(12, 11),
-      ];
-    }
-    return xattrTextObject;
-  }),
+  /**
+   * @type {ComputedProperty<Object<string, string>>}
+   */
+  xattrs: reads('file.effFile.xattr'),
 
   /**
    * @type {ComputedProperty<string>}

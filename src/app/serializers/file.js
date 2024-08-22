@@ -202,7 +202,7 @@ export default Serializer.extend({
     const xattr = {};
     for (const property in hash) {
       if (property.startsWith('xattr.')) {
-        xattr[property.split('.')[1]] = hash[property];
+        xattr[property.replace('xattr.', '').replace('.', '-')] = hash[property];
         delete hash[property];
       }
     }

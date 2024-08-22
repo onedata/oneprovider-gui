@@ -186,7 +186,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   addNewColumn(columnName, key, type) {
-    const columnNameVariable = type + '-' + columnName.replace(' ', '-');
+    const columnNameVariable = type + '-' + columnName.replace(' ', '-').replace('.', '-');
     this.columns[columnNameVariable] = EmberObject.create({
       isVisible: false,
       isEnabled: false,
@@ -196,6 +196,7 @@ export default EmberObject.extend(...mixins, {
       type: type,
       xattrKey: key,
       displayedName: columnName,
+      fileProperty: `xattr.${key}`,
     });
     globals.localStorage.setItem(
       `${this.persistedConfigurationKey}.${columnNameVariable}`,

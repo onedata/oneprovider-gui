@@ -427,7 +427,7 @@ export default Service.extend({
       // created in file serializer, that does not need an attribute.
       let attr = propertyToAttributesMap[property] ??
         (possibleFileRawAttributesSet.has(property) ? property : null);
-      if (!attr && property.startsWith('xattr.')) {
+      if (!attr && property && property.startsWith('xattr.')) {
         attr = property;
       }
       if (attr) {

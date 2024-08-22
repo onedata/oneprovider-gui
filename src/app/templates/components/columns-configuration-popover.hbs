@@ -63,18 +63,20 @@
               </div>
               <div>Add new xattr column</div>
             </h1>
-            <p>Enter xattr name:</p>
-            {{form-component/field-renderer field=xattrKeyNameField}}
-            <p>Enter name of new column:</p>
-            <input
-              id={{inputId}}
-              type="text"
-              class="form-control new-item-name input-sm"
-              value={{xattrColumnName}}
-              oninput={{action (mut xattrColumnName) value="target.value"}}
-              disabled={{isSaving}}
-              autofocus=false
-            >
+            <PromiseProxyContainer @proxy={{xattrsListProxy}}>
+              <p>Enter xattr name:</p>
+              {{form-component/field-renderer field=xattrKeyNameField}}
+              <p>Enter name of new column:</p>
+              <input
+                id={{inputId}}
+                type="text"
+                class="form-control new-item-name input-sm"
+                value={{xattrColumnName}}
+                oninput={{action (mut xattrColumnName) value="target.value"}}
+                disabled={{isSaving}}
+                autofocus=false
+              >
+            </PromiseProxyContainer>
             <div class="xattr-footer">
               {{!-- <div class="back-button" onClick={{action "goBack"}}> --}}
               <OneButton
@@ -93,7 +95,7 @@
                 @class="add-new-column-btn"
                 @size="sm"
                 @onClick={{action "addNewColumn"}}
-                @disabled={{true}}
+                @disabled={{isDisabledAddButton}}
               >
                 {{tt this "addBtn"}}
               </OneButton>
@@ -110,41 +112,43 @@
               </div>
               <div>Modify xattr column</div>
             </h1>
-            <p>Modify key of xattr:</p>
-            {{form-component/field-renderer field=xattrKeyModifiedNameField}}
-            <p>Enter name of column:</p>
-            <input
-              id={{inputId}}
-              type="text"
-              class="form-control new-item-name input-sm"
-              value={{modifiedColumnNewValue}}
-              oninput={{action (mut modifiedColumnNewValue) value="target.value"}}
-              disabled={{isSaving}}
-              autofocus=false
-            >
-            <div class="xattr-footer">
-              <div class="cancel-button">
-                <OneButton
-                  @type="default"
-                  @class="back-column-btn"
-                  @size="sm"
-                  @onClick={{action "goBack"}}
-                >
-                  {{tt this "cancelBtn"}}
-                </OneButton>
+            <PromiseProxyContainer @proxy={{xattrsListProxy}}>
+              <p>Modify key of xattr:</p>
+              {{form-component/field-renderer field=xattrKeyModifiedNameField}}
+              <p>Enter name of column:</p>
+              <input
+                id={{inputId}}
+                type="text"
+                class="form-control new-item-name input-sm"
+                value={{modifiedColumnNewValue}}
+                oninput={{action (mut modifiedColumnNewValue) value="target.value"}}
+                disabled={{isSaving}}
+                autofocus=false
+              >
+              <div class="xattr-footer">
+                <div class="cancel-button">
+                  <OneButton
+                    @type="default"
+                    @class="back-column-btn"
+                    @size="sm"
+                    @onClick={{action "goBack"}}
+                  >
+                    {{tt this "cancelBtn"}}
+                  </OneButton>
+                </div>
+                <div class="modify-button">
+                  <OneButton
+                    @type="primary"
+                    @buttonType="submit"
+                    @class="modify-column-btn"
+                    @size="sm"
+                    @onClick={{action "modifyColumn"}}
+                  >
+                    {{tt this "modifyBtn"}}
+                  </OneButton>
+                </div>
               </div>
-              <div class="modify-button">
-                <OneButton
-                  @type="primary"
-                  @buttonType="submit"
-                  @class="modify-column-btn"
-                  @size="sm"
-                  @onClick={{action "modifyColumn"}}
-                >
-                  {{tt this "modifyBtn"}}
-                </OneButton>
-              </div>
-            </div>
+            </PromiseProxyContainer>
           </div>
         {{/carousel.slide}}
       {{/one-carousel}}

@@ -16,12 +16,15 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import CustomValueDropdownField from 'onedata-gui-common/utils/form-component/custom-value-dropdown-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
+import { Promise } from 'rsvp';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export default Component.extend(I18n, {
   classNames: ['columns-configuration-popover'],
 
   dragDrop: service(),
   i18n: service(),
+  metadataManager: service(),
 
   /**
    * @override
@@ -42,6 +45,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Utils.FilesystemBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   dragStartAction: notImplementedIgnore,
@@ -59,6 +68,16 @@ export default Component.extend(I18n, {
   isOpened: false,
 
   /**
+   * @type {string}
+   */
+  modifiedColumn: '',
+
+  /**
+   * @type {string}
+   */
+  modifiedColumnNewValue: '',
+
+  /**
    * @type {ComputedProperty<string>}
    */
   columnsCount: reads('columnsConfiguration.columnsOrder.length'),
@@ -69,8 +88,6 @@ export default Component.extend(I18n, {
   lastIndexColumn: computed('columnsCount', function lastIndexColumn() {
     return this.columnsCount - 1;
   }),
-
-  xattrOptions: Object.freeze(['bbb', 'ccc', 'aaa', 'ddd', 'bac', 'kot']),
 
   selectedXattrOption: undefined,
 
@@ -131,7 +148,41 @@ export default Component.extend(I18n, {
     return this.inlineEditorsApis?.xattrKey;
   },
 
-  xattrKeyNameField: computed(function xattrKeyNameField() {
+  filesList: computed('browserModel', function filesList() {
+    const files = [];
+    for (const file of this.browserModel.itemsArray.get('sourceArray').toArray()) {
+      if (file && file.hasCustomMetadata) {
+        files.push(file);
+      }
+    }
+    return files;
+  }),
+
+  xattrsListProxy: computed('filesList', function xattrsListProxy() {
+    return promiseObject(Promise.all(
+      this.filesList.map(file =>
+        this.metadataManager.getMetadata(file, 'xattrs', 'private'))
+    ));
+  }),
+
+  xattrOptions: computed('xattrsListProxy.content', function xattrOptions() {
+    const tmp = new Set();
+    const result = [];
+    if (this.xattrsListProxy.content) {
+      for (const elem of this.xattrsListProxy.content) {
+        for (const key in elem) {
+          tmp.add(key);
+        }
+      }
+
+      for (const elem of Array.from(tmp)) {
+        result.push({ value: elem, label: elem });
+      }
+    }
+    return result;
+  }),
+
+  xattrKeyNameField: computed('xattrKeyNameDropdownField', function xattrKeyNameField() {
     return FormFieldsRootGroup
       .create({
         ownerSource: this,
@@ -143,21 +194,23 @@ export default Component.extend(I18n, {
       });
   }),
 
-  xattrKeyModifiedNameField: computed(function xattrKeyModifiedNameField() {
-    return FormFieldsRootGroup
-      .create({
-        ownerSource: this,
-        columnsConfigurationPopoverComponent: this,
-        i18nPrefix: this.i18nPrefix,
-        fields: [
-          this.xattrKeyModifiedNameDropdownField,
-        ],
-      });
-  }),
+  xattrKeyModifiedNameField: computed('xattrKeyModifiedNameDropdownField',
+    function xattrKeyModifiedNameField() {
+      return FormFieldsRootGroup
+        .create({
+          ownerSource: this,
+          columnsConfigurationPopoverComponent: this,
+          i18nPrefix: this.i18nPrefix,
+          fields: [
+            this.xattrKeyModifiedNameDropdownField,
+          ],
+        });
+    }
+  ),
 
   xattrColumnName: '',
 
-  xattrKeyNameDropdownField: computed(function xattrKeyNameDropdownField() {
+  xattrKeyNameDropdownField: computed('xattrKeyNameOptions', function xattrKeyNameDropdownField() {
     return CustomValueDropdownField
       .extend({
         options: this.xattrKeyNameOptions,
@@ -170,10 +223,11 @@ export default Component.extend(I18n, {
         columnsConfigurationPopoverComponent: this,
         name: this.xattrKeyFieldName,
         size: 'sm',
+        isOptional: true,
       });
   }),
 
-  xattrKeyModifiedNameDropdownField: computed(
+  xattrKeyModifiedNameDropdownField: computed('xattrKeyNameOptions',
     function xattrKeyModifiedNameDropdownField() {
       return CustomValueDropdownField
         .extend({
@@ -183,26 +237,24 @@ export default Component.extend(I18n, {
           columnsConfigurationPopoverComponent: this,
           name: this.xattrKeyModifiedFieldName,
           size: 'sm',
+          isOptional: true,
         });
     }
   ),
 
-  xattrKeyNameOptions: computed(
+  xattrKeyNameOptions: computed('xattrOptions',
     function xattrKeyNameOptions() {
-      return [
-        { value: 'aaa', label: 'aaa' },
-        { value: 'baa', label: 'baa' },
-        { value: 'bbb', label: 'b2b' },
-        { value: 'ccc', label: 'c3c' },
-      ] ?? [];
+      return this.xattrOptions ?? [];
     }
   ),
 
-  modifiedColumn: '',
-
-  modifiedColumnKey: 'llll',
-
-  modifiedColumnNewValue: '',
+  isDisabledAddButton: computed(
+    'xattrColumnName',
+    'xattrKeyNameDropdownField.value',
+    function isDisabledAddButton() {
+      return !this.xattrColumnName || !this.xattrKeyNameDropdownField.value;
+    }
+  ),
 
   /**
    * @override

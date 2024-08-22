@@ -1,4 +1,6 @@
 .webui-popover-columns-configuration {
+  width: 360px;
+
   .webui-popover-content {
     padding: 0;
 
@@ -8,8 +10,9 @@
       display: none;
     }
   }
+
   .columns-configuration-list {
-    max-height: 30vh;
+    max-height: 60vh;
     padding: $padding-xs-horizontal $padding-base-vertical;
     @media (hover: hover) {
       padding-left: $padding-xs-horizontal;
@@ -199,7 +202,6 @@
   }
   .xattr-column-add, .xattr-column-modify {
     padding: 12px;
-    width: 252px;
 
     h1 {
       display: inline-flex;

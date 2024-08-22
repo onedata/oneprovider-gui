@@ -64,6 +64,7 @@
 {{/each}}
 {{columns-configuration-cell
   columnsConfiguration=columnsConfiguration
+  browserModel=browserModel
   dragStartAction=(if browserModel.isUsingUploadArea (action "checkboxDragStart"))
   dragEndAction=(if browserModel.isUsingUploadArea (action "checkboxDragEnd"))
 }}

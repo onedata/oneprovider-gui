@@ -165,11 +165,10 @@
       font-size: 180%;
       right: 0;
       top: 0.95em;
-      opacity: $disabled-opacity;
+      visibility: hidden;
     }
     &:hover .info-icon-container {
-      opacity: 1;
-      color: $color-one-mint;
+      visibility: visible;
     }
 
     .file-xattr {
