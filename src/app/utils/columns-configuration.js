@@ -187,26 +187,28 @@ export default EmberObject.extend(...mixins, {
 
   addNewColumn(columnName, key, type) {
     const columnNameVariable = type + '-' + columnName.replace(' ', '-').replace('.', '-');
-    this.columns[columnNameVariable] = EmberObject.create({
-      isVisible: false,
-      isEnabled: false,
-      width: 200,
-      hasSubname: true,
-      hasTooltip: true,
-      type: type,
-      xattrKey: key,
-      displayedName: columnName,
-      fileProperty: `xattr.${key}`,
-    });
-    globals.localStorage.setItem(
-      `${this.persistedConfigurationKey}.${columnNameVariable}`,
-      columnName + ':' + key
-    );
-    this.columnsOrder.push(columnNameVariable);
-    this.saveColumnsOrder();
-    this.changeColumnVisibility(columnNameVariable, true);
-    this.checkColumnsVisibility();
-    this.notifyPropertyChange('columnsOrder');
+    if (!(columnNameVariable in this.columns)) {
+      this.columns[columnNameVariable] = EmberObject.create({
+        isVisible: false,
+        isEnabled: false,
+        width: 200,
+        hasSubname: true,
+        hasTooltip: true,
+        type: type,
+        xattrKey: key,
+        displayedName: columnName,
+        fileProperty: `xattr.${key}`,
+      });
+      globals.localStorage.setItem(
+        `${this.persistedConfigurationKey}.${columnNameVariable}`,
+        columnName + ':' + key
+      );
+      this.columnsOrder.push(columnNameVariable);
+      this.saveColumnsOrder();
+      this.changeColumnVisibility(columnNameVariable, true);
+      this.checkColumnsVisibility();
+      this.notifyPropertyChange('columnsOrder');
+    }
   },
 
   removeColumn(columnName) {
@@ -323,6 +325,26 @@ export default EmberObject.extend(...mixins, {
           this.columns[columnName] = EmberObject.create({
             isVisible: false,
             isEnabled: Boolean(enabledColumnsList?.includes(columnName)),
+            width: 120,
+            hasSubname: true,
+            hasTooltip: true,
+            type: 'xattr',
+            xattrKey,
+            displayedName,
+            fileProperty: `xattr.${xattrKey}`,
+          });
+        }
+      }
+      for (const columnName of columnsOrderListFromLocalStorage) {
+        if (columnName.startsWith('xattr') && !(columnName in this.columns)) {
+          const columnProperties = globals.localStorage.getItem(
+            `${this.persistedConfigurationKey}.${columnName}`
+          ).split(':');
+          const xattrKey = columnProperties[1];
+          const displayedName = columnProperties[0];
+          this.columns[columnName] = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
             width: 120,
             hasSubname: true,
             hasTooltip: true,
