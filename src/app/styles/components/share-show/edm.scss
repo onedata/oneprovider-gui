@@ -81,7 +81,7 @@ $share-show-edm-empirical-header-height: 68px;
   }
   .representative-image-container {
     position: sticky;
-    top: calc(var(--representative-image-top) + 20px);
+    top: calc(var(--share-show-content-header-height) + 20px);
     width: 100%;
     padding-left: 20px;
     margin-top: 68px;
