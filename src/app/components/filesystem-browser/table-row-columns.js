@@ -239,8 +239,13 @@ export default FbTableRowColumns.extend(I18n, {
     invokeFileAction(file, btnId, ...args) {
       this.get('invokeFileAction')(file, btnId, ...args);
     },
-    openXattrModal(xattrValue) {
-      this.modalManager.show('xattr-modal', { xattrValue: xattrValue });
+    openXattrModal(xattrValue, xattrKey) {
+      this.modalManager.show(
+        'xattr-modal', {
+          xattrValue,
+          file: this.file,
+          xattrKey,
+        });
     },
   },
 });

@@ -6,7 +6,8 @@
   as |modal|
 }}
   {{#modal.header}}
-    <h1>{{tt this "header"}}</h1>
+    <h1>{{tt this "header" key=xattrKey}}</h1>
+    {{modal-file-subheader files=file}}
   {{/modal.header}}
   {{#modal.body}}
     {{clipboard-line

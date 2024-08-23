@@ -1,4 +1,4 @@
 export default {
-  header: 'Xattr value',
+  header: '{{key}} Xattr value',
   cancel: 'Cancel',
 };

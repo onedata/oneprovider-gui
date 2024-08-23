@@ -9,6 +9,7 @@
 import { computed } from '@ember/object';
 import Component from '@ember/component';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import { reads } from '@ember/object/computed';
 
 export default Component.extend({
   tagName: 'td',
@@ -45,8 +46,13 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<String>}
    */
-  xattrValue: computed('xattrs', 'columnInfo.xattrKey', function xattrValue() {
-    const key = this.columnInfo.xattrKey.replace('.', '-');
+  xattrKey: reads('columnInfo.xattrKey'),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  xattrValue: computed('xattrs', 'xattrKey', function xattrValue() {
+    const key = this.xattrKey.replace('.', '-');
     return this.xattrs[key];
   }),
 
@@ -66,7 +72,7 @@ export default Component.extend({
 
   click: function click() {
     if (this.xattrValue) {
-      this.openXattrModal(this.xattrValue);
+      this.openXattrModal(this.xattrValue, this.xattrKey);
     }
   },
 });

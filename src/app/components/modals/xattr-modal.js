@@ -8,6 +8,7 @@
 
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
+import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
 
@@ -39,14 +40,26 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type { XattrModalOptions }
+   * @type {XattrModalOptions}
    */
   modalOptions: undefined,
+
+  /**
+   * @type {Model.File}
+   */
+  file: computed('modalOptions.file', function file() {
+    return [this.modalOptions.file];
+  }),
 
   /**
    * @type {string}
    */
   xattrValue: reads('modalOptions.xattrValue'),
+
+  /**
+   * @type {string}
+   */
+  xattrKey: reads('modalOptions.xattrKey'),
 
   close() {
     this.modalManager.hide(this.modalId);
