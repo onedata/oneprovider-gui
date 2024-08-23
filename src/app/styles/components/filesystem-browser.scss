@@ -159,11 +159,14 @@
     cursor: pointer;
 
     .info-icon-container {
-      position: absolute;
       font-size: 180%;
-      right: 0;
-      top: 0.95em;
       visibility: hidden;
+      align-self: stretch;
+      padding-bottom: 2px;
+
+      .one-icon {
+        vertical-align: middle;
+      }
     }
     &:hover .info-icon-container {
       visibility: visible;
@@ -171,10 +174,13 @@
 
     .file-xattr {
       font-size: 80%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
       .file-xattr-text {
         @include font-monospace();
-        padding-left: $padding-xs-horizontal;
+        padding-left: 26px;
         padding-right: $padding-xs-horizontal;
       }
     }

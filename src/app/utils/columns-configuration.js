@@ -325,7 +325,7 @@ export default EmberObject.extend(...mixins, {
           this.columns[columnName] = EmberObject.create({
             isVisible: false,
             isEnabled: Boolean(enabledColumnsList?.includes(columnName)),
-            width: 120,
+            width: 160,
             hasSubname: true,
             hasTooltip: true,
             type: 'xattr',
@@ -345,7 +345,7 @@ export default EmberObject.extend(...mixins, {
           this.columns[columnName] = EmberObject.create({
             isVisible: false,
             isEnabled: false,
-            width: 120,
+            width: 160,
             hasSubname: true,
             hasTooltip: true,
             type: 'xattr',
