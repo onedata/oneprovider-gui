@@ -57,6 +57,11 @@ export default EmberObject.extend(...mixins, {
   configurationType: '',
 
   /**
+   * @type {boolean}
+   */
+  isXattrColumns: false,
+
+  /**
    * @type {string}
    */
   persistedConfigurationKey: reads('configurationType'),

@@ -362,6 +362,11 @@ export default BaseBrowserModel.extend(...mixins, {
     },
   ),
 
+  /**
+   * @type {boolean}
+   */
+  isXattrColumns: true,
+
   parentDirRequirement: computed(
     'dir',
     'browserFilesProperties',
@@ -1470,6 +1475,7 @@ export default BaseBrowserModel.extend(...mixins, {
     }
     return ColumnsConfiguration.create({
       configurationType: this.browserPersistedConfigurationKey,
+      isXattrColumns: this.isXattrColumns,
       columns,
       columnsOrder,
       firstColumnWidth: 380,

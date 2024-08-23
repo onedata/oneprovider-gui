@@ -96,6 +96,11 @@ export default FilesystemBrowserModel.extend({
     },
   ),
 
+  /**
+   * @type {boolean}
+   */
+  isXattrColumns: false,
+
   isInVirtualShareDir: eq('dir.entityId', raw(shareRootId)),
 
   rootFileGri: computed('share', function rootFileGri() {
