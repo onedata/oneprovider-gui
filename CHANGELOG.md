@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12001 Added available users list inferring in the ACL view entity selector when user lacks some privileges in the space
 * VFS-12239 Added automatic filling of the "File size" EDM property on initialization and modification
 * VFS-12197 Improved UX of share lists
 * VFS-12198 Added direct download link for shared files
