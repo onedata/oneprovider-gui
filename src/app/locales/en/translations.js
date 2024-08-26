@@ -57,6 +57,7 @@ import visualEdmTranslation from './services/visual-edm-translation';
 import handleMultiFilesOperation from './utils/handle-multi-files-operation';
 import baseBrowserModel from './utils/base-browser-model';
 import filesystemBrowserModel from './utils/filesystem-browser-model';
+import shareFilesystemBrowserModel from './utils/share-filesystem-browser-model';
 import datasetBrowserModel from './utils/dataset-browser-model';
 import archiveBrowserModel from './utils/archive-browser-model';
 import selectorFilesystemBrowserModel from './utils/selector-filesystem-browser-model';
@@ -137,6 +138,7 @@ const translations = {
     handleMultiFilesOperation,
     baseBrowserModel,
     filesystemBrowserModel,
+    shareFilesystemBrowserModel,
     datasetBrowserModel,
     archiveBrowserModel,
     selectorFilesystemBrowserModel,
