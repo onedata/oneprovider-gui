@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12204 Fixed graphical glitch in file datasets panel tab bar
 * VFS-12069 Fixed style glitches in share public view: unnecessary scroll, wrong XML area size, lack of representative image stickiness
 * VFS-12001 Added available users list inferring in the ACL view entity selector when user lacks some privileges in the space
 * VFS-12239 Added automatic filling of the "File size" EDM property on initialization and modification

@@ -25,12 +25,12 @@
             <div class="one-label tab-name">
               {{tabSpec.label}}
               {{#if tabSpec.tip}}
-                {{#one-icon
-                  icon="sign-question-rounded"
+                <OneIcon
+                  @icon="sign-question-rounded"
                   class="hint-trigger clickable"
-                }}
-                  {{one-tooltip title=tabSpec.tip}}
-                {{/one-icon}}
+                >
+                  <OneTooltip @title={{tabSpec.tip}} />
+                </OneIcon>
               {{/if}}
             </div>
           </span>
