@@ -216,7 +216,7 @@ export default EmberObject.extend(...mixins, {
     }
   },
 
-  removeColumn(columnName) {
+  removeXattrColumn(columnName) {
     delete this.columns[columnName];
     globals.localStorage.removeItem(
       `${this.persistedConfigurationKey}.${columnName}`

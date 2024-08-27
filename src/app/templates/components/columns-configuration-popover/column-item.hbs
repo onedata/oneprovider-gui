@@ -3,7 +3,7 @@
   dragStartHook=(action "dragStartAction")
   dragEndHook=(action "dragEndAction")
 }}
-  {{one-icon icon="drag" class="column-move-icon"}}
+  <OneIcon @icon="drag" class="column-move-icon" />
   {{one-checkbox
     inputId=checkboxInputId
     checked=(get columnValue "isEnabled")
@@ -17,13 +17,13 @@
     for={{checkboxInputId}}
     class="column-name-label"
   >
-    {{#truncated-string}}
+    <TruncatedString>
       {{#if (eq (get columnValue "type") "xattr")}}
         {{get columnValue "displayedName"}}
       {{else}}
         {{tt this (concat translationKey ".name." columnName)}}
       {{/if}}
-    {{/truncated-string}}
+    </TruncatedString>
     {{#if columnValue.hasSubname}}
       <span class="subname-text">
         {{#if (eq (get columnValue "type") "xattr")}}
@@ -38,17 +38,17 @@
     {{#if (eq (get columnValue "type") "xattr")}}
       <div
         class="modify-column icon-container"
-        onClick={{action "goXattrModify" columnName}}
+        onClick={{action "openXattrModification" columnName}}
       >
-        {{one-icon icon="browser-rename"}}
-        {{one-tooltip title=(tt this "modifyTip" columnName=columnName)}}
+        <OneIcon @icon="browser-rename" />
+        <OneTooltip @title={{tt this "modifyTip" columnName=columnName}} />
       </div>
       <div
         class="remove-column icon-container"
-        onClick={{action "removeColumn" columnName}}
+        onClick={{action "removeXattrColumn" columnName}}
       >
-        {{one-icon icon="close"}}
-        {{one-tooltip title=(tt this "removeTip" columnName=columnName)}}
+        <OneIcon @icon="close" />
+        <OneTooltip @title={{tt this "removeTip" columnName=columnName}} />
       </div>
     {{/if}}
     {{#if (and
@@ -56,15 +56,15 @@
       (get columnValue "isEnabled")
     )}}
       <div class="no-view icon-container">
-        {{one-icon icon="no-view" class="no-view-icon"}}
-        {{one-tooltip title=(tt this "noViewTip")}}
+        <OneIcon @icon="no-view" class="no-view-icon" />
+        <OneTooltip @title={{tt this "noViewTip"}} />
       </div>
     {{/if}}
     {{#if columnValue.hasTooltip}}
       <div class="column-info icon-container">
-        {{one-icon icon="browser-info" class="column-info-icon"}}
-        {{one-tooltip
-          title=(if (eq (get columnValue "type") "xattr")
+        <OneIcon @icon="browser-info" class="column-info-icon" />
+        <OneTooltip
+          @title={{if (eq (get columnValue "type") "xattr")
             (tt this
               (concat translationKey ".tip.xattr")
               key=(get columnValue "xattrKey")
@@ -73,8 +73,8 @@
               (concat translationKey ".tip." columnName)
               oneprovider=currentProviderName
             )
-          )
-        }}
+          }}
+        />
       </div>
     {{/if}}
     <div class="arrows-container">
@@ -82,24 +82,24 @@
         class="move-down-button icon-container"
         onClick={{action "moveColumnDown" columnName}}
       >
-        {{one-icon
-          icon="move-down"
-          class=(if isMoveDownIconDisabled "disabled-icon")
-        }}
+        <OneIcon
+          @icon="move-down"
+          class={{if isMoveDownIconDisabled "disabled-icon"}}
+        />
         {{#if (and (not isMoveDownIconDisabled) isArrowTooltipVisible)}}
-          {{one-tooltip title=(tt this "moveDown")}}
+          <OneTooltip @title={{tt this "moveDown"}} />
         {{/if}}
       </span>
       <span
         class="move-up-button icon-container"
         onClick={{action "moveColumnUp" columnName}}
       >
-        {{one-icon
-          icon="move-up"
-          class=(if isMoveUpIconDisabled "disabled-icon")
-        }}
+        <OneIcon
+          @icon="move-up"
+          class={{if isMoveUpIconDisabled "disabled-icon"}}
+        />
         {{#if (and (not isMoveUpIconDisabled) isArrowTooltipVisible)}}
-          {{one-tooltip title=(tt this "moveUp")}}
+          <OneTooltip @title={{tt this "moveUp"}} />
         {{/if}}
       </span>
     </div>

@@ -1,27 +1,31 @@
-{{#global-modal
-  classNames="xattr-modal"
-  modalId=modalId
-  allowClose=true
-  onHide=(action "onHide")
+<GlobalModal
+  @classNames="xattr-modal"
+  @modalId={{modalId}}
+  @allowClose={{true}}
+  @onHide={{action "onHide"}}
   as |modal|
-}}
-  {{#modal.header}}
+>
+
+  <modal.header>
     <h1>{{tt this "header" key=xattrKey}}</h1>
-    {{modal-file-subheader files=file}}
-  {{/modal.header}}
-  {{#modal.body}}
-    {{clipboard-line
-      value=xattrValue
-      type="textarea"
-      textareaRows="3"
+    <ModalFileSubheader @files={{file}} />
+  </modal.header>
+
+  <modal.body>
+    <ClipboardLine
+      @value={{xattrValue}}
+      @type="textarea"
+      @textareaRows="3"
       class="monospace-font compact"
-    }}
-  {{/modal.body}}
-  {{#modal.footer}}
-    {{#one-button
-      onClick=modal.close
-    }}
+    />
+  </modal.body>
+
+  <modal.footer>
+    <OneButton
+      @onClick={{modal.close}}
+    >
       {{tt this "cancel"}}
-    {{/one-button}}
-  {{/modal.footer}}
-{{/global-modal}}
+    </OneButton>
+  </modal.footer>
+
+</GlobalModal>

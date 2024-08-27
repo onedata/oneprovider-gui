@@ -317,8 +317,8 @@ export default Component.extend(I18n, {
       );
       this.set('activeSlide', 'column-configuration');
     },
-    removeColumn(removedColumn) {
-      this.columnsConfiguration.removeColumn(removedColumn);
+    removeXattrColumn(removedColumn) {
+      this.columnsConfiguration.removeXattrColumn(removedColumn);
     },
     acceptDraggedElement(index, draggedElement) {
       this.columnsConfiguration.moveColumn(draggedElement.columnName, index + 1);
@@ -332,7 +332,7 @@ export default Component.extend(I18n, {
       this.xattrKeyNameDropdownField.valueChanged('');
       this.set('xattrColumnName', '');
     },
-    goXattrModify(columnName) {
+    openXattrModification(columnName) {
       const xattrKey = this.columnsConfiguration.columns[columnName].xattrKey;
       this.xattrKeyModifiedNameDropdownField.valueChanged(xattrKey);
       this.set('activeSlide', 'xattr-modify');

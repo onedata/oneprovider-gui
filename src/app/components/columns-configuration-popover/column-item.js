@@ -22,7 +22,6 @@ export default Component.extend(I18n, {
 
   i18n: service(),
   providerManager: service(),
-  media: service(),
 
   /**
    * @override
@@ -81,13 +80,13 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {(columnName: string) => void}
    */
-  goXattrModify: notImplementedWarn,
+  openXattrModification: notImplementedWarn,
 
   /**
    * @virtual
    * @type {(columnName: string) => void}
    */
-  removeColumn: notImplementedWarn,
+  removeXattrColumn: notImplementedWarn,
 
   /**
    * @virtual
@@ -146,11 +145,11 @@ export default Component.extend(I18n, {
         return this.dragEndAction();
       }
     },
-    goXattrModify(columnName) {
-      this.goXattrModify(columnName);
+    openXattrModification(columnName) {
+      this.openXattrModification(columnName);
     },
-    removeColumn(columnName) {
-      this.removeColumn(columnName);
+    removeXattrColumn(columnName) {
+      this.removeXattrColumn(columnName);
     },
   },
 });

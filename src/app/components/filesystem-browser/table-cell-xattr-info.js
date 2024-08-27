@@ -14,10 +14,7 @@ import { reads } from '@ember/object/computed';
 export default Component.extend({
   tagName: 'td',
   classNames: ['fb-table-col-xattr', 'multiline', 'hidden-xs'],
-
-  attributeBindings: [
-    'style',
-  ],
+  attributeBindings: ['style'],
 
   /**
    * @virtual
@@ -70,7 +67,7 @@ export default Component.extend({
     return this.xattrValue?.substr(12, 11);
   }),
 
-  click: function click() {
+  click() {
     if (this.xattrValue) {
       this.openXattrModal(this.xattrValue, this.xattrKey);
     }

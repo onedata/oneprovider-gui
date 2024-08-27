@@ -1,20 +1,20 @@
-{{#render-later triggerRender=isOpened}}
-  {{#one-webui-popover
-    popoverStyle="columns-configuration"
-    open=isOpened
-    triggerSelector=triggerSelector
+<RenderLater @triggerRender={{isOpened}}>
+  <OneWebuiPopover
+    @popoverStyle="columns-configuration"
+    @open={{isOpened}}
+    @triggerSelector={{triggerSelector}}
     as |popover|
-  }}
-    {{#click-outside
-      onClickOutside=(action (mut isOpened) false)
-      exceptSelector=triggerSelector
-    }}
-      {{#one-carousel animated=false activeSlideId=activeSlide as |carousel|}}
-        {{#carousel.slide slideId="column-configuration"}}
-          {{#perfect-scrollbar-element
+  >
+    <ClickOutside
+      @onClickOutside={{action (mut isOpened) false}}
+      @exceptSelector={{triggerSelector}}
+    >
+      <OneCarousel @animated={{false}} @activeSlideId={{activeSlide}} as |carousel|>
+        <carousel.slide @slideId="column-configuration">
+          <PerfectScrollbarElement
             class="columns-configuration-list"
             as |perfectScrollbarContainer|
-          }}
+          >
             <ul class="columns-list">
               {{one-draggable-object-target
                 action=(action "acceptDraggedElement" -1)
@@ -33,8 +33,8 @@
                   moveColumnUp=(action "moveColumnUp")
                   dragStartAction=dragStartAction
                   dragEndAction=dragEndAction
-                  goXattrModify=(action "goXattrModify")
-                  removeColumn=(action "removeColumn")
+                  openXattrModification=(action "openXattrModification")
+                  removeXattrColumn=(action "removeXattrColumn")
                 }}
                 {{one-draggable-object-target
                   action=(action "acceptDraggedElement" index)
@@ -42,33 +42,33 @@
                 }}
               {{/each}}
             </ul>
-          {{/perfect-scrollbar-element}}
+          </PerfectScrollbarElement>
           {{#if columnsConfiguration.isXattrColumns}}
             <div class="add-new-column new-column-item" onClick={{action "goXattrConfiguration"}}>
-              {{#bs-button
-                id=btnId
-                class=(concat-classes "add-new-column-btn clickable" )
-                type="default"
-              }}
-                {{one-icon icon="plus" class="adder-icon"}}
-              {{/bs-button}}
+              <BsButton
+                @id={{btnId}}
+                class={{concat-classes "add-new-column-btn clickable"}}
+                @type="default"
+              >
+                <OneIcon @icon="plus" class="adder-icon" />
+              </BsButton>
               <span class="new-column-text">Add new xattr column</span>
             </div>
           {{/if}}
-        {{/carousel.slide}}
-        {{#carousel.slide slideId="xattr-add"}}
-          {{#render-later triggerRender=(eq activeSlide "xattr-add")}}
+        </carousel.slide>
+        <carousel.slide @slideId="xattr-add">
+          <RenderLater @triggerRender={{eq activeSlide "xattr-add"}}>
             <div class="xattr-column-add">
               <h1>
                 <div class="go-back-button" onClick={{action "goBack"}}>
-                  {{one-icon icon="arrow-left" class="back-icon"}}
-                  {{one-tooltip title="Back"}}
+                  <OneIcon @icon="arrow-left" class="back-icon" />
+                  <OneTooltip @title="Back" />
                 </div>
                 <div>Add new xattr column</div>
               </h1>
               <PromiseProxyContainer @proxy={{xattrsListProxy}}>
                 <p>Enter xattr name:</p>
-                {{form-component/field-renderer field=xattrKeyNameField}}
+                <FormComponent::FieldRenderer @field={{xattrKeyNameField}} />
                 <p>Enter name of new column:</p>
                 <input
                   id={{inputId}}
@@ -77,11 +77,10 @@
                   value={{xattrColumnName}}
                   oninput={{action (mut xattrColumnName) value="target.value"}}
                   disabled={{isSaving}}
-                  autofocus=false
+                  autofocus={{false}}
                 >
               </PromiseProxyContainer>
               <div class="xattr-footer">
-                {{!-- <div class="back-button" onClick={{action "goBack"}}> --}}
                 <OneButton
                   @type="default"
                   @class="back-column-btn"
@@ -90,7 +89,6 @@
                 >
                   {{tt this "cancelBtn"}}
                 </OneButton>
-              {{!-- </div> --}}
               <div class="add-button">
                 <OneButton
                   @type="primary"
@@ -105,21 +103,21 @@
               </div>
               </div>
             </div>
-          {{/render-later}}
-        {{/carousel.slide}}
-        {{#carousel.slide slideId="xattr-modify"}}
-          {{#render-later triggerRender=(eq activeSlide "xattr-modify")}}
+          </RenderLater>
+        </carousel.slide>
+        <carousel.slide @slideId="xattr-modify">
+          <RenderLater @triggerRender={{eq activeSlide "xattr-modify"}}>
             <div class="xattr-column-modify">
               <h1>
                 <div class="go-back-button" onClick={{action "goBack"}}>
-                  {{one-icon icon="arrow-left" class="back-icon"}}
-                  {{one-tooltip title="Back"}}
+                  <OneIcon @icon="arrow-left" class="back-icon" />
+                  <OneTooltip @title="Back" />
                 </div>
                 <div>Modify xattr column</div>
               </h1>
               <PromiseProxyContainer @proxy={{xattrsListProxy}}>
                 <p>Modify key of xattr:</p>
-                {{form-component/field-renderer field=xattrKeyModifiedNameField}}
+                <FormComponent::FieldRenderer @field={{xattrKeyModifiedNameField}} />
                 <p>Enter name of column:</p>
                 <input
                   id={{inputId}}
@@ -128,7 +126,7 @@
                   value={{modifiedColumnNewValue}}
                   oninput={{action (mut modifiedColumnNewValue) value="target.value"}}
                   disabled={{isSaving}}
-                  autofocus=false
+                  autofocus={{false}}
                 >
                 <div class="xattr-footer">
                   <div class="cancel-button">
@@ -155,9 +153,9 @@
                 </div>
               </PromiseProxyContainer>
             </div>
-          {{/render-later}}
-        {{/carousel.slide}}
-      {{/one-carousel}}
-    {{/click-outside}}
-  {{/one-webui-popover}}
-{{/render-later}}
+          </RenderLater>
+        </carousel.slide>
+      </OneCarousel>
+    </ClickOutside>
+  </OneWebuiPopover>
+</RenderLater>
