@@ -15,6 +15,7 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 /**
  * @typedef {Object} XattrModalOptions
  * @property {string} xattrValue
+ * @property {string} xattrKey
  */
 
 const mixins = [

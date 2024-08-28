@@ -89,9 +89,25 @@ export default Component.extend(I18n, {
     return this.columnsCount - 1;
   }),
 
-  selectedXattrOption: undefined,
-
+  /**
+   * @type {string}
+   */
   activeSlide: 'column-configuration',
+
+  /**
+   * @type {string}
+   */
+  xattrKeyFieldName: 'xattrKey',
+
+  /**
+   * @type {string}
+   */
+  xattrKeyModifiedFieldName: 'xattrKeyModified',
+
+  /**
+   * @type {string}
+   */
+  xattrColumnName: '',
 
   /**
    * @type {boolean}
@@ -102,12 +118,6 @@ export default Component.extend(I18n, {
    * @type {Boolean}
    */
   isInFirefox: browser.name === BrowserName.Firefox,
-
-  /**
-   * Stores ids of currently edited inline editors.
-   * @type {Object<SpaceConfiguration.InlineEditorFieldId, OneInlineCustomEditorApi>}
-   */
-  inlineEditorsApis: undefined,
 
   /**
    * @type {ComputedProperty<string>}
@@ -125,29 +135,6 @@ export default Component.extend(I18n, {
     }
   ),
 
-  applyCurrentColumnsOrder() {
-    this.columnsConfiguration.saveColumnsOrder();
-    this.columnsConfiguration.checkColumnsVisibility();
-    this.columnsConfiguration.notifyPropertyChange('columnsOrder');
-    // workaround to bug in firefox
-    // tooltip not disappeared after click and move element
-    if (this.isInFirefox) {
-      this.set('isArrowTooltipVisible', false);
-      next(() => trySet(this, 'isArrowTooltipVisible', true));
-    }
-  },
-
-  xattrKeyFieldName: 'xattrKey',
-
-  xattrKeyModifiedFieldName: 'xattrKeyModified',
-
-  /**
-   * @returns {OneInlineCustomEditorApi}
-   */
-  getXattrKeyInlineEditorApi() {
-    return this.inlineEditorsApis?.xattrKey;
-  },
-
   filesList: computed('browserModel', function filesList() {
     const files = [];
     for (const file of this.browserModel.itemsArray.get('sourceArray').toArray()) {
@@ -158,28 +145,28 @@ export default Component.extend(I18n, {
     return files;
   }),
 
-  xattrsListProxy: computed('filesList', function xattrsListProxy() {
+  xattrsListPerFileProxy: computed('filesList', function xattrsListPerFileProxy() {
     return promiseObject(Promise.all(
       this.filesList.map(file =>
         this.metadataManager.getMetadata(file, 'xattrs', 'private'))
     ));
   }),
 
-  xattrOptions: computed('xattrsListProxy.content', function xattrOptions() {
-    const tmp = new Set();
-    const result = [];
-    if (this.xattrsListProxy.content) {
-      for (const elem of this.xattrsListProxy.content) {
-        for (const key in elem) {
-          tmp.add(key);
+  xattrOptions: computed('xattrsListPerFileProxy.content', function xattrOptions() {
+    const xattrs = new Set();
+    const xattrsList = [];
+    if (this.xattrsListPerFileProxy.content) {
+      for (const xattrsFromSingleFile of this.xattrsListPerFileProxy.content) {
+        for (const xattrKey in xattrsFromSingleFile) {
+          xattrs.add(xattrKey);
         }
       }
 
-      for (const elem of Array.from(tmp)) {
-        result.push({ value: elem, label: elem });
+      for (const xattr of Array.from(xattrs)) {
+        xattrsList.push({ value: xattr, label: xattr });
       }
     }
-    return result;
+    return xattrsList;
   }),
 
   xattrKeyNameField: computed('xattrKeyNameDropdownField', function xattrKeyNameField() {
@@ -194,7 +181,8 @@ export default Component.extend(I18n, {
       });
   }),
 
-  xattrKeyModifiedNameField: computed('xattrKeyModifiedNameDropdownField',
+  xattrKeyModifiedNameField: computed(
+    'xattrKeyModifiedNameDropdownField',
     function xattrKeyModifiedNameField() {
       return FormFieldsRootGroup
         .create({
@@ -208,30 +196,32 @@ export default Component.extend(I18n, {
     }
   ),
 
-  xattrColumnName: '',
+  xattrKeyNameDropdownField: computed(
+    'xattrOptions',
+    function xattrKeyNameDropdownField() {
+      return CustomValueDropdownField
+        .extend({
+          options: this.xattrOptions,
+          valueChanged(option) {
+            this._super(...arguments);
+            this.set('columnsConfigurationPopoverComponent.xattrColumnName', option);
+          },
+        })
+        .create({
+          columnsConfigurationPopoverComponent: this,
+          name: this.xattrKeyFieldName,
+          size: 'sm',
+          isOptional: true,
+        });
+    }
+  ),
 
-  xattrKeyNameDropdownField: computed('xattrKeyNameOptions', function xattrKeyNameDropdownField() {
-    return CustomValueDropdownField
-      .extend({
-        options: this.xattrKeyNameOptions,
-        valueChanged(option) {
-          this._super(...arguments);
-          this.set('columnsConfigurationPopoverComponent.xattrColumnName', option);
-        },
-      })
-      .create({
-        columnsConfigurationPopoverComponent: this,
-        name: this.xattrKeyFieldName,
-        size: 'sm',
-        isOptional: true,
-      });
-  }),
-
-  xattrKeyModifiedNameDropdownField: computed('xattrKeyNameOptions',
+  xattrKeyModifiedNameDropdownField: computed(
+    'xattrOptions',
     function xattrKeyModifiedNameDropdownField() {
       return CustomValueDropdownField
         .extend({
-          options: this.xattrKeyNameOptions,
+          options: this.xattrOptions,
         })
         .create({
           columnsConfigurationPopoverComponent: this,
@@ -242,12 +232,9 @@ export default Component.extend(I18n, {
     }
   ),
 
-  xattrKeyNameOptions: computed('xattrOptions',
-    function xattrKeyNameOptions() {
-      return this.xattrOptions ?? [];
-    }
-  ),
-
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
   isDisabledAddButton: computed(
     'xattrColumnName',
     'xattrKeyNameDropdownField.value',
@@ -256,17 +243,16 @@ export default Component.extend(I18n, {
     }
   ),
 
-  /**
-   * @override
-   */
-  init() {
-    this._super(...arguments);
-
-    this.setProperties({
-      blankInlineEditors: {},
-      modifiedFields: new Set(),
-      inlineEditorsApis: {},
-    });
+  applyCurrentColumnsOrder() {
+    this.columnsConfiguration.saveColumnsOrder();
+    this.columnsConfiguration.checkColumnsVisibility();
+    this.columnsConfiguration.notifyPropertyChange('columnsOrder');
+    // workaround to bug in firefox
+    // tooltip not disappeared after click and move element
+    if (this.isInFirefox) {
+      this.set('isArrowTooltipVisible', false);
+      next(() => trySet(this, 'isArrowTooltipVisible', true));
+    }
   },
 
   actions: {

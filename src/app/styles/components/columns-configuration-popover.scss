@@ -79,7 +79,7 @@
 
         .column-info-icon {
           font-size: 140%;
-          opacity: 0.6;
+          opacity: $disabled-opacity;
         }
 
         .no-view-icon {
@@ -176,7 +176,7 @@
     .new-column-text {
       font-style: italic;
       padding-left: 3px;
-      opacity: 0.6;
+      opacity: $disabled-opacity;
     }
 
     .add-new-column-btn {
@@ -216,7 +216,7 @@
     .back-icon {
       font-weight: bold;
       vertical-align: bottom;
-      margin-left: -5px;
+      margin-left: -$padding-xs-horizontal;
     }
 
     .add-button, .back-button, .modify-button {
@@ -225,7 +225,7 @@
     }
 
     .back-column-btn {
-      margin-right: 5px;
+      margin-right: $padding-xs-horizontal;
     }
 
     .xattr-footer {
