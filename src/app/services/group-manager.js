@@ -27,12 +27,13 @@ export default Service.extend({
     throughSpaceId,
     reload = false,
     backgroundReload = false,
+    scope = 'shared',
   } = {}) {
     const groupGri = gri({
       entityType: groupEntityType,
       entityId: groupId,
       aspect: 'instance',
-      scope: 'shared',
+      scope,
     });
 
     if (throughSpaceId) {

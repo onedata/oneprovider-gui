@@ -11,12 +11,24 @@ import FilesystemBrowserModel from './filesystem-browser-model';
 import { promise, raw, eq } from 'ember-awesome-macros';
 import { resolve } from 'rsvp';
 import EmberObject, { computed, get } from '@ember/object';
+import { inject as service } from '@ember/service';
+import { reads } from '@ember/object/computed';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { actionContext } from 'oneprovider-gui/components/file-browser';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export const shareRootId = 'shareRoot';
 
 export default FilesystemBrowserModel.extend({
+  globalClipboard: service(),
+  fileManager: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.shareFilesystemBrowserModel',
+
   /**
    * @virtual
    * @type {Models.Share}
@@ -97,9 +109,78 @@ export default FilesystemBrowserModel.extend({
   ),
 
   /**
-   * @type {boolean}
+   * Remember to copy original computed property dependencies.
+   * @override
+   */
+  buttonNames: computed('isLastListLoadErrorFatal', function buttonNames() {
+    /** @type {Array<string>} */
+    const btnNameList = [...this._super(...arguments)];
+    let downloadBtnIndex = btnNameList.indexOf('btnDownload');
+    if (downloadBtnIndex === -1) {
+      downloadBtnIndex = btnNameList.length - 1;
+    }
+    btnNameList.splice(downloadBtnIndex + 1, 0, 'btnCopyPublicDownloadUrl');
+    return btnNameList;
+  }),
+
+  /**
+   * @type { boolean }
    */
   isXattrColumns: false,
+
+  publicDownloadUrlProxy: computed(
+    'selectedItems.[]',
+    function publicDownloadUrlProxy() {
+      const selectedItem = this.selectedItems?.length === 1 ?
+        this.selectedItems[0] : null;
+      return promiseObject((async () => {
+        if (!selectedItem) {
+          return;
+        }
+        const fileId = get(selectedItem, 'entityId');
+        const apiSamples = await this.fileManager.getFileApiSamples(
+          fileId,
+          'public'
+        );
+        const sample = apiSamples?.find(sample =>
+          sample.swaggerOperationId === 'get_shared_data'
+        );
+        return sample && (sample.apiRoot + sample.path);
+      })());
+    }
+  ),
+
+  publicDownloadUrl: reads('publicDownloadUrlProxy.content'),
+
+  btnCopyPublicDownloadUrl: computed(
+    'publicDownloadUrlProxy.{isRejected,isPending}',
+    'publicDownloadUrl',
+    function btnCopyPublicDownloadUrl() {
+      let tip;
+      if (!this.publicDownloadUrl) {
+        if (get(this.publicDownloadUrlProxy, 'isRejected')) {
+          tip = this.t('btnCopyPublicDownloadUrlTip.rejected');
+        } else if (get(this.publicDownloadUrlProxy, 'isPending')) {
+          tip = this.t('btnCopyPublicDownloadUrlTip.pending');
+        } else {
+          tip = this.t('btnCopyPublicDownloadUrlTip.empty');
+        }
+      }
+      return this.createItemBrowserAction({
+        id: 'copyPublicDownloadUrl',
+        icon: 'browser-copy',
+        disabled: !this.publicDownloadUrl,
+        tip,
+        action: ( /* files */ ) => {
+          return this.globalClipboard.copy(this.publicDownloadUrl);
+        },
+        showIn: [
+          actionContext.singleDirPreview,
+          actionContext.singleFilePreview,
+        ],
+      });
+    }
+  ),
 
   isInVirtualShareDir: eq('dir.entityId', raw(shareRootId)),
 

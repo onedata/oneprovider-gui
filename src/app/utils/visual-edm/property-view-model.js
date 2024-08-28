@@ -7,7 +7,7 @@
  */
 
 import EmberObject, { computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, or } from '@ember/object/computed';
 import { eq, raw, conditional, not } from 'ember-awesome-macros';
 import {
   EdmPropertyRecommendation,
@@ -38,7 +38,7 @@ const PropertyViewModel = EmberObject.extend({
 
   visualEdmViewModel: reads('objectViewModel.visualEdmViewModel'),
 
-  isDisabled: reads('visualEdmViewModel.isDisabled'),
+  isDisabled: or('visualEdmViewModel.isDisabled', 'model.isAlwaysDisabled'),
 
   /**
    * @type {boolean}
@@ -139,8 +139,8 @@ const PropertyViewModel = EmberObject.extend({
    * trying to access Proxy's properties.
    * @type {ComputedProperty<string>}
    */
-  lang: computed('model.attrs', function lang() {
-    return this.model.attrs.lang;
+  lang: computed('model', function lang() {
+    return this.model.lang;
   }),
 
   /**

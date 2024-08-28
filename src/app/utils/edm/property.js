@@ -52,6 +52,8 @@ class EdmProperty {
     }
 
     this.attrs = {};
+
+    /** @type {EdmPropertySpec} */
     this.spec = options.spec || {};
   }
 
@@ -89,12 +91,27 @@ class EdmProperty {
     return Boolean(!this.value && this.attrs.resource != null);
   }
 
+  get currentValueType() {
+    return this.isUsingResource ?
+      EdmPropertyValueType.Reference : EdmPropertyValueType.Literal;
+  }
+
   get supportedValueType() {
     return this.spec?.val || EdmPropertyValueType.Any;
   }
 
   get predefinedValues() {
-    return this.spec?.predef;
+    const predef = this.spec?.predef;
+    if (!predef) {
+      return undefined;
+    }
+    if (Array.isArray(predef)) {
+      return predef;
+    }
+    if (typeof predef === 'object') {
+      return predef[this.currentValueType];
+    }
+    return undefined;
   }
 
   get hasPredefinedValues() {
@@ -118,12 +135,33 @@ class EdmProperty {
   }
 
   /**
-   * Can contain string with property value examples or mapping of object type and
-   * examples specific for the type of object in which the property is in.
-   * @returns {string|Object<EdmObjectType, string>}
+   * @returns {string}
    */
   get example() {
-    return this.spec.example;
+    return this.spec?.example;
+  }
+
+  /**
+   * Language code that can be found in src/app/utils/edm/lang-spec.js
+   * @returns {string}
+   */
+  get lang() {
+    return this.attrs.lang;
+  }
+
+  set lang(value) {
+    this.attrs.lang = value;
+  }
+
+  /**
+   * @type {string|{ [EdmPropertyValueType.Literal]: string, [EdmPropertyValueType.Reference]: string }|undefined}
+   */
+  get placeholderExample() {
+    return this.spec.placeholder ?? undefined;
+  }
+
+  get isAlwaysDisabled() {
+    return this.spec.disabled ?? false;
   }
 
   /**
@@ -171,6 +209,10 @@ class EdmProperty {
    */
   equals(edmProperty) {
     return this.xmlElement === edmProperty.xmlElement;
+  }
+
+  setDefaultValue() {
+    this.setSupportedValue(this.spec.def ?? null);
   }
 }
 

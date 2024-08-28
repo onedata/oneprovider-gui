@@ -7,7 +7,7 @@ import { setupRenderingTest } from 'ember-mocha';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import EmberObject from '@ember/object';
 
-describe('Unit | Utility | archive-filesystem-browser-list-poller', function () {
+describe('Integration | Utility | archive-filesystem-browser-list-poller', function () {
   const { beforeEach, afterEach } = setupRenderingTest();
 
   beforeEach(function () {

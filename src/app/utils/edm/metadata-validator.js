@@ -63,6 +63,14 @@ const EdmMetadataValidator = EmberObject.extend({
           new EdmMetadataInvalidObjectOcurrenceError(EdmObjectType.ProvidedCHO, 1)
         );
       }
+      const isSingleWebResource = this.edmMetadata.edmObjects.filter(obj =>
+        obj.edmObjectType === EdmObjectType.WebResource
+      ).length === 1;
+      if (!isSingleWebResource) {
+        result.push(
+          new EdmMetadataInvalidObjectOcurrenceError(EdmObjectType.WebResource, 1)
+        );
+      }
       const isSingleAggregation = this.edmMetadata.edmObjects.filter(obj =>
         obj.edmObjectType === EdmObjectType.Aggregation
       ).length === 1;

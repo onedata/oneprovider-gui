@@ -13,7 +13,7 @@ import WebResource from './objects/web-resource';
 import EdmObjectType from './object-type';
 import EdmObject, { InvalidEdmObjectType } from './object';
 import EdmMetadata from './metadata';
-import { EdmPropertyRecommendation, allPropertyData } from './property-spec';
+import { EdmPropertyRecommendation, getAllPropertyData } from './property-spec';
 import EdmPropertyFactory from './property-factory';
 
 const objectClasses = {
@@ -22,7 +22,11 @@ const objectClasses = {
   [EdmObjectType.WebResource]: WebResource,
 };
 
-const initialPropertiesMap = createInitialPropertyMap();
+let initialPropertiesMapCache;
+
+function getInitialPropertiesMap() {
+  return initialPropertiesMapCache ??= createInitialPropertyMap();
+}
 
 class EdmObjectFactory {
   /**
@@ -44,6 +48,16 @@ class EdmObjectFactory {
      * @type {EdmMetadata}
      */
     this.metadata = metadata;
+
+    // optional properties
+
+    /**
+     * Add a reference to share.rootFile to be able to set default value for file size
+     * property. If this property is not set - file size will have an undefined default
+     * value.
+     * @type {Models.File}
+     */
+    this.shareRootFile = undefined;
   }
 
   /**
@@ -66,9 +80,10 @@ class EdmObjectFactory {
   }
 
   createInitialObject(edmObjectType) {
-    const propertyFactory = new EdmPropertyFactory(this.metadata);
+    const propertyFactory = new EdmPropertyFactory(this.metadata, edmObjectType);
+    propertyFactory.shareRootFile = this.shareRootFile;
     return this.createObject(edmObjectType, {
-      edmProperties: initialPropertiesMap[edmObjectType].map(propertyItem =>
+      edmProperties: getInitialPropertiesMap()[edmObjectType].map(propertyItem =>
         propertyFactory.createProperty(
           propertyItem.namespace,
           propertyItem.name
@@ -82,7 +97,7 @@ class EdmObjectFactory {
  * @returns {Object<EdmObjectType, Array<Object>}
  */
 function createInitialPropertyMap() {
-  const initialPropertyItems = allPropertyData.filter(item => {
+  const initialPropertyItems = getAllPropertyData().filter(item => {
     return item.spec.rec === EdmPropertyRecommendation.Mandatory;
   });
   const propertyItems = {
@@ -91,9 +106,7 @@ function createInitialPropertyMap() {
     [EdmObjectType.WebResource]: [],
   };
   for (const propertyItem of initialPropertyItems) {
-    for (const supportedObjectType of propertyItem.spec.obj) {
-      propertyItems[supportedObjectType].push(propertyItem);
-    }
+    propertyItems[propertyItem.spec.obj].push(propertyItem);
   }
   return propertyItems;
 }

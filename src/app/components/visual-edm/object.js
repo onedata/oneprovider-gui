@@ -11,8 +11,6 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
-import { and, eq, raw, not } from 'ember-awesome-macros';
-import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
 
 /**
  * @typedef {Object} EdmPropertyGroup
@@ -59,11 +57,6 @@ export default Component.extend(I18n, {
    */
   edmProperties: reads('viewModel.edmProperties'),
 
-  isDeletable: and(
-    eq('viewModel.model.edmObjectType', raw(EdmObjectType.WebResource)),
-    not('visualEdmViewModel.isReadOnly'),
-  ),
-
   objectTypeName: computed('viewModel.model.edmObjectType', function objectTypeName() {
     const objectType = this.viewModel.model.edmObjectType;
     return this.t(`objectTypeName.${objectType}`, {}, { defaultValue: objectType });
@@ -106,10 +99,13 @@ export default Component.extend(I18n, {
     });
   }),
 
-  objectTypeTip: computed('viewModel.model.edmObjectType', function objectTypeTip() {
-    const type = this.viewModel.model.edmObjectType;
-    return this.t(`objectTypeTip.${type}`, {}, { defaultValue: null });
-  }),
+  objectTypeSubtitle: computed(
+    'viewModel.model.edmObjectType',
+    function objectTypeSubtitle() {
+      const type = this.viewModel.model.edmObjectType;
+      return this.t(`objectTypeSubtitle.${type}`, {}, { defaultValue: null });
+    }
+  ),
 
   closeAddProperty() {
     this.set('isAddPropertyOpened', false);

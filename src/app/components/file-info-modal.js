@@ -64,7 +64,16 @@ const mixins = [
  */
 
 /**
+ * Group where the link copy input is rendered.
+ * - browser: Web Browser links that opens the application and do some action on file,
+ *   like selecting it and downloading,
+ * - public: links that works without authentication.
+ * @typedef {'browser'|'public'} FileInfoModal.FileLinkGroup
+ */
+
+/**
  * @typedef {Object} FileInfoModal.FileLinkModel
+ * @property {FileInfoModal.FileLinkGroup} group
  * @property {string} url
  * @property {FileInfoModal.FileLinkType} type
  * @property {SafeString} label
@@ -269,11 +278,6 @@ export default Component.extend(...mixins, {
   }),
 
   /**
-   * @type {Array<FileInfoModal.FileLinkType>}
-   */
-  availableFileLinkTypes: Object.freeze(['show', 'download']),
-
-  /**
    * @type {boolean}
    */
   areStorageLocationsExpanded: false,
@@ -282,32 +286,61 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<Array<FileInfoModal.FileLinkModel>>}
    */
   availableFileLinkModels: computed(
-    'availableFileLinkTypes',
     'typeTranslation',
     'previewMode',
     'file.{type,cdmiObjectId}',
+    'apiSamples',
     function availableFileLinkModels() {
-      if (
-        !this.get('file.type') ||
-        !this.availableFileLinkTypes ||
-        // TODO: VFS-11156 Implement shared files global URLs
-        this.previewMode
-      ) {
+      if (!this.get('file.type')) {
         return [];
       }
-      return this.availableFileLinkTypes.map(fileLinkType => ({
-        type: fileLinkType,
-        url: this.appProxy.callParent('getFileGoToUrl', {
-          fileId: this.get('file.cdmiObjectId'),
-          fileAction: fileLinkType,
-        }),
-        label: this.t(`fileLinkLabel.${fileLinkType}`),
-        tip: this.t(`fileLinkTip.${fileLinkType}`, {
-          type: _.lowerCase(this.typeTranslation),
-        }, {
-          defaultValue: '',
-        }),
-      }));
+      // TODO: VFS-11156 Implement shared files global show URL
+      if (this.previewMode) {
+        const sample = this.apiSamples?.find(sample =>
+          sample.swaggerOperationId === 'get_shared_data'
+        );
+        const url = sample && (sample.apiRoot + sample.path);
+        return [{
+          type: 'download',
+          group: 'public',
+          url,
+          label: this.t('fileLinkLabel.public.download'),
+          tip: this.t('fileLinkTip.public.download', {
+            type: _.lowerCase(this.typeTranslation),
+          }, {
+            defaultValue: '',
+          }),
+        }];
+      } else {
+        return ['show', 'download'].map(fileLinkType => ({
+          type: fileLinkType,
+          group: 'browser',
+          url: this.appProxy.callParent('getFileGoToUrl', {
+            fileId: this.get('file.cdmiObjectId'),
+            fileAction: fileLinkType,
+          }),
+          label: this.t(`fileLinkLabel.browser.${fileLinkType}`),
+          tip: this.t(`fileLinkTip.browser.${fileLinkType}`, {
+            type: _.lowerCase(this.typeTranslation),
+          }, {
+            defaultValue: '',
+          }),
+        }));
+      }
+    }
+  ),
+
+  groupedFileLinkModels: computed(
+    'availableFileLinkModels',
+    function groupedFileLinkModels() {
+      return _.groupBy(this.availableFileLinkModels, 'group');
+    }
+  ),
+
+  fileLinkModelsGroups: computed(
+    'groupedFileLinkModels',
+    function fileLinkModelsGroups() {
+      return Object.keys(this.groupedFileLinkModels);
     }
   ),
 

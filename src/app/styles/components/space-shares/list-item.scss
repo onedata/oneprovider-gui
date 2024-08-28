@@ -5,12 +5,30 @@
       line-height: 0;
     }
   }
+  .one-collapsible-list-item-header {
+    height: 65px;
+    padding-top: 0;
+    padding-bottom: 0;
+    display: flex;
+    align-items: center;
+  }
   .list-header-content {
     display: flex;
-
-    .icon-with-name {
-      flex-grow: 2;
-    }
+    align-items: center;
+    width: 100%;
+  }
+  .share-name-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+  }
+  .share-file-path-error {
+    font-style: italic;
+  }
+  .share-file-path {
+    opacity: $disabled-opacity;
+    font-size: $font-size-small;
   }
 
   .one-icon-tag-icon {
@@ -27,5 +45,9 @@
     align-self: center;
     line-height: 0;
     padding-left: 10px;
+    padding-right: 6px;
+    > .label + .label {
+      margin-left: 6px;
+    }
   }
 }

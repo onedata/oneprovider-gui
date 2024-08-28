@@ -5,23 +5,12 @@
   <div class="basic-info-row">
     <div class="row edm-object-iconified-block-row title-row edm-object-title-row">
       <div class="edm-object-type item-name">{{objectTypeName}}</div>
-      {{#if objectTypeTip}}
-        <OneLabelTip class="edm-object-type-label-tip" @title={{objectTypeTip}}/>
-      {{/if}}
-      {{#if isDeletable}}
-        <div
-          class={{concat-classes
-            "edm-delete-btn edm-object-delete-btn"
-            (if viewModel.isDisabled "disabled")
-          }}
-          onclick={{unless viewModel.isDisabled (action "deleteObject")}}
-        >
-          <OneIcon class="edm-property-delete-icon" @icon="browser-delete">
-            <OneTooltip @title={{deleteObjectTip}} />
-          </OneIcon>
-        </div>
-      {{/if}}
     </div>
+    {{#if objectTypeSubtitle}}
+      <div class="edm-object-type-subtitle">
+        {{objectTypeSubtitle}}
+      </div>
+    {{/if}}
   </div>
   {{#if attrItems}}
     <ul class={{concat-classes
