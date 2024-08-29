@@ -126,7 +126,7 @@ export default FilesystemBrowserModel.extend({
   /**
    * @type { boolean }
    */
-  isXattrColumns: false,
+  hasXattrColumnsSupport: false,
 
   publicDownloadUrlProxy: computed(
     'selectedItems.[]',

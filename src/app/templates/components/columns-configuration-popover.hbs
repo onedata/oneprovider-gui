@@ -43,16 +43,19 @@
               {{/each}}
             </ul>
           </PerfectScrollbarElement>
-          {{#if columnsConfiguration.isXattrColumns}}
-            <div class="add-new-column new-column-item" onClick={{action "goXattrConfiguration"}}>
+          {{#if columnsConfiguration.hasXattrSettings}}
+            <div
+              class="add-new-column new-column-item"
+              onClick={{action "goXattrConfiguration"}}
+            >
               <BsButton
                 @id={{btnId}}
-                class={{concat-classes "add-new-column-btn clickable"}}
+                class="add-new-column-btn clickable"
                 @type="default"
               >
                 <OneIcon @icon="plus" class="adder-icon" />
               </BsButton>
-              <span class="new-column-text">Add new xattr column</span>
+              <span class="new-column-text">{{tt this "addNewColumn"}}</span>
             </div>
           {{/if}}
         </carousel.slide>
@@ -62,14 +65,14 @@
               <h1>
                 <div class="go-back-button" onClick={{action "goBack"}}>
                   <OneIcon @icon="arrow-left" class="back-icon" />
-                  <OneTooltip @title="Back" />
+                  <OneTooltip @title={{tt this "backTooltip"}} />
                 </div>
-                <div>Add new xattr column</div>
+                <div>{{tt this "addNewColumn"}}</div>
               </h1>
               <PromiseProxyContainer @proxy={{xattrsListPerFileProxy}}>
-                <p>Enter xattr name:</p>
+                <p>{{tt this "xattrNameLabel"}}</p>
                 <FormComponent::FieldRenderer @field={{xattrKeyNameField}} />
-                <p>Enter name of new column:</p>
+                <p>{{tt this "newColumnNameLabel"}}</p>
                 <input
                   id={{inputId}}
                   type="text"
@@ -89,18 +92,18 @@
                 >
                   {{tt this "cancelBtn"}}
                 </OneButton>
-              <div class="add-button">
-                <OneButton
-                  @type="primary"
-                  @buttonType="submit"
-                  @class="add-new-column-btn"
-                  @size="sm"
-                  @onClick={{action "addNewColumn"}}
-                  @disabled={{isDisabledAddButton}}
-                >
-                  {{tt this "addBtn"}}
-                </OneButton>
-              </div>
+                <div class="add-button">
+                  <OneButton
+                    @type="primary"
+                    @buttonType="submit"
+                    @class="add-new-column-btn"
+                    @size="sm"
+                    @onClick={{action "addNewColumn"}}
+                    @disabled={{isDisabledAddButton}}
+                  >
+                    {{tt this "addBtn"}}
+                  </OneButton>
+                </div>
               </div>
             </div>
           </RenderLater>
@@ -111,14 +114,14 @@
               <h1>
                 <div class="go-back-button" onClick={{action "goBack"}}>
                   <OneIcon @icon="arrow-left" class="back-icon" />
-                  <OneTooltip @title="Back" />
+                  <OneTooltip @title={{tt this "backTooltip"}} />
                 </div>
-                <div>Modify xattr column</div>
+                <div>{{tt this "modifyColumn"}}</div>
               </h1>
               <PromiseProxyContainer @proxy={{xattrsListPerFileProxy}}>
-                <p>Modify key of xattr:</p>
+                <p>{{tt this "modifyKeyLabel"}}</p>
                 <FormComponent::FieldRenderer @field={{xattrKeyModifiedNameField}} />
-                <p>Enter name of column:</p>
+                <p>{{tt this "columnNameLabel"}}</p>
                 <input
                   id={{inputId}}
                   type="text"

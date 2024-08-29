@@ -41,14 +41,18 @@
         onClick={{action "openXattrModification" columnName}}
       >
         <OneIcon @icon="browser-rename" />
-        <OneTooltip @title={{tt this "modifyTip" columnName=columnName}} />
+        <OneTooltip
+          @title={{tt this "modifyTip" columnName=(get columnValue "xattrKey")}}
+        />
       </div>
       <div
         class="remove-column icon-container"
         onClick={{action "removeXattrColumn" columnName}}
       >
         <OneIcon @icon="close" />
-        <OneTooltip @title={{tt this "removeTip" columnName=columnName}} />
+        <OneTooltip
+          @title={{tt this "removeTip" columnName=(get columnValue "xattrKey")}}
+        />
       </div>
     {{/if}}
     {{#if (and

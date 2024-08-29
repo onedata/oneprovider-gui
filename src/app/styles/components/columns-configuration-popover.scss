@@ -1,5 +1,5 @@
 .webui-popover-columns-configuration {
-  width: 360px;
+  width: 300px;
 
   .webui-popover-content {
     padding: 0;
@@ -52,7 +52,7 @@
         width: 7em;
 
         @media (hover: none) {
-        width: 10em;
+          width: 10em;
         }
 
         .icon-container .oneicon {
@@ -74,7 +74,7 @@
         }
 
         .modify-column:hover {
-          color: $color-one-orange;
+          color: $color-one-mint;
         }
 
         .column-info-icon {
@@ -165,7 +165,7 @@
 
   .add-new-column {
     padding-top: 10px;
-    padding-bottom: 10px;
+    padding-bottom: 17px;
     padding-left: 23px;
     cursor: pointer;
     position: sticky;

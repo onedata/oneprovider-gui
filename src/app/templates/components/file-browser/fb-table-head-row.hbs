@@ -44,10 +44,16 @@
               <OneIcon @icon="browser-info" class="column-info-icon">
                 <OneTooltip
                   @title={{if (eq
-                    (get columnsConfiguration (concat "columns." columnName ".type"))
-                    "xattr"
+                      (get columnsConfiguration (concat "columns." columnName ".type"))
+                      "xattr"
                     )
-                    (tt this "headers.tip.xattr")
+                    (tt this
+                      "headers.tip.xattr"
+                      key=(get
+                        columnsConfiguration
+                        (concat "columns." columnName ".xattrKey")
+                      )
+                    )
                     (tt this
                       (concat "headers.tip." columnName)
                       oneprovider=currentProviderName
@@ -62,8 +68,8 @@
           <div class="column-subname">
             {{#if (eq
               (get columnsConfiguration (concat "columns." columnName ".type"))
-              "xattr")
-            }}
+              "xattr"
+            )}}
               ({{tt this "headers.subname.xattr"}})
             {{else}}
               ({{tt this (concat "headers.subname." columnName)}})

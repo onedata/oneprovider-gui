@@ -46,9 +46,9 @@ export default Component.extend(...mixins, {
   modalOptions: undefined,
 
   /**
-   * @type {Model.File}
+   * @type {Array<Model.File>}
    */
-  file: computed('modalOptions.file', function file() {
+  files: computed('modalOptions.file', function files() {
     return [this.modalOptions.file];
   }),
 

@@ -41,12 +41,12 @@ export default Component.extend({
   openXattrModal: notImplementedWarn,
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
   xattrKey: reads('columnInfo.xattrKey'),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
   xattrValue: computed('xattrs', 'xattrKey', function xattrValue() {
     const key = this.xattrKey.replace('.', '-');
@@ -54,14 +54,14 @@ export default Component.extend({
   }),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
   xattrTextFirstPart: computed('xattrValue', function xattrTextFirstPart() {
     return this.xattrValue?.substr(0, 12);
   }),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
   xattrTextSecondPart: computed('xattrValue', function xattrTextSecondPart() {
     return this.xattrValue?.substr(12, 11);

@@ -20,7 +20,7 @@ export default {
     ctime: 'Last time the item\'s metadata was changed, e.g. permissions. It\' s also always updated when the modification time changes.',
     creationTime: 'Time the item was created.',
     posixPermissions: 'Permissions regulating data access rights. It can be expressed either by the standard POSIX permissions system or by the Access Control List (ACL). If there is an ACL specified, the POSIX permissions are ignored.<br>Click on the cell to see more details.',
-    xattr: 'Value of {{key}} xattr',
+    xattr: 'Value of <strong>{{key}}</strong> xattr',
   },
   subname: {
     modification: 'content',
