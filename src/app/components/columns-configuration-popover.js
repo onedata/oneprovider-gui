@@ -135,15 +135,20 @@ export default Component.extend(I18n, {
     }
   ),
 
-  filesList: computed('browserModel', function filesList() {
-    const files = [];
-    for (const file of this.browserModel.itemsArray.get('sourceArray').toArray()) {
-      if (file && file.hasCustomMetadata) {
-        files.push(file);
+  filesList: computed(
+    'browserModel.itemsArray',
+    'isOpened',
+    'activeSlide',
+    function filesList() {
+      const files = [];
+      for (const file of this.browserModel.itemsArray.get('sourceArray').toArray()) {
+        if (file && file.hasCustomMetadata) {
+          files.push(file);
+        }
       }
+      return files;
     }
-    return files;
-  }),
+  ),
 
   xattrsListPerFileProxy: computed('filesList', function xattrsListPerFileProxy() {
     return promiseObject(Promise.all(

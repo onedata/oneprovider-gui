@@ -1,5 +1,7 @@
 .webui-popover-columns-configuration {
+  --min-height-popover: 240px;
   width: 300px;
+  min-height: var(--min-height-popover);
 
   .webui-popover-content {
     padding: 0;
@@ -201,27 +203,31 @@
     }
   }
   .xattr-column-add, .xattr-column-modify {
+    position: relative;
+    min-height: var(--min-height-popover);
     padding: 12px;
 
     h1 {
-      display: inline-flex;
-      justify-content: center;
+      display: flex;
+      justify-content: flex-start;
+      position: relative;
 
-      .go-back-button {
+      .back-icon-container {
         cursor: pointer;
         font-size: 120%;
+        width: 0.5em;
+
+        .back-icon {
+          position: absolute;
+          left: -0.3em;
+          top: 0;
+          font-weight: bold;
+        }
       }
-    }
 
-    .back-icon {
-      font-weight: bold;
-      vertical-align: bottom;
-      margin-left: -$padding-xs-horizontal;
-    }
-
-    .add-button, .back-button, .modify-button {
-      padding-top: 10px;
-      text-align: right;
+      .add-column-header {
+        padding-left: 0.5em;
+      }
     }
 
     .back-column-btn {
@@ -232,6 +238,7 @@
       display: flex;
       justify-content: flex-end;
       align-items: baseline;
+      padding-top: 10px;
     }
   }
 }

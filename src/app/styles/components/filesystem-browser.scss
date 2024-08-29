@@ -157,6 +157,7 @@
   .fb-table-col-xattr {
     position: relative;
     cursor: pointer;
+    text-align: center;
 
     .info-icon-container {
       font-size: 180%;
@@ -247,9 +248,6 @@
     }
   }
 
-  .fb-table-col-xattr {
-    text-align: center;
-  }
   .column-name {
     display: flex;
     justify-content: center;

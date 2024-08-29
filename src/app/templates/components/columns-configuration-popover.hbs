@@ -63,11 +63,11 @@
           <RenderLater @triggerRender={{eq activeSlide "xattr-add"}}>
             <div class="xattr-column-add">
               <h1>
-                <div class="go-back-button" onClick={{action "goBack"}}>
+                <div class="back-icon-container" onClick={{action "goBack"}}>
                   <OneIcon @icon="arrow-left" class="back-icon" />
                   <OneTooltip @title={{tt this "backTooltip"}} />
                 </div>
-                <div>{{tt this "addNewColumn"}}</div>
+                <div class="add-column-header">{{tt this "addNewColumn"}}</div>
               </h1>
               <PromiseProxyContainer @proxy={{xattrsListPerFileProxy}}>
                 <p>{{tt this "xattrNameLabel"}}</p>
@@ -82,17 +82,15 @@
                   disabled={{isSaving}}
                   autofocus={{false}}
                 >
-              </PromiseProxyContainer>
-              <div class="xattr-footer">
-                <OneButton
-                  @type="default"
-                  @class="back-column-btn"
-                  @size="sm"
-                  @onClick={{action "goBack"}}
-                >
-                  {{tt this "cancelBtn"}}
-                </OneButton>
-                <div class="add-button">
+                <div class="xattr-footer">
+                  <OneButton
+                    @type="default"
+                    @class="back-column-btn"
+                    @size="sm"
+                    @onClick={{action "goBack"}}
+                  >
+                    {{tt this "cancelBtn"}}
+                  </OneButton>
                   <OneButton
                     @type="primary"
                     @buttonType="submit"
@@ -104,7 +102,7 @@
                     {{tt this "addBtn"}}
                   </OneButton>
                 </div>
-              </div>
+              </PromiseProxyContainer>
             </div>
           </RenderLater>
         </carousel.slide>
@@ -112,11 +110,11 @@
           <RenderLater @triggerRender={{eq activeSlide "xattr-modify"}}>
             <div class="xattr-column-modify">
               <h1>
-                <div class="go-back-button" onClick={{action "goBack"}}>
+                <div class="back-icon-container" onClick={{action "goBack"}}>
                   <OneIcon @icon="arrow-left" class="back-icon" />
                   <OneTooltip @title={{tt this "backTooltip"}} />
                 </div>
-                <div>{{tt this "modifyColumn"}}</div>
+                <div class="add-column-header">{{tt this "modifyColumn"}}</div>
               </h1>
               <PromiseProxyContainer @proxy={{xattrsListPerFileProxy}}>
                 <p>{{tt this "modifyKeyLabel"}}</p>
@@ -142,17 +140,15 @@
                       {{tt this "cancelBtn"}}
                     </OneButton>
                   </div>
-                  <div class="modify-button">
-                    <OneButton
-                      @type="primary"
-                      @buttonType="submit"
-                      @class="modify-column-btn"
-                      @size="sm"
-                      @onClick={{action "modifyColumn"}}
-                    >
-                      {{tt this "modifyBtn"}}
-                    </OneButton>
-                  </div>
+                  <OneButton
+                    @type="primary"
+                    @buttonType="submit"
+                    @class="modify-column-btn"
+                    @size="sm"
+                    @onClick={{action "modifyColumn"}}
+                  >
+                    {{tt this "modifyBtn"}}
+                  </OneButton>
                 </div>
               </PromiseProxyContainer>
             </div>
