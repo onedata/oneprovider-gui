@@ -1,5 +1,5 @@
 /**
- * Xattr modal.
+ * Modal containing the value of xattr that can be copied.
  *
  * @author Agnieszka Warchoł
  * @copyright (C) 2024 ACK CYFRONET AGH

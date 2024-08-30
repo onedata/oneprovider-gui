@@ -385,7 +385,7 @@ export default BaseBrowserModel.extend(...mixins, {
   listingRequirement: computed(
     'dir',
     'listedFilesProperties',
-    function parentDirRequirement() {
+    function listingRequirement() {
       if (!this.dir) {
         return;
       }

@@ -27,9 +27,9 @@
     {{#if columnValue.hasSubname}}
       <span class="subname-text">
         {{#if (eq (get columnValue "type") "xattr")}}
-          &nbsp;({{tt this (concat translationKey ".subname.xattr")}})
+          ({{tt this (concat translationKey ".subname.xattr")}})
         {{else}}
-          &nbsp;({{tt this (concat translationKey ".subname." columnName)}})
+          ({{tt this (concat translationKey ".subname." columnName)}})
         {{/if}}
       </span>
     {{/if}}

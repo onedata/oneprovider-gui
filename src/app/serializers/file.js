@@ -199,14 +199,14 @@ export default Serializer.extend({
     const scope = hash.scope || parsedGri.scope;
     const entityId = parsedGri.entityId;
     hash.sharesCount = hash.directShareIds?.length ?? 0;
-    const xattr = {};
+    const xattrs = {};
     for (const property in hash) {
       if (property.startsWith('xattr.')) {
-        xattr[property.replace('xattr.', '').replace('.', '-')] = hash[property];
+        xattrs[encodeXattrKey(property.replace('xattr.', ''))] = hash[property];
         delete hash[property];
       }
     }
-    hash.xattr = xattr;
+    hash.xattrs = xattrs;
     this.normalizeRelations(hash, scope);
     this.normalizeVirtualRelations(hash, entityId, scope);
     return hash;
@@ -322,4 +322,8 @@ export function serializeBelongsToProperty(record, targetAttrName) {
 export function serializeHasManyProperty(record, targetAttrName) {
   const propertyName = rawAttributeToHasManyProperty(targetAttrName);
   return record.hasMany(propertyName).ids().map(gri => parseGri(gri).entityId);
+}
+
+export function encodeXattrKey(key) {
+  return key.replace('.', '-');
 }

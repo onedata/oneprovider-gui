@@ -155,7 +155,7 @@ export default FbTableRowColumns.extend(I18n, {
   /**
    * @type {ComputedProperty<Object<string, string>>}
    */
-  xattrs: reads('file.effFile.xattr'),
+  xattrs: reads('file.effFile.xattrs'),
 
   /**
    * @type {ComputedProperty<string>}

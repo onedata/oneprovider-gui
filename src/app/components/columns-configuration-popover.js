@@ -77,6 +77,8 @@ export default Component.extend(I18n, {
    */
   modifiedColumnNewValue: '',
 
+  modifiedKey: '',
+
   /**
    * @type {ComputedProperty<string>}
    */
@@ -217,6 +219,7 @@ export default Component.extend(I18n, {
           name: this.xattrKeyFieldName,
           size: 'sm',
           isOptional: true,
+          defaultValue: '',
         });
     }
   ),
@@ -233,6 +236,7 @@ export default Component.extend(I18n, {
           name: this.xattrKeyModifiedFieldName,
           size: 'sm',
           isOptional: true,
+          defaultValue: this.modifiedKey,
         });
     }
   ),
@@ -320,12 +324,11 @@ export default Component.extend(I18n, {
     },
     goXattrConfiguration() {
       this.set('activeSlide', 'xattr-add');
-      this.xattrKeyNameDropdownField.valueChanged('');
       this.set('xattrColumnName', '');
     },
     openXattrModification(columnName) {
       const xattrKey = this.columnsConfiguration.columns[columnName].xattrKey;
-      this.xattrKeyModifiedNameDropdownField.valueChanged(xattrKey);
+      this.set('modifiedKey', xattrKey);
       this.set('activeSlide', 'xattr-modify');
       this.set('modifiedColumn', columnName);
       this.set(
