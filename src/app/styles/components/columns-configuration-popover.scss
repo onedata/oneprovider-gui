@@ -32,6 +32,7 @@
     .subname-text {
       font-size: 80%;
       opacity: $disabled-opacity;
+      padding-left: 0.3em;
     }
 
     .column-item .draggable-object {
@@ -45,8 +46,6 @@
         opacity: 0.2;
         cursor: auto;
       }
-
-
 
       .icons-container {
         display: inline-flex;
@@ -134,24 +133,22 @@
         visibility: hidden;
       }
       @media (hover: hover) {
-        &:hover .column-move-icon {
-          visibility: visible;
-          opacity: $disabled-opacity;
-          cursor: grab;
-        }
-        &:hover .remove-column .oneicon-close {
-          visibility: visible;
-        }
-        &:hover .modify-column .oneicon-browser-rename {
-          visibility: visible;
+        &:hover {
+          .add-new-column {
+            opacity: $disabled-opacity;
+            cursor: grab;
+          }
+          .visible-on-hover {
+            visibility: visible;
+          }
         }
       }
       @media (hover: none) {
-        .remove-column .oneicon-close {
+        .visible-on-hover {
           visibility: visible;
         }
-        .modify-column .oneicon-browser-rename {
-          visibility: visible;
+        label.column-name-label {
+          min-width: 10.3em;
         }
       }
 
@@ -166,8 +163,11 @@
   }
 
   .add-new-column {
+    display: flex;
+    align-items: center;
     padding-top: 10px;
     padding-bottom: 17px;
+    // empirical alignment to the checkbox above
     padding-left: 23px;
     cursor: pointer;
     position: sticky;
@@ -177,7 +177,7 @@
 
     .new-column-text {
       font-style: italic;
-      padding-left: 3px;
+      padding-left: 6px;
       opacity: $disabled-opacity;
     }
 

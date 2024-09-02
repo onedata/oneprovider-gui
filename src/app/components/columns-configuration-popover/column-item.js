@@ -101,6 +101,12 @@ export default Component.extend(I18n, {
   dragEndAction: notImplementedIgnore,
 
   /**
+   * @virtual
+   * @type {boolean}
+   */
+  isColumnListVisible: false,
+
+  /**
    * @type {boolean}
    */
   isArrowTooltipVisible: true,

@@ -35,6 +35,7 @@
                   dragEndAction=dragEndAction
                   openXattrModification=(action "openXattrModification")
                   removeXattrColumn=(action "removeXattrColumn")
+                  isColumnListVisible=(eq activeSlide "column-configuration")
                 }}
                 {{one-draggable-object-target
                   action=(action "acceptDraggedElement" index)
@@ -65,7 +66,9 @@
               <h1>
                 <div class="back-icon-container" onClick={{action "goBack"}}>
                   <OneIcon @icon="arrow-left" class="back-icon" />
-                  <OneTooltip @title={{tt this "backTooltip"}} />
+                  {{#if (eq activeSlide "xattr-add")}}
+                    <OneTooltip @title={{tt this "backTooltip"}} />
+                  {{/if}}
                 </div>
                 <div class="add-column-header">{{tt this "addNewColumn"}}</div>
               </h1>
@@ -112,7 +115,9 @@
               <h1>
                 <div class="back-icon-container" onClick={{action "goBack"}}>
                   <OneIcon @icon="arrow-left" class="back-icon" />
-                  <OneTooltip @title={{tt this "backTooltip"}} />
+                  {{#if (eq activeSlide "xattr-modify")}}
+                    <OneTooltip @title={{tt this "backTooltip"}} />
+                  {{/if}}
                 </div>
                 <div class="add-column-header">{{tt this "modifyColumn"}}</div>
               </h1>
