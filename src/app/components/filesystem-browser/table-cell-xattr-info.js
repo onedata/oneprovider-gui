@@ -15,6 +15,9 @@ import { encodeXattrKey } from 'oneprovider-gui/serializers/file';
 export default Component.extend({
   tagName: 'td',
   classNames: ['fb-table-col-xattr', 'multiline', 'hidden-xs'],
+  classNameBindings: [
+    'xattrValue:clickable',
+  ],
   attributeBindings: ['style'],
 
   /**

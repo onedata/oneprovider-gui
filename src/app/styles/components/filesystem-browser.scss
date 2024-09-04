@@ -156,8 +156,11 @@
 
   .fb-table-col-xattr {
     position: relative;
-    cursor: pointer;
     text-align: center;
+
+    &.clickable {
+      cursor: pointer;
+    }
 
     .info-icon {
       font-size: 180%;
