@@ -154,6 +154,8 @@
 
       .column-move-icon {
         padding-right: 0.2em;
+        cursor: pointer;
+        opacity: $disabled-opacity;
       }
     }
 
@@ -165,7 +167,7 @@
   .add-new-column {
     display: flex;
     align-items: center;
-    padding-top: 10px;
+    padding-top: 18px;
     padding-bottom: 17px;
     // empirical alignment to the checkbox above
     padding-left: 23px;
@@ -185,8 +187,6 @@
       display: inline-block;
       font-size: 0.42em;
       padding: 0.4em;
-      background-color: $color-one-mint;
-      border-color: $color-one-mint;
 
       .adder-icon {
         left: 0;
@@ -209,7 +209,6 @@
 
     h1 {
       display: flex;
-      justify-content: flex-start;
       position: relative;
 
       .back-icon-container {

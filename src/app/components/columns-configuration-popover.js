@@ -7,7 +7,7 @@
  */
 
 import Component from '@ember/component';
-import { trySet, computed } from '@ember/object';
+import { trySet, computed, get } from '@ember/object';
 import { next } from '@ember/runloop';
 import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
 import { reads } from '@ember/object/computed';
@@ -137,24 +137,22 @@ export default Component.extend(I18n, {
     }
   ),
 
-  filesList: computed(
+  filesWithXattrs: computed(
     'browserModel.itemsArray',
     'isOpened',
     'activeSlide',
-    function filesList() {
-      const files = [];
-      for (const file of this.browserModel.itemsArray.get('sourceArray').toArray()) {
-        if (file && file.hasCustomMetadata) {
-          files.push(file);
-        }
+    function filesWithXattrs() {
+      if (!this.browserModel.itemsArray) {
+        return [];
       }
-      return files;
+      const files = get(this.browserModel.itemsArray, 'sourceArray').toArray();
+      return files.filter(file => file && get(file, 'hasCustomMetadata'));
     }
   ),
 
-  xattrsListPerFileProxy: computed('filesList', function xattrsListPerFileProxy() {
+  xattrsListPerFileProxy: computed('filesWithXattrs', function xattrsListPerFileProxy() {
     return promiseObject(Promise.all(
-      this.filesList.map(file =>
+      this.filesWithXattrs.map(file =>
         this.metadataManager.getMetadata(file, 'xattrs', 'private'))
     ));
   }),
@@ -226,6 +224,7 @@ export default Component.extend(I18n, {
 
   xattrKeyModifiedNameDropdownField: computed(
     'xattrOptions',
+    'modifiedKey',
     function xattrKeyModifiedNameDropdownField() {
       return CustomValueDropdownField
         .extend({
@@ -328,13 +327,13 @@ export default Component.extend(I18n, {
     },
     openXattrModification(columnName) {
       const xattrKey = this.columnsConfiguration.columns[columnName].xattrKey;
-      this.set('modifiedKey', xattrKey);
-      this.set('activeSlide', 'xattr-modify');
-      this.set('modifiedColumn', columnName);
-      this.set(
-        'modifiedColumnNewValue',
-        this.columnsConfiguration.columns[columnName].displayedName
-      );
+      this.setProperties({
+        modifiedKey: xattrKey,
+        activeSlide: 'xattr-modify',
+        modifiedColumn: columnName,
+        modifiedColumnNewValue: this.columnsConfiguration.columns[columnName]
+          .displayedName,
+      });
     },
     goBack() {
       this.set('activeSlide', 'column-configuration');

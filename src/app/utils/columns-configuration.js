@@ -119,6 +119,11 @@ export default EmberObject.extend(...mixins, {
   columnsOrder: undefined,
 
   /**
+   * @type {Array}
+   */
+  listedFilesProperties: undefined,
+
+  /**
    * @type {boolean}
    */
   isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
@@ -143,6 +148,7 @@ export default EmberObject.extend(...mixins, {
     this._super(...arguments);
     this.attachWindowResizeHandler();
     this.loadColumnsConfigFromLocalStorage();
+    this.listFilesProperties();
   },
 
   /**
@@ -257,6 +263,7 @@ export default EmberObject.extend(...mixins, {
     }
     this.set(`columns.${newColumnNameVariable}.displayedName`, newColumnName);
     this.set(`columns.${newColumnNameVariable}.xattrKey`, key);
+    this.set(`columns.${newColumnNameVariable}.fileProperty`, 'xattr.' + key);
     globals.localStorage.setItem(
       `${this.persistedConfigurationKey}.${newColumnNameVariable}`,
       key
@@ -311,6 +318,7 @@ export default EmberObject.extend(...mixins, {
     if (this.hiddenColumnsCount !== hiddenColumnsCount) {
       this.set('hiddenColumnsCount', hiddenColumnsCount);
     }
+    this.listFilesProperties();
     this.notifyPropertyChange('columns');
   },
 
@@ -359,9 +367,11 @@ export default EmberObject.extend(...mixins, {
           this.loadXattrColumnFromLocalStorage(columnName, enabledColumnsList);
         }
       }
-      for (const columnName of columnsOrderListFromLocalStorage) {
-        if (columnName.startsWith('xattr') && !(columnName in this.columns)) {
-          this.loadXattrColumnFromLocalStorage(columnName, enabledColumnsList);
+      if (columnsOrderListFromLocalStorage) {
+        for (const columnName of columnsOrderListFromLocalStorage) {
+          if (columnName.startsWith('xattr') && !(columnName in this.columns)) {
+            this.loadXattrColumnFromLocalStorage(columnName, enabledColumnsList);
+          }
         }
       }
     }
@@ -394,5 +404,18 @@ export default EmberObject.extend(...mixins, {
       index -= 1;
     }
     columnsOrder.splice(index, 0, element);
+  },
+  listFilesProperties() {
+    const filesProperties = [];
+    const columnRequirementsEnableProperty = this.isMounted ?
+      'isVisible' : 'isEnabled';
+    const columns = this.columns;
+    for (const column of Object.values(columns)) {
+      if (column[columnRequirementsEnableProperty]) {
+        filesProperties.push(column.fileProperty);
+      }
+    }
+    this.set('listedFilesProperties', filesProperties);
+    this.notifyPropertyChange('listedFilesProperties');
   },
 });

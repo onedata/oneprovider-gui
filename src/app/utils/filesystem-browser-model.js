@@ -447,7 +447,7 @@ export default BaseBrowserModel.extend(...mixins, {
     'media.isMobile',
     'browserFilesProperties',
     `columnsConfiguration.columns.{${columnsRequirementsDependencies}}`,
-    'columnsConfiguration.isMounted',
+    'columnsConfiguration.listedFilesProperties',
     function listedFilesProperties() {
       const listedFilesPropertySet = new Set([
         ...this.browserFilesProperties,
@@ -469,13 +469,9 @@ export default BaseBrowserModel.extend(...mixins, {
           // TODO: VFS-11449 optional file size fetch
           .add('mtime');
       } else {
-        const columnRequirementsEnableProperty = this.columnsConfiguration.isMounted ?
-          'isVisible' : 'isEnabled';
-        const columns = this.columnsConfiguration.columns;
-        for (const column of Object.values(columns)) {
-          if (column[columnRequirementsEnableProperty]) {
-            listedFilesPropertySet.add(column.fileProperty);
-          }
+        const filesProperties = this.columnsConfiguration.listedFilesProperties;
+        for (const property of filesProperties) {
+          listedFilesPropertySet.add(property);
         }
       }
       return [...listedFilesPropertySet.values()];

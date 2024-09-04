@@ -98,7 +98,10 @@
           @icon="move-down"
           class={{if isMoveDownIconDisabled "disabled-icon"}}
         />
-        {{#if (and (and (not isMoveDownIconDisabled) isArrowTooltipVisible) isColumnListVisible)}}
+        {{#if (and
+          (and (not isMoveDownIconDisabled) isArrowTooltipVisible)
+          isColumnListVisible
+        )}}
           <OneTooltip @title={{tt this "moveDown"}} />
         {{/if}}
       </span>
@@ -110,7 +113,10 @@
           @icon="move-up"
           class={{if isMoveUpIconDisabled "disabled-icon"}}
         />
-        {{#if (and (and (not isMoveUpIconDisabled) isArrowTooltipVisible) isColumnListVisible)}}
+        {{#if (and
+          (and (not isMoveUpIconDisabled) isArrowTooltipVisible)
+          isColumnListVisible
+        )}}
           <OneTooltip @title={{tt this "moveUp"}} />
         {{/if}}
       </span>
