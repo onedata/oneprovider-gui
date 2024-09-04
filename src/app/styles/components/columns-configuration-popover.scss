@@ -211,21 +211,15 @@
       display: flex;
       position: relative;
 
-      .back-icon-container {
+      .back-icon {
         cursor: pointer;
         font-size: 120%;
-        width: 0.5em;
-
-        .back-icon {
-          position: absolute;
-          left: -0.3em;
-          top: 0;
-          font-weight: bold;
-        }
+        font-weight: bold;
+        margin-left: -0.3em;
       }
 
       .add-column-header {
-        padding-left: 0.5em;
+        padding-left: 0.3em;
       }
     }
 
@@ -236,7 +230,7 @@
     .xattr-footer {
       display: flex;
       justify-content: flex-end;
-      align-items: baseline;
+      align-items: center;
       padding-top: 10px;
     }
   }

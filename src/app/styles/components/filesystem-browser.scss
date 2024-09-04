@@ -159,17 +159,12 @@
     cursor: pointer;
     text-align: center;
 
-    .info-icon-container {
+    .info-icon {
       font-size: 180%;
       visibility: hidden;
-      align-self: stretch;
-      padding-bottom: 2px;
-
-      .one-icon {
-        vertical-align: middle;
-      }
+      vertical-align: middle;
     }
-    &:hover .info-icon-container {
+    &:hover .info-icon {
       visibility: visible;
     }
 

@@ -12,4 +12,6 @@ export default {
   modifyBtn: 'Apply',
   columnNameLabel: 'Enter name of column:',
   backTooltip: 'Back',
+  dropdownPlaceholder: 'Enter custom xattr key...',
+  customKeyPlaceholder: 'Custom xattr key...',
 };

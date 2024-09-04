@@ -64,12 +64,11 @@
           <RenderLater @triggerRender={{eq activeSlide "xattr-add"}}>
             <div class="xattr-column-add">
               <h1>
-                <div class="back-icon-container" onClick={{action "goBack"}}>
-                  <OneIcon @icon="arrow-left" class="back-icon" />
+                <OneIcon @icon="arrow-left" class="back-icon" onClick={{action "goBack"}}>
                   {{#if (eq activeSlide "xattr-add")}}
                     <OneTooltip @title={{tt this "backTooltip"}} />
                   {{/if}}
-                </div>
+                </OneIcon>
                 <div class="add-column-header">{{tt this "addNewColumn"}}</div>
               </h1>
               <PromiseProxyContainer @proxy={{xattrsListPerFileProxy}}>
@@ -113,12 +112,11 @@
           <RenderLater @triggerRender={{eq activeSlide "xattr-modify"}}>
             <div class="xattr-column-modify">
               <h1>
-                <div class="back-icon-container" onClick={{action "goBack"}}>
-                  <OneIcon @icon="arrow-left" class="back-icon" />
+                <OneIcon @icon="arrow-left" class="back-icon" onClick={{action "goBack"}}>
                   {{#if (eq activeSlide "xattr-modify")}}
                     <OneTooltip @title={{tt this "backTooltip"}} />
                   {{/if}}
-                </div>
+                </OneIcon>
                 <div class="add-column-header">{{tt this "modifyColumn"}}</div>
               </h1>
               <PromiseProxyContainer @proxy={{xattrsListPerFileProxy}}>
@@ -135,16 +133,14 @@
                   autofocus={{false}}
                 >
                 <div class="xattr-footer">
-                  <div class="cancel-button">
-                    <OneButton
-                      @type="default"
-                      @class="back-column-btn"
-                      @size="sm"
-                      @onClick={{action "goBack"}}
-                    >
-                      {{tt this "cancelBtn"}}
-                    </OneButton>
-                  </div>
+                  <OneButton
+                    @type="default"
+                    @class="back-column-btn"
+                    @size="sm"
+                    @onClick={{action "goBack"}}
+                  >
+                    {{tt this "cancelBtn"}}
+                  </OneButton>
                   <OneButton
                     @type="primary"
                     @buttonType="submit"

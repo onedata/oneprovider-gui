@@ -31,7 +31,8 @@ import { encodeXattrKey } from 'oneprovider-gui/serializers/file';
  * @property {number} width
  * @property {boolean} hasSubname
  * @property {boolean} hasTooltip
- * @property {'basic'|'xattr'} type
+ * @property { 'basic' | 'xattr' } type Distinguishes whether this is one of the
+ * default columns or a user-added xattr column.
  * @property {string} fileProperty Property that should be included in the file
  * requirement attributes when the column is enabled and visible.
  */

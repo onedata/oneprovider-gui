@@ -77,7 +77,11 @@ export default Component.extend(I18n, {
    */
   modifiedColumnNewValue: '',
 
-  modifiedKey: '',
+  /**
+   * Actual modified xattr key, used to display as the default value in the dropdown.
+   * @type {string}
+   */
+  modifiedXattrKey: '',
 
   /**
    * @type {ComputedProperty<string>}
@@ -137,10 +141,12 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * This property should be recalculated each time the popover is opened.
+   */
   filesWithXattrs: computed(
     'browserModel.itemsArray',
     'isOpened',
-    'activeSlide',
     function filesWithXattrs() {
       if (!this.browserModel.itemsArray) {
         return [];
@@ -157,22 +163,35 @@ export default Component.extend(I18n, {
     ));
   }),
 
-  xattrOptions: computed('xattrsListPerFileProxy.content', function xattrOptions() {
-    const xattrs = new Set();
-    const xattrsList = [];
-    if (this.xattrsListPerFileProxy.content) {
-      for (const xattrsFromSingleFile of this.xattrsListPerFileProxy.content) {
-        for (const xattrKey in xattrsFromSingleFile) {
-          xattrs.add(xattrKey);
+  xattrOptionsCache: undefined,
+
+  xattrOptions: computed(
+    'xattrsListPerFileProxy.content',
+    'activeSlide',
+    function xattrOptions() {
+      if (!this.isOpened ||
+        (this.activeSlide !== 'xattr-add' && this.activeSlide !== 'xattr-modify')
+      ) {
+        return this.xattrOptionsCache;
+      }
+      console.log('eee');
+      const xattrs = new Set();
+      const xattrsList = [];
+      if (this.xattrsListPerFileProxy.content) {
+        for (const xattrsFromSingleFile of this.xattrsListPerFileProxy.content) {
+          for (const xattrKey in xattrsFromSingleFile) {
+            xattrs.add(xattrKey);
+          }
+        }
+
+        for (const xattr of Array.from(xattrs)) {
+          xattrsList.push({ value: xattr, label: xattr });
         }
       }
-
-      for (const xattr of Array.from(xattrs)) {
-        xattrsList.push({ value: xattr, label: xattr });
-      }
+      this.set('xattrOptionsCache', xattrsList);
+      return xattrsList;
     }
-    return xattrsList;
-  }),
+  ),
 
   xattrKeyNameField: computed('xattrKeyNameDropdownField', function xattrKeyNameField() {
     return FormFieldsRootGroup
@@ -218,13 +237,15 @@ export default Component.extend(I18n, {
           size: 'sm',
           isOptional: true,
           defaultValue: '',
+          injectedCustomValueInputPlaceholder: this.t('dropdownPlaceholder'),
+          injectedCustomValueOptionTextPrefix: this.t('customKeyPlaceholder'),
         });
     }
   ),
 
   xattrKeyModifiedNameDropdownField: computed(
     'xattrOptions',
-    'modifiedKey',
+    'modifiedXattrKey',
     function xattrKeyModifiedNameDropdownField() {
       return CustomValueDropdownField
         .extend({
@@ -235,7 +256,9 @@ export default Component.extend(I18n, {
           name: this.xattrKeyModifiedFieldName,
           size: 'sm',
           isOptional: true,
-          defaultValue: this.modifiedKey,
+          defaultValue: this.modifiedXattrKey,
+          injectedCustomValueInputPlaceholder: this.t('dropdownPlaceholder'),
+          injectedCustomValueOptionTextPrefix: this.t('customKeyPlaceholder'),
         });
     }
   ),
@@ -328,7 +351,7 @@ export default Component.extend(I18n, {
     openXattrModification(columnName) {
       const xattrKey = this.columnsConfiguration.columns[columnName].xattrKey;
       this.setProperties({
-        modifiedKey: xattrKey,
+        modifiedXattrKey: xattrKey,
         activeSlide: 'xattr-modify',
         modifiedColumn: columnName,
         modifiedColumnNewValue: this.columnsConfiguration.columns[columnName]
