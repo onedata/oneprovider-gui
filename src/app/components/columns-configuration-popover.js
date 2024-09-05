@@ -145,16 +145,10 @@ export default Component.extend(I18n, {
   xattrOptionsProxy: computed(
     'browserModel.itemsArray',
     'activeSlide',
-    // recalculate the property each time the popover is opened.
     'isOpened',
     function xattrOptionsProxy() {
-      if (!this.browserModel.itemsArray) {
+      if (!this.browserModel.itemsArray || !this.isOpened) {
         return promiseObject(resolve([]));
-      }
-      if (!this.isOpened ||
-        (this.activeSlide !== 'xattr-add' && this.activeSlide !== 'xattr-modify')
-      ) {
-        return promiseObject(resolve(this.xattrOptionsCache));
       }
 
       const files = get(this.browserModel.itemsArray, 'sourceArray').toArray();
@@ -177,7 +171,6 @@ export default Component.extend(I18n, {
             xattrsList.push({ value: xattr, label: xattr });
           }
         }
-        this.set('xattrOptionsCache', xattrsList);
         return xattrsList;
       })();
 
@@ -186,8 +179,6 @@ export default Component.extend(I18n, {
   ),
 
   xattrOptions: reads('xattrOptionsProxy.content'),
-
-  xattrOptionsCache: undefined,
 
   xattrKeyNameField: computed('xattrKeyNameDropdownField', function xattrKeyNameField() {
     return FormFieldsRootGroup

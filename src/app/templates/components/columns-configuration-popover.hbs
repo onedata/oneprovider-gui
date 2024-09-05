@@ -61,7 +61,7 @@
           {{/if}}
         </carousel.slide>
         <carousel.slide @slideId="xattr-add">
-          <RenderLater @triggerRender={{eq activeSlide "xattr-add"}}>
+          {{#if (eq activeSlide "xattr-add")}}
             <div class="xattr-column-add">
               <h1>
                 <OneIcon @icon="arrow-left" class="back-icon" onClick={{action "goBack"}}>
@@ -106,10 +106,10 @@
                 </div>
               </PromiseProxyContainer>
             </div>
-          </RenderLater>
+          {{/if}}
         </carousel.slide>
         <carousel.slide @slideId="xattr-modify">
-          <RenderLater @triggerRender={{eq activeSlide "xattr-modify"}}>
+          {{#if (eq activeSlide "xattr-modify")}}
             <div class="xattr-column-modify">
               <h1>
                 <OneIcon @icon="arrow-left" class="back-icon" onClick={{action "goBack"}}>
@@ -153,7 +153,7 @@
                 </div>
               </PromiseProxyContainer>
             </div>
-          </RenderLater>
+          {{/if}}
         </carousel.slide>
       </OneCarousel>
     </ClickOutside>
