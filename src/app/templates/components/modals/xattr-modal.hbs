@@ -7,8 +7,16 @@
 >
 
   <modal.header>
-    <h1>{{tt this "header" key=xattrKey}}</h1>
+    <h1>{{tt this "header"}}</h1>
     <ModalFileSubheader @files={{files}} />
+    <h2 class="normal-case">
+      {{#truncated-string}}
+        <div class="inline-icon-container">
+          {{one-icon icon="browser-metadata"}}
+        </div>
+        {{xattrKey}}
+      {{/truncated-string}}
+    </h2>
   </modal.header>
 
   <modal.body>

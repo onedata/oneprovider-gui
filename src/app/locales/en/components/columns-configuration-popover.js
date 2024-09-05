@@ -2,16 +2,15 @@ import columnItem from './columns-configuration-popover/column-item';
 
 export default {
   columnItem,
-  addNewColumn: 'Add new xattr column',
-  xattrNameLabel: 'Enter xattr name:',
-  newColumnNameLabel: 'Enter name of new column:',
+  addNewColumn: 'New xattr column...',
+  addNewColumnHeader: 'New xattr column',
+  xattrNameLabel: 'Extended attribute key:',
+  columnNameLabel: 'Column label:',
   addBtn: 'Create',
   cancelBtn: 'Cancel',
   modifyColumn: 'Modify xattr column',
-  modifyKeyLabel: 'Modify key of xattr:',
   modifyBtn: 'Apply',
-  columnNameLabel: 'Enter name of column:',
   backTooltip: 'Back',
-  dropdownPlaceholder: 'Enter custom xattr key...',
+  dropdownPlaceholder: 'Enter an xattr key...',
   customKeyPlaceholder: 'Custom xattr key...',
 };

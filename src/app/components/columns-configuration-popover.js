@@ -223,7 +223,6 @@ export default Component.extend(I18n, {
           name: this.xattrKeyFieldName,
           size: 'sm',
           isOptional: true,
-          defaultValue: '',
           injectedCustomValueInputPlaceholder: this.t('dropdownPlaceholder'),
           injectedCustomValueOptionTextPrefix: this.t('customKeyPlaceholder'),
         });

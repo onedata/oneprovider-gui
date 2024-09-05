@@ -69,12 +69,12 @@
                     <OneTooltip @title={{tt this "backTooltip"}} />
                   {{/if}}
                 </OneIcon>
-                <div class="add-column-header">{{tt this "addNewColumn"}}</div>
+                <div class="add-column-header">{{tt this "addNewColumnHeader"}}</div>
               </h1>
               <PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
                 <p>{{tt this "xattrNameLabel"}}</p>
                 <FormComponent::FieldRenderer @field={{xattrKeyNameField}} />
-                <p>{{tt this "newColumnNameLabel"}}</p>
+                <p>{{tt this "columnNameLabel"}}</p>
                 <input
                   id={{inputId}}
                   type="text"
@@ -120,7 +120,7 @@
                 <div class="add-column-header">{{tt this "modifyColumn"}}</div>
               </h1>
               <PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
-                <p>{{tt this "modifyKeyLabel"}}</p>
+                <p>{{tt this "xattrNameLabel"}}</p>
                 <FormComponent::FieldRenderer @field={{xattrKeyModifiedNameField}} />
                 <p>{{tt this "columnNameLabel"}}</p>
                 <input

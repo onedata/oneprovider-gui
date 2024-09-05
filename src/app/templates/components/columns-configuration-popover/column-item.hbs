@@ -43,7 +43,7 @@
         <OneIcon @icon="browser-rename" class="visible-on-hover"/>
         {{#if isColumnListVisible}}
           <OneTooltip
-            @title={{tt this "modifyTip" columnName=(get columnValue "xattrKey")}}
+            @title={{tt this "modifyTip"}}
           />
         {{/if}}
       </div>
@@ -54,7 +54,7 @@
         <OneIcon @icon="close" class="visible-on-hover"/>
         {{#if isColumnListVisible}}
           <OneTooltip
-            @title={{tt this "removeTip" columnName=(get columnValue "xattrKey")}}
+            @title={{tt this "removeTip"}}
           />
         {{/if}}
       </div>

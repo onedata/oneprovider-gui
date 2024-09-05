@@ -1,4 +1,4 @@
 export default {
-  header: '{{key}} Xattr value',
+  header: 'Extended attribute value',
   close: 'Close',
 };
