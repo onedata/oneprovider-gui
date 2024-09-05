@@ -18,6 +18,7 @@ import CustomValueDropdownField from 'onedata-gui-common/utils/form-component/cu
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
 import { Promise } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { resolve } from 'rsvp';
 
 export default Component.extend(I18n, {
   classNames: ['columns-configuration-popover'],
@@ -141,57 +142,52 @@ export default Component.extend(I18n, {
     }
   ),
 
-  /**
-   * This property should be recalculated each time the popover is opened.
-   */
-  filesWithXattrs: computed(
+  xattrOptionsProxy: computed(
     'browserModel.itemsArray',
-    'isOpened',
-    function filesWithXattrs() {
-      if (!this.browserModel.itemsArray) {
-        return [];
-      }
-      const files = get(this.browserModel.itemsArray, 'sourceArray').toArray();
-      return files.filter(file => file && get(file, 'hasCustomMetadata'));
-    }
-  ),
-
-  xattrsListPerFileProxy: computed('filesWithXattrs', function xattrsListPerFileProxy() {
-    return promiseObject(Promise.all(
-      this.filesWithXattrs.map(file =>
-        this.metadataManager.getMetadata(file, 'xattrs', 'private'))
-    ));
-  }),
-
-  xattrOptionsCache: undefined,
-
-  xattrOptions: computed(
-    'xattrsListPerFileProxy.content',
     'activeSlide',
-    function xattrOptions() {
+    // recalculate the property each time the popover is opened.
+    'isOpened',
+    function xattrOptionsProxy() {
+      if (!this.browserModel.itemsArray) {
+        return promiseObject(resolve([]));
+      }
       if (!this.isOpened ||
         (this.activeSlide !== 'xattr-add' && this.activeSlide !== 'xattr-modify')
       ) {
-        return this.xattrOptionsCache;
+        return promiseObject(resolve(this.xattrOptionsCache));
       }
-      console.log('eee');
-      const xattrs = new Set();
-      const xattrsList = [];
-      if (this.xattrsListPerFileProxy.content) {
-        for (const xattrsFromSingleFile of this.xattrsListPerFileProxy.content) {
-          for (const xattrKey in xattrsFromSingleFile) {
-            xattrs.add(xattrKey);
+
+      const files = get(this.browserModel.itemsArray, 'sourceArray').toArray();
+      const filesWithXattrs = files.filter(file => file && get(file, 'hasCustomMetadata'));
+
+      const promise = (async () => {
+        const xattrsListPerFileProxy = await Promise.all(
+          filesWithXattrs.map(file =>
+            this.metadataManager.getMetadata(file, 'xattrs', 'private'))
+        );
+        const xattrs = new Set();
+        const xattrsList = [];
+        if (xattrsListPerFileProxy) {
+          for (const xattrsFromSingleFile of xattrsListPerFileProxy) {
+            for (const xattrKey in xattrsFromSingleFile) {
+              xattrs.add(xattrKey);
+            }
+          }
+          for (const xattr of Array.from(xattrs)) {
+            xattrsList.push({ value: xattr, label: xattr });
           }
         }
+        this.set('xattrOptionsCache', xattrsList);
+        return xattrsList;
+      })();
 
-        for (const xattr of Array.from(xattrs)) {
-          xattrsList.push({ value: xattr, label: xattr });
-        }
-      }
-      this.set('xattrOptionsCache', xattrsList);
-      return xattrsList;
+      return promiseObject(promise);
     }
   ),
+
+  xattrOptions: reads('xattrOptionsProxy.content'),
+
+  xattrOptionsCache: undefined,
 
   xattrKeyNameField: computed('xattrKeyNameDropdownField', function xattrKeyNameField() {
     return FormFieldsRootGroup

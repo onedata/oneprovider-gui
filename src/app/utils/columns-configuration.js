@@ -179,7 +179,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   columnNameToVariable(columnName, type) {
-    return type + '-' + encodeXattrKey(columnName.replace(' ', '-'));
+    return type + '-' + encodeXattrKey(columnName.replace(' ', '-').replace(',', '-'));
   },
 
   /**

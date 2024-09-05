@@ -49,13 +49,13 @@
               class="add-new-column new-column-item"
               onClick={{action "goXattrConfiguration"}}
             >
-              <BsButton
+              <OneButton
                 @id={{btnId}}
                 class="add-new-column-btn btn-success clickable"
                 @type="default"
               >
                 <OneIcon @icon="plus" class="adder-icon" />
-              </BsButton>
+              </OneButton>
               <span class="new-column-text">{{tt this "addNewColumn"}}</span>
             </div>
           {{/if}}
@@ -71,7 +71,7 @@
                 </OneIcon>
                 <div class="add-column-header">{{tt this "addNewColumn"}}</div>
               </h1>
-              <PromiseProxyContainer @proxy={{xattrsListPerFileProxy}}>
+              <PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
                 <p>{{tt this "xattrNameLabel"}}</p>
                 <FormComponent::FieldRenderer @field={{xattrKeyNameField}} />
                 <p>{{tt this "newColumnNameLabel"}}</p>
@@ -119,7 +119,7 @@
                 </OneIcon>
                 <div class="add-column-header">{{tt this "modifyColumn"}}</div>
               </h1>
-              <PromiseProxyContainer @proxy={{xattrsListPerFileProxy}}>
+              <PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
                 <p>{{tt this "modifyKeyLabel"}}</p>
                 <FormComponent::FieldRenderer @field={{xattrKeyModifiedNameField}} />
                 <p>{{tt this "columnNameLabel"}}</p>

@@ -133,14 +133,8 @@
         visibility: hidden;
       }
       @media (hover: hover) {
-        &:hover {
-          .add-new-column {
-            opacity: $disabled-opacity;
-            cursor: grab;
-          }
-          .visible-on-hover {
-            visibility: visible;
-          }
+        &:hover .visible-on-hover {
+          visibility: visible;
         }
       }
       @media (hover: none) {
@@ -154,7 +148,7 @@
 
       .column-move-icon {
         padding-right: 0.2em;
-        cursor: pointer;
+        cursor: grab;
         opacity: $disabled-opacity;
       }
     }
@@ -167,8 +161,8 @@
   .add-new-column {
     display: flex;
     align-items: center;
-    padding-top: 18px;
-    padding-bottom: 17px;
+    padding-top: 17px;
+    padding-bottom: 16px;
     // empirical alignment to the checkbox above
     padding-left: 23px;
     cursor: pointer;
@@ -176,6 +170,11 @@
     bottom: 0px;
     @include before-top-shadow;
     @include content-shadow-leftovers;
+
+    @media (hover: none) {
+      // empirical alignment to the checkbox above
+      padding-left: 12px;
+    }
 
     .new-column-text {
       font-style: italic;
