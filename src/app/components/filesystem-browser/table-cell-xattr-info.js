@@ -10,7 +10,6 @@ import { computed } from '@ember/object';
 import Component from '@ember/component';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import { reads } from '@ember/object/computed';
-import { encodeXattrKey } from 'oneprovider-gui/serializers/file';
 
 export default Component.extend({
   tagName: 'td',
@@ -53,8 +52,7 @@ export default Component.extend({
    * @type {ComputedProperty<string>}
    */
   xattrValue: computed('xattrs', 'xattrKey', function xattrValue() {
-    const key = encodeXattrKey(this.xattrKey);
-    return this.xattrs[key];
+    return this.xattrs[this.xattrKey];
   }),
 
   /**

@@ -20,7 +20,6 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler
 import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
 import { reads } from '@ember/object/computed';
-import { encodeXattrKey } from 'oneprovider-gui/serializers/file';
 
 /**
  * Contains info about column visibility: if on screen is enough space to show this column
@@ -179,7 +178,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   columnNameToVariable(columnName, type) {
-    return type + '-' + encodeXattrKey(columnName.replace(' ', '-').replace(',', '-'));
+    return type + '-' + columnName.replace(' ', '-').replace(',', '-').replace('.', '-');
   },
 
   /**

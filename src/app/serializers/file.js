@@ -202,7 +202,7 @@ export default Serializer.extend({
     const xattrs = {};
     for (const property in hash) {
       if (property.startsWith('xattr.')) {
-        xattrs[encodeXattrKey(property.replace('xattr.', ''))] = hash[property];
+        xattrs[property.replace('xattr.', '')] = hash[property];
         delete hash[property];
       }
     }
@@ -322,8 +322,4 @@ export function serializeBelongsToProperty(record, targetAttrName) {
 export function serializeHasManyProperty(record, targetAttrName) {
   const propertyName = rawAttributeToHasManyProperty(targetAttrName);
   return record.hasMany(propertyName).ids().map(gri => parseGri(gri).entityId);
-}
-
-export function encodeXattrKey(key) {
-  return key.replace('.', '-');
 }
