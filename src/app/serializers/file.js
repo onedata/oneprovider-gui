@@ -199,6 +199,14 @@ export default Serializer.extend({
     const scope = hash.scope || parsedGri.scope;
     const entityId = parsedGri.entityId;
     hash.sharesCount = hash.directShareIds?.length ?? 0;
+    const xattrs = {};
+    for (const property in hash) {
+      if (property.startsWith('xattr.')) {
+        xattrs[property.replace('xattr.', '')] = hash[property];
+        delete hash[property];
+      }
+    }
+    hash.xattrs = xattrs;
     this.normalizeRelations(hash, scope);
     this.normalizeVirtualRelations(hash, entityId, scope);
     return hash;

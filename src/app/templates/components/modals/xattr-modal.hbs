@@ -1,0 +1,38 @@
+<GlobalModal
+  @classNames="xattr-modal"
+  @modalId={{modalId}}
+  @allowClose={{true}}
+  @onHide={{action "onHide"}}
+  as |modal|
+>
+
+  <modal.header>
+    <h1>{{tt this "header"}}</h1>
+    <ModalFileSubheader @files={{files}} />
+    <h2 class="normal-case xattr-key-subheader">
+      <TruncatedString>
+        <div class="inline-icon-container">
+          <OneIcon @icon="browser-metadata" />
+        </div>
+        {{xattrKey}}
+      </TruncatedString>
+    </h2>
+  </modal.header>
+
+  <modal.body>
+    <ClipboardLine
+      @value={{xattrValue}}
+      @type="textarea"
+      class="monospace-font compact"
+    />
+  </modal.body>
+
+  <modal.footer>
+    <OneButton
+      @onClick={{modal.close}}
+    >
+      {{tt this "close"}}
+    </OneButton>
+  </modal.footer>
+
+</GlobalModal>

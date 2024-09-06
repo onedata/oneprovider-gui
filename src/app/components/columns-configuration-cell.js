@@ -31,6 +31,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Utils.FilesystemBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   dragStartAction: notImplementedIgnore,

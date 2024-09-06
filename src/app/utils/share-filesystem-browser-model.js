@@ -123,6 +123,11 @@ export default FilesystemBrowserModel.extend({
     return btnNameList;
   }),
 
+  /**
+   * @type { boolean }
+   */
+  hasXattrColumnsSupport: false,
+
   publicDownloadUrlProxy: computed(
     'selectedItems.[]',
     function publicDownloadUrlProxy() {

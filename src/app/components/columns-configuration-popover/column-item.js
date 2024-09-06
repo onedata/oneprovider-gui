@@ -78,6 +78,18 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {(columnName: string) => void}
+   */
+  openXattrModification: notImplementedWarn,
+
+  /**
+   * @virtual
+   * @type {(columnName: string) => void}
+   */
+  removeXattrColumn: notImplementedWarn,
+
+  /**
+   * @virtual
    * @type {() => void}
    */
   dragStartAction: notImplementedIgnore,
@@ -87,6 +99,12 @@ export default Component.extend(I18n, {
    * @type {() => void}
    */
   dragEndAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  isColumnListVisible: false,
 
   /**
    * @type {boolean}
@@ -132,6 +150,12 @@ export default Component.extend(I18n, {
       if (this.dragEndAction) {
         return this.dragEndAction();
       }
+    },
+    openXattrModification(columnName) {
+      this.openXattrModification(columnName);
+    },
+    removeXattrColumn(columnName) {
+      this.removeXattrColumn(columnName);
     },
   },
 });

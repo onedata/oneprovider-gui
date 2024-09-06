@@ -1,0 +1,18 @@
+<div class="file-xattr" >
+  {{#if xattrValue}}
+    <div class="file-xattr-text">
+      <div class="xattr-value-first-line">
+        {{xattrTextFirstPart}}
+      </div>
+      {{#if xattrTextSecondPart}}
+        <div class="xattr-value-second-line">
+          {{xattrTextSecondPart}}&#8230;
+        </div>
+        <OneTooltip class="tooltip-text-monospace tooltip-lg" @title={{xattrValue}} />
+      {{/if}}
+    </div>
+    <OneIcon class="info-icon" @icon="browser-info" />
+  {{else}}
+    —
+  {{/if}}
+</div>

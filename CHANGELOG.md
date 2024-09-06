@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12050 Added xattrs columns in file browser
 * VFS-12261 Added "Copy download URL" context menu action for shared files
 * VFS-12204 Fixed graphical glitch in file datasets panel tab bar
 * VFS-12069 Fixed style glitches in share public view: unnecessary scroll, wrong XML area size, lack of representative image stickiness

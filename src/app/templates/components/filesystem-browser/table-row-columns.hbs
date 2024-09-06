@@ -234,9 +234,13 @@
           }}
         </div>
       </td>
+    {{else if (eq (get (get columnsConfiguration.columns columnName) "type") "xattr")}}
+      <FilesystemBrowser::TableCellXattrInfo
+        @columnInfo={{get columnsConfiguration.columns columnName}}
+        @xattrs={{xattrs}}
+        @style={{get columnsConfiguration.columnsStyle columnName}}
+        @openXattrModal={{action "openXattrModal"}}
+      />
     {{/if}}
   {{/if}}
 {{/each}}
-
-
-
