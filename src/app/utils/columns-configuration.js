@@ -20,6 +20,7 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler
 import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
 import { reads } from '@ember/object/computed';
+import { setProperties } from '@ember/object';
 
 /**
  * Contains info about column visibility: if on screen is enough space to show this column
@@ -181,6 +182,10 @@ export default EmberObject.extend(...mixins, {
     return type + '_' + columnName.replace(/ |,|\./g, '_');
   },
 
+  persistedCustomColumnConfigKey(columnName) {
+    return `${this.persistedConfigurationKey}.customColumns.${columnName}`;
+  },
+
   /**
    * @param {ColumnName} columnName
    * @param {boolean} isEnabled
@@ -233,11 +238,11 @@ export default EmberObject.extend(...mixins, {
       fileProperty: `xattr.${key}`,
     });
     globals.localStorage.setItem(
-      `${this.persistedConfigurationKey}.customColumns.${columnNameVariable}.xattrKey`,
+      `${this.persistedCustomColumnConfigKey(columnNameVariable)}.xattrKey`,
       key
     );
     globals.localStorage.setItem(
-      `${this.persistedConfigurationKey}.customColumns.${columnNameVariable}.label`,
+      `${this.persistedCustomColumnConfigKey(columnNameVariable)}.label`,
       columnName
     );
     this.columnsOrder.push(columnNameVariable);
@@ -251,10 +256,10 @@ export default EmberObject.extend(...mixins, {
     this.changeColumnVisibility(columnName, false);
     delete this.columns[columnName];
     globals.localStorage.removeItem(
-      `${this.persistedConfigurationKey}.customColumns.${columnName}.xattrKey`
+      `${this.persistedCustomColumnConfigKey(columnName)}.xattrKey`
     );
     globals.localStorage.removeItem(
-      `${this.persistedConfigurationKey}.customColumns.${columnName}.label`
+      `${this.persistedCustomColumnConfigKey(columnName)}.label`
     );
     const index = this.columnsOrder.indexOf(columnName);
     if (index === -1) {
@@ -267,15 +272,22 @@ export default EmberObject.extend(...mixins, {
   },
 
   modifyColumn(columnName, newColumnName, key) {
-    this.set(`columns.${columnName}.displayedName`, newColumnName);
-    this.set(`columns.${columnName}.xattrKey`, key);
-    this.set(`columns.${columnName}.fileProperty`, 'xattr.' + key);
+    const column = this.get(`columns.${columnName}`);
+    if (!column) {
+      return;
+    }
+    setProperties(column, {
+      displayedName: newColumnName,
+      xattrKey: key,
+      fileProperty: 'xattr.' + key,
+    });
+
     globals.localStorage.setItem(
-      `${this.persistedConfigurationKey}.customColumns.${columnName}.xattrKey`,
+      `${this.persistedCustomColumnConfigKey(columnName)}.xattrKey`,
       key
     );
     globals.localStorage.setItem(
-      `${this.persistedConfigurationKey}.customColumns.${columnName}.label`,
+      `${this.persistedCustomColumnConfigKey(columnName)}.label`,
       newColumnName
     );
 
@@ -325,10 +337,10 @@ export default EmberObject.extend(...mixins, {
 
   loadXattrColumnFromLocalStorage(columnName, enabledColumnsList) {
     const xattrKey = globals.localStorage.getItem(
-      `${this.persistedConfigurationKey}.customColumns.${columnName}.xattrKey`
+      `${this.persistedCustomColumnConfigKey(columnName)}.xattrKey`
     );
     const displayedName = globals.localStorage.getItem(
-      `${this.persistedConfigurationKey}.customColumns.${columnName}.label`
+      `${this.persistedCustomColumnConfigKey(columnName)}.label`
     );
     if (!xattrKey || !displayedName) {
       return;
