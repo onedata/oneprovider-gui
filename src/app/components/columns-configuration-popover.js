@@ -316,7 +316,6 @@ export default Component.extend(I18n, {
         this.modifiedColumn,
         this.modifiedColumnNewValue,
         key,
-        'xattr',
       );
       this.set('activeSlide', 'column-configuration');
     },

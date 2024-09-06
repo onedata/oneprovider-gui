@@ -178,7 +178,7 @@ export default EmberObject.extend(...mixins, {
   },
 
   columnNameToVariable(columnName, type) {
-    return type + '-' + columnName.replace(' ', '-').replace(',', '-').replace('.', '-');
+    return type + '_' + columnName.replace(/ |,|\./g, '_');
   },
 
   /**
@@ -208,11 +208,14 @@ export default EmberObject.extend(...mixins, {
   addNewColumn(columnName, key, type) {
     let columnNameVariable = this.columnNameToVariable(columnName, type);
 
+    // try to create name variable that does not exist or return
+    // if column with the same key and displayed name exists
     while (columnNameVariable in this.columns) {
       if (
         columnName === this.columns[columnNameVariable].displayedName &&
         key === this.columns[columnNameVariable].xattrKey
       ) {
+        // return if a column with the same name and key already exists
         return;
       }
       columnNameVariable += '#';
@@ -230,11 +233,11 @@ export default EmberObject.extend(...mixins, {
       fileProperty: `xattr.${key}`,
     });
     globals.localStorage.setItem(
-      `${this.persistedConfigurationKey}.key.${columnNameVariable}`,
+      `${this.persistedConfigurationKey}.customColumns.${columnNameVariable}.xattrKey`,
       key
     );
     globals.localStorage.setItem(
-      `${this.persistedConfigurationKey}.value.${columnNameVariable}`,
+      `${this.persistedConfigurationKey}.customColumns.${columnNameVariable}.label`,
       columnName
     );
     this.columnsOrder.push(columnNameVariable);
@@ -245,9 +248,13 @@ export default EmberObject.extend(...mixins, {
   },
 
   removeXattrColumn(columnName) {
+    this.changeColumnVisibility(columnName, false);
     delete this.columns[columnName];
     globals.localStorage.removeItem(
-      `${this.persistedConfigurationKey}.${columnName}`
+      `${this.persistedConfigurationKey}.customColumns.${columnName}.xattrKey`
+    );
+    globals.localStorage.removeItem(
+      `${this.persistedConfigurationKey}.customColumns.${columnName}.label`
     );
     const index = this.columnsOrder.indexOf(columnName);
     if (index === -1) {
@@ -255,42 +262,24 @@ export default EmberObject.extend(...mixins, {
     }
     this.columnsOrder.splice(index, 1);
     this.saveColumnsOrder();
-    this.changeColumnVisibility(columnName, false);
     this.checkColumnsVisibility();
     this.notifyPropertyChange('columnsOrder');
   },
 
-  modifyColumn(columnName, newColumnName, key, type) {
-    const newColumnNameVariable = this.columnNameToVariable(newColumnName, type);
-    const isEnabled = this.columns[columnName].isEnabled;
-    if (
-      !(newColumnNameVariable in this.columns) &&
-      columnName !== newColumnNameVariable
-    ) {
-      this.columns[newColumnNameVariable] = this.columns[columnName];
-      delete this.columns[columnName];
-      globals.localStorage.removeItem(
-        `${this.persistedConfigurationKey}.${columnName}`
-      );
-    }
-    this.set(`columns.${newColumnNameVariable}.displayedName`, newColumnName);
-    this.set(`columns.${newColumnNameVariable}.xattrKey`, key);
-    this.set(`columns.${newColumnNameVariable}.fileProperty`, 'xattr.' + key);
+  modifyColumn(columnName, newColumnName, key) {
+    this.set(`columns.${columnName}.displayedName`, newColumnName);
+    this.set(`columns.${columnName}.xattrKey`, key);
+    this.set(`columns.${columnName}.fileProperty`, 'xattr.' + key);
     globals.localStorage.setItem(
-      `${this.persistedConfigurationKey}.${newColumnNameVariable}`,
+      `${this.persistedConfigurationKey}.customColumns.${columnName}.xattrKey`,
       key
     );
-
-    const index = this.columnsOrder.indexOf(columnName);
-    this.columnsOrder[index] = newColumnNameVariable;
-    this.saveColumnsOrder();
-    if (isEnabled) {
-      this.changeColumnVisibility(columnName, false);
-      this.changeColumnVisibility(newColumnNameVariable, true);
-    }
+    globals.localStorage.setItem(
+      `${this.persistedConfigurationKey}.customColumns.${columnName}.label`,
+      newColumnName
+    );
 
     this.checkColumnsVisibility();
-    this.notifyPropertyChange('columnsOrder');
   },
 
   saveColumnsOrder() {
@@ -336,10 +325,10 @@ export default EmberObject.extend(...mixins, {
 
   loadXattrColumnFromLocalStorage(columnName, enabledColumnsList) {
     const xattrKey = globals.localStorage.getItem(
-      `${this.persistedConfigurationKey}.key.${columnName}`
+      `${this.persistedConfigurationKey}.customColumns.${columnName}.xattrKey`
     );
     const displayedName = globals.localStorage.getItem(
-      `${this.persistedConfigurationKey}.value.${columnName}`
+      `${this.persistedConfigurationKey}.customColumns.${columnName}.label`
     );
     if (!xattrKey || !displayedName) {
       return;
