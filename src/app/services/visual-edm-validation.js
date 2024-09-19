@@ -12,6 +12,7 @@ import { EdmMetadataInvalidObjectOcurrenceError } from 'oneprovider-gui/utils/ed
 import {
   EdmObjectMissingPropertiesError,
   EdmObjectPropertiesMaxSingleError,
+  EdmObjectMissingPropertySpecificValue,
 } from 'oneprovider-gui/utils/edm/object-validator';
 import {
   EdmPropertyBothValueTypesError,
@@ -90,6 +91,14 @@ export default Service.extend(I18n, {
           error.edmObject,
           error.properties,
           viewType
+        ));
+      } else if (error instanceof EdmObjectMissingPropertySpecificValue) {
+        messages.push(this.createMissingPropertySpecificValueMessage(
+          validationContext,
+          error.edmObject,
+          error.propertyTag,
+          error.value,
+          viewType,
         ));
       } else if (error instanceof EdmMetadataInvalidObjectOcurrenceError) {
         messages.push(this.createObjectOccurrenceMessage(
@@ -194,6 +203,29 @@ export default Service.extend(I18n, {
           viewType,
           edmObjectType,
         ),
+      }
+    );
+  },
+
+  createMissingPropertySpecificValueMessage(
+    validationContext,
+    edmObject,
+    propertyTag,
+    value,
+    viewType
+  ) {
+    const tagToPropertyDataMap = getTagToPropertyDataMap()[edmObject.xmlTagName];
+    const propertyData = tagToPropertyDataMap[propertyTag];
+    const objectType = edmObject.edmObjectType;
+    return this.t(
+      `missingPropertySpecificValue.${validationContext}`, {
+        objectType,
+        propertyString: this.createPropertiesString(
+          [propertyData],
+          viewType,
+          objectType
+        ),
+        value,
       }
     );
   },

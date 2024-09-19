@@ -341,7 +341,7 @@ function createAllSpecs() {
       isPartOf: {
         val: EdmPropertyValueType.Any,
         obj: EdmObjectType.ProvidedCHO,
-        rec: Rec.None,
+        rec: Rec.Mandatory,
         max: Max.Any,
         lang: true,
         example: 'Crace Collection of Maps of London / EUreka3D / Church of...',

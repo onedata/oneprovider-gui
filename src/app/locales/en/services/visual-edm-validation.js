@@ -24,6 +24,10 @@ export default {
       plural: 'missing {{propertyString}} mandatory properties for {{objectType}}',
     },
   },
+  missingPropertySpecificValue: {
+    object: 'the object should contain {{propertyString}} property with "{{value}}" literal value',
+    metadata: 'the "{{objectType}}" object should contain {{propertyString}} property with "{{value}}" literal value',
+  },
   exceedingProperties: {
     object: {
       singular: 'the {{propertyString}} property can only appear single time',
