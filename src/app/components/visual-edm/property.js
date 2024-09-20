@@ -231,11 +231,11 @@ export default Component.extend(I18n, {
   ),
 
   formGroupClassName: computed(
-    'viewModel.{wasInputFocused,validator.isError}',
+    'viewModel.{wasInputUsed,validator.isError}',
     'inputFeedbackIcon',
     function formGroupClassName() {
       const classes = ['form-group'];
-      if (this.viewModel.wasInputFocused && this.viewModel.validator?.isError) {
+      if (this.viewModel.wasInputUsed && this.viewModel.validator?.isError) {
         classes.push('has-error');
       }
       if (this.inputFeedbackIcon) {
@@ -246,9 +246,9 @@ export default Component.extend(I18n, {
   ),
 
   inputFeedbackIcon: computed(
-    'viewModel.{wasInputFocused,validator.errors.length}',
+    'viewModel.{wasInputUsed,validator.errors.length}',
     function inputFeedbackIcon() {
-      if (!this.viewModel.wasInputFocused) {
+      if (!this.viewModel.wasInputUsed) {
         return;
       }
       if (this.viewModel.validator?.errors.length) {
@@ -311,6 +311,7 @@ export default Component.extend(I18n, {
     },
     changeValue(newValue) {
       this.viewModel.changeValue(newValue);
+      this.viewModel.markInputAsUsed();
     },
     changeLanguage(option) {
       this.viewModel.changeAttribute('lang', option.value || null);
@@ -319,7 +320,7 @@ export default Component.extend(I18n, {
       this.viewModel.deleteProperty();
     },
     handleInputBlur() {
-      set(this.viewModel, 'wasInputFocused', true);
+      this.viewModel.markInputAsUsed();
     },
     matchLangOption(option, searchString) {
       return option.matchesSearchString(searchString) ? 1 : -1;
