@@ -18,7 +18,8 @@ import {
   EdmPropertyBothValueTypesError,
   EdmPropertyEmptyValueError,
   EdmPropertyNonEnumValueError,
-  EdmPropertyNonUriReference,
+  EdmPropertyNonUriReferenceError,
+  EdmPropertyUriLiteralError,
 } from 'oneprovider-gui/utils/edm/property-validator';
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import { htmlSafe } from '@ember/string';
@@ -34,7 +35,7 @@ import EdmPropertyValidator from '../utils/edm/property-validator';
  */
 
 /**
- * @typedef {'metadata'|'object'} EdmValidationMessageContext
+ * @typedef {'metadata'|'object'|'property'} EdmValidationMessageContext
  */
 
 export default Service.extend(I18n, {
@@ -52,6 +53,7 @@ export default Service.extend(I18n, {
    * @returns {Array<SafeString>}
    */
   getErrorMessages(validator, viewType = 'visual') {
+    /** @type {EdmValidationMessageContext} */
     let validationContext;
     let edmObjectType;
     switch (validator.constructor) {
@@ -70,22 +72,23 @@ export default Service.extend(I18n, {
           `${validator.constructor} is not supported validator type in the messages translator
         `);
     }
-
     const messages = [];
     let bothValueProperties = [];
     let emptyProperties = [];
     let invalidEnumProperties = [];
     let nonUriProperties = [];
-    const errors = validator.errors;
-    for (const error of errors) {
+    let literalUriProperties = [];
+    for (const error of validator.errors) {
       if (error instanceof EdmPropertyBothValueTypesError) {
         bothValueProperties.push(error.edmProperty);
       } else if (error instanceof EdmPropertyEmptyValueError) {
         emptyProperties.push(error.edmProperty);
       } else if (error instanceof EdmPropertyNonEnumValueError) {
         invalidEnumProperties.push(error.edmProperty);
-      } else if (error instanceof EdmPropertyNonUriReference) {
+      } else if (error instanceof EdmPropertyNonUriReferenceError) {
         nonUriProperties.push(error.edmProperty);
+      } else if (error instanceof EdmPropertyUriLiteralError) {
+        literalUriProperties.push(error.edmProperty);
       } else if (error instanceof EdmObjectMissingPropertiesError) {
         messages.push(this.createMissingPropertiesMessage(
           validationContext,
@@ -134,6 +137,10 @@ export default Service.extend(I18n, {
       _.uniqBy(nonUriProperties, 'xmlTagName'),
       viewType
     );
+    literalUriProperties = sortProperties(
+      _.uniqBy(literalUriProperties, 'xmlTagName'),
+      viewType
+    );
     if (bothValueProperties.length) {
       messages.push(this.createBothValueMessage(
         bothValueProperties,
@@ -158,6 +165,13 @@ export default Service.extend(I18n, {
     if (nonUriProperties.length) {
       messages.push(this.createPropertyNonUriReferenceMessage(
         nonUriProperties,
+        viewType,
+        edmObjectType
+      ));
+    }
+    if (literalUriProperties.length) {
+      messages.push(this.createLiteralUriMessage(
+        literalUriProperties,
         viewType,
         edmObjectType
       ));
@@ -237,6 +251,27 @@ export default Service.extend(I18n, {
     const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
     return this.t(
       `nonUriReference.${quantity}`, {
+        propertyString: this.createPropertiesString(
+          edmProperties,
+          viewType,
+          edmObjectType,
+        ),
+        objectType: this.translateObjectType(edmObjectType),
+      }
+    );
+  },
+
+  createLiteralUriMessage(
+    edmProperties,
+    viewType,
+    edmObjectType
+  ) {
+    if (!edmProperties?.length) {
+      return;
+    }
+    const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
+    return this.t(
+      `uriLiteral.${quantity}`, {
         propertyString: this.createPropertiesString(
           edmProperties,
           viewType,

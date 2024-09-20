@@ -49,7 +49,16 @@ const EdmPropertyValidator = EmberObject.extend({
       !isUri(this.edmProperty.getSupportedValue())
     ) {
       return [
-        new EdmPropertyNonUriReference(this.edmProperty),
+        new EdmPropertyNonUriReferenceError(this.edmProperty),
+      ];
+    }
+    if (
+      this.edmProperty.spec.val === EdmPropertyValueType.Any &&
+      this.edmProperty.currentValueType === EdmPropertyValueType.Literal &&
+      isUri(this.edmProperty.getSupportedValue())
+    ) {
+      return [
+        new EdmPropertyUriLiteralError(this.edmProperty),
       ];
     }
     return [];
@@ -91,7 +100,7 @@ export class EdmPropertyNonEnumValueError {
   }
 }
 
-export class EdmPropertyNonUriReference {
+export class EdmPropertyNonUriReferenceError {
   constructor(edmProperty) {
     this.edmProperty = edmProperty;
   }
@@ -100,8 +109,17 @@ export class EdmPropertyNonUriReference {
   }
 }
 
+export class EdmPropertyUriLiteralError {
+  constructor(edmProperty) {
+    this.edmProperty = edmProperty;
+  }
+  toString() {
+    return `value of ${this.edmProperty.xmlTagName} is a URI`;
+  }
+}
+
 /**
- * @typedef {EdmPropertyEmptyValueError|EdmPropertyNonEnumValueError|EdmPropertyNonUriReference} EdmPropertyValidatorError
+ * @typedef {EdmPropertyEmptyValueError|EdmPropertyNonEnumValueError|EdmPropertyNonUriReferenceError|EdmPropertyUriLiteralError} EdmPropertyValidatorError
  */
 
 export default EdmPropertyValidator;

@@ -42,6 +42,10 @@ export default {
     singular: 'the {{propertyString}} property is a reference, but the value is not a URI',
     plural: 'the {{propertyString}} properties are references, but values are not URIs',
   },
+  uriLiteral: {
+    singular: 'the {{propertyString}} property value type is a literal, but the value a URI',
+    plural: 'the {{propertyString}} properties type are literal, but values are URIs',
+  },
   objectOccurrence: {
     singular: 'there should be excatly one "{{objectType}}" object in the metadata',
     plural: '"{{objectType}}" object should occur exactly {{expectedOccurence}} times in the metadata',
