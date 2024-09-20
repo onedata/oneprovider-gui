@@ -150,6 +150,7 @@ export default Service.extend(I18n, {
     }
     if (emptyProperties.length) {
       messages.push(this.createEmptyValuesMessage(
+        validationContext,
         emptyProperties,
         viewType,
         edmObjectType
@@ -157,6 +158,7 @@ export default Service.extend(I18n, {
     }
     if (invalidEnumProperties.length) {
       messages.push(this.createInvalidEnumValuesMessage(
+        validationContext,
         invalidEnumProperties,
         viewType,
         edmObjectType
@@ -164,6 +166,7 @@ export default Service.extend(I18n, {
     }
     if (nonUriProperties.length) {
       messages.push(this.createPropertyNonUriReferenceMessage(
+        validationContext,
         nonUriProperties,
         viewType,
         edmObjectType
@@ -171,6 +174,7 @@ export default Service.extend(I18n, {
     }
     if (literalUriProperties.length) {
       messages.push(this.createLiteralUriMessage(
+        validationContext,
         literalUriProperties,
         viewType,
         edmObjectType
@@ -209,13 +213,13 @@ export default Service.extend(I18n, {
     );
   },
 
-  createEmptyValuesMessage(edmProperties, viewType, edmObjectType) {
+  createEmptyValuesMessage(validationContext, edmProperties, viewType, edmObjectType) {
     if (!edmProperties?.length) {
       return;
     }
     const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
     return this.t(
-      `valueEmpty.${quantity}`, {
+      `valueEmpty.${validationContext}.${quantity}`, {
         propertyString: this.createPropertiesString(
           edmProperties,
           viewType,
@@ -225,12 +229,19 @@ export default Service.extend(I18n, {
     );
   },
 
-  createInvalidEnumValuesMessage(edmProperties, viewType, edmObjectType) {
+  createInvalidEnumValuesMessage(
+    validationContext,
+    edmProperties,
+    viewType,
+    edmObjectType
+  ) {
     if (!edmProperties?.length) {
       return;
     }
+    const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
+
     return this.t(
-      `valueInvalidEnum.${edmProperties.length === 1 ? 'singular' : 'plural'}`, {
+      `valueInvalidEnum.${validationContext}.${quantity}`, {
         propertyString: this.createPropertiesString(
           edmProperties,
           viewType,
@@ -241,6 +252,7 @@ export default Service.extend(I18n, {
   },
 
   createPropertyNonUriReferenceMessage(
+    validationContext,
     edmProperties,
     viewType,
     edmObjectType
@@ -250,7 +262,7 @@ export default Service.extend(I18n, {
     }
     const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
     return this.t(
-      `nonUriReference.${quantity}`, {
+      `nonUriReference.${validationContext}.${quantity}`, {
         propertyString: this.createPropertiesString(
           edmProperties,
           viewType,
@@ -262,6 +274,7 @@ export default Service.extend(I18n, {
   },
 
   createLiteralUriMessage(
+    validationContext,
     edmProperties,
     viewType,
     edmObjectType
@@ -271,7 +284,7 @@ export default Service.extend(I18n, {
     }
     const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
     return this.t(
-      `uriLiteral.${quantity}`, {
+      `uriLiteral.${validationContext}.${quantity}`, {
         propertyString: this.createPropertiesString(
           edmProperties,
           viewType,
