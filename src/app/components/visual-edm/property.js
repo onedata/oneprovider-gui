@@ -230,6 +230,33 @@ export default Component.extend(I18n, {
     }
   ),
 
+  formGroupClassName: computed(
+    'viewModel.{wasInputFocused,validator.isError}',
+    'inputFeedbackIcon',
+    function formGroupClassName() {
+      const classes = ['form-group'];
+      if (this.viewModel.wasInputFocused && this.viewModel.validator?.isError) {
+        classes.push('has-error');
+      }
+      if (this.inputFeedbackIcon) {
+        classes.push('has-feedback');
+      }
+      return classes.join(' ');
+    }
+  ),
+
+  inputFeedbackIcon: computed(
+    'viewModel.{wasInputFocused,validator.errors.length}',
+    function inputFeedbackIcon() {
+      if (!this.viewModel.wasInputFocused) {
+        return;
+      }
+      if (this.viewModel.validator?.errors.length) {
+        return 'checkbox-filled-warning';
+      }
+    }
+  ),
+
   animateAttentionObserver: observer(
     'viewModel.isAnimateAttentionQueued',
     function animateAttentionObserver() {

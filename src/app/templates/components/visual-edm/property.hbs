@@ -124,7 +124,7 @@
           {{value}}
         {{/if}}
       {{else}}
-        <div class={{viewModel.formGroupClassName}}>
+        <div class={{formGroupClassName}}>
           {{#if (eq inputType "input")}}
             <input
               class="form-control input-sm"
@@ -134,6 +134,19 @@
               oninput={{action "changeValue" value="target.value"}}
               onblur={{action "handleInputBlur"}}
             />
+            {{#if inputFeedbackIcon}}
+              <OneIcon
+                class="form-control-feedback"
+                @icon={{inputFeedbackIcon}}
+              >
+                <OneTooltip>
+                  <VisualEdm::ValidationErrorText
+                    @validator={{viewModel.validator}}
+                    @viewType="visual"
+                  />
+                </OneTooltip>
+              </OneIcon>
+            {{/if}}
           {{else if (eq inputType "textarea")}}
             <textarea
               class="form-control input-sm"

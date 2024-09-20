@@ -27,6 +27,7 @@ import { getTagToPropertyDataMap } from 'oneprovider-gui/utils/edm/property-spec
 import EdmObjectValidator from 'oneprovider-gui/utils/edm/object-validator';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import _ from 'lodash';
+import EdmPropertyValidator from '../utils/edm/property-validator';
 
 /**
  * @typedef {'visual'|'xml'} EdmValidationMessageViewType
@@ -54,6 +55,9 @@ export default Service.extend(I18n, {
     let validationContext;
     let edmObjectType;
     switch (validator.constructor) {
+      case EdmPropertyValidator:
+        validationContext = 'property';
+        break;
       case EdmObjectValidator:
         validationContext = 'object';
         edmObjectType = validator.edmObject.edmObjectType;

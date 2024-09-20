@@ -103,18 +103,6 @@ const PropertyViewModel = EmberObject.extend({
 
   isLangConfigurable: reads('model.isLangConfigurable'),
 
-  formGroupClassName: computed(
-    'wasInputFocused',
-    'validator.isError',
-    function formGroupClassName() {
-      const classes = ['form-group'];
-      if (this.wasInputFocused && this.validator?.isError) {
-        classes.push('has-error');
-      }
-      return classes.join(' ');
-    }
-  ),
-
   valueIcon: conditional(
     eq('valueType', raw('literal')),
     raw('browser-rename'),
