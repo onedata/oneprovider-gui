@@ -8,6 +8,8 @@
 
 import EmberObject, { computed } from '@ember/object';
 import { empty, not } from '@ember/object/computed';
+import isUri from 'onedata-gui-common/utils/is-uri';
+import { EdmPropertyValueType } from './property-spec';
 
 const EdmPropertyValidator = EmberObject.extend({
   /**
@@ -41,6 +43,14 @@ const EdmPropertyValidator = EmberObject.extend({
         .includes(supportedValue) ? [] : [
           new EdmPropertyNonEnumValueError(this.edmProperty),
         ];
+    }
+    if (
+      this.edmProperty.currentValueType === EdmPropertyValueType.Reference &&
+      !isUri(this.edmProperty.getSupportedValue())
+    ) {
+      return [
+        new EdmPropertyNonUriReference(this.edmProperty),
+      ];
     }
     return [];
   }),
@@ -81,8 +91,17 @@ export class EdmPropertyNonEnumValueError {
   }
 }
 
+export class EdmPropertyNonUriReference {
+  constructor(edmProperty) {
+    this.edmProperty = edmProperty;
+  }
+  toString() {
+    return `rdf:resource of ${this.edmProperty.xmlTagName} is not a URI`;
+  }
+}
+
 /**
- * @typedef {EdmPropertyEmptyValueError|EdmPropertyNonEnumValueError} EdmPropertyValidatorError
+ * @typedef {EdmPropertyEmptyValueError|EdmPropertyNonEnumValueError|EdmPropertyNonUriReference} EdmPropertyValidatorError
  */
 
 export default EdmPropertyValidator;

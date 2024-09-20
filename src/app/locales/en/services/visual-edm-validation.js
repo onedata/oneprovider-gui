@@ -38,6 +38,10 @@ export default {
       plural: 'the {{propertyString}} properties can only appear in single instances in the "{{objectType}}"',
     },
   },
+  nonUriReference: {
+    singular: 'the {{propertyString}} property is a reference, but the value is not a URI',
+    plural: 'the {{propertyString}} properties are references, but values are not URIs',
+  },
   objectOccurrence: {
     singular: 'there should be excatly one "{{objectType}}" object in the metadata',
     plural: '"{{objectType}}" object should occur exactly {{expectedOccurence}} times in the metadata',

@@ -18,6 +18,7 @@ import {
   EdmPropertyBothValueTypesError,
   EdmPropertyEmptyValueError,
   EdmPropertyNonEnumValueError,
+  EdmPropertyNonUriReference,
 } from 'oneprovider-gui/utils/edm/property-validator';
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import { htmlSafe } from '@ember/string';
@@ -70,6 +71,7 @@ export default Service.extend(I18n, {
     let bothValueProperties = [];
     let emptyProperties = [];
     let invalidEnumProperties = [];
+    let nonUriProperties = [];
     const errors = validator.errors;
     for (const error of errors) {
       if (error instanceof EdmPropertyBothValueTypesError) {
@@ -78,6 +80,8 @@ export default Service.extend(I18n, {
         emptyProperties.push(error.edmProperty);
       } else if (error instanceof EdmPropertyNonEnumValueError) {
         invalidEnumProperties.push(error.edmProperty);
+      } else if (error instanceof EdmPropertyNonUriReference) {
+        nonUriProperties.push(error.edmProperty);
       } else if (error instanceof EdmObjectMissingPropertiesError) {
         messages.push(this.createMissingPropertiesMessage(
           validationContext,
@@ -122,6 +126,10 @@ export default Service.extend(I18n, {
       _.uniqBy(invalidEnumProperties, 'xmlTagName'),
       viewType
     );
+    nonUriProperties = sortProperties(
+      _.uniqBy(nonUriProperties, 'xmlTagName'),
+      viewType
+    );
     if (bothValueProperties.length) {
       messages.push(this.createBothValueMessage(
         bothValueProperties,
@@ -139,6 +147,13 @@ export default Service.extend(I18n, {
     if (invalidEnumProperties.length) {
       messages.push(this.createInvalidEnumValuesMessage(
         invalidEnumProperties,
+        viewType,
+        edmObjectType
+      ));
+    }
+    if (nonUriProperties.length) {
+      messages.push(this.createPropertyNonUriReferenceMessage(
+        nonUriProperties,
         viewType,
         edmObjectType
       ));
@@ -203,6 +218,27 @@ export default Service.extend(I18n, {
           viewType,
           edmObjectType,
         ),
+      }
+    );
+  },
+
+  createPropertyNonUriReferenceMessage(
+    edmProperties,
+    viewType,
+    edmObjectType
+  ) {
+    if (!edmProperties?.length) {
+      return;
+    }
+    const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
+    return this.t(
+      `nonUriReference.${quantity}`, {
+        propertyString: this.createPropertiesString(
+          edmProperties,
+          viewType,
+          edmObjectType,
+        ),
+        objectType: this.translateObjectType(edmObjectType),
       }
     );
   },
