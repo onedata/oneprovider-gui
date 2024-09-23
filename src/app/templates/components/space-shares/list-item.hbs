@@ -21,7 +21,7 @@
             class="one-label share-name-header"
           />
         </TruncatedString>
-        {{#if shareFilePathProxy.isRejected}}
+        {{#if isPathNotAvailable}}
           <span class="share-file-path truncate">
             <span class="share-file-path-error">
               {{tt this "couldNotGetPath"}}

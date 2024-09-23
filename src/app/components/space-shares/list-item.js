@@ -263,6 +263,15 @@ export default Component.extend(...mixins, {
 
   shareFilePath: reads('shareFilePathProxy.content'),
 
+  isPathNotAvailable: computed(
+    'shareFilePathProxy.{isSettled,isRejected}',
+    'shareFilePath',
+    function isPathNotAvailable() {
+      return get(this.shareFilePathProxy, 'isRejected') ||
+        get(this.shareFilePathProxy, 'isSettled') && !this.shareFilePath;
+    }
+  ),
+
   actions: {
     toggleActions(open) {
       const _open = (typeof open === 'boolean') ? open : !this.get('actionsOpened');
