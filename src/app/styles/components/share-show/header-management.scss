@@ -29,6 +29,14 @@
         overflow-x: hidden;
       }
     }
+    .archive-private-root-error {
+      display: flex;
+      align-items: center;
+      .private-root-not-available {
+        opacity: $disabled-opacity;
+        font-style: italic;
+      }
+    }
   }
   .share-menu-trigger {
     padding-right: 0;
