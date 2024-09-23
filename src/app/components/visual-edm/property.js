@@ -246,12 +246,12 @@ export default Component.extend(I18n, {
   ),
 
   inputFeedbackIcon: computed(
-    'viewModel.{wasInputUsed,validator.errors.length}',
+    'viewModel.{wasInputUsed,validator.isError}',
     function inputFeedbackIcon() {
       if (!this.viewModel.wasInputUsed) {
         return;
       }
-      if (this.viewModel.validator?.errors.length) {
+      if (this.viewModel.validator?.isError) {
         return 'checkbox-filled-warning';
       }
     }
