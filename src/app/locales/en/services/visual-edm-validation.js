@@ -43,7 +43,7 @@ export default {
   },
   nonUriReference: {
     property: {
-      singular: 'the reference-type property should be a URI – consider changing its type to "Literal"',
+      singular: 'this is not a valid URI — correct it or switch to the "Literal" type for a non-URI value.',
     },
     object: {
       singular: 'the {{propertyString}} property is a reference, but the value is not a URI',
@@ -56,7 +56,7 @@ export default {
   },
   uriLiteral: {
     property: {
-      singular: 'the literal-type property should not be a URI – consider changing its type to "Reference"',
+      singular: 'you must switch to the "Reference" type to insert an URI.',
     },
     object: {
       singular: 'the {{propertyString}} property value type is a literal, but the value is a URI',
