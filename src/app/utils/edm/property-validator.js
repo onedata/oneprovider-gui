@@ -37,7 +37,7 @@ const EdmPropertyValidator = EmberObject.extend({
         new EdmPropertyEmptyValueError(this.edmProperty),
       ];
     }
-    if (this.edmProperty.hasPredefinedValues) {
+    if (this.edmProperty.hasPredefinedValues && !this.edmProperty.isCustomValueAllowed) {
       return this.edmProperty.predefinedValues
         .map(({ value }) => value)
         .includes(supportedValue) ? [] : [

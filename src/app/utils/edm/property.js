@@ -164,6 +164,10 @@ class EdmProperty {
     return this.spec.disabled ?? false;
   }
 
+  get isCustomValueAllowed() {
+    return this.spec.custom ?? false;
+  }
+
   /**
    * Sets either value or resource attribute depending on the supported value type and
    * removes value from the other value types.

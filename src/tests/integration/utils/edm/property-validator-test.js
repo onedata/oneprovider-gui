@@ -92,6 +92,49 @@ describe('Integration | Utility | edm/property-validator', function () {
     // then
     expect(helper.validator.errors).to.be.empty;
   });
+
+  it('has isValid = true if property has value from predefined values', function () {
+    // given
+    const helper = new Helper();
+
+    // when
+    helper.initProperty('edm', 'type');
+    helper.property.setSupportedValue('3D');
+    helper.initValidator();
+
+    // then
+    expect(helper.validator.isValid).to.be.true;
+  });
+
+  it('has isValid = false if property is from outside predefined values and does not allow to be custom',
+    function () {
+      // given
+      const helper = new Helper();
+
+      // when
+      helper.initProperty('edm', 'type');
+      helper.property.setSupportedValue('hello');
+      helper.initValidator();
+
+      // then
+      expect(helper.validator.isValid).to.be.false;
+    }
+  );
+
+  it('has isValid = true if property is from outside predefined values and allows to be custom',
+    function () {
+      // given
+      const helper = new Helper();
+
+      // when
+      helper.initProperty('dcterms', 'medium');
+      helper.property.setSupportedValue('http://example.com');
+      helper.initValidator();
+
+      // then
+      expect(helper.validator.isValid).to.be.true;
+    }
+  );
 });
 
 class Helper {

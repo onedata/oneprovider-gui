@@ -66,6 +66,8 @@ import EdmObjectType, { EdmObjectTagName } from './object-type';
  * @property {string} [example] The example of value displayed in tooltip.
  * @property {string|EdmPropertySpecValues} [placeholder] The example in the input placeholder.
  * @property {boolean} [disabled] If true, the field is always disabled.
+ * @property {boolean} [custom] If true, allows to input custom values for properties
+ *   with predefined set of values without validation error.
  */
 
 /**
@@ -361,6 +363,7 @@ function createAllSpecs() {
         lang: false,
         rec: Rec.Mandatory,
         max: Max.Any,
+        custom: true,
         predef: [
           { label: 'Bone', value: 'http://vocab.getty.edu/aat/300011798' },
           { label: 'Ceramic', value: 'http://vocab.getty.edu/aat/300235507' },
