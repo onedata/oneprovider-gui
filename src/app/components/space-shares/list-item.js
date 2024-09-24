@@ -75,6 +75,16 @@ export default Component.extend(...mixins, {
    */
   startRenameShare: notImplementedThrow,
 
+  //#region state
+
+  /**
+   * Error from fetching share private root.
+   * @type {any}
+   */
+  sharePrivateRootFileError: undefined,
+
+  //#endregion
+
   /**
    * @type {ComputedProperty<boolean>}
    */
