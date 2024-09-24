@@ -79,5 +79,6 @@ export default {
   },
   example: '<strong>Example:</strong> {{exampleValue}}',
   unknownDropdownOption: 'Unknown',
+  validUnknownDropdownOption: 'Supplementary',
   examplePlaceholder: 'Example: {{exampleValue}}',
 };

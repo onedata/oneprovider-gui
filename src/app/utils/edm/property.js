@@ -164,6 +164,26 @@ class EdmProperty {
     return this.spec.disabled ?? false;
   }
 
+  get isCustomValueAllowed() {
+    return Boolean(this.spec.custom);
+  }
+
+  get isCustomValueRegexp() {
+    return this.spec.custom instanceof RegExp;
+  }
+
+  customValueMatches(value) {
+    if (!this.isCustomValueAllowed) {
+      return false;
+    }
+    if (!this.isCustomValueRegexp) {
+      return true;
+    }
+    /** @type {RegExp} */
+    const customValueRegExp = this.spec.custom;
+    return customValueRegExp.test(value);
+  }
+
   /**
    * Sets either value or resource attribute depending on the supported value type and
    * removes value from the other value types.

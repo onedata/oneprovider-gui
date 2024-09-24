@@ -82,13 +82,24 @@ class EdmObjectFactory {
   createInitialObject(edmObjectType) {
     const propertyFactory = new EdmPropertyFactory(this.metadata, edmObjectType);
     propertyFactory.shareRootFile = this.shareRootFile;
+    const edmProperties = getInitialPropertiesMap()[edmObjectType].map(propertyItem =>
+      propertyFactory.createProperty(
+        propertyItem.namespace,
+        propertyItem.name
+      )
+    );
+    if (edmObjectType === EdmObjectType.ProvidedCHO) {
+      let partOfProperty = edmProperties.find(property =>
+        property.xmlTagName === 'dcterms:isPartOf'
+      );
+      if (!partOfProperty) {
+        partOfProperty = propertyFactory.createProperty('dcterms', 'isPartOf');
+        edmProperties.push(partOfProperty);
+      }
+      partOfProperty.setSupportedValue('Eureka3D');
+    }
     return this.createObject(edmObjectType, {
-      edmProperties: getInitialPropertiesMap()[edmObjectType].map(propertyItem =>
-        propertyFactory.createProperty(
-          propertyItem.namespace,
-          propertyItem.name
-        )
-      ),
+      edmProperties,
     });
   }
 }
