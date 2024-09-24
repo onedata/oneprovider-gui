@@ -5,6 +5,7 @@
 ### Latest changes
 
 * VFS-12295 Fixed share views bugs concerning error handling
+* VFS-12284 Improved EDM GUI (v24.09): updated property specs, added URI validation and input validation tooltip
 * VFS-12050 Added xattrs columns in file browser
 * VFS-12261 Added "Copy download URL" context menu action for shared files
 * VFS-12204 Fixed graphical glitch in file datasets panel tab bar
