@@ -140,6 +140,9 @@ export default HeaderBaseComponent.extend(I18n, {
     'share.privateRootFile',
     async function archiveInfoProxy() {
       const privateRootFile = await this.get('share.privateRootFile');
+      if (!privateRootFile) {
+        return null;
+      }
       const fileArchiveInfo = FileArchiveInfo.create({
         ownerSource: this,
         file: privateRootFile,

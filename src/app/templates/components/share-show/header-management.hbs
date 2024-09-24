@@ -6,71 +6,81 @@
     {{#if shareRootDeleted}}
       <em class="root-file-deleted">{{tt this "pathForDeletedRootFile"}}</em>
     {{else}}
-      {{#promise-proxy-container proxy=archiveInfoProxy sizeClass="xs"}}
-        <div class="fb-breadcrumbs-container">
-          {{file-browser/fb-breadcrumbs
-            dir=share.privateRootFile.content
-            rootDir=breadcrumbsRootDir
-            rootIcon=breadcrumbsRootIcon
-            alwaysShowRootName=archiveInfo.isInArchive
-            space=space
-            changeDir=(action "openSpaceDir")
-          }}
-        </div>
-      {{/promise-proxy-container}}
+      <PromiseProxyContainer
+        @sizeClass="xs"
+        @proxy={{archiveInfoProxy}}
+        @injectedIsError={{false}}
+      >
+        {{#if (or archiveInfoProxy.isRejected (not archiveInfo))}}
+          <div class="archive-private-root-error">
+            <span class="private-root-not-available">{{tt this "pathNotAvailable"}}</span>
+          </div>
+        {{else}}
+          <div class="fb-breadcrumbs-container">
+            <FileBrowser::FbBreadcrumbs
+              @dir={{share.privateRootFile.content}}
+              @rootDir={{breadcrumbsRootDir}}
+              @rootIcon={{breadcrumbsRootIcon}}
+              @alwaysShowRootName={{archiveInfo.isInArchive}}
+              @space={{space}}
+              @changeDir={{action "openSpaceDir"}}
+            />
+          </div>
+        {{/if}}
+      </PromiseProxyContainer>
     {{/if}}
   </div>
   <div class="col-menu">
-    {{one-menu-toggle
-      class=(concat-classes menuTriggerClass "share-menu-trigger")
-      click=(disable-bubbling (action "toggleActions"))
-    }}
+    <OneMenuToggle
+      class={{concat-classes menuTriggerClass "share-menu-trigger"}}
+      onclick={{disable-bubbling (action "toggleActions")}}
+    />
   </div>
 </div>
-{{share-show/public-url-viewer
+<ShareShow::PublicUrlViewer
   class="row share-header-row share-header-public-url"
-  compact=(media "isMobile")
-  share=share
-  showHandle=showHandle
-  selectedUrlType=selectedUrlType
-  changeSelectedUrlType=(action (mut selectedUrlType))
-}}
+  @compact={{media "isMobile"}}
+  @share={{share}}
+  @showHandle={{showHandle}}
+  @selectedUrlType={{selectedUrlType}}
+  @changeSelectedUrlType={{action (mut selectedUrlType)}}
+/>
 
-{{#render-later triggerRender=actionsOpened}}
-  {{#one-webui-popover
+<RenderLater @triggerRender={{actionsOpened}}>
+  <OneWebuiPopover
     class="share-actions transfer-actions"
-    popoverStyle="with-dropdown"
-    padding=false
-    triggerSelector=menuTriggerSelector
-    open=actionsOpened
-    onToggle=(action "toggleActions")
-  }}
-    {{#click-outside
-      onClickOutside=(action "toggleActions" false)
-      exceptSelector=menuTriggerSelector
-    }}
-      {{actions-popover-content
-        actionsArray=menuActions
-        actionClicked=(action "toggleActions" false)
+    @popoverStyle="with-dropdown"
+    @padding={{false}}
+    @triggerSelector={{menuTriggerSelector}}
+    @open={{actionsOpened}}
+    @onToggle={{action "toggleActions"}}
+  >
+    <ClickOutside
+      @onClickOutside={{action "toggleActions" false}}
+      @exceptSelector={{menuTriggerSelector}}
+    >
+      <ActionsPopoverContent
+        @actionsArray={{menuActions}}
+        @actionClicked={{action "toggleActions" false}}
         class="share-actions"
-      }}
-    {{/click-outside}}
-  {{/one-webui-popover}}
-{{/render-later}}
+      />
+    </ClickOutside>
+  </OneWebuiPopover>
+</RenderLater>
 
-{{#render-later triggerRender=removeShareOpened}}
-  {{space-shares/remove-modal
-    share=share
-    opened=removeShareOpened
-    onShowShareList=onShowShareList
-    close=(action (mut removeShareOpened) false)
-  }}
-{{/render-later}}
+<RenderLater @triggerRender={{removeShareOpened}}>
+  <SpaceShares::RemoveModal
+    @share={{share}}
+    @opened={{removeShareOpened}}
+    @onShowShareList={{onShowShareList}}
+    @close={{action (mut removeShareOpened) false}}
+  />
+</RenderLater>
 
-{{#render-later triggerRender=renameShareOpened}}
-  {{space-shares/rename-modal
-    share=share
-    opened=renameShareOpened
-    close=(action (mut renameShareOpened) false)
-  }}
-{{/render-later}}
+<RenderLater @triggerRender={{renameShareOpened}}>
+  <SpaceShares::RenameModal
+    @share={{share}}
+    @opened={{renameShareOpened}}
+    @close={{action (mut renameShareOpened) false}}
+  />
+</RenderLater>
