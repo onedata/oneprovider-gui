@@ -1,13 +1,13 @@
 <PromiseProxyContainer @proxy={{shareRootDeletedProxy}}>
   {{#if shareRootDeletedProxy.content}}
     <ContentInfo
-      class="scroll-breakpoint-300"
+      class="scroll-breakpoint-400"
       @header={{tt this "fileDeleted.title"}}
       @text={{tt this "fileDeleted.content"}}
     />
   {{else if isShareLoadingErrorShown}}
     <ContentInfo
-      class="scroll-breakpoint-600"
+      class="scroll-breakpoint-400"
       @header={{tt this "errorLoadingShareData"}}
       @text={{shareDataErrorText}}
     />
