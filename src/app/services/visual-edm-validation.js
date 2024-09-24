@@ -20,6 +20,7 @@ import {
   EdmPropertyNonEnumValueError,
   EdmPropertyNonUriReferenceError,
   EdmPropertyUriLiteralError,
+  EdmPropertyCustomRegexpError,
 } from 'oneprovider-gui/utils/edm/property-validator';
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import { htmlSafe } from '@ember/string';
@@ -78,6 +79,7 @@ export default Service.extend(I18n, {
     let invalidEnumProperties = [];
     let nonUriProperties = [];
     let literalUriProperties = [];
+    let invalidRegexpProperties = [];
     for (const error of validator.errors) {
       if (error instanceof EdmPropertyBothValueTypesError) {
         bothValueProperties.push(error.edmProperty);
@@ -85,6 +87,8 @@ export default Service.extend(I18n, {
         emptyProperties.push(error.edmProperty);
       } else if (error instanceof EdmPropertyNonEnumValueError) {
         invalidEnumProperties.push(error.edmProperty);
+      } else if (error instanceof EdmPropertyCustomRegexpError) {
+        invalidRegexpProperties.push(error.edmProperty);
       } else if (error instanceof EdmPropertyNonUriReferenceError) {
         nonUriProperties.push(error.edmProperty);
       } else if (error instanceof EdmPropertyUriLiteralError) {
@@ -133,6 +137,10 @@ export default Service.extend(I18n, {
       _.uniqBy(invalidEnumProperties, 'xmlTagName'),
       viewType
     );
+    invalidRegexpProperties = sortProperties(
+      _.uniqBy(invalidRegexpProperties, 'xmlTagName'),
+      viewType
+    );
     nonUriProperties = sortProperties(
       _.uniqBy(nonUriProperties, 'xmlTagName'),
       viewType
@@ -160,6 +168,14 @@ export default Service.extend(I18n, {
       messages.push(this.createInvalidEnumValuesMessage(
         validationContext,
         invalidEnumProperties,
+        viewType,
+        edmObjectType
+      ));
+    }
+    if (invalidRegexpProperties.length) {
+      messages.push(this.createInvalidRegexpValuesMessage(
+        validationContext,
+        invalidRegexpProperties,
         viewType,
         edmObjectType
       ));
@@ -242,6 +258,28 @@ export default Service.extend(I18n, {
 
     return this.t(
       `valueInvalidEnum.${validationContext}.${quantity}`, {
+        propertyString: this.createPropertiesString(
+          edmProperties,
+          viewType,
+          edmObjectType,
+        ),
+      }
+    );
+  },
+
+  createInvalidRegexpValuesMessage(
+    validationContext,
+    edmProperties,
+    viewType,
+    edmObjectType
+  ) {
+    if (!edmProperties?.length) {
+      return;
+    }
+    const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
+
+    return this.t(
+      `valueInvalidRegexp.${validationContext}.${quantity}`, {
         propertyString: this.createPropertiesString(
           edmProperties,
           viewType,

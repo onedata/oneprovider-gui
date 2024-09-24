@@ -165,7 +165,23 @@ class EdmProperty {
   }
 
   get isCustomValueAllowed() {
-    return this.spec.custom ?? false;
+    return Boolean(this.spec.custom);
+  }
+
+  get isCustomValueRegexp() {
+    return this.spec.custom instanceof RegExp;
+  }
+
+  customValueMatches(value) {
+    if (!this.isCustomValueAllowed) {
+      return false;
+    }
+    if (!this.isCustomValueRegexp) {
+      return true;
+    }
+    /** @type {RegExp} */
+    const customValueRegExp = this.spec.custom;
+    return customValueRegExp.test(value);
   }
 
   /**

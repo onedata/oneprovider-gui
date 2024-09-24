@@ -45,6 +45,14 @@ const EdmPropertyValidator = EmberObject.extend({
         ];
     }
     if (
+      this.edmProperty.isCustomValueRegexp &&
+      !this.edmProperty.customValueMatches(this.edmProperty.getSupportedValue())
+    ) {
+      return [
+        new EdmPropertyCustomRegexpError(this.edmProperty),
+      ];
+    }
+    if (
       this.edmProperty.currentValueType === EdmPropertyValueType.Reference &&
       !isUri(this.edmProperty.getSupportedValue())
     ) {
@@ -97,6 +105,17 @@ export class EdmPropertyNonEnumValueError {
   }
   toString() {
     return `property "${this.edmProperty.xmlTagName}" has value out of predefined values set`;
+  }
+}
+
+export class EdmPropertyCustomRegexpError {
+  edmObjectType = null;
+
+  constructor(edmProperty) {
+    this.edmProperty = edmProperty;
+  }
+  toString() {
+    return `property "${this.edmProperty.xmlTagName}" neither matches predefined values set nor custom regexp`;
   }
 }
 

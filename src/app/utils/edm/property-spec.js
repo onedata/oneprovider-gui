@@ -363,7 +363,7 @@ function createAllSpecs() {
         lang: false,
         rec: Rec.Mandatory,
         max: Max.Any,
-        custom: true,
+        custom: /^http:\/\/vocab.getty.edu\/aat\/\d{9}$/,
         predef: [
           { label: 'Bone', value: 'http://vocab.getty.edu/aat/300011798' },
           { label: 'Ceramic', value: 'http://vocab.getty.edu/aat/300235507' },

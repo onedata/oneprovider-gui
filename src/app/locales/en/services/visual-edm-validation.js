@@ -41,6 +41,19 @@ export default {
       plural: 'properties {{propertyString}} have values that do not come from their predefined sets',
     },
   },
+  valueInvalidRegexp: {
+    property: {
+      singular: 'the value format is invalid',
+    },
+    object: {
+      singular: 'property {{propertyString}} has invalid format',
+      plural: 'properties {{propertyString}} have invalid format',
+    },
+    metadata: {
+      singular: 'property {{propertyString}} has invalid format',
+      plural: 'properties {{propertyString}} have invalid format',
+    },
+  },
   nonUriReference: {
     property: {
       singular: 'this is not a valid URI — correct it or switch to the "Literal" type for a non-URI value.',

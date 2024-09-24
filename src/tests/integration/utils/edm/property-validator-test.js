@@ -121,6 +121,21 @@ describe('Integration | Utility | edm/property-validator', function () {
     }
   );
 
+  it('has isValid = false if property is from outside predefined values and does not match to the custom regexp',
+    function () {
+      // given
+      const helper = new Helper();
+
+      // when
+      helper.initProperty('dcterms', 'medium');
+      helper.property.setSupportedValue('http://vocab.getty.edu/aat/abc');
+      helper.initValidator();
+
+      // then
+      expect(helper.validator.isValid).to.be.false;
+    }
+  );
+
   it('has isValid = true if property is from outside predefined values and allows to be custom',
     function () {
       // given
@@ -128,7 +143,7 @@ describe('Integration | Utility | edm/property-validator', function () {
 
       // when
       helper.initProperty('dcterms', 'medium');
-      helper.property.setSupportedValue('http://example.com');
+      helper.property.setSupportedValue('http://vocab.getty.edu/aat/123456789');
       helper.initValidator();
 
       // then
