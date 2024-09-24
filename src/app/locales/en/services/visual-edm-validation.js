@@ -56,28 +56,28 @@ export default {
   },
   nonUriReference: {
     property: {
-      singular: 'this is not a valid URI — correct it or switch to the "Literal" type for a non-URI value.',
+      singular: 'this is not a valid URI — correct it or switch to the "Literal" type for a non-URI value',
     },
     object: {
-      singular: 'the {{propertyString}} property is a reference, but the value is not a URI',
-      plural: 'the {{propertyString}} properties are references, but values are not URIs',
+      singular: 'the {{propertyString}} property is not a valid reference (must be a URI)',
+      plural: 'the {{propertyString}} properties are not valid references (must be a URI)',
     },
     metadata: {
-      singular: 'the {{propertyString}} property is a reference, but the value is not a URI',
-      plural: 'the {{propertyString}} properties are references, but values are not URIs',
+      singular: 'the {{propertyString}} property is not a valid reference (must be a URI)',
+      plural: 'the {{propertyString}} properties are not valid references (must be a URI)',
     },
   },
   uriLiteral: {
     property: {
-      singular: 'you must switch to the "Reference" type to insert an URI.',
+      singular: 'you must switch to the "Reference" type to insert an URI',
     },
     object: {
-      singular: 'the {{propertyString}} property value type is a literal, but the value is a URI',
-      plural: 'the {{propertyString}} properties type are literal, but values are URIs',
+      singular: 'the {{propertyString}} property is not a valid literal (must not be a URI)',
+      plural: 'the {{propertyString}} properties are not valid literals (must not be a URI)',
     },
     metadata: {
-      singular: 'the {{propertyString}} property value type is a literal, but the value is a URI',
-      plural: 'the {{propertyString}} properties type are literal, but values are URIs',
+      singular: 'the {{propertyString}} property is not a valid literal (must not be a URI)',
+      plural: 'the {{propertyString}} properties are not valid literals (must not be a URI)',
     },
   },
   missingProperties: {

@@ -177,7 +177,12 @@
                       {{#if option.label}}
                         {{option.label}}
                       {{else}}
-                        <em>{{tt this "unknownDropdownOption"}}</em>
+                        <em>
+                          {{tt this (if viewModel.validator.isValid
+                            "validUnknownDropdownOption"
+                            "unknownDropdownOption"
+                          )}}
+                        </em>
                       {{/if}}
                     </span>
                     {{#unless (eq option.label option.value)}}

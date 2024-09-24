@@ -66,8 +66,9 @@ import EdmObjectType, { EdmObjectTagName } from './object-type';
  * @property {string} [example] The example of value displayed in tooltip.
  * @property {string|EdmPropertySpecValues} [placeholder] The example in the input placeholder.
  * @property {boolean} [disabled] If true, the field is always disabled.
- * @property {boolean} [custom] If true, allows to input custom values for properties
- *   with predefined set of values without validation error.
+ * @property {boolean|RegExp} [custom] If true, allows to input custom values for properties
+ *   with predefined set of values without validation error. If it is a RegExp instance,
+ *   allow only custom values that matche the regexp.
  */
 
 /**

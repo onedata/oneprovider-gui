@@ -45,14 +45,6 @@ const EdmPropertyValidator = EmberObject.extend({
         ];
     }
     if (
-      this.edmProperty.isCustomValueRegexp &&
-      !this.edmProperty.customValueMatches(this.edmProperty.getSupportedValue())
-    ) {
-      return [
-        new EdmPropertyCustomRegexpError(this.edmProperty),
-      ];
-    }
-    if (
       this.edmProperty.currentValueType === EdmPropertyValueType.Reference &&
       !isUri(this.edmProperty.getSupportedValue())
     ) {
@@ -67,6 +59,14 @@ const EdmPropertyValidator = EmberObject.extend({
     ) {
       return [
         new EdmPropertyUriLiteralError(this.edmProperty),
+      ];
+    }
+    if (
+      this.edmProperty.isCustomValueRegexp &&
+      !this.edmProperty.customValueMatches(this.edmProperty.getSupportedValue())
+    ) {
+      return [
+        new EdmPropertyCustomRegexpError(this.edmProperty),
       ];
     }
     return [];
