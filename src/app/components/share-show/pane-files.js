@@ -218,17 +218,6 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  isShareLoadingErrorShown: computed(
-    'shareRootDeletedProxy.isSettled',
-    'isRootDirExistingProxy.isSettled',
-    'isRootDirExisting',
-    function isShareLoadingErrorShown() {
-      return get(this.shareRootDeletedProxy, 'isSettled') &&
-        get(this.isRootDirExistingProxy, 'isSettled') &&
-        !this.isRootDirExisting;
-    }
-  ),
-
   /**
    * @type {Utils.ShareFilesystemBrowserModel}
    */
