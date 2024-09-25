@@ -533,7 +533,6 @@ export default Component.extend(...mixins, {
    */
   browserModel: destroyableComputed(
     'viewMode',
-    'archiveDipMode',
     function browserModel() {
       switch (this.viewMode) {
         case 'files':
