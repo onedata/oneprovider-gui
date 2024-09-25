@@ -84,9 +84,9 @@ const columnsRequirementsDependencies = [
   'owner',
   'replication',
   'qos',
-  // TODO: VFS-11961 uncomment when atime will be fix
-  // 'atime',
+  'atime',
   'ctime',
+  'creationTime',
   'fileId',
   'posixPermissions',
 ].map(columnName =>
@@ -367,6 +367,11 @@ export default BaseBrowserModel.extend(...mixins, {
     },
   ),
 
+  /**
+   * @type {boolean}
+   */
+  hasXattrColumnsSupport: true,
+
   parentDirRequirement: computed(
     'dir',
     'browserFilesProperties',
@@ -447,7 +452,7 @@ export default BaseBrowserModel.extend(...mixins, {
     'media.isMobile',
     'browserFilesProperties',
     `columnsConfiguration.columns.{${columnsRequirementsDependencies}}`,
-    'columnsConfiguration.isMounted',
+    'columnsConfiguration.listedFilesProperties',
     function listedFilesProperties() {
       const listedFilesPropertySet = new Set([
         ...this.browserFilesProperties,
@@ -469,36 +474,9 @@ export default BaseBrowserModel.extend(...mixins, {
           // TODO: VFS-11449 optional file size fetch
           .add('mtime');
       } else {
-        const columnRequirementsEnableProperty = this.columnsConfiguration.isMounted ?
-          'isVisible' : 'isEnabled';
-        const columns = this.columnsConfiguration.columns;
-        if (columns.size?.[columnRequirementsEnableProperty]) {
-          listedFilesPropertySet.add('size');
-        }
-        if (columns.modification?.[columnRequirementsEnableProperty]) {
-          listedFilesPropertySet.add('mtime');
-        }
-        if (columns.owner?.[columnRequirementsEnableProperty]) {
-          listedFilesPropertySet.add('owner');
-        }
-        if (columns.replication?.[columnRequirementsEnableProperty]) {
-          listedFilesPropertySet.add('localReplicationRate');
-        }
-        if (columns.qos?.[columnRequirementsEnableProperty]) {
-          listedFilesPropertySet.add('aggregateQosStatus');
-        }
-        if (columns.posixPermissions?.[columnRequirementsEnableProperty]) {
-          listedFilesPropertySet.add('posixPermissions');
-        }
-        // TODO: VFS-11961 uncomment when atime will be fix
-        // if (columns.atime?.[columnRequirementsEnableProperty]) {
-        //   listedFilesPropertySet.add('atime');
-        // }
-        if (columns.ctime?.[columnRequirementsEnableProperty]) {
-          listedFilesPropertySet.add('ctime');
-        }
-        if (columns.fileId?.[columnRequirementsEnableProperty]) {
-          listedFilesPropertySet.add('fileId');
+        const filesProperties = this.columnsConfiguration.listedFilesProperties;
+        for (const property of filesProperties) {
+          listedFilesPropertySet.add(property);
         }
       }
       return [...listedFilesPropertySet.values()];
@@ -1368,11 +1346,12 @@ export default BaseBrowserModel.extend(...mixins, {
         'owner',
         'replication',
         'qos',
+        'atime',
         'ctime',
+        'creationTime',
         'posixPermissions',
         'fileId',
       ],
-      // TODO: VFS-11961 add atime column when atime will be fix
       ...(this.disabledColumns ?? [])
     );
     const columns = {};
@@ -1386,6 +1365,8 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 140,
             hasSubname: false,
             hasTooltip: false,
+            type: 'basic',
+            fileProperty: 'size',
           });
           break;
         case 'modification':
@@ -1395,6 +1376,8 @@ export default BaseBrowserModel.extend(...mixins, {
             width: columnsTimesWidth,
             hasSubname: true,
             hasTooltip: true,
+            type: 'basic',
+            fileProperty: 'mtime',
           });
           break;
         case 'owner':
@@ -1404,6 +1387,8 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 200,
             hasSubname: false,
             hasTooltip: false,
+            type: 'basic',
+            fileProperty: 'owner',
           });
           break;
         case 'replication':
@@ -1413,6 +1398,8 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 160,
             hasSubname: false,
             hasTooltip: true,
+            type: 'basic',
+            fileProperty: 'localReplicationRate',
           });
           break;
         case 'qos':
@@ -1422,18 +1409,21 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 100,
             hasSubname: false,
             hasTooltip: true,
+            type: 'basic',
+            fileProperty: 'aggregateQosStatus',
           });
           break;
-          // TODO: VFS-11961 uncomment when atime will be fix
-          // case 'atime':
-          //   columns.atime = EmberObject.create({
-          //     isVisible: false,
-          //     isEnabled: false,
-          //     width: columnsTimesWidth,
-          //     hasSubname: false,
-          //     hasTooltip: true,
-          //   });
-          //   break;
+        case 'atime':
+          columns.atime = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
+            width: columnsTimesWidth,
+            hasSubname: false,
+            hasTooltip: true,
+            type: 'basic',
+            fileProperty: 'atime',
+          });
+          break;
         case 'ctime':
           columns.ctime = EmberObject.create({
             isVisible: false,
@@ -1441,6 +1431,19 @@ export default BaseBrowserModel.extend(...mixins, {
             width: columnsTimesWidth,
             hasSubname: true,
             hasTooltip: true,
+            type: 'basic',
+            fileProperty: 'ctime',
+          });
+          break;
+        case 'creationTime':
+          columns.creationTime = EmberObject.create({
+            isVisible: false,
+            isEnabled: false,
+            width: columnsTimesWidth,
+            hasSubname: false,
+            hasTooltip: true,
+            type: 'basic',
+            fileProperty: 'creationTime',
           });
           break;
         case 'fileId':
@@ -1450,6 +1453,8 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 120,
             hasSubname: false,
             hasTooltip: false,
+            type: 'basic',
+            fileProperty: 'fileId',
           });
           break;
         case 'posixPermissions':
@@ -1459,6 +1464,8 @@ export default BaseBrowserModel.extend(...mixins, {
             width: 150,
             hasSubname: false,
             hasTooltip: true,
+            type: 'basic',
+            fileProperty: 'posixPermissions',
           });
           break;
         default:
@@ -1467,6 +1474,7 @@ export default BaseBrowserModel.extend(...mixins, {
     }
     return ColumnsConfiguration.create({
       configurationType: this.browserPersistedConfigurationKey,
+      hasXattrSettings: this.hasXattrColumnsSupport,
       columns,
       columnsOrder,
       firstColumnWidth: 380,

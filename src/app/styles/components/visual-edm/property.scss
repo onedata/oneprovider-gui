@@ -42,6 +42,10 @@
     margin-left: 0.5em;
     padding-right: 0.2em;
     font-size: $font-size-base;
+    cursor: pointer;
+    &.one-icon {
+      color: $color-one-light-gray;
+    }
   }
   .edm-property-value {
     flex-grow: 1;
@@ -52,6 +56,15 @@
     }
     .form-group {
       margin-bottom: 0;
+      &.has-feedback {
+        .form-control {
+          padding-right: 2.2em;
+        }
+        .form-control-feedback {
+          pointer-events: all;
+          font-size: 1.6em;
+        }
+      }
     }
     .value-using-reference {
       padding-top: 7px;
@@ -231,4 +244,10 @@
   padding-top: 6px;
   padding-bottom: 6px;
   margin-right: 0;
+}
+
+.webui-popover-edm-property-tip-popover {
+  .one-webui-popover > p:last-child {
+    margin-bottom: 0;
+  }
 }

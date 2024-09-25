@@ -20,6 +20,8 @@ import { getLangSelectorOptions } from 'oneprovider-gui/utils/edm/lang-spec';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import sleep from 'onedata-gui-common/utils/sleep';
 import isUrl from 'onedata-gui-common/utils/is-url';
+import { htmlSafe } from '@ember/string';
+import { anchorizeText } from 'onedata-gui-common/utils/anchorize-text';
 
 /**
  * @typedef {EdmPropertyValueType.Literal|EdmPropertyValueType.Reference} VisualEdmPropertyValueType
@@ -132,7 +134,7 @@ export default Component.extend(I18n, {
     'isReadOnly',
     function attrItems() {
       const attrs = this.viewModel.model.attrs;
-      // TODO: VFS-11952 Consider showing more attributes (or simplify code)
+      // TODO: VFS-12238 Consider showing more attributes (or simplify code)
       const shownAttrs = this.isLangDefault ? [] : ['lang'];
       let result = shownAttrs.map(name => {
         const foundTranslation = this.t(
@@ -166,21 +168,92 @@ export default Component.extend(I18n, {
 
   tip: computed(
     'isReadOnly',
-    'viewModel.model.example',
+    // Do not observe model, because every updateView causes unnecessary recomputation
+    // of this property. Model is always set on init, so it should not change.
+    'viewModel',
     'edmObjectModel.edmObjectType',
     function tip() {
       if (this.isReadOnly) {
         // currently tip is built only for examples - in readonly mode example is unwanted
         return;
       }
+      let tipString = '';
+      const specTip = this.viewModel.model.spec.tip;
+      if (specTip) {
+        tipString += `<p>${specTip}</p>`;
+      }
+
       let exampleValue = this.viewModel.model.example;
       if (exampleValue && typeof exampleValue === 'object') {
         exampleValue = exampleValue[this.edmObjectModel.edmObjectType];
       }
-      if (!exampleValue) {
-        return null;
+      if (exampleValue) {
+        exampleValue = htmlSafe(exampleValue);
+        tipString += `<p>${this.t('example', { exampleValue })}</p>`;
       }
-      return this.t('example', { exampleValue });
+
+      return tipString && htmlSafe(
+        anchorizeText(tipString, { class: 'navy text-underlined', target: '_blank' })
+      );
+    }
+  ),
+
+  /**
+   * Can be only single class, because it is used to construct `tipTriggerSelector`.
+   * @type {string}
+   */
+  tipClass: 'edm-property-type-label-tip',
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  tipTriggerSelector: computed('elementId', 'tipClass', function tipTriggerSelector() {
+    return `#${this.elementId} .${this.tipClass}`;
+  }),
+
+  placeholder: computed(
+    // Do not observe model, because every updateView causes unnecessary recomputation
+    // of this property. Model is always set on init, so it should not change.
+    'viewModel',
+    'valueType',
+    function placeholder() {
+      const placeholderExample = this.viewModel.model.placeholderExample;
+      let exampleValue;
+      if (typeof placeholderExample === 'object') {
+        exampleValue = placeholderExample[this.valueType];
+      } else {
+        exampleValue = placeholderExample;
+      }
+
+      return typeof exampleValue === 'string' ?
+        this.t('examplePlaceholder', { exampleValue: htmlSafe(exampleValue) }) : '';
+    }
+  ),
+
+  formGroupClassName: computed(
+    'viewModel.{wasInputUsed,validator.isError}',
+    'inputFeedbackIcon',
+    function formGroupClassName() {
+      const classes = ['form-group'];
+      if (this.viewModel.wasInputUsed && this.viewModel.validator?.isError) {
+        classes.push('has-error');
+      }
+      if (this.inputFeedbackIcon) {
+        classes.push('has-feedback');
+      }
+      return classes.join(' ');
+    }
+  ),
+
+  inputFeedbackIcon: computed(
+    'viewModel.{wasInputUsed,validator.isError}',
+    function inputFeedbackIcon() {
+      if (!this.viewModel.wasInputUsed) {
+        return;
+      }
+      if (this.viewModel.validator?.isError) {
+        return 'checkbox-filled-warning';
+      }
     }
   ),
 
@@ -238,6 +311,7 @@ export default Component.extend(I18n, {
     },
     changeValue(newValue) {
       this.viewModel.changeValue(newValue);
+      this.viewModel.markInputAsUsed();
     },
     changeLanguage(option) {
       this.viewModel.changeAttribute('lang', option.value || null);
@@ -246,7 +320,7 @@ export default Component.extend(I18n, {
       this.viewModel.deleteProperty();
     },
     handleInputBlur() {
-      set(this.viewModel, 'wasInputFocused', true);
+      this.viewModel.markInputAsUsed();
     },
     matchLangOption(option, searchString) {
       return option.matchesSearchString(searchString) ? 1 : -1;

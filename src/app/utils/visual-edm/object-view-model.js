@@ -98,7 +98,11 @@ const ObjectViewModel = EmberObject.extend({
     if (this.isDisabled) {
       return;
     }
-    const factory = new EdmPropertyFactory(this.visualEdmViewModel.edmMetadata);
+    const factory = new EdmPropertyFactory(
+      this.visualEdmViewModel.edmMetadata,
+      this.edmObjectType
+    );
+    factory.shareRootFile = this.visualEdmViewModel.shareRootFile;
     const newEdmProperty = factory.createProperty(
       item.namespace,
       item.name

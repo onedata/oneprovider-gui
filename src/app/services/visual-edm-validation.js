@@ -12,26 +12,31 @@ import { EdmMetadataInvalidObjectOcurrenceError } from 'oneprovider-gui/utils/ed
 import {
   EdmObjectMissingPropertiesError,
   EdmObjectPropertiesMaxSingleError,
+  EdmObjectMissingPropertySpecificValue,
 } from 'oneprovider-gui/utils/edm/object-validator';
 import {
   EdmPropertyBothValueTypesError,
   EdmPropertyEmptyValueError,
   EdmPropertyNonEnumValueError,
+  EdmPropertyNonUriReferenceError,
+  EdmPropertyUriLiteralError,
+  EdmPropertyCustomRegexpError,
 } from 'oneprovider-gui/utils/edm/property-validator';
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import { htmlSafe } from '@ember/string';
 import { sortProperties } from 'oneprovider-gui/utils/edm/sort';
-import { tagToPropertyDataMap } from 'oneprovider-gui/utils/edm/property-spec';
+import { getTagToPropertyDataMap } from 'oneprovider-gui/utils/edm/property-spec';
 import EdmObjectValidator from 'oneprovider-gui/utils/edm/object-validator';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import _ from 'lodash';
+import EdmPropertyValidator from '../utils/edm/property-validator';
 
 /**
  * @typedef {'visual'|'xml'} EdmValidationMessageViewType
  */
 
 /**
- * @typedef {'metadata'|'object'} EdmValidationMessageContext
+ * @typedef {'metadata'|'object'|'property'} EdmValidationMessageContext
  */
 
 export default Service.extend(I18n, {
@@ -49,9 +54,13 @@ export default Service.extend(I18n, {
    * @returns {Array<SafeString>}
    */
   getErrorMessages(validator, viewType = 'visual') {
+    /** @type {EdmValidationMessageContext} */
     let validationContext;
     let edmObjectType;
     switch (validator.constructor) {
+      case EdmPropertyValidator:
+        validationContext = 'property';
+        break;
       case EdmObjectValidator:
         validationContext = 'object';
         edmObjectType = validator.edmObject.edmObjectType;
@@ -64,19 +73,26 @@ export default Service.extend(I18n, {
           `${validator.constructor} is not supported validator type in the messages translator
         `);
     }
-
     const messages = [];
     let bothValueProperties = [];
     let emptyProperties = [];
     let invalidEnumProperties = [];
-    const errors = validator.errors;
-    for (const error of errors) {
+    let nonUriProperties = [];
+    let literalUriProperties = [];
+    let invalidRegexpProperties = [];
+    for (const error of validator.errors) {
       if (error instanceof EdmPropertyBothValueTypesError) {
         bothValueProperties.push(error.edmProperty);
       } else if (error instanceof EdmPropertyEmptyValueError) {
         emptyProperties.push(error.edmProperty);
       } else if (error instanceof EdmPropertyNonEnumValueError) {
         invalidEnumProperties.push(error.edmProperty);
+      } else if (error instanceof EdmPropertyCustomRegexpError) {
+        invalidRegexpProperties.push(error.edmProperty);
+      } else if (error instanceof EdmPropertyNonUriReferenceError) {
+        nonUriProperties.push(error.edmProperty);
+      } else if (error instanceof EdmPropertyUriLiteralError) {
+        literalUriProperties.push(error.edmProperty);
       } else if (error instanceof EdmObjectMissingPropertiesError) {
         messages.push(this.createMissingPropertiesMessage(
           validationContext,
@@ -87,9 +103,17 @@ export default Service.extend(I18n, {
       } else if (error instanceof EdmObjectPropertiesMaxSingleError) {
         messages.push(this.createExceedingPropertiesMessage(
           validationContext,
-          error.edmObject.edmObjectType,
+          error.edmObject,
           error.properties,
           viewType
+        ));
+      } else if (error instanceof EdmObjectMissingPropertySpecificValue) {
+        messages.push(this.createMissingPropertySpecificValueMessage(
+          validationContext,
+          error.edmObject,
+          error.propertyTag,
+          error.value,
+          viewType,
         ));
       } else if (error instanceof EdmMetadataInvalidObjectOcurrenceError) {
         messages.push(this.createObjectOccurrenceMessage(
@@ -113,6 +137,18 @@ export default Service.extend(I18n, {
       _.uniqBy(invalidEnumProperties, 'xmlTagName'),
       viewType
     );
+    invalidRegexpProperties = sortProperties(
+      _.uniqBy(invalidRegexpProperties, 'xmlTagName'),
+      viewType
+    );
+    nonUriProperties = sortProperties(
+      _.uniqBy(nonUriProperties, 'xmlTagName'),
+      viewType
+    );
+    literalUriProperties = sortProperties(
+      _.uniqBy(literalUriProperties, 'xmlTagName'),
+      viewType
+    );
     if (bothValueProperties.length) {
       messages.push(this.createBothValueMessage(
         bothValueProperties,
@@ -122,6 +158,7 @@ export default Service.extend(I18n, {
     }
     if (emptyProperties.length) {
       messages.push(this.createEmptyValuesMessage(
+        validationContext,
         emptyProperties,
         viewType,
         edmObjectType
@@ -129,7 +166,32 @@ export default Service.extend(I18n, {
     }
     if (invalidEnumProperties.length) {
       messages.push(this.createInvalidEnumValuesMessage(
+        validationContext,
         invalidEnumProperties,
+        viewType,
+        edmObjectType
+      ));
+    }
+    if (invalidRegexpProperties.length) {
+      messages.push(this.createInvalidRegexpValuesMessage(
+        validationContext,
+        invalidRegexpProperties,
+        viewType,
+        edmObjectType
+      ));
+    }
+    if (nonUriProperties.length) {
+      messages.push(this.createPropertyNonUriReferenceMessage(
+        validationContext,
+        nonUriProperties,
+        viewType,
+        edmObjectType
+      ));
+    }
+    if (literalUriProperties.length) {
+      messages.push(this.createLiteralUriMessage(
+        validationContext,
+        literalUriProperties,
         viewType,
         edmObjectType
       ));
@@ -167,13 +229,13 @@ export default Service.extend(I18n, {
     );
   },
 
-  createEmptyValuesMessage(edmProperties, viewType, edmObjectType) {
+  createEmptyValuesMessage(validationContext, edmProperties, viewType, edmObjectType) {
     if (!edmProperties?.length) {
       return;
     }
     const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
     return this.t(
-      `valueEmpty.${quantity}`, {
+      `valueEmpty.${validationContext}.${quantity}`, {
         propertyString: this.createPropertiesString(
           edmProperties,
           viewType,
@@ -183,17 +245,113 @@ export default Service.extend(I18n, {
     );
   },
 
-  createInvalidEnumValuesMessage(edmProperties, viewType, edmObjectType) {
+  createInvalidEnumValuesMessage(
+    validationContext,
+    edmProperties,
+    viewType,
+    edmObjectType
+  ) {
     if (!edmProperties?.length) {
       return;
     }
+    const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
+
     return this.t(
-      `valueInvalidEnum.${edmProperties.length === 1 ? 'singular' : 'plural'}`, {
+      `valueInvalidEnum.${validationContext}.${quantity}`, {
         propertyString: this.createPropertiesString(
           edmProperties,
           viewType,
           edmObjectType,
         ),
+      }
+    );
+  },
+
+  createInvalidRegexpValuesMessage(
+    validationContext,
+    edmProperties,
+    viewType,
+    edmObjectType
+  ) {
+    if (!edmProperties?.length) {
+      return;
+    }
+    const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
+
+    return this.t(
+      `valueInvalidRegexp.${validationContext}.${quantity}`, {
+        propertyString: this.createPropertiesString(
+          edmProperties,
+          viewType,
+          edmObjectType,
+        ),
+      }
+    );
+  },
+
+  createPropertyNonUriReferenceMessage(
+    validationContext,
+    edmProperties,
+    viewType,
+    edmObjectType
+  ) {
+    if (!edmProperties?.length) {
+      return;
+    }
+    const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
+    return this.t(
+      `nonUriReference.${validationContext}.${quantity}`, {
+        propertyString: this.createPropertiesString(
+          edmProperties,
+          viewType,
+          edmObjectType,
+        ),
+        objectType: this.translateObjectType(edmObjectType),
+      }
+    );
+  },
+
+  createLiteralUriMessage(
+    validationContext,
+    edmProperties,
+    viewType,
+    edmObjectType
+  ) {
+    if (!edmProperties?.length) {
+      return;
+    }
+    const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
+    return this.t(
+      `uriLiteral.${validationContext}.${quantity}`, {
+        propertyString: this.createPropertiesString(
+          edmProperties,
+          viewType,
+          edmObjectType,
+        ),
+        objectType: this.translateObjectType(edmObjectType),
+      }
+    );
+  },
+
+  createMissingPropertySpecificValueMessage(
+    validationContext,
+    edmObject,
+    propertyTag,
+    value,
+    viewType
+  ) {
+    const tagToPropertyDataMap = getTagToPropertyDataMap()[edmObject.xmlTagName];
+    const propertyData = tagToPropertyDataMap[propertyTag];
+    const objectType = edmObject.edmObjectType;
+    return this.t(
+      `missingPropertySpecificValue.${validationContext}`, {
+        objectType,
+        propertyString: this.createPropertiesString(
+          [propertyData],
+          viewType,
+          objectType
+        ),
+        value,
       }
     );
   },
@@ -206,6 +364,7 @@ export default Service.extend(I18n, {
    * @returns
    */
   createMissingPropertiesMessage(validationContext, edmObject, propertyTags, viewType) {
+    const tagToPropertyDataMap = getTagToPropertyDataMap()[edmObject.xmlTagName];
     const propertiesData = propertyTags.map(tag => tagToPropertyDataMap[tag]);
     const quantity = propertyTags.length === 1 ? 'singular' : 'plural';
     const edmObjectType = edmObject.edmObjectType;
@@ -223,26 +382,28 @@ export default Service.extend(I18n, {
 
   /**
    * @param {EdmValidationMessageContext} validationContext
-   * @param {EdmObjectType} edmObjectType
+   * @param {EdmObject} edmObject
    * @param {string} propertyTags XML tags with namespaces.
    * @param {EdmValidationMessageViewType} viewType
    * @returns
    */
   createExceedingPropertiesMessage(
     validationContext,
-    edmObjectType,
+    edmObject,
     propertyTags,
     viewType
   ) {
+    const tagToPropertyDataMap =
+      getTagToPropertyDataMap()[edmObject.xmlTagName];
     const propertiesData = propertyTags.map(tag => tagToPropertyDataMap[tag]);
     const quantity = propertyTags.length === 1 ? 'singular' : 'plural';
     return this.t(
       `exceedingProperties.${validationContext}.${quantity}`, {
-        objectType: this.translateObjectType(edmObjectType),
+        objectType: this.translateObjectType(edmObject.edmObjectType),
         propertyString: this.createPropertiesString(
           propertiesData,
           viewType,
-          edmObjectType
+          edmObject.edmObjectType
         ),
       }
     );

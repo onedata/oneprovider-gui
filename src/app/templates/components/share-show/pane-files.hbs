@@ -1,46 +1,48 @@
-{{#if shareRootDeletedProxy.content}}
-  {{content-info
-    class="scroll-breakpoint-300"
-    header=(tt this "fileDeleted.title")
-    text=(tt this "fileDeleted.content")
-  }}
-{{else if (and shareRootDeletedProxy.isSettled (not isRootDirExistingProxy.content))}}
-  {{content-info
-    class="scroll-breakpoint-600"
-    header=(tt this "noSuchItem")
-    imagePath=(root-url "assets/images/data-error-enoent.svg")
-  }}
-{{else}}
-  {{#promise-proxy-container proxy=requiredDataProxy}}
-    {{file-browser
-      browserModel=browserModel
-      customRootDir=rootDir
-      selectedItems=selectedItems
-      getItemByIdFun=(action getItemById)
-      resolveFileParentFun=(action "resolveFileParentFun")
-      updateDirEntityId=(action "updateDirId")
-    }}
-  {{/promise-proxy-container}}
+<PromiseProxyContainer @proxy={{shareRootDeletedProxy}}>
+  {{#if shareRootDeletedProxy.content}}
+    <ContentInfo
+      class="scroll-breakpoint-400"
+      @header={{tt this "fileDeleted.title"}}
+      @text={{tt this "fileDeleted.content"}}
+    />
+  {{else if isShareLoadingErrorShown}}
+    <ContentInfo
+      class="scroll-breakpoint-400"
+      @header={{tt this "errorLoadingShareData"}}
+      @text={{shareDataErrorText}}
+    />
+  {{else}}
+    <PromiseProxyContainer @proxy={{requiredDataProxy}}>
+      <FileBrowser
+        @browserModel={{browserModel}}
+        @customRootDir={{rootDir}}
+        @selectedItems={{selectedItems}}
+        @getItemByIdFun={{action getItemById}}
+        @resolveFileParentFun={{action "resolveFileParentFun"}}
+        @updateDirEntityId={{action "updateDirId"}}
+      />
+    </PromiseProxyContainer>
 
-  {{#if filesToShowInfo}}
-    {{file-info-modal
-      open=true
-      share=share
-      browserModel=browserModel
-      files=filesToShowInfo
-      initialTab=showInfoInitialTab
-      tabOptions=(hash
-        permissions=(hash
-          isVisible=false
-        )
-      )
-      onHide=(action closeInfoModal)
-    }}
+    {{#if filesToShowInfo}}
+      <FileInfoModal
+        @open={{true}}
+        @share={{share}}
+        @browserModel={{browserModel}}
+        @files={{filesToShowInfo}}
+        @initialTab={{showInfoInitialTab}}
+        @tabOptions={{hash
+          permissions=(hash
+            isVisible=false
+          )
+        }}
+        @onHide={{action closeInfoModal}}
+      />
+    {{/if}}
+
+    <FileBrowser::FbDownloadModal
+      @file={{fileForConfirmDownload}}
+      @confirmDownload={{action confirmFileDownload}}
+      @onHide={{action closeConfirmFileDownload}}
+    />
   {{/if}}
-
-  {{file-browser/fb-download-modal
-    file=fileForConfirmDownload
-    confirmDownload=(action confirmFileDownload)
-    onHide=(action closeConfirmFileDownload)
-  }}
-{{/if}}
+</PromiseProxyContainer>

@@ -33,7 +33,7 @@
           >
             <TruncatedString
               class="property-label"
-              customTooltipText={{if propertyItem.disabled ""}}
+              @isTooltipDisabled={{propertyItem.disabled}}
             >
               {{propertyItem.label}}
             </TruncatedString>

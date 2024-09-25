@@ -10,9 +10,7 @@
     font-size: 150%;
     opacity: $disabled-opacity;
     vertical-align: middle;
-    position: absolute;
-    right: -1.2em;
-    top: -0.04em;
+    padding-left: 2px;
   }
   .fb-table-col-size {
     position: relative;
@@ -156,6 +154,38 @@
     }
   }
 
+  .fb-table-col-xattr {
+    position: relative;
+    text-align: center;
+
+    &.clickable {
+      cursor: pointer;
+    }
+
+    .info-icon {
+      font-size: 180%;
+      visibility: hidden;
+      vertical-align: middle;
+    }
+    &:hover .info-icon {
+      visibility: visible;
+    }
+
+    .file-xattr {
+      font-size: 80%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .file-xattr-text {
+        @include font-monospace();
+        text-align: justify;
+        padding-left: 26px;
+        padding-right: $padding-xs-horizontal;
+      }
+    }
+  }
+
   .fb-table-col-file-id {
     .clipboard-input {
       position: absolute;
@@ -213,6 +243,21 @@
         opacity: $disabled-opacity;
         font-size: 90%;
       }
+    }
+  }
+
+  .column-name {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    width: var(--column-width, 200px);
+
+    .column-icon {
+      min-width: 25px;
+    }
+
+    &:first-letter {
+      text-transform: capitalize;
     }
   }
 }

@@ -37,6 +37,7 @@ export const sharedFileRawAttributes = Object.freeze([
   FileAttribute.ParentFileId,
   FileAttribute.PosixPermissions,
   FileAttribute.Size,
+  FileAttribute.CreationTime,
   FileAttribute.SymlinkValue,
   FileAttribute.Type,
   // NOTE: there are also special attributes "xattr.*" for getting specific xattrs of file

@@ -40,18 +40,68 @@ export default class EdmMetadataFactory {
     return new EdmMetadata(xmlDocument);
   }
 
+  /**
+   * @public
+   * @returns {EdmMetadata}
+   */
   static createEmptyMetadata() {
     return new EdmMetadata();
   }
 
   /**
+   * @param {XMLDocument} xmlDocument
+   * @private
+   * @returns {boolean}
+   */
+  static validateXmlDocument(xmlDocument) {
+    if (
+      xmlDocument.children.length !== 1 ||
+      xmlDocument.children[0]?.tagName !== 'rdf:RDF' ||
+      findParserErrorElement(xmlDocument)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  constructor() {
+    // optional properties
+
+    /**
+     * Add a reference to share.rootFile to be able to set default value for file size
+     * property. If this property is not set - file size will have an undefined default
+     * value.
+     * @type {Models.File}
+     */
+    this.shareRootFile = undefined;
+  }
+
+  /**
+   * Alias for static method.
    * @returns {EdmMetadata}
    */
-  static createInitialMetadata() {
+  fromXml() {
+    return EdmMetadataFactory.fromXml(...arguments);
+  }
+
+  /**
+   * Alias for static method.
+   * @returns {EdmMetadata}
+   */
+  createEmptyMetadata() {
+    return EdmMetadataFactory.createEmptyMetadata(...arguments);
+  }
+
+  /**
+   * @returns {EdmMetadata}
+   */
+  createInitialMetadata() {
     const metadata = EdmMetadataFactory.createEmptyMetadata();
     const objectFactory = new EdmObjectFactory(metadata);
+    objectFactory.shareRootFile = this.shareRootFile;
     metadata.edmObjects = [
       objectFactory.createInitialObject(EdmObjectType.ProvidedCHO),
+      objectFactory.createInitialObject(EdmObjectType.WebResource),
       objectFactory.createInitialObject(EdmObjectType.Aggregation),
     ];
 
@@ -63,17 +113,6 @@ export default class EdmMetadataFactory {
     );
 
     return metadata;
-  }
-
-  static validateXmlDocument(xmlDocument) {
-    if (
-      xmlDocument.children.length !== 1 ||
-      xmlDocument.children[0]?.tagName !== 'rdf:RDF' ||
-      findParserErrorElement(xmlDocument)
-    ) {
-      return false;
-    }
-    return true;
   }
 }
 

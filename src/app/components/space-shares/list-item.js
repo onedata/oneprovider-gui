@@ -19,8 +19,10 @@ import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden'
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { bool } from '@ember/object/computed';
+import { reads, bool, or } from '@ember/object/computed';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 
 const mixins = [
   I18n,
@@ -30,6 +32,7 @@ const mixins = [
 export default Component.extend(...mixins, {
   globalNotify: service(),
   globalClipboard: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -71,6 +74,16 @@ export default Component.extend(...mixins, {
    * @type {Function}
    */
   startRenameShare: notImplementedThrow,
+
+  //#region state
+
+  /**
+   * Error from fetching share private root.
+   * @type {any}
+   */
+  sharePrivateRootFileError: undefined,
+
+  //#endregion
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -195,9 +208,9 @@ export default Component.extend(...mixins, {
     return htmlSafe(getShareUrl({ shareId: get(share, 'entityId') }));
   }),
 
-  triggerClass: tag `actions-share-${'componentGuid'}`,
+  triggerClass: tag`actions-share-${'componentGuid'}`,
 
-  triggerSelector: tag `.${'triggerClass'}`,
+  triggerSelector: tag`.${'triggerClass'}`,
 
   /**
    * @type {ComputedProperty<String>}
@@ -241,6 +254,47 @@ export default Component.extend(...mixins, {
       }
     }
   )),
+
+  isNoPublicAccessLabelShown: bool('isViewForOtherForbiddenProxy.content'),
+
+  isOpenDataLabelShown: reads('share.hasHandle'),
+
+  isLabelsContanierShown: or('isNoPublicAccessLabelShown', 'isOpenDataLabelShown'),
+
+  privateRootFileProxy: computedRelationProxy('share', 'privateRootFile', {
+    reload: true,
+    computedRelationErrorProperty: 'sharePrivateRootFileError',
+  }),
+
+  shareFilePathProxy: computed('privateRootFileProxy', function shareFilePathProxy() {
+    const promise = (async () => {
+      const file = await this.privateRootFileProxy;
+      if (!file) {
+        return null;
+      }
+      return stringifyFilePath(await resolveFilePath(file));
+    })();
+    return promiseObject(promise);
+  }),
+
+  shareFilePath: reads('shareFilePathProxy.content'),
+
+  isPathNotAvailable: computed(
+    'shareFilePathProxy.{isSettled,isRejected}',
+    'shareFilePath',
+    function isPathNotAvailable() {
+      return get(this.shareFilePathProxy, 'isRejected') ||
+        get(this.shareFilePathProxy, 'isSettled') && !this.shareFilePath;
+    }
+  ),
+
+  shareFilePathErrorMessage: computed(
+    'sharePrivateRootFileError',
+    function shareFilePathErrorMessage() {
+      const reason = this.sharePrivateRootFileError;
+      return this.errorExtractor.getMessage(reason)?.message;
+    }
+  ),
 
   actions: {
     toggleActions(open) {

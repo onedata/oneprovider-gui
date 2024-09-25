@@ -20,6 +20,7 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler
 import { htmlSafe } from '@ember/string';
 import dom from 'onedata-gui-common/utils/dom';
 import { reads } from '@ember/object/computed';
+import { setProperties } from '@ember/object';
 
 /**
  * Contains info about column visibility: if on screen is enough space to show this column
@@ -30,6 +31,10 @@ import { reads } from '@ember/object/computed';
  * @property {number} width
  * @property {boolean} hasSubname
  * @property {boolean} hasTooltip
+ * @property { 'basic' | 'xattr' } type Distinguishes whether this is one of the
+ * default columns or a user-added xattr column.
+ * @property {string} fileProperty Property that should be included in the file
+ * requirement attributes when the column is enabled and visible.
  */
 
 /**
@@ -55,6 +60,11 @@ export default EmberObject.extend(...mixins, {
    * @type {string}
    */
   configurationType: '',
+
+  /**
+   * @type {boolean}
+   */
+  hasXattrSettings: false,
 
   /**
    * @type {string}
@@ -110,6 +120,11 @@ export default EmberObject.extend(...mixins, {
   columnsOrder: undefined,
 
   /**
+   * @type {Array}
+   */
+  listedFilesProperties: undefined,
+
+  /**
    * @type {boolean}
    */
   isAnyColumnHidden: gt('hiddenColumnsCount', raw(0)),
@@ -134,6 +149,7 @@ export default EmberObject.extend(...mixins, {
     this._super(...arguments);
     this.attachWindowResizeHandler();
     this.loadColumnsConfigFromLocalStorage();
+    this.listFilesProperties();
   },
 
   /**
@@ -162,12 +178,23 @@ export default EmberObject.extend(...mixins, {
     this.checkColumnsVisibility();
   },
 
+  columnNameToVariable(columnName, type) {
+    return type + '_' + columnName.replace(/ |,|\./g, '_');
+  },
+
+  persistedCustomColumnConfigKey(columnName) {
+    return `${this.persistedConfigurationKey}.customColumns.${columnName}`;
+  },
+
   /**
    * @param {ColumnName} columnName
    * @param {boolean} isEnabled
    * @returns {void}
    */
   changeColumnVisibility(columnName, isEnabled) {
+    if (!(columnName in this.columns)) {
+      return;
+    }
     this.set(`columns.${columnName}.isEnabled`, isEnabled);
     this.checkColumnsVisibility();
     const enabledColumns = [];
@@ -181,6 +208,90 @@ export default EmberObject.extend(...mixins, {
       `${this.persistedConfigurationKey}.enabledColumns`,
       enabledColumns.join()
     );
+  },
+
+  addNewColumn(columnName, key, type) {
+    let columnNameVariable = this.columnNameToVariable(columnName, type);
+
+    // try to create name variable that does not exist or return
+    // if column with the same key and displayed name exists
+    while (columnNameVariable in this.columns) {
+      if (
+        columnName === this.columns[columnNameVariable].displayedName &&
+        key === this.columns[columnNameVariable].xattrKey
+      ) {
+        // return if a column with the same name and key already exists
+        return;
+      }
+      columnNameVariable += '#';
+    }
+
+    this.columns[columnNameVariable] = EmberObject.create({
+      isVisible: false,
+      isEnabled: false,
+      width: 160,
+      hasSubname: true,
+      hasTooltip: true,
+      type: type,
+      xattrKey: key,
+      displayedName: columnName,
+      fileProperty: `xattr.${key}`,
+    });
+    globals.localStorage.setItem(
+      `${this.persistedCustomColumnConfigKey(columnNameVariable)}.xattrKey`,
+      key
+    );
+    globals.localStorage.setItem(
+      `${this.persistedCustomColumnConfigKey(columnNameVariable)}.label`,
+      columnName
+    );
+    this.columnsOrder.push(columnNameVariable);
+    this.saveColumnsOrder();
+    this.changeColumnVisibility(columnNameVariable, true);
+    this.checkColumnsVisibility();
+    this.notifyPropertyChange('columnsOrder');
+  },
+
+  removeXattrColumn(columnName) {
+    this.changeColumnVisibility(columnName, false);
+    delete this.columns[columnName];
+    globals.localStorage.removeItem(
+      `${this.persistedCustomColumnConfigKey(columnName)}.xattrKey`
+    );
+    globals.localStorage.removeItem(
+      `${this.persistedCustomColumnConfigKey(columnName)}.label`
+    );
+    const index = this.columnsOrder.indexOf(columnName);
+    if (index === -1) {
+      return;
+    }
+    this.columnsOrder.splice(index, 1);
+    this.saveColumnsOrder();
+    this.checkColumnsVisibility();
+    this.notifyPropertyChange('columnsOrder');
+  },
+
+  modifyColumn(columnName, newColumnName, key) {
+    const column = this.get(`columns.${columnName}`);
+    if (!column) {
+      return;
+    }
+    setProperties(column, {
+      displayedName: newColumnName,
+      xattrKey: key,
+      fileProperty: 'xattr.' + key,
+    });
+
+    globals.localStorage.setItem(
+      `${this.persistedCustomColumnConfigKey(columnName)}.xattrKey`,
+      key
+    );
+    globals.localStorage.setItem(
+      `${this.persistedCustomColumnConfigKey(columnName)}.label`,
+      newColumnName
+    );
+
+    this.checkColumnsVisibility();
   },
 
   saveColumnsOrder() {
@@ -220,7 +331,31 @@ export default EmberObject.extend(...mixins, {
     if (this.hiddenColumnsCount !== hiddenColumnsCount) {
       this.set('hiddenColumnsCount', hiddenColumnsCount);
     }
+    this.listFilesProperties();
     this.notifyPropertyChange('columns');
+  },
+
+  loadXattrColumnFromLocalStorage(columnName, enabledColumnsList) {
+    const xattrKey = globals.localStorage.getItem(
+      `${this.persistedCustomColumnConfigKey(columnName)}.xattrKey`
+    );
+    const displayedName = globals.localStorage.getItem(
+      `${this.persistedCustomColumnConfigKey(columnName)}.label`
+    );
+    if (!xattrKey || !displayedName) {
+      return;
+    }
+    this.columns[columnName] = EmberObject.create({
+      isVisible: false,
+      isEnabled: Boolean(enabledColumnsList?.includes(columnName)),
+      width: 160,
+      hasSubname: true,
+      hasTooltip: true,
+      type: 'xattr',
+      xattrKey,
+      displayedName,
+      fileProperty: `xattr.${xattrKey}`,
+    });
   },
 
   loadColumnsConfigFromLocalStorage() {
@@ -242,10 +377,23 @@ export default EmberObject.extend(...mixins, {
           Boolean(enabledColumnsList?.includes(columName))
         );
       }
+      for (const columnName of enabledColumnsList) {
+        if (columnName.startsWith('xattr')) {
+          this.loadXattrColumnFromLocalStorage(columnName, enabledColumnsList);
+        }
+      }
+      if (columnsOrderListFromLocalStorage) {
+        for (const columnName of columnsOrderListFromLocalStorage) {
+          if (columnName.startsWith('xattr') && !(columnName in this.columns)) {
+            this.loadXattrColumnFromLocalStorage(columnName, enabledColumnsList);
+          }
+        }
+      }
     }
+
     if (columnsOrderListFromLocalStorage) {
       for (const columName of columnsOrderListFromLocalStorage) {
-        if (this.columnsOrder.includes(columName)) {
+        if (this.columnsOrder.includes(columName) || columName.startsWith('xattr')) {
           columnsOrderList.push(columName);
         }
       }
@@ -271,5 +419,18 @@ export default EmberObject.extend(...mixins, {
       index -= 1;
     }
     columnsOrder.splice(index, 0, element);
+  },
+  listFilesProperties() {
+    const filesProperties = [];
+    const columnRequirementsEnableProperty = this.isMounted ?
+      'isVisible' : 'isEnabled';
+    const columns = this.columns;
+    for (const column of Object.values(columns)) {
+      if (column[columnRequirementsEnableProperty]) {
+        filesProperties.push(column.fileProperty);
+      }
+    }
+    this.set('listedFilesProperties', filesProperties);
+    this.notifyPropertyChange('listedFilesProperties');
   },
 });

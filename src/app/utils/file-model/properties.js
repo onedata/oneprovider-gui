@@ -21,6 +21,7 @@ export const possibleFileProperties = Object.freeze([
   'atime',
   'conflictingName',
   'ctime',
+  'creationTime',
   'displayGid',
   'displayUid',
   'distribution',

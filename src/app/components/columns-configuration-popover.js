@@ -7,17 +7,30 @@
  */
 
 import Component from '@ember/component';
-import { trySet, computed } from '@ember/object';
+import { trySet, computed, get } from '@ember/object';
 import { next } from '@ember/runloop';
 import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
+import I18n from 'onedata-gui-common/mixins/i18n';
+import CustomValueDropdownField from 'onedata-gui-common/utils/form-component/custom-value-dropdown-field';
+import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
+import { Promise } from 'rsvp';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { resolve } from 'rsvp';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   classNames: ['columns-configuration-popover'],
 
   dragDrop: service(),
+  i18n: service(),
+  metadataManager: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.columnsConfigurationPopover',
 
   /**
    * @virtual
@@ -30,6 +43,12 @@ export default Component.extend({
    * @type {Utils.ColumnsConfiguration}
    */
   columnsConfiguration: undefined,
+
+  /**
+   * @virtual
+   * @type {Utils.FilesystemBrowserModel}
+   */
+  browserModel: undefined,
 
   /**
    * @virtual
@@ -50,6 +69,22 @@ export default Component.extend({
   isOpened: false,
 
   /**
+   * @type {string}
+   */
+  modifiedColumn: '',
+
+  /**
+   * @type {string}
+   */
+  modifiedColumnNewValue: '',
+
+  /**
+   * Actual modified xattr key, used to display as the default value in the dropdown.
+   * @type {string}
+   */
+  modifiedXattrKey: '',
+
+  /**
    * @type {ComputedProperty<string>}
    */
   columnsCount: reads('columnsConfiguration.columnsOrder.length'),
@@ -60,6 +95,26 @@ export default Component.extend({
   lastIndexColumn: computed('columnsCount', function lastIndexColumn() {
     return this.columnsCount - 1;
   }),
+
+  /**
+   * @type {string}
+   */
+  activeSlide: 'column-configuration',
+
+  /**
+   * @type {string}
+   */
+  xattrKeyFieldName: 'xattrKey',
+
+  /**
+   * @type {string}
+   */
+  xattrKeyModifiedFieldName: 'xattrKeyModified',
+
+  /**
+   * @type {string}
+   */
+  xattrColumnName: '',
 
   /**
    * @type {boolean}
@@ -84,6 +139,124 @@ export default Component.extend({
     function isTargetForDrop() {
       const draggedElementModel = this.dragDrop.draggedElementModel;
       return draggedElementModel?.element.classList.contains('column-item');
+    }
+  ),
+
+  xattrOptionsProxy: computed(
+    'browserModel.itemsArray',
+    'activeSlide',
+    'isOpened',
+    function xattrOptionsProxy() {
+      if (!this.browserModel.itemsArray || !this.isOpened) {
+        return promiseObject(resolve([]));
+      }
+
+      const files = get(this.browserModel.itemsArray, 'sourceArray').toArray();
+      const filesWithXattrs = files.filter(file => file && get(file, 'hasCustomMetadata'));
+
+      const promise = (async () => {
+        const xattrsListPerFileProxy = await Promise.all(
+          filesWithXattrs.map(file =>
+            this.metadataManager.getMetadata(file, 'xattrs', 'private'))
+        );
+        const xattrs = new Set();
+        const xattrsList = [];
+        if (xattrsListPerFileProxy) {
+          for (const xattrsFromSingleFile of xattrsListPerFileProxy) {
+            for (const xattrKey in xattrsFromSingleFile) {
+              xattrs.add(xattrKey);
+            }
+          }
+          for (const xattr of Array.from(xattrs)) {
+            xattrsList.push({ value: xattr, label: xattr });
+          }
+        }
+        return xattrsList;
+      })();
+
+      return promiseObject(promise);
+    }
+  ),
+
+  xattrOptions: reads('xattrOptionsProxy.content'),
+
+  xattrKeyNameField: computed('xattrKeyNameDropdownField', function xattrKeyNameField() {
+    return FormFieldsRootGroup
+      .create({
+        ownerSource: this,
+        columnsConfigurationPopoverComponent: this,
+        i18nPrefix: this.i18nPrefix,
+        fields: [
+          this.xattrKeyNameDropdownField,
+        ],
+      });
+  }),
+
+  xattrKeyModifiedNameField: computed(
+    'xattrKeyModifiedNameDropdownField',
+    function xattrKeyModifiedNameField() {
+      return FormFieldsRootGroup
+        .create({
+          ownerSource: this,
+          columnsConfigurationPopoverComponent: this,
+          i18nPrefix: this.i18nPrefix,
+          fields: [
+            this.xattrKeyModifiedNameDropdownField,
+          ],
+        });
+    }
+  ),
+
+  xattrKeyNameDropdownField: computed(
+    'xattrOptions',
+    function xattrKeyNameDropdownField() {
+      return CustomValueDropdownField
+        .extend({
+          options: this.xattrOptions,
+          valueChanged(option) {
+            this._super(...arguments);
+            this.set('columnsConfigurationPopoverComponent.xattrColumnName', option);
+          },
+        })
+        .create({
+          columnsConfigurationPopoverComponent: this,
+          name: this.xattrKeyFieldName,
+          size: 'sm',
+          isOptional: true,
+          injectedCustomValueInputPlaceholder: this.t('dropdownPlaceholder'),
+          injectedCustomValueOptionTextPrefix: this.t('customKeyPlaceholder'),
+        });
+    }
+  ),
+
+  xattrKeyModifiedNameDropdownField: computed(
+    'xattrOptions',
+    'modifiedXattrKey',
+    function xattrKeyModifiedNameDropdownField() {
+      return CustomValueDropdownField
+        .extend({
+          options: this.xattrOptions,
+        })
+        .create({
+          columnsConfigurationPopoverComponent: this,
+          name: this.xattrKeyModifiedFieldName,
+          size: 'sm',
+          isOptional: true,
+          defaultValue: this.modifiedXattrKey,
+          injectedCustomValueInputPlaceholder: this.t('dropdownPlaceholder'),
+          injectedCustomValueOptionTextPrefix: this.t('customKeyPlaceholder'),
+        });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isDisabledAddButton: computed(
+    'xattrColumnName',
+    'xattrKeyNameDropdownField.value',
+    function isDisabledAddButton() {
+      return !this.xattrColumnName || !this.xattrKeyNameDropdownField.value;
     }
   ),
 
@@ -131,12 +304,48 @@ export default Component.extend({
         this.applyCurrentColumnsOrder();
       }
     },
+    addNewColumn() {
+      const newColumn = this.xattrColumnName;
+      const key = this.xattrKeyNameDropdownField.value;
+      this.columnsConfiguration.addNewColumn(newColumn, key, 'xattr');
+      this.set('activeSlide', 'column-configuration');
+    },
+    modifyColumn() {
+      const key = this.xattrKeyModifiedNameDropdownField.value;
+      this.columnsConfiguration.modifyColumn(
+        this.modifiedColumn,
+        this.modifiedColumnNewValue,
+        key,
+      );
+      this.set('activeSlide', 'column-configuration');
+    },
+    removeXattrColumn(removedColumn) {
+      this.columnsConfiguration.removeXattrColumn(removedColumn);
+    },
     acceptDraggedElement(index, draggedElement) {
       this.columnsConfiguration.moveColumn(draggedElement.columnName, index + 1);
       this.applyCurrentColumnsOrder();
     },
     validateDragEvent() {
       return this.get('isTargetForDrop');
+    },
+    goXattrConfiguration() {
+      this.set('activeSlide', 'xattr-add');
+      this.set('xattrColumnName', '');
+    },
+    openXattrModification(columnName) {
+      const xattrKey = this.columnsConfiguration.columns[columnName].xattrKey;
+      this.setProperties({
+        modifiedXattrKey: xattrKey,
+        activeSlide: 'xattr-modify',
+        modifiedColumn: columnName,
+        modifiedColumnNewValue: this.columnsConfiguration.columns[columnName]
+          .displayedName,
+      });
+    },
+    goBack() {
+      this.set('activeSlide', 'column-configuration');
+      this.set('modifiedColumn', '');
     },
   },
 });

@@ -194,20 +194,6 @@ describe('Integration | Component | share-show/public-url-viewer', function () {
       testChangeSelectedUrlTypeCompact('handle');
       testChangeSelectedUrlTypeCompact('rest');
 
-      it('does not render handle service name, but only icon', async function () {
-        this.set('selectedUrlType', 'handle');
-
-        await renderComponent();
-
-        expect(
-          globals.document.querySelector('.input-handle-service-name'),
-          'handle service name'
-        ).to.not.exist;
-        expect(
-          globals.document.querySelector('.url-type-info-trigger.input-group-addon-icon .oneicon')
-        ).to.exist;
-      });
-
       it('renders handle, share and rest url options in selector', async function () {
         await renderComponent();
 

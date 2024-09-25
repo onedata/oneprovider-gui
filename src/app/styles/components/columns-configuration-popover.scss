@@ -1,14 +1,27 @@
 .webui-popover-columns-configuration {
+  --min-height-popover: 240px;
+  width: 300px;
+  min-height: var(--min-height-popover);
+
   .webui-popover-content {
-    padding-top: $padding-xs-horizontal;
-    padding-bottom: $padding-xs-horizontal;
-    @media (hover: hover) {
-      padding-left: $padding-xs-horizontal;
-    }
+    padding: 0;
+
   }
   @media (hover: none) {
     .column-move-icon {
       display: none;
+    }
+  }
+
+  .columns-configuration-list {
+    max-height: 60vh;
+    padding: $padding-xs-horizontal $padding-base-vertical;
+    @media (hover: hover) {
+      padding-left: $padding-xs-horizontal;
+    }
+
+    &.on-bottom + .add-new-column {
+      @include hide-before-shadow;
     }
   }
   .columns-list {
@@ -19,6 +32,7 @@
     .subname-text {
       font-size: 80%;
       opacity: $disabled-opacity;
+      padding-left: 0.3em;
     }
 
     .column-item .draggable-object {
@@ -33,34 +47,72 @@
         cursor: auto;
       }
 
-      .arrows-container {
-        display: flex;
-        cursor: pointer;
-        align-items: center;
+      .icons-container {
+        display: inline-flex;
+        justify-content: flex-end;
+        width: 7em;
 
         @media (hover: none) {
-          visibility: visible;
-        }
-        @media (hover: hover) {
-          visibility: hidden;
+          width: 10em;
         }
 
-        .oneicon {
-          font-size: 120%;
-          font-weight: bold;
+        .icon-container .oneicon {
           vertical-align: middle;
         }
+
+        .remove-column, .modify-column {
+          cursor: pointer;
+          visibility: hidden;
+
+          .oneicon {
+            font-weight: bold;
+            font-size: 120%;
+          }
+        }
+
+        .remove-column:hover {
+          color: $color-one-red;
+        }
+
+        .modify-column:hover {
+          color: $color-one-mint;
+        }
+
+        .column-info-icon {
+          font-size: 140%;
+          opacity: $disabled-opacity;
+        }
+
+        .no-view-icon {
+          font-size: 160%;
+        }
+
+        .arrows-container {
+          display: flex;
+          cursor: pointer;
+          align-items: center;
+
+          @media (hover: hover) {
+            display: none;
+          }
+
+          .oneicon {
+            font-size: 120%;
+            font-weight: bold;
+          }
+        }
+      }
+
+      .filter-column-checkbox {
+        min-width: 16px;
       }
 
       label.column-name-label {
         display: inline-flex;
+        align-items: baseline;
         flex-grow: 1;
-        padding-right: 2.2em;
         min-width: 12.3em;
-
-        @media (hover: hover) {
-          padding-right: 0;
-        }
+        padding-right: 0.35em;
 
         .checkbox-label {
           position: relative;
@@ -69,25 +121,6 @@
 
       &:last-child {
         margin-bottom: 0;
-      }
-
-      .column-info-icon {
-        font-size: 140%;
-        vertical-align: middle;
-        opacity: 0.6;
-        position: absolute;
-        right: -1.3em;
-        top: 50%;
-        transform: translateY(-45%);
-      }
-
-      .oneicon-no-view {
-        font-size: 160%;
-        vertical-align: middle;
-        position: absolute;
-        right: -2.2em;
-        top: 50%;
-        transform: translateY(-45%);
       }
 
       label {
@@ -100,20 +133,63 @@
         visibility: hidden;
       }
       @media (hover: hover) {
-        &:hover .column-move-icon {
+        &:hover .visible-on-hover {
           visibility: visible;
-          opacity: $disabled-opacity;
-          cursor: grab;
+        }
+      }
+      @media (hover: none) {
+        .visible-on-hover {
+          visibility: visible;
+        }
+        label.column-name-label {
+          min-width: 10.3em;
         }
       }
 
       .column-move-icon {
         padding-right: 0.2em;
+        cursor: grab;
+        opacity: $disabled-opacity;
       }
     }
 
     .one-checkbox, .checkbox-label {
       vertical-align: middle;
+    }
+  }
+
+  .add-new-column {
+    display: flex;
+    align-items: center;
+    padding-top: 17px;
+    padding-bottom: 16px;
+    // empirical alignment to the checkbox above
+    padding-left: 23px;
+    cursor: pointer;
+    position: sticky;
+    bottom: 0px;
+    @include before-top-shadow;
+    @include content-shadow-leftovers;
+
+    @media (hover: none) {
+      // empirical alignment to the checkbox above
+      padding-left: 12px;
+    }
+
+    .new-column-text {
+      font-style: italic;
+      padding-left: 6px;
+      opacity: $disabled-opacity;
+    }
+
+    .add-new-column-btn {
+      display: inline-block;
+      font-size: 0.42em;
+      padding: 0.4em;
+
+      .adder-icon {
+        left: 0;
+      }
     }
   }
   .draggable-object-target {
@@ -123,6 +199,38 @@
       border: 1px dashed darken($color-one-gray-sand, 10%);
       background-color: rgba($color-one-gray-sand, 0.75);
       border-radius: $border-radius-small;
+    }
+  }
+  .xattr-column-add, .xattr-column-modify {
+    position: relative;
+    min-height: var(--min-height-popover);
+    padding: 12px;
+
+    h1 {
+      display: flex;
+      position: relative;
+
+      .back-icon {
+        cursor: pointer;
+        font-size: 120%;
+        font-weight: bold;
+        margin-left: -0.3em;
+      }
+
+      .add-column-header {
+        padding-left: 0.3em;
+      }
+    }
+
+    .back-column-btn {
+      margin-right: $padding-xs-horizontal;
+    }
+
+    .xattr-footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding-top: 10px;
     }
   }
 }

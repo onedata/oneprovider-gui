@@ -516,6 +516,14 @@ export default Model.extend(
      */
     ctime: attr('number'),
 
+    creationTime: attr('number'),
+
+    /**
+     * The object contains the requested xattr attributes, with property names
+     * corresponding to xattr keys where periods have been replaced by dashes.
+     */
+    xattrs: attr('object', { defaultValue: () => {} }),
+
     /**
      * One of: `posix`, `acl`. Cannot be modified
      */

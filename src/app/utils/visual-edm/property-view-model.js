@@ -7,7 +7,7 @@
  */
 
 import EmberObject, { computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, or } from '@ember/object/computed';
 import { eq, raw, conditional, not } from 'ember-awesome-macros';
 import {
   EdmPropertyRecommendation,
@@ -38,12 +38,16 @@ const PropertyViewModel = EmberObject.extend({
 
   visualEdmViewModel: reads('objectViewModel.visualEdmViewModel'),
 
-  isDisabled: reads('visualEdmViewModel.isDisabled'),
+  isDisabled: or('visualEdmViewModel.isDisabled', 'model.isAlwaysDisabled'),
 
   /**
+   * Flag that indicates that user somehow used the input - either by focusing and
+   * blurring it or by entering some text into. Input before "use" should not show
+   * validation errors on it (but validation errors could be visible in other parts of
+   * GUI). The input could be also set as "used" if the value is injected programatically.
    * @type {boolean}
    */
-  wasInputFocused: false,
+  wasInputUsed: false,
 
   /**
    * @type {VisualEdmPropertyValueType}
@@ -103,18 +107,6 @@ const PropertyViewModel = EmberObject.extend({
 
   isLangConfigurable: reads('model.isLangConfigurable'),
 
-  formGroupClassName: computed(
-    'wasInputFocused',
-    'validator.isError',
-    function formGroupClassName() {
-      const classes = ['form-group'];
-      if (this.wasInputFocused && this.validator?.isError) {
-        classes.push('has-error');
-      }
-      return classes.join(' ');
-    }
-  ),
-
   valueIcon: conditional(
     eq('valueType', raw('literal')),
     raw('browser-rename'),
@@ -139,8 +131,8 @@ const PropertyViewModel = EmberObject.extend({
    * trying to access Proxy's properties.
    * @type {ComputedProperty<string>}
    */
-  lang: computed('model.attrs', function lang() {
-    return this.model.attrs.lang;
+  lang: computed('model', function lang() {
+    return this.model.lang;
   }),
 
   /**
@@ -214,7 +206,7 @@ const PropertyViewModel = EmberObject.extend({
       this.set('valueType', this.model.supportedValueType);
     }
     if (this.value) {
-      this.set('wasInputFocused', true);
+      this.set('wasInputUsed', true);
     }
     this.set('langOptionsMapping', getLangSelectorOptions().reduce((mapping, option) => {
       mapping[option.value] = option;
@@ -273,6 +265,11 @@ const PropertyViewModel = EmberObject.extend({
     this.propertyGroupViewModel.objectViewModel.updateView();
   },
 
+  markInputAsUsed() {
+    if (!this.wasInputUsed) {
+      this.set('wasInputUsed', true);
+    }
+  },
 });
 
 export default PropertyViewModel;

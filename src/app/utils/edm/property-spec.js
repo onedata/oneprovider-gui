@@ -7,11 +7,11 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EdmObjectType from './object-type';
-import _ from 'lodash';
+import { getLangSelectorOptions } from './lang-spec';
+import EdmObjectType, { EdmObjectTagName } from './object-type';
 
 /**
- * @typedef {'dc'|'dcterms'|'edm'|'owl'} EdmPropertyNamespace
+ * @typedef {'dc'|'dcterms'|'edm'} EdmPropertyNamespace
  */
 
 /**
@@ -19,37 +19,70 @@ import _ from 'lodash';
  * - https://europeana.atlassian.net/wiki/spaces/EF/pages/2106294284/edm+ProvidedCHO
  * - https://europeana.atlassian.net/wiki/spaces/EF/pages/2106032160/ore+Aggregation
  * - https://europeana.atlassian.net/wiki/spaces/EF/pages/2106392591/edm+WebResource
+ *
+ * But note, that only a subset is used in Europeana!
  * @typedef {string} EdmPropertyName
+ */
+
+/**
+ * Container for specs of the property with the same XML namespace and tag, but in
+ * different EDM object context.
+ * @typedef {Object} EdmPropertySpecContainer
+ * @property {EdmPropertySpec} [EdmObjectType.Aggregation]
+ * @property {EdmPropertySpec} [EdmObjectType.ProvidedCHO]
+ * @property {EdmPropertySpec} [EdmObjectType.WebResource]
+ */
+
+/**
+ * Container for specs of the value in the different EdmPropertyValueType contexts.
+ * Eg. a placeholder can be different for literal values and references (or can be
+ * empty for reference).
+ * @typedef {Object} EdmPropertySpecValues
+ * @property {string} [EdmPropertyValueType.Literal]
+ * @property {string} [EdmPropertyValueType.Reference]
  */
 
 /**
  * @typedef {Object} EdmPropertySpec
  * @property {EdmPropertyValueType} val How the data should be stored in the XML - see
  *   `EdmPropertyValueType`.
- * @property {boolean} basic If true, then the property can be added via dedicated "add
- *   property" selector in the visual editor.
- * @property {Array} obj Types of EDM objects that can use this property.
+ * @property {EdmObjectType} obj Object type in which the property can be used.
  * @property {EdmPropertyRecommendation} rec Level of usage recommendation - see
  *   `EdmPropertyRecommendation`
  * @property {EdmPropertyMaxOccurrences} max Level of property maximum occurrences in
  *   single EDM object - see `EdmPropertyMaxOccurrences`.
+ * @property {boolean} [viewOnly] If true, then the property will be not available to
+ *   select when adding new property. It will be only visible if it is defined in XML.
  * @property {Array<{ label: string, value: string }>} [predef] If provided, the property
  *   has predefined set of values that should be applied to the property. The `label` is
  *   shown in the visual editor and `value` is applied as property value.
- * @property {boolean} [lang] If true, the optional language (`lang` XML attribute) should
- *   be set for the property.
+ * @property {boolean|string} [lang] If truish, the optional language (`lang` XML
+ *   attribute) can be set for the property. If it is a non-empty string - the language
+ *   will be automatically set to the provided language code on init and can be changed
+ *   by user.
  * @property {string} [def] Default value.
  * @property {boolean} [long] The string value is typically long and could contain line
- *   breaks.
+ *   breaks. Effectively, it will be displayed as textarea in the visual editor.
  * @property {string} [example] The example of value displayed in tooltip.
+ * @property {string|EdmPropertySpecValues} [placeholder] The example in the input placeholder.
+ * @property {boolean} [disabled] If true, the field is always disabled.
+ * @property {boolean|RegExp} [custom] If true, allows to input custom values for properties
+ *   with predefined set of values without validation error. If it is a RegExp instance,
+ *   allow only custom values that matche the regexp.
  */
 
 /**
  * @typedef {Object} EdmPropertyCreationData
+ * @property {EdmObjectType} objectType
  * @property {string} namespace
  * @property {string} name
  * @property {`${string}:${string}`} xmlTagName
  * @property {EdmPropertySpec} spec
+ */
+
+/**
+ * Maps XML namespace -> property tag name -> EdmPropertySpec | EdmPropertySpecContainer.
+ * @typedef {Object} EdmPropertySpecMap
  */
 
 /**
@@ -92,369 +125,360 @@ export const EdmPropertyMaxOccurrences = Object.freeze({
 const Rec = EdmPropertyRecommendation;
 const Max = EdmPropertyMaxOccurrences;
 
-export const allSpecs = Object.freeze({
-  dc: {
-    contributor: {
-      val: EdmPropertyValueType.Any,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO],
-      lang: true,
-      rec: Rec.None,
-      max: Max.Any,
-      example: 'name of the donor',
-    },
-    coverage: { obj: [EdmObjectType.ProvidedCHO] },
-    creator: {
-      val: EdmPropertyValueType.Any,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
-      lang: true,
-      rec: Rec.None,
-      max: Max.Any,
-      example: 'Anyone who contributed to the creation of the 3D model, donor, etc.',
-    },
-    date: { obj: [EdmObjectType.ProvidedCHO] },
-    description: {
-      val: EdmPropertyValueType.Literal,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
-      rec: Rec.Mandatory,
-      max: Max.Single,
-      lang: true,
-      long: true,
-      example: 'Studio portrait of a young woman with a necklace',
-    },
-    format: {
-      val: EdmPropertyValueType.Literal,
-      basic: true,
-      // According to the official EDM spec this could be used in CHO, but in the EU3D it
-      // should be available only in the WR. For the code simplicity, we are currently not
-      // displaying it in the CHO.
-      // TODO: VFS-11952 We could add CHO object type here and make basic property
-      // to be object-type-specific, because in CHO we don't want this property to be
-      // selected in the dropdown.
-      obj: [EdmObjectType.WebResource],
-      lang: false,
-      rec: Rec.None,
-      max: Max.Any,
-      predef: get3DFormats().map(formatLiteral => ({
-        label: formatLiteral,
-        value: formatLiteral,
-      })),
-    },
-    identifier: {
-      val: EdmPropertyValueType.Literal,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO],
-      lang: true,
-      rec: Rec.None,
-      max: Max.Single,
-      example: 'RP-T1952-380',
-    },
-    language: {
-      val: EdmPropertyValueType.Literal,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO],
-      rec: Rec.None,
-      max: Max.Any,
-    },
-    publisher: { obj: [EdmObjectType.ProvidedCHO] },
-    relation: {
-      val: EdmPropertyValueType.Reference,
-      basic: true,
-      // TODO: VFS-11952 it is Aggregation in the EU3D spreedsheet, but not in official spec
-      obj: [EdmObjectType.ProvidedCHO],
-      rec: Rec.None,
-      max: Max.Any,
-    },
-    rights: {
-      val: EdmPropertyValueType.Literal,
-      basic: true,
-      obj: [
-        EdmObjectType.ProvidedCHO,
-        EdmObjectType.Aggregation,
-        EdmObjectType.WebResource,
-      ],
-      lang: true,
-      rec: Rec.None,
-      max: Max.Any,
-      example: 'Copyright © British Library Board',
-    },
-    source: { obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
-    subject: {
-      val: EdmPropertyValueType.Any,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO],
-      rec: Rec.Mandatory,
-      max: Max.Single,
-      lang: true,
-      example: 'portrait / trombone / building / black-and-white photography',
-    },
-    title: {
-      val: EdmPropertyValueType.Literal,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO],
-      rec: Rec.Mandatory,
-      max: Max.Single,
-      lang: true,
-      example: 'Portrait of a young woman / Saint Paul\'s Cathedral / Mona Lisa',
-    },
-    type: {
-      val: EdmPropertyValueType.Any,
-      // TODO: VFS-11952 Maybe it should be not available in the WR selector
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
-      rec: Rec.Mandatory,
-      max: Max.Single,
-      lang: true,
-      example: {
-        // TODO: VFS-11952 Maybe there should be example of AAT link - it depends of
-        // future tooltip desciption
-        [
-          EdmObjectType.ProvidedCHO
-        ]: '(literal) trombone / musical instrument / church / still image / painting / building',
+const locationCommon = {
+  tip: '<strong>Example:</strong><br>https://www.wikidata.org/wiki/Q4093<br>http://sws.geonames.org/2950159<br>https://vocab.getty.edu/tgn/7006663<p>When it is a <strong>literal</strong>, use a coordinate in this format:<br>48.833611111, 2.375833333',
+  placeholder: {
+    [EdmPropertyValueType.Literal]: '48.833611111, 2.375833333',
+    [EdmPropertyValueType.Reference]: 'https://www.wikidata.org/wiki/Q4093',
+  },
+};
+
+/**
+ * @type {EdmPropertySpecMap}
+ */
+let allSpecsCache;
+
+/**
+ * @returns {EdmPropertySpecMap}
+ */
+export function getAllSpecs() {
+  return allSpecsCache ??= createAllSpecs();
+}
+
+// TODO: VFS-12238 Currently titles of properties are placed in 18n file:
+// src/app/locales/en/components/visual-edm/property.js and other strings, like tip
+// and examples are placed in the spec. Consider moving all texts either to spec (so all
+// the data will be placed in one file which make it better to read) or to translations
+// (which is best practice for i18n).
+
+/**
+ * @returns {EdmPropertySpecMap}
+ */
+function createAllSpecs() {
+  return {
+    dc: {
+      contributor: {
+        val: EdmPropertyValueType.Any,
+        obj: EdmObjectType.ProvidedCHO,
+        lang: true,
+        rec: Rec.None,
+        max: Max.Any,
+        tip: 'It can include, for example, a donor.',
       },
-      // TODO: VFS-11952 According to the EU3D spreadsheet, this could be a "Getty
-      // Glossary" enun, but currently there is no valueset provided
-    },
-  },
-  dcterms: {
-    alternative: { obj: [EdmObjectType.ProvidedCHO] },
-    conformsTo: { obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
-    created: {
-      val: EdmPropertyValueType.Any,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
-      lang: true,
-      rec: Rec.None,
-      max: {
-        [EdmObjectType.ProvidedCHO]: Max.Any,
-        [EdmObjectType.WebResource]: Max.Single,
+      creator: {
+        [EdmObjectType.ProvidedCHO]: {
+          val: EdmPropertyValueType.Any,
+          obj: EdmObjectType.ProvidedCHO,
+          lang: true,
+          rec: Rec.None,
+          max: Max.Any,
+          example: 'http://www.wikidata.org/entity/Q604667',
+        },
+        [EdmObjectType.WebResource]: {
+          val: EdmPropertyValueType.Any,
+          obj: EdmObjectType.WebResource,
+          lang: true,
+          rec: Rec.None,
+          max: Max.Any,
+        },
       },
-      example: '1900-02-21',
-    },
-    extent: {
-      val: EdmPropertyValueType.Any,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
-      lang: true,
-      rec: Rec.None,
-      max: Max.Any,
-      // TODO: VFS-11952 asked in EU3D spreedsheet if it is valid
-      example: {
-        [EdmObjectType.ProvidedCHO]: '13 cm (width) / 20 cm (length) / 10 cm (height)',
-        [EdmObjectType.WebResource]: '200 MB',
+      description: {
+        [EdmObjectType.ProvidedCHO]: {
+          val: EdmPropertyValueType.Literal,
+          obj: EdmObjectType.ProvidedCHO,
+          rec: Rec.Mandatory,
+          max: Max.Any,
+          lang: 'en',
+          long: true,
+          example: 'Studio portrait of a young woman with a necklace',
+          placeholder: 'Studio portrait of a young woman with a necklace',
+        },
+        [EdmObjectType.WebResource]: {
+          val: EdmPropertyValueType.Literal,
+          obj: EdmObjectType.WebResource,
+          rec: Rec.Mandatory,
+          max: Max.Any,
+          lang: 'en',
+          long: true,
+          example: 'Georeferenced photogrammetric mesh model of the Holy Cross Church. The digitisation was made through UAV and terrestrial photogrammetry.',
+          placeholder: 'Georeferenced photogrammetric mesh model of the Holy Cross Church. The digitisation was made through UAV and terrestrial photogrammetry.',
+        },
+      },
+      format: {
+        val: EdmPropertyValueType.Literal,
+        obj: EdmObjectType.WebResource,
+        lang: false,
+        rec: Rec.None,
+        max: Max.Any,
+        predef: get3DFormats().map(formatLiteral => ({
+          label: formatLiteral,
+          value: formatLiteral,
+        })),
+      },
+      identifier: {
+        val: EdmPropertyValueType.Literal,
+        obj: EdmObjectType.WebResource,
+        lang: true,
+        rec: Rec.None,
+        max: Max.Single,
+        example: 'RP-T1952-380, 0001',
+        placeholder: 'RP-T1952-380',
+      },
+      language: {
+        val: EdmPropertyValueType.Literal,
+        obj: EdmObjectType.ProvidedCHO,
+        rec: Rec.None,
+        max: Max.Any,
+        // The first item is "Default" (empty) language, but we require value for each
+        // property.
+        predef: getLangSelectorOptions().slice(1),
+      },
+      rights: {
+        val: EdmPropertyValueType.Literal,
+        obj: EdmObjectType.Aggregation,
+        lang: true,
+        rec: Rec.None,
+        max: Max.Any,
+        example: 'Copyright © British Library Board',
+        placeholder: 'Copyright © British Library Board',
+      },
+      subject: {
+        val: EdmPropertyValueType.Any,
+        obj: EdmObjectType.ProvidedCHO,
+        rec: Rec.Mandatory,
+        max: Max.Any,
+        lang: 'en',
+        example: 'Christian Orthodox Church / Chalcolithic wine jar / Brass instrument / Still life painting',
+        placeholder: {
+          [EdmPropertyValueType.Literal]: 'Christian Orthodox Church',
+        },
+      },
+      title: {
+        val: EdmPropertyValueType.Literal,
+        obj: EdmObjectType.ProvidedCHO,
+        rec: Rec.Mandatory,
+        max: Max.Any,
+        lang: 'en',
+        example: 'Portrait of a young woman / Saint Paul\'s Cathedral / Mona Lisa',
+        placeholder: {
+          [EdmPropertyValueType.Literal]: 'Saint Paul\'s Cathedral',
+        },
+      },
+      type: {
+        [EdmObjectType.ProvidedCHO]: {
+          val: EdmPropertyValueType.Any,
+          obj: EdmObjectType.ProvidedCHO,
+          rec: Rec.Mandatory,
+          max: Max.Single,
+          lang: true,
+          tip: 'It is suggested to use a reference from e.g. Getty glossary.<p><strong>Example of literals:</strong> Musical instrument / Church / Still image / Painting / Building',
+          placeholder: {
+            [EdmPropertyValueType.Literal]: 'Musical instrument',
+          },
+        },
+        [EdmObjectType.WebResource]: {
+          val: EdmPropertyValueType.Literal,
+          obj: EdmObjectType.WebResource,
+          rec: Rec.Mandatory,
+          max: Max.Single,
+          lang: true,
+          example: 'Photogrammetric mesh model / TLS point cloud / NURBS model',
+          placeholder: {
+            [EdmPropertyValueType.Literal]: 'Photogrammetric mesh model',
+          },
+        },
       },
     },
-    hasFormat: { obj: [EdmObjectType.ProvidedCHO] },
-    hasPart: { obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
-    hasVersion: { obj: [EdmObjectType.ProvidedCHO] },
-    isFormatOf: {
-      val: EdmPropertyValueType.Reference,
-      basic: true,
-      // TODO: VFS-11952 it is Aggregation in EU3D spreedsheet, but not in official docs
-      obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
-      rec: Rec.None,
-      max: Max.Any,
+    dcterms: {
+      created: {
+        [EdmObjectType.ProvidedCHO]: {
+          val: EdmPropertyValueType.Any,
+          obj: EdmObjectType.ProvidedCHO,
+          lang: true,
+          rec: Rec.None,
+          max: Max.Any,
+          example: '1900-02-21',
+          placeholder: {
+            [EdmPropertyValueType.Literal]: '1900-02-21',
+          },
+        },
+        [EdmObjectType.WebResource]: {
+          val: EdmPropertyValueType.Any,
+          obj: EdmObjectType.WebResource,
+          lang: true,
+          rec: Rec.None,
+          max: Max.Single,
+          example: '1900-02-21',
+          placeholder: {
+            [EdmPropertyValueType.Literal]: '1900-02-21',
+          },
+        },
+      },
+      extent: {
+        [EdmObjectType.ProvidedCHO]: {
+          val: EdmPropertyValueType.Literal,
+          obj: EdmObjectType.ProvidedCHO,
+          lang: true,
+          long: true,
+          rec: Rec.None,
+          max: Max.Any,
+          example: '<br>13 cm (width)<br>20 cm (length)<br>10 cm (height)',
+          placeholder: '\n13 cm (width)\n20 cm (length)\n10 cm (height)',
+          tip: 'References the size of the object.',
+        },
+        [EdmObjectType.WebResource]: {
+          val: EdmPropertyValueType.Literal,
+          obj: EdmObjectType.WebResource,
+          rec: Rec.Mandatory,
+          max: Max.Single,
+          disabled: true,
+          tip: 'This value is filled automatically.',
+        },
+      },
+      isFormatOf: {
+        val: EdmPropertyValueType.Reference,
+        obj: EdmObjectType.WebResource,
+        rec: Rec.None,
+        max: Max.Single,
+      },
+      isPartOf: {
+        val: EdmPropertyValueType.Any,
+        obj: EdmObjectType.ProvidedCHO,
+        rec: Rec.Mandatory,
+        max: Max.Any,
+        lang: true,
+        example: 'Crace Collection of Maps of London / EUreka3D / Church of...',
+        placeholder: {
+          [EdmPropertyValueType.Literal]: 'Crace Collection of Maps of London',
+        },
+      },
+      isReferencedBy: {
+        val: EdmPropertyValueType.Reference,
+        obj: EdmObjectType.WebResource,
+        rec: Rec.None,
+        max: Max.Single,
+      },
+      medium: {
+        val: EdmPropertyValueType.Reference,
+        obj: EdmObjectType.ProvidedCHO,
+        lang: false,
+        rec: Rec.Mandatory,
+        max: Max.Any,
+        custom: /^http:\/\/vocab.getty.edu\/aat\/\d{9}$/,
+        predef: [
+          { label: 'Bone', value: 'http://vocab.getty.edu/aat/300011798' },
+          { label: 'Ceramic', value: 'http://vocab.getty.edu/aat/300235507' },
+          { label: 'Clay', value: 'http://vocab.getty.edu/aat/300010439' },
+          { label: 'Concrete', value: 'http://vocab.getty.edu/aat/300010737' },
+          { label: 'Glass', value: 'http://vocab.getty.edu/aat/300010797' },
+          { label: 'Leather', value: 'http://vocab.getty.edu/aat/300011845' },
+          { label: 'Metal', value: 'http://vocab.getty.edu/aat/300010900' },
+          { label: 'Mortar', value: 'http://vocab.getty.edu/aat/300014741' },
+          { label: 'Paper', value: 'http://vocab.getty.edu/aat/300014109' },
+          { label: 'Papyrus', value: 'http://vocab.getty.edu/aat/300014127' },
+          { label: 'Plaster', value: 'http://vocab.getty.edu/aat/300014922' },
+          { label: 'Stone', value: 'http://vocab.getty.edu/aat/300011692' },
+          { label: 'Textile', value: 'http://vocab.getty.edu/aat/300231565' },
+          { label: 'Wood', value: 'http://vocab.getty.edu/aat/300011914' },
+        ],
+      },
+      spatial: {
+        val: EdmPropertyValueType.Any,
+        obj: EdmObjectType.ProvidedCHO,
+        rec: Rec.None,
+        max: Max.Any,
+        ...locationCommon,
+      },
     },
-    isPartOf: {
-      val: EdmPropertyValueType.Any,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource],
-      rec: Rec.None,
-      max: Max.Any,
-      lang: true,
-      example: 'Crace Collection of Maps of London / EUreka3D / Church of...',
+    edm: {
+      aggregatedCHO: {
+        val: EdmPropertyValueType.Reference,
+        basic: false,
+        obj: EdmObjectType.Aggregation,
+        // it is added by backend
+        viewOnly: true,
+        rec: Rec.None,
+        max: Max.Single,
+      },
+      currentLocation: {
+        val: EdmPropertyValueType.Any,
+        obj: EdmObjectType.ProvidedCHO,
+        rec: Rec.None,
+        max: Max.Single,
+        ...locationCommon,
+      },
+      dataProvider: {
+        val: EdmPropertyValueType.Any,
+        obj: EdmObjectType.Aggregation,
+        lang: true,
+        rec: Rec.Mandatory,
+        max: Max.Single,
+        example: 'Zuidwestbrabants Museum',
+        placeholder: {
+          [EdmPropertyValueType.Literal]: 'Zuidwestbrabants Museum',
+        },
+      },
+      isShownAt: {
+        val: EdmPropertyValueType.Reference,
+        obj: EdmObjectType.Aggregation,
+        rec: Rec.None,
+        max: Max.Single,
+      },
+      isShownBy: {
+        val: EdmPropertyValueType.Reference,
+        obj: EdmObjectType.Aggregation,
+        // it is added by backend
+        viewOnly: true,
+        rec: Rec.None,
+        max: Max.Single,
+      },
+      object: {
+        val: EdmPropertyValueType.Reference,
+        obj: EdmObjectType.Aggregation,
+        rec: Rec.None,
+        max: Max.Single,
+      },
+      provider: {
+        // Comment from EUreka3D:
+        // In future this should be a limited list of values, BUT for the time being we
+        // agreed to use "Photoconsortium" for all EUreka3D content. So we will not ask the
+        // user for the time being (although alternatively we could use a combo box with
+        // only one available option)
+        val: EdmPropertyValueType.Literal,
+        obj: EdmObjectType.Aggregation,
+        rec: Rec.Mandatory,
+        max: Max.Single,
+        predef: [{
+          label: 'Photoconsortium',
+          value: 'Photoconsortium',
+        }],
+        def: 'Photoconsortium',
+      },
+      rights: {
+        val: EdmPropertyValueType.Reference,
+        obj: EdmObjectType.Aggregation,
+        rec: Rec.Mandatory,
+        max: Max.Single,
+        // Predefined values from EUreka 3D specification
+        predef: getLicenses(),
+        tip: 'See: https://pro.europeana.eu/page/available-rights-statements',
+      },
+      type: {
+        val: EdmPropertyValueType.Literal,
+        obj: EdmObjectType.ProvidedCHO,
+        rec: Rec.Mandatory,
+        max: Max.Single,
+        predef: ['3D', 'TEXT', 'VIDEO', 'SOUND', 'IMAGE'].map(value =>
+          ({ value, label: value })
+        ),
+        def: '3D',
+      },
     },
-    isReferencedBy: { obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
-    isReplacedBy: { obj: [EdmObjectType.ProvidedCHO] },
-    isRequiredBy: { obj: [EdmObjectType.ProvidedCHO] },
-    issued: { obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
-    isVersionOf: { obj: [EdmObjectType.ProvidedCHO] },
-    medium: {
-      val: EdmPropertyValueType.Literal,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO],
-      lang: true,
-      rec: Rec.Mandatory,
-      max: Max.Any,
-      example: 'Metal',
-    },
-    provenance: { obj: [EdmObjectType.ProvidedCHO] },
-    references: { obj: [EdmObjectType.ProvidedCHO] },
-    replaces: { obj: [EdmObjectType.ProvidedCHO] },
-    requires: { obj: [EdmObjectType.ProvidedCHO] },
-    spatial: {
-      val: EdmPropertyValueType.Reference,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO],
-      rec: Rec.None,
-      max: Max.Any,
-    },
-    tableOfContents: { obj: [EdmObjectType.ProvidedCHO] },
-    temporal: { obj: [EdmObjectType.ProvidedCHO] },
-  },
-  edm: {
-    aggregatedCHO: {
-      val: EdmPropertyValueType.Reference,
-      basic: false,
-      obj: [EdmObjectType.Aggregation],
-      // it is added by backend
-      rec: Rec.None,
-      max: Max.Single,
-    },
-    currentLocation: {
-      val: EdmPropertyValueType.Reference,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO],
-      rec: Rec.None,
-      max: Max.Single,
-      example: 'http://sws.geonames.org/2950159',
-    },
-    dataProvider: {
-      val: EdmPropertyValueType.Any,
-      basic: true,
-      obj: [EdmObjectType.Aggregation],
-      lang: true,
-      rec: Rec.Mandatory,
-      max: Max.Single,
-      example: 'Zuidwestbrabants Museum',
-    },
-    hasMet: { obj: [EdmObjectType.ProvidedCHO] },
-    hasType: { obj: [EdmObjectType.ProvidedCHO] },
-    hasView: { obj: [EdmObjectType.Aggregation] },
-    incorporates: { obj: [EdmObjectType.ProvidedCHO] },
-    intermediateProvider: { obj: [EdmObjectType.Aggregation] },
-    isDerivativeOf: { obj: [EdmObjectType.ProvidedCHO] },
-    isNextInSequence: { obj: [EdmObjectType.ProvidedCHO, EdmObjectType.WebResource] },
-    isRelatedTo: { obj: [EdmObjectType.ProvidedCHO] },
-    isRepresentationOf: { obj: [EdmObjectType.ProvidedCHO] },
-    isShownAt: {
-      val: EdmPropertyValueType.Reference,
-      basic: true,
-      obj: [EdmObjectType.Aggregation],
-      rec: Rec.None,
-      max: Max.Single,
-    },
-    isShownBy: {
-      val: EdmPropertyValueType.Reference,
-      obj: [EdmObjectType.Aggregation],
-      // it is added by backend
-      rec: Rec.None,
-      max: Max.Single,
-    },
-    isSimilarTo: { obj: [EdmObjectType.ProvidedCHO] },
-    isSuccessorOf: { obj: [EdmObjectType.ProvidedCHO] },
-    object: {
-      val: EdmPropertyValueType.Reference,
-      basic: true,
-      obj: [EdmObjectType.Aggregation],
-      rec: Rec.None,
-      max: Max.Single,
-    },
-    provider: {
-      // TODO: VFS-11952 possible change in future from EU3D
-      // Comment of EUreka3D:
-      // In future this should be a limited list of values, BUT for the time being we
-      // agreed to use "Photoconsortium" for all EUreka3D content. So we will not ask the
-      // user for the time being (although alternatively we could use a combo box with
-      // only one available option)
-      val: EdmPropertyValueType.Literal,
-      basic: true,
-      obj: [EdmObjectType.Aggregation],
-      rec: Rec.Mandatory,
-      max: Max.Single,
-      predef: [{
-        label: 'Photoconsortium',
-        value: 'Photoconsortium',
-      }],
-      def: 'Photoconsortium',
-    },
-    realizes: { obj: [EdmObjectType.ProvidedCHO] },
-    rights: {
-      basic: true,
-      val: EdmPropertyValueType.Reference,
-      obj: [EdmObjectType.Aggregation, EdmObjectType.WebResource],
-      rec: Rec.Mandatory,
-      max: Max.Single,
-      // Predefined values from EUreka 3D specification
-      predef: [{
-          label: 'CC BY 4.0',
-          value: 'http://creativecommons.org/licenses/by/4.0/',
-        },
-        {
-          label: 'CC BY-SA 4.0',
-          value: 'http://creativecommons.org/licenses/by-sa/4.0/',
-        },
-        {
-          label: 'CC BY-ND 4.0',
-          value: 'http://creativecommons.org/licenses/by-nd/4.0/',
-        },
-        {
-          label: 'CC BY-NC 4.0',
-          value: 'http://creativecommons.org/licenses/by-nc/4.0/',
-        },
-        {
-          label: 'CC BY-NC-SA 4.0',
-          value: 'http://creativecommons.org/licenses/by-nc-sa/4.0/',
-        },
-        {
-          label: 'CC BY-NC-ND 4.0',
-          value: 'http://creativecommons.org/licenses/by-nc-nd/4.0/',
-        },
-        {
-          label: 'NoC-NC',
-          value: 'http://rightsstatements.org/vocab/NoC-NC/1.0/',
-        },
-        {
-          label: 'NoC-OKLR',
-          value: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
-        },
-        {
-          label: 'InC',
-          value: 'http://rightsstatements.org/vocab/InC/1.0/',
-        },
-        {
-          label: 'InC-EDU',
-          value: 'http://rightsstatements.org/vocab/InC-EDU/1.0/',
-        },
-        {
-          label: 'InC-OW-EU',
-          value: 'http://rightsstatements.org/vocab/InC-OW-EU/1.0/',
-        },
-        {
-          label: 'CNE',
-          value: 'http://rightsstatements.org/vocab/CNE/1.0/',
-        },
-        {
-          label: 'CC0 1.0',
-          value: 'http://creativecommons.org/publicdomain/zero/1.0/',
-        },
-        {
-          label: 'Public Domain Mark',
-          value: 'http://creativecommons.org/publicdomain/mark/1.0/',
-        },
-      ],
-    },
-    type: {
-      val: EdmPropertyValueType.Literal,
-      basic: true,
-      obj: [EdmObjectType.ProvidedCHO],
-      rec: Rec.Mandatory,
-      max: Max.Single,
-      predef: ['3D', 'TEXT', 'VIDEO', 'SOUND', 'IMAGE-2D'].map(value =>
-        ({ value, label: value })
-      ),
-    },
-    ugc: { obj: [EdmObjectType.Aggregation] },
-  },
-  owl: {
-    isSameAs: { obj: [EdmObjectType.ProvidedCHO] },
-    sameAs: { obj: [EdmObjectType.WebResource] },
-  },
-});
+  };
+}
 
 function createSupportedTags() {
+  const allSpecs = getAllSpecs();
   const array = [];
   for (const namespace of Object.keys(allSpecs)) {
     for (const propertyName of Object.keys(allSpecs[namespace])) {
@@ -464,151 +488,272 @@ function createSupportedTags() {
   return array;
 }
 
-export const supportedPropertyTagSet = Object.freeze(new Set(createSupportedTags()));
+let supportedPropertyTagSetCache;
+
+export function getSupportedPropertyTagSet() {
+  return supportedPropertyTagSetCache ??= Object.freeze(new Set(createSupportedTags()));
+}
+
+/**
+ * Checks if object is a `EdmPropertySpecNamespaceContainer`.
+ * @param {Object} object
+ * @returns {boolean}
+ */
+export function isSpecContainer(object) {
+  const possibleContainerKeys = Object.keys(EdmObjectType);
+  const keys = Object.keys(object);
+  return possibleContainerKeys.includes(keys[0]);
+}
+
+/**
+ *
+ * @param {EdmObjectType} objectType
+ * @param {string} name
+ * @param {string} namespace
+ * @param {EdmPropertySpec} spec
+ * @returns {EdmPropertyCreationData}
+ */
+function createPropertyCreationData(objectType, name, namespace, spec) {
+  return Object.freeze({
+    objectType,
+    name,
+    namespace,
+    xmlTagName: `${namespace}:${name}`,
+    spec,
+  });
+}
 
 function createAllPropertiesCreationData() {
+  const allSpecs = getAllSpecs();
   const items = [];
+
   for (const [namespace, namespaceSpecs] of Object.entries(allSpecs)) {
-    for (const [name, spec] of Object.entries(namespaceSpecs)) {
-      items.push(Object.freeze({
-        name,
-        namespace,
-        xmlTagName: `${namespace}:${name}`,
-        spec,
-      }));
+    for (const [name, specOrContainer] of Object.entries(namespaceSpecs)) {
+      if (isSpecContainer(specOrContainer)) {
+        for (const spec of Object.values(specOrContainer)) {
+          items.push(createPropertyCreationData(spec.obj, name, namespace, spec));
+        }
+      } else {
+        items.push(
+          createPropertyCreationData(
+            specOrContainer.obj,
+            name,
+            namespace,
+            specOrContainer
+          )
+        );
+      }
     }
   }
   return items;
 }
 
+let allPropertyDataCache;
+
 /**
  * @type {Array<EdmPropertyCreationData>}
  */
-export const allPropertyData = Object.freeze(createAllPropertiesCreationData());
+export function getAllPropertyData() {
+  return allPropertyDataCache ??= Object.freeze(createAllPropertiesCreationData());
+}
+
+let tagToPropertyDataMapCache;
 
 /**
+ * 2-level mapping: EdmObjectType -> xmlTagName -> EdmPropertyCreationData (contains spec)
  * @type {Object<string, EdmPropertyCreationData>}
  */
-export const tagToPropertyDataMap = _.zipObject(
-  allPropertyData.map(p => p.xmlTagName),
-  allPropertyData
-);
+export function getTagToPropertyDataMap() {
+  const allPropertyData = getAllPropertyData();
+  if (!tagToPropertyDataMapCache) {
+    tagToPropertyDataMapCache = {
+      [EdmObjectTagName[EdmObjectType.ProvidedCHO]]: [],
+      [EdmObjectTagName[EdmObjectType.WebResource]]: [],
+      [EdmObjectTagName[EdmObjectType.Aggregation]]: [],
+    };
+    for (const data of allPropertyData) {
+      const targetArray = tagToPropertyDataMapCache[EdmObjectTagName[data.objectType]];
+      targetArray[data.xmlTagName] = data;
+    }
+  }
+  return tagToPropertyDataMapCache;
+}
 
 function get3DFormats() {
   return [
-    'IGES',
-    'STL',
-    '3MF  ',
+    '3DM',
+    '3DMF',
     '3DMLW',
     '3DPDF',
     '3DS',
+    '3MF  ',
+    'ABC',
     'AC',
     'AMF',
-    'PRC',
-    'W3D',
-    'GeoPDF',
-    'ABC',
-    'ASCII',
     'AN8',
-    'APRX',
-    'PLA',
-    'PLN',
     'AOI',
+    'APRX',
+    'ASCII',
     'ASM',
-    'DWG',
-    'MAX',
-    'FBX',
-    'MA',
-    'MB',
+    'B3D',
+    'BDL4',
+    'BFRES',
     'BIM',
     'BLEND',
-    'B3D',
-    'MDX',
-    'CSG',
-    'Cal3D',
-    'COB',
-    'JAS',
+    'BMD3',
+    'BRRES',
     'C4D',
-    'DAE',
+    'Cal3D',
+    'CCP4',
     'CFL',
+    'COB',
+    'CSG',
+    'CTM',
+    'DAE',
+    'DFF',
     'DPM',
+    'DTS',
     'DWF',
-    'X',
-    'MD5',
+    'DWG',
+    'E57',
+    'EGG',
     'FACT',
-    'PDF/E-1',
-    'X3D',
+    'FBX',
     'FLS',
     'FWS',
-    'NIF',
-    'GML',
+    'GeoPDF',
     'GeoTIFF',
     'GLM',
-    'SKP',
-    'KML/KMZ',
     'glTF',
-    'IOB',
+    'GML',
     'IFC',
     'IGES',
+    'IGES',
+    'IOB',
+    'JAS',
     'JT',
-    'LXF',
-    'E57',
+    'KML/KMZ',
+    'LAS',
     'LWO',
     'LWS',
+    'LXF',
     'LXO',
     'M3D',
+    'MA',
+    'MAX',
+    'MB',
+    'MD2',
+    'MD3',
+    'MD5',
+    'MDX',
     'MESH',
     'MM3D',
     'MPO',
-    'BDL4',
-    'BFRES',
-    'BRRES',
-    'BMD3',
+    'MRC',
+    'NIF',
     'NURBS',
     'NURMS',
+    'OBJ',
     'OFF',
     'OpenGEX',
-    '3DM',
-    'CTM',
-    'EGG',
-    'Ptex',
+    'PDF/E-1',
+    'PLA',
+    'PLN',
     'PLY',
-    'PTM',
     'POV-Ray',
+    'PRC',
     'PRT',
+    'Ptex',
+    'PTM',
     'QGS',
-    'MD2',
-    'MD3',
-    '3DMF',
     'R3D',
     'RTI',
-    'DFF',
-    'RWX',
     'RVT',
-    'VIM',
+    'RWX',
+    'SKP',
     'SKP',
     'SLDASM',
     'SLDPRT',
+    'SMD',
     'STEP',
-    'LAS',
-    'DTS',
+    'STL',
     'U3D',
     'USD',
     'USDC',
     'USDZ',
-    'SMD',
-    'VWX',
+    'VIM',
     'VRML',
-    'MRC',
     'VRML97',
     'VUE',
-    'OBJ',
+    'VWX',
+    'W3D',
     'WINGS',
-    'CCP4',
+    'X',
+    'X3D',
     'XR',
     'XYZ',
-    'ZFS',
-    'ZFC',
     'Z3D',
+    'ZFC',
+    'ZFS',
+  ];
+}
+
+function getLicenses() {
+  return [{
+      label: 'CC BY 4.0',
+      value: 'http://creativecommons.org/licenses/by/4.0/',
+    },
+    {
+      label: 'CC BY-SA 4.0',
+      value: 'http://creativecommons.org/licenses/by-sa/4.0/',
+    },
+    {
+      label: 'CC BY-ND 4.0',
+      value: 'http://creativecommons.org/licenses/by-nd/4.0/',
+    },
+    {
+      label: 'CC BY-NC 4.0',
+      value: 'http://creativecommons.org/licenses/by-nc/4.0/',
+    },
+    {
+      label: 'CC BY-NC-SA 4.0',
+      value: 'http://creativecommons.org/licenses/by-nc-sa/4.0/',
+    },
+    {
+      label: 'CC BY-NC-ND 4.0',
+      value: 'http://creativecommons.org/licenses/by-nc-nd/4.0/',
+    },
+    {
+      label: 'NoC-NC',
+      value: 'http://rightsstatements.org/vocab/NoC-NC/1.0/',
+    },
+    {
+      label: 'NoC-OKLR',
+      value: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
+    },
+    {
+      label: 'InC',
+      value: 'http://rightsstatements.org/vocab/InC/1.0/',
+    },
+    {
+      label: 'InC-EDU',
+      value: 'http://rightsstatements.org/vocab/InC-EDU/1.0/',
+    },
+    {
+      label: 'InC-OW-EU',
+      value: 'http://rightsstatements.org/vocab/InC-OW-EU/1.0/',
+    },
+    {
+      label: 'CNE',
+      value: 'http://rightsstatements.org/vocab/CNE/1.0/',
+    },
+    {
+      label: 'CC0 1.0',
+      value: 'http://creativecommons.org/publicdomain/zero/1.0/',
+    },
+    {
+      label: 'Public Domain Mark',
+      value: 'http://creativecommons.org/publicdomain/mark/1.0/',
+    },
   ];
 }

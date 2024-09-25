@@ -23,6 +23,7 @@ import PosixPermissions from 'oneprovider-gui/utils/posix-permissions';
 export default FbTableRowColumns.extend(I18n, {
   i18n: service(),
   fileManager: service(),
+  modalManager: service(),
 
   /**
    * @override
@@ -154,6 +155,11 @@ export default FbTableRowColumns.extend(I18n, {
   }),
 
   /**
+   * @type {ComputedProperty<Object<string, string>>}
+   */
+  xattrs: reads('file.effFile.xattrs'),
+
+  /**
    * @type {ComputedProperty<string>}
    */
   fileTypeText: computed('file.type', function fileTypeText() {
@@ -234,6 +240,14 @@ export default FbTableRowColumns.extend(I18n, {
   actions: {
     invokeFileAction(file, btnId, ...args) {
       this.get('invokeFileAction')(file, btnId, ...args);
+    },
+    openXattrModal(xattrValue, xattrKey) {
+      this.modalManager.show(
+        'xattr-modal', {
+          xattrValue,
+          file: this.file,
+          xattrKey,
+        });
     },
   },
 });

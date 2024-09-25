@@ -1,39 +1,161 @@
-{{#render-later triggerRender=isOpened}}
-  {{#one-webui-popover
-    popoverStyle="columns-configuration"
-    open=isOpened
-    triggerSelector=triggerSelector
+<RenderLater @triggerRender={{isOpened}}>
+  <OneWebuiPopover
+    @popoverStyle="columns-configuration"
+    @open={{isOpened}}
+    @triggerSelector={{triggerSelector}}
     as |popover|
-  }}
-    {{#click-outside
-      onClickOutside=(action (mut isOpened) false)
-      exceptSelector=triggerSelector
-    }}
-      <ul class="columns-list">
-        {{one-draggable-object-target
-          action=(action "acceptDraggedElement" -1)
-          validateDragEvent=(action "validateDragEvent")
-        }}
-        {{#each columnsConfiguration.columnsOrder as |columnName index|}}
-          {{columns-configuration-popover/column-item
-            columnName=columnName
-            columnValue=(get columnsConfiguration.columns columnName)
-            translationKey=translationKey
-            isMoveUpIconDisabled=(eq index 0)
-            isMoveDownIconDisabled=(eq index lastIndexColumn)
-            isArrowTooltipVisible=isArrowTooltipVisible
-            checkboxChanged=(action "checkboxChanged")
-            moveColumnDown=(action "moveColumnDown")
-            moveColumnUp=(action "moveColumnUp")
-            dragStartAction=dragStartAction
-            dragEndAction=dragEndAction
-          }}
-          {{one-draggable-object-target
-            action=(action "acceptDraggedElement" index)
-            validateDragEvent=(action "validateDragEvent")
-          }}
-        {{/each}}
-      </ul>
-    {{/click-outside}}
-  {{/one-webui-popover}}
-{{/render-later}}
+  >
+    <ClickOutside
+      @onClickOutside={{action (mut isOpened) false}}
+      @exceptSelector={{triggerSelector}}
+    >
+      <OneCarousel @animated={{false}} @activeSlideId={{activeSlide}} as |carousel|>
+        <carousel.slide @slideId="column-configuration">
+          <PerfectScrollbarElement
+            class="columns-configuration-list"
+            as |perfectScrollbarContainer|
+          >
+            <ul class="columns-list">
+              {{one-draggable-object-target
+                action=(action "acceptDraggedElement" -1)
+                validateDragEvent=(action "validateDragEvent")
+              }}
+              {{#each columnsConfiguration.columnsOrder as |columnName index|}}
+                {{columns-configuration-popover/column-item
+                  columnName=columnName
+                  columnValue=(get columnsConfiguration.columns columnName)
+                  translationKey=translationKey
+                  isMoveUpIconDisabled=(eq index 0)
+                  isMoveDownIconDisabled=(eq index lastIndexColumn)
+                  isArrowTooltipVisible=isArrowTooltipVisible
+                  checkboxChanged=(action "checkboxChanged")
+                  moveColumnDown=(action "moveColumnDown")
+                  moveColumnUp=(action "moveColumnUp")
+                  dragStartAction=dragStartAction
+                  dragEndAction=dragEndAction
+                  openXattrModification=(action "openXattrModification")
+                  removeXattrColumn=(action "removeXattrColumn")
+                  isColumnListVisible=(eq activeSlide "column-configuration")
+                }}
+                {{one-draggable-object-target
+                  action=(action "acceptDraggedElement" index)
+                  validateDragEvent=(action "validateDragEvent")
+                }}
+              {{/each}}
+            </ul>
+          </PerfectScrollbarElement>
+          {{#if columnsConfiguration.hasXattrSettings}}
+            <div
+              class="add-new-column new-column-item"
+              onClick={{action "goXattrConfiguration"}}
+            >
+              <OneButton
+                @id={{btnId}}
+                class="add-new-column-btn btn-success clickable"
+                @type="default"
+              >
+                <OneIcon @icon="plus" class="adder-icon" />
+              </OneButton>
+              <span class="new-column-text">{{tt this "addNewColumn"}}</span>
+            </div>
+          {{/if}}
+        </carousel.slide>
+        <carousel.slide @slideId="xattr-add">
+          {{#if (eq activeSlide "xattr-add")}}
+            <div class="xattr-column-add">
+              <h1>
+                <OneIcon @icon="arrow-left" class="back-icon" onClick={{action "goBack"}}>
+                  {{#if (eq activeSlide "xattr-add")}}
+                    <OneTooltip @title={{tt this "backTooltip"}} />
+                  {{/if}}
+                </OneIcon>
+                <div class="add-column-header">{{tt this "addNewColumnHeader"}}</div>
+              </h1>
+              <PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
+                <p>{{tt this "xattrNameLabel"}}</p>
+                <FormComponent::FieldRenderer @field={{xattrKeyNameField}} />
+                <p>{{tt this "columnNameLabel"}}</p>
+                <input
+                  id={{inputId}}
+                  type="text"
+                  class="form-control new-item-name input-sm"
+                  value={{xattrColumnName}}
+                  oninput={{action (mut xattrColumnName) value="target.value"}}
+                  disabled={{isSaving}}
+                  autofocus={{false}}
+                >
+                <div class="xattr-footer">
+                  <OneButton
+                    @type="default"
+                    @class="back-column-btn"
+                    @size="sm"
+                    @onClick={{action "goBack"}}
+                  >
+                    {{tt this "cancelBtn"}}
+                  </OneButton>
+                  <OneButton
+                    @type="primary"
+                    @buttonType="submit"
+                    @class="add-new-column-btn"
+                    @size="sm"
+                    @onClick={{action "addNewColumn"}}
+                    @disabled={{isDisabledAddButton}}
+                  >
+                    {{tt this "addBtn"}}
+                  </OneButton>
+                </div>
+              </PromiseProxyContainer>
+            </div>
+          {{/if}}
+        </carousel.slide>
+        <carousel.slide @slideId="xattr-modify">
+          {{#if (eq activeSlide "xattr-modify")}}
+            <div class="xattr-column-modify">
+              <h1>
+                <OneIcon @icon="arrow-left" class="back-icon" onClick={{action "goBack"}}>
+                  {{#if (eq activeSlide "xattr-modify")}}
+                    <OneTooltip @title={{tt this "backTooltip"}} />
+                  {{/if}}
+                </OneIcon>
+                <div class="add-column-header">{{tt this "modifyColumn"}}</div>
+              </h1>
+              <PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
+                <p>{{tt this "xattrNameLabel"}}</p>
+                <FormComponent::FieldRenderer @field={{xattrKeyModifiedNameField}} />
+                <p>{{tt this "columnNameLabel"}}</p>
+                <input
+                  id={{inputId}}
+                  type="text"
+                  class="form-control new-item-name input-sm"
+                  value={{modifiedColumnNewValue}}
+                  oninput={{action (mut modifiedColumnNewValue) value="target.value"}}
+                  disabled={{isSaving}}
+                  autofocus={{false}}
+                >
+                <div class="xattr-footer">
+                  <OneButton
+                    @type="default"
+                    @class="back-column-btn"
+                    @size="sm"
+                    @onClick={{action "goBack"}}
+                  >
+                    {{tt this "cancelBtn"}}
+                  </OneButton>
+                  <OneButton
+                    @type="primary"
+                    @buttonType="submit"
+                    @class="modify-column-btn"
+                    @size="sm"
+                    @onClick={{action "modifyColumn"}}
+                  >
+                    {{tt this "modifyBtn"}}
+                  </OneButton>
+                </div>
+              </PromiseProxyContainer>
+            </div>
+          {{/if}}
+        </carousel.slide>
+      </OneCarousel>
+    </ClickOutside>
+  </OneWebuiPopover>
+</RenderLater>

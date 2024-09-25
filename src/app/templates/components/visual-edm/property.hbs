@@ -1,9 +1,16 @@
 <div class="edm-property-key-value">
   <div class="edm-property-name-container">
     <TruncatedString class="edm-property-type">
-      {{displayedPropertyName}}{{if isReadOnly ":"}}
+      {{!-- do not break line because of colon --}}
+      <span class="edm-property-type-name">{{displayedPropertyName}}</span>{{if isReadOnly ":"}}
       {{#if tip}}
-        <OneLabelTip class="edm-property-type-label-tip" @title={{tip}} />
+        <OneIcon class={{tipClass}} @icon="sign-question-rounded" />
+        <OneWebuiPopover
+          @triggerSelector={{tipTriggerSelector}}
+          @popoverStyle="edm-property-tip-popover"
+        >
+          {{tip}}
+        </OneWebuiPopover>
       {{/if}}
     </TruncatedString>
     {{#unless isReadOnly}}
@@ -117,21 +124,36 @@
           {{value}}
         {{/if}}
       {{else}}
-        <div class={{viewModel.formGroupClassName}}>
+        <div class={{formGroupClassName}}>
           {{#if (eq inputType "input")}}
             <input
               class="form-control input-sm"
               value={{value}}
               disabled={{viewModel.isDisabled}}
+              placeholder={{placeholder}}
               oninput={{action "changeValue" value="target.value"}}
               onblur={{action "handleInputBlur"}}
             />
+            {{#if inputFeedbackIcon}}
+              <OneIcon
+                class="form-control-feedback"
+                @icon={{inputFeedbackIcon}}
+              >
+                <OneTooltip>
+                  <VisualEdm::ValidationErrorText
+                    @validator={{viewModel.validator}}
+                    @viewType="visual"
+                  />
+                </OneTooltip>
+              </OneIcon>
+            {{/if}}
           {{else if (eq inputType "textarea")}}
             <textarea
               class="form-control input-sm"
               value={{value}}
               disabled={{viewModel.isDisabled}}
               rows="4"
+              placeholder={{placeholder}}
               oninput={{action "changeValue" value="target.value"}}
               onblur={{action "handleInputBlur"}}
             />
@@ -155,7 +177,12 @@
                       {{#if option.label}}
                         {{option.label}}
                       {{else}}
-                        <em>{{tt this "unknownDropdownOption"}}</em>
+                        <em>
+                          {{tt this (if viewModel.validator.isValid
+                            "validUnknownDropdownOption"
+                            "unknownDropdownOption"
+                          )}}
+                        </em>
                       {{/if}}
                     </span>
                     {{#unless (eq option.label option.value)}}

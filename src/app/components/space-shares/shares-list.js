@@ -8,7 +8,7 @@
 
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, sort } from '@ember/object/computed';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { all as allFulfilled } from 'rsvp';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -60,6 +60,12 @@ export default Component.extend(...mixins, {
    * @type {Function}
    */
   startRenameShare: notImplementedThrow,
+
+  shares: reads('sharesProxy.content'),
+
+  sharesSorting: Object.freeze(['hasHandle:desc', 'name:asc']),
+
+  sortedShares: sort('shares', 'sharesSorting'),
 
   /**
    * @type {ComputedProperty<string>}

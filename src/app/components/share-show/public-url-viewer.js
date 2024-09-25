@@ -9,7 +9,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, collect, and, tag, bool, array, not, equal } from 'ember-awesome-macros';
+import { conditional, raw, collect, and, tag, bool, array } from 'ember-awesome-macros';
 import { promise } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
@@ -23,6 +23,7 @@ export const iconForUrlType = {
 export default Component.extend(I18n, {
   i18n: service(),
   restApiGenerator: service(),
+  media: service(),
 
   classNames: ['share-show-public-url-viewer', 'public-url-viewer'],
   classNameBindings: ['compact', 'selectedUrlTypeClass'],
@@ -45,8 +46,7 @@ export default Component.extend(I18n, {
   showHandle: undefined,
 
   /**
-   * If true, embeds mode selector in copy input and does not display name of handle
-   * service.
+   * If true, embeds mode selector in copy input.
    * @virtual optional
    * @type {Boolean}
    */
@@ -105,12 +105,12 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<String>}
    */
-  selectedUrlTypeClass: tag `public-url-viewer-${'effSelectedUrlType'}`,
+  selectedUrlTypeClass: tag`public-url-viewer-${'effSelectedUrlType'}`,
 
   /**
    * @type {ComputedProperty<String>}
    */
-  urlTypeInfoContentClass: tag `url-type-info-content-${'effSelectedUrlType'}`,
+  urlTypeInfoContentClass: tag`url-type-info-content-${'effSelectedUrlType'}`,
 
   /**
    * @type {ComputedProperty<PromiseObject<Models.Handle>>}
@@ -164,15 +164,18 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
-  typeInfoTriggerText: conditional(
-    and(
-      not('compact'),
-      equal('effSelectedUrlType', raw('handle')),
-    ),
+  typeInfoTriggerText: computed(
+    'effSelectedUrlType',
     'handleServiceProxy.name',
-    raw(''),
+    'media.isMobile',
+    function typeInfoTriggerText() {
+      if (!this.media.isMobile && this.effSelectedUrlType === 'handle') {
+        return this.get('handleServiceProxy.name');
+      }
+      return '';
+    }
   ),
 
   /**

@@ -14,13 +14,15 @@ export default {
   deleteObjectTip: 'Delete this {{objectType}}',
   object: 'object',
   notValid: 'Definition of this {{objectType}} is not valid',
-  objectTypeTip: {
-    [EdmObjectType.Aggregation]: 'Aggregated information about all related resources pertaining to the provided CHO',
+  objectTypeSubtitle: {
+    [
+      EdmObjectType.Aggregation
+    ]: 'This section contains aggregated information about all related resources pertaining to the Cultural Heritage Object.',
     [
       EdmObjectType.ProvidedCHO
-    ]: 'Information related to the original Cultural Heritage Object (CHO) — refers to the ProvidedCHO of EDM',
+    ]: 'This section contains information about the physical Cultural Heritage Object.',
     [
       EdmObjectType.WebResource
-    ]: 'Information related to a digital representation of the object — refers to the WebResource of EDM',
+    ]: 'This section contains information about the digital representation of the Cultural Heritage Object (e.g. the 3D model).',
   },
 };

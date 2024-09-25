@@ -4,6 +4,18 @@
 
 ### Latest changes
 
+* VFS-12295 Fixed share views bugs concerning error handling
+* VFS-12284 Improved EDM GUI (v24.09): updated property specs, added URI validation and input validation tooltip
+* VFS-12050 Added xattrs columns in file browser
+* VFS-12261 Added "Copy download URL" context menu action for shared files
+* VFS-12204 Fixed graphical glitch in file datasets panel tab bar
+* VFS-12069 Fixed style glitches in share public view: unnecessary scroll, wrong XML area size, lack of representative image stickiness
+* VFS-12001 Added available users list inferring in the ACL view entity selector when user lacks some privileges in the space
+* VFS-12239 Added automatic filling of the "File size" EDM property on initialization and modification
+* VFS-12197 Improved UX of share lists
+* VFS-12198 Added direct download link for shared files
+* VFS-12232 Improved EDM GUI (v1.2): updated property and object specs, improved tooltips, added placeholders
+* VFS-11948 Added creation time and atime column
 * VFS-12049 Added File ID column in file browser
 * VFS-12012 Added Permissions column in file browser
 * VFS-11862 Added polling for dir stats status when disabled

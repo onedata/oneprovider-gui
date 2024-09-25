@@ -20,17 +20,31 @@ export default {
   atime: 'Accessed',
   ctime: 'Changed',
   ctimeSubname: 'metadata',
+  creationTime: 'Created',
   tip: browserColumns.tip,
   owner: 'Owner',
   size: 'Size',
-  fileLink: 'Browser link',
+  fileLink: {
+    browser: 'Browser link',
+    public: 'Public URL',
+  },
   fileLinkLabel: {
-    show: 'Show',
-    download: 'Download',
+    browser: {
+      show: 'Show',
+      download: 'Download',
+    },
+    public: {
+      download: 'Download',
+    },
   },
   fileLinkTip: {
-    show: `This link opens the file browser and selects the {{type}}. ${fileLinkAuthentication}`,
-    download: `This link opens the file browser and initiates a download of the {{type}}. ${fileLinkAuthentication}`,
+    browser: {
+      show: `This link opens the file browser and selects the {{type}}. ${fileLinkAuthentication}`,
+      download: `This link opens the file browser and initiates a download of the {{type}}. ${fileLinkAuthentication}`,
+    },
+    public: {
+      download: 'The direct URL to download the {{type}} without any authentication.',
+    },
   },
   fileType: {
     file: 'file',

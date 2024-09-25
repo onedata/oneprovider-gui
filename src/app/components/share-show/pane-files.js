@@ -24,6 +24,7 @@ import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-contai
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 import globals from 'onedata-gui-common/utils/globals';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 const mixins = [
   I18n,
@@ -36,6 +37,7 @@ export default Component.extend(...mixins, {
 
   fileManager: service(),
   filesViewResolver: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -81,6 +83,18 @@ export default Component.extend(...mixins, {
 
   //#endregion
 
+  //#region state
+
+  shareRootFileError: undefined,
+
+  //#endregion
+
+  shareRootFileProxy: computedRelationProxy('share', 'rootFile', {
+    computedRelationErrorProperty: 'shareRootFileError',
+  }),
+
+  shareRootFile: reads('shareRootFileProxy.content'),
+
   initialDirProxy: promise.object(computed('share', function initialDirProxy() {
     return this.get('dirProxy');
   })),
@@ -101,10 +115,22 @@ export default Component.extend(...mixins, {
 
   requiredDataProxy: promise.object(promise.all(
     'initialDirLoadingProxy',
-    'share.rootFile',
+    'shareRootFileProxy',
   )),
 
   spaceId: reads('share.spaceId'),
+
+  shareDataErrorText: computed(
+    'requiredDataProxy.reason',
+    function shareDataErrorText() {
+      const reason = get(this.requiredDataProxy, 'reason');
+      if (reason) {
+        return this.errorExtractor.getMessage(reason).message;
+      } else {
+        return this.t('unknownShareDataError');
+      }
+    }
+  ),
 
   dirProxy: promise.object(computed(
     'rootDir',
@@ -158,21 +184,19 @@ export default Component.extend(...mixins, {
     }
   )),
 
-  isRootDirExistingProxy: promise.object(computed('share.rootFile',
+  isRootDirExistingProxy: promise.object(computed('shareRootFile',
     async function isRootDirExistingProxy() {
       try {
-        const {
-          fileManager,
-          share,
-        } = this.getProperties('fileManager', 'share');
-        const fileId = share.relationEntityId('rootFile');
-        await fileManager.getFileById(fileId, { scope: 'public' });
+        const fileId = this.share.relationEntityId('rootFile');
+        await this.fileManager.getFileById(fileId, { scope: 'public' });
         return true;
       } catch (error) {
         return false;
       }
     }
   )),
+
+  isRootDirExisting: reads('isRootDirExistingProxy.content'),
 
   dir: computedLastProxyContent('dirProxy'),
 
@@ -182,6 +206,28 @@ export default Component.extend(...mixins, {
       shareRootId: this.get('share.entityId'),
     });
   }),
+
+  isShareLoadingErrorShown: computed(
+    'shareRootDeletedProxy.isSettled',
+    'isRootDirExistingProxy.isSettled',
+    'isRootDirExisting',
+    function isShareLoadingErrorShown() {
+      return get(this.shareRootDeletedProxy, 'isSettled') &&
+        get(this.isRootDirExistingProxy, 'isSettled') &&
+        !this.isRootDirExisting;
+    }
+  ),
+
+  isShareLoadingErrorShown: computed(
+    'shareRootDeletedProxy.isSettled',
+    'isRootDirExistingProxy.isSettled',
+    'isRootDirExisting',
+    function isShareLoadingErrorShown() {
+      return get(this.shareRootDeletedProxy, 'isSettled') &&
+        get(this.isRootDirExistingProxy, 'isSettled') &&
+        !this.isRootDirExisting;
+    }
+  ),
 
   /**
    * @type {Utils.ShareFilesystemBrowserModel}
@@ -238,7 +284,7 @@ export default Component.extend(...mixins, {
   },
 
   isChildOfShare(file) {
-    return this.get('share.rootFile').then(shareRootFile => {
+    return this.get('shareRootFile').then(shareRootFile => {
       const rootInternalId = get(shareRootFile, 'internalFileId');
       return checkOnPath(
         file,
@@ -254,7 +300,7 @@ export default Component.extend(...mixins, {
       if (get(file, 'entityId') === shareRootId) {
         return resolve(null);
       } else if (
-        get(file, 'internalFileId') === this.get('share.rootFile.internalFileId')
+        get(file, 'internalFileId') === this.get('shareRootFile.internalFileId')
       ) {
         return resolve(this.get('rootDir'));
       } else {

@@ -10,19 +10,21 @@ import EmberObject, { computed } from '@ember/object';
 import { not, empty } from '@ember/object/computed';
 import EdmPropertyValidator from './property-validator';
 import EdmObjectType from './object-type';
-import { EdmPropertyMaxOccurrences, EdmPropertyRecommendation, allPropertyData } from './property-spec';
+import { EdmPropertyMaxOccurrences, EdmPropertyRecommendation, getAllPropertyData } from './property-spec';
 import _ from 'lodash';
 import { assert } from '@ember/debug';
 
-/**
- * @type {Object<string, Array<string>>}
- */
-const mandatoryPropertiesMap = getMandatoryPropertyTags();
+let mandatoryPropertyTagsCache;
 
-/**
- * @type {Object<string, Array<string>>}
- */
-const singlePropertiesMap = getSinglePropertyTags();
+function getMandatoryPropertyTags() {
+  return mandatoryPropertyTagsCache ??= createMandatoryPropertyTags();
+}
+
+let singlePropertiesMapCache;
+
+function getSinglePropertiesMap() {
+  return singlePropertiesMapCache ??= createSinglePropertyTags();
+}
 
 const EdmObjectValidator = EmberObject.extend({
   /**
@@ -57,8 +59,9 @@ const EdmObjectValidator = EmberObject.extend({
     'propertyValidators.@each.errors',
     function errors() {
       const result = [];
-      const mandatoryProperties = mandatoryPropertiesMap[this.edmObject.edmObjectType];
-      const singleProperties = singlePropertiesMap[this.edmObject.edmObjectType];
+      const mandatoryProperties =
+        getMandatoryPropertyTags()[this.edmObject.edmObjectType];
+      const singleProperties = getSinglePropertiesMap()[this.edmObject.edmObjectType];
       const tagCountMapping = _.countBy(this.edmObject.edmProperties, 'xmlTagName');
       const missingProperties = mandatoryProperties.filter(xmlTag =>
         !tagCountMapping[xmlTag]
@@ -73,8 +76,28 @@ const EdmObjectValidator = EmberObject.extend({
       }
       if (exceedingProperties.length) {
         result.push(new EdmObjectPropertiesMaxSingleError(
-          this.edmObject, exceedingProperties
+          this.edmObject,
+          exceedingProperties
         ));
+      }
+      // special check for single mandatory isPartOf: Eureka3D property
+      if (this.edmObject.edmObjectType === EdmObjectType.ProvidedCHO) {
+        const propertyTag = 'dcterms:isPartOf';
+        const propertyValue = 'Eureka3D';
+        const partOfProperties = this.edmObject.edmProperties.filter(property =>
+          property.xmlTagName === propertyTag
+        );
+        const eureka3DProperty = partOfProperties.find(property =>
+          property.value === propertyValue
+        );
+        if (!eureka3DProperty) {
+          const errorObject = new EdmObjectMissingPropertySpecificValue(
+            this.edmObject,
+            propertyTag,
+            propertyValue
+          );
+          result.push(errorObject);
+        }
       }
 
       const propertiesErrors = _.flatten(this.propertyValidators.map(validator =>
@@ -139,8 +162,10 @@ const EdmObjectValidator = EmberObject.extend({
 /**
  * @returns {Object<string, Array<string>>}
  */
-function getMandatoryPropertyTags() {
+function createMandatoryPropertyTags() {
   const mandatoryPropertyTags = {};
+  const allPropertyData = getAllPropertyData();
+
   for (const edmObjectType of Object.keys(EdmObjectType)) {
     mandatoryPropertyTags[edmObjectType] = allPropertyData.filter(propertySpec =>
       propertySpec.spec.obj.includes(edmObjectType) &&
@@ -153,8 +178,9 @@ function getMandatoryPropertyTags() {
 /**
  * @returns {Object<string, Array<string>>}
  */
-function getSinglePropertyTags() {
+function createSinglePropertyTags() {
   const singlePropertyTags = {};
+  const allPropertyData = getAllPropertyData();
   for (const edmObjectType of Object.keys(EdmObjectType)) {
     singlePropertyTags[edmObjectType] = allPropertyData.filter(propertySpec =>
       propertySpec.spec.obj.includes(edmObjectType) &&
@@ -196,7 +222,21 @@ export class EdmObjectPropertiesMaxSingleError {
 }
 
 /**
- * @typedef {EdmObjectMissingPropertiesError|EdmObjectPropertiesMaxSingleError} EdmObjectValidatorError
+ * Indicates that there should be instance of property with the given value in the object.
+ */
+export class EdmObjectMissingPropertySpecificValue {
+  constructor(edmObject, propertyTag, value) {
+    this.edmObject = edmObject;
+    this.propertyTag = propertyTag;
+    this.value = value;
+  }
+  toString() {
+    return `the object should contain ${this.propertyTag} property with "${this.value}" literal value`;
+  }
+}
+
+/**
+ * @typedef {EdmObjectMissingPropertiesError|EdmObjectPropertiesMaxSingleError|EdmObjectMissingPropertySpecificValue} EdmObjectValidatorError
  */
 
 export default EdmObjectValidator;
