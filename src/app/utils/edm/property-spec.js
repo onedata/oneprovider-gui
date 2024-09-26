@@ -364,7 +364,8 @@ function createAllSpecs() {
         lang: false,
         rec: Rec.Mandatory,
         max: Max.Any,
-        custom: /^http:\/\/vocab.getty.edu\/aat\/\d{9}$/,
+        tip: 'List of materials making up the original object. You should define as many materials as possible by repeating this field. The predefined list provides the main material categories, but you can use the XML editor to be more specific. Accepted vocabularies are Getty (e.g. http://vocab.getty.edu/aat/300010439) and Wikidata (e.g. http://www.wikidata.org/entity/Q13085).',
+        custom: /^(https?:\/\/vocab\.getty\.edu\/aat\/\d+)|(https?:\/\/www\.wikidata\.org\/entity\/(\w|-)+)$/,
         predef: [
           { label: 'Bone', value: 'http://vocab.getty.edu/aat/300011798' },
           { label: 'Ceramic', value: 'http://vocab.getty.edu/aat/300235507' },
