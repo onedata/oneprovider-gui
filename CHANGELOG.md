@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12338 Improved EDM GUI (v24.09.1): updated Material property regexp and tip
 * VFS-12295 Fixed share views bugs concerning error handling
 * VFS-12284 Improved EDM GUI (v24.09): updated property specs, added URI validation and input validation tooltip
 * VFS-12050 Added xattrs columns in file browser
