@@ -9,7 +9,7 @@
 import { computed } from '@ember/object';
 import Component from '@ember/component';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
-import { reads } from '@ember/object/computed';
+import { reads, gt } from '@ember/object/computed';
 
 export default Component.extend({
   tagName: 'td',
@@ -52,22 +52,37 @@ export default Component.extend({
    * @type {ComputedProperty<string>}
    */
   xattrValue: computed('xattrs', 'xattrKey', function xattrValue() {
-    return this.xattrs[this.xattrKey];
+    return this.stringifyXattrValue(this.xattrs[this.xattrKey]);
   }),
 
   /**
    * @type {ComputedProperty<string>}
    */
   xattrTextFirstPart: computed('xattrValue', function xattrTextFirstPart() {
-    return this.xattrValue?.substr(0, 12);
+    return this.xattrValue?.substring(0, 12);
   }),
 
   /**
    * @type {ComputedProperty<string>}
    */
   xattrTextSecondPart: computed('xattrValue', function xattrTextSecondPart() {
-    return this.xattrValue?.substr(12, 11);
+    return this.xattrValue?.substring(12, 23);
   }),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isEllipsisShown: gt('xattrValue.length', 23),
+
+  stringifyXattrValue(value) {
+    if (value == null) {
+      return undefined;
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
+    return String(value);
+  },
 
   click() {
     if (this.xattrValue) {
