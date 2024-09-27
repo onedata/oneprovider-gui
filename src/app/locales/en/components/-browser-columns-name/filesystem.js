@@ -8,7 +8,8 @@ export default {
     qos: 'QoS',
     atime: 'Accessed',
     ctime: 'Changed',
-    creationTime: 'Created',
+    // TODO: VFS-12343 restore creationTime in GUI
+    // creationTime: 'Created',
     fileId: 'File ID',
     posixPermissions: 'Permissions',
   },

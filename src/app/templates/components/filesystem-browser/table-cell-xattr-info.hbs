@@ -6,7 +6,7 @@
       </div>
       {{#if xattrTextSecondPart}}
         <div class="xattr-value-second-line">
-          {{xattrTextSecondPart}}&#8230;
+          {{xattrTextSecondPart}}{{#if isEllipsisShown}}&#8230;{{/if}}
         </div>
         <OneTooltip class="tooltip-text-monospace tooltip-lg" @title={{xattrValue}} />
       {{/if}}
