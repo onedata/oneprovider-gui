@@ -4,7 +4,7 @@
 
 ### Latest changes
 
-* VFS-12341 Removed temporarily file "creationTime" attribute support because of bug in backend
+* VFS-12341 Added support for non-string xattrs values in column and editor; removed temporarily file "creationTime" attribute support because of bug in backend
 * VFS-12338 Improved EDM GUI (v24.09.1): updated Material property regexp and tip
 * VFS-12295 Fixed share views bugs concerning error handling
 * VFS-12284 Improved EDM GUI (v24.09): updated property specs, added URI validation and input validation tooltip
