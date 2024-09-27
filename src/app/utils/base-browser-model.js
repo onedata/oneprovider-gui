@@ -560,7 +560,7 @@ export default EmberObject.extend(...mixins, {
   isLastListLoadErrorFatal: computed(
     'listLoadError',
     function isLastListLoadErrorFatal() {
-      const error = this.lListLoadError;
+      const error = this.listLoadError;
       return error && (
         error.id === 'internalServerError' ||
         isPosixError(error, 'enoent') ||
@@ -700,7 +700,7 @@ export default EmberObject.extend(...mixins, {
   generateAllButtonsArray: syncObserver(
     'buttonNames.[]',
     function generateAllButtonsArray() {
-      const buttonNames = this.get('buttonNames');
+      const buttonNames = this.buttonNames;
       defineProperty(
         this,
         'allButtonsArray',
@@ -730,6 +730,7 @@ export default EmberObject.extend(...mixins, {
    * @type {Ember.Observer}
    */
   dirObserver: syncObserver('dir', function dirObserver() {
+    this.set('listLoadError', null);
     if (this.dir) {
       this.onDidChangeDir?.(this.dir);
     }

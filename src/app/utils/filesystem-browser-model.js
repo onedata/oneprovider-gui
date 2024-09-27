@@ -307,11 +307,9 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @override
    */
-  buttonNames: conditional(
-    'isLastListLoadErrorFatal',
-    raw(['btnRefresh']),
-    availableButtonNames,
-  ),
+  buttonNames: computed('dirViewLoadError', function buttonNames() {
+    return this.dirViewLoadError ? ['btnRefresh'] : availableButtonNames;
+  }),
 
   /**
    * @override
