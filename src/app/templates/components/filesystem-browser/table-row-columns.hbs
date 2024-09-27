@@ -177,7 +177,8 @@
           {{/if}}
         </div>
       </td>
-    {{else if (eq columnName "creationTime")}}
+    {{!-- TODO: VFS-12343 restore creationTime in GUI --}}
+    {{!-- {{else if (eq columnName "creationTime")}}
       <td
         class="fb-table-col-creation-time table-col-time multiline hidden-xs"
         style={{columnsConfiguration.columnsStyle.creationTime}}
@@ -192,7 +193,7 @@
             </div>
           {{/if}}
         </div>
-      </td>
+      </td> --}}
     {{else if (eq columnName "posixPermissions")}}
       <td
         class="fb-table-col-posix table-col-posix multiline hidden-xs"
