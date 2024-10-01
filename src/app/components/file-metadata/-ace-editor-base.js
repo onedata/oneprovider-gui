@@ -13,6 +13,7 @@ import { computed, observer } from '@ember/object';
 import $ from 'jquery';
 import dom from 'onedata-gui-common/utils/dom';
 import globals from 'onedata-gui-common/utils/globals';
+import _ from 'lodash';
 
 export default Component.extend({
   classNames: ['file-metadata-ace-editor-base'],
@@ -93,7 +94,7 @@ export default Component.extend({
   typeTranslationLowerCase: computed(
     'typeTranslation',
     function typeTranslationLowerCase() {
-      return this.typeTranslation.string.toLowerCase();
+      return _.lowerCase(this.typeTranslation);
     }
   ),
 
