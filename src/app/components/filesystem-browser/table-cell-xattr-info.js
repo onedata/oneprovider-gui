@@ -10,7 +10,6 @@ import { computed } from '@ember/object';
 import Component from '@ember/component';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import { reads, gt } from '@ember/object/computed';
-import stringifyXattrValue from 'oneprovider-gui/utils/stringify-xattr-value';
 
 export default Component.extend({
   tagName: 'td',
@@ -53,7 +52,7 @@ export default Component.extend({
    * @type {ComputedProperty<string>}
    */
   xattrValue: computed('xattrs', 'xattrKey', function xattrValue() {
-    return stringifyXattrValue(this.xattrs[this.xattrKey]);
+    return this.stringifyXattrValue(this.xattrs[this.xattrKey]);
   }),
 
   /**
@@ -74,6 +73,16 @@ export default Component.extend({
    * @type {ComputedProperty<boolean>}
    */
   isEllipsisShown: gt('xattrValue.length', 23),
+
+  stringifyXattrValue(value) {
+    if (value == null) {
+      return undefined;
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
+    return String(value);
+  },
 
   click() {
     if (this.xattrValue) {
