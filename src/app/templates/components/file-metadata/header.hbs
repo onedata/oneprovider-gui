@@ -50,4 +50,35 @@
       {{/if}}
     </div>
   {{/if}}
+  {{one-icon
+    icon="sign-question-rounded"
+    class="metadata-header-hint-trigger metadata-hint-trigger hint-trigger clickable"
+  }}
+  {{#one-switchable-popover-modal
+    class="metadata-type-selector-hint"
+    triggersConfiguration=".metadata-hint-trigger"
+    popoverStyle="metadata-hint-info webui-popover-file-info-view-hint"
+    modalClass="modal-compact-help"
+    layoutType="modal"
+    as |ospm|
+  }}
+    {{#ospm.modal.body}}
+      <p>{{tt this "selectorHint.viewDescription"}}</p>
+      <p>{{tt this "selectorHint.metadataIntro"}}</p>
+      <p>{{tt this "selectorHint.metadataAdditionalInfo"}}</p>
+      <p>
+        {{one-doc-see-more
+          linkName=(tt this "selectorHint.docLinkName")
+          docPath="user-guide/metadata.html"
+        }}
+      </p>
+    {{/ospm.modal.body}}
+    {{#ospm.modal.footer}}
+      <div class="btn-toolbar text-right visible-xs-block">
+        {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+          {{tt this "selectorHint.close"}}
+        {{/bs-button}}
+      </div>
+    {{/ospm.modal.footer}}
+  {{/one-switchable-popover-modal}}
 </div>

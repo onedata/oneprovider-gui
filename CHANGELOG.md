@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12277 Changed text "Basic" metadata to "xattrs" in modal tabs of item details
 * VFS-12050 Added xattrs columns in file browser
 * VFS-12261 Added "Copy download URL" context menu action for shared files
 * VFS-12204 Fixed graphical glitch in file datasets panel tab bar

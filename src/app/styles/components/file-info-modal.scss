@@ -409,6 +409,22 @@
       }
     }
   }
+  .metadata-type-tabs {
+    .metadata-type-btn-xattrs {
+      text-transform: lowercase;
+    }
+
+    .metadata-header-hint-trigger.hint-trigger {
+      margin-left: 1em;
+      margin-right: -1em;
+    }
+  }
+
+  .metadata-description {
+    text-align: center;
+    padding-bottom: $padding-large-vertical;
+    padding-top: 0;
+  }
 }
 
 .file-link-type-selector-item {

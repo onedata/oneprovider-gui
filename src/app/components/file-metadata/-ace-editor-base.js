@@ -36,6 +36,12 @@ export default Component.extend({
   metadataChanged: undefined,
 
   /**
+   * @virtual
+   * @type {SafeString}
+   */
+  typeTranslation: '',
+
+  /**
    * @virtual optional
    * @type {Boolean}
    */
@@ -80,6 +86,16 @@ export default Component.extend({
   fixTooltipPositionFun: computed(function fixTooltipPositionFun() {
     return this.fixTooltipPosition.bind(this);
   }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  typeTranslationLowerCase: computed(
+    'typeTranslation',
+    function typeTranslationLowerCase() {
+      return this.typeTranslation.string.toLowerCase();
+    }
+  ),
 
   isActiveChanged: observer('isActive', function isActiveChanged() {
     this.resizeAce();
