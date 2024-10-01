@@ -63,9 +63,13 @@
     as |ospm|
   }}
     {{#ospm.modal.body}}
-      <p>{{tt this "selectorHint.viewDescription"}}</p>
-      <p>{{tt this "selectorHint.metadataIntro"}}</p>
-      <p>{{tt this "selectorHint.metadataAdditionalInfo"}}</p>
+      {{#each (array
+        "viewDescription"
+        "metadataIntro"
+        "metadataAdditionalInfo"
+      ) as |translationKey|}}
+        <p>{{tt this (concat "selectorHint." translationKey)}}</p>
+      {{/each}}
       <p>
         {{one-doc-see-more
           linkName=(tt this "selectorHint.docLinkName")
