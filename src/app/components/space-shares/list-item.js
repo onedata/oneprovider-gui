@@ -32,6 +32,7 @@ const mixins = [
 export default Component.extend(...mixins, {
   globalNotify: service(),
   globalClipboard: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -73,6 +74,16 @@ export default Component.extend(...mixins, {
    * @type {Function}
    */
   startRenameShare: notImplementedThrow,
+
+  //#region state
+
+  /**
+   * Error from fetching share private root.
+   * @type {any}
+   */
+  sharePrivateRootFileError: undefined,
+
+  //#endregion
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -250,9 +261,14 @@ export default Component.extend(...mixins, {
 
   isLabelsContanierShown: or('isNoPublicAccessLabelShown', 'isOpenDataLabelShown'),
 
-  shareFilePathProxy: computed(function shareFilePathProxy() {
+  privateRootFileProxy: computedRelationProxy('share', 'privateRootFile', {
+    reload: true,
+    computedRelationErrorProperty: 'sharePrivateRootFileError',
+  }),
+
+  shareFilePathProxy: computed('privateRootFileProxy', function shareFilePathProxy() {
     const promise = (async () => {
-      const file = await this.get('share.privateRootFile');
+      const file = await this.privateRootFileProxy;
       if (!file) {
         return null;
       }
@@ -262,6 +278,23 @@ export default Component.extend(...mixins, {
   }),
 
   shareFilePath: reads('shareFilePathProxy.content'),
+
+  isPathNotAvailable: computed(
+    'shareFilePathProxy.{isSettled,isRejected}',
+    'shareFilePath',
+    function isPathNotAvailable() {
+      return get(this.shareFilePathProxy, 'isRejected') ||
+        get(this.shareFilePathProxy, 'isSettled') && !this.shareFilePath;
+    }
+  ),
+
+  shareFilePathErrorMessage: computed(
+    'sharePrivateRootFileError',
+    function shareFilePathErrorMessage() {
+      const reason = this.sharePrivateRootFileError;
+      return this.errorExtractor.getMessage(reason)?.message;
+    }
+  ),
 
   actions: {
     toggleActions(open) {

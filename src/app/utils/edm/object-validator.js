@@ -76,8 +76,28 @@ const EdmObjectValidator = EmberObject.extend({
       }
       if (exceedingProperties.length) {
         result.push(new EdmObjectPropertiesMaxSingleError(
-          this.edmObject, exceedingProperties
+          this.edmObject,
+          exceedingProperties
         ));
+      }
+      // special check for single mandatory isPartOf: Eureka3D property
+      if (this.edmObject.edmObjectType === EdmObjectType.ProvidedCHO) {
+        const propertyTag = 'dcterms:isPartOf';
+        const propertyValue = 'Eureka3D';
+        const partOfProperties = this.edmObject.edmProperties.filter(property =>
+          property.xmlTagName === propertyTag
+        );
+        const eureka3DProperty = partOfProperties.find(property =>
+          property.value === propertyValue
+        );
+        if (!eureka3DProperty) {
+          const errorObject = new EdmObjectMissingPropertySpecificValue(
+            this.edmObject,
+            propertyTag,
+            propertyValue
+          );
+          result.push(errorObject);
+        }
       }
 
       const propertiesErrors = _.flatten(this.propertyValidators.map(validator =>
@@ -202,7 +222,21 @@ export class EdmObjectPropertiesMaxSingleError {
 }
 
 /**
- * @typedef {EdmObjectMissingPropertiesError|EdmObjectPropertiesMaxSingleError} EdmObjectValidatorError
+ * Indicates that there should be instance of property with the given value in the object.
+ */
+export class EdmObjectMissingPropertySpecificValue {
+  constructor(edmObject, propertyTag, value) {
+    this.edmObject = edmObject;
+    this.propertyTag = propertyTag;
+    this.value = value;
+  }
+  toString() {
+    return `the object should contain ${this.propertyTag} property with "${this.value}" literal value`;
+  }
+}
+
+/**
+ * @typedef {EdmObjectMissingPropertiesError|EdmObjectPropertiesMaxSingleError|EdmObjectMissingPropertySpecificValue} EdmObjectValidatorError
  */
 
 export default EdmObjectValidator;

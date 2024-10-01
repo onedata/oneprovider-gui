@@ -85,7 +85,8 @@ const columnsRequirementsDependencies = [
   'qos',
   'atime',
   'ctime',
-  'creationTime',
+  // TODO: VFS-12343 restore creationTime in GUI
+  // 'creationTime',
   'fileId',
   'posixPermissions',
 ].map(columnName =>
@@ -1345,7 +1346,8 @@ export default BaseBrowserModel.extend(...mixins, {
         'qos',
         'atime',
         'ctime',
-        'creationTime',
+        // TODO: VFS-12343 restore creationTime in GUI
+        // 'creationTime',
         'posixPermissions',
         'fileId',
       ],
@@ -1432,17 +1434,18 @@ export default BaseBrowserModel.extend(...mixins, {
             fileProperty: 'ctime',
           });
           break;
-        case 'creationTime':
-          columns.creationTime = EmberObject.create({
-            isVisible: false,
-            isEnabled: false,
-            width: columnsTimesWidth,
-            hasSubname: false,
-            hasTooltip: true,
-            type: 'basic',
-            fileProperty: 'creationTime',
-          });
-          break;
+          // TODO: VFS-12343 restore creationTime in GUI
+          // case 'creationTime':
+          //   columns.creationTime = EmberObject.create({
+          //     isVisible: false,
+          //     isEnabled: false,
+          //     width: columnsTimesWidth,
+          //     hasSubname: false,
+          //     hasTooltip: true,
+          //     type: 'basic',
+          //     fileProperty: 'creationTime',
+          //   });
+          //   break;
         case 'fileId':
           columns.fileId = EmberObject.create({
             isVisible: false,

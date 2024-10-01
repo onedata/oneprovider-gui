@@ -8,6 +8,8 @@
 
 import EmberObject, { computed } from '@ember/object';
 import { empty, not } from '@ember/object/computed';
+import isUri from 'onedata-gui-common/utils/is-uri';
+import { EdmPropertyValueType } from './property-spec';
 
 const EdmPropertyValidator = EmberObject.extend({
   /**
@@ -35,12 +37,37 @@ const EdmPropertyValidator = EmberObject.extend({
         new EdmPropertyEmptyValueError(this.edmProperty),
       ];
     }
-    if (this.edmProperty.hasPredefinedValues) {
+    if (this.edmProperty.hasPredefinedValues && !this.edmProperty.isCustomValueAllowed) {
       return this.edmProperty.predefinedValues
         .map(({ value }) => value)
         .includes(supportedValue) ? [] : [
           new EdmPropertyNonEnumValueError(this.edmProperty),
         ];
+    }
+    if (
+      this.edmProperty.currentValueType === EdmPropertyValueType.Reference &&
+      !isUri(this.edmProperty.getSupportedValue())
+    ) {
+      return [
+        new EdmPropertyNonUriReferenceError(this.edmProperty),
+      ];
+    }
+    if (
+      this.edmProperty.spec.val === EdmPropertyValueType.Any &&
+      this.edmProperty.currentValueType === EdmPropertyValueType.Literal &&
+      isUri(this.edmProperty.getSupportedValue())
+    ) {
+      return [
+        new EdmPropertyUriLiteralError(this.edmProperty),
+      ];
+    }
+    if (
+      this.edmProperty.isCustomValueRegexp &&
+      !this.edmProperty.customValueMatches(this.edmProperty.getSupportedValue())
+    ) {
+      return [
+        new EdmPropertyCustomRegexpError(this.edmProperty),
+      ];
     }
     return [];
   }),
@@ -81,8 +108,37 @@ export class EdmPropertyNonEnumValueError {
   }
 }
 
+export class EdmPropertyCustomRegexpError {
+  edmObjectType = null;
+
+  constructor(edmProperty) {
+    this.edmProperty = edmProperty;
+  }
+  toString() {
+    return `property "${this.edmProperty.xmlTagName}" neither matches predefined values set nor custom regexp`;
+  }
+}
+
+export class EdmPropertyNonUriReferenceError {
+  constructor(edmProperty) {
+    this.edmProperty = edmProperty;
+  }
+  toString() {
+    return `rdf:resource of ${this.edmProperty.xmlTagName} is not a URI`;
+  }
+}
+
+export class EdmPropertyUriLiteralError {
+  constructor(edmProperty) {
+    this.edmProperty = edmProperty;
+  }
+  toString() {
+    return `value of ${this.edmProperty.xmlTagName} is a URI`;
+  }
+}
+
 /**
- * @typedef {EdmPropertyEmptyValueError|EdmPropertyNonEnumValueError} EdmPropertyValidatorError
+ * @typedef {EdmPropertyEmptyValueError|EdmPropertyNonEnumValueError|EdmPropertyNonUriReferenceError|EdmPropertyUriLiteralError} EdmPropertyValidatorError
  */
 
 export default EdmPropertyValidator;

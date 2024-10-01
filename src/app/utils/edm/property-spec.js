@@ -66,6 +66,9 @@ import EdmObjectType, { EdmObjectTagName } from './object-type';
  * @property {string} [example] The example of value displayed in tooltip.
  * @property {string|EdmPropertySpecValues} [placeholder] The example in the input placeholder.
  * @property {boolean} [disabled] If true, the field is always disabled.
+ * @property {boolean|RegExp} [custom] If true, allows to input custom values for properties
+ *   with predefined set of values without validation error. If it is a RegExp instance,
+ *   allow only custom values that matche the regexp.
  */
 
 /**
@@ -341,7 +344,7 @@ function createAllSpecs() {
       isPartOf: {
         val: EdmPropertyValueType.Any,
         obj: EdmObjectType.ProvidedCHO,
-        rec: Rec.None,
+        rec: Rec.Mandatory,
         max: Max.Any,
         lang: true,
         example: 'Crace Collection of Maps of London / EUreka3D / Church of...',
@@ -356,28 +359,29 @@ function createAllSpecs() {
         max: Max.Single,
       },
       medium: {
-        val: EdmPropertyValueType.Any,
+        val: EdmPropertyValueType.Reference,
         obj: EdmObjectType.ProvidedCHO,
         lang: false,
         rec: Rec.Mandatory,
         max: Max.Any,
-        predef: {
-          [EdmPropertyValueType.Literal]: [
-            'Bone',
-            'Ceramic',
-            'Class',
-            'Clay',
-            'Leather',
-            'Metal',
-            'Morder',
-            'Paper',
-            'Papyrus',
-            'Plaster',
-            'Stone',
-            'Textile',
-            'Wood',
-          ].map(value => ({ value, label: value })),
-        },
+        tip: 'List of materials making up the original object. You should define as many materials as possible by repeating this field. The predefined list provides the main material categories, but you can use the XML editor to be more specific. Accepted vocabularies are Getty (e.g. http://vocab.getty.edu/aat/300010439) and Wikidata (e.g. http://www.wikidata.org/entity/Q13085).',
+        custom: /^(https?:\/\/vocab\.getty\.edu\/aat\/\d+)|(https?:\/\/www\.wikidata\.org\/entity\/(\w|-)+)$/,
+        predef: [
+          { label: 'Bone', value: 'http://vocab.getty.edu/aat/300011798' },
+          { label: 'Ceramic', value: 'http://vocab.getty.edu/aat/300235507' },
+          { label: 'Clay', value: 'http://vocab.getty.edu/aat/300010439' },
+          { label: 'Concrete', value: 'http://vocab.getty.edu/aat/300010737' },
+          { label: 'Glass', value: 'http://vocab.getty.edu/aat/300010797' },
+          { label: 'Leather', value: 'http://vocab.getty.edu/aat/300011845' },
+          { label: 'Metal', value: 'http://vocab.getty.edu/aat/300010900' },
+          { label: 'Mortar', value: 'http://vocab.getty.edu/aat/300014741' },
+          { label: 'Paper', value: 'http://vocab.getty.edu/aat/300014109' },
+          { label: 'Papyrus', value: 'http://vocab.getty.edu/aat/300014127' },
+          { label: 'Plaster', value: 'http://vocab.getty.edu/aat/300014922' },
+          { label: 'Stone', value: 'http://vocab.getty.edu/aat/300011692' },
+          { label: 'Textile', value: 'http://vocab.getty.edu/aat/300231565' },
+          { label: 'Wood', value: 'http://vocab.getty.edu/aat/300011914' },
+        ],
       },
       spatial: {
         val: EdmPropertyValueType.Any,

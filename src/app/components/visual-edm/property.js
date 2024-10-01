@@ -230,6 +230,33 @@ export default Component.extend(I18n, {
     }
   ),
 
+  formGroupClassName: computed(
+    'viewModel.{wasInputUsed,validator.isError}',
+    'inputFeedbackIcon',
+    function formGroupClassName() {
+      const classes = ['form-group'];
+      if (this.viewModel.wasInputUsed && this.viewModel.validator?.isError) {
+        classes.push('has-error');
+      }
+      if (this.inputFeedbackIcon) {
+        classes.push('has-feedback');
+      }
+      return classes.join(' ');
+    }
+  ),
+
+  inputFeedbackIcon: computed(
+    'viewModel.{wasInputUsed,validator.isError}',
+    function inputFeedbackIcon() {
+      if (!this.viewModel.wasInputUsed) {
+        return;
+      }
+      if (this.viewModel.validator?.isError) {
+        return 'checkbox-filled-warning';
+      }
+    }
+  ),
+
   animateAttentionObserver: observer(
     'viewModel.isAnimateAttentionQueued',
     function animateAttentionObserver() {
@@ -284,6 +311,7 @@ export default Component.extend(I18n, {
     },
     changeValue(newValue) {
       this.viewModel.changeValue(newValue);
+      this.viewModel.markInputAsUsed();
     },
     changeLanguage(option) {
       this.viewModel.changeAttribute('lang', option.value || null);
@@ -292,7 +320,7 @@ export default Component.extend(I18n, {
       this.viewModel.deleteProperty();
     },
     handleInputBlur() {
-      set(this.viewModel, 'wasInputFocused', true);
+      this.viewModel.markInputAsUsed();
     },
     matchLangOption(option, searchString) {
       return option.matchesSearchString(searchString) ? 1 : -1;

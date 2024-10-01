@@ -145,7 +145,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
   .content-info {
     // must be forced, because one-carousel stretched as its content and absolute map
     // will not stretch horizontally, until it has no space provided by content-info
-    min-height: calc(100vh - var(--share-show-content-header-height) + #{2 * $content-col-padding});
+    min-height: calc(100vh - var(--share-show-content-header-height));
   }
 
   // more compact files header, because of shares header

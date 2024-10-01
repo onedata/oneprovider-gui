@@ -5,6 +5,11 @@
 ### Latest changes
 
 * VFS-12277 Changed text "Basic" metadata to "xattrs" in modal tabs of item details
+* VFS-12348 Reverted support for non-string xattr values in metadata editor as it causes tests to fail
+* VFS-12341 Added support for non-string xattrs values in column and editor; removed temporarily file "creationTime" attribute support because of bug in backend
+* VFS-12338 Improved EDM GUI (v24.09.1): updated Material property regexp and tip
+* VFS-12295 Fixed share views bugs concerning error handling
+* VFS-12284 Improved EDM GUI (v24.09): updated property specs, added URI validation and input validation tooltip
 * VFS-12050 Added xattrs columns in file browser
 * VFS-12261 Added "Copy download URL" context menu action for shared files
 * VFS-12204 Fixed graphical glitch in file datasets panel tab bar

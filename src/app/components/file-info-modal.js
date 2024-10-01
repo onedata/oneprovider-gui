@@ -189,7 +189,13 @@ export default Component.extend(...mixins, {
     // file is diplayed.
     if (this.files?.length === 1) {
       // TODO: VFS-11449 optional file size fetch
-      const properties = ['mtime', 'ctime', 'atime', 'creationTime'];
+      const properties = [
+        'mtime',
+        'ctime',
+        'atime',
+        // TODO: VFS-12343 restore creationTime in GUI
+        // 'creationTime',
+      ];
       if (!this.previewMode) {
         properties.push('owner', 'hardlinkCount');
       }
@@ -596,9 +602,10 @@ export default Component.extend(...mixins, {
   ctime: reads('file.ctime'),
 
   /**
+   * // TODO: VFS-12343 restore creationTime in GUI
    * @type {number}
    */
-  creationTime: reads('file.creationTime'),
+  // creationTime: reads('file.creationTime'),
 
   fileSize: reads('file.size'),
 

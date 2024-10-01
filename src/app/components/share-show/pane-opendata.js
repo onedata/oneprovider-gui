@@ -17,7 +17,7 @@ import { conditional, raw, not, or, eq } from 'ember-awesome-macros';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { MetadataType } from 'oneprovider-gui/models/handle';
-import { all as allFulfilled } from 'rsvp';
+import { allSettled } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
@@ -166,7 +166,7 @@ export default Component.extend(I18n, {
   handleServices: reads('handleServicesProxy.content'),
 
   requiredDataProxy: computed(function requiredDataProxy() {
-    return promiseObject(allFulfilled([this.handleProxy, this.rootFileProxy]));
+    return promiseObject(allSettled([this.handleProxy, this.rootFileProxy]));
   }),
 
   activeSlideObserver: observer('activeSlideOfCreator', function activeSlideObserver() {
