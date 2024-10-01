@@ -2,7 +2,7 @@
  * Content for Xattrs (aka Basic) metadata tab in file metadata modal: key-value editor
  *
  * @author Jakub Liput
- * @copyright (C) 2020-2024 ACK CYFRONET AGH
+ * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -11,8 +11,8 @@ import config from 'ember-get-config';
 import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { emptyValue } from 'oneprovider-gui/utils/file-metadata-view-model';
+import { conditional, eq, raw } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
-import stringifyXattrValue from 'oneprovider-gui/utils/stringify-xattr-value';
 
 const {
   layoutConfig,
@@ -57,16 +57,11 @@ export default Component.extend(I18n, {
    */
   lastResetTime: undefined,
 
-  metadataForEditor: computed('metadata', function metadataForEditor() {
-    const metadata = this.metadata;
-    if (metadata === emptyValue) {
-      return {};
-    }
-    return Object.keys(metadata).reduce((result, key) => {
-      result[key] = stringifyXattrValue(metadata[key]);
-      return result;
-    }, {});
-  }),
+  metadataForEditor: conditional(
+    eq('metadata', raw(emptyValue)),
+    raw({}),
+    'metadata'
+  ),
 
   /**
    * Metadata converted to array of `{ key, value }` objects
