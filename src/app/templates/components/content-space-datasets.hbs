@@ -2,46 +2,39 @@
   "dataset-browser-grid-element split-browser-grid-element"
   (if datasetContainerLowHeight "low-height")
 }}>
-  {{#perfect-scrollbar-element
+  <PerfectScrollbarElement
     class="split-browser-container dataset-browser-container"
     as |perfectScrollbarContainer|
-  }}
-    {{#promise-proxy-container proxy=initialRequiredDataProxy}}
-      {{file-browser
-        browserModel=browserModel
-        resolveFileParentFun=(action "resolveItemParent")
-        selectedItemsForJumpProxy=selectedItemsForJumpProxy
-        contentScroll=perfectScrollbarContainer.element
-        ignoreDeselectSelector=ignoreDatasetDeselectSelector
-        updateDirEntityId=(action "updateDatasetId")
-        onRegisterApi=(action (mut datasetBrowserApi))
-      }}
+  >
+    <PromiseProxyContainer @proxy={{initialRequiredDataProxy}}>
+      <FileBrowser
+        @browserModel={{browserModel}}
+        @resolveFileParentFun={{action "resolveItemParent"}}
+        @selectedItemsForJumpProxy={{selectedItemsForJumpProxy}}
+        @contentScroll={{perfectScrollbarContainer.element}}
+        @ignoreDeselectSelector={{ignoreDatasetDeselectSelector}}
+        @updateDirEntityId={{action "updateDatasetId"}}
+        @onRegisterApi={{action (mut datasetBrowserApi)}}
+      />
 
       {{#if (and datasetToShowProtection fileToShowProtection)}}
-        {{dataset-protection-modal
-          open=true
-          mode="dataset"
-          file=fileToShowProtection
-          browsableDataset=datasetToShowProtection
-          editPrivilege=spacePrivileges.manageDatasets
-          onHide=(action closeProtectionModal)
-          getDataUrl=(action getDataUrl)
-          getDatasetsUrl=(action getDatasetsUrl)
-        }}
+        <DatasetProtectionModal
+          @open={{true}}
+          @mode="dataset"
+          @file={{fileToShowProtection}}
+          @browsableDataset={{datasetToShowProtection}}
+          @editPrivilege={{spacePrivileges.manageDatasets}}
+          @onHide={{action closeProtectionModal}}
+          @getDataUrl={{action getDataUrl}}
+          @getDatasetsUrl={{action getDatasetsUrl}}
+        />
       {{/if}}
 
       {{#if datasetToCreateArchive}}
-        {{archive-create-modal
-          open=true
-          space=space
-          dataset=datasetToCreateArchive
-          options=createArchiveOptions
-          onHide=(action closeCreateArchiveModal)
-          onArchiveCreate=(action submitArchiveCreate)
-        }}
+        <ArchiveCreateModal @open={{true}} @space={{space}} @dataset={{datasetToCreateArchive}} @options={{createArchiveOptions}} @onHide={{action closeCreateArchiveModal}} @onArchiveCreate={{action submitArchiveCreate}} />
       {{/if}}
-    {{/promise-proxy-container}}
-  {{/perfect-scrollbar-element}}
+    </PromiseProxyContainer>
+  </PerfectScrollbarElement>
 </div>
 <div class="gutter-row gutter-row-1 gutter-row-selected-dataset">
   <div
@@ -50,31 +43,31 @@
       gutterLabelVisibleClass
     }}
   >
-    {{#truncated-string class="gutter-label-content"}}
+    <TruncatedString class="gutter-label-content">
       <strong>{{tt this "selectedDatasetGutterLabel"}}</strong>
       <span class="gutter-label-dataset-name">{{selectedSingleDataset.name}}</span>
-    {{/truncated-string}}
+    </TruncatedString>
   </div>
 </div>
 <div class={{concat-classes
   "archive-browser-grid-element split-browser-grid-element"
   (if archiveContainerLowHeight "low-height")
 }}>
-  {{#perfect-scrollbar-element
-    id=archiveBrowserContainerId
+  <PerfectScrollbarElement
+    @id={{archiveBrowserContainerId}}
     class="split-browser-container archive-browser-container"
     as |perfectScrollbarContainer|
-  }}
-    {{#promise-proxy-container proxy=initialRequiredDataProxy}}
+  >
+    <PromiseProxyContainer @proxy={{initialRequiredDataProxy}}>
       {{#if noViewArchivesPrivilege}}
         <div class="bottom-panel-content">
           <div class="bottom-panel-text">
             {{tt this "noViewPrivilege.insufficientPrivileges"}}
           </div>
-          {{one-image
+          <OneImage
             class="no-archives-view-image"
-            imagePath="assets/images/no-view.svg"
-          }}
+            @imagePath="assets/images/no-view.svg"
+          />
           <div class="bottom-panel-text bottom-panel-text-secondary">
             {{tt this "noViewPrivilege.requiresPrivilege"
               privilegeExpression=viewPrivilegeExpression
@@ -82,21 +75,21 @@
           </div>
         </div>
       {{else if singleDatasetIsSelected}}
-        {{dataset-archives-browser
-          space=space
-          browsableDataset=selectedSingleDataset
-          contentScroll=perfectScrollbarContainer.element
-          ignoreDeselectSelector=ignoreArchiveDeselectSelector
-          navigateAfterRecall=true
-          selectedIds=selectedSecondaryIds
-          archiveId=archiveId
-          dirId=dirId
-          fileAction=fileAction
-          openCreateArchiveModal=(action openCreateArchiveModal)
-          onUpdateArchiveId=(action "updateArchiveId")
-          onUpdateDirId=(action "updateDirId")
-          onRegisterApi=(action (mut archiveBrowserApi))
-        }}
+        <DatasetArchivesBrowser
+          @space={{space}}
+          @browsableDataset={{selectedSingleDataset}}
+          @contentScroll={{perfectScrollbarContainer.element}}
+          @ignoreDeselectSelector={{ignoreArchiveDeselectSelector}}
+          @navigateAfterRecall={{true}}
+          @selectedIds={{selectedSecondaryIds}}
+          @archiveId={{archiveId}}
+          @dirId={{dirId}}
+          @fileAction={{fileAction}}
+          @openCreateArchiveModal={{action openCreateArchiveModal}}
+          @onUpdateArchiveId={{action "updateArchiveId"}}
+          @onUpdateDirId={{action "updateDirId"}}
+          @onRegisterApi={{action (mut archiveBrowserApi)}}
+        />
       {{else}}
         <div class="bottom-panel-content">
           <div class="bottom-panel-text">
@@ -111,6 +104,6 @@
           </div>
         </div>
       {{/if}}
-    {{/promise-proxy-container}}
-  {{/perfect-scrollbar-element}}
+    </PromiseProxyContainer>
+  </PerfectScrollbarElement>
 </div>

@@ -1,78 +1,76 @@
-{{#promise-proxy-container proxy=initialRequiredDataProxy}}
-  {{file-browser
-    browserModel=browserModel
-    parentModalDialogSelector=parentModalDialogSelector
-    contentScroll=contentScroll
-    selectedItems=selectedItems
-    selectedItemsForJumpProxy=selectedItemsForJumpProxy
-    ignoreDeselectSelector=ignoreDeselectSelector
-    onRegisterApi=onRegisterApi
-    showSelectionToolkit=showSelectionToolkit
-    getItemByIdFun=(action getItemById)
-    resolveFileParentFun=(action "resolveItemParent")
-    updateDirEntityId=(action "updateDirEntityId")
-    dirStatsServiceState=dirStatsServiceStateProxy.content
-  }}
-{{/promise-proxy-container}}
+<PromiseProxyContainer @proxy={{initialRequiredDataProxy}}>
+  <FileBrowser
+    @browserModel={{browserModel}}
+    @parentModalDialogSelector={{parentModalDialogSelector}}
+    @contentScroll={{contentScroll}}
+    @ignoreDeselectSelector={{ignoreDeselectSelector}}
+    @onRegisterApi={{onRegisterApi}}
+    @showSelectionToolkit={{showSelectionToolkit}}
+    @getItemByIdFun={{action getItemById}}
+    @resolveFileParentFun={{action "resolveItemParent"}}
+    @updateDirEntityId={{action "updateDirEntityId"}}
+    @dirStatsServiceState={{dirStatsServiceStateProxy.content}}
+  />
+</PromiseProxyContainer>
 
 {{#if filesToShowInfo}}
-  {{file-info-modal
-    open=true
-    files=filesToShowInfo
-    initialTab=showInfoInitialTab
-    space=space
-    browserModel=browserModel
-    dirStatsServiceState=dirStatsServiceStateProxy.content
-    tabOptions=(hash
+  <FileInfoModal
+    @open={{true}}
+    @files={{filesToShowInfo}}
+    @initialTab={{showInfoInitialTab}}
+    @space={{space}}
+    @browserModel={{browserModel}}
+    @dirStatsServiceState={{dirStatsServiceStateProxy.content}}
+    @tabOptions={{hash
       permissions=(hash readonly=true)
-    )
-    getDataUrl=(action "getFileUrl")
-    onHide=(action closeInfoModal)
-    getProvidersUrl=(action "getProvidersUrl")
-  }}
+    }}
+    @getDataUrl={{action "getFileUrl"}}
+    @onHide={{action closeInfoModal}}
+    @getProvidersUrl={{action "getProvidersUrl"}}
+  />
 {{/if}}
 
-{{file-browser/fb-download-modal
-  file=fileForConfirmDownload
-  confirmDownload=(action confirmFileDownload)
-  onHide=(action closeConfirmFileDownload)
-}}
+<FileBrowser::FbDownloadModal
+  @file={{fileForConfirmDownload}}
+  @confirmDownload={{action confirmFileDownload}}
+  @onHide={{action closeConfirmFileDownload}}
+/>
 
 {{#if archivesToDelete}}
-  {{archives-delete-modal
-    open=true
-    archives=archivesToDelete
-    onHide=(action closeArchivesDeleteModal)
-  }}
+  <ArchivesDeleteModal
+    @open={{true}}
+    @archives={{archivesToDelete}}
+    @onHide={{action closeArchivesDeleteModal}}
+  />
 {{/if}}
 
 {{#if archiveToShowDetails}}
-  {{archive-details-modal
-    open=true
-    space=space
-    browsableArchive=archiveToShowDetails
-    options=archiveDetailsOptions
-    onHide=(action closeArchivePropertiesModal)
-  }}
+  <ArchiveDetailsModal
+    @open={{true}}
+    @space={{space}}
+    @browsableArchive={{archiveToShowDetails}}
+    @options={{archiveDetailsOptions}}
+    @onHide={{action closeArchivePropertiesModal}}
+  />
 {{/if}}
 
 {{#if createArchiveOpened}}
-  {{archive-create-modal
-    open=true
-    space=space
-    dataset=browsableDataset
-    options=createArchiveOptions
-    onHide=(action closeCreateArchiveModal)
-    onArchiveCreate=(action submitArchiveCreate)
-  }}
+  <ArchiveCreateModal
+    @open={{true}}
+    @space={{space}}
+    @dataset={{browsableDataset}}
+    @options={{createArchiveOptions}}
+    @onHide={{action closeCreateArchiveModal}}
+    @onArchiveCreate={{action submitArchiveCreate}}
+  />
 {{/if}}
 
 {{#if archiveToRecall}}
-  {{archive-recall-modal
-    open=true
-    space=space
-    archive=archiveToRecall
-    onHide=(action closeArchiveRecallModal)
-    onArchiveRecallStarted=(action handleArchiveRecallStarted)
-  }}
+  <ArchiveRecallModal
+    @open={{true}}
+    @space={{space}}
+    @archive={{archiveToRecall}}
+    @onHide={{action closeArchiveRecallModal}}
+    @onArchiveRecallStarted={{action handleArchiveRecallStarted}}
+  />
 {{/if}}
