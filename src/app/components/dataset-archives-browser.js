@@ -9,7 +9,7 @@
 import Component from '@ember/component';
 import { observer, computed, get, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { resolve } from 'rsvp';
+import { resolve, all as allFulfilled } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
@@ -460,17 +460,19 @@ export default Component.extend(...mixins, {
   )),
 
   /**
-   * Proxy for whole file-browser: loading causes loading screen, recomputing causes
-   * `file-browser` to be re-rendered.
+   * Proxy for whole file-browser: loading causes loading screen. Do not track computed
+   * properties, because we do not want file browser to be re-rendered.
    * @type {PromiseObject}
    */
-  initialRequiredDataProxy: promise.object(promise.all(
-    'selectedFilesForJumpProxy',
-    'selectedArchivesForJumpProxy',
-    'initialBrowsableItemProxy',
-    'dirStatsServiceStateProxy',
-    'archiveProxy',
-  )),
+  initialRequiredDataProxy: computed(function initialRequiredDataProxy() {
+    return promiseObject(allFulfilled([
+      this.selectedFilesForJumpProxy,
+      this.selectedArchivesForJumpProxy,
+      this.initialBrowsableItemProxy,
+      this.dirStatsServiceStateProxy,
+      this.archiveProxy,
+    ]));
+  }),
 
   /**
    * @type {ComputedProperty<String>}
