@@ -47,13 +47,14 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 
 /**
- * @typedef {'pending'|'fulfilled'|'rejected'} BrowserListLoadState
+ * @typedef {'pending'|'fulfilled'|'rejected'|'reloading'} BrowserListLoadState
  */
 
 const BrowserListLoadState = Object.freeze({
   Pending: 'pending',
   Fulfilled: 'fulfilled',
   Rejected: 'rejected',
+  Reloading: 'reloading',
 });
 
 const mixins = [
@@ -542,7 +543,7 @@ export default EmberObject.extend(...mixins, {
         };
       } else {
         return {
-          state: BrowserListLoadState.Pending,
+          state: BrowserListLoadState.Reloading,
           reason: undefined,
         };
       }

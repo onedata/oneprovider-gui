@@ -374,7 +374,9 @@ export default OneEmbeddedComponent.extend(
     dirProxy: promise.object(computed(
       'dirEntityId',
       'spaceEntityId',
-      'selected',
+      // Do not track selected - limit computing parent dir based on selected files
+      // only to initial dirProxy, because live changes of selected cause the list to
+      // unwanted reload.
       async function dirProxy() {
         const {
           spaceEntityId,
@@ -384,15 +386,7 @@ export default OneEmbeddedComponent.extend(
           fallbackDirProxy,
           parentAppNavigation,
           fileAction,
-        } = this.getProperties(
-          'spaceEntityId',
-          'selected',
-          'dirEntityId',
-          'filesViewResolver',
-          'fallbackDirProxy',
-          'parentAppNavigation',
-          'fileAction',
-        );
+        } = this;
 
         const currentFilesViewContext = FilesViewContext.create({
           spaceId: spaceEntityId,
