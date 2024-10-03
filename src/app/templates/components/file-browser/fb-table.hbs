@@ -57,10 +57,7 @@
     {{#if (and (eq listLoadState.state "fulfilled") fetchingNext)}}
       <tr class="loading-row">
         <td colspan="9999" class="special-row-cell loading-row-cell">
-          {{spin-spinner-block
-            sizeClass="sm"
-            class="absolute-middle-centered"
-          }}
+          <SpinSpinnerBlock @sizeClass="sm" class="absolute-middle-centered" />
         </td>
       </tr>
     {{/if}}
@@ -69,10 +66,7 @@
 <div class="table-bottom-spacing"></div>
 {{#if (eq listLoadState.state "pending")}}
   <div class="loading-dir-box">
-    {{spin-spinner-block
-      sizeClass="lg"
-      class="absolute-middle-centered"
-    }}
+    <SpinSpinnerBlock @sizeClass="lg" class="absolute-middle-centered" />
   </div>
 {{/if}}
 {{#if (and dirLoadError dirLoadErrorComponentName)}}
@@ -88,37 +82,35 @@
     browserModel=browserModel
   }}
 {{/if}}
-{{#one-webui-popover
+<OneWebuiPopover
   class="file-actions-popover"
-  popoverStyle="with-dropdown"
-  padding=false
-  popoverTrigger="manual"
-  triggerSelector=(concat "#" elementId " .file-actions-trigger")
-  open=(and isDirContextMenuRenderable fileActionsOpen)
-  registerApi=(action (mut contextMenuApi))
-  placement="horizontal"
+  @popoverStyle="with-dropdown"
+  @padding={{false}}
+  @popoverTrigger="manual"
+  @triggerSelector={{concat "#" elementId " .file-actions-trigger"}}
+  @open={{and isDirContextMenuRenderable fileActionsOpen}}
+  @registerApi={{action (mut contextMenuApi)}}
+  @placement="horizontal"
   as |popover|
-}}
-  {{#click-outside onClickOutside=(action "toggleFileActions" false)}}
+>
+  <ClickOutside @onClickOutside={{action "toggleFileActions" false}}>
     {{#if isDirContextMenuRenderable}}
-      {{#popover-content-limit
-        opened=(and popover.visible contextMenuRepositionTime)
-      }}
-        {{actions-popover-content
-          actionsArray=contextMenuButtons
-          actionClicked=(action "toggleFileActions" false)
+      <PopoverContentLimit @opened={{and popover.visible contextMenuRepositionTime}}>
+        <ActionsPopoverContent
+          @actionsArray={{contextMenuButtons}}
+          @actionClicked={{action "toggleFileActions" false}}
           class="file-actions ps--focus"
-          actionKey="id"
-        }}
-      {{/popover-content-limit}}
+          @actionKey="id"
+        />
+      </PopoverContentLimit>
     {{/if}}
-  {{/click-outside}}
-{{/one-webui-popover}}
+  </ClickOutside>
+</OneWebuiPopover>
 <div class="file-actions-trigger floating-actions-trigger"></div>
 
 {{#if renderRefreshSpinner}}
-  {{spin-spinner-block
-    sizeClass="lg"
+  <SpinSpinnerBlock
+    @sizeClass="lg"
     class="absolute-middle-centered refresh-spinner"
-  }}
+  />
 {{/if}}

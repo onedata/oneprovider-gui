@@ -5,85 +5,85 @@
     <div class="fb-upload-trigger"></div>
     <div class="fb-head-inner">
       <div class="fb-breadcrumbs-container">
-        {{file-browser/fb-breadcrumbs
-          dir=lastResolvedDir
-          rootDir=customRootDir
-          menuButtons=currentDirMenuButtons
-          parentsCache=parentsCache
-          getItemByIdFun=getItemByIdFun
-          resolveFileParentFun=resolveFileParentFun
-          rootIcon=rootIcon
-          space=space
-          changeDir=(action "changeDir")
-          selectCurrentDir=(action "selectCurrentDir")
-        }}
+        <FileBrowser::FbBreadcrumbs
+          @dir={{lastResolvedDir}}
+          @rootDir={{customRootDir}}
+          @menuButtons={{currentDirMenuButtons}}
+          @parentsCache={{parentsCache}}
+          @getItemByIdFun={{getItemByIdFun}}
+          @resolveFileParentFun={{resolveFileParentFun}}
+          @rootIcon={{rootIcon}}
+          @space={{space}}
+          @changeDir={{action "changeDir"}}
+          @selectCurrentDir={{action "selectCurrentDir"}}
+        />
       </div>
       <div class="text-right fb-toolbar-container hidden-xs">
         {{#if renderSelectionToolkitDesktop}}
-          {{file-browser/fb-selection-toolkit
-            items=selectionToolkitItems
-            selectionContext=browserModel.selectionContext
-            allButtonsArray=allButtonsArray
-          }}
+          <FileBrowser::FbSelectionToolkit
+            @items={{selectionToolkitItems}}
+            @selectionContext={{browserModel.selectionContext}}
+            @allButtonsArray={{allButtonsArray}}
+          />
         {{/if}}
-        {{file-browser/fb-toolbar
-          browserModel=browserModel
-          dir=lastResolvedDir
-          buttons=toolbarButtons
-          fileClipboardMode=fileClipboardMode
-          fileClipboardFiles=fileClipboardFiles
-          selectionContext=browserModel.selectionContext
-          allButtonsArray=allButtonsArray
-          selectCurrentDir=(action "selectCurrentDir")
-        }}
+        <FileBrowser::FbToolbar
+          @browserModel={{browserModel}}
+          @dir={{lastResolvedDir}}
+          @buttons={{toolbarButtons}}
+          @fileClipboardMode={{fileClipboardMode}}
+          @fileClipboardFiles={{fileClipboardFiles}}
+          @selectionContext={{browserModel.selectionContext}}
+          @allButtonsArray={{allButtonsArray}}
+          @selectCurrentDir={{action "selectCurrentDir"}}
+        />
       </div>
     </div>
   </div>
 {{/if}}
 <div class="fb-table-container">
-  {{file-browser/fb-table
-    browserModel=browserModel
-    contentScroll=contentScroll
-    allButtonsArray=allButtonsArray
-    noItemsActions=noItemsActions
-    fileClipboardMode=fileClipboardMode
-    fileClipboardFiles=fileClipboardFiles
-    dirStatsServiceState=dirStatsServiceState
-    loadingIconFileIds=loadingIconFileIds
-    isItemDisabledFunction=isItemDisabledFunction
-    invokeFileAction=(action "invokeFileAction")
-    openFile=(action "openFile")
-    changeDir=(action "changeDir")
-    containerScrollTop=(action "containerScrollTop")
-    registerApi=(action (mut fbTableApi))
-  }}
+  <FileBrowser::FbTable
+    @browserModel={{browserModel}}
+    @contentScroll={{contentScroll}}
+    @allButtonsArray={{allButtonsArray}}
+    @noItemsActions={{noItemsActions}}
+    @fileClipboardMode={{fileClipboardMode}}
+    @fileClipboardFiles={{fileClipboardFiles}}
+    @dirStatsServiceState={{dirStatsServiceState}}
+    @loadingIconFileIds={{loadingIconFileIds}}
+    @isItemDisabledFunction={{isItemDisabledFunction}}
+    @invokeFileAction={{action "invokeFileAction"}}
+    @openFile={{action "openFile"}}
+    @changeDir={{action "changeDir"}}
+    @containerScrollTop={{action "containerScrollTop"}}
+    @registerApi={{action (mut fbTableApi)}}
+  />
 </div>
 
-{{#one-webui-popover
+<OneWebuiPopover
   class="current-dir-actions-popover"
-  popoverStyle="with-dropdown"
-  padding=false
-  triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
-  open=(and currentDirActionsOpen showCurrentDirActions)
+  @popoverStyle="with-dropdown"
+  @padding={{false}}
+  @triggerSelector={{concat "#" elementId " .current-dir-actions-trigger"}}
+  @open={{and currentDirActionsOpen showCurrentDirActions}}
   as |popover|
-}}
-  {{#click-outside onClickOutside=(action "toggleCurrentDirActions" false)}}
-    {{#popover-content-limit opened=popover.visible}}
-      {{actions-popover-content
-        actionsArray=blankAreaContextMenuButtons
-        actionClicked=(action "toggleCurrentDirActions" false)
+>
+  <ClickOutside @onClickOutside={{action "toggleCurrentDirActions" false}}>
+    <PopoverContentLimit @opened={{popover.visible}}>
+      <ActionsPopoverContent
+        @actionsArray={{blankAreaContextMenuButtons}}
+        @actionClicked={{action "toggleCurrentDirActions" false}}
         class="current-dir-actions ps--focus"
-      }}
-    {{/popover-content-limit}}
-  {{/click-outside}}
-{{/one-webui-popover}}
+      />
+    </PopoverContentLimit>
+  </ClickOutside>
+</OneWebuiPopover>
 <div class="current-dir-actions-trigger floating-actions-trigger"></div>
 
 {{#if renderSelectionToolkitMobile}}
-  {{file-browser/fb-selection-toolkit
-    mobileMode=true
-    items=selectionToolkitItems
-    selectionContext=browserModel.selectionContext
-    allButtonsArray=allButtonsArray
-  }}
+  <FileBrowser::FbSelectionToolkit
+    @mobileMode={{true}}
+    @items={{selectionToolkitItems}}
+    @selectionContext={{browserModel.selectionContext}}
+    @allButtonsArray={{allButtonsArray}}
+  />
 {{/if}}
