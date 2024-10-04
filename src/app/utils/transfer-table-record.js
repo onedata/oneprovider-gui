@@ -200,9 +200,9 @@ export default EmberObject.extend(OwnerInjector, {
     } = this.getProperties('transfer', 'transferCollection');
     this.reloadRecordIfNeeded(transfer);
     if (transferCollection === 'file') {
-      this.addObserver('status', function statusObserver() {
+      this.addObserver('status', null, function statusObserver() {
         transfer.reload();
-      });
+      }, false);
       // enable observer
       this.get('status');
     }

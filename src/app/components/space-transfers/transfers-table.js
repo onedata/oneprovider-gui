@@ -7,7 +7,7 @@
  * To get infinite scroll support, see `space-transfers/transfers-table-container`
  *
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -27,6 +27,7 @@ import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 import globals from 'onedata-gui-common/utils/globals';
+import TransferTableRecord from 'oneprovider-gui/utils/transfer-table-record';
 
 const mixins = [
   I18n,
@@ -352,6 +353,46 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {Map<Model.Transfer, TransferTableRecord>}
+   */
+  transferRecordsCache: undefined,
+
+  // FIXME: caching for single records
+  transferRecords: computed('transfers.[]', function transferRecords() {
+    return this.transfers.map(transfer => this.getTransferTableRecord(transfer));
+  }),
+
+  /**
+   * @param {Models.Transfer} transfer
+   * @returns {TransferTableRecord}
+   */
+  getTransferTableRecord(transfer) {
+    const {
+      transfers,
+      providers,
+      spaceId,
+      transferType: transferCollection,
+      providersColors,
+      transferActions,
+    } = this;
+    const cache = new Map();
+    let tableRecord = cache.get(transfer);
+    if (!tableRecord) {
+      tableRecord = TransferTableRecord.create({
+        ownerSource: this,
+        transfer,
+        transfers,
+        providers,
+        spaceId,
+        transferCollection,
+        providersColors,
+        transferActions,
+      });
+    }
+    return tableRecord;
+  },
+
   //#endregion
 
   //#region Columns computed properties
@@ -438,6 +479,7 @@ export default Component.extend(...mixins, {
     this.registerArrayLoadingHandlers();
     this.attachWindowResizeHandler();
     this.set('columnsConfiguration', this.createColumnsConfiguration());
+    this.set('transferRecordsCache', new Map());
   },
 
   /**
