@@ -421,8 +421,11 @@
   }
 
   .file-metadata-ace-editor-base {
-    // empirical value to remove scroll
-    padding-bottom: 36px;
+    display: flex;
+    flex-direction: column;
+    .form-group-ace-editor {
+      flex-grow: 1;
+    }
   }
 
   .metadata-description {

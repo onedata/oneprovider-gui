@@ -140,7 +140,7 @@
       &::after {
         content: '';
         display: inline-block;
-        margin-left: -18px;
+        margin-left: -$padding-large-vertical;
         border-radius: 100%;
         background-color: var(--refresh-action-indicator-color, $color-one-success);
         height: 10px;
