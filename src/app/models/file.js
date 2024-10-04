@@ -516,7 +516,8 @@ export default Model.extend(
      */
     ctime: attr('number'),
 
-    creationTime: attr('number'),
+    // TODO: VFS-12343 restore creationTime in GUI
+    // creationTime: attr('number'),
 
     /**
      * The object contains the requested xattr attributes, with property names

@@ -21,7 +21,8 @@ export const possibleFileProperties = Object.freeze([
   'atime',
   'conflictingName',
   'ctime',
-  'creationTime',
+  // TODO: VFS-12343 restore creationTime in GUI
+  // 'creationTime',
   'displayGid',
   'displayUid',
   'distribution',

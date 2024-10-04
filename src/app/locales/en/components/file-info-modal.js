@@ -20,7 +20,8 @@ export default {
   atime: 'Accessed',
   ctime: 'Changed',
   ctimeSubname: 'metadata',
-  creationTime: 'Created',
+  // TODO: VFS-12343 restore creationTime in GUI
+  // creationTime: 'Created',
   tip: browserColumns.tip,
   owner: 'Owner',
   size: 'Size',
