@@ -409,6 +409,36 @@
       }
     }
   }
+  .metadata-type-tabs {
+    .metadata-type-btn-xattrs {
+      text-transform: lowercase;
+    }
+
+    .metadata-header-hint-trigger.hint-trigger {
+      margin-left: 1em;
+      margin-right: -1em;
+    }
+  }
+
+  .file-metadata-ace-editor-base {
+    display: flex;
+    flex-direction: column;
+    .form-group-ace-editor {
+      flex-grow: 1;
+    }
+  }
+
+  .metadata-description {
+    text-align: center;
+    padding-bottom: $padding-large-vertical;
+    padding-top: 0;
+
+    @media (max-width: $screen-xs-min) {
+      text-align: left;
+      padding-bottom: 0;
+      margin-top: -22px;
+    }
+  }
 }
 
 .file-link-type-selector-item {
