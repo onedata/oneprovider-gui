@@ -14,12 +14,16 @@
         (concat "fb-table-col-" columnName)
         "fb-table-secondary-col"
         "hidden-xs"
+        "draggable-area"
         (if isDropBorderShown "border-dashed")
       }}
       style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
       draggable=true
       ondragstart={{action "headingDragAction" columnName}}
       ondragend={{action "headingDragEndAction"}}
+      ondragover={{action "headingDragOverAction"}}
+      ondragleave={{action "headingDragLeaveAction"}}
+      ondrop={{action "headingDropAction" (add i 1)}}
     >
       <div class="column-info-container">
         <div
@@ -76,13 +80,6 @@
             {{/if}}
           </div>
         {{/if}}
-      </div>
-      <div
-        class="draggable-area"
-        ondragover={{action "headingDragOverAction"}}
-        ondragleave={{action "headingDragLeaveAction"}}
-        ondrop={{action "headingDropAction" (add i 1)}}
-      >
       </div>
     </th>
   {{/if}}

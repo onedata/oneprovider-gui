@@ -5,8 +5,8 @@
  * - ondragstart with headingDragAction action assigned to it and pass column name as an argument
  * - ondragend with headingDragEndAction action assigned to it
  *
- * Add also div element which creates a draggable area, where headers can be dropped,
- * and to that element add event handlers:
+ * The table's headers also are a draggable area, where headers can be dropped.
+ * To do that add event handlers:
  * - ondragover with headingDragOverAction action assigned to it
  * - ondragleave with headingDragLeaveAction action assigned to it
  * - ondrop with headingDropAction action assigned to it and pass an index of column,
@@ -24,14 +24,11 @@
  *        <th
  *          ondragstart={{action "headingDragAction" columnName}}
  *          ondragend={{action "headingDragEndAction"}}
+ *          ondragover={{action "headingDragOverAction"}}
+ *          ondragleave ={{action "headingDragLeaveAction"}}
+ *          ondrop={{action "headingDropAction" i}}
  *        >
  *          ...
- *          <div
- *            ondragover={{action "headingDragOverAction"}}
- *            ondragleave={{action "headingDragLeaveAction"}}
- *            ondrop={{action "headingDropAction" i}}
- *          >
- *          </div>
  *        </th>
  *      {{/each}}
  *      ...

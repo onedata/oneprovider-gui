@@ -10,12 +10,3 @@
   <div class="spacer"></div>
   <div class="table-header-status-bar">{{yield}}</div>
 </div>
-{{#unless (media "isMobile")}}
-  <div
-    class="draggable-area"
-    ondragover={{action "headingDragOverAction"}}
-    ondragleave={{action "headingDragLeaveAction"}}
-    ondrop={{action "headingDropAction" 0}}
-  >
-  </div>
-{{/unless}}

@@ -6,12 +6,16 @@
           class={{concat-classes
             (concat "transfers-table-col-" column.id)
             column.className
+            "draggable-area"
             (if isDropBorderShown "border-dashed")
           }}
           style={{get columnsConfiguration.columnsStyle column.id}}
           draggable={{not-eq i 0}}
           ondragstart={{action "headingDragAction" column.id}}
           ondragend={{action "headingDragEndAction"}}
+          ondragover={{action "headingDragOverAction"}}
+          ondragleave={{action "headingDragLeaveAction"}}
+          ondrop={{action "headingDropAction" i}}
         >
           <span class="column-name">
             {{#if (not-eq i 0)}}
@@ -19,13 +23,6 @@
             {{/if}}
             {{tt this (concat "headers.name." column.id)}}
           </span>
-          <div
-            class="draggable-area"
-            ondragover={{action "headingDragOverAction"}}
-            ondragleave={{action "headingDragLeaveAction"}}
-            ondrop={{action "headingDropAction" i}}
-          >
-          </div>
         </th>
       {{/each}}
       {{columns-configuration-cell

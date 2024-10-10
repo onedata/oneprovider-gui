@@ -16,6 +16,7 @@ const mixins = [
 
 export default Component.extend(...mixins, {
   tagName: 'th',
+  classNames: ['draggable-area'],
   classNameBindings: [
     'browserModel.firstColumnClass',
     'isDropBorderShown:border-dashed',
@@ -36,6 +37,18 @@ export default Component.extend(...mixins, {
    * @type {boolean}
    */
   isDropBorderShown: false,
+
+  dragOver(event) {
+    this.headingDragOverAction(event);
+  },
+
+  dragLeave() {
+    this.headingDragLeaveAction();
+  },
+
+  drop(event) {
+    this.headingDropAction(0, event);
+  },
 
   actions: {
     headingDragOverAction(event) {
