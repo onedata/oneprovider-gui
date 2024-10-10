@@ -333,6 +333,11 @@ export default EmberObject.extend(...mixins, {
 
   refreshBtnIsVisible: true,
 
+  /**
+   * @type {boolean}
+   */
+  previewMode: undefined,
+
   //#endregion
 
   //#region browser model state
@@ -350,10 +355,15 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * Latest error object when list load fails.
-   * If the recent list load succeeds - this should bet set to null.
+   * If the recent list load succeeds - this should be set to null.
    * @type {any}
    */
   listLoadError: undefined,
+
+  /**
+   * @type {Array<any>}
+   */
+  selectedItems: undefined,
 
   //#endregion
 

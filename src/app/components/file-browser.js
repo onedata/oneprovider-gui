@@ -603,9 +603,6 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    // if (!this.get('selectedItems')) {
-    //   this.set('selectedItems', []);
-    // }
     this.set('loadingIconFileIds', A());
     if (!this.get('browserModel')) {
       throw new Error(
