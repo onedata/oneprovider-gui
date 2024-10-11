@@ -248,12 +248,24 @@ export default Component.extend(...mixins, {
    */
   isSpaceOwned: reads('browserModel.isSpaceOwned'),
 
+  /**
+   * @type {ComputedProperty<any>}
+   */
   selectedItems: reads('browserModel.selectedItems'),
 
+  /**
+   * @type {ComputedProperty<any>}
+   */
   dirError: reads('browserModel.dirError'),
 
+  /**
+   * @type {ComputedProperty<string>}
+   */
   selectionContext: reads('browserModel.selectionContext'),
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
   previewMode: reads('browserModel.previewMode'),
 
   /**

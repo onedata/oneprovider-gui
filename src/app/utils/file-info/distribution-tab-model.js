@@ -91,7 +91,6 @@ export default BaseTabModel.extend(...mixins, {
     'files',
     'space',
     'previewMode',
-    'filesQosStatusModel',
     'fileInfoModal',
     function viewModel() {
       return FileDistributionViewModel.create({

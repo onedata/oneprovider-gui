@@ -21,18 +21,6 @@ const currentUser = Service.extend({
 
 const FileMock = EmberObject.extend(FileRuntimeProperties);
 
-// const TestFilesystemBrowserModel = FilesystemBrowserModel.extend({
-//   isSpaceOwned: false,
-//   spacePrivileges: null,
-
-//   init() {
-//     this._super(...arguments);
-//     if (!this.spacePrivileges) {
-//       this.set('spacePrivileges', {});
-//     }
-//   },
-// });
-
 describe('Integration | Component | file-browser/fb-table-row', function () {
   const { afterEach } = setupRenderingTest();
 

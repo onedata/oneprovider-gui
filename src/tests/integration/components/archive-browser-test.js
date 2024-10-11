@@ -56,7 +56,6 @@ describe('Integration | Component | archive-browser', function () {
   });
 
   afterEach(async function () {
-    // await settled();
     this.get('browserModel')?.destroy();
   });
 

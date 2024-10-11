@@ -358,10 +358,25 @@ export default Component.extend(...mixins, {
    */
   transferRecordsCache: undefined,
 
-  // FIXME: caching for single records
+  // TODO: VFS-12027 When this computed is invoked with empty transfers after array
+  // update, this.transfers contains still previous items.
   transferRecords: computed('transfers.[]', function transferRecords() {
-    return this.transfers.map(transfer => this.getTransferTableRecord(transfer));
+    this.deleteUnusedTableRecordsCache();
+    const tableRecords = this.transfers.map(transfer =>
+      this.getTransferTableRecord(transfer)
+    );
+    return tableRecords;
   }),
+
+  deleteUnusedTableRecordsCache() {
+    /** @type {Map<Models.Transfer, TransferTableRecord>} */
+    const transferRecordsCache = this.transferRecordsCache;
+    for (const transfer of transferRecordsCache.keys()) {
+      if (!this.transfers.includes(transfer)) {
+        transferRecordsCache.delete(transfer);
+      }
+    }
+  },
 
   /**
    * @param {Models.Transfer} transfer
@@ -375,9 +390,9 @@ export default Component.extend(...mixins, {
       transferType: transferCollection,
       providersColors,
       transferActions,
+      transferRecordsCache,
     } = this;
-    const cache = new Map();
-    let tableRecord = cache.get(transfer);
+    let tableRecord = transferRecordsCache.get(transfer);
     if (!tableRecord) {
       tableRecord = TransferTableRecord.create({
         ownerSource: this,
@@ -389,6 +404,7 @@ export default Component.extend(...mixins, {
         providersColors,
         transferActions,
       });
+      transferRecordsCache.set(transfer, tableRecord);
     }
     return tableRecord;
   },
@@ -478,8 +494,10 @@ export default Component.extend(...mixins, {
     this._super(...arguments);
     this.registerArrayLoadingHandlers();
     this.attachWindowResizeHandler();
-    this.set('columnsConfiguration', this.createColumnsConfiguration());
-    this.set('transferRecordsCache', new Map());
+    this.setProperties({
+      columnsConfiguration: this.createColumnsConfiguration(),
+      transferRecordsCache: new Map(),
+    });
   },
 
   /**

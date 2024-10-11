@@ -31,7 +31,14 @@
       {{/if}}
 
       {{#if datasetToCreateArchive}}
-        <ArchiveCreateModal @open={{true}} @space={{space}} @dataset={{datasetToCreateArchive}} @options={{createArchiveOptions}} @onHide={{action closeCreateArchiveModal}} @onArchiveCreate={{action submitArchiveCreate}} />
+        <ArchiveCreateModal
+          @open={{true}}
+          @space={{space}}
+          @dataset={{datasetToCreateArchive}}
+          @options={{createArchiveOptions}}
+          @onHide={{action closeCreateArchiveModal}}
+          @onArchiveCreate={{action submitArchiveCreate}}
+        />
       {{/if}}
     </PromiseProxyContainer>
   </PerfectScrollbarElement>
