@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12277 Changed text "Basic" metadata to "xattrs" in modal tabs of item details
 * VFS-12348 Reverted support for non-string xattr values in metadata editor as it causes tests to fail
 * VFS-12341 Added support for non-string xattrs values in column and editor; removed temporarily file "creationTime" attribute support because of bug in backend
 * VFS-12338 Improved EDM GUI (v24.09.1): updated Material property regexp and tip
