@@ -3,14 +3,14 @@
  * terms of selected files.
  *
  * @author Michał Borzęcki
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { collect, notEmpty } from '@ember/object/computed';
-import { sum, array, equal, raw, or, and } from 'ember-awesome-macros';
+import { array, raw, or } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -20,6 +20,9 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { reads } from '@ember/object/computed';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import computedSumBy from 'onedata-gui-common/utils/computed-sum-by';
+import computedIsEvery from 'onedata-gui-common/utils/computed-is-every';
 
 const emptyChunksBarData = { 0: 0 };
 
@@ -156,9 +159,9 @@ export default Component.extend(I18n, {
    */
   statusIconActiveClasses: 'in-progress animated infinite semi-hinge',
 
-  allFilesDistributionsLoaded: array.isEvery(
+  allFilesDistributionsLoaded: computedIsEvery(
     'fileDistributionData',
-    raw('isFileDistributionLoaded')
+    'isFileDistributionLoaded'
   ),
 
   neverSynchronized: computed(
@@ -181,15 +184,18 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasSingleRegFile: and(
-    equal('fileDistributionData.length', raw(1)),
-    array.isEvery('fileDistributionData', raw('fileType'), raw('file'))
+  hasSingleRegFile: computed(
+    'fileDistributionData.{length,0.fileType}',
+    function hasSingleRegFile() {
+      return this.fileDistributionData.length === 1 &&
+        this.fileDistributionData[0].fileType === LegacyFileType.Regular;
+    }
   ),
 
   /**
    * @type {Ember.ComputedProperty<number>}
    */
-  filesSize: sum(array.mapBy('fileDistributionData', raw('fileSize'))),
+  filesSize: computedSumBy('fileDistributionData', 'fileSize'),
 
   /**
    * @type {Ember.ComputedProperty<number>}
@@ -260,7 +266,11 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasOnlyDirs: array.isEvery('fileDistributionData', raw('fileType'), raw('dir')),
+  hasOnlyDirs: computedIsEvery(
+    'fileDistributionData',
+    'fileType',
+    LegacyFileType.Directory
+  ),
 
   /**
    * @type {Ember.ComputedProperty<boolean>}

@@ -2,12 +2,12 @@
  * An auto-collapsible path to selected dir.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2021 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { observer, computed, get } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { next, later } from '@ember/runloop';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -25,6 +25,7 @@ import { htmlSafe } from '@ember/string';
 import { isEmpty, and, eq, raw } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import dom from 'onedata-gui-common/utils/dom';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 /**
  * @type {number}
@@ -152,7 +153,7 @@ export default Component.extend(
      */
     isRootItemInfoHovered: false,
 
-    recomputePath: observer('dir.parent.name', function recomputePath() {
+    recomputePath: asyncObserver('dir.parent.name', function recomputePath() {
       this.updateDirPathProxy()
         .then(() => this.updateBreadcrumbsItemsProxy())
         .then(() => this.updateFilteredBreadcrumbsItemsProxy());
@@ -164,7 +165,7 @@ export default Component.extend(
      * fb-breadcrumbs, decrement `elementsToShow` count to try to fit fb-breadcrumbs-inner
      * into its container.
      */
-    checkWidthObserver: observer(
+    checkWidthObserver: asyncObserver(
       'isLoading',
       'breadcrumbsItems.content.[]',
       function checkWidthObserver() {
@@ -173,7 +174,7 @@ export default Component.extend(
       }
     ),
 
-    autoUpdateFilteredBreadcrumbsItems: observer(
+    autoUpdateFilteredBreadcrumbsItems: asyncObserver(
       'breadcrumbsItemsProxy.content.[]',
       function autoUpdateFilteredBreadcrumbsItems() {
         this.updateFilteredBreadcrumbsItemsProxy();

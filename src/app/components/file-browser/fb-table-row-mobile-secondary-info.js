@@ -2,11 +2,12 @@
  * Additional information about file, other than name, for use in mobile mode
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -51,16 +52,15 @@ export default Component.extend(I18n, {
   browserModel: undefined,
 
   /**
-   * @virtual optional
-   * @type {Boolean}
-   */
-  previewMode: false,
-
-  /**
    * @virtual
    * @type {Function}
    */
   invokeFileAction: notImplementedThrow,
 
   //#endregion
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  previewMode: reads('browserModel.previewMode'),
 });

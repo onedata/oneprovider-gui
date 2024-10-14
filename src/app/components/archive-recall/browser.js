@@ -2,20 +2,23 @@
  * A container for browser for selecting parent location to recall an archive
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import InModalBrowserContainerBase from 'oneprovider-gui/mixins/in-modal-item-browser-container-base';
-import SelectLocationFilesystemBrowserModel from 'oneprovider-gui/utils/select-location-filesystem-browser-model';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import SelectLocationFilesystemBrowserModel from 'oneprovider-gui/utils/select-location-filesystem-browser-model';
+import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 
 const mixins = [
+  ItemBrowserContainerBase,
   InModalBrowserContainerBase,
 ];
 
@@ -38,11 +41,6 @@ export default Component.extend(...mixins, {
    * @virtual
    */
   currentBrowsableItem: undefined,
-
-  /**
-   * @virtual
-   */
-  currentBrowsableItemError: undefined,
 
   /**
    * @virtual
@@ -90,16 +88,6 @@ export default Component.extend(...mixins, {
 
   onSelectedItemsChange: notImplementedThrow,
 
-  browserModel: computed(function browserModel() {
-    return SelectLocationFilesystemBrowserModel
-      .create({
-        ownerSource: this,
-        openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
-        openRename: this.openRenameModal.bind(this),
-        onRefresh: () => this.get('onFilesystemChange')(),
-      });
-  }),
-
   /**
    * @implements {FilesystemSelectBrowserExtensionModel}
    */
@@ -110,6 +98,20 @@ export default Component.extend(...mixins, {
    */
   fileToRename: null,
 
+  browserModel: computed(function browserModel() {
+    return ArchiveRecallBrowserModel.create({
+      archiveRecallBrowser: this,
+      ownerSource: this,
+      space: this.space,
+      openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
+      openRename: this.openRenameModal.bind(this),
+      onRefresh: () => this.onFilesystemChange(),
+    });
+  }),
+
+  /**
+   * @override
+   */
   willDestroyElement() {
     try {
       this.browserModel?.destroy();
@@ -151,18 +153,6 @@ export default Component.extend(...mixins, {
   },
 
   actions: {
-    changeSelectedItems() {
-      const {
-        disabled,
-        onSelectedItemsChange,
-      } = this.getProperties(
-        'disabled',
-        'onSelectedItemsChange',
-      );
-      if (!disabled && onSelectedItemsChange) {
-        onSelectedItemsChange(...arguments);
-      }
-    },
     changeDirId() {
       const {
         disabled,
@@ -175,5 +165,15 @@ export default Component.extend(...mixins, {
         onDirIdChange(...arguments);
       }
     },
+  },
+});
+
+const ArchiveRecallBrowserModel = SelectLocationFilesystemBrowserModel.extend({
+  dirProxy: reads('archiveRecallBrowser.currentBrowsableItemProxy'),
+  changeSelectedItems() {
+    if (!this.archiveRecallBrowser.disabled) {
+      this.archiveRecallBrowser.onSelectedItemsChange(...arguments);
+      this._super(...arguments);
+    }
   },
 });

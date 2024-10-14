@@ -2,7 +2,7 @@
  * Configuration of archive form for viewing existing archive properties.
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -15,6 +15,11 @@ import ArchiveFormBaseModel from 'oneprovider-gui/utils/archive-form/-base-model
 import _ from 'lodash';
 import { promise, bool } from 'ember-awesome-macros';
 import { htmlSafe } from '@ember/string';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 const CallbackFieldClass = ClipboardField
   .extend({
@@ -59,7 +64,7 @@ export default ArchiveFormBaseModel.extend({
    * @override
    * @type {ComputedProperty<FormFieldsRootGroup>}
    */
-  rootFieldGroup: computed('rootFieldGroupClass', function rootFieldGroup() {
+  rootFieldGroup: destroyableComputed('rootFieldGroupClass', function rootFieldGroup() {
     const {
       creatorField,
       rootFormGroupClass,
@@ -217,7 +222,19 @@ export default ArchiveFormBaseModel.extend({
   }),
 
   init() {
+    initDestroyableCache(this);
     this._super(...arguments);
     this.rootFieldGroup.useCurrentValueAsDefault();
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
   },
 });

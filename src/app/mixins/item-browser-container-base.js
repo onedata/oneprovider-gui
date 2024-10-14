@@ -3,19 +3,18 @@
  * by observing `selectedItemsForJumpProxy`.
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2022 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Mixin from '@ember/object/mixin';
-import { once } from '@ember/runloop';
-import { get, observer, computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
-import sleep from 'onedata-gui-common/utils/sleep';
+import { syncObserver, asyncObserver } from 'onedata-gui-common/utils/observer';
 
 export default Mixin.create({
-  // requires selectedItems: Array<Object> (browsable objects)
+  // requires browserModel: BaseBrowserModel`
   // requires `currentBrowsableItemProxy` (recommended) or `dirProxy` (backward
   //   compatibility) with type PromiseObject<Object> (browsable object)
   // optional selectedItemsForJumpProxy: PromiseArray<Object> (browsable obj.)
@@ -51,59 +50,48 @@ export default Mixin.create({
   )),
 
   /**
-   * @type {ComputedProperty<Array<Object>>} array of browsable item
+   * @type {ComputedProperty<Array<Object>>} array of browsable items
    */
   selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
 
-  selectedItemsForJumpChanged: observer(
+  /**
+   * @type {ComputedProperty<Array<Object>>} array of browsable items
+   */
+  selectedItems: reads('browserModel.selectedItems'),
+
+  /**
+   * Sync observer: changes selectedItems immediately
+   */
+  selectedItemsForJumpChanged: syncObserver(
     'selectedItemsForJumpProxy',
     async function selectedItemsForJumpChanged() {
-      const selectedItemsForJump = await this.get('selectedItemsForJumpProxy');
+      const selectedItemsForJump = await this.selectedItemsForJumpProxy;
       if (!selectedItemsForJump || get(selectedItemsForJump, 'length') === 0) {
         return;
       }
       this.set('lockSelectedReset', true);
       try {
-        await this.changeSelectedItems(selectedItemsForJump);
-        await this.get('currentBrowsableItemProxy');
+        this.browserModel.changeSelectedItems(selectedItemsForJump);
+        await this.currentBrowsableItemProxy;
       } finally {
         this.set('lockSelectedReset', false);
       }
     }
   ),
 
-  ensureSelectedReset: observer(
+  ensureSelectedReset: asyncObserver(
     'currentBrowsableItemProxy',
-    async function ensureSelectedReset() {
-      if (this.get('lockSelectedReset')) {
+    function ensureSelectedReset() {
+      if (this.lockSelectedReset) {
         return;
       }
-      if (this.get('selectedItems.length') > 0) {
-        await this.changeSelectedItems([]);
+      if (this.browserModel?.selectedItems.length > 0) {
+        this.browserModel.changeSelectedItems([]);
       }
     }
   ),
 
-  init() {
-    this._super(...arguments);
-    if (!this.get('selectedItems')) {
-      this.set('selectedItems', []);
-    }
-  },
-
-  /**
-   * Schedules selected items change - note that `selectedItems` content will not
-   * change immediately after using this method - you should wait for next runloop.
-   * Using `once` to ensure that selected items are changed once before render, because
-   * it caused a lot of trouble to control when change selected items were invoked.
-   * @param {Array<Object>} selectedItems array of browsable objects, eg. file
-   */
-  async changeSelectedItems(selectedItems) {
-    once(this, 'changeSelectedItemsImmediately', selectedItems);
-    await sleep(0);
-  },
-
-  changeSelectedItemsImmediately(selectedItems) {
-    this.set('selectedItems', selectedItems);
+  changeSelectedItems(items) {
+    this.browserModel?.changeSelectedItems(items);
   },
 });

@@ -4,18 +4,18 @@
  * this is a block element, so it is recommended to render it in a flex container.
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2022 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { computed, observer, get, getProperties, set } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, mapBy } from '@ember/object/computed';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import pathShorten from 'oneprovider-gui/utils/path-shorten';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 import { debounce } from '@ember/runloop';
-import { promise, lte, or, array, raw, equal } from 'ember-awesome-macros';
+import { promise, lte, or, equal } from 'ember-awesome-macros';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
@@ -294,9 +294,9 @@ export default Component.extend(...mixins, {
 
   renderTooltip: lte('displayedPathItemsCount', 'allPathItems.length'),
 
-  allRecords: array.mapBy('allPathItems', raw('record')),
+  allRecords: mapBy('allPathItems', 'record'),
 
-  allNames: array.mapBy('allRecords', raw('name')),
+  allNames: mapBy('allRecords', 'name'),
 
   allPathItemsObserver: observer('allPathItems.length', function allPathItemsObserver() {
     this.resetDisplayedPathItemsCount();

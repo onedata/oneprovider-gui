@@ -2,20 +2,20 @@
  * Container with browser of archives and their filesystem for single dataset.
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2022 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { observer, computed, get } from '@ember/object';
+import { observer, computed, get, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { resolve } from 'rsvp';
+import { resolve, all as allFulfilled } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
-import { promise, conditional, raw, equal } from 'ember-awesome-macros';
+import { promise, conditional, raw } from 'ember-awesome-macros';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -26,10 +26,14 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import InfoModalBrowserSupport from 'oneprovider-gui/mixins/info-modal-browser-support';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
-import sleep from 'onedata-gui-common/utils/sleep';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { getFileGri } from 'oneprovider-gui/models/file';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 const mixins = [
   I18n,
@@ -147,17 +151,6 @@ export default Component.extend(...mixins, {
   onCloseAllModals: notImplementedIgnore,
 
   /**
-   * @implements ItemBrowserContainerBase.selectedItems
-   */
-  selectedItems: undefined,
-
-  /**
-   * Managed by `switchBrowserModel` observer.
-   * @type {Utils.BaseBrowserModel}
-   */
-  browserModel: undefined,
-
-  /**
    * Entity ID of directory (file model).
    * @type {String}
    */
@@ -190,6 +183,13 @@ export default Component.extend(...mixins, {
    * @type {(archiveId: String) => (Promise|undefined)}
    */
   customOnUpdateDirId: undefined,
+
+  /**
+   * Set the browsable archive object immediately when user opens it using archive browser
+   * to be available for archive filesystem browser.
+   * @type {Utils.BrowsableArchive}
+   */
+  openedArchive: undefined,
 
   /**
    * @override
@@ -294,6 +294,9 @@ export default Component.extend(...mixins, {
    */
   defaultOnUpdateArchiveId: computed(function defaultOnUpdateArchiveId() {
     return (archiveId) => {
+      // This line is wrongly treated as a side effect in computed, but it is a
+      // function implementation.
+      // eslint-disable-next-line ember/no-side-effects
       this.set('archiveId', archiveId);
     };
   }),
@@ -303,6 +306,9 @@ export default Component.extend(...mixins, {
    */
   defaultOnUpdateDirId: computed(function defaultOnUpdateDirId() {
     return (dirId) => {
+      // This line is wrongly treated as a side effect in computed, but it is a
+      // function implementation.
+      // eslint-disable-next-line ember/no-side-effects
       this.set('dirId', dirId);
     };
   }),
@@ -336,37 +342,24 @@ export default Component.extend(...mixins, {
   /**
    * @implements ItemBrowserContainerBase
    */
-  dirProxy: promise.object(computed(
-    'datasetId',
-    'dirId',
-    'archiveProxy',
-    async function dirProxy() {
-      if (!this.get('archiveId')) {
-        return;
+  dirProxy: computed('datasetId', 'dirId', 'archiveProxy', function dirProxy() {
+    const {
+      archiveProxy,
+      spaceId,
+      datasetId,
+      archiveId,
+      archiveRootDirProxy,
+      dirId,
+      selectedIds,
+    } = this;
+
+    const promise = (async () => {
+      if (!archiveId) {
+        return null;
       }
 
-      const {
-        spaceId,
-        datasetId,
-        dirId,
-        archiveId,
-        filesViewResolver,
-        archiveProxy,
-        archiveRootDirProxy,
-        selectedIds,
-        parentAppNavigation,
-      } = this.getProperties(
-        'spaceId',
-        'datasetId',
-        'dirId',
-        'archiveId',
-        'filesViewResolver',
-        'archiveProxy',
-        'archiveRootDirProxy',
-        'selectedIds',
-        'parentAppNavigation',
-      );
       const archive = await archiveProxy;
+
       // Special case: if archive is nested, do not check if directory is from current
       // archive and dataset, because we can browse nested archives and in current
       // implementation we don't have enough information to check if directory is in
@@ -380,7 +373,7 @@ export default Component.extend(...mixins, {
           archiveId,
         });
       const archiveRootDir = await archiveRootDirProxy;
-      const resolverResult = await filesViewResolver.resolveViewOptions({
+      const resolverResult = await this.filesViewResolver.resolveViewOptions({
         dirId,
         currentFilesViewContext,
         selectedIds,
@@ -393,36 +386,40 @@ export default Component.extend(...mixins, {
       }
       if (resolverResult.result === 'resolve') {
         if (await this.isArchiveRootDir(resolverResult.dir)) {
-          return await this.archiveRootDirProxy;
+          return archiveRootDirProxy;
         } else {
           return resolverResult.dir;
         }
       } else {
         if (resolverResult.url) {
-          parentAppNavigation.openUrl(resolverResult.url, true);
+          this.parentAppNavigation.openUrl(resolverResult.url, true);
         }
         return archiveRootDir;
       }
-    }
-  )),
+    })();
+
+    return promiseObject(promise);
+  }),
 
   /**
-   * If archive files are browsed, this is the currently opened dir.
-   * @type {ComputedProperty<Models.File>}
-   */
-  dir: computedLastProxyContent('dirProxy'),
-
-  /**
-   * Exisiting proxies must be wrapped in new promise object to properly detect changes.
    * @implements ItemBrowserContainerProxy
    */
-  currentBrowsableItemProxy: promise.object(conditional(
-    equal('viewMode', raw('files')),
+  currentBrowsableItemProxy: computed(
+    'viewMode',
     'dirProxy',
-    promise.resolve('browsableDataset')
-  )),
+    'browsableDatasetProxy',
+    function currentBrowsableItemProxy() {
+      return this.viewMode === 'files' ? this.dirProxy : this.browsableDatasetProxy;
+    }
+  ),
 
-  currentBrowsableItem: computedLastProxyContent('currentBrowsableItemProxy'),
+  /**
+   * Fake proxy resolving immediately to be compatible with `dirProxy` for file browser.
+   * @type {PromiseObject<Utils.BrowsableDataset>}
+   */
+  browsableDatasetProxy: computed('browsableDataset', function browsableDatasetProxy() {
+    return promiseObject(resolve(this.browsableDataset));
+  }),
 
   /**
    * @type {ComputedProperty<PromiseObject<BrowsableArchiveRootDir>>}
@@ -458,19 +455,24 @@ export default Component.extend(...mixins, {
     'space',
     'browsableDataset',
     async function initialBrowsableItemProxy() {
-      return this.get('currentBrowsableItemProxy');
+      return this.currentBrowsableItemProxy;
     }
   )),
 
   /**
-   * Proxy for whole file-browser: loading causes loading screen, recomputing causes
-   * `file-browser` to be re-rendered.
+   * Proxy for whole file-browser: loading causes loading screen. Do not track computed
+   * properties, because we do not want file browser to be re-rendered.
    * @type {PromiseObject}
    */
-  initialRequiredDataProxy: promise.object(promise.all(
-    'initialBrowsableItemProxy',
-    'dirStatsServiceStateProxy'
-  )),
+  initialRequiredDataProxy: computed(function initialRequiredDataProxy() {
+    return promiseObject(allFulfilled([
+      this.selectedFilesForJumpProxy,
+      this.selectedArchivesForJumpProxy,
+      this.initialBrowsableItemProxy,
+      this.dirStatsServiceStateProxy,
+      this.archiveProxy,
+    ]));
+  }),
 
   /**
    * @type {ComputedProperty<String>}
@@ -483,12 +485,8 @@ export default Component.extend(...mixins, {
   archiveProxy: promise.object(computed(
     'archiveId',
     async function archiveProxy() {
-      const {
-        archiveManager,
-        archiveId,
-      } = this.getProperties('archiveManager', 'archiveId');
-      if (archiveId) {
-        return archiveManager.getBrowsableArchive(archiveId);
+      if (this.archiveId) {
+        return this.archiveManager.getBrowsableArchive(this.archiveId);
       } else {
         return null;
       }
@@ -501,66 +499,52 @@ export default Component.extend(...mixins, {
    */
   archive: computedLastProxyContent('archiveProxy'),
 
-  selectedItemsForJumpProxy: promise.object(computed(
-    // NOTE: not observing archiveId, because jump should not be performed if archiveId
-    // changes
+  // NOTE: not observing archiveId, because jump should not be performed if archiveId
+  // changes
+  selectedFilesForJumpProxy: computed(
     'selectedIds',
-    async function selectedItemsForJumpProxy() {
-      const {
-        selectedIds,
-        archiveId,
-      } = this.getProperties('selectedIds', 'archiveId');
-      if (archiveId) {
-        return this.getFilesForView(selectedIds);
-      } else {
-        return this.getArchivesForView(selectedIds);
-      }
+    function selectedFilesForJumpProxy() {
+      return promiseObject(resolve(
+        this.archiveId ? this.getFilesForView(this.selectedIds) : []
+      ));
     }
-  )),
+  ),
+
+  // NOTE: not observing archiveId, because jump should not be performed if archiveId
+  // changes
+  selectedArchivesForJumpProxy: computed(
+    'selectedIds',
+    function selectedArchivesForJumpProxy() {
+      return promiseObject(resolve(
+        this.archiveId ? [] : this.getArchivesForView(this.selectedIds)
+      ));
+    }
+  ),
 
   dirStatsServiceStateProxy: promise.object(computed(
     'space.entityId',
     function dirStatsServiceStateProxy() {
-      const {
-        spaceManager,
-        space,
-      } = this.getProperties('spaceManager', 'space');
-      return space && spaceManager.getDirStatsServiceState(get(space, 'entityId'));
+      return this.space &&
+        this.spaceManager.getDirStatsServiceState(get(this.space, 'entityId'));
     }
   )),
 
-  switchBrowserModel: observer(
+  /**
+   * @implements {Mixins.ItemBrowserContainerBase}
+   * @type {ComputedProperty<Utils.ArchiveFilesystemBrowserModel|Utils.ArchiveBrowserModel>}
+   */
+  browserModel: destroyableComputed(
     'viewMode',
-    'archiveDipMode',
-    async function switchBrowserModel() {
-      const {
-        viewMode,
-        browserModel: currentBrowserModel,
-        archiveBrowserModelOptions,
-        filesystemBrowserModelOptions,
-      } = this.getProperties(
-        'viewMode',
-        'browserModel',
-        'archiveBrowserModelOptions',
-        'fileBrowserModelOptions',
-      );
-      let newBrowserModel;
-      switch (viewMode) {
+    function browserModel() {
+      switch (this.viewMode) {
         case 'files':
-          newBrowserModel =
-            await this.createFilesystemBrowserModel(filesystemBrowserModelOptions);
-          break;
+          return this.createFilesystemBrowserModel(this.filesystemBrowserModelOptions);
         case 'archives':
-          newBrowserModel = this.createArchiveBrowserModel(archiveBrowserModelOptions);
-          break;
+          return this.createArchiveBrowserModel(this.archiveBrowserModelOptions);
         default:
           throw new Error(
-            `component:dataset-archives-browser#switchBrowserModel: not supported viewMode: ${viewMode}`
+            `component:dataset-archives-browser#browserModel: not supported viewMode: ${this.viewMode}`
           );
-      }
-      this.set('browserModel', newBrowserModel);
-      if (currentBrowserModel) {
-        currentBrowserModel.destroy();
       }
     }
   ),
@@ -579,12 +563,8 @@ export default Component.extend(...mixins, {
         try {
           await this.initialRequiredDataProxy;
           await this.dirProxy;
-          await this.browserModel.initialLoad;
+          await this.browserModel.itemsArray.initialLoad;
           await waitForRender();
-          // HACK: In Firefox, the command is invoked before changeSelectedItems in
-          // browser container finishes. Using sleep(0) postpones invocation in browser
-          // execution queue always after changeSelectedItems.
-          await sleep(0);
           this.browserModel.invokeCommand(this.fileAction);
         } finally {
           safeExec(this, () => {
@@ -597,17 +577,14 @@ export default Component.extend(...mixins, {
   ),
 
   init() {
+    initDestroyableCache(this);
     this._super(...arguments);
-    this.switchBrowserModel();
     this.fileActionObserver();
   },
 
   willDestroyElement() {
     try {
-      const browserModel = this.get('browserModel');
-      if (browserModel) {
-        browserModel.destroy();
-      }
+      destroyDestroyableComputedValues(this);
     } finally {
       this._super(...arguments);
     }
@@ -665,7 +642,7 @@ export default Component.extend(...mixins, {
    * @returns {Promise<Models.File|Object>}
    */
   async getFileById(fileId) {
-    const archive = this.archive || await this.archiveProxy;
+    const archive = this.openedArchive || this.archive || await this.archiveProxy;
     const archiveRootDirId = archive.relationEntityId('rootDir');
     if (!fileId || fileId === archiveRootDirId) {
       return this.archiveRootDirProxy;
@@ -675,8 +652,10 @@ export default Component.extend(...mixins, {
   },
 
   createArchiveBrowserModel(options = {}) {
-    return ArchiveBrowserModel.create(Object.assign({
+    return DatasetArchivesArchiveBrowserModel.create(Object.assign({
+      datasetArchivesBrowser: this,
       ownerSource: this,
+      space: this.space,
       spaceDatasetsViewState: this,
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
@@ -687,32 +666,24 @@ export default Component.extend(...mixins, {
     }, options));
   },
 
-  async createFilesystemBrowserModel(options) {
-    const {
-      archiveProxy,
-      filesBrowserModelClass,
-    } = this.getProperties('archiveProxy', 'filesBrowserModelClass');
-    return filesBrowserModelClass.create(
-      Object.assign({
-        ownerSource: this,
-        archive: await archiveProxy,
-        onDirectoryChanged: () => this.get('onCloseAllModals')(),
-      }, options)
-    );
-  },
-
-  filesBrowserModelClass: computed(function filesBrowserModelClass() {
-    return ArchiveFilesystemBrowserModel.extend({
-      renderArchiveDipSwitch: true,
-      // TODO: VFS-7406 use dir or file-dataset icons
-      rootIcon: 'browser-dataset',
-      downloadScope: 'private',
-      archiveDipMode: reads('ownerSource.archiveDipMode'),
+  createFilesystemBrowserModel(options) {
+    if (!this.openedArchive && !this.archiveProxy.isFulfilled) {
+      throw new Error(
+        'DatasetArchivesBrowser.createFilesystemBrowserModel: no archive provided'
+      );
+    }
+    return DatasetArchivesFilesystemBrowserModel.create({
+      datasetArchivesBrowser: this,
+      ownerSource: this,
+      space: this.space,
+      archive: this.openedArchive || this.archiveProxy.content,
+      onDirectoryChanged: () => this.onCloseAllModals(),
       onArchiveDipModeChange: this.changeArchiveDipMode.bind(this),
       openInfo: this.openInfoModal.bind(this),
       openConfirmDownload: this.openConfirmDownload.bind(this),
+      ...options,
     });
-  }),
+  },
 
   /**
    * @param {Models.Dataset} dataset dataset for which create archive form will be shown
@@ -945,7 +916,7 @@ export default Component.extend(...mixins, {
       return this.fetchChildren(...arguments);
     },
     changeSelectedItems(selectedItems) {
-      return this.changeSelectedItems(selectedItems);
+      return this.browserModel.changeSelectedItems(selectedItems);
     },
     updateDirEntityId() {
       return this.updateDirEntityId(...arguments);
@@ -973,4 +944,56 @@ export default Component.extend(...mixins, {
       return this.getProvidersUrl(...args);
     },
   },
+});
+
+const DatasetArchivesArchiveBrowserModel = ArchiveBrowserModel.extend({
+  /**
+   * @virtual
+   * @type {Component.DatasetArchivesBrowser}
+   */
+  datasetArchivesBrowser: undefined,
+
+  dirProxy: reads('datasetArchivesBrowser.browsableDatasetProxy'),
+  selectedItemsForJump: reads(
+    'datasetArchivesBrowser.selectedArchivesForJumpProxy.content'
+  ),
+
+  /**
+   * @override
+   */
+  async onWillChangeDir(targetDir, updateBrowserDir) {
+    set(this.datasetArchivesBrowser, 'openedArchive', targetDir);
+    await updateBrowserDir?.(targetDir);
+  },
+});
+
+const DatasetArchivesFilesystemBrowserModel = ArchiveFilesystemBrowserModel.extend({
+  /**
+   * @virtual
+   * @type {Component.DatasetArchivesBrowser}
+   */
+  datasetArchivesBrowser: undefined,
+
+  /**
+   * @virtual
+   */
+  onArchiveDipModeChange: undefined,
+
+  /**
+   * @virtual
+   */
+  openInfo: undefined,
+
+  /**
+   * @virtual
+   */
+  openConfirmDownload: undefined,
+
+  dirProxy: reads('datasetArchivesBrowser.dirProxy'),
+  archiveDipMode: reads('datasetArchivesBrowser.archiveDipMode'),
+  selectedItemsForJump: reads('datasetArchivesBrowser.selectedFilesForJumpProxy.content'),
+  renderArchiveDipSwitch: true,
+  // TODO: VFS-7406 use dir or file-dataset icons
+  rootIcon: 'browser-dataset',
+  downloadScope: 'private',
 });

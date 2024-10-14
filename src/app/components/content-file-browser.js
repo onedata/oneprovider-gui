@@ -2,19 +2,18 @@
  * Container for file browser to use in an iframe with injected properties.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
-import { computed, get, getProperties, observer } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { promise } from 'ember-awesome-macros';
-import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -31,6 +30,7 @@ import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { getFileGri } from 'oneprovider-gui/models/file';
 import Looper from 'onedata-gui-common/utils/looper';
+import { syncObserver, asyncObserver } from 'onedata-gui-common/utils/observer';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -136,12 +136,6 @@ export default OneEmbeddedComponent.extend(
     fileForConfirmDownload: undefined,
 
     fileToShowRecallInfo: undefined,
-
-    /**
-     * Initialized on init.
-     * @type {Array<Models.File>}
-     */
-    selectedItems: undefined,
 
     /**
      * @type {DirStatsServiceState}
@@ -380,7 +374,9 @@ export default OneEmbeddedComponent.extend(
     dirProxy: promise.object(computed(
       'dirEntityId',
       'spaceEntityId',
-      'selected',
+      // Do not track selected - limit computing parent dir based on selected files
+      // only to initial dirProxy, because live changes of selected cause the list to
+      // unwanted reload.
       async function dirProxy() {
         const {
           spaceEntityId,
@@ -390,15 +386,7 @@ export default OneEmbeddedComponent.extend(
           fallbackDirProxy,
           parentAppNavigation,
           fileAction,
-        } = this.getProperties(
-          'spaceEntityId',
-          'selected',
-          'dirEntityId',
-          'filesViewResolver',
-          'fallbackDirProxy',
-          'parentAppNavigation',
-          'fileAction',
-        );
+        } = this;
 
         const currentFilesViewContext = FilesViewContext.create({
           spaceId: spaceEntityId,
@@ -420,6 +408,8 @@ export default OneEmbeddedComponent.extend(
           return resolverResult.dir;
         } else {
           if (resolverResult.url) {
+            // TODO: VFS-12215 remove legacy side-effects
+            // eslint-disable-next-line ember/no-side-effects
             this.set('willRedirectToOtherBrowser', true);
             parentAppNavigation.openUrl(resolverResult.url, true);
           }
@@ -428,25 +418,31 @@ export default OneEmbeddedComponent.extend(
       }
     )),
 
-    dir: computedLastProxyContent('dirProxy', { nullOnReject: true }),
+    space: reads('spaceProxy.content'),
 
-    dirError: reads('dirProxy.reason'),
-
-    spaceObserver: observer('spaceProxy.content', function spaceObserver() {
-      this.get('uploadManager').changeTargetSpace(this.get('spaceProxy.content'));
+    /**
+     * Sync: target space for upload should be changes as soon as possible.
+     */
+    spaceObserver: syncObserver('spaceProxy.content', function spaceObserver() {
+      this.uploadManager.changeTargetSpace(this.get('spaceProxy.content'));
     }),
 
-    dirObserver: observer('dir', function dirObserver() {
+    dirObserver: asyncObserver('dirProxy', function dirObserver() {
       this.closeAllModals();
     }),
 
-    spaceEntityIdObserver: observer('spaceEntityId', function spaceEntityIdObserver() {
-      this.closeAllModals();
-      this.clearFilesSelection();
-      this.get('containerScrollTop')(0);
-    }),
+    /**
+     * Sync: everything should be closed immediately to not use previous space
+     */
+    spaceEntityIdObserver: syncObserver('spaceEntityId',
+      function spaceEntityIdObserver() {
+        this.closeAllModals();
+        this.clearFilesSelection();
+        this.get('containerScrollTop')(0);
+      }
+    ),
 
-    fileActionObserver: observer(
+    fileActionObserver: asyncObserver(
       'fileAction',
       // additional properties, that should invoke file action from URL
       'selected',
@@ -480,7 +476,13 @@ export default OneEmbeddedComponent.extend(
 
     init() {
       this._super(...arguments);
-      this.set('browserModel', this.createBrowserModel());
+      (async () => {
+        try {
+          await this.initialRequiredDataProxy;
+        } finally {
+          this.set('browserModel', this.createBrowserModel());
+        }
+      })();
       this.fileActionObserver();
       const updater = Looper.create({
         immediate: false,
@@ -518,19 +520,26 @@ export default OneEmbeddedComponent.extend(
     },
 
     createBrowserModel() {
-      return FilesystemBrowserModel.create({
-        ownerSource: this,
-        openBagitUploader: this.openBagitUploader.bind(this),
-        openCreateNewDirectory: (parent) => this.openCreateItemModal('dir', parent),
-        openRemove: this.openRemoveModal.bind(this),
-        openRename: this.openRenameModal.bind(this),
-        openInfo: this.openInfoModal.bind(this),
-        openRecallInfo: this.openRecallInfoModal.bind(this),
-        openDatasets: this.openDatasetsModal.bind(this),
-        openConfirmDownload: this.openConfirmDownload.bind(this),
-        openWorkflowRunView: this.openWorkflowRunView.bind(this),
-        closeAllModals: this.closeAllModals.bind(this),
-      });
+      const model = FilesystemBrowserModel
+        .extend({
+          dirProxy: reads('ownerSource.dirProxy'),
+          selectedItemsForJump: reads('ownerSource.selectedItemsForJumpProxy.content'),
+        })
+        .create({
+          ownerSource: this,
+          space: this.space,
+          openBagitUploader: this.openBagitUploader.bind(this),
+          openCreateNewDirectory: (parent) => this.openCreateItemModal('dir', parent),
+          openRemove: this.openRemoveModal.bind(this),
+          openRename: this.openRenameModal.bind(this),
+          openInfo: this.openInfoModal.bind(this),
+          openRecallInfo: this.openRecallInfoModal.bind(this),
+          openDatasets: this.openDatasetsModal.bind(this),
+          openConfirmDownload: this.openConfirmDownload.bind(this),
+          openWorkflowRunView: this.openWorkflowRunView.bind(this),
+          closeAllModals: this.closeAllModals.bind(this),
+        });
+      return model;
     },
 
     openWorkflowRunView({
@@ -677,14 +686,13 @@ export default OneEmbeddedComponent.extend(
       this.set('fileToShowRecallInfo', null);
     },
     closeDatasetsModal() {
-      const {
-        uploadManager,
-        dir,
-      } = this.getProperties('uploadManager', 'dir');
       this.set('filesToShowDatasets', null);
-      // datasets browser could have recall panel opened that can change upload target
-      // directory, so make sure that it is restored
-      uploadManager.changeTargetDirectory(dir);
+      (async () => {
+        const dir = await this.dirProxy;
+        // datasets browser could have recall panel opened that can change upload target
+        // directory, so make sure that it is restored
+        this.uploadManager.changeTargetDirectory(dir);
+      })();
     },
 
     closeAllModals() {
@@ -702,9 +710,6 @@ export default OneEmbeddedComponent.extend(
     actions: {
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
-      },
-      changeSelectedItems(selectedItems) {
-        return this.changeSelectedItems(selectedItems);
       },
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);

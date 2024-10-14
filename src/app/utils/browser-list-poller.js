@@ -3,7 +3,7 @@
  * Remember to use `destroy` on the instance when polling is not needed anymore!
  *
  * @author Jakub Liput
- * @copyright (C) 2023 ACK CYFRONET AGH
+ * @copyright (C) 2023-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,12 +12,12 @@ import Looper from 'onedata-gui-common/utils/looper';
 import { conditional, raw, and, not, writable } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import { DynamicOwnerInjector } from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
 
 export const defaultPollInterval = 10000;
 
-export default EmberObject.extend(OwnerInjector, {
+export default EmberObject.extend(DynamicOwnerInjector, {
   onedataWebsocketErrorHandler: service(),
 
   /**

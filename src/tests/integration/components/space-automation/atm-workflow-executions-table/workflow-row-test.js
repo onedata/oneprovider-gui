@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, before, beforeEach, afterEach } from 'mocha';
+import { describe, it, before, after, beforeEach, afterEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find, findAll, click } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
@@ -97,7 +97,11 @@ describe('Integration | Component | space-automation/atm-workflow-executions-tab
   before(function () {
     // Instatiate Action class to make its `prototype.execute` available for
     // mocking.
-    CopyRecordIdAction.create();
+    this.copyRecordIdAction = CopyRecordIdAction.create();
+  });
+
+  after(function () {
+    this.copyRecordIdAction?.destroy();
   });
 
   beforeEach(function () {

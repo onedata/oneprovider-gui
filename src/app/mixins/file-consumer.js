@@ -13,7 +13,7 @@
  * files.
  *
  * @author Jakub Liput
- * @copyright (C) 2023 ACK CYFRONET AGH
+ * @copyright (C) 2023-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -41,10 +41,12 @@ export default Mixin.create({
 
   init() {
     this._super(...arguments);
-    this.fileConsumerModel = FileConsumerModel.create({
-      consumer: this,
-      ownerSource: this,
-    });
+    if (!this.fileConsumerModel) {
+      this.fileConsumerModel = FileConsumerModel.create({
+        consumer: this,
+        ownerSource: this,
+      });
+    }
   },
 
   /**
@@ -52,7 +54,7 @@ export default Mixin.create({
    */
   willDestroy() {
     try {
-      this.fileConsumerModel.destroy();
+      this.fileConsumerModel?.destroy();
     } finally {
       this._super(...arguments);
     }

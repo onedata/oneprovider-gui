@@ -6,9 +6,9 @@ import { hbs } from 'ember-cli-htmlbars';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import Service from '@ember/service';
 import sinon from 'sinon';
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
 import Evented from '@ember/object/evented';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, resolve } from 'rsvp';
 import _ from 'lodash';
 import sleep from 'onedata-gui-common/utils/sleep';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
@@ -22,6 +22,7 @@ import {
 } from '../../helpers/item-browser';
 import globals from 'onedata-gui-common/utils/globals';
 import { getFileGri } from 'oneprovider-gui/models/file';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -63,6 +64,7 @@ describe('Integration | Component | file-browser (main component)', function () 
       name,
       type: 'dir',
     });
+    await dir.save();
     this.set('dir', dir);
     mockRootFiles({
       testCase: this,
@@ -85,6 +87,7 @@ describe('Integration | Component | file-browser (main component)', function () 
       index: 'Some Space',
       type: 'dir',
     });
+    await rootDir.save();
 
     const dirs = _.range(0, numberOfDirs).map(i => (this.store.createRecord('file', {
       id: getFileGri(`file-${i}`),
@@ -96,6 +99,7 @@ describe('Integration | Component | file-browser (main component)', function () 
     for (let i = 0; i < numberOfDirs; ++i) {
       dirs[i].set('parent', i > 0 ? dirs[i - 1] : rootDir);
     }
+    await allFulfilled(dirs.map(dir => dir.save()));
 
     this.setProperties({
       dir: rootDir,
@@ -217,6 +221,7 @@ describe('Integration | Component | file-browser (main component)', function () 
       name,
       type: 'dir',
     });
+    await dir.save();
     const files = [];
     const fileManager = lookupService(this, 'fileManager');
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
@@ -247,11 +252,13 @@ describe('Integration | Component | file-browser (main component)', function () 
       name,
       type: 'dir',
     });
+    await dir.save();
     const f1 = this.store.createRecord('file', {
       id: getFileGri('f1'),
       name: 'File 1',
       index: 'File 1',
     });
+    await f1.save();
     const files = [f1];
     this.set('dir', dir);
     this.setProperties({
@@ -285,6 +292,7 @@ describe('Integration | Component | file-browser (main component)', function () 
         index: 'Test directory',
         type: 'dir',
       });
+      await dir.save();
 
       const dirs = [dir];
 
@@ -335,26 +343,25 @@ describe('Integration | Component | file-browser (main component)', function () 
     },
   });
 
-  // NOTE: use "done" callback for async tests because of bug in ember test framework
   describe('selects using injected file ids', function () {
     it('visible file on list', async function () {
       const dirId = 'deid';
       const dirGri = getFileGri(dirId);
       const name = 'Test directory';
-      const dir = this.store.createRecord('file', {
+      const dir = await createFile(this, {
         id: dirGri,
         name,
         type: 'dir',
       });
-      const files = _.range(4).map(i => {
+      const files = await allFulfilled(_.range(4).map(i => {
         const id = getFileGri(`f${i}`);
         const name = `File ${i}`;
-        return this.store.createRecord('file', {
+        return createFile(this, {
           id,
           name,
           index: name,
         });
-      });
+      }));
       const selectedFile = files[1];
       const selectedItemsForJump = [selectedFile];
       this.setProperties({
@@ -703,7 +710,7 @@ function testOpenDatasetsModal(openDescription, openFunction) {
 
 function testOpenFileInfo({ openDescription, tabName, openFunction }) {
   it(`invokes info modal opening with tab "${tabName}" when ${openDescription}`, async function () {
-    whenRootDirectoryHasOneItem(this);
+    await whenRootDirectoryHasOneItem(this);
     whenHaveSpaceViewPrivileges(this);
 
     const openInfo = sinon.spy();
@@ -834,14 +841,34 @@ async function renderComponent(testCase) {
   );
   setDefaultTestProperty(testCase, 'spacePrivileges', {});
   setDefaultTestProperty(testCase, 'spaceId', 'some_space_id');
-  setDefaultTestProperty(testCase, 'browserModel', FilesystemBrowserModel.create({
-    ownerSource: testCase.owner,
-    openCreateNewDirectory: openCreateNewDirectory ||
-      notStubbed('openCreateNewDirectory'),
-    openDatasets: openDatasets || notStubbed('openDatasets'),
-    openInfo: openInfo || notStubbed('openInfo'),
-    isListPollingEnabled: false,
-  }));
+  setDefaultTestProperty(testCase, 'browserModel', FilesystemBrowserModel
+    .extend({
+      dirProxy: computed('testCase.dir', function dirProxy() {
+        return promiseObject(resolve(this.testCase.get('dir')));
+      }),
+      selectedItemsForJump: computed('testCase.selectedItemsForJump',
+        function selectedItemsForJump() {
+          // NOTE: must use computed and .get method, because using reads does not work
+          // properly with mochaContext (`get(this, 'selectedItemsForJump')` does not react
+          // to updates properly).
+          return this.testCase.get('selectedItemsForJump');
+        }
+      ),
+    })
+    .create({
+      testCase,
+      ownerSource: testCase.owner,
+      space: {
+        entityId: testCase.get('spaceId'),
+        privileges: testCase.get('spacePrivileges'),
+      },
+      openCreateNewDirectory: openCreateNewDirectory ||
+        notStubbed('openCreateNewDirectory'),
+      openDatasets: openDatasets || notStubbed('openDatasets'),
+      openInfo: openInfo || notStubbed('openInfo'),
+      isListPollingEnabled: false,
+    })
+  );
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.set('changeSelectedItemsImmediately', function (selectedItems) {
     this.set('selectedItems', selectedItems);
@@ -850,18 +877,12 @@ async function renderComponent(testCase) {
     once(this, 'changeSelectedItemsImmediately', selectedItems);
     await sleep(0);
   });
-  await render(hbs `<div id="content-scroll">{{file-browser
+  await render(hbs`<div id="content-scroll">{{file-browser
     browserModel=browserModel
-    dir=dir
-    spaceId=spaceId
-    selectedItems=selectedItems
-    selectedItemsForJump=selectedItemsForJump
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
-    spacePrivileges=spacePrivileges
     handleFileDownloadUrl=handleFileDownloadUrl
     updateDirEntityId=(action updateDirEntityId)
-    changeSelectedItems=(action changeSelectedItems)
   }}</div>`);
 }
 
@@ -900,13 +921,14 @@ function destroyFakeClock(testCase) {
   }
 }
 
-function whenRootDirectoryHasOneItem(testCase, { itemType = 'file' } = {}) {
+async function whenRootDirectoryHasOneItem(testCase, { itemType = 'file' } = {}) {
   const dir = testCase.store.createRecord('file', {
     id: getFileGri('root'),
     name: 'Test directory',
     index: 'Test directory',
     type: 'dir',
   });
+  await dir.save();
 
   const item1 = testCase.store.createRecord('file', {
     id: getFileGri('i1'),
@@ -915,6 +937,7 @@ function whenRootDirectoryHasOneItem(testCase, { itemType = 'file' } = {}) {
     type: itemType,
     parent: dir,
   });
+  await item1.save();
 
   testCase.setProperties({ dir, item1, selectedItems: [] });
   stubSimpleFetch(testCase, dir, [item1]);

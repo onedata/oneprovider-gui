@@ -107,6 +107,9 @@ export default HeaderBaseComponent.extend(I18n, {
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: () => {
+        // This line is wrongly treated as a side effect in computed, but it is a
+        // function implementation.
+        // eslint-disable-next-line ember/no-side-effects
         this.set('removeShareOpened', true);
       },
       class: 'btn-remove-share',
@@ -130,6 +133,9 @@ export default HeaderBaseComponent.extend(I18n, {
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: () => {
+        // This line is wrongly treated as a side effect in computed, but it is
+        // function implementation.
+        // eslint-disable-next-line ember/no-side-effects
         this.set('renameShareOpened', true);
       },
       class: 'btn-rename-share',

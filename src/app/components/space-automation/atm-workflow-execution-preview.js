@@ -2,7 +2,7 @@
  * Shows workflow execution progress using full workflow visualiser.
  *
  * @author Michał Borzęcki
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -13,6 +13,11 @@ import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/exec
 import ActionsFactory from 'onedata-gui-common/utils/workflow-visualiser/actions-factory';
 import { inject as service } from '@ember/service';
 import { hash as hashFulfilled } from 'rsvp';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 export default Component.extend({
   classNames: ['atm-workflow-execution-preview', 'loadable-row'],
@@ -172,7 +177,7 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
-  cancelAction: computed(
+  cancelAction: destroyableComputed(
     'atmWorkflowExecutionProxy.isFulfilled',
     function cancelAction() {
       if (this.atmWorkflowExecutionProxy.isFulfilled) {
@@ -186,7 +191,7 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
-  forceContinueAction: computed(
+  forceContinueAction: destroyableComputed(
     'atmWorkflowExecutionProxy.isFulfilled',
     function forceContinueAction() {
       if (this.atmWorkflowExecutionProxy.isFulfilled) {
@@ -200,7 +205,7 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
-  pauseResumeAction: computed(
+  pauseResumeAction: destroyableComputed(
     'atmWorkflowExecutionProxy.isFulfilled',
     function pauseResumeAction() {
       if (this.atmWorkflowExecutionProxy.isFulfilled) {
@@ -214,7 +219,7 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
-  removeAction: computed(
+  removeAction: destroyableComputed(
     'atmWorkflowExecutionProxy.isFulfilled',
     function removeAction() {
       if (this.atmWorkflowExecutionProxy.isFulfilled) {
@@ -230,4 +235,20 @@ export default Component.extend({
       }
     }
   ),
+
+  init() {
+    initDestroyableCache(this);
+    this._super(...arguments);
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
+  },
 });

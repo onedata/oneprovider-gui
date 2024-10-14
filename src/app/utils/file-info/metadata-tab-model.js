@@ -2,7 +2,7 @@
  * Tab model for showing file-metadata in file-info-modal
  *
  * @author Jakub Liput
- * @copyright (C) 2022-2023 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -152,6 +152,17 @@ export default BaseTabModel.extend(...mixins, {
    * @type {ComputedProperty<boolean>}
    */
   hasCustomMetadata: reads('file.hasCustomMetadata'),
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.cacheFor('viewModel')?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
 
   /**
    * @override

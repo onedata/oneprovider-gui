@@ -51,7 +51,7 @@
                 {{tt this (concat "common.dcElementNames." group.type)}}
               </h2>
               <div class="group-add-entry">
-                {{#bs-button
+                {{#one-button
                   type="default"
                   class="btn-sm btn-add-entry"
                   disabled=formDisabled
@@ -62,7 +62,7 @@
                     {{tt this "editor.add"}}
                     {{lowercase (tt this (concat "common.dcElementNames." group.type))}}
                   </span>
-                {{/bs-button}}
+                {{/one-button}}
               </div>
             </div>
             {{#each group.values as |value index|}}

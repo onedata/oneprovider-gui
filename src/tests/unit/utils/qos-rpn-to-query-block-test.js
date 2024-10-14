@@ -1,9 +1,13 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { describe, it, afterEach } from 'mocha';
 import { get } from '@ember/object';
 import qosRpnToQueryBlock from 'oneprovider-gui/utils/qos-rpn-to-query-block';
 
 describe('Unit | Utility | qos-rpn-to-query-block', function () {
+  afterEach(function () {
+    this.rootBlock?.destroy();
+  });
+
   it('generates root query block with "and" operator and condition blocks', function () {
     const rpnData = [
       'a',
@@ -14,11 +18,11 @@ describe('Unit | Utility | qos-rpn-to-query-block', function () {
       '>',
       '&',
     ];
-    const rootBlock = qosRpnToQueryBlock({ rpnData });
+    this.rootBlock = qosRpnToQueryBlock({ rpnData });
 
-    expect(get(rootBlock, 'operator')).to.equal('root');
-    expect(get(rootBlock, 'operands.length')).to.equal(1);
-    const andBlock = get(rootBlock, 'operands.firstObject');
+    expect(get(this.rootBlock, 'operator')).to.equal('root');
+    expect(get(this.rootBlock, 'operands.length')).to.equal(1);
+    const andBlock = get(this.rootBlock, 'operands.firstObject');
     expect(get(andBlock, 'operator')).to.equal('and');
     expect(get(andBlock, 'operands.length')).to.equal(2);
     const operand0 = get(andBlock, 'operands')[0];
@@ -39,8 +43,8 @@ describe('Unit | Utility | qos-rpn-to-query-block', function () {
       '1a',
       '=',
     ];
-    const rootBlock = qosRpnToQueryBlock({ rpnData });
-    const condition = get(rootBlock, 'operands.firstObject');
+    this.rootBlock = qosRpnToQueryBlock({ rpnData });
+    const condition = get(this.rootBlock, 'operands.firstObject');
 
     expect(get(condition, 'comparator')).to.equal('string.eq');
   });
@@ -61,8 +65,8 @@ describe('Unit | Utility | qos-rpn-to-query-block', function () {
       'abc1',
       '=',
     ];
-    const rootBlock = qosRpnToQueryBlock({ rpnData, queryProperties, storages });
-    const condition = get(rootBlock, 'operands.firstObject');
+    this.rootBlock = qosRpnToQueryBlock({ rpnData, queryProperties, storages });
+    const condition = get(this.rootBlock, 'operands.firstObject');
 
     expect(get(condition, 'comparator')).to.equal('storage.is');
     expect(get(condition, 'comparatorValue')).to.equal(storage);
@@ -84,8 +88,8 @@ describe('Unit | Utility | qos-rpn-to-query-block', function () {
       'pro1',
       '=',
     ];
-    const rootBlock = qosRpnToQueryBlock({ rpnData, queryProperties, providers });
-    const condition = get(rootBlock, 'operands.firstObject');
+    this.rootBlock = qosRpnToQueryBlock({ rpnData, queryProperties, providers });
+    const condition = get(this.rootBlock, 'operands.firstObject');
 
     expect(get(condition, 'comparator')).to.equal('provider.is');
     expect(get(condition, 'comparatorValue')).to.equal(provider);

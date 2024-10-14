@@ -1,48 +1,49 @@
-{{#promise-proxy-container proxy=oneprovidersProxy}}
+<PromiseProxyContainer @proxy={{oneprovidersProxy}}>
   {{#if (eq activeTab "summary")}}
     <p class="batch-mode-intro">
       {{#if itemsNumber}}
         {{summaryText}}
         {{#if filesSizeDetails}}
-          {{one-label-tip
-            title=filesSizeDetails
-            icon="browser-info"
+          <OneLabelTip
+            @title={{filesSizeDetails}}
+            @icon="browser-info"
             class="details-size-info"
-          }}
+          />
         {{/if}}
       {{/if}}
     </p>
-    {{file-distribution/oneproviders-distribution
-      visible=true
-      batchMode=true
-      fileDistributionData=fileDistributionData
-      oneproviders=oneproviders
-      space=space
-      onReplicate=(action "replicate" files)
-      onMigrate=(action "migrate" files)
-      onEvict=(action "evict" files)
-      getTransfersUrl=(action "getTransfersUrl")
-      getProvidersUrl=(action "getProvidersUrl")
-    }}
+    <FileDistribution::OneprovidersDistribution
+      @visible={{true}}
+      @batchMode={{true}}
+      @fileDistributionData={{fileDistributionData}}
+      @oneproviders={{oneproviders}}
+      @space={{space}}
+      @onReplicate={{action "replicate" files}}
+      @onMigrate={{action "migrate" files}}
+      @onEvict={{action "evict" files}}
+      @getTransfersUrl={{action "getTransfersUrl"}}
+      @getProvidersUrl={{action "getProvidersUrl"}}
+    />
   {{else if (eq activeTab "details")}}
     {{#if isMultiFile}}
-      {{#one-collapsible-list class="per-file-distribution-list" as |list|}}
+      <OneCollapsibleList class="per-file-distribution-list" as |list|>
         {{#each fileDistributionData as |fileDistDataContainer|}}
-          {{#list.item as |listItem|}}
-            {{#listItem.header disableToggleIcon=true}}
+          <list.item as |listItem|>
+            <listItem.header @disableToggleIcon={{true}}>
               <span class="item-icon-container">
-                {{one-icon
+                <OneIcon
                   class="item-icon"
-                  icon=(if (eq fileDistDataContainer.fileType "file")
+                  @icon={{if
+                    (eq fileDistDataContainer.fileType "file")
                     "browser-file"
                     "browser-directory"
-                  )
-                }}
-                {{one-tooltip
-                  title=fileDistDataContainer.file.name
-                  placement="top"
-                  triggerEvents="hover"
-                }}
+                  }}
+                />
+                <OneTooltip
+                  @title={{fileDistDataContainer.file.name}}
+                  @placement="top"
+                  @triggerEvents="hover"
+                />
               </span>
               <span class="file-name truncate">
                 {{fileDistDataContainer.file.name}}
@@ -50,39 +51,39 @@
               <span class="file-size">
                 {{bytes-to-string fileDistDataContainer.file.size}}
               </span>
-            {{/listItem.header}}
-            {{#listItem.content}}
+            </listItem.header>
+            <listItem.content>
               <div class="list-content">
-                {{file-distribution/oneproviders-distribution
-                  visible=listItem.isActive
-                  oneproviders=oneproviders
-                  fileDistributionData=(array fileDistDataContainer)
-                  space=space
-                  onReplicate=(action "replicate" fileDistDataContainer.file)
-                  onMigrate=(action "migrate" fileDistDataContainer.file)
-                  onEvict=(action "evict" fileDistDataContainer.file)
-                  getTransfersUrl=(action "getTransfersUrl")
-                  getProvidersUrl=(action "getProvidersUrl")
-                }}
+                <FileDistribution::OneprovidersDistribution
+                  @visible={{listItem.isActive}}
+                  @oneproviders={{oneproviders}}
+                  @fileDistributionData={{array fileDistDataContainer}}
+                  @space={{space}}
+                  @onReplicate={{action "replicate" fileDistDataContainer.file}}
+                  @onMigrate={{action "migrate" fileDistDataContainer.file}}
+                  @onEvict={{action "evict" fileDistDataContainer.file}}
+                  @getTransfersUrl={{action "getTransfersUrl"}}
+                  @getProvidersUrl={{action "getProvidersUrl"}}
+                />
               </div>
-            {{/listItem.content}}
-          {{/list.item}}
+            </listItem.content>
+          </list.item>
         {{/each}}
-      {{/one-collapsible-list}}
+      </OneCollapsibleList>
     {{else}}
       {{#let fileDistributionData.firstObject as |fileDistDataContainer|}}
-        {{file-distribution/oneproviders-distribution
-          visible=true
-          oneproviders=oneproviders
-          fileDistributionData=(array fileDistDataContainer)
-          space=space
-          onReplicate=(action "replicate" fileDistDataContainer.file)
-          onMigrate=(action "migrate" fileDistDataContainer.file)
-          onEvict=(action "evict" fileDistDataContainer.file)
-          getTransfersUrl=(action "getTransfersUrl")
-          getProvidersUrl=(action "getProvidersUrl")
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @visible={{true}}
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{array fileDistDataContainer}}
+          @space={{space}}
+          @onReplicate={{action "replicate" fileDistDataContainer.file}}
+          @onMigrate={{action "migrate" fileDistDataContainer.file}}
+          @onEvict={{action "evict" fileDistDataContainer.file}}
+          @getTransfersUrl={{action "getTransfersUrl"}}
+          @getProvidersUrl={{action "getProvidersUrl"}}
+        />
       {{/let}}
     {{/if}}
   {{/if}}
-{{/promise-proxy-container}}
+</PromiseProxyContainer>

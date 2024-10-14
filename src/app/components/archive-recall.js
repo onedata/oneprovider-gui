@@ -2,7 +2,7 @@
  * Configurator and launcher for recalling an archive to selected location.
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -11,7 +11,6 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { promise, tag, or, raw } from 'ember-awesome-macros';
 import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import { inject as service } from '@ember/service';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { guidFor } from '@ember/object/internals';
@@ -23,7 +22,6 @@ import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 
 const mixins = [
   I18n,
-  ItemBrowserContainerBase,
   FileConsumerMixin,
 ];
 
@@ -110,12 +108,6 @@ export default Component.extend(...mixins, {
   //#region state
 
   /**
-   * @implements ItemBrowserContainerBase
-   * @type {Array<Models.File>}
-   */
-  selectedItems: null,
-
-  /**
    * Entity ID of dir currently viewed in embedded file browser.
    * Null means root dir of space.
    * @type {String|null}
@@ -173,9 +165,6 @@ export default Component.extend(...mixins, {
    */
   dataset: reads('datasetProxy.content'),
 
-  /**
-   * @implements ItemBrowserContainerBase
-   */
   currentBrowsableItemProxy: promise.object(computed(
     'space.rootDir',
     'dirId',
@@ -336,6 +325,15 @@ export default Component.extend(...mixins, {
 
   targetNameChanged(targetName) {
     this.set('targetName', targetName);
+  },
+
+  /**
+   * Besides storing selectedItems in the browserModel, we need to store selected items
+   * that are selected as target to recall.
+   * @param {Array<Models.File>} items
+   */
+  changeSelectedItems(items) {
+    this.set('selectedItems', items);
   },
 
   /**

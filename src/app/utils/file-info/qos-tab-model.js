@@ -2,7 +2,7 @@
  * Tab model for showing file-qos in file-info-modal
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -10,7 +10,7 @@ import BaseTabModel from './base-tab-model';
 import { computed, observer, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import FileQosViewModel from 'oneprovider-gui/utils/file-qos-view-model';
-import { conditional, raw, getBy, eq } from 'ember-awesome-macros';
+import { conditional, raw } from 'ember-awesome-macros';
 import FilesQosStatusModel from 'oneprovider-gui/utils/files-qos-status-model';
 import { qosStatusIcons } from 'oneprovider-gui/utils/file-qos-view-model';
 import { translateFileType } from 'onedata-gui-common/utils/file';
@@ -166,10 +166,16 @@ export default BaseTabModel.extend({
     }
   ),
 
-  allQosStatusIcon: conditional(
-    eq('filesQosStatusModel.allQosStatus', raw('empty')),
-    raw(''),
-    getBy(raw(qosStatusIcons), 'filesQosStatusModel.allQosStatus'),
+  allQosStatusIcon: computed(
+    'filesQosStatusModel.allQosStatus',
+    function allQosStatusIcon() {
+      const allQosStatus = this.filesQosStatusModel?.allQosStatus;
+      if (allQosStatus === 'empty') {
+        return '';
+      } else {
+        return qosStatusIcons[allQosStatus];
+      }
+    }
   ),
 
   autoStatusWatchConfigurator: observer(

@@ -73,6 +73,8 @@ const VisualEdmViewModel = EmberObject.extend({
     function objects() {
       const newObjects = this.createObjectsViewModels();
       this.destroyPrevObjects();
+      // TODO: VFS-12215 remove legacy side-effects
+      // eslint-disable-next-line ember/no-side-effects
       this.set('prevObjects', newObjects);
       return newObjects;
     }

@@ -4,6 +4,8 @@ import { get } from '@ember/object';
 import { lookupService } from './stub-service';
 import _ from 'lodash';
 import globals from 'onedata-gui-common/utils/globals';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import { v4 as uuid } from 'ember-uuid';
 
 export const defaultSpaceId = 'space_default_id';
 
@@ -109,7 +111,7 @@ export function createOnedataArchivesRootDir(spaceId = defaultSpaceId) {
   });
 }
 
-export function createArchiveRootDir(...options) {
+export async function createArchiveRootDir(store, ...options) {
   let datasetId;
   let archiveId;
   let spaceId;
@@ -127,23 +129,26 @@ export function createArchiveRootDir(...options) {
     spaceId = defaultSpaceId;
   }
   if (!datasetDirId) {
-    datasetDirId = 'dataset_dir_id';
+    datasetDirId = 'dataset_dir_id_' + uuid();
   }
   if (!archiveDirId) {
-    archiveDirId = 'archive_dir_id';
+    archiveDirId = 'archive_dir_id_' + uuid();
   }
-  const specialDir = createOnedataArchivesRootDir(spaceId);
-  const datasetDir = createFile({
-    entityId: createEntityId(datasetDirId, spaceId),
+  const specialDir = await store.createRecord('file', {
+    name: '.__onedata__archive',
+    type: 'dir',
+  });
+  const datasetDir = await store.createRecord('file', {
+    id: generateFileId(createEntityId(datasetDirId, spaceId)),
     name: `dataset_archives_${datasetId}`,
     type: 'dir',
-    parentObject: specialDir,
+    parent: specialDir,
   });
-  const archiveDir = createFile({
-    entityId: createEntityId(archiveDirId, spaceId),
+  const archiveDir = await store.createRecord('file', {
+    id: generateFileId(createEntityId(archiveDirId, spaceId)),
     name: `archive_${archiveId}`,
     type: 'dir',
-    parentObject: datasetDir,
+    parent: datasetDir,
   });
   return archiveDir;
 }
@@ -195,21 +200,22 @@ export function createFile(override = {}) {
   return obj;
 }
 
-export function createFilesChain(filesDataArray) {
+export async function createFilesChain(store, filesDataArray) {
   const filesArray = [];
   for (let i = 0; i < filesDataArray.length; ++i) {
     const rawFileData = filesDataArray[i];
-    const fileData = typeof rawFileData === 'object' ? filesDataArray[i] : {
-      name: filesDataArray[i],
-    };
-    fileData.type = 'dir';
-    if (i > 0) {
-      fileData.hasParent = true;
-      fileData.parent = promiseObject(resolve(filesArray[i - 1]));
-    }
-    filesArray.push(createFile(fileData));
+    const fileRecord = await (
+      typeof rawFileData === 'object' ?
+      rawFileData :
+      store.createRecord('file', {
+        name: filesDataArray[i],
+        id: generateFileId(createEntityId(`${uuid()}`, 'space_id')),
+        type: (i === filesDataArray.length - 1) ?
+          LegacyFileType.Regular : LegacyFileType.Directory,
+        parent: i > 0 ? filesArray[i - 1] : null,
+      }));
+    filesArray.push(fileRecord);
   }
-  filesArray[filesArray.length - 1].type = 'file';
   return filesArray;
 }
 

@@ -2,19 +2,19 @@
  * Standalone component to test file browser without injected properties.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { get, computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import sleep from 'onedata-gui-common/utils/sleep';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { resolve } from 'rsvp';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend({
@@ -28,8 +28,6 @@ export default Component.extend({
   containerScrollTop: undefined,
 
   browserModel: undefined,
-
-  previewMode: false,
 
   /**
    * @type {Array<Models.File>}
@@ -64,10 +62,16 @@ export default Component.extend({
     if (!this.get('selectedItems')) {
       this.set('selectedItems', []);
     }
-    this.set('browserModel', FilesystemBrowserModel.create({
-      ownerSource: this,
-      openRemove: this.immediatelyRemove.bind(this),
-    }));
+    this.set('browserModel', FilesystemBrowserModel
+      .extend({
+        dirProxy: reads('ownerSource.dirProxy'),
+      })
+      .create({
+        ownerSource: this,
+        previewMode: false,
+        space: this.spaceProxy.content,
+        openRemove: this.immediatelyRemove.bind(this),
+      }));
     // list of tests
     // this.testJumpToVisible(null, 3, 6);
     // this.testBlinkInterval();
@@ -155,12 +159,6 @@ export default Component.extend({
   actions: {
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
-    },
-    async changeSelectedItems(items) {
-      await sleep(0);
-      safeExec(this, 'set', 'selectedItems', items);
-      // resolve in future runloop
-      await sleep(0);
     },
   },
 });

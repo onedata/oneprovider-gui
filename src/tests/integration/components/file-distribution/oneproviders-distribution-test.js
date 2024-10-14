@@ -106,9 +106,13 @@ const oneproviderParis = Object.freeze({
   constructor: {},
 });
 
-describe('Integration | Component | file-distribution-modal/oneproviders-distribution',
+describe('Integration | Component | file-distribution/oneproviders-distribution',
   function () {
-    setupRenderingTest();
+    const { afterEach } = setupRenderingTest();
+
+    afterEach(function () {
+      this.get('fileDistributionData')?.forEach?.(data => data?.destroy?.());
+    });
 
     beforeEach(function () {
       const oneproviders = [
@@ -441,7 +445,7 @@ describe('Integration | Component | file-distribution-modal/oneproviders-distrib
     });
 
     ['ongoing', 'ended'].forEach((transferStatus) => {
-      it('renders link to transfers using external function if have active transfers',
+      it(`renders link to ${transferStatus} transfers using external function if have active transfers`,
         async function () {
           const transfersActive = transferStatus === 'ongoing';
           const fileId = 'someFileId';

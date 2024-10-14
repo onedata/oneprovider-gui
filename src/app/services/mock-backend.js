@@ -2,7 +2,7 @@
  * Creates and shares a state of mocked data model
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2021 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -1362,6 +1362,7 @@ export default Service.extend(...mixins, {
 
   /**
    * Requires entityRecords: provider, storage
+   * @returns {Promise<Array<Models.FileDistribution>>}
    */
   async createFileDistribution(store) {
     // NOTE: assuming that list of providers and storages are the same lenght
@@ -1401,6 +1402,7 @@ export default Service.extend(...mixins, {
 
   /**
    * Requires entityRecords: provider, storage
+   * @returns {Promise<Array<Models.StorageLocationInfo>>}
    */
   async createStorageLocationInfoRecords(store) {
     // NOTE: assuming that list of providers and storages are the same lenght

@@ -9,12 +9,12 @@
 import FbTableHeadFirstCell from 'oneprovider-gui/components/file-browser/fb-table-head-first-cell';
 import { reads } from '@ember/object/computed';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
-import { observer, computed } from '@ember/object';
-import { scheduleOnce } from '@ember/runloop';
+import { computed } from '@ember/object';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { or } from '@ember/object/computed';
-import globals from 'onedata-gui-common/utils/globals';
 import { inject as service } from '@ember/service';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 const mixins = [
   WindowResizeHandler,
@@ -47,13 +47,10 @@ export default FbTableHeadFirstCell.extend(...mixins, {
 
   effIsJumpControlHidden: or('isShareRoot', 'noSpaceForJumpControl'),
 
-  dirObserver: observer('browserModel.dir', async function dirObserver() {
+  dirObserver: asyncObserver('browserModel.dir', async function dirObserver() {
     // let header display feature tags for new dir
-    scheduleOnce('afterRender', this, () => {
-      globals.window.requestAnimationFrame(() => {
-        safeExec(this, 'autoSetHideJumpControl');
-      });
-    });
+    await waitForRender();
+    safeExec(this, 'autoSetHideJumpControl');
   }),
 
   init() {

@@ -15,7 +15,7 @@
         >
           <span class="column-name">
             {{#if (not-eq i 0)}}
-              {{one-icon icon="drag" class="column-move-icon visible-on-hover"}}
+              <OneIcon @icon="drag" @class="column-move-icon visible-on-hover" />
             {{/if}}
             {{tt this (concat "headers.name." column.id)}}
           </span>
@@ -28,9 +28,7 @@
           </div>
         </th>
       {{/each}}
-      {{columns-configuration-cell
-        columnsConfiguration=columnsConfiguration
-      }}
+      <ColumnsConfigurationCell @columnsConfiguration={{columnsConfiguration}} />
     </tr>
   </thead>
   <tbody class="transfers-table-tbody">
@@ -48,57 +46,33 @@
       {{#if (and transfers.initialLoad.isSettled fetchingPrev)}}
         <tr class="loading-row loading-prev-row">
           <td colspan="9999" class="special-row-cell loading-row-cell loading-prev-cell">
-            {{spin-spinner-block
-              sizeClass="sm"
-              class="absolute-middle-centered"
-            }}
+            <SpinSpinnerBlock @sizeClass="sm" @class="absolute-middle-centered" />
           </td>
         </tr>
       {{/if}}
-      {{#each transfers as |transfer|}}
-        {{space-transfers/transfer-row
-          class="clickable"
-          record=(transfer-table-record
-            transfer=transfer
-            transfers=transfers
-            providers=providers
-            spaceId=spaceId
-            transferCollection=transferType
-            providersColors=providersColors
-            transferActions=transferActions
-            ownerSource=this
-          )
-          columns=visibleColumns
-          transfersTable=this
-          forbiddenOperations=forbiddenOperations
-          transferActions=transferActions
-          openDbViewModal=(action "openDbViewModal")
-          click=(action "toggleTransferDetails" transfer.entityId undefined)
-        }}
-        {{#if (contains transfer.entityId expandedTransferIds)}}
-          {{space-transfers/transfer-details
-            record=(transfer-table-record
-              transfer=transfer
-              transfers=transfers
-              providers=providers
-              spaceId=spaceId
-              transferCollection=transferType
-              providersColors=providersColors
-              transferActions=transferActions
-              ownerSource=this
-            )
-            providersColors=providersColors
-            columnsCount=allColumnsCount
-          }}
+      {{#each transferRecords key="transfer" as |transferRecord|}}
+        <SpaceTransfers::TransferRow
+          @class="clickable"
+          @record={{transferRecord}}
+          @columns={{visibleColumns}}
+          @transfersTable={{this}}
+          @forbiddenOperations={{forbiddenOperations}}
+          @transferActions={{transferActions}}
+          @openDbViewModal={{action "openDbViewModal"}}
+          @click={{action "toggleTransferDetails" transferRecord.transferId undefined}}
+        />
+        {{#if (contains transferRecord.transferId expandedTransferIds)}}
+          <SpaceTransfers::TransferDetails
+            @record={{transferRecord}}
+            @providersColors={{providersColors}}
+            @columnsCount={{allColumnsCount}}
+          />
         {{/if}}
       {{/each}}
       {{#if (and transfers.initialLoad.isSettled fetchingNext)}}
         <tr class="loading-row loading-next-row">
           <td colspan="9999" class="special-row-cell loading-row-cell loading-next-cell">
-            {{spin-spinner-block
-              sizeClass="sm"
-              class="absolute-middle-centered"
-            }}
+            <SpinSpinnerBlock @sizeClass="sm" @class="absolute-middle-centered" />
           </td>
         </tr>
       {{/if}}

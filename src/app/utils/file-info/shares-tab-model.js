@@ -2,7 +2,7 @@
  * Tab model for showing file-shares in file-info-modal
  *
  * @author Jakub Liput
- * @copyright (C) 2022-2023 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -11,11 +11,15 @@ import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import FileSharesViewModel from 'oneprovider-gui/utils/file-shares-view-model';
 import { conditional, raw } from 'ember-awesome-macros';
-
 import FileConsumerMixin, {
   computedSingleUsedFileGri,
 } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 const mixins = [
   FileConsumerMixin,
@@ -125,11 +129,27 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
    */
-  viewModel: computed('file', 'space', function viewModel() {
+  viewModel: destroyableComputed('file', 'space', function viewModel() {
     return FileSharesViewModel.create({
       ownerSource: this,
       file: this.file,
       space: this.space,
     });
   }),
+
+  init() {
+    initDestroyableCache(this);
+    this._super(...arguments);
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
+  },
 });
