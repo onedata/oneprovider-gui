@@ -2,7 +2,7 @@
  * Tab model for showing file-distribution in file-info-modal
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,6 +12,11 @@ import FileDistributionViewModel from 'oneprovider-gui/utils/file-distribution-v
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
+import {
+  destroyableComputed,
+  destroyDestroyableComputedValues,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 const mixins = [
   OwnerInjector,
@@ -87,7 +92,7 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
    */
-  viewModel: computed(
+  viewModel: destroyableComputed(
     'files',
     'space',
     'previewMode',
@@ -101,4 +106,20 @@ export default BaseTabModel.extend(...mixins, {
       });
     }
   ),
+
+  init() {
+    this._super(...arguments);
+    initDestroyableCache(this);
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
+  },
 });
