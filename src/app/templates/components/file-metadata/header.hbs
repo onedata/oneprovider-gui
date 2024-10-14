@@ -1,25 +1,26 @@
 <div class="btn-group-tabs metadata-type-tabs">
-  {{#bs-button-group
+  <BsButtonGroup
     class="metadata-type-selector with-scroll-shadow"
-    value=activeTab
-    type="radio"
-    onChange=(action "changeTab") as |bg|
-  }}
+    @value={{activeTab}}
+    @type="radio"
+    @onChange={{action "changeTab"}}
+    as |bg|
+  >
     {{#each metadataTypes as |type|}}
       {{#let
         (get this (concat "viewModel." type "TabState"))
         (tt this (concat "types." type))
         as |tabState typeTranslation|
       }}
-        {{#bg.button
-          type="default"
-          class=(concat-classes
+        <bg.button
+          @type="default"
+          class={{concat-classes
             "btn-sm"
             "metadata-type-btn"
             (concat "metadata-type-btn-" type)
-          )
-          value=type
-        }}
+          }}
+          @value={{type}}
+        >
           <span class={{concat-classes
             "tab-name"
             "tab-state"
@@ -30,24 +31,59 @@
           }}>
             {{capitalize typeTranslation}}
           </span>
-          {{one-tooltip
-            title=(tt this (concat "tabStateHint." tabState)
+          <OneTooltip
+            @title={{tt this (concat "tabStateHint." tabState)
               type=typeTranslation
               typeCapitalized=(capitalize typeTranslation)
-            )
-            triggerEvents="hover"
-          }}
-        {{/bg.button}}
+            }}
+            @triggerEvents="hover"
+          />
+        </bg.button>
       {{/let}}
     {{/each}}
-  {{/bs-button-group}}
+  </BsButtonGroup>
   {{#if effectiveReadonly}}
     <div class="box-item editor-disabled-lock-container with-scroll-shadow hidden-xs">
       <div class="editor-disabled-lock-text">{{tt this "editorDisabled"}}</div>
-      {{one-icon class="editor-disabled-lock-icon" icon="lock"}}
+      <OneIcon class="editor-disabled-lock-icon" @icon="lock" />
       {{#if effectiveReadonlyTip}}
-        {{one-tooltip title=effectiveReadonlyTip}}
+        <OneTooltip @title={{effectiveReadonlyTip}} />
       {{/if}}
     </div>
   {{/if}}
+  <OneIcon
+    @icon="sign-question-rounded"
+    class="metadata-header-hint-trigger metadata-hint-trigger hint-trigger clickable"
+  />
+  <OneSwitchablePopoverModal
+    class="metadata-type-selector-hint"
+    @triggersConfiguration=".metadata-hint-trigger"
+    @popoverStyle="metadata-hint-info webui-popover-file-info-view-hint"
+    @modalClass="modal-compact-help"
+    @layoutType="modal"
+    as |ospm|
+  >
+    <ospm.modal.body>
+      {{#each (array
+        "viewDescription"
+        "metadataIntro"
+        "metadataAdditionalInfo"
+      ) as |translationKey|}}
+        <p>{{tt this (concat "selectorHint." translationKey)}}</p>
+      {{/each}}
+      <p>
+        <OneDocSeeMore
+          @linkName={{tt this "selectorHint.docLinkName"}}
+          @docPath="user-guide/metadata.html"
+        />
+      </p>
+    </ospm.modal.body>
+    <ospm.modal.footer>
+      <div class="btn-toolbar text-right visible-xs-block">
+        <BsButton class="btn btn-sm" @type="info" @onClick={{ospm.close}}>
+          {{tt this "selectorHint.close"}}
+        </BsButton>
+      </div>
+    </ospm.modal.footer>
+  </OneSwitchablePopoverModal>
 </div>
