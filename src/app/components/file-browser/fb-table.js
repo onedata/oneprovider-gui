@@ -523,18 +523,18 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  selectedItemsForJumpObserver: asyncObserver(
+  /**
+   * Using sync observer to make sure that jumpToSelection will be invoked before
+   * changing start/end index that is read from DOM after jump.
+   */
+  selectedItemsForJumpObserver: syncObserver(
     'selectedItemsForJump',
     async function selectedItemsForJumpObserver() {
       const {
         selectedItems,
         selectedItemsForJump,
         disableReJumps,
-      } = this.getProperties(
-        'selectedItems',
-        'selectedItemsForJump',
-        'disableReJumps',
-      );
+      } = this;
       if (isEmpty(selectedItemsForJump)) {
         return;
       }
