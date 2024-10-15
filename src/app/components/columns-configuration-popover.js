@@ -122,6 +122,11 @@ export default Component.extend(I18n, {
   isArrowTooltipVisible: true,
 
   /**
+   * @type {boolean}
+   */
+  isDropBorderShown: false,
+
+  /**
    * @type {Boolean}
    */
   isInFirefox: browser.name === BrowserName.Firefox,
@@ -322,9 +327,11 @@ export default Component.extend(I18n, {
     removeXattrColumn(removedColumn) {
       this.columnsConfiguration.removeXattrColumn(removedColumn);
     },
-    acceptDraggedElement(index, draggedElement) {
-      this.columnsConfiguration.moveColumn(draggedElement.columnName, index + 1);
+    acceptDraggedElement(index, event) {
+      const columnName = event.dataTransfer.getData('text');
+      this.columnsConfiguration.moveColumn(columnName, index + 1);
       this.applyCurrentColumnsOrder();
+      this.set('isDropBorderShown', false);
     },
     validateDragEvent() {
       return this.get('isTargetForDrop');
@@ -346,6 +353,13 @@ export default Component.extend(I18n, {
     goBack() {
       this.set('activeSlide', 'column-configuration');
       this.set('modifiedColumn', '');
+    },
+    headingDragOverAction(event) {
+      event.preventDefault();
+      this.set('isDropBorderShown', true);
+    },
+    headingDragLeaveAction() {
+      this.set('isDropBorderShown', false);
     },
   },
 });

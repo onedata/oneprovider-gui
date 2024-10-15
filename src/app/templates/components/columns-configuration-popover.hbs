@@ -16,10 +16,16 @@
             as |perfectScrollbarContainer|
           >
             <ul class="columns-list">
-              {{one-draggable-object-target
-                action=(action "acceptDraggedElement" -1)
-                validateDragEvent=(action "validateDragEvent")
-              }}
+              <div
+                class={{concat-classes
+                  "drop-area"
+                  (if isDropBorderShown "accepts-drag")
+                }}
+                ondragover={{action "headingDragOverAction"}}
+                ondragleave={{action "headingDragLeaveAction"}}
+                ondrop={{action "acceptDraggedElement" -1}}
+              >
+              </div>
               {{#each columnsConfiguration.columnsOrder as |columnName index|}}
                 {{columns-configuration-popover/column-item
                   columnName=columnName
@@ -33,13 +39,11 @@
                   moveColumnUp=(action "moveColumnUp")
                   dragStartAction=dragStartAction
                   dragEndAction=dragEndAction
+                  acceptDraggedElement=(action "acceptDraggedElement")
                   openXattrModification=(action "openXattrModification")
                   removeXattrColumn=(action "removeXattrColumn")
                   isColumnListVisible=(eq activeSlide "column-configuration")
-                }}
-                {{one-draggable-object-target
-                  action=(action "acceptDraggedElement" index)
-                  validateDragEvent=(action "validateDragEvent")
+                  columnNumber=index
                 }}
               {{/each}}
             </ul>

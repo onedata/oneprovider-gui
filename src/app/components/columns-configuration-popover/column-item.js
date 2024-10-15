@@ -60,6 +60,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {number}
+   */
+  columnNumber: undefined,
+
+  /**
+   * @virtual
    * @type {(columName: string, newValue: boolean) => void}
    */
   checkboxChanged: notImplementedWarn,
@@ -102,9 +108,20 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {(index: number, event: Object) => void }
+   */
+  acceptDraggedElement: notImplementedIgnore,
+
+  /**
+   * @virtual
    * @type {boolean}
    */
   isColumnListVisible: false,
+
+  /**
+   * @type {boolean}
+   */
+  isDropBorderShown: false,
 
   /**
    * @type {boolean}
@@ -141,8 +158,9 @@ export default Component.extend(I18n, {
     moveColumnUp(columnName) {
       return this.moveColumnUp(columnName);
     },
-    dragStartAction() {
+    dragStartAction(columnName, event) {
       if (this.dragStartAction) {
+        event.dataTransfer.setData('text', columnName);
         return this.dragStartAction();
       }
     },
@@ -150,6 +168,17 @@ export default Component.extend(I18n, {
       if (this.dragEndAction) {
         return this.dragEndAction();
       }
+    },
+    headingDragOverAction(event) {
+      event.preventDefault();
+      this.set('isDropBorderShown', true);
+    },
+    headingDragLeaveAction() {
+      this.set('isDropBorderShown', false);
+    },
+    acceptDraggedElement(index, event) {
+      this.set('isDropBorderShown', false);
+      return this.acceptDraggedElement(index, event);
     },
     openXattrModification(columnName) {
       this.openXattrModification(columnName);
