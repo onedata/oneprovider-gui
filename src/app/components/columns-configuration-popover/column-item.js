@@ -159,8 +159,8 @@ export default Component.extend(I18n, {
       return this.moveColumnUp(columnName);
     },
     dragStartAction(columnName, event) {
+      event.dataTransfer.setData('text', columnName);
       if (this.dragStartAction) {
-        event.dataTransfer.setData('text', columnName);
         return this.dragStartAction();
       }
     },
