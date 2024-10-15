@@ -49,16 +49,4 @@ export default Component.extend(...mixins, {
   drop(event) {
     this.headingDropAction(0, event);
   },
-
-  actions: {
-    headingDragOverAction(event) {
-      this.headingDragOverAction(event);
-    },
-    headingDragLeaveAction() {
-      this.headingDragLeaveAction();
-    },
-    headingDropAction(index, event) {
-      this.headingDropAction(index, event);
-    },
-  },
 });
