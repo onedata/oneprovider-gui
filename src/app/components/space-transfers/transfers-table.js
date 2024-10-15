@@ -28,6 +28,7 @@ import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-co
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 import globals from 'onedata-gui-common/utils/globals';
 import TransferTableRecord from 'oneprovider-gui/utils/transfer-table-record';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 const mixins = [
   I18n,
@@ -358,14 +359,15 @@ export default Component.extend(...mixins, {
    */
   transferRecordsCache: undefined,
 
-  // TODO: VFS-12027 When this computed is invoked with empty transfers after array
-  // update, this.transfers contains still previous items.
   transferRecords: computed('transfers.[]', function transferRecords() {
-    this.deleteUnusedTableRecordsCache();
     const tableRecords = this.transfers.map(transfer =>
       this.getTransferTableRecord(transfer)
     );
     return tableRecords;
+  }),
+
+  tableRecordsCleaner: asyncObserver('transfers.[]', function tableRecordsCleaner() {
+    this.deleteUnusedTableRecordsCache();
   }),
 
   deleteUnusedTableRecordsCache() {
