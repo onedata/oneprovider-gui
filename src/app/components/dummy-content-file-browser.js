@@ -64,11 +64,11 @@ export default Component.extend({
       .extend({
         dirProxy: reads('ownerSource.dirProxy'),
         selectedItemsForJump: reads('ownerSource.selectedItemsForJump'),
+        space: reads('ownerSource.spaceProxy.content'),
       })
       .create({
         ownerSource: this,
         previewMode: false,
-        space: this.spaceProxy.content,
         openRemove: this.immediatelyRemove.bind(this),
       }));
     // list of tests
