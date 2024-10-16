@@ -1,0 +1,8 @@
+<div class="date-text">
+  {{date-format (get record propertyName) format="date" blank="—"}}
+</div>
+{{#if (get record propertyName)}}
+  <div class="time-text">
+    {{date-format (get record propertyName) format="timeWithSeconds" blank="—"}}
+  </div>
+{{/if}}

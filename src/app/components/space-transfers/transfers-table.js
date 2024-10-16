@@ -53,8 +53,8 @@ const allColumnWidth = {
   userName: 200,
   destination: 200,
   scheduledAt: 150,
-  startedAt: 150,
-  finishedAt: 155,
+  startedAt: 130,
+  finishedAt: 130,
   processed: 110,
   replicated: 115,
   evicted: 95,
@@ -380,6 +380,7 @@ export default Component.extend(...mixins, {
     return this.createColumn('scheduledAt', {
       propertyName: 'scheduledAtReadable',
       className: 'hidden-xs',
+      component: 'cell-time',
     });
   }),
 
@@ -387,6 +388,7 @@ export default Component.extend(...mixins, {
     return this.createColumn('startedAt', {
       propertyName: 'startedAtReadable',
       className: 'hidden-xs',
+      component: 'cell-time',
     });
   }),
 
@@ -394,6 +396,7 @@ export default Component.extend(...mixins, {
     return this.createColumn('finishedAt', {
       propertyName: 'finishedAtReadable',
       className: 'hidden-xs',
+      component: 'cell-time',
     });
   }),
 
