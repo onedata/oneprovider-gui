@@ -513,12 +513,13 @@ export default Component.extend(...mixins, {
 
   // TODO: VFS-8809 this additional observer can be helpful in generic scroll toolkit
   /**
-   * Change of a start or end index could be needed after source array length change
+   * Change of a start or end index could be needed after source array length change.
+   * Using sync observer, because async causes problems when with reading rendered
+   * item elements (probably doing it too late).
    */
-  sourceArrayLengthObserver: asyncObserver(
+  sourceArrayLengthObserver: syncObserver(
     'filesArray.sourceArray.length',
-    async function sourceArrayLengthObserver() {
-      await waitForRender();
+    function sourceArrayLengthObserver() {
       this.listWatcher?.scrollHandler();
     }
   ),
