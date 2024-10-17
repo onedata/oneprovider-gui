@@ -43,8 +43,8 @@ export default Component.extend(...mixins, {
       this.headingDragOverAction(false, event);
     },
 
-    headingDragLeaveAction() {
-      this.headingDragLeaveAction();
+    headingDragLeaveAction(event) {
+      this.headingDragLeaveAction(event);
     },
 
     headingDropAction(event) {

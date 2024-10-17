@@ -159,25 +159,35 @@ export default Component.extend(I18n, {
       return this.moveColumnUp(columnName);
     },
     dragStartAction(columnName, event) {
+      this.set('isDropBorderShown', true);
       event.dataTransfer.setData('text', columnName);
       if (this.dragStartAction) {
         return this.dragStartAction();
       }
     },
     dragEndAction() {
+      this.set('isDropBorderShown', false);
       if (this.dragEndAction) {
         return this.dragEndAction();
       }
     },
-    headingDragOverAction(event) {
+    headingDragOverAction(isLeftBorder, event) {
       event.preventDefault();
-      this.set('isDropBorderShown', true);
+      const lastActiveDropOverElem = event.target.closest('li');
+      if (isLeftBorder) {
+        lastActiveDropOverElem.classList.add('top-border-area');
+      } else {
+        lastActiveDropOverElem.classList.add('bottom-border-area');
+      }
     },
-    headingDragLeaveAction() {
-      this.set('isDropBorderShown', false);
+    headingDragLeaveAction(event) {
+      event.target.closest('li').classList.remove('top-border-area');
+      event.target.closest('li').classList.remove('bottom-border-area');
     },
     acceptDraggedElement(index, event) {
       this.set('isDropBorderShown', false);
+      event.target.closest('li').classList.remove('top-border-area');
+      event.target.closest('li').classList.remove('bottom-border-area');
       return this.acceptDraggedElement(index, event);
     },
     openXattrModification(columnName) {

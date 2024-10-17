@@ -329,7 +329,7 @@ export default Component.extend(I18n, {
     },
     acceptDraggedElement(index, event) {
       const columnName = event.dataTransfer.getData('text');
-      this.columnsConfiguration.moveColumn(columnName, index + 1);
+      this.columnsConfiguration.moveColumn(columnName, index);
       this.applyCurrentColumnsOrder();
       this.set('isDropBorderShown', false);
     },

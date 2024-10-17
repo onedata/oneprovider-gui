@@ -5,8 +5,8 @@
  * - ondragstart with headingDragAction action assigned to it and pass column name as an argument
  * - ondragend with headingDragEndAction action assigned to it
  *
- * The table's headers also are a draggable area, where headers can be dropped.
- * To do that add event handlers:
+ * Add also div elements which creates a draggable area, where headers can be dropped,
+ * and to that element add event handlers:
  * - ondragover with headingDragOverAction action assigned to it
  * - ondragleave with headingDragLeaveAction action assigned to it
  * - ondrop with headingDropAction action assigned to it and pass an index of column,
@@ -24,11 +24,19 @@
  *        <th
  *          ondragstart={{action "headingDragAction" columnName}}
  *          ondragend={{action "headingDragEndAction"}}
- *          ondragover={{action "headingDragOverAction"}}
- *          ondragleave ={{action "headingDragLeaveAction"}}
- *          ondrop={{action "headingDropAction" i}}
  *        >
- *          ...
+ *          <div
+ *            class={{concat-classes "left-drop-area" (if isDropBorderShown "drop-area")}}
+ *            ondragover={{action "headingDragOverAction" true}}
+ *            ondragleave={{action "headingDragLeaveAction"}}
+ *            ondrop={{action "headingDropAction" i}}
+ *          ></div>
+ *          <div
+ *            class={{concat-classes "right-drop-area" (if isDropBorderShown "drop-area")}}
+ *            ondragover={{action "headingDragOverAction" false}}
+ *            ondragleave={{action "headingDragLeaveAction"}}
+ *            ondrop={{action "headingDropAction" (add i 1)}}
+ *          ></div>
  *        </th>
  *      {{/each}}
  *      ...
@@ -91,9 +99,9 @@ export default Mixin.create({
 
       this.set('lastActiveDropOverElem', lastActiveDropOverElem);
     },
-    headingDragLeaveAction() {
-      this.lastActiveDropOverElem?.classList.remove('left-border-solid');
-      this.lastActiveDropOverElem?.classList.remove('right-border-solid');
+    headingDragLeaveAction(event) {
+      event.target.closest('th').classList.remove('left-border-solid');
+      event.target.closest('th').classList.remove('right-border-solid');
     },
   },
 });

@@ -16,16 +16,6 @@
             as |perfectScrollbarContainer|
           >
             <ul class="columns-list">
-              <div
-                class={{concat-classes
-                  "drop-area"
-                  (if isDropBorderShown "accepts-drag")
-                }}
-                ondragover={{action "headingDragOverAction"}}
-                ondragleave={{action "headingDragLeaveAction"}}
-                ondrop={{action "acceptDraggedElement" -1}}
-              >
-              </div>
               {{#each columnsConfiguration.columnsOrder as |columnName index|}}
                 {{columns-configuration-popover/column-item
                   columnName=columnName
@@ -46,6 +36,7 @@
                   columnNumber=index
                 }}
               {{/each}}
+              <div class="space-between-item-area"></div>
             </ul>
           </PerfectScrollbarElement>
           {{#if columnsConfiguration.hasXattrSettings}}
