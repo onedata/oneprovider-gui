@@ -15,13 +15,21 @@
   .fb-table-col-size {
     position: relative;
     text-align: center;
+    --size-container-padding: 24px;
 
-    .dir-size-container.active:hover {
+    .dir-size-container.active .text-icon-container:hover {
       text-decoration: underline;
       .oneicon-overview {
         color: $color-one-mint;
         opacity: 1;
       }
+    }
+
+    .dir-size-container {
+      padding-left: var(--size-container-padding);
+    }
+    .text-icon-container {
+      padding-right: var(--size-container-padding);
     }
 
     .dir-size-container.disabled {
