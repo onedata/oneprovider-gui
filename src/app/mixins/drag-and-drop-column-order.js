@@ -76,18 +76,24 @@ export default Mixin.create({
     headingDropAction(index, event) {
       const columnName = event.dataTransfer.getData('text');
       this.moveColumn(index, columnName);
-      event.target.closest('th').classList.remove('border-solid');
+      event.target.closest('th').classList.remove('left-border-solid');
+      event.target.closest('th').classList.remove('right-border-solid');
       this.set('isDropBorderShown', false);
     },
-    headingDragOverAction(event) {
+    headingDragOverAction(isLeftBorder, event) {
       event.preventDefault();
       const lastActiveDropOverElem = event.target.closest('th');
-      lastActiveDropOverElem.classList.add('border-solid');
+      if (isLeftBorder) {
+        lastActiveDropOverElem.classList.add('left-border-solid');
+      } else {
+        lastActiveDropOverElem.classList.add('right-border-solid');
+      }
 
       this.set('lastActiveDropOverElem', lastActiveDropOverElem);
     },
     headingDragLeaveAction() {
-      this.lastActiveDropOverElem?.classList.remove('border-solid');
+      this.lastActiveDropOverElem?.classList.remove('left-border-solid');
+      this.lastActiveDropOverElem?.classList.remove('right-border-solid');
     },
   },
 });

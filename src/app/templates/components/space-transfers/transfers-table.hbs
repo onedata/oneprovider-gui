@@ -7,16 +7,27 @@
             (concat "transfers-table-col-" column.id)
             column.className
             "draggable-area"
-            (if isDropBorderShown "border-dashed")
+            (if (and isDropBorderShown (not-eq i 0)) "border-dashed")
           }}
           style={{get columnsConfiguration.columnsStyle column.id}}
           draggable={{not-eq i 0}}
           ondragstart={{action "headingDragAction" column.id}}
           ondragend={{action "headingDragEndAction"}}
-          ondragover={{action "headingDragOverAction"}}
-          ondragleave={{action "headingDragLeaveAction"}}
-          ondrop={{action "headingDropAction" i}}
         >
+          {{#if (not-eq i 0)}}
+            <div
+              class={{concat-classes "left-drop-area" (if isDropBorderShown "drop-area")}}
+              ondragover={{action "headingDragOverAction" true}}
+              ondragleave={{action "headingDragLeaveAction"}}
+              ondrop={{action "headingDropAction" i}}
+            ></div>
+          {{/if}}
+          <div
+            class={{concat-classes "right-drop-area" (if isDropBorderShown "drop-area")}}
+            ondragover={{action "headingDragOverAction" false}}
+            ondragleave={{action "headingDragLeaveAction"}}
+            ondrop={{action "headingDropAction" (add i 1)}}
+          ></div>
           <span class="column-name">
             {{#if (not-eq i 0)}}
               {{one-icon icon="drag" class="column-move-icon visible-on-hover"}}
@@ -27,6 +38,7 @@
       {{/each}}
       {{columns-configuration-cell
         columnsConfiguration=columnsConfiguration
+        isDropBorderShown=isDropBorderShown
       }}
     </tr>
   </thead>

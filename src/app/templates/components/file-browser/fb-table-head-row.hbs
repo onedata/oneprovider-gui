@@ -1,6 +1,5 @@
 {{#component headFirstCellComponentName
   browserModel=browserModel
-  isDropBorderShown=isDropBorderShown
   headingDragOverAction=(action "headingDragOverAction")
   headingDragLeaveAction=(action "headingDragLeaveAction")
   headingDropAction=(action "headingDropAction")
@@ -21,10 +20,20 @@
       draggable=true
       ondragstart={{action "headingDragAction" columnName}}
       ondragend={{action "headingDragEndAction"}}
-      ondragover={{action "headingDragOverAction"}}
-      ondragleave={{action "headingDragLeaveAction"}}
-      ondrop={{action "headingDropAction" (add i 1)}}
+
     >
+      <div
+        class={{concat-classes "left-drop-area" (if isDropBorderShown "drop-area")}}
+        ondragover={{action "headingDragOverAction" true}}
+        ondragleave={{action "headingDragLeaveAction"}}
+        ondrop={{action "headingDropAction" i}}
+      ></div>
+      <div
+        class={{concat-classes "right-drop-area" (if isDropBorderShown "drop-area")}}
+        ondragover={{action "headingDragOverAction" false}}
+        ondragleave={{action "headingDragLeaveAction"}}
+        ondrop={{action "headingDropAction" (add i 1)}}
+      ></div>
       <div class="column-info-container">
         <div
           class="column-name"
@@ -86,6 +95,7 @@
 {{/each}}
 {{columns-configuration-cell
   columnsConfiguration=columnsConfiguration
+  isDropBorderShown=isDropBorderShown
   browserModel=browserModel
   dragStartAction=(if browserModel.isUsingUploadArea (action "checkboxDragStart"))
   dragEndAction=(if browserModel.isUsingUploadArea (action "checkboxDragEnd"))

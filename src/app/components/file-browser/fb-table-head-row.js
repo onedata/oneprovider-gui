@@ -73,13 +73,5 @@ export default Component.extend(...mixins, {
       // Invoked when item in columns configuration popover drag is ended
       // only when browserModel.isUsingUploadArea is true
     },
-    headingDragAction(columnName, event) {
-      event.dataTransfer.setData('text', columnName);
-
-      this.set('isDropBorderShown', true);
-    },
-    headingDragEndAction() {
-      this.set('isDropBorderShown', false);
-    },
   },
 });

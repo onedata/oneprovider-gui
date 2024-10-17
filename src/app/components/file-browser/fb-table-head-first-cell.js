@@ -38,15 +38,17 @@ export default Component.extend(...mixins, {
    */
   isDropBorderShown: false,
 
-  dragOver(event) {
-    this.headingDragOverAction(event);
-  },
+  actions: {
+    headingDragOverAction(event) {
+      this.headingDragOverAction(false, event);
+    },
 
-  dragLeave() {
-    this.headingDragLeaveAction();
-  },
+    headingDragLeaveAction() {
+      this.headingDragLeaveAction();
+    },
 
-  drop(event) {
-    this.headingDropAction(0, event);
+    headingDropAction(event) {
+      this.headingDropAction(0, event);
+    },
   },
 });

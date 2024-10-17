@@ -76,6 +76,10 @@
       padding: 0;
     }
 
+    .fb-table-thead tr th:first-child .right-drop-area {
+      width: 100%;
+    }
+
     .column-move-icon, .column-info-icon {
       position: static;
     }

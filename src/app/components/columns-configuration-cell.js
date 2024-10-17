@@ -14,6 +14,9 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 export default Component.extend(I18n, {
   tagName: 'th',
   classNames: ['columns-configuration-cell', 'hidden-xs'],
+  classNameBindings: [
+    'isDropBorderShown:border-dashed',
+  ],
 
   i18n: service(),
   media: service(),
