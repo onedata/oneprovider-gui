@@ -402,7 +402,7 @@ export default Component.extend(...mixins, {
    * Currently (as of 2021) not all browsers support scroll anchoring and
    * `perfect-scrollbar` has issues with it (anchoring is disabled), so we need to do
    * scroll correction manually.
-   * @param {Promise} newItemsCount how many items have been added to the beginning
+   * @param {number} newItemsCount how many items have been added to the beginning
    *   of the list
    */
   async adjustScroll(newItemsCount = 0) {
@@ -513,39 +513,39 @@ export default Component.extend(...mixins, {
 
   // TODO: VFS-8809 this additional observer can be helpful in generic scroll toolkit
   /**
-   * Change of a start or end index could be needed after source array length change
+   * Change of a start or end index could be needed after source array length change.
+   * Using sync observer, because async causes problems when with reading rendered
+   * item elements (probably doing it too late).
    */
-  sourceArrayLengthObserver: asyncObserver(
+  sourceArrayLengthObserver: syncObserver(
     'filesArray.sourceArray.length',
-    async function sourceArrayLengthObserver() {
-      await waitForRender();
+    function sourceArrayLengthObserver() {
       this.listWatcher?.scrollHandler();
     }
   ),
 
-  selectedItemsForJumpObserver: asyncObserver(
+  /**
+   * Using sync observer to make sure that jumpToSelection will be invoked before
+   * changing start/end index that is read from DOM after jump.
+   */
+  selectedItemsForJumpObserver: syncObserver(
     'selectedItemsForJump',
-    async function selectedItemsForJumpObserver() {
+    function selectedItemsForJumpObserver() {
       const {
         selectedItems,
         selectedItemsForJump,
         disableReJumps,
-      } = this.getProperties(
-        'selectedItems',
-        'selectedItemsForJump',
-        'disableReJumps',
-      );
-      if (isEmpty(selectedItemsForJump)) {
+      } = this;
+      if (isEmpty(selectedItemsForJump) || !this.filesArray.initialLoad.isFulfilled) {
         return;
       }
 
-      await this.get('filesArray.initialLoad');
       const alreadySelected = _.isEqual(selectedItems, selectedItemsForJump);
       if (!alreadySelected) {
         this.changeSelectedItems(selectedItemsForJump);
       }
       if (!disableReJumps || !alreadySelected) {
-        await this.jumpToSelection();
+        this.jumpToSelection();
       }
     }
   ),
@@ -651,7 +651,7 @@ export default Component.extend(...mixins, {
     const {
       filesArray,
       listWatcher,
-    } = this.getProperties('filesArray', 'listWatcher');
+    } = this;
     const {
       entityId,
       index,
@@ -660,6 +660,9 @@ export default Component.extend(...mixins, {
     // ensure that array is loaded and rendered
     await get(filesArray, 'initialLoad');
     await sleep(0);
+    if (this.isDestroyed || this.isDestroying) {
+      return;
+    }
 
     if (!filesArray.includes(effItem)) {
       const jumpResult = await filesArray.scheduleJump(index, 50);
@@ -670,16 +673,15 @@ export default Component.extend(...mixins, {
         return;
       }
       // wait for render of array fragment containing item to jump
+      this.set('ignoreNextScroll', true);
       await sleep(0);
-      listWatcher?.scrollHandler();
-      // wait for fetch prev/next resolve
-      await this.get('filesArray').getCurrentExpandPromise();
-      // wait for fetch prev/next result render
-      await sleep(0);
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
     }
-
     this.focusOnRow(entityId, false);
-    this.highlightAnimateRows(effItems.mapBy('entityId'));
+    this.highlightAnimateRows(effItems.map(item => get(item, 'entityId')));
+    listWatcher.scrollHandler();
   },
 
   /**
@@ -851,13 +853,7 @@ export default Component.extend(...mixins, {
       viewTester,
       containerScrollTop,
       element,
-    } = this.getProperties(
-      'dir',
-      'filesArray',
-      'viewTester',
-      'containerScrollTop',
-      'element',
-    );
+    } = this;
     const $element = $(element);
     const visibleLengthBeforeReload = $element.find('.data-row').toArray()
       .filter(row => viewTester.isInView(row)).length;
@@ -958,12 +954,9 @@ export default Component.extend(...mixins, {
     return _.difference(items, nonExistingItems);
   },
 
-  async onTableScroll(items, headerVisible) {
+  onTableScroll(items, headerVisible) {
     if (!this.browserModel.dirProxy?.isSettled) {
-      if (this.browserModel.dirProxy.isRejected) {
-        return;
-      }
-      await this.browserModel.dirProxy;
+      return;
     }
     if (this.ignoreNextScroll) {
       this.set('ignoreNextScroll', false);

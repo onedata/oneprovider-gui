@@ -496,10 +496,8 @@ export default Service.extend(...mixins, {
       })
       .then(() => allFulfilled(shares.map(share => share.save())))
       .then(([privateShare0, privateShare1]) => allFulfilled([
-        addShareList(rootFile, [privateShare0, privateShare1], store, {
-          sharesCount: 2,
-        }),
-        addShareList(space, [privateShare0, privateShare1], store),
+        addShareListToFile(rootFile, [privateShare0, privateShare1]),
+        addShareListToFile(space, [privateShare0, privateShare1]),
       ]));
   },
 
@@ -1866,21 +1864,13 @@ export function generateFileGri(entityId) {
   });
 }
 
-function addShareList(parentRecord, shares, store, additionalData) {
-  const shareList = store.createRecord('shareList');
-  return get(shareList, 'list')
-    .then(list => {
-      list.pushObjects(shares);
-      return list.save();
-    })
-    .then(() => shareList.save())
-    .then(() => {
-      set(parentRecord, 'shareList', shareList);
-      if (additionalData) {
-        setProperties(parentRecord, additionalData);
-      }
-      return parentRecord.save();
-    });
+async function addShareListToFile(file, shares) {
+  setProperties(file, {
+    directShareIds: shares.map(share => get(share, 'entityId')),
+    shareRecords: shares,
+    sharesCount: shares.length,
+  });
+  return await file.save();
 }
 
 function getCurrentTimestamp() {

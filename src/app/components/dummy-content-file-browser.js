@@ -13,8 +13,6 @@ import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import sleep from 'onedata-gui-common/utils/sleep';
-import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
-import { resolve } from 'rsvp';
 import globals from 'onedata-gui-common/utils/globals';
 
 export default Component.extend({
@@ -65,11 +63,12 @@ export default Component.extend({
     this.set('browserModel', FilesystemBrowserModel
       .extend({
         dirProxy: reads('ownerSource.dirProxy'),
+        selectedItemsForJump: reads('ownerSource.selectedItemsForJump'),
+        space: reads('ownerSource.spaceProxy.content'),
       })
       .create({
         ownerSource: this,
         previewMode: false,
-        space: this.spaceProxy.content,
         openRemove: this.immediatelyRemove.bind(this),
       }));
     // list of tests
@@ -110,7 +109,7 @@ export default Component.extend({
     }
     const files = this.get('mockBackend.entityRecords.file').slice(start, end);
     console.log('--- select visible files ---');
-    this.set('selectedItemsForJumpProxy', promiseArray(resolve(files)));
+    this.set('selectedItemsForJump', files);
   },
 
   async testBlinkInterval(range = 2, max = 10, interval = 4000) {
@@ -128,17 +127,17 @@ export default Component.extend({
     }
     const file = this.get('mockBackend.entityRecords.file.199');
     console.log('--- will jump to file 199 ---');
-    this.set('selectedItemsForJumpProxy', promiseArray(resolve([file])));
+    this.set('selectedItemsForJump', [file]);
   },
 
   async testJumpUpFromFarMiddle(delay = 2000) {
     const file = this.get('mockBackend.entityRecords.file.100');
     console.log(`--- jump to "${get(file, 'name')}" at start ---`);
-    this.set('selectedItemsForJumpProxy', promiseArray(resolve([file])));
+    this.set('selectedItemsForJump', [file]);
     await sleep(delay);
     const otherFile = this.get('mockBackend.entityRecords.file.20');
     console.log(`--- will jump to "${get(otherFile, 'name')}"---`);
-    this.set('selectedItemsForJumpProxy', promiseArray(resolve([otherFile])));
+    this.set('selectedItemsForJump', [otherFile]);
   },
 
   immediatelyRemove(files, parentDir) {
