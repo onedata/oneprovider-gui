@@ -13,6 +13,7 @@ import EdmObjectType from './object-type';
 import { EdmPropertyMaxOccurrences, EdmPropertyRecommendation, getAllPropertyData } from './property-spec';
 import _ from 'lodash';
 import { assert } from '@ember/debug';
+import { eureka3dProjectName } from './object-factory';
 
 let mandatoryPropertyTagsCache;
 
@@ -83,7 +84,7 @@ const EdmObjectValidator = EmberObject.extend({
       // special check for single mandatory isPartOf: Eureka3D property
       if (this.edmObject.edmObjectType === EdmObjectType.ProvidedCHO) {
         const propertyTag = 'dcterms:isPartOf';
-        const propertyValue = 'Eureka3D';
+        const propertyValue = eureka3dProjectName;
         const partOfProperties = this.edmObject.edmProperties.filter(property =>
           property.xmlTagName === propertyTag
         );
