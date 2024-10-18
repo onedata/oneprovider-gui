@@ -16,6 +16,8 @@ import EdmMetadata from './metadata';
 import { EdmPropertyRecommendation, getAllPropertyData } from './property-spec';
 import EdmPropertyFactory from './property-factory';
 
+export const eureka3dProjectName = 'EUreka3D';
+
 const objectClasses = {
   [EdmObjectType.Aggregation]: Aggregation,
   [EdmObjectType.ProvidedCHO]: ProvidedCHO,
@@ -96,7 +98,7 @@ class EdmObjectFactory {
         partOfProperty = propertyFactory.createProperty('dcterms', 'isPartOf');
         edmProperties.push(partOfProperty);
       }
-      partOfProperty.setSupportedValue('Eureka3D');
+      partOfProperty.setSupportedValue(eureka3dProjectName);
     }
     return this.createObject(edmObjectType, {
       edmProperties,
