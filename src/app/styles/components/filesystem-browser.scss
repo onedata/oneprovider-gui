@@ -202,32 +202,30 @@
       box-shadow: none;
     }
 
-    .clipboard-btn {
+    .copy-icon {
       position: absolute;
-      right: -3.2em;
-      top: -1.25em;
+      right: -0.94em;
+      top: 0.24em;
       opacity: $disabled-opacity;
       visibility: hidden;
-
-      &:hover {
-        opacity: 1;
-        color: $color-one-mint;
-      }
+      font-size: 200%;
 
       .copy-btn-icon {
         line-height: 1;
       }
     }
-    &:hover .clipboard-btn {
+    &:hover .copy-icon {
       visibility: visible;
+      opacity: 1;
+      color: $color-one-mint;
     }
 
     .file-id {
       position: relative;
       font-size: 80%;
+      cursor: pointer;
 
       .file-id-text {
-        cursor: pointer;
         @include font-monospace();
         padding-left: $padding-xs-horizontal;
         padding-right: $padding-xs-horizontal;

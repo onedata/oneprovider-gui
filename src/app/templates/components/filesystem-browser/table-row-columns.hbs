@@ -218,19 +218,17 @@
         class="fb-table-col-file-id multiline hidden-xs"
         style={{columnsConfiguration.columnsStyle.fileId}}
       >
-        <div class="file-id">
-          <div class="file-id-text" onclick={{action "copyFileId"}}>
+        <div class="file-id" onclick={{action "copyFileId"}}>
+          <div class="file-id-text">
             <div>
               {{fileIdFirstPart}}
             </div>
             <div>
               {{fileIdSecondPart}}&#8230;
             </div>
-            {{one-tooltip title=file.effFile.cdmiObjectId class="tooltip-text-monospace"}}
           </div>
-          {{one-clipboard-line
-            rawValue=file.effFile.cdmiObjectId
-          }}
+          {{one-icon icon="browser-copy" class="copy-icon"}}
+          {{one-tooltip title=file.effFile.cdmiObjectId class="tooltip-text-monospace"}}
         </div>
       </td>
     {{else if (eq (get (get columnsConfiguration.columns columnName) "type") "xattr")}}
@@ -243,3 +241,5 @@
     {{/if}}
   {{/if}}
 {{/each}}
+
+{{!-- buttonTip=file.effFile.cdmiObjectId --}}
