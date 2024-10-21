@@ -7,7 +7,7 @@
  * To get infinite scroll support, see `space-transfers/transfers-table-container`
  *
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -27,6 +27,8 @@ import ColumnsConfiguration from 'oneprovider-gui/utils/columns-configuration';
 import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
 import globals from 'onedata-gui-common/utils/globals';
+import TransferTableRecord from 'oneprovider-gui/utils/transfer-table-record';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 const mixins = [
   I18n,
@@ -352,6 +354,63 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {Map<Model.Transfer, TransferTableRecord>}
+   */
+  transferRecordsCache: undefined,
+
+  transferRecords: computed('transfers.[]', function transferRecords() {
+    const tableRecords = this.transfers.map(transfer =>
+      this.getTransferTableRecord(transfer)
+    );
+    return tableRecords;
+  }),
+
+  tableRecordsCleaner: asyncObserver('transfers.[]', function tableRecordsCleaner() {
+    this.deleteUnusedTableRecordsCache();
+  }),
+
+  deleteUnusedTableRecordsCache() {
+    /** @type {Map<Models.Transfer, TransferTableRecord>} */
+    const transferRecordsCache = this.transferRecordsCache;
+    for (const transfer of transferRecordsCache.keys()) {
+      if (!this.transfers.includes(transfer)) {
+        transferRecordsCache.delete(transfer);
+      }
+    }
+  },
+
+  /**
+   * @param {Models.Transfer} transfer
+   * @returns {TransferTableRecord}
+   */
+  getTransferTableRecord(transfer) {
+    const {
+      transfers,
+      providers,
+      spaceId,
+      transferType: transferCollection,
+      providersColors,
+      transferActions,
+      transferRecordsCache,
+    } = this;
+    let tableRecord = transferRecordsCache.get(transfer);
+    if (!tableRecord) {
+      tableRecord = TransferTableRecord.create({
+        ownerSource: this,
+        transfer,
+        transfers,
+        providers,
+        spaceId,
+        transferCollection,
+        providersColors,
+        transferActions,
+      });
+      transferRecordsCache.set(transfer, tableRecord);
+    }
+    return tableRecord;
+  },
+
   //#endregion
 
   //#region Columns computed properties
@@ -437,7 +496,10 @@ export default Component.extend(...mixins, {
     this._super(...arguments);
     this.registerArrayLoadingHandlers();
     this.attachWindowResizeHandler();
-    this.set('columnsConfiguration', this.createColumnsConfiguration());
+    this.setProperties({
+      columnsConfiguration: this.createColumnsConfiguration(),
+      transferRecordsCache: new Map(),
+    });
   },
 
   /**

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, before, beforeEach, afterEach } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find, findAll, click } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
@@ -92,15 +92,12 @@ const suspendTime = moment().add(3, 'h');
 const timeFormat = 'D MMM YYYY H:mm:ss';
 
 describe('Integration | Component | space-automation/atm-workflow-executions-table/workflow-row', function () {
-  setupRenderingTest();
-
-  before(function () {
-    // Instatiate Action class to make its `prototype.execute` available for
-    // mocking.
-    CopyRecordIdAction.create();
-  });
+  const { afterEach } = setupRenderingTest();
 
   beforeEach(function () {
+    // Instatiate Action class to make its `prototype.execute` available for
+    // mocking.
+    this.copyRecordIdAction = CopyRecordIdAction.create();
     this.setProperties({
       atmWorkflowExecutionSummary: {
         constructor: {
@@ -128,6 +125,7 @@ describe('Integration | Component | space-automation/atm-workflow-executions-tab
     if (CopyRecordIdAction.prototype.execute.restore) {
       CopyRecordIdAction.prototype.execute.restore();
     }
+    this.copyRecordIdAction?.destroy();
   });
 
   it('has class "workflow-row"', async function () {

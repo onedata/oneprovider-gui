@@ -12,15 +12,16 @@
  *
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import EmberObject, { computed, observer } from '@ember/object';
-import { and, notEqual, raw, not, conditional, array, collect, getBy, or } from 'ember-awesome-macros';
+import EmberObject, { computed } from '@ember/object';
+import { and, notEqual, raw, not, conditional, array, collect } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { defineProperty } from '@ember/object';
+import { syncObserver } from 'onedata-gui-common/utils/observer';
 
 /**
  * A source from which the feature of file comes from. Typically used by backend for
@@ -48,6 +49,11 @@ import { defineProperty } from '@ember/object';
  * @property {String} [key]
  * @property {ItemFeatureNoticeLevel} [noticeLevel]
  */
+
+const tagNoticeLevelClasses = Object.freeze({
+  warning: 'file-status-tag-warning',
+  danger: 'file-status-tag-danger',
+});
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -228,16 +234,9 @@ export default Component.extend(I18n, {
       'default';
   }),
 
-  tagNoticeLevelClass: or(
-    getBy(
-      raw({
-        warning: 'file-status-tag-warning',
-        danger: 'file-status-tag-danger',
-      }),
-      'activeNoticeLevel'
-    ),
-    raw('file-status-tag-inherited')
-  ),
+  tagNoticeLevelClass: computed('activeNoticeLevel', function tagNoticeLevelClass() {
+    return tagNoticeLevelClasses[this.activeNoticeLevel] ?? 'file-status-tag-inherited';
+  }),
 
   tagClasses: array.concat(
     collect('tagNoticeLevelClass'),
@@ -252,11 +251,13 @@ export default Component.extend(I18n, {
 
   tagClassName: array.join('tagClasses', raw(' ')),
 
-  regenerateComputedHasInheritance: observer(
+  /**
+   * Sync: defines a property.
+   */
+  regenerateComputedHasInheritance: syncObserver(
     'features',
     function regenerateComputedHasInheritance() {
-      const features = this.get('features');
-      const featuresNames = features.map(featureSpec =>
+      const featuresNames = this.features.map(featureSpec =>
         this.normalizeItemFeatureSpec(featureSpec).key
       );
       const computedHasInheritance = computed(
@@ -276,7 +277,10 @@ export default Component.extend(I18n, {
     }
   ),
 
-  regenerateComputedActiveFeatures: observer(
+  /**
+   * Sync: defines a property.
+   */
+  regenerateComputedActiveFeatures: syncObserver(
     'features',
     function regenerateComputedActiveFeatures() {
       const property = this.createArchiveFeaturesProperty();

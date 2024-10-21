@@ -15,12 +15,8 @@
     <PromiseProxyContainer @proxy={{requiredDataProxy}}>
       <FileBrowser
         @browserModel={{browserModel}}
-        @dir={{dir}}
-        @dirError={{dirProxy.reason}}
         @customRootDir={{rootDir}}
         @selectedItems={{selectedItems}}
-        @previewMode={{true}}
-        @changeSelectedItems={{action "changeSelectedItems"}}
         @getItemByIdFun={{action getItemById}}
         @resolveFileParentFun={{action "resolveFileParentFun"}}
         @updateDirEntityId={{action "updateDirId"}}
@@ -30,7 +26,6 @@
     {{#if filesToShowInfo}}
       <FileInfoModal
         @open={{true}}
-        @previewMode={{true}}
         @share={{share}}
         @browserModel={{browserModel}}
         @files={{filesToShowInfo}}

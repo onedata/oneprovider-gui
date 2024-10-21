@@ -2,7 +2,7 @@
  * Shows status and operations on direct dataset for file.
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2022 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { computed } from '@ember/object';
 import { equal, reads } from '@ember/object/computed';
-import { or, raw, getBy, tag, collect, conditional } from 'ember-awesome-macros';
+import { or, raw, tag, collect, conditional } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { dateFormat } from 'onedata-gui-common/helpers/date-format';
@@ -110,15 +110,13 @@ export default Component.extend(I18n, {
     detached: 'plug-out',
   }),
 
-  alertClass: or(
-    getBy('alertClassMapping', 'status'),
-    raw('alert-light'),
-  ),
+  alertClass: computed('alertClassMapping', 'status', function alertClass() {
+    return this.alertClassMapping?.[this.status] ?? 'alert-light';
+  }),
 
-  statusIcon: or(
-    getBy('statusIconMapping', 'status'),
-    raw('browser-info'),
-  ),
+  statusIcon: computed('statusIconMapping', 'status', function statusIcon() {
+    return this.statusIconMapping?.[this.status] ?? 'browser-info';
+  }),
 
   /**
    * @type {SafeString}

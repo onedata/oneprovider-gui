@@ -3,7 +3,7 @@
  * user automation inventories.
  *
  * @author Michał Borzęcki
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -71,7 +71,7 @@ export default ArrayProxy.extend({
       const {
         isFulfilled,
         content,
-      } = getProperties(this.get('atmWorkflowSchemasProxy'), 'isFulfilled', 'content');
+      } = getProperties(this.atmWorkflowSchemasProxy, 'isFulfilled', 'content');
 
       if (isFulfilled) {
         this.set('content', ConflictIdsArray.create({
@@ -85,5 +85,16 @@ export default ArrayProxy.extend({
 
   async initAsync() {
     return await this.get('atmWorkflowSchemasProxy');
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.content?.destroy?.();
+    } finally {
+      this._super(...arguments);
+    }
   },
 });

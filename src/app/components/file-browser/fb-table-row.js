@@ -2,16 +2,16 @@
  * Single row in file browser table items list.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
 import { raw, conditional, isEmpty, or, and } from 'ember-awesome-macros';
-import { get, computed, getProperties, observer } from '@ember/object';
+import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
-import { later, cancel, scheduleOnce } from '@ember/runloop';
+import { later, cancel } from '@ember/runloop';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-click';
@@ -20,6 +20,7 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import layout from 'oneprovider-gui/templates/components/file-browser/fb-table-row';
 import { htmlSafe } from '@ember/string';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -67,12 +68,6 @@ export default Component.extend(...mixins, {
    * @type {Utils.BaseBrowserModel}
    */
   browserModel: undefined,
-
-  /**
-   * @virtual
-   * @type {Boolean}
-   */
-  isSpaceOwned: undefined,
 
   /**
    * @virtual
@@ -133,12 +128,6 @@ export default Component.extend(...mixins, {
    * @type {(Models.File) => Promise}
    */
   fileDoubleClicked: notImplementedReject,
-
-  /**
-   * @virtual
-   * @type {Boolean}
-   */
-  previewMode: undefined,
 
   /**
    * @virtual optional
@@ -217,6 +206,13 @@ export default Component.extend(...mixins, {
    * @type {boolean}
    */
   isFileNameHovered: false,
+
+  previewMode: reads('browserModel.previewMode'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSpaceOwned: reads('browserModel.isSpaceOwned'),
 
   statusBarComponentName: or(
     'browserModel.statusBarComponentName',
@@ -433,28 +429,23 @@ export default Component.extend(...mixins, {
     return this._fastDoubleClick.bind(this);
   }),
 
-  loadingOnIconTransitionObserver: observer(
+  loadingOnIconTransitionObserver: asyncObserver(
     'isLoadingOnIcon',
     function loadingOnIconTransitionObserver() {
-      if (this.get('isLoadingOnIcon')) {
-        scheduleOnce('afterRender', () => {
-          const spinner =
-            this.element.querySelector('.file-info-container .on-icon-loading-spinner');
-          if (spinner) {
-            spinner.classList.add('start-transition');
-          }
-        });
+      if (!this.isLoadingOnIcon || !this.element) {
+        return;
+      }
+      const spinner =
+        this.element.querySelector('.file-info-container .on-icon-loading-spinner');
+      if (spinner) {
+        spinner.classList.add('start-transition');
       }
     }
   ),
 
-  init() {
-    this._super(...arguments);
-    this.loadingOnIconTransitionObserver();
-  },
-
   didInsertElement() {
     this._super(...arguments);
+    this.loadingOnIconTransitionObserver();
     const {
       contextmenuHandler,
       touchendHandler,

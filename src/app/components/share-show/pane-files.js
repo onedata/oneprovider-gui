@@ -56,12 +56,6 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Utils.ShareFilesystemBrowserModel}
-   */
-  browserModel: undefined,
-
-  /**
-   * @virtual
    * @type {Function}
    */
   updateDirId: notImplementedThrow,
@@ -100,11 +94,6 @@ export default Component.extend(...mixins, {
   }),
 
   shareRootFile: reads('shareRootFileProxy.content'),
-
-  /**
-   * @type {Array<Models.File>}
-   */
-  selectedItems: undefined,
 
   initialDirProxy: promise.object(computed('share', function initialDirProxy() {
     return this.get('dirProxy');
@@ -151,14 +140,12 @@ export default Component.extend(...mixins, {
       const {
         share,
         spaceId,
-        selectedItems,
         dirId,
         filesViewResolver,
         rootDir,
       } = this.getProperties(
         'share',
         'spaceId',
-        'selectedItems',
         'dirId',
         'filesViewResolver',
         'rootDir',
@@ -169,7 +156,6 @@ export default Component.extend(...mixins, {
         return rootDir;
       }
 
-      const selectedIds = selectedItems && selectedItems.mapBy('entityId') || [];
       const shareId = get(share, 'entityId');
       const currentFilesViewContext = FilesViewContext.create({
         spaceId,
@@ -179,7 +165,6 @@ export default Component.extend(...mixins, {
       const resolverResult = await filesViewResolver.resolveViewOptions({
         dirId,
         currentFilesViewContext,
-        selectedIds,
         scope: 'public',
         fallbackDir: rootDir,
       });
@@ -233,13 +218,12 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  init() {
-    this._super(...arguments);
-    if (!this.get('selectedItems')) {
-      this.set('selectedItems', []);
-    }
-    this.set('browserModel', this.createBrowserModel());
-  },
+  /**
+   * @type {Utils.ShareFilesystemBrowserModel}
+   */
+  browserModel: computed(function browserModel() {
+    return this.createBrowserModel();
+  }),
 
   /**
    * @override
@@ -265,6 +249,7 @@ export default Component.extend(...mixins, {
       .extend({
         share: reads('paneFiles.share'),
         isOwnerVisible: false,
+        dirProxy: reads('paneFiles.dirProxy'),
       })
       .create({
         paneFiles: this,
@@ -310,9 +295,6 @@ export default Component.extend(...mixins, {
       } else {
         return get(file, 'parent');
       }
-    },
-    changeSelectedItems(selectedItems) {
-      return this.changeSelectedItems(selectedItems);
     },
   },
 });

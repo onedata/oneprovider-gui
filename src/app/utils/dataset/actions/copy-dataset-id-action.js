@@ -2,7 +2,7 @@
  * Implementation of copy ID menu action for dataset.
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -45,6 +45,11 @@ export default BaseAction.extend({
         record: dataset,
       },
     });
-    return copyRecordIdAction.execute();
+    try {
+      return copyRecordIdAction.execute();
+    } finally {
+      copyRecordIdAction.destroy();
+    }
+
   },
 });

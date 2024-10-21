@@ -7,7 +7,7 @@
  * See `utils/items-select-browser/base-model` for model implementation.
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2022 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -87,8 +87,6 @@ export default Component.extend(...mixins, {
 
   dirId: reads('selectorModel.dirId'),
 
-  dir: reads('selectorModel.dir'),
-
   space: reads('selectorModel.space'),
 
   submitMode: reads('selectorModel.submitMode'),
@@ -110,11 +108,6 @@ export default Component.extend(...mixins, {
    */
   resolveItemParent: reads('selectorModel.resolveItemParent'),
 
-  /**
-   * @type {ComputedProperty<SpacePrivileges>}
-   */
-  spacePrivileges: reads('space.privileges'),
-
   modalBodyId: computed(function modalBodyId() {
     return `${guidFor(this)}-body`;
   }),
@@ -130,13 +123,6 @@ export default Component.extend(...mixins, {
     set(selectorModel, 'itemsSelectBrowser', this);
   },
 
-  /**
-   * @override
-   */
-  changeSelectedItemsImmediately(selectedItems) {
-    this.get('selectorModel').setSelectedItems(selectedItems);
-  },
-
   submitSingleItem(item) {
     return this.get('onSubmit')([item]);
   },
@@ -150,16 +136,16 @@ export default Component.extend(...mixins, {
         onSubmit,
         selectorSelectedItems,
         submitMode,
-        dir,
-      } = this.getProperties('onSubmit', 'selectorSelectedItems', 'submitMode', 'dir');
+      } = this.getProperties('onSubmit', 'selectorSelectedItems', 'submitMode');
+      const dir = this.dirProxy.content;
+      if (!dir) {
+        return;
+      }
       const items = submitMode === 'currentDir' ? [dir] : selectorSelectedItems;
       return onSubmit(items);
     },
     updateDirEntityId(dirId) {
       this.get('selectorModel').setDirId(dirId);
-    },
-    changeSelectedItems(items) {
-      return this.changeSelectedItems(items);
     },
     resolveItemParent(item) {
       const selectorModel = this.get('selectorModel');

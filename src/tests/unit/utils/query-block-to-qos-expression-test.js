@@ -9,8 +9,7 @@ import queryBlockToQosExpression from 'oneprovider-gui/utils/query-block-to-qos-
 
 describe('Unit | Utility | query-block-to-qos-expression', function () {
   itGeneratesString('from linear AND-only query block',
-
-    AndOperatorQueryBlock.create({
+    () => AndOperatorQueryBlock.create({
       operands: [
         ConditionQueryBlock.create({
           property: {
@@ -38,13 +37,11 @@ describe('Unit | Utility | query-block-to-qos-expression', function () {
         }),
       ],
     }),
-
     'hello=world&foo=bar&lorem=ipsum'
   );
 
   itGeneratesString('from nested AND, OR query block',
-
-    OrOperatorQueryBlock.create({
+    () => OrOperatorQueryBlock.create({
       operands: [
         ConditionQueryBlock.create({
           property: {
@@ -76,13 +73,11 @@ describe('Unit | Utility | query-block-to-qos-expression', function () {
         }),
       ],
     }),
-
     'hello=world|(foo=bar&lorem=ipsum)'
   );
 
   itGeneratesString('from anyStorage except some property query block',
-
-    ExceptOperatorQueryBlock.create({
+    () => ExceptOperatorQueryBlock.create({
       operands: [
         ConditionQueryBlock.create({
           property: {
@@ -101,13 +96,11 @@ describe('Unit | Utility | query-block-to-qos-expression', function () {
         }),
       ],
     }),
-
     'anyStorage\\foo=bar'
   );
 
   itGeneratesString('without empty parenthesis from empty operator blocks beside non-empty',
-
-    OrOperatorQueryBlock.create({
+    () => OrOperatorQueryBlock.create({
       operands: [
         ConditionQueryBlock.create({
           property: {
@@ -122,13 +115,11 @@ describe('Unit | Utility | query-block-to-qos-expression', function () {
         }),
       ],
     }),
-
     'hello=world'
   );
 
   itGeneratesString('without empty parenthesis from at least 3 nested block-visualiser',
-
-    OrOperatorQueryBlock.create({
+    () => OrOperatorQueryBlock.create({
       operands: [
         OrOperatorQueryBlock.create({
           operands: [
@@ -144,16 +135,19 @@ describe('Unit | Utility | query-block-to-qos-expression', function () {
   );
 });
 
-function itGeneratesString(description, rootChildBlock, expectedString) {
+function itGeneratesString(description, genRootChildBlock, expectedString) {
   it(description, function () {
-    const rootBlock = RootOperatorQueryBlock.create({
-      operands: [
-        rootChildBlock,
-      ],
-    });
-
-    const result = queryBlockToQosExpression(rootBlock);
-
-    expect(result).to.equal(expectedString);
+    let rootBlock;
+    try {
+      rootBlock = RootOperatorQueryBlock.create({
+        operands: [
+          genRootChildBlock(),
+        ],
+      });
+      const result = queryBlockToQosExpression(rootBlock);
+      expect(result).to.equal(expectedString);
+    } finally {
+      rootBlock?.destroy();
+    }
   });
 }

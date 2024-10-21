@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
@@ -40,7 +40,7 @@ const ArchiveManager = Service.extend({
 });
 
 describe('Integration | Component | space-transfers/transfer-row', function () {
-  setupRenderingTest();
+  const { beforeEach, afterEach } = setupRenderingTest();
 
   beforeEach(function () {
     generateTestData(this);
@@ -48,6 +48,10 @@ describe('Integration | Component | space-transfers/transfer-row', function () {
     registerService(this, 'fileManager', FileManager);
     registerService(this, 'datasetManager', DatasetManager);
     registerService(this, 'archiveManager', ArchiveManager);
+  });
+
+  afterEach(function () {
+    this.get('record')?.destroy();
   });
 
   it('renders file name', async function () {
@@ -183,6 +187,7 @@ describe('Integration | Component | space-transfers/transfer-row', function () {
 
 function generateTestData(testCase) {
   const record = TransferTableRecord.create({
+    ownerSource: testCase.owner,
     transfer: {
       type: 'replication',
       entityId: '3281239312ip232813',

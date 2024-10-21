@@ -37,6 +37,7 @@ module.exports = function (environment) {
     },
     'ember-local-storage': {
       namespace: true,
+      loadInitializer: false,
     },
     'APP': {
       // Here you can pass flags/options to your application instance

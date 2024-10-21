@@ -2,7 +2,7 @@
  * A stacked line chart component for visualizing transfer throughput history.
  *
  * @author Michał Borzęcki
- * @copyright (C) 2017-2019 ACK CYFRONET AGH
+ * @copyright (C) 2017-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -730,15 +730,21 @@ export default Component.extend(
           if (!isOngoing) {
             this.set('timeUnit', this._getPrefferedUnit());
           }
-          const updater = TransferTimeStatUpdater.create({
-            isEnabled: ignoreTransferState ?
-              _updaterEnabled : isOngoing && _updaterEnabled,
-            timespan: timeUnit,
-            update: (...args) => this.updateTimeStatForUnitProxy(...args),
-          });
-          if (!isOngoing) {
-            updater.fetch();
+          let updater;
+          try {
+            updater = TransferTimeStatUpdater.create({
+              isEnabled: ignoreTransferState ?
+                _updaterEnabled : isOngoing && _updaterEnabled,
+              timespan: timeUnit,
+              update: (...args) => this.updateTimeStatForUnitProxy(...args),
+            });
+            if (!isOngoing) {
+              updater.fetch();
+            }
+          } catch {
+            updater.destroy();
           }
+          this.updater?.destroy();
           this.set('updater', updater);
         }))
         .catch(error => safeExec(this, 'set', '_statsError', error));

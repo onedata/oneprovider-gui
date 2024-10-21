@@ -19,6 +19,7 @@ export default class FilePermissionsHelper {
     /** @type {Promise<Models.User>} */
     this.defaultOwnerPromise = false;
     this.defaultUserHelper = new DefaultUserHelper(context);
+    this.viewModelsCache = new Set();
   }
   async getDefaultOwner() {
     return this.defaultUserHelper.getDefaultUser();
@@ -71,12 +72,14 @@ export default class FilePermissionsHelper {
     if (!this.files) {
       throw new Error('files in helper not implemented');
     }
-    return FilePermissionsViewModel.create({
+    const viewModel = FilePermissionsViewModel.create({
       ownerSource: this.context.owner,
       space: await this.createSpace(),
       files: this.files,
       ...this.viewModelOptions,
     });
+    this.viewModelsCache.add(viewModel);
+    return viewModel;
   }
   async beforeRender() {
     this.context.setProperties({
@@ -128,6 +131,10 @@ export default class FilePermissionsHelper {
   }
   getSaveButton() {
     return this.getFooter().querySelector('.btn-save');
+  }
+
+  destroy() {
+    this.viewModelsCache.forEach(viewModel => viewModel.destroy());
   }
 
   async givenSingleFilePosix(posixPermissions = '644') {

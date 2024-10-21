@@ -11,6 +11,7 @@ import Service from '@ember/service';
 import sinon from 'sinon';
 import { openFileContextMenu } from '../../helpers/item-browser';
 import { findByText } from '../../helpers/find';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const ArchiveManager = Service.extend({
   createArchive() {},
@@ -54,7 +55,7 @@ describe('Integration | Component | archive-browser', function () {
     registerService(this, 'archiveManager', ArchiveManager);
   });
 
-  afterEach(function () {
+  afterEach(async function () {
     this.get('browserModel')?.destroy();
   });
 
@@ -267,51 +268,54 @@ async function renderComponent(testCase) {
     () => null,
   );
   setTestPropertyDefault(testCase, 'spacePrivileges', {});
-  setTestPropertyDefault(testCase, 'spaceId', 'some_space_id');
   setTestPropertyDefault(testCase, 'dataset', createDefaultDataset(testCase));
+  const browsableDataset = testCase.get('dataset');
   const spaceDatasetsViewState = {
-    browsableDataset: testCase.get('dataset'),
+    browsableDataset,
     attachmentState: testCase.get('dataset.state'),
   };
-  setTestPropertyDefault(testCase, 'browserModel', ArchiveBrowserModel.create({
-    ownerSource: testCase.owner,
-    spaceDatasetsViewState,
-    refreshInterval: refreshInterval || 0,
-    openCreateArchiveModal: openCreateArchiveModal ||
-      notStubbed('openCreateArchiveModal'),
-    openRecallModal: openRecallModal ||
-      notStubbed('openRecallModal'),
-    openArchiveDetailsModal: openArchiveDetailsModal ||
-      notStubbed('openArchiveDetailsModal'),
-    openCancelModal: openCancelModal ||
-      notStubbed('openCancelModal'),
-    firstColumnWidth: 20,
-    loadColumnsConfigFromLocalStorage() {
-      this.set('columns.state.isEnabled', true);
-    },
-    fetchDirChildren: testCase.get('fetchDirChildren') || notStubbed('fetchDirChildren'),
-  }));
+  setTestPropertyDefault(testCase, 'browserModel', ArchiveBrowserModel
+    .extend({
+      dirProxy: promiseObject((async () => browsableDataset)()),
+    })
+    .create({
+      ownerSource: testCase.owner,
+      spaceDatasetsViewState,
+      space: {
+        currentUserIsOwner: true,
+        privileges: testCase.get('spacePrivileges'),
+        entityId: 'some_space_id',
+      },
+      refreshInterval: refreshInterval || 0,
+      openCreateArchiveModal: openCreateArchiveModal ||
+        notStubbed('openCreateArchiveModal'),
+      openRecallModal: openRecallModal ||
+        notStubbed('openRecallModal'),
+      openArchiveDetailsModal: openArchiveDetailsModal ||
+        notStubbed('openArchiveDetailsModal'),
+      openCancelModal: openCancelModal ||
+        notStubbed('openCancelModal'),
+      firstColumnWidth: 20,
+      loadColumnsConfigFromLocalStorage() {
+        this.set('columns.state.isEnabled', true);
+      },
+      fetchDirChildren: testCase.get('fetchDirChildren') || notStubbed('fetchDirChildren'),
+    }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   await render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel
-    dir=dataset
     resolveFileParentFun=resolveFileParentFun
-    spaceId=spaceId
-    spacePrivileges=spacePrivileges
-    selectedItems=selectedItems
     selectedItemsForJump=selectedItemsForJump
-    isSpaceOwned=true
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
     updateDirEntityId=(action updateDirEntityId)
-    changeSelectedItems=(action (mut selectedItems))
   }}</div>`);
 }
 
 function createDefaultDataset(mochaContext) {
   const store = lookupService(mochaContext, 'store');
-  return mochaContext, store.createRecord('dataset', {
-    name: 'Default dataset',
+  return store.createRecord('dataset', {
+    rootFilePath: '/test/Default dataset',
     state: 'attached',
   });
 }

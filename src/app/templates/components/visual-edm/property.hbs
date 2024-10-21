@@ -25,18 +25,18 @@
             <bg.button
               class="btn-sm"
               data-value-type={{EdmPropertyValueType.Literal}}
+              disabled={{viewModel.isDisabled}}
               @type="default"
               @value={{EdmPropertyValueType.Literal}}
-              @disabled={{viewModel.isDisabled}}
             >
               {{tt this (concat "valueType." EdmPropertyValueType.Literal)}}
             </bg.button>
             <bg.button
               class="btn-sm"
               data-value-type={{EdmPropertyValueType.Reference}}
+              disabled={{viewModel.isDisabled}}
               @type="default"
               @value={{EdmPropertyValueType.Reference}}
-              @disabled={{viewModel.isDisabled}}
             >
               {{tt this (concat "valueType." EdmPropertyValueType.Reference)}}
             </bg.button>

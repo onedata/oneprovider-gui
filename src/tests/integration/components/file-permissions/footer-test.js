@@ -4,29 +4,33 @@ import { setupRenderingTest } from 'ember-mocha';
 import Helper from '../../../helpers/file-permissions';
 
 describe('Integration | Component | file-permissions/footer', function () {
-  setupRenderingTest();
+  const { afterEach } = setupRenderingTest();
+
+  afterEach(function () {
+    this.helper?.destroy();
+  });
 
   it('renders discard and save buttons with labels', async function () {
-    const helper = new Helper(this);
-    await helper.givenSingleFilePosix();
+    this.helper = new Helper(this);
+    await this.helper.givenSingleFilePosix();
 
-    await helper.renderAll();
+    await this.helper.renderAll();
 
-    expect(helper.getDiscardButton()).to.exist;
-    expect(helper.getDiscardButton()).to.contain.text('Discard changes');
-    expect(helper.getSaveButton()).to.exist;
-    expect(helper.getSaveButton()).to.contain.text('Save');
+    expect(this.helper.getDiscardButton()).to.exist;
+    expect(this.helper.getDiscardButton()).to.contain.text('Discard changes');
+    expect(this.helper.getSaveButton()).to.exist;
+    expect(this.helper.getSaveButton()).to.contain.text('Save');
   });
 
   it('renders discard and save buttons as disabled when is not modified', async function () {
-    const helper = new Helper(this);
-    await helper.givenSingleFilePosix();
+    this.helper = new Helper(this);
+    await this.helper.givenSingleFilePosix();
 
-    await helper.renderAll();
+    await this.helper.renderAll();
 
-    expect(helper.getDiscardButton()).to.exist;
-    expect(helper.getDiscardButton()).to.have.attr('disabled');
-    expect(helper.getSaveButton()).to.exist;
-    expect(helper.getSaveButton()).to.have.attr('disabled');
+    expect(this.helper.getDiscardButton()).to.exist;
+    expect(this.helper.getDiscardButton()).to.have.attr('disabled');
+    expect(this.helper.getSaveButton()).to.exist;
+    expect(this.helper.getSaveButton()).to.have.attr('disabled');
   });
 });

@@ -14,6 +14,11 @@ import { htmlSafe } from '@ember/string';
 import { AtmWorkflowExecutionPhase } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 import dom from 'onedata-gui-common/utils/dom';
 import globals from 'onedata-gui-common/utils/globals';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 // TODO: VFS-7803 DRY in infinite scrollable lists
 
@@ -128,20 +133,24 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<ReplacingChunksArray<Models.AtmWorkflowExecutionSummary>>}
    */
-  atmWorkflowExecutionSummaries: computed('phase', function atmWorkflowExecutionSummaries() {
-    const phase = this.get('phase');
-    return ReplacingChunksArray.create({
-      fetch: this.fetchAtmWorkflowExecutionSummaries.bind(this),
-      getIndex(record) {
-        return atmWorkflowExecutionSummaryIndex(record, phase);
-      },
-      startIndex: 0,
-      endIndex: 50,
-      indexMargin: 10,
-    });
-  }),
+  atmWorkflowExecutionSummaries: destroyableComputed(
+    'phase',
+    function atmWorkflowExecutionSummaries() {
+      const phase = this.get('phase');
+      return ReplacingChunksArray.create({
+        fetch: this.fetchAtmWorkflowExecutionSummaries.bind(this),
+        getIndex(record) {
+          return atmWorkflowExecutionSummaryIndex(record, phase);
+        },
+        startIndex: 0,
+        endIndex: 50,
+        indexMargin: 10,
+      });
+    }
+  ),
 
   init() {
+    initDestroyableCache(this);
     this._super(...arguments);
 
     const updater = Looper.create({
@@ -152,6 +161,9 @@ export default Component.extend(I18n, {
     this.set('updater', updater);
   },
 
+  /**
+   * @override
+   */
   didInsertElement() {
     this._super(...arguments);
 
@@ -163,14 +175,24 @@ export default Component.extend(I18n, {
     });
   },
 
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  /**
+   * @override
+   */
   willDestroyElement() {
     try {
-      const {
-        updater,
-        listWatcher,
-      } = this.getProperties('updater', 'listWatcher');
-      listWatcher.destroy();
-      updater && updater.destroy();
+      this.listWatcher?.destroy();
+      this.updater?.destroy();
     } finally {
       this._super(...arguments);
     }

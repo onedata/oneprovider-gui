@@ -10,7 +10,7 @@
 import EmberObject, { get, set, setProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { resolve, Promise, reject } from 'rsvp';
+import { all as allFulfilled, reject } from 'rsvp';
 import { conditional, raw, gt, and, not, notEmpty, eq } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -187,13 +187,7 @@ export default EmberObject.extend(
           storageLocationsPerProviderCache,
           storageLocationsPerProvider,
           fileType,
-        } = this.getProperties(
-          'fileDistributionCache',
-          'storageLocationsPerProviderCache',
-          'fileDistribution',
-          'storageLocationsPerProvider',
-          'fileType',
-        );
+        } = this;
         if (fileType === 'dir' || fileDistribution?.length === 1) {
           this.set('isStorageLocationsUpdated', false);
           return;
@@ -298,11 +292,7 @@ export default EmberObject.extend(
         file,
         transferManager,
         onedataConnection,
-      } = this.getProperties(
-        'file',
-        'transferManager',
-        'onedataConnection'
-      );
+      } = this;
       const transfersHistoryLimitPerFile =
         get(onedataConnection, 'transfersHistoryLimitPerFile');
 
@@ -317,8 +307,7 @@ export default EmberObject.extend(
     },
 
     fetchStorageLocations() {
-      const file = this.get('file');
-      return file.belongsTo('storageLocationInfo').reload();
+      return this.file.belongsTo('storageLocationInfo').reload();
     },
 
     /**
@@ -329,19 +318,18 @@ export default EmberObject.extend(
         isStorageLocationsUpdated: firstIsStorageLocationsUpdated,
         isFileDistributionError,
         transfersProxy,
-      } = this.getProperties(
-        'isStorageLocationsUpdated',
-        'isFileDistributionError',
-        'transfersProxy'
-      );
-      await Promise.all([
-        !isFileDistributionError ?
-        this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
-        !get(transfersProxy, 'isRejected') ?
-        this.updateTransfersProxy({ replace: true }) : resolve(),
-        firstIsStorageLocationsUpdated ?
-        this.updateStorageLocationsProxy({ replace: true }) : resolve(),
-      ]);
+      } = this;
+      const promises = [];
+      if (!isFileDistributionError) {
+        promises.push(this.updateFileDistributionModelProxy({ replace: true }));
+      }
+      if (!get(transfersProxy, 'isRejected')) {
+        promises.push(this.updateTransfersProxy({ replace: true }));
+      }
+      if (firstIsStorageLocationsUpdated) {
+        promises.push(this.updateStorageLocationsProxy({ replace: true }));
+      }
+      await allFulfilled(promises);
       // getting current value of isStorageLocationsUpdated, because it might be updated
       // after async call
       if (!firstIsStorageLocationsUpdated && this.isStorageLocationsUpdated) {
@@ -358,13 +346,12 @@ export default EmberObject.extend(
       const {
         isFileDistributionLoaded,
         fileDistribution,
-      } = this.getProperties('isFileDistributionLoaded', 'fileDistribution');
-      if (isFileDistributionLoaded) {
-        const oneproviderEntityId = get(oneprovider, 'entityId');
-        return get(fileDistribution, oneproviderEntityId);
-      } else {
+      } = this;
+      if (!isFileDistributionLoaded || !fileDistribution) {
         return {};
       }
+      const oneproviderEntityId = get(oneprovider, 'entityId');
+      return fileDistribution[oneproviderEntityId];
     },
 
     /**

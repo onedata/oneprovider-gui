@@ -4,6 +4,7 @@ import { reads } from '@ember/object/computed';
 import { collect } from 'ember-awesome-macros';
 import globals from 'onedata-gui-common/utils/globals';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export default Component.extend({
   mockBackend: service(),
@@ -29,15 +30,23 @@ export default Component.extend({
     //   'mockBackend.entityRecords.chainDir.4',
   ),
 
-  previewMode: false,
-
   initialTab: 'general',
 
   init() {
     this._super(...arguments);
     this.set('browserModel', FilesystemBrowserModel.create({
+      dirProxy: promiseObject((async () => null)()),
       ownerSource: this,
+      space: this.space,
+      previewMode: false,
     }));
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    this.browserModel?.destroy();
   },
 
   actions: {

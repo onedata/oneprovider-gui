@@ -127,6 +127,17 @@ function someReduce() {
 
   expandedTransferIds: computed(() => ['t1']),
 
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.cacheFor('transfersArray')?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
   fetch() {
     return resolve([this.get('transfer1')]);
   },

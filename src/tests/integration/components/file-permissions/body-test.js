@@ -6,25 +6,29 @@ import { all as allFulfilled } from 'rsvp';
 import Helper from '../../../helpers/file-permissions';
 
 describe('Integration | Component | file-permissions/body', function () {
-  setupRenderingTest();
+  const { afterEach } = setupRenderingTest();
+
+  afterEach(function () {
+    this.helper?.destroy();
+  });
 
   it('renders visible POSIX permissions editor when all files permissions are the same POSIX', async function () {
-    const helper = new Helper(this);
-    helper.files = await allFulfilled([
-      helper.createFile({
+    this.helper = new Helper(this);
+    this.helper.files = await allFulfilled([
+      this.helper.createFile({
         activePermissionsType: 'posix',
         posixPermissions: '644',
       }),
-      helper.createFile({
+      this.helper.createFile({
         activePermissionsType: 'posix',
         posixPermissions: '644',
       }),
     ]);
 
-    await helper.renderBody();
+    await this.helper.renderBody();
 
-    const element = helper.getBody();
-    const posixEditor = helper.getPosixPermissionsEditor();
+    const element = this.helper.getBody();
+    const posixEditor = this.helper.getPosixPermissionsEditor();
     expect(element).to.exist;
     expect(posixEditor).to.not.have.class('hidden');
     expect(find('.alert')).to.not.exist;
@@ -32,12 +36,12 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders incompatible POSIX permissions alert when files permissions have different POSIX',
     async function () {
-      const helper = new Helper(this);
-      await helper.givenDifferentPosix();
+      this.helper = new Helper(this);
+      await this.helper.givenDifferentPosix();
 
-      await helper.renderBody();
+      await this.helper.renderBody();
 
-      helper.thenExpectHiddenPosixEditor();
+      this.helper.thenExpectHiddenPosixEditor();
       const alertElement = find('.alert');
       expect(alertElement).to.exist;
       expect(alertElement).to.have.class('alert-warning');
@@ -49,15 +53,15 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders readonly incompatible POSIX permissions alert when files permissions have different POSIX and editor is readonly',
     async function () {
-      const helper = new Helper(this);
-      helper.viewModelOptions = {
+      this.helper = new Helper(this);
+      this.helper.viewModelOptions = {
         readonly: true,
       };
-      await helper.givenDifferentPosix();
+      await this.helper.givenDifferentPosix();
 
-      await helper.renderBody();
+      await this.helper.renderBody();
 
-      helper.thenExpectHiddenPosixEditor();
+      this.helper.thenExpectHiddenPosixEditor();
       const alertElement = find('.alert');
       expect(alertElement).to.exist;
       expect(alertElement).to.have.class('alert-info');
@@ -71,26 +75,26 @@ describe('Integration | Component | file-permissions/body', function () {
   );
 
   it('renders visible ACL permissions editor when all files permissions are the same ACL', async function () {
-    const helper = new Helper(this);
+    this.helper = new Helper(this);
     const acls = await allFulfilled([
-      helper.createAcl([helper.createExampleAce(0)]),
-      helper.createAcl([helper.createExampleAce(0)]),
+      this.helper.createAcl([this.helper.createExampleAce(0)]),
+      this.helper.createAcl([this.helper.createExampleAce(0)]),
     ]);
-    helper.files = await allFulfilled([
-      helper.createFile({
+    this.helper.files = await allFulfilled([
+      this.helper.createFile({
         activePermissionsType: 'acl',
         acl: acls[0],
       }),
-      helper.createFile({
+      this.helper.createFile({
         activePermissionsType: 'acl',
         acl: acls[1],
       }),
     ]);
 
-    await helper.renderBody();
+    await this.helper.renderBody();
 
-    const element = helper.getBody();
-    const aclEditor = helper.getAclPermissionsEditor();
+    const element = this.helper.getBody();
+    const aclEditor = this.helper.getAclPermissionsEditor();
     const alertElement = element.querySelector('.alert');
     expect(alertElement).to.not.exist;
     expect(element).to.exist;
@@ -99,12 +103,12 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders "different ACL" alert when both files have ACL but with different rules',
     async function () {
-      const helper = new Helper(this);
-      await helper.givenDifferentAcl();
+      this.helper = new Helper(this);
+      await this.helper.givenDifferentAcl();
 
-      await helper.renderBody();
+      await this.helper.renderBody();
 
-      const element = helper.getBody();
+      const element = this.helper.getBody();
       const alertElement = element.querySelector('.alert');
       expect(alertElement).to.exist;
       expect(alertElement).to.have.class('alert-warning');
@@ -114,15 +118,15 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders "readonly different ACL" alert when both files have ACL but with different rules in readonly mode',
     async function () {
-      const helper = new Helper(this);
-      helper.viewModelOptions = {
+      this.helper = new Helper(this);
+      this.helper.viewModelOptions = {
         readonly: true,
       };
-      await helper.givenDifferentAcl();
+      await this.helper.givenDifferentAcl();
 
-      await helper.renderBody();
+      await this.helper.renderBody();
 
-      const element = helper.getBody();
+      const element = this.helper.getBody();
       const alertElement = element.querySelector('.alert');
       expect(alertElement).to.exist;
       expect(alertElement).to.have.class('alert-info');
@@ -136,27 +140,27 @@ describe('Integration | Component | file-permissions/body', function () {
   );
 
   it('renders "different ACL" alert when one file have POSIX and other ACL', async function () {
-    const helper = new Helper(this);
+    this.helper = new Helper(this);
     const acls = await allFulfilled([
-      helper.createAcl([]),
-      helper.createAcl([helper.createExampleAce()]),
+      this.helper.createAcl([]),
+      this.helper.createAcl([this.helper.createExampleAce()]),
     ]);
-    helper.files = await allFulfilled([
-      helper.createFile({
+    this.helper.files = await allFulfilled([
+      this.helper.createFile({
         activePermissionsType: 'posix',
         posixPermissions: '644',
         acl: acls[0],
       }),
-      helper.createFile({
+      this.helper.createFile({
         activePermissionsType: 'acl',
         acl: acls[1],
       }),
     ]);
 
-    await helper.renderBody();
+    await this.helper.renderBody();
 
-    const element = helper.getBody();
-    const aclEditor = helper.getAclPermissionsEditor();
+    const element = this.helper.getBody();
+    const aclEditor = this.helper.getAclPermissionsEditor();
     const alertElement = element.querySelector('.alert');
     expect(alertElement).to.exist;
     expect(alertElement).to.have.class('alert-warning');
@@ -166,27 +170,27 @@ describe('Integration | Component | file-permissions/body', function () {
   });
 
   it('renders "mixed file types" alert when files with ACL have mixed types', async function () {
-    const helper = new Helper(this);
+    this.helper = new Helper(this);
     const acls = await allFulfilled([
-      helper.createAcl([helper.createExampleAce(0)]),
-      helper.createAcl([helper.createExampleAce(0)]),
+      this.helper.createAcl([this.helper.createExampleAce(0)]),
+      this.helper.createAcl([this.helper.createExampleAce(0)]),
     ]);
-    helper.files = await allFulfilled([
-      helper.createFile({
+    this.helper.files = await allFulfilled([
+      this.helper.createFile({
         type: 'file',
         activePermissionsType: 'acl',
         acl: acls[0],
       }),
-      helper.createFile({
+      this.helper.createFile({
         type: 'dir',
         activePermissionsType: 'acl',
         acl: acls[1],
       }),
     ]);
 
-    await helper.renderBody();
+    await this.helper.renderBody();
 
-    const alertElement = helper.getBody().querySelector('.alert');
+    const alertElement = this.helper.getBody().querySelector('.alert');
     expect(alertElement).to.exist;
     expect(alertElement).to.have.class('alert-warning');
     expect(alertElement).to.have.trimmed.text(
@@ -196,30 +200,30 @@ describe('Integration | Component | file-permissions/body', function () {
 
   it('renders "readonly mixed file types" alert when files with ACL have mixed types in readonly mode',
     async function () {
-      const helper = new Helper(this);
-      helper.viewModelOptions = {
+      this.helper = new Helper(this);
+      this.helper.viewModelOptions = {
         readonly: true,
       };
       const acls = await allFulfilled([
-        helper.createAcl([helper.createExampleAce(0)]),
-        helper.createAcl([helper.createExampleAce(0)]),
+        this.helper.createAcl([this.helper.createExampleAce(0)]),
+        this.helper.createAcl([this.helper.createExampleAce(0)]),
       ]);
-      helper.files = await allFulfilled([
-        helper.createFile({
+      this.helper.files = await allFulfilled([
+        this.helper.createFile({
           type: 'file',
           activePermissionsType: 'acl',
           acl: acls[0],
         }),
-        helper.createFile({
+        this.helper.createFile({
           type: 'dir',
           activePermissionsType: 'acl',
           acl: acls[1],
         }),
       ]);
 
-      await helper.renderBody();
+      await this.helper.renderBody();
 
-      const alertElement = helper.getBody().querySelector('.alert');
+      const alertElement = this.helper.getBody().querySelector('.alert');
       expect(alertElement).to.exist;
       expect(alertElement).to.have.class('alert-info');
       expect(alertElement).to.have.trimmed.text(
@@ -229,22 +233,22 @@ describe('Integration | Component | file-permissions/body', function () {
   );
 
   it('unhides POSIX editor when clicking on clear button from "different alert"', async function () {
-    const helper = new Helper(this);
-    await helper.givenDifferentPosix();
-    await helper.renderBody();
+    this.helper = new Helper(this);
+    await this.helper.givenDifferentPosix();
+    await this.helper.renderBody();
 
-    await helper.whenResetPermissionsIsClicked();
+    await this.helper.whenResetPermissionsIsClicked();
 
-    helper.thenExpectVisiblePosixEditor();
+    this.helper.thenExpectVisiblePosixEditor();
   });
 
   it('unhides ACL editor when clicking on clear button from "different alert"', async function () {
-    const helper = new Helper(this);
-    await helper.givenDifferentAcl();
-    await helper.renderBody();
+    this.helper = new Helper(this);
+    await this.helper.givenDifferentAcl();
+    await this.helper.renderBody();
 
-    await helper.whenResetPermissionsIsClicked();
+    await this.helper.whenResetPermissionsIsClicked();
 
-    helper.thenExpectVisibleAclEditor();
+    this.helper.thenExpectVisibleAclEditor();
   });
 });
