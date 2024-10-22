@@ -1,8 +1,8 @@
 <p class="confirm-subsequent-transfer-message break-word">{{messageText}}</p>
 <div class="btn-toolbar">
-  {{#bs-button onClick=onCancel disabled=(not canCancel) size="sm" class="cancel-subsequent-transfer"}}
+  {{#one-button onClick=onCancel disabled=(not canCancel) size="sm" class="cancel-subsequent-transfer"}}
     {{tt this "cancelButton"}}
-  {{/bs-button}}
+  {{/one-button}}
   {{#one-button
     type="primary"
     size="sm"

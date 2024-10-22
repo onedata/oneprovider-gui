@@ -10,7 +10,7 @@
  * to have behaviour and actions different from regular browsers.
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -21,7 +21,6 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import _ from 'lodash';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { conditional, and, raw, equal, or, bool, isEmpty } from 'ember-awesome-macros';
@@ -135,13 +134,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   selectorSelectedItems: computed(
     'browserSelectedItems.[]',
-    'dir',
+    'dirProxy.content',
     function selectorSelectedItems() {
-      const {
-        browserSelectedItems,
-        dir,
-      } = this.getProperties('browserSelectedItems', 'dir');
-      return _.without(browserSelectedItems, dir);
+      const dir = this.dirProxy.content;
+      if (dir) {
+        return _.without(this.browserSelectedItems, dir);
+      } else {
+        return this.browserSelectedItems;
+      }
     }
   ),
 
@@ -189,8 +189,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       return this.getValidationError();
     }
   ),
-
-  dir: computedLastProxyContent('dirProxy'),
 
   init() {
     this._super(...arguments);

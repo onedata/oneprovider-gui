@@ -2,7 +2,7 @@
  * Implementation of settings, logic and state for selectors browsing filesystem tree.
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -79,10 +79,16 @@ export default BaseModel.extend(...mixins, {
     return SelectorFilesystemBrowserModel
       .extend({
         chooseCurrentDirEnabled: reads('itemsSelectBrowser.dirIsAllowed'),
+        dirProxy: reads('itemsSelectBrowser.dirProxy'),
+        changeSelectedItems() {
+          this._super(...arguments);
+          this.itemsSelectBrowser.setSelectedItems(...arguments);
+        },
       })
       .create({
         ownerSource: this,
         itemsSelectBrowser: this,
+        space: this.space,
         onSubmitSingleItem: this.submitSingleFilesystemItem.bind(this),
         openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
         openRename: this.openRenameModal.bind(this),

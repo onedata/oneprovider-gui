@@ -2,17 +2,18 @@
  * Tools (actions) for selected files.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import { observer, computed } from '@ember/object';
+import { computed } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { inject as service } from '@ember/service';
 import ItemsTooltipContent from 'oneprovider-gui/utils/items-tooltip-content';
+import { syncObserver } from 'onedata-gui-common/utils/observer';
 
 const mixins = Object.freeze([
   I18n,
@@ -79,12 +80,14 @@ export default Component.extend(...mixins, {
 
   isPillVisible: gt('itemsCount', 1),
 
-  rememberLastPositiveCount: observer(
+  /**
+   * Sync: sets some property value, which should be done immediately.
+   */
+  rememberLastPositiveCount: syncObserver(
     'itemsCount',
     function rememberLastPositiveCount() {
-      const itemsCount = this.get('itemsCount');
-      if (itemsCount > 0) {
-        this.set('lastPositiveItemsCount', itemsCount);
+      if (this.itemsCount > 0) {
+        this.set('lastPositiveItemsCount', this.itemsCount);
       }
     }
   ),

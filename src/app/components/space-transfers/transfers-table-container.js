@@ -2,13 +2,13 @@
  * Container for transfers table providing infinite scroll and auto-update support
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import Looper from 'onedata-gui-common/utils/looper';
-import { computed, get } from '@ember/object';
+import { get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import { inject as service } from '@ember/service';
@@ -22,6 +22,11 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import transferIndex from 'oneprovider-gui/utils/transfer-index';
 import dom from 'onedata-gui-common/utils/dom';
 import globals from 'onedata-gui-common/utils/globals';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 const updateInterval = 5000;
 
@@ -77,7 +82,7 @@ export default Component.extend({
   spaceId: reads('space.entityId'),
 
   // TODO: VFS-8809 migrate to InfiniteScroll toolkit
-  transfersArray: computed('type', function transfersArray() {
+  transfersArray: destroyableComputed('type', function transfersArray() {
     const type = this.get('type');
     return ReplacingChunksArray.create({
       fetch: this.fetchTransfers.bind(this),
@@ -91,6 +96,7 @@ export default Component.extend({
   }),
 
   init() {
+    initDestroyableCache(this);
     this._super(...arguments);
     const updater = Looper.create({
       immediate: false,
@@ -100,6 +106,9 @@ export default Component.extend({
     this.set('updater', updater);
   },
 
+  /**
+   * @override
+   */
   didInsertElement() {
     this._super(...arguments);
     this.set('listWatcher', this.createListWatcher());
@@ -110,10 +119,24 @@ export default Component.extend({
     });
   },
 
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  /**
+   * @override
+   */
   willDestroyElement() {
     try {
-      this.get('listWatcher').destroy();
-      this.get('updater').destroy();
+      this.listWatcher?.destroy();
+      this.updater?.destroy();
     } finally {
       this._super(...arguments);
     }

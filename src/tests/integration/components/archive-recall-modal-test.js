@@ -2,7 +2,7 @@
  * Tests only if archive-recall component is integrated with modal and modal features.
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -65,7 +65,7 @@ describe('Integration | Component | archive-recall-modal', function () {
       type: 'dir',
     }).save();
     const dataset = await store.createRecord('dataset', {
-      name: 'dataset_name',
+      rootFilePath: '/dataset_name',
     }).save();
     this.setProperties({
       dir,

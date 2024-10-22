@@ -2,7 +2,7 @@
  * Content of table cell with message from QoS audit log.
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -11,7 +11,7 @@ import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import parseLogError from 'oneprovider-gui/utils/create-error-message-spec';
 import { inject as service } from '@ember/service';
-import { or, getBy, raw, eq, conditional } from 'ember-awesome-macros';
+import { raw, eq, conditional } from 'ember-awesome-macros';
 import _ from 'lodash';
 
 export default Component.extend(I18n, {
@@ -82,8 +82,7 @@ export default Component.extend(I18n, {
     return parseLogError(reason, errorExtractor);
   }),
 
-  icon: or(
-    getBy('statusToIconMapping', 'status'),
-    raw('browser-info')
-  ),
+  icon: computed('statusToIconMapping', 'status', function icon() {
+    return this.statusToIconMapping?.[this.status] ?? 'browser-info';
+  }),
 });

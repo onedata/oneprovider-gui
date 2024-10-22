@@ -20,7 +20,7 @@
   ></textarea>
 {{/if}}
 <div class="share-edit-actions-toolbar btn-toolbar">
-  {{#bs-button
+  {{#one-button
     class="btn-sm btn-switch-editor-mode"
     type="default"
     disabled=isToggleEditorDisabled
@@ -28,15 +28,15 @@
   }}
     {{one-icon icon=modeSwitchIcon}}
     <span class="text">{{modeSwitchText}}</span>
-  {{/bs-button}}
-  {{#bs-button
+  {{/one-button}}
+  {{#one-button
     class="btn-sm"
     type="warning"
     disabled=(not isContentChanged)
     onClick=(action "onDiscard")
   }}
     {{tt this "discard"}}
-  {{/bs-button}}
+  {{/one-button}}
   {{#one-button
     type="primary"
     buttonType="submit"

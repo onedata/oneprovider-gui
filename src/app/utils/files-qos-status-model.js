@@ -2,17 +2,18 @@
  * Provides auto-updated state of QoS requirements fulfillment for multiple files.
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import EmberObject, { computed, observer } from '@ember/object';
+import { mapBy } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import QosFileItem from 'oneprovider-gui/utils/qos-file-item';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { all as allFulfilled } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
-import { conditional, equal, raw, array } from 'ember-awesome-macros';
+import { conditional, equal, raw } from 'ember-awesome-macros';
 
 const mixins = [
   OwnerInjector,
@@ -42,9 +43,9 @@ export default EmberObject.extend(...mixins, {
   }),
 
   /**
-   * @type {Array<String>}
+   * @type {Array<QosStatus>}
    */
-  filesStatus: array.mapBy('fileItems', raw('fileQosStatus')),
+  filesStatus: mapBy('fileItems', 'fileQosStatus'),
 
   /**
    * One of: error, loading, pending, impossible, fulfilled, unknown
@@ -94,7 +95,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @override
    */
-  destroy() {
+  willDestroy() {
     try {
       this.updater?.destroy();
     } finally {

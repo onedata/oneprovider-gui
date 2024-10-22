@@ -46,8 +46,15 @@ export default Component.extend({
     });
   },
 
-  willDestroyElement() {
-    this.selectorModel?.destroy();
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.selectorModel?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   actions: {

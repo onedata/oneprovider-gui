@@ -2,7 +2,7 @@
  * A view component for onedata.transfers.show route
  *
  * @author Jakub Liput
- * @copyright (C) 2017-2019 ACK CYFRONET AGH
+ * @copyright (C) 2017-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -18,6 +18,7 @@ import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import globals from 'onedata-gui-common/utils/globals';
 import WindowResizeHandler from 'onedata-gui-common/mixins/window-resize-handler';
+import config from 'ember-get-config';
 
 const mixins = [
   I18n,
@@ -167,8 +168,7 @@ export default Component.extend(...mixins, {
 
   didInsertElement() {
     this._super(...arguments);
-    this.set('windowWidth', globals.window.innerWidth);
-    this.set('windowHeight', globals.window.innerHeight);
+    this.storeWindowSize();
   },
 
   /**
@@ -180,10 +180,7 @@ export default Component.extend(...mixins, {
   },
 
   onWindowResize() {
-    this.setProperties({
-      windowWidth: globals.window.innerWidth,
-      windowHeight: globals.window.innerHeight,
-    });
+    this.storeWindowSize();
   },
 
   _spaceChanged(isInit = false) {
@@ -200,6 +197,26 @@ export default Component.extend(...mixins, {
    */
   eventName(type) {
     return `${type}.${this.elementId}`;
+  },
+
+  /**
+   * Sets window width and height in component properties.
+   * In test mode it sets fake sizes to make tests stable on every window size.
+   */
+  storeWindowSize() {
+    if (config.environment === 'test') {
+      // TODO: VFS-12089 This is a workaround, but the component can be improved using
+      // ResizeObserver and checking the element size instead of size of window.
+      this.setProperties({
+        windowWidth: 1280,
+        windowHeight: 768,
+      });
+    } else {
+      this.setProperties({
+        windowWidth: globals.window.innerWidth,
+        windowHeight: globals.window.innerHeight,
+      });
+    }
   },
 
   actions: {

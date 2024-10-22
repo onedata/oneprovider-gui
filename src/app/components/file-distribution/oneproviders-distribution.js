@@ -3,14 +3,14 @@
  * in terms of selected files.
  *
  * @author Michał Borzęcki
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { observer, get, set, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, notEmpty, array, equal, and, promise } from 'ember-awesome-macros';
+import { conditional, raw, notEmpty, array, equal, promise } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -19,6 +19,7 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import _ from 'lodash';
 import sortByProperties from 'onedata-gui-common/utils/ember/sort-by-properties';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 export default Component.extend(I18n, {
   classNames: ['oneproviders-distribution'],
@@ -90,7 +91,7 @@ export default Component.extend(I18n, {
   locationsPerProvider: computed(
     'fileDistributionData.firstObject.storageLocationsPerProvider',
     function locationsPerProvider() {
-      const filesDistributionData = this.get('fileDistributionData');
+      const filesDistributionData = this.fileDistributionData;
       const fileDistributionData = get(filesDistributionData, 'firstObject');
       const fileType = get(fileDistributionData, 'fileType');
       if (filesDistributionData.length > 1 || fileType === 'dir') {
@@ -211,9 +212,11 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  isDistributionLoading: array.isAny(
-    'fileDistributionData',
-    raw('isFileDistributionLoading')
+  isDistributionLoading: computed(
+    'fileDistributionData.@each.isFileDistributionLoading',
+    function isDistributionLoading() {
+      return this.fileDistributionData?.some(data => data.isFileDistributionLoading);
+    }
   ),
 
   /**
@@ -222,7 +225,7 @@ export default Component.extend(I18n, {
   distributionErrorReason: computed(
     'fileDistributionData.@each.fileDistributionErrorReason',
     function distributionErrorReason() {
-      return this.get('fileDistributionData')
+      return this.fileDistributionData
         .mapBy('fileDistributionErrorReason')
         .compact()
         .objectAt(0);
@@ -238,10 +241,7 @@ export default Component.extend(I18n, {
       const {
         fileDistributionData,
         getTransfersUrl,
-      } = this.getProperties(
-        'fileDistributionData',
-        'getTransfersUrl',
-      );
+      } = this;
       return getTransfersUrl({
         fileId: get(fileDistributionData, 'firstObject.file.entityId'),
       });
@@ -278,7 +278,7 @@ export default Component.extend(I18n, {
   evictingOneproviders: computed(
     'fileDistributionData.@each.activeTransfers',
     function evictingOneproviders() {
-      return this.get('fileDistributionData')
+      return this.fileDistributionData
         .mapBy('activeTransfers')
         .compact()
         .mapBy('evictingProvider')
@@ -287,8 +287,8 @@ export default Component.extend(I18n, {
   ),
 
   visibleObserver: observer('visible', function visibleObserver() {
-    const visible = this.get('visible');
-    this.get('fileDistributionData').forEach(fileDistributionContainer => {
+    const visible = this.visible;
+    this.fileDistributionData.forEach(fileDistributionContainer => {
       if (get(fileDistributionContainer, 'keepDataUpdated') !== visible) {
         set(fileDistributionContainer, 'keepDataUpdated', visible);
       }
@@ -302,7 +302,7 @@ export default Component.extend(I18n, {
     const {
       fileDistributionData,
       oneproviders,
-    } = this.getProperties('fileDistributionData', 'oneproviders');
+    } = this;
     const storages = {};
 
     fileDistributionData.forEach(fileDistributionContainer => {
@@ -335,12 +335,7 @@ export default Component.extend(I18n, {
           oneproviders,
           storageManager,
           space,
-        } = this.getProperties(
-          'fileDistributionData',
-          'oneproviders',
-          'storageManager',
-          'space'
-        );
+        } = this;
         const spaceId = get(space, 'entityId');
 
         return Promise.all(oneproviders.map(oneprovider => {
@@ -366,9 +361,12 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasSingleRegFile: and(
-    equal('fileDistributionData.length', raw(1)),
-    array.isEvery('fileDistributionData', raw('fileType'), raw('file'))
+  hasSingleRegFile: computed(
+    'fileDistributionData.{length,0.fileType}',
+    function hasSingleRegFile() {
+      return this.fileDistributionData?.length === 1 &&
+        this.fileDistributionData[0].fileType === LegacyFileType.File;
+    }
   ),
 
   init() {
@@ -378,20 +376,12 @@ export default Component.extend(I18n, {
     this.set('shouldUpdate', true);
   },
 
-  willDestroyElement() {
-    try {
-      this.get('fileDistributionData').setEach('keepDataUpdated', false);
-    } finally {
-      this._super(...arguments);
-    }
-  },
-
   /**
    * @param {Models.Provider} destinationOneprovider
    * @returns {Promise}
    */
   startReplication(destinationOneprovider) {
-    return this.get('onReplicate')(destinationOneprovider)
+    return this.onReplicate(destinationOneprovider)
       .finally(() => this.resolveStartTransferPromise());
   },
 
@@ -401,7 +391,7 @@ export default Component.extend(I18n, {
    * @returns {Promise}
    */
   startMigration(sourceOneprovider, destinationOneprovider) {
-    return this.get('onMigrate')(sourceOneprovider, destinationOneprovider)
+    return this.onMigrate(sourceOneprovider, destinationOneprovider)
       .finally(() => this.resolveStartTransferPromise());
   },
 
@@ -410,7 +400,7 @@ export default Component.extend(I18n, {
    * @returns {Promise}
    */
   startEviction(sourceOneprovider) {
-    return this.get('onEvict')(sourceOneprovider)
+    return this.onEvict(sourceOneprovider)
       .finally(() => this.resolveStartTransferPromise());
   },
 
@@ -433,7 +423,7 @@ export default Component.extend(I18n, {
    */
   resolveStartTransferPromise() {
     const startTransferPromiseResolveCallback =
-      this.get('startTransferPromiseResolveCallback');
+      this.startTransferPromiseResolveCallback;
     if (startTransferPromiseResolveCallback) {
       safeExec(this, () => this.setProperties({
         startTransferPromise: null,
@@ -469,11 +459,7 @@ export default Component.extend(I18n, {
         newMigrationSourceOneprovider,
         newMigrationSourceHasActiveTransfers,
         startTransferPromise,
-      } = this.getProperties(
-        'newMigrationSourceOneprovider',
-        'newMigrationSourceHasActiveTransfers',
-        'startTransferPromise'
-      );
+      } = this;
       this.setProperties({
         newMigrationSourceOneprovider: null,
         newMigrationSourceHasActiveTransfers: false,
@@ -512,10 +498,7 @@ export default Component.extend(I18n, {
       const {
         startSubsequentTransferType,
         startSubsequentTransferData,
-      } = this.getProperties(
-        'startSubsequentTransferType',
-        'startSubsequentTransferData'
-      );
+      } = this;
       const {
         sourceOneprovider,
         destinationOneprovider,
@@ -559,7 +542,7 @@ export default Component.extend(I18n, {
       this.resolveStartTransferPromise();
     },
     getProvidersUrl(...args) {
-      return this.get('getProvidersUrl')(...args);
+      return this.getProvidersUrl(...args);
     },
   },
 });

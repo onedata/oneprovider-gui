@@ -181,6 +181,7 @@ export default FilesystemBrowserModel.extend({
    */
   refreshBtnTip: computed(
     'isFilesystemLive',
+    'areLiveColumnsVisible',
     // inherited dependencies
     'selectedItemsOutOfScope',
     'anyDataLoadError',

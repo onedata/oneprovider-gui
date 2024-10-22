@@ -2,7 +2,7 @@
  * Creates and shares a state of mocked data model
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2021 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -496,10 +496,8 @@ export default Service.extend(...mixins, {
       })
       .then(() => allFulfilled(shares.map(share => share.save())))
       .then(([privateShare0, privateShare1]) => allFulfilled([
-        addShareList(rootFile, [privateShare0, privateShare1], store, {
-          sharesCount: 2,
-        }),
-        addShareList(space, [privateShare0, privateShare1], store),
+        addShareListToFile(rootFile, [privateShare0, privateShare1]),
+        addShareListToFile(space, [privateShare0, privateShare1]),
       ]));
   },
 
@@ -1362,6 +1360,7 @@ export default Service.extend(...mixins, {
 
   /**
    * Requires entityRecords: provider, storage
+   * @returns {Promise<Array<Models.FileDistribution>>}
    */
   async createFileDistribution(store) {
     // NOTE: assuming that list of providers and storages are the same lenght
@@ -1401,6 +1400,7 @@ export default Service.extend(...mixins, {
 
   /**
    * Requires entityRecords: provider, storage
+   * @returns {Promise<Array<Models.StorageLocationInfo>>}
    */
   async createStorageLocationInfoRecords(store) {
     // NOTE: assuming that list of providers and storages are the same lenght
@@ -1864,21 +1864,13 @@ export function generateFileGri(entityId) {
   });
 }
 
-function addShareList(parentRecord, shares, store, additionalData) {
-  const shareList = store.createRecord('shareList');
-  return get(shareList, 'list')
-    .then(list => {
-      list.pushObjects(shares);
-      return list.save();
-    })
-    .then(() => shareList.save())
-    .then(() => {
-      set(parentRecord, 'shareList', shareList);
-      if (additionalData) {
-        setProperties(parentRecord, additionalData);
-      }
-      return parentRecord.save();
-    });
+async function addShareListToFile(file, shares) {
+  setProperties(file, {
+    directShareIds: shares.map(share => get(share, 'entityId')),
+    shareRecords: shares,
+    sharesCount: shares.length,
+  });
+  return await file.save();
 }
 
 function getCurrentTimestamp() {

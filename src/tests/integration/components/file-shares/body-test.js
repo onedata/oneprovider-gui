@@ -6,44 +6,48 @@ import { all as allFulfilled } from 'rsvp';
 import sinon from 'sinon';
 
 describe('Integration | Component | file-shares/body', function () {
-  setupRenderingTest();
+  const { afterEach } = setupRenderingTest();
+
+  afterEach(function () {
+    this.helper?.destroy();
+  });
 
   it('renders names of existing shares', async function () {
-    const helper = new Helper(this);
+    this.helper = new Helper(this);
     const shares = await allFulfilled([
-      helper.createShare({
+      this.helper.createShare({
         name: 'one',
       }),
-      helper.createShare({
+      this.helper.createShare({
         name: 'two',
       }),
     ]);
-    await helper.givenFile();
-    await helper.givenShares(shares);
-    await helper.givenSimpleAppProxyStub();
+    await this.helper.givenFile();
+    await this.helper.givenShares(shares);
+    await this.helper.givenSimpleAppProxyStub();
 
-    await helper.renderBody();
-    await helper.waitForSharesLoad();
+    await this.helper.renderBody();
+    await this.helper.waitForSharesLoad();
 
-    const items = helper.getShareItems();
+    const items = this.helper.getShareItems();
     expect(items).to.have.lengthOf(2);
     expect(items[0]).to.contain.text('one');
     expect(items[1]).to.contain.text('two');
   });
 
   it('renders links to private share view of existing shares', async function () {
-    const helper = new Helper(this);
+    this.helper = new Helper(this);
     const shares = await allFulfilled([
-      helper.createShare({
-        id: helper.createShareGri('id1'),
+      this.helper.createShare({
+        id: this.helper.createShareGri('id1'),
       }),
-      helper.createShare({
-        id: helper.createShareGri('id2'),
+      this.helper.createShare({
+        id: this.helper.createShareGri('id2'),
       }),
     ]);
-    await helper.givenFile();
-    await helper.givenShares(shares);
-    const callParent = sinon.stub(helper.appProxyMock, 'callParent');
+    await this.helper.givenFile();
+    await this.helper.givenShares(shares);
+    const callParent = sinon.stub(this.helper.appProxyMock, 'callParent');
     callParent
       .withArgs('getShareUrl', sinon.match({ shareId: 'id1' }))
       .returns('https://example.com/private_share1');
@@ -51,32 +55,32 @@ describe('Integration | Component | file-shares/body', function () {
       .withArgs('getShareUrl', sinon.match({ shareId: 'id2' }))
       .returns('https://example.com/private_share2');
 
-    await helper.renderBody();
-    await helper.waitForSharesLoad();
+    await this.helper.renderBody();
+    await this.helper.waitForSharesLoad();
 
-    const items = helper.getShareItems();
+    const items = this.helper.getShareItems();
     const anchors = [...items].map(item => item.querySelector('a.share-local-url'));
     expect(anchors[0]).to.have.attr('href', 'https://example.com/private_share1');
     expect(anchors[1]).to.have.attr('href', 'https://example.com/private_share2');
   });
 
   it('renders public URL of existing shares', async function () {
-    const helper = new Helper(this);
+    this.helper = new Helper(this);
     const shares = await allFulfilled([
-      helper.createShare({
+      this.helper.createShare({
         publicUrl: 'https://example.com/1',
       }),
-      helper.createShare({
+      this.helper.createShare({
         publicUrl: 'https://example.com/2',
       }),
     ]);
-    await helper.givenFile();
-    await helper.givenShares(shares);
+    await this.helper.givenFile();
+    await this.helper.givenShares(shares);
 
-    await helper.renderBody();
-    await helper.waitForSharesLoad();
+    await this.helper.renderBody();
+    await this.helper.waitForSharesLoad();
 
-    const items = helper.getShareItems();
+    const items = this.helper.getShareItems();
     const inputs = [...items].map(item =>
       item.querySelector('.row-share-public-url input')
     );
@@ -85,17 +89,17 @@ describe('Integration | Component | file-shares/body', function () {
   });
 
   it('renders "no shares" message when file has no share', async function () {
-    const helper = new Helper(this);
-    await helper.givenFile({
+    this.helper = new Helper(this);
+    await this.helper.givenFile({
       type: 'file',
     });
-    await helper.givenShares([]);
-    await helper.givenSimpleAppProxyStub();
+    await this.helper.givenShares([]);
+    await this.helper.givenSimpleAppProxyStub();
 
-    await helper.renderBody();
-    await helper.waitForSharesLoad();
+    await this.helper.renderBody();
+    await this.helper.waitForSharesLoad();
 
-    const element = helper.getBody();
+    const element = this.helper.getBody();
     const noSharesInfo = element.querySelector('.content-info-no-shares');
     expect(noSharesInfo).to.exist;
     expect(noSharesInfo).to.contain.text('This file is not shared');

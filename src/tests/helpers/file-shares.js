@@ -23,6 +23,7 @@ export default class FileSharesHelper {
     this.store = lookupService(this.context, 'store');
     this.appProxyMock = registerService(this.context, 'appProxy', AppProxyMock);
     this.viewModelOptions = {};
+    this.viewModelsCache = new Set();
   }
   async createFile(properties = {}) {
     return await this.store.createRecord('file', {
@@ -41,12 +42,14 @@ export default class FileSharesHelper {
     if (!this.file) {
       throw new Error('files in helper not implemented');
     }
-    return FileSharesViewModel.create({
+    const viewModel = FileSharesViewModel.create({
       ownerSource: this.context.owner,
       space: await this.createSpace(),
       file: this.file,
       ...this.viewModelOptions,
     });
+    this.viewModelsCache.add(viewModel);
+    return viewModel;
   }
   async beforeRender() {
     this.context.setProperties({
@@ -90,6 +93,10 @@ export default class FileSharesHelper {
   }
   getShareItems() {
     return this.getBody().querySelectorAll('.file-share-item');
+  }
+
+  destroy() {
+    this.viewModelsCache?.forEach(viewModel => viewModel.destroy());
   }
 
   async givenFile(data = {}) {

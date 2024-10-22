@@ -6,17 +6,15 @@
  * Extend this class to implement specific browsers like filesystem-browser.
  *
  * @author Jakub Liput
- * @copyright (C) 2021-2022 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import EmberObject, {
   getProperties,
   computed,
-  observer,
   get,
   defineProperty,
-  setProperties,
 } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
@@ -29,7 +27,7 @@ import animateCss from 'onedata-gui-common/utils/animate-css';
 import {
   actionContext,
 } from 'oneprovider-gui/components/file-browser';
-import { typeOf } from '@ember/utils';
+import { typeOf, isEmpty } from '@ember/utils';
 import BrowserListPoller from 'oneprovider-gui/utils/browser-list-poller';
 import { tag, raw, conditional, eq, and, promise, bool, or } from 'ember-awesome-macros';
 import moment from 'moment';
@@ -37,15 +35,26 @@ import _ from 'lodash';
 import isPosixError from 'oneprovider-gui/utils/is-posix-error';
 import createRenderThrottledProperty from 'onedata-gui-common/utils/create-render-throttled-property';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import { syncObserver, asyncObserver } from 'onedata-gui-common/utils/observer';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
+import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
+import { A } from '@ember/array';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 
 /**
- * @typedef {'pending'|'fulfilled'|'rejected'} BrowserListLoadState
+ * @typedef {'pending'|'fulfilled'|'rejected'|'reloading'} BrowserListLoadState
  */
 
 const BrowserListLoadState = Object.freeze({
   Pending: 'pending',
   Fulfilled: 'fulfilled',
   Rejected: 'rejected',
+  Reloading: 'reloading',
 });
 
 const mixins = [
@@ -69,6 +78,20 @@ export default EmberObject.extend(...mixins, {
    * @type {Components.FileBrowser}
    */
   browserInstance: undefined,
+
+  /**
+   * Proxy resolving currently browsed "directory" (directory for files, parent dataset,
+   * etc.).
+   * @virtual
+   * @type {PromiseObject<any>}
+   */
+  dirProxy: undefined,
+
+  /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
 
   /**
    * @virtual
@@ -255,6 +278,12 @@ export default EmberObject.extend(...mixins, {
   infoIconActionName: undefined,
 
   /**
+   * Injected property to notify about external selection change, that should enable jump.
+   * @type {Array<Object>} Array of browsable objects (eg. File).
+   */
+  selectedItemsForJump: undefined,
+
+  /**
    * Used by `browserListPoller` to enable/disable polling.
    * @type {boolean}
    */
@@ -292,17 +321,7 @@ export default EmberObject.extend(...mixins, {
 
   //#region file-browser state
 
-  dir: reads('browserInstance.dir'),
-  dirError: reads('browserInstance.dirError'),
-  itemsArray: reads('fbTableApi.itemsArray'),
-  selectedItems: reads('browserInstance.selectedItems'),
-  selectedItemsForJumpProxy: reads('browserInstance.selectedItemsForJumpProxy'),
-  selectionContext: reads('browserInstance.selectionContext'),
   element: reads('browserInstance.element'),
-  spacePrivileges: reads('browserInstance.spacePrivileges'),
-  spaceId: reads('browserInstance.spaceId'),
-  previewMode: reads('browserInstance.previewMode'),
-  isSpaceOwned: reads('browserInstance.isSpaceOwned'),
   resolveFileParentFun: reads('browserInstance.resolveFileParentFun'),
   // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
   fileClipboardMode: reads('browserInstance.fileClipboardMode'),
@@ -313,6 +332,11 @@ export default EmberObject.extend(...mixins, {
   //#region browser model configuration
 
   refreshBtnIsVisible: true,
+
+  /**
+   * @type {boolean}
+   */
+  previewMode: undefined,
 
   //#endregion
 
@@ -329,6 +353,18 @@ export default EmberObject.extend(...mixins, {
    */
   lastRefreshTime: undefined,
 
+  /**
+   * Latest error object when list load fails.
+   * If the recent list load succeeds - this should be set to null.
+   * @type {any}
+   */
+  listLoadError: undefined,
+
+  /**
+   * @type {Array<any>}
+   */
+  selectedItems: undefined,
+
   //#endregion
 
   //#region file-browser API
@@ -344,16 +380,31 @@ export default EmberObject.extend(...mixins, {
 
   //#endregion
 
-  dirId: reads('dir.entityId'),
+  /**
+   * Is overridable only for test purposes
+   * @type {ComputedProperty<SpacePrivileges>}
+   */
+  spacePrivileges: computed('space.privileges', function spacePrivileges() {
+    return this.space?.privileges ?? {};
+  }),
+
+  spaceId: reads('space.entityId'),
+
+  isSpaceOwned: reads('space.currentUserIsOwner'),
+
+  dirId: reads('dirProxy.content.entityId'),
+
+  dirError: reads('dirProxy.reason'),
 
   isRootDirProxy: promise.object(computed(
-    'dir.hasParent',
+    'dirProxy.content.hasParent',
     'resolveFileParentFun',
     async function isRootDirProxy() {
+      const dir = await this.dirProxy;
       if (!this.dir) {
         return;
       }
-      return !(await this.resolveFileParentFun(this.dir));
+      return !(await this.resolveFileParentFun(dir));
     }
   )),
 
@@ -452,8 +503,6 @@ export default EmberObject.extend(...mixins, {
     }));
   }),
 
-  initialLoad: reads('itemsArray.initialLoad'),
-
   /**
    * State of items listing. It is pending only when list is initially loaded.
    * Refreshing can cause change state to fulfilled and rejected - it does not set
@@ -462,20 +511,56 @@ export default EmberObject.extend(...mixins, {
    * - On initial load: pending -> fulfilled / rejected.
    * - When is fulfilled and refreshing changes state to fulfilled: fulfilled.
    * - When is rejected and refreshing changes state to rejected: rejected.
-   * @type {EmberObject}
+   * @type {ComputedProperty<{ state: BrowserListLoadState, reason: any }>}
    */
-  listLoadState: computed('dir', () => {
-    return EmberObject.create({
-      state: BrowserListLoadState.Pending,
-      reason: undefined,
-    });
-  }),
+  listLoadState: computed(
+    'dirProxy.{isFulfilled,isRejected}',
+    'itemsArray.initialLoad.{isFulfilled,isRejected}',
+    'listLoadError',
+    function listLoadState() {
+      // listLoadState is used from the init, but we do not want to trigger creating
+      // itemsArray at this point, so use it only if something else created the itemsArray
+      // before
+      const dirProxy = this.dirProxy;
+      const initialLoad = this.cacheFor('itemsArray')?.initialLoad;
 
-  listLoadError: conditional(
-    eq('listLoadState.state', raw('rejected')),
-    'listLoadState.reason',
-    raw(undefined),
+      if (this.listLoadError) {
+        return {
+          state: BrowserListLoadState.Rejected,
+          reason: this.listLoadError,
+        };
+      } else if (dirProxy?.isFulfilled) {
+        if (!initialLoad || initialLoad.isPending) {
+          return {
+            state: BrowserListLoadState.Pending,
+            reason: undefined,
+          };
+        } else if (initialLoad.isFulfilled) {
+          return {
+            state: BrowserListLoadState.Fulfilled,
+            reason: undefined,
+          };
+        } else {
+          return {
+            state: BrowserListLoadState.Rejected,
+            reason: initialLoad.reason,
+          };
+        }
+      } else if (dirProxy?.isRejected) {
+        return {
+          state: BrowserListLoadState.Rejected,
+          reason: dirProxy.reason,
+        };
+      } else {
+        return {
+          state: BrowserListLoadState.Reloading,
+          reason: undefined,
+        };
+      }
+    }
   ),
+
+  lastResolvedDir: computedLastProxyContent('dirProxy', { nullOnReject: true }),
 
   /**
    * A last list refresh error is considered be "fatal" when it is unlikely that it will
@@ -512,7 +597,13 @@ export default EmberObject.extend(...mixins, {
       if (this.dirError) {
         return this.dirError;
       }
-      if (this.listLoadState.state === BrowserListLoadState.Rejected) {
+      if (
+        // TODO: VFS-12214 non-fatal errors should not be displayed instead of file list
+        // the code below is experimental to be tested using acceptance tests
+        // !this.listLoadError &&
+        // !this.dirError &&
+        this.listLoadState.state === BrowserListLoadState.Rejected
+      ) {
         return this.listLoadState.reason ?? { id: 'unknown' };
       }
     }
@@ -528,7 +619,7 @@ export default EmberObject.extend(...mixins, {
 
   isOnlyCurrentDirSelected: and(
     eq('selectedItems.length', raw(1)),
-    eq('selectedItems.0', 'dir'),
+    eq('selectedItems.0', 'dirProxy.content'),
   ),
 
   isOnlyRootDirSelected: and(
@@ -547,21 +638,80 @@ export default EmberObject.extend(...mixins, {
     'selectedItems.[]',
     'dir',
     function selectedItemsOutOfScope() {
+      if (!this.dir) {
+        return false;
+      }
       const selectedItems = this.selectedItems;
       if (
-        !selectedItems ||
+        !selectedItems?.length ||
         selectedItems.length === 1 && selectedItems[0] === this.dir
       ) {
         return false;
       }
-      return selectedItems.some(item => !this.itemsArray?.includes(item));
+      const itemsArray = this.get('itemsArray');
+      if (!itemsArray) {
+        return [];
+      }
+      return selectedItems.some(item => !itemsArray.includes(item));
     }
   ),
 
-  generateAllButtonsArray: observer(
+  dir: reads('dirProxy.content'),
+
+  itemsArray: destroyableComputed('dir', function itemsArray() {
+    if (!this.dir) {
+      return;
+    }
+    return this.createItemsArray();
+  }),
+
+  /**
+   * One of values from `actionContext` enum object marked as "selection context" in doc
+   * @type {ComputedProperty<string>}
+   */
+  selectionContext: computed(
+    'selectedItems.[]',
+    'previewMode',
+    function selectionContext() {
+      const {
+        selectedItems,
+        previewMode,
+      } = this.getProperties('selectedItems', 'previewMode');
+      if (selectedItems) {
+        const count = get(selectedItems, 'length');
+        if (count === 0) {
+          return 'none';
+        }
+        let context;
+        if (count === 1) {
+          if (get(selectedItems[0], 'type') === 'dir') {
+            context = actionContext.singleDir;
+          } else {
+            context = actionContext.singleFile;
+          }
+        } else {
+          if (selectedItems.isAny('type', 'dir')) {
+            if (selectedItems.isAny('type', 'file')) {
+              context = actionContext.multiMixed;
+            } else {
+              context = actionContext.multiDir;
+            }
+          } else {
+            context = actionContext.multiFile;
+          }
+        }
+        return previewMode ? this.previewizeContext(context) : context;
+      }
+    }
+  ),
+
+  /**
+   * Sync: defines a property.
+   */
+  generateAllButtonsArray: syncObserver(
     'buttonNames.[]',
     function generateAllButtonsArray() {
-      const buttonNames = this.get('buttonNames');
+      const buttonNames = this.buttonNames;
       defineProperty(
         this,
         'allButtonsArray',
@@ -573,27 +723,7 @@ export default EmberObject.extend(...mixins, {
     }
   ),
 
-  listLoadStateSetter: observer(
-    'initialLoad.{isPending,isSettled}',
-    function listLoadStateSetter() {
-      const initialLoad = this.initialLoad;
-      if (!initialLoad) {
-        return;
-      }
-      if (get(initialLoad, 'isPending')) {
-        this.changeListLoadState(BrowserListLoadState.Pending);
-      } else if (get(initialLoad, 'isRejected')) {
-        this.changeListLoadState(
-          BrowserListLoadState.Rejected,
-          get(initialLoad, 'reason')
-        );
-      } else if (get(initialLoad, 'isFulfilled')) {
-        this.changeListLoadState(BrowserListLoadState.Fulfilled);
-      }
-    }
-  ),
-
-  columnsVisibilityAutoChecker: observer(
+  columnsVisibilityAutoChecker: asyncObserver(
     'listLoadState.state',
     'dirLoadError',
     'hasEmptyDirClass',
@@ -602,18 +732,56 @@ export default EmberObject.extend(...mixins, {
     },
   ),
 
-  dirObserver: observer('dir', function dirObserver() {
-    this.onDidChangeDir?.(this.dir);
+  /**
+   * Sync observer: for some unknown reason, this observer does not fire if it is sync.
+   * Maybe it will be fixed in future versions of Ember (tested on 3.16).
+   *
+   * TODO: VFS-12210 try to use asyncObserver here (when upgrading Ember to 3.20+)
+   *
+   * @type {Ember.Observer}
+   */
+  dirObserver: syncObserver('dir', function dirObserver() {
+    this.set('listLoadError', null);
+    if (this.dir) {
+      this.onDidChangeDir?.(this.dir);
+    }
   }),
 
   init() {
+    initDestroyableCache(this);
     this._super(...arguments);
-    this.set('lastRefreshTime', Date.now());
-
-    this.listLoadStateSetter();
+    this.setProperties({
+      selectedItems: [],
+      lastRefreshTime: Date.now(),
+      columnsConfiguration: this.createColumnsConfiguration(),
+    });
     this.generateAllButtonsArray();
     this.initBrowserListPoller();
-    this.set('columnsConfiguration', this.createColumnsConfiguration());
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+      this.browserListPoller?.destroy();
+      this.cacheFor('btnRefresh')?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  previewizeContext(context) {
+    return `${context}Preview`;
+  },
+
+  /**
+   *
+   * @param {Components.FileBrowser} browserInstance
+   */
+  bindBrowserInstance(browserInstance) {
+    this.set('browserInstance', browserInstance);
   },
 
   /**
@@ -630,15 +798,72 @@ export default EmberObject.extend(...mixins, {
     }
   },
 
-  /**
-   * @override
-   */
-  willDestroy() {
-    try {
-      this.browserListPoller?.destroy();
-    } finally {
-      this._super(...arguments);
+  createItemsArray() {
+    const dirId = this.dirId;
+    let initialJumpIndex;
+    if (!isEmpty(this.selectedItemsForJump)) {
+      const firstSelectedForJump = A(this.selectedItemsForJump)
+        .sortBy('index')
+        .objectAt(0);
+      initialJumpIndex = get(firstSelectedForJump, 'index');
     }
+    const array = ReplacingChunksArray.create({
+      fetch: async (...fetchArgs) => {
+        const {
+          childrenRecords,
+          isLast,
+        } = await this.fetchDirChildren(dirId, ...fetchArgs);
+        return { array: childrenRecords, isLast };
+      },
+      startIndex: 0,
+      endIndex: 50,
+      indexMargin: 10,
+      initialJumpIndex,
+    });
+
+    array.on(
+      'fetchPrevStarted',
+      () => this.fbTableApi?.onFetchingStateUpdate('prev', 'started')
+    );
+    array.on(
+      'fetchPrevResolved',
+      () => this.fbTableApi?.onFetchingStateUpdate('prev', 'resolved')
+    );
+    array.on(
+      'fetchPrevRejected',
+      () => this.fbTableApi?.onFetchingStateUpdate('prev', 'rejected')
+    );
+    array.on(
+      'fetchNextStarted',
+      () => this.fbTableApi?.onFetchingStateUpdate('next', 'started')
+    );
+    array.on(
+      'fetchNextResolved',
+      () => this.fbTableApi?.onFetchingStateUpdate('next', 'resolved')
+    );
+    array.on(
+      'fetchNextRejected',
+      () => this.fbTableApi?.onFetchingStateUpdate('next', 'rejected')
+    );
+    array.on(
+      'willChangeArrayBeginning',
+      async ({ updatePromise, newItemsCount }) => {
+        await updatePromise;
+        safeExec(this, () => {
+          this.fbTableApi?.adjustScroll(newItemsCount);
+        });
+      }
+    );
+    array.on(
+      'willResetArray',
+      async ({ updatePromise }) => {
+        await updatePromise;
+        safeExec(this, () => {
+          this.fbTableApi?.scrollTopAfterFrameRender();
+        });
+      }
+    );
+    return array;
   },
 
   changeDir(dir) {
@@ -647,24 +872,6 @@ export default EmberObject.extend(...mixins, {
 
   navigateToRoot() {
     return this.browserInstance.updateDirEntityId(null);
-  },
-
-  /**
-   * @param {BrowserListLoadState} state
-   * @param {any} [reason] Error reason only when state is rejected.
-   */
-  changeListLoadState(state, reason) {
-    if (state === BrowserListLoadState.Rejected) {
-      setProperties(this.listLoadState, {
-        state,
-        reason,
-      });
-    } else if (this.listLoadState.state !== state) {
-      setProperties(this.listLoadState, {
-        state,
-        reason: undefined,
-      });
-    }
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
@@ -682,6 +889,9 @@ export default EmberObject.extend(...mixins, {
   },
 
   initBrowserListPoller() {
+    if (this.browserListPoller) {
+      this.browserListPoller.destroy();
+    }
     this.set('browserListPoller', this.createBrowserListPoller());
   },
 
@@ -733,7 +943,7 @@ export default EmberObject.extend(...mixins, {
       globalNotify,
       fbTableApi,
       element,
-    } = this.getProperties('globalNotify', 'fbTableApi', 'element');
+    } = this;
     if (!silent) {
       animateCss(
         element.querySelector('.fb-toolbar-button.file-action-refresh'),
@@ -742,16 +952,13 @@ export default EmberObject.extend(...mixins, {
     }
     try {
       const refreshResult = await fbTableApi.refresh(!silent);
-      if (this.listLoadError) {
-        this.changeListLoadState(BrowserListLoadState.Fulfilled);
-      }
+      this.set('listLoadError', null);
       return refreshResult;
     } catch (error) {
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
-
-      this.changeListLoadState(BrowserListLoadState.Rejected, error);
+      this.set('listLoadError', error);
 
       // notification is not shown when the error is fatal, because then it is displayed
       // as content of browser
@@ -770,6 +977,10 @@ export default EmberObject.extend(...mixins, {
 
       throw error;
     }
+  },
+
+  changeSelectedItems(items) {
+    this.set('selectedItems', items);
   },
 
   /**

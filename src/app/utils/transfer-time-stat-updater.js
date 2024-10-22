@@ -2,7 +2,7 @@
  * Updates single transfer chosen time stat data (by polling)
  *
  * @author Jakub Liput
- * @copyright (C) 2017 ACK CYFRONET AGH
+ * @copyright (C) 2017-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -89,7 +89,10 @@ export default EmberObject.extend({
     this.getProperties('_interval');
   },
 
-  destroy() {
+  /**
+   * @override
+   */
+  willDestroy() {
     try {
       const _watcher = this.get('_watcher');
       if (_watcher) {

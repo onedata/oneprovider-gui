@@ -6,7 +6,7 @@ import { hbs } from 'ember-cli-htmlbars';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import Service from '@ember/service';
-import { set } from '@ember/object';
+import { defineProperty } from '@ember/object';
 import { Promise, reject } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import {
@@ -44,7 +44,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('renders HTML A element by default', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -65,7 +66,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('renders HTML A element with onclick event listener', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -91,7 +93,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('renders custom HTML tag element if provided', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -119,7 +122,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('renders text of path to file in space', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -139,7 +143,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('renders space icon with space name if the file is regular space file', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -150,8 +155,8 @@ describe('Integration | Component | file-path', function () {
     });
 
     await render(hbs `{{file-path file=file}}`);
-
-    expect(findAll('.path-icon-container .oneicon-space')).to.have.length(1);
+    expect(findAll('.path-icon-container .oneicon-space'), 'space icon')
+      .to.have.length(1);
     expect(find('.path-icon-container + .path-item.path-label').textContent)
       .to.match(/^\s*space root\s*$/);
   });
@@ -159,8 +164,9 @@ describe('Integration | Component | file-path', function () {
   it('renders dataset and archive icons and names if file belongs to archive', async function () {
     const datasetId = 'dsid';
     const archiveId = 'aid';
-    const archiveRootDir = createArchiveRootDir(datasetId, archiveId);
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const archiveRootDir = await createArchiveRootDir(store, { datasetId, archiveId });
+    const filesChain = await createFilesChain(store, [
       archiveRootDir,
       'one',
       'two',
@@ -188,20 +194,21 @@ describe('Integration | Component | file-path', function () {
 
     const datasetIcon =
       findAll('.path-item.path-icon-container .oneicon-browser-dataset');
-    expect(datasetIcon).to.have.length(1);
+    expect(datasetIcon, 'dataset icon').to.have.length(1);
     const datasetIconContainer = datasetIcon[0].closest('.path-icon-container.path-item');
     const datasetIconLabel = datasetIconContainer.nextElementSibling;
     expect(datasetIconLabel).to.contain.text(browsableDatasetName);
     const archiveIcon =
       findAll('.path-item.path-icon-container .oneicon-browser-archive');
-    expect(archiveIcon).to.have.length(1);
+    expect(archiveIcon, 'archive icon').to.have.length(1);
     const archiveIconContainer = archiveIcon[0].closest('.path-icon-container.path-item');
     const archiveIconLabel = archiveIconContainer.nextElementSibling;
     expect(archiveIconLabel).to.contain.text(browsableArchiveName);
   });
 
   it('renders ellipsis in place of central items if container is too small', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -221,7 +228,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('shows tooltip with full path on hover if path is shortened', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -240,7 +248,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('does not show tooltip with full path on hover if path is not shortened', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -259,7 +268,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('shows tooltip with custom text on hover if path is shortened', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -280,7 +290,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('does now show tooltip with custom text on hover if path is not shortened', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -301,7 +312,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('shows loading text while file path is loading', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -312,7 +324,11 @@ describe('Integration | Component | file-path', function () {
     this.setProperties({
       file,
     });
-    set(file, 'parent', promiseObject(new Promise(() => {})));
+    defineProperty(file, 'parent', {
+      get() {
+        return promiseObject(new Promise(() => {}));
+      },
+    });
 
     await renderComponent();
 
@@ -321,7 +337,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('shows error text when path resolving failed', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'space root',
       'one',
       'two',
@@ -329,7 +346,12 @@ describe('Integration | Component | file-path', function () {
       'file',
     ]);
     const file = filesChain[filesChain.length - 1];
-    filesChain[2].parent = promiseObject(reject());
+    defineProperty(filesChain[2], 'parent', {
+      get() {
+        return promiseObject(reject());
+      },
+    });
+
     this.setProperties({
       file,
     });
@@ -341,12 +363,13 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('changes text of path when injected file is replaced', async function () {
-    const filesChain1 = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain1 = await createFilesChain(store, [
       'space root',
       'hello',
       'world',
     ]);
-    const filesChain2 = createFilesChain([
+    const filesChain2 = await createFilesChain(store, [
       'space root',
       'foo',
       'bar',
@@ -366,7 +389,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('adds "path-item-last" class to last path item', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'root',
       'one',
       'two',
@@ -386,7 +410,8 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('adds "path-item-first" class to first path item', async function () {
-    const filesChain = createFilesChain([
+    const store = lookupService(this, 'store');
+    const filesChain = await createFilesChain(store, [
       'root',
       'one',
       'two',
@@ -406,8 +431,9 @@ describe('Integration | Component | file-path', function () {
   });
 
   it('renders path shortened by more than 10 items without crash', async function () {
+    const store = lookupService(this, 'store');
     const names = _.times(100, i => `file_name_${i}`);
-    const filesChain = createFilesChain(names);
+    const filesChain = await createFilesChain(store, names);
     this.set('file', _.last(filesChain));
 
     await renderInSmallContainer();

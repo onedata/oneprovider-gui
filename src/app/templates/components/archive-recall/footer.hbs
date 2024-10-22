@@ -44,14 +44,14 @@
     {{/if}}
   </div>
   <div class="submit-buttons">
-    {{#bs-button
+    {{#one-button
       class="cancel-btn"
       type="default"
       disabled=isSubmitting
       onClick=(action onCancel)
     }}
       {{tt this "cancel"}}
-    {{/bs-button}}
+    {{/one-button}}
     <div class="btn-tooltip-container">
       {{#one-button
         class="submit-btn"

@@ -3,17 +3,18 @@
  * browser).
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import { get, observer } from '@ember/object';
+import { get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { cancel, debounce, later } from '@ember/runloop';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 export default Component.extend(I18n, {
   classNames: ['jump-control'],
@@ -87,7 +88,7 @@ export default Component.extend(I18n, {
    */
   parentDirId: reads('browserModel.dir.entityId'),
 
-  inputValueObserver: observer('inputValue', function inputValueObserver() {
+  inputValueObserver: asyncObserver('inputValue', function inputValueObserver() {
     if (this.get('inputValue')) {
       this.scheduleJump();
     } else {

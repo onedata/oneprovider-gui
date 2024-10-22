@@ -20,21 +20,21 @@
     <div class="selection-validation-error text-danger">{{validationError}}</div>
   {{/if}}
 </div>
-{{#bs-button
+{{#one-button
   onClick=onCancel
   type="default"
   class="close-btn"
 }}
   {{tt this "cancel"}}
-{{/bs-button}}
+{{/one-button}}
 <div class="btn-tooltip-container">
-  {{#bs-button
+  {{#one-button
     onClick=onSubmit
     class="btn btn-primary submit-selection-btn"
     disabled=submitDisabled
   }}
     {{submitLabel}}
-  {{/bs-button}}
+  {{/one-button}}
   {{#if validationError}}
     {{one-tooltip title=validationError}}
   {{/if}}

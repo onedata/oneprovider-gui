@@ -18,6 +18,7 @@ import createSpace from '../../helpers/create-space';
 import DefaultUser from '../../helpers/default-user';
 import globals from 'onedata-gui-common/utils/globals';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const storageLocations = {
   locationsPerProvider: {
@@ -59,6 +60,11 @@ describe('Integration | Component | file-info-modal', function () {
   const { afterEach } = setupRenderingTest();
 
   beforeEach(async function () {
+    const onedataGraph = lookupService(this, 'onedataGraph');
+    onedataGraph.getMockChildrenSlice = function getMockChildrenSliceStub() {
+      return [];
+    };
+
     this.fileParentRoot = await createFile(this, {
       name: 'My space',
       type: 'dir',
@@ -550,30 +556,35 @@ describe('Integration | Component | file-info-modal', function () {
 
   it('has active "Distribution" tab and renders distribution view body when initialTab = distribution is given',
     async function () {
-      const fileDistributionHelper = new FileDistributionHelper(this);
-      await fileDistributionHelper.givenSingleFileWithDistribution();
-      fileDistributionHelper.givenNoTransfersForSingleFile();
-      this.setProperties({
-        tabOptions: {
-          qos: {
-            isVisible: false,
+      let fileDistributionHelper;
+      try {
+        fileDistributionHelper = new FileDistributionHelper(this);
+        await fileDistributionHelper.givenSingleFileWithDistribution();
+        fileDistributionHelper.givenNoTransfersForSingleFile();
+        this.setProperties({
+          tabOptions: {
+            qos: {
+              isVisible: false,
+            },
+            shares: {
+              isVisible: false,
+            },
           },
-          shares: {
-            isVisible: false,
-          },
-        },
-        initialTab: 'distribution',
-        space: fileDistributionHelper.space,
-        files: fileDistributionHelper.files,
-      });
+          initialTab: 'distribution',
+          space: fileDistributionHelper.space,
+          files: fileDistributionHelper.files,
+        });
 
-      await renderComponent();
+        await renderComponent();
 
-      const sharesNav = find('.nav-link-distribution');
-      expect(sharesNav).to.exist;
-      expect(sharesNav).to.have.class('active');
-      expect(sharesNav).to.have.trimmed.text('Distribution');
-      expect(find('.modal-body .file-distribution-body')).to.exist;
+        const sharesNav = find('.nav-link-distribution');
+        expect(sharesNav).to.exist;
+        expect(sharesNav).to.have.class('active');
+        expect(sharesNav).to.have.trimmed.text('Distribution');
+        expect(find('.modal-body .file-distribution-body')).to.exist;
+      } finally {
+        fileDistributionHelper.destroy();
+      }
     }
   );
 
@@ -692,7 +703,6 @@ async function renderComponent() {
     open=true
     files=(or files (array file))
     initialTab=initialTab
-    previewMode=previewMode
     share=share
     space=space
     selectedRestUrlType=selectedRestUrlType
@@ -824,7 +834,10 @@ async function givenDefaultStubs(testCase) {
   testCase.set('storageLocationsProxy', storageLocationsProxy);
   if (!testCase.get('browserModel')) {
     testCase.set('browserModel', FilesystemBrowserModel.create({
+      dirProxy: promiseObject((async () => testCase.get('fileParent1'))()),
+      previewMode: testCase.get('previewMode'),
       ownerSource: testCase.owner,
+      space: testCase.get('space'),
     }));
   }
   if (!testCase.get('file')) {

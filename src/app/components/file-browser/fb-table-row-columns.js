@@ -2,7 +2,7 @@
  * Columns other than "name" for desktop mode browser
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -32,12 +32,6 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Boolean}
    */
-  previewMode: undefined,
-
-  /**
-   * @virtual
-   * @type {Boolean}
-   */
   nameConflict: undefined,
 
   /**
@@ -56,4 +50,9 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Utils.ColumnsConfiguration>}
    */
   columnsConfiguration: reads('browserModel.columnsConfiguration'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  previewMode: reads('browserModel.previewMode'),
 });
