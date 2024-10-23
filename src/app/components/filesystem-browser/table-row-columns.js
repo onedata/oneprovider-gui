@@ -24,6 +24,7 @@ export default FbTableRowColumns.extend(I18n, {
   i18n: service(),
   fileManager: service(),
   modalManager: service(),
+  globalClipboard: service(),
 
   /**
    * @override
@@ -248,6 +249,9 @@ export default FbTableRowColumns.extend(I18n, {
           file: this.file,
           xattrKey,
         });
+    },
+    copyFileId() {
+      this.globalClipboard.copy(this.file.effFile.cdmiObjectId);
     },
   },
 });
