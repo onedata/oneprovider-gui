@@ -227,8 +227,11 @@
               {{fileIdSecondPart}}&#8230;
             </div>
           </div>
-          {{one-icon icon="browser-copy" class="copy-icon"}}
-          {{one-tooltip title=file.effFile.cdmiObjectId class="tooltip-text-monospace"}}
+          <OneIcon @icon="browser-copy" class="copy-icon" />
+          <OneTooltip
+            @title={{file.effFile.cdmiObjectId}}
+            class="tooltip-text-monospace"
+          />
         </div>
       </td>
     {{else if (eq (get (get columnsConfiguration.columns columnName) "type") "xattr")}}
