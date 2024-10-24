@@ -108,17 +108,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {(index: number, event: Object) => void }
-   */
-  acceptDraggedElement: notImplementedIgnore,
-
-  /**
-   * @virtual
    * @type {boolean}
    */
   isColumnListVisible: false,
 
   /**
+   * @virtual
    * @type {boolean}
    */
   isDropBorderShown: false,
@@ -158,43 +153,26 @@ export default Component.extend(I18n, {
     moveColumnUp(columnName) {
       return this.moveColumnUp(columnName);
     },
-    dragStartAction(columnName, event) {
-      this.set('isDropBorderShown', true);
-      event.dataTransfer.setData('text', columnName);
-      if (this.dragStartAction) {
-        return this.dragStartAction();
-      }
-    },
-    dragEndAction() {
-      this.set('isDropBorderShown', false);
-      if (this.dragEndAction) {
-        return this.dragEndAction();
-      }
-    },
-    headingDragOverAction(isLeftBorder, event) {
-      event.preventDefault();
-      const lastActiveDropOverElem = event.target.closest('li');
-      if (isLeftBorder) {
-        lastActiveDropOverElem.classList.add('top-border-area');
-      } else {
-        lastActiveDropOverElem.classList.add('bottom-border-area');
-      }
-    },
-    headingDragLeaveAction(event) {
-      event.target.closest('li').classList.remove('top-border-area');
-      event.target.closest('li').classList.remove('bottom-border-area');
-    },
-    acceptDraggedElement(index, event) {
-      this.set('isDropBorderShown', false);
-      event.target.closest('li').classList.remove('top-border-area');
-      event.target.closest('li').classList.remove('bottom-border-area');
-      return this.acceptDraggedElement(index, event);
-    },
     openXattrModification(columnName) {
       this.openXattrModification(columnName);
     },
     removeXattrColumn(columnName) {
       this.removeXattrColumn(columnName);
+    },
+    headingDragAction(event) {
+      this.headingDragAction(event);
+    },
+    headingDragEndAction() {
+      this.headingDragEndAction();
+    },
+    headingDropAction(index, event) {
+      this.headingDropAction(index, event);
+    },
+    headingDragOverAction(isOverBeforeArea, event) {
+      this.headingDragOverAction(isOverBeforeArea, event);
+    },
+    headingDragLeaveAction(event) {
+      this.headingDragLeaveAction(event);
     },
   },
 });

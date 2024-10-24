@@ -1450,7 +1450,7 @@ export default BaseBrowserModel.extend(...mixins, {
           columns.fileId = EmberObject.create({
             isVisible: false,
             isEnabled: false,
-            width: 120,
+            width: 135,
             hasSubname: false,
             hasTooltip: false,
             type: 'basic',

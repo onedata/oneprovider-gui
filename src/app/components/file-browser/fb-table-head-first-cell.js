@@ -19,7 +19,6 @@ export default Component.extend(...mixins, {
   classNames: ['draggable-area'],
   classNameBindings: [
     'browserModel.firstColumnClass',
-    'isDropBorderShown:border-dashed',
   ],
 
   /**

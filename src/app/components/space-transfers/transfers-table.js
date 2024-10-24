@@ -564,6 +564,10 @@ export default Component.extend(...mixins, {
     openDbViewModal() {
       return this.get('openDbViewModal')(...arguments);
     },
+    headingDrop(column, number, event) {
+      const index = this.columnsConfiguration.columnsOrder.indexOf(column.id);
+      this.actions.headingDropAction.bind(this)(index + number, event);
+    },
   },
 
   //#endregion

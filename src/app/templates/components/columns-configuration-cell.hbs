@@ -1,5 +1,11 @@
 {{#if (not (media "isMobile"))}}
   <div
+    class={{concat-classes "before-drop-area" (if isDropBorderShown "drop-area")}}
+    ondragover={{action "headingDragOverAction"}}
+    ondragleave={{action "headingDragLeaveAction"}}
+    ondrop={{action "headingDropAction"}}
+  ></div>
+  <div
     class="fb-toolbar-button columns-configuration-button clickable"
     {{action
       (mut columnModificationOpened)

@@ -4,8 +4,8 @@
   th {
     border-left: 2px solid transparent;
   }
-  th.border-dashed.left-border-solid,
-  th.right-border-solid + th {
+  th.border-dashed.before-drag-over-border,
+  th.after-drag-over-border + th {
     border-left-style: solid;
     border-left-color: lighten($color-one-blue-gray, 20%);
 
@@ -24,22 +24,28 @@
     }
   }
 
-  .left-drop-area, .right-drop-area {
+  .before-drop-area, .after-drop-area {
     position: absolute;
     top: 0;
     height: 63px;
-    width: calc(0.5 * var(--column-width));
+    width: calc(0.5 * var(--column-width, 100%));
     &.drop-area {
       z-index: 10000;
     }
   }
 
-  .left-drop-area {
+  .before-drop-area {
     left: 0;
   }
 
-  .right-drop-area {
+  .after-drop-area {
     left: calc(0.5 * var(--column-width));
+    width: calc(0.5 * var(--column-width) + 2px);
+  }
+
+  thead tr th:first-child .after-drop-area {
+    width: calc(100% + 2px);
+    left: 0;
   }
 
   th.border-dashed {

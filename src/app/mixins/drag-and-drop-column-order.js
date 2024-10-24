@@ -14,6 +14,7 @@
  *   in such case, this index should be incremented by 1.
  *
  * Add drag-and-drop-column-order class to table, to properly show borders and drag icon in headers.
+ * It is also possible for a list, in which case you should override 'dragAndDropTagName'.
  *
  * Example:
  * ```
@@ -26,13 +27,13 @@
  *          ondragend={{action "headingDragEndAction"}}
  *        >
  *          <div
- *            class={{concat-classes "left-drop-area" (if isDropBorderShown "drop-area")}}
+ *            class={{concat-classes "before-drop-area" (if isDropBorderShown "drop-area")}}
  *            ondragover={{action "headingDragOverAction" true}}
  *            ondragleave={{action "headingDragLeaveAction"}}
  *            ondrop={{action "headingDropAction" i}}
  *          ></div>
  *          <div
- *            class={{concat-classes "right-drop-area" (if isDropBorderShown "drop-area")}}
+ *            class={{concat-classes "after-drop-area" (if isDropBorderShown "drop-area")}}
  *            ondragover={{action "headingDragOverAction" false}}
  *            ondragleave={{action "headingDragLeaveAction"}}
  *            ondrop={{action "headingDropAction" (add i 1)}}
@@ -66,6 +67,11 @@ export default Mixin.create({
    */
   lastActiveDropOverElem: undefined,
 
+  /**
+   * @type {string}
+   */
+  dragAndDropTagName: 'th',
+
   moveColumn(index, columnName) {
     this.columnsConfiguration.moveColumn(columnName, index);
     this.columnsConfiguration.saveColumnsOrder();
@@ -84,24 +90,26 @@ export default Mixin.create({
     headingDropAction(index, event) {
       const columnName = event.dataTransfer.getData('text');
       this.moveColumn(index, columnName);
-      event.target.closest('th').classList.remove('left-border-solid');
-      event.target.closest('th').classList.remove('right-border-solid');
+      event.target.closest(this.dragAndDropTagName).classList.remove(
+        'before-drag-over-border',
+        'after-drag-over-border',
+      );
       this.set('isDropBorderShown', false);
     },
-    headingDragOverAction(isLeftBorder, event) {
+    headingDragOverAction(isOverBeforeArea, event) {
       event.preventDefault();
-      const lastActiveDropOverElem = event.target.closest('th');
-      if (isLeftBorder) {
-        lastActiveDropOverElem.classList.add('left-border-solid');
-      } else {
-        lastActiveDropOverElem.classList.add('right-border-solid');
-      }
+      const lastActiveDropOverElem = event.target.closest(this.dragAndDropTagName);
+      lastActiveDropOverElem.classList.add(
+        isOverBeforeArea ? 'before-drag-over-border' : 'after-drag-over-border'
+      );
 
       this.set('lastActiveDropOverElem', lastActiveDropOverElem);
     },
     headingDragLeaveAction(event) {
-      event.target.closest('th').classList.remove('left-border-solid');
-      event.target.closest('th').classList.remove('right-border-solid');
+      event.target.closest(this.dragAndDropTagName).classList.remove(
+        'before-drag-over-border',
+        'after-drag-over-border',
+      );
     },
   },
 });

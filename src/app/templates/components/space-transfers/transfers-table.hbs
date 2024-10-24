@@ -16,17 +16,17 @@
         >
           {{#if (not-eq i 0)}}
             <div
-              class={{concat-classes "left-drop-area" (if isDropBorderShown "drop-area")}}
+              class={{concat-classes "before-drop-area" (if isDropBorderShown "drop-area")}}
               ondragover={{action "headingDragOverAction" true}}
               ondragleave={{action "headingDragLeaveAction"}}
-              ondrop={{action "headingDropAction" i}}
+              ondrop={{action "headingDrop" column 0}}
             ></div>
           {{/if}}
           <div
-            class={{concat-classes "right-drop-area" (if isDropBorderShown "drop-area")}}
+            class={{concat-classes "after-drop-area" (if isDropBorderShown "drop-area")}}
             ondragover={{action "headingDragOverAction" false}}
             ondragleave={{action "headingDragLeaveAction"}}
-            ondrop={{action "headingDropAction" (add i 1)}}
+            ondrop={{action "headingDrop" column 1}}
           ></div>
           <span class="column-name">
             {{#if (not-eq i 0)}}
@@ -39,6 +39,9 @@
       {{columns-configuration-cell
         columnsConfiguration=columnsConfiguration
         isDropBorderShown=isDropBorderShown
+        headingDragOverAction=(action "headingDragOverAction" true)
+        headingDragLeaveAction=(action "headingDragLeaveAction")
+        headingDropAction=(action "headingDrop" visibleColumns.lastObject 1)
       }}
     </tr>
   </thead>

@@ -59,6 +59,19 @@ export default Component.extend(...mixins, {
    */
   currentProviderName: reads('currentProviderProxy.content.name'),
 
+  visibleColumnsNumber: computed(
+    'columnsConfiguration.columns',
+    function visibleColumnsNumber() {
+      let index = 0;
+      for (const [i, value] of this.columnsConfiguration.columnsOrder.entries()) {
+        if (this.columnsConfiguration.columns[value].isVisible) {
+          index = i;
+        }
+      }
+      return index + 1;
+    }
+  ),
+
   didInsertElement() {
     this._super(...arguments);
     this.browserModel.columnsConfiguration.checkColumnsVisibility();

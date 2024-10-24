@@ -1,20 +1,20 @@
 <div
   class="drag-drop-area"
   draggable=true
-  ondragstart={{action "dragStartAction" columnName}}
-  ondragend={{action "dragEndAction"}}
+  ondragstart={{action "headingDragAction"}}
+  ondragend={{action "headingDragEndAction"}}
 >
   <div
-    class={{concat-classes "top-drop-area" (if isDropBorderShown "drop-area")}}
+    class={{concat-classes "before-drop-area" (if isDropBorderShown "drop-area")}}
     ondragover={{action "headingDragOverAction" true}}
     ondragleave={{action "headingDragLeaveAction"}}
-    ondrop={{action "acceptDraggedElement" columnNumber}}
+    ondrop={{action "headingDropAction" columnNumber}}
   ></div>
   <div
-    class={{concat-classes "bottom-drop-area" (if isDropBorderShown "drop-area")}}
+    class={{concat-classes "after-drop-area" (if isDropBorderShown "drop-area")}}
     ondragover={{action "headingDragOverAction" false}}
     ondragleave={{action "headingDragLeaveAction"}}
-    ondrop={{action "acceptDraggedElement" (add columnNumber 1)}}
+    ondrop={{action "headingDropAction" (add columnNumber 1)}}
   ></div>
   <div class="space-between-item-area"></div>
   <div class="checkbox-line">

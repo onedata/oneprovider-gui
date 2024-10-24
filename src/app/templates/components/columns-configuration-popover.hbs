@@ -29,11 +29,16 @@
                   moveColumnUp=(action "moveColumnUp")
                   dragStartAction=dragStartAction
                   dragEndAction=dragEndAction
-                  acceptDraggedElement=(action "acceptDraggedElement")
                   openXattrModification=(action "openXattrModification")
                   removeXattrColumn=(action "removeXattrColumn")
                   isColumnListVisible=(eq activeSlide "column-configuration")
                   columnNumber=index
+                  headingDragAction=(action "headingDragAction" columnName)
+                  headingDragEndAction=(action "headingDragEndAction")
+                  headingDragOverAction=(action "headingDragOverAction")
+                  headingDragLeaveAction=(action "headingDragLeaveAction")
+                  headingDropAction=(action "headingDropAction")
+                  isDropBorderShown=isDropBorderShown
                 }}
               {{/each}}
               <div class="space-between-item-area"></div>

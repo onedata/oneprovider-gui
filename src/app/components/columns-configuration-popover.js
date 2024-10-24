@@ -19,8 +19,14 @@ import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fi
 import { Promise } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
+import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  DragAndDropColumnOrderMixin,
+];
+
+export default Component.extend(...mixins, {
   classNames: ['columns-configuration-popover'],
 
   dragDrop: service(),
@@ -31,6 +37,11 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.columnsConfigurationPopover',
+
+  /**
+   * @override
+   */
+  dragAndDropTagName: 'li',
 
   /**
    * @virtual
@@ -122,11 +133,6 @@ export default Component.extend(I18n, {
   isArrowTooltipVisible: true,
 
   /**
-   * @type {boolean}
-   */
-  isDropBorderShown: false,
-
-  /**
    * @type {Boolean}
    */
   isInFirefox: browser.name === BrowserName.Firefox,
@@ -135,17 +141,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<string>}
    */
   translationKey: reads('columnsConfiguration.translationKey'),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isTargetForDrop: computed(
-    'dragDrop.draggedElementModel',
-    function isTargetForDrop() {
-      const draggedElementModel = this.dragDrop.draggedElementModel;
-      return draggedElementModel?.element.classList.contains('column-item');
-    }
-  ),
 
   xattrOptionsProxy: computed(
     'browserModel.itemsArray',
@@ -327,15 +322,6 @@ export default Component.extend(I18n, {
     removeXattrColumn(removedColumn) {
       this.columnsConfiguration.removeXattrColumn(removedColumn);
     },
-    acceptDraggedElement(index, event) {
-      const columnName = event.dataTransfer.getData('text');
-      this.columnsConfiguration.moveColumn(columnName, index);
-      this.applyCurrentColumnsOrder();
-      this.set('isDropBorderShown', false);
-    },
-    validateDragEvent() {
-      return this.get('isTargetForDrop');
-    },
     goXattrConfiguration() {
       this.set('activeSlide', 'xattr-add');
       this.set('xattrColumnName', '');
@@ -353,13 +339,6 @@ export default Component.extend(I18n, {
     goBack() {
       this.set('activeSlide', 'column-configuration');
       this.set('modifiedColumn', '');
-    },
-    headingDragOverAction(event) {
-      event.preventDefault();
-      this.set('isDropBorderShown', true);
-    },
-    headingDragLeaveAction() {
-      this.set('isDropBorderShown', false);
     },
   },
 });

@@ -49,4 +49,16 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   dragEndAction: notImplementedIgnore,
+
+  actions: {
+    headingDragOverAction(event) {
+      this.headingDragOverAction(event);
+    },
+    headingDragLeaveAction(event) {
+      this.headingDragLeaveAction(event);
+    },
+    headingDropAction(event) {
+      this.headingDropAction(event);
+    },
+  },
 });
