@@ -108,6 +108,36 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {() => void}
+   */
+  onHeadingDragAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {() => void}
+   */
+  onHeadingDragEndAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(index: number) => void}
+   */
+  onHeadingDropAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(isOverBeforeArea: boolean) => void }
+   */
+  onHeadingDragOverAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {() => void}
+   */
+  onHeadingDragLeaveAction: notImplementedIgnore,
+
+  /**
+   * @virtual
    * @type {boolean}
    */
   isColumnListVisible: false,
@@ -159,20 +189,20 @@ export default Component.extend(I18n, {
     removeXattrColumn(columnName) {
       this.removeXattrColumn(columnName);
     },
-    headingDragAction(event) {
-      this.headingDragAction(event);
+    headingDrag(event) {
+      this.onHeadingDragAction(event);
     },
-    headingDragEndAction() {
-      this.headingDragEndAction();
+    headingDragEnd() {
+      this.onHeadingDragEndAction();
     },
-    headingDropAction(index, event) {
-      this.headingDropAction(index, event);
+    headingDrop(index, event) {
+      this.onHeadingDropAction(index, event);
     },
-    headingDragOverAction(isOverBeforeArea, event) {
-      this.headingDragOverAction(isOverBeforeArea, event);
+    headingDragOver(isOverBeforeArea, event) {
+      this.onHeadingDragOverAction(isOverBeforeArea, event);
     },
-    headingDragLeaveAction(event) {
-      this.headingDragLeaveAction(event);
+    headingDragLeave(event) {
+      this.onHeadingDragLeaveAction(event);
     },
   },
 });

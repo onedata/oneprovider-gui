@@ -33,11 +33,11 @@
                   removeXattrColumn=(action "removeXattrColumn")
                   isColumnListVisible=(eq activeSlide "column-configuration")
                   columnNumber=index
-                  headingDragAction=(action "headingDragAction" columnName)
-                  headingDragEndAction=(action "headingDragEndAction")
-                  headingDragOverAction=(action "headingDragOverAction")
-                  headingDragLeaveAction=(action "headingDragLeaveAction")
-                  headingDropAction=(action "headingDropAction")
+                  onHeadingDragAction=(action "headingDrag" columnName)
+                  onHeadingDragEndAction=(action "headingDragEnd")
+                  onHeadingDragOverAction=(action "headingDragOver")
+                  onHeadingDragLeaveAction=(action "headingDragLeave")
+                  onHeadingDropAction=(action "headingDrop")
                   isDropBorderShown=isDropBorderShown
                 }}
               {{/each}}

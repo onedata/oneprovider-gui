@@ -2,6 +2,7 @@
   --min-height-popover: 240px;
   width: 300px;
   min-height: var(--min-height-popover);
+  --drop-area-height: 20px;
 
   .webui-popover-content {
     padding: 0;
@@ -212,11 +213,11 @@
   .before-drop-area, .after-drop-area {
     position: absolute;
     left: 0;
-    width: 280px;
-    height: 20px;
+    width: 100%;
+    height: var(--drop-area-height);
     z-index: -1;
     &.drop-area {
-      z-index: 10000;
+      z-index: $zindex-tooltip;
     }
   }
 
@@ -224,7 +225,7 @@
     top: 0;
   }
   .after-drop-area {
-    top: 20px;
+    top: var(--drop-area-height);
   }
 
   .xattr-column-add, .xattr-column-modify {

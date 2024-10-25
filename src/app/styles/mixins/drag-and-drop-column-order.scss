@@ -8,18 +8,21 @@
   th.after-drag-over-border + th {
     border-left-style: solid;
     border-left-color: lighten($color-one-blue-gray, 20%);
+    --triangle-height: 11px;
+    --triangle-half-width: 8px;
 
     &::after {
       content: '';
       position: absolute;
-      bottom: -8px;
-      left: -9px;
+      bottom: calc(-1 * var(--triangle-height) + 1px);
+      // half triangle width and half border width
+      left: calc(-1 * var(--triangle-half-width) - 1px);
       width: 0;
       height: 0;
-      border-left: 8px solid transparent;
-      border-right: 8px solid transparent;
+      border-left: var(--triangle-half-width) solid transparent;
+      border-right: var(--triangle-half-width) solid transparent;
 
-      border-bottom: 11px solid lighten($color-one-blue-gray, 20%);
+      border-bottom: var(--triangle-height) solid lighten($color-one-blue-gray, 20%);
       z-index: 2;
     }
   }
@@ -27,10 +30,10 @@
   .before-drop-area, .after-drop-area {
     position: absolute;
     top: 0;
-    height: 63px;
+    height: 100%;
     width: calc(0.5 * var(--column-width, 100%));
     &.drop-area {
-      z-index: 10000;
+      z-index: $zindex-tooltip;
     }
   }
 

@@ -21,7 +21,7 @@ export default FbTableHeadRow.extend({
       this._super(...arguments);
       this.browserModel.enableUploadArea();
     },
-    headingDragAction(columnName, event) {
+    headingDrag(columnName, event) {
       if (!this.browserModel.readonlyFilesystem) {
         this.browserModel.disableUploadArea();
       }
@@ -29,7 +29,7 @@ export default FbTableHeadRow.extend({
 
       this.set('isDropBorderShown', true);
     },
-    headingDragEndAction() {
+    headingDragEnd() {
       if (!this.browserModel.readonlyFilesystem) {
         this.browserModel.enableUploadArea();
       }

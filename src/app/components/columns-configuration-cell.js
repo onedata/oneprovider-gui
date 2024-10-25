@@ -50,15 +50,33 @@ export default Component.extend(I18n, {
    */
   dragEndAction: notImplementedIgnore,
 
+  /**
+   * @virtual
+   * @type {(index: number) => void}
+   */
+  onHeadingDropAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(isOverBeforeArea: boolean) => void }
+   */
+  onHeadingDragOverAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {() => void}
+   */
+  onHeadingDragLeaveAction: notImplementedIgnore,
+
   actions: {
-    headingDragOverAction(event) {
-      this.headingDragOverAction(event);
+    headingDragOver(event) {
+      this.onHeadingDragOverAction(event);
     },
-    headingDragLeaveAction(event) {
-      this.headingDragLeaveAction(event);
+    headingDragLeave(event) {
+      this.onHeadingDragLeaveAction(event);
     },
-    headingDropAction(event) {
-      this.headingDropAction(event);
+    headingDrop(event) {
+      this.onHeadingDropAction(event);
     },
   },
 });

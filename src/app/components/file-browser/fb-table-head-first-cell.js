@@ -9,6 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { reads } from '@ember/object/computed';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 const mixins = [
   I18n,
@@ -33,21 +34,39 @@ export default Component.extend(...mixins, {
   browserModel: undefined,
 
   /**
+   * @virtual
+   * @type {(index: number) => void}
+   */
+  onHeadingDropAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(isOverBeforeArea: boolean) => void }
+   */
+  onHeadingDragOverAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {() => void}
+   */
+  onHeadingDragLeaveAction: notImplementedIgnore,
+
+  /**
    * @type {boolean}
    */
   isDropBorderShown: false,
 
   actions: {
-    headingDragOverAction(event) {
-      this.headingDragOverAction(false, event);
+    headingDragOver(event) {
+      this.onHeadingDragOverAction(false, event);
     },
 
-    headingDragLeaveAction(event) {
-      this.headingDragLeaveAction(event);
+    headingDragLeave(event) {
+      this.onHeadingDragLeaveAction(event);
     },
 
-    headingDropAction(event) {
-      this.headingDropAction(0, event);
+    headingDrop(event) {
+      this.onHeadingDropAction(0, event);
     },
   },
 });

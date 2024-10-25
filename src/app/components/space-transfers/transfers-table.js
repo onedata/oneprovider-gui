@@ -564,9 +564,9 @@ export default Component.extend(...mixins, {
     openDbViewModal() {
       return this.get('openDbViewModal')(...arguments);
     },
-    headingDrop(column, number, event) {
+    headingDropWithColumnName(column, number, event) {
       const index = this.columnsConfiguration.columnsOrder.indexOf(column.id);
-      this.actions.headingDropAction.bind(this)(index + number, event);
+      this.actions.headingDrop.bind(this)(index + number, event);
     },
   },
 
