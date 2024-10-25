@@ -257,20 +257,7 @@
     }
   }
 
-  .column-name {
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-    width: var(--column-width, 200px);
 
-    .column-icon {
-      min-width: 25px;
-    }
-
-    &:first-letter {
-      text-transform: capitalize;
-    }
-  }
 }
 
 .file-status-bar {
