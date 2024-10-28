@@ -1,8 +1,8 @@
 /**
  * Transfer record wrapper for transfers table/list item
  *
- * @author Jakub Liput
- * @copyright (C) 2018-2020 ACK CYFRONET AGH
+ * @author Jakub Liput, Michał Borzęcki
+ * @copyright (C) 2018-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -10,7 +10,6 @@ import moment from 'moment';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import EmberObject, {
   computed,
-  observer,
   get,
   getProperties,
 } from '@ember/object';
@@ -19,6 +18,8 @@ import { inject as service } from '@ember/service';
 import { promise } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 
 const startEndTimeFormat = 'D MMM YYYY H:mm:ss';
 
@@ -144,9 +145,12 @@ export default EmberObject.extend(OwnerInjector, {
     }
   ),
 
-  filesToProcessSetter: observer(
+  filesToProcessSetter: asyncObserver(
     'transfer.{type,dataSourceType,dataSourceId,state}',
     async function filesToProcessSetter() {
+      // The code of this observer should not be invoked during rendering, because
+      // it causes `autotracking.mutation-after-consumption` error.
+      await waitForRender();
       const {
         type,
         dataSourceType,
@@ -196,9 +200,9 @@ export default EmberObject.extend(OwnerInjector, {
     } = this.getProperties('transfer', 'transferCollection');
     this.reloadRecordIfNeeded(transfer);
     if (transferCollection === 'file') {
-      this.addObserver('status', function statusObserver() {
+      this.addObserver('status', null, function statusObserver() {
         transfer.reload();
-      });
+      }, false);
       // enable observer
       this.get('status');
     }

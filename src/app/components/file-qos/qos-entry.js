@@ -2,12 +2,12 @@
  * Show information about single QoS requirement
  *
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { tag, getBy, raw, or, and, bool } from 'ember-awesome-macros';
+import { tag, raw, or, and, bool } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed, observer } from '@ember/object';
 import { camelize } from '@ember/string';
@@ -219,9 +219,11 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
 
   /**
    * QoS fulfillment icon name
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
-  statusIcon: getBy(raw(qosStatusIcons), 'statusId'),
+  statusIcon: computed('statusId', function statusIcon() {
+    return qosStatusIcons[this.statusId];
+  }),
 
   evaluationUpdater: observer(
     'rawExpressionInfix',

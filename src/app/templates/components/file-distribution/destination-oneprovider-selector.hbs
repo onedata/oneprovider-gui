@@ -37,9 +37,9 @@
   </OneDropdown>
 </div>
 <div class="btn-toolbar">
-  {{#bs-button onClick=onCancel disabled=(not canCancel) size="sm"}}
+  {{#one-button onClick=onCancel disabled=(not canCancel) size="sm"}}
     {{tt this "cancelButton"}}
-  {{/bs-button}}
+  {{/one-button}}
   {{#one-button
     onClick=(action "migrate")
     type="primary"

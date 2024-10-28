@@ -4,6 +4,9 @@
 
 ### Latest changes
 
+* VFS-12278 Changed File ID column in the file browser to show the copy icon only on hover and allow copying the ID by clicking on the text
+* VFS-10341 Upgraded EmberJS to v3.16.10
+* VFS-12416 Fixed wrong "Eureka3D" mandatory literal to "EUreka3D" in EDM GUI
 * VFS-12277 Changed text "Basic" metadata to "xattrs" in modal tabs of item details
 * VFS-12348 Reverted support for non-string xattr values in metadata editor as it causes tests to fail
 * VFS-12341 Added support for non-string xattrs values in column and editor; removed temporarily file "creationTime" attribute support because of bug in backend

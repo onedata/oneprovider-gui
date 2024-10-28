@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { click, find, settled } from '@ember/test-helpers';
 import Helper from '../../helpers/file-permissions';
@@ -10,7 +10,7 @@ import { all as allFulfilled } from 'rsvp';
 import CurrentUserService from 'onedata-gui-websocket-client/services/current-user';
 
 describe('Integration | Component | file-permissions', function () {
-  setupRenderingTest();
+  const { beforeEach, afterEach } = setupRenderingTest();
 
   beforeEach(async function () {
     const userId = 'mock_user';
@@ -32,17 +32,21 @@ describe('Integration | Component | file-permissions', function () {
     this.set('currentUserRecord', user);
   });
 
-  it('un-disables discard and save buttons after POSIX is modified', async function () {
-    const helper = new Helper(this);
-    await helper.givenSingleFilePosix();
+  afterEach(function () {
+    this.helper?.destroy();
+  });
 
-    await helper.renderAll();
+  it('un-disables discard and save buttons after POSIX is modified', async function () {
+    this.helper = new Helper(this);
+    await this.helper.givenSingleFilePosix();
+
+    await this.helper.renderAll();
     await click('.user-read-checkbox');
 
-    expect(helper.getDiscardButton()).to.exist;
-    expect(helper.getDiscardButton()).to.not.have.attr('disabled');
-    expect(helper.getSaveButton()).to.exist;
-    expect(helper.getSaveButton()).to.not.have.attr('disabled');
+    expect(this.helper.getDiscardButton()).to.exist;
+    expect(this.helper.getDiscardButton()).to.not.have.attr('disabled');
+    expect(this.helper.getSaveButton()).to.exist;
+    expect(this.helper.getSaveButton()).to.not.have.attr('disabled');
   });
 
   //#region no-ACL-view permissions warning
@@ -161,8 +165,7 @@ describe('Integration | Component | file-permissions', function () {
       },
       async (mochaContext) => {
         const user = mochaContext.get('currentUserRecord');
-        const helper = mochaContext.get('helper');
-        const file = helper.files[0];
+        const file = mochaContext.helper.files[0];
         file.set('owner', user);
         await file.save();
       },
@@ -305,18 +308,17 @@ function createSingleFileAclViewWarningTest(
   const text = `${warningRenderText} no-ACL-permissions warning for ${conditionsText}`;
   it(text,
     async function () {
-      const helper = new Helper(this);
-      this.set('helper', helper);
-      const acl = await helper.createAcl(await createAcl(this));
-      helper.files = await allFulfilled([
-        helper.createFile({
+      this.helper = new Helper(this);
+      const acl = await this.helper.createAcl(await createAcl(this));
+      this.helper.files = await allFulfilled([
+        this.helper.createFile({
           activePermissionsType: 'acl',
           acl,
         }),
       ]);
       await beforeRender?.(this);
 
-      await helper.renderAll();
+      await this.helper.renderAll();
       await settled();
 
       const warningElement = find('.pre-submit-info-review');
@@ -325,7 +327,6 @@ function createSingleFileAclViewWarningTest(
       } else {
         expect(warningElement).to.not.exist;
       }
-
     }
   );
 }

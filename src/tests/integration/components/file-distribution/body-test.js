@@ -7,16 +7,20 @@ import { click } from '@ember/test-helpers';
 import sinon from 'sinon';
 
 describe('Integration | Component | file-distribution/body', function () {
-  setupRenderingTest();
+  const { afterEach } = setupRenderingTest();
+
+  afterEach(function () {
+    this.helper?.destroy();
+  });
 
   it('renders rows with provider names for single file', async function () {
-    const helper = new Helper(this);
-    await helper.givenSingleFileWithDistribution();
-    helper.givenNoTransfersForSingleFile();
+    this.helper = new Helper(this);
+    await this.helper.givenSingleFileWithDistribution();
+    this.helper.givenNoTransfersForSingleFile();
 
-    await helper.renderBody();
+    await this.helper.renderBody();
 
-    const oneprovidersDistribution = helper.getOneprovidersDistribution();
+    const oneprovidersDistribution = this.helper.getOneprovidersDistribution();
     expect(oneprovidersDistribution).to.exist;
     const providerItems = [
       ...oneprovidersDistribution.querySelectorAll('.oneproviders-distribution-item'),
@@ -27,15 +31,15 @@ describe('Integration | Component | file-distribution/body', function () {
   });
 
   it('invokes replication of file when "Replicate" action is used', async function () {
-    const helper = new Helper(this);
-    await helper.givenSingleFileWithDistribution();
-    helper.givenNoTransfersForSingleFile();
-    const startReplication = sinon.spy(helper.getTransferManager(), 'startReplication');
-    const parisProvider = helper.providers[1];
+    this.helper = new Helper(this);
+    await this.helper.givenSingleFileWithDistribution();
+    this.helper.givenNoTransfersForSingleFile();
+    const startReplication = sinon.spy(this.helper.getTransferManager(), 'startReplication');
+    const parisProvider = this.helper.providers[1];
 
-    await helper.renderBody();
+    await this.helper.renderBody();
     const parisItem =
-      helper.getOneproviderDistributionItem(parisProvider.get('entityId'));
+      this.helper.getOneproviderDistributionItem(parisProvider.get('entityId'));
     await click(parisItem.querySelector('.one-pill-button-actions-trigger'));
     const actionsPopover = find('.webui-popover.in');
     expect(actionsPopover).to.exist;
@@ -45,7 +49,7 @@ describe('Integration | Component | file-distribution/body', function () {
 
     expect(startReplication).to.be.calledOnce;
     expect(startReplication).to.be.calledWith(
-      helper.files[0],
+      this.helper.files[0],
       parisProvider
     );
   });

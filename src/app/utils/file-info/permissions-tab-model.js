@@ -2,14 +2,14 @@
  * Tab model for showing file-permissions in file-info-modal
  *
  * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2022-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import BaseTabModel from './base-tab-model';
 import { computed, get } from '@ember/object';
 import FilePermissionsViewModel from 'oneprovider-gui/utils/file-permissions-view-model';
-import { conditional, raw, array } from 'ember-awesome-macros';
+import { conditional, raw } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
@@ -120,7 +120,14 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isAnyFileWithAcl: array.isAny('files', raw('activePermissionsType'), raw('acl')),
+  isAnyFileWithAcl: computed(
+    'files.@each.activePermissionsType',
+    function isAnyFileWithAcl() {
+      return this.files?.some(file =>
+        file && get(file, 'activePermissionsType') === 'acl'
+      );
+    }
+  ),
 
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
@@ -139,7 +146,7 @@ export default BaseTabModel.extend(...mixins, {
    */
   destroy() {
     try {
-      this.viewModel?.destroy();
+      this.cacheFor('viewModel')?.destroy();
     } finally {
       this._super(...arguments);
     }

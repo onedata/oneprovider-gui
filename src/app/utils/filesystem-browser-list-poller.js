@@ -2,7 +2,7 @@
  * Implementation of polling for filesystem.
  *
  * @author Jakub Liput
- * @copyright (C) 2023 ACK CYFRONET AGH
+ * @copyright (C) 2023-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -49,7 +49,7 @@ export default BrowserListPoller.extend(...mixins, {
     'browserModel.previewMode',
     'dir',
     function fileRequirements() {
-      if (!this.dir || this.browserModel?.previewMode) {
+      if (!this.dir || !this.browserModel || this.browserModel.previewMode) {
         return [];
       }
       return [

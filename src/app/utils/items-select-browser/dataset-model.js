@@ -2,7 +2,7 @@
  * Implementation of settings, logic and state for selectors browsing datasets tree.
  *
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -38,11 +38,21 @@ export default BaseModel.extend(I18n, {
    * @override
    */
   browserModel: computed(function browserModel() {
-    return SelectorDatasetBrowserModel.create({
-      ownerSource: this,
-      onSubmitSingleItem: this.get('onSubmitSingleItem'),
-      spaceDatasetsViewState: this.spaceDatasetsViewState,
-    });
+    return SelectorDatasetBrowserModel
+      .extend({
+        dirProxy: reads('ownerSource.dirProxy'),
+        changeSelectedItems() {
+          this._super(...arguments);
+          this.itemsSelectBrowser.setSelectedItems(...arguments);
+        },
+      })
+      .create({
+        itemsSelectBrowser: this,
+        ownerSource: this,
+        space: this.space,
+        onSubmitSingleItem: this.get('onSubmitSingleItem'),
+        spaceDatasetsViewState: this.spaceDatasetsViewState,
+      });
   }),
 
   /**

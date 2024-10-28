@@ -2,12 +2,11 @@
  * Shows a list of all available workflow schemas (from all user inventories).
  *
  * @author Michał Borzęcki
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { promise } from 'ember-awesome-macros';
 import EmberObject, { computed, get } from '@ember/object';
 import { reads, sort, gt } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
@@ -56,11 +55,11 @@ export default Component.extend(I18n, {
   ]),
 
   /**
-   * @type {ComputedProperty<PromiseArray<Models.AtmWorkflowSchema>>}
+   * @type {ComputedProperty<DestroyablePromiseArray<Models.AtmWorkflowSchema>>}
    */
-  atmWorkflowSchemasProxy: promise.array(computed(function atmWorkflowSchemasProxy() {
-    return this.get('workflowManager').getAllKnownAtmWorkflowSchemas();
-  })),
+  atmWorkflowSchemasProxy: computed(function atmWorkflowSchemasProxy() {
+    return this.workflowManager.getAllKnownAtmWorkflowSchemas();
+  }),
 
   /**
    * @type {ComputedProperty<Array<AtmWorkflowSchemasListEntry>>}
@@ -155,6 +154,17 @@ export default Component.extend(I18n, {
         doesDataSpecFitToStoreWrite(requiredInputStoreSpec.dataSpec, store)
       );
     });
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      this.cacheFor('atmWorkflowSchemasProxy')?.destroy();
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   actions: {

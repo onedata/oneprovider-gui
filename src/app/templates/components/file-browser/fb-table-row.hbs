@@ -72,7 +72,6 @@
             {{#if showSecondaryInfo}}
               {{component secondaryInfoComponentName
                 file=file
-                previewMode=previewMode
                 nameConflict=nameConflict
                 fileRowModel=fileRowModel
                 browserModel=browserModel
@@ -84,12 +83,10 @@
           {{#if statusBarComponentName}}
             {{component statusBarComponentName
               file=file
-              previewMode=previewMode
               nameConflict=nameConflict
               spacePrivileges=spacePrivileges
               fileRowModel=fileRowModel
               browserModel=browserModel
-              isSpaceOwned=isSpaceOwned
               invokeFileAction=invokeFileAction
               disabled=isDisabled
             }}
@@ -110,7 +107,6 @@
   {{#if columnsComponentName}}
     {{component columnsComponentName
       file=file
-      previewMode=previewMode
       nameConflict=nameConflict
       fileRowModel=fileRowModel
       dirStatsServiceState=dirStatsServiceState

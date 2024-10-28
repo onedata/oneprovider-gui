@@ -2,13 +2,14 @@
  * Implementation of polling for archives.
  *
  * @author Jakub Liput
- * @copyright (C) 2023 ACK CYFRONET AGH
+ * @copyright (C) 2023-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import BrowserListPoller, { defaultPollInterval } from 'oneprovider-gui/utils/browser-list-poller';
 import { reads } from '@ember/object/computed';
-import { get, observer } from '@ember/object';
+import { get } from '@ember/object';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 const slowPollInterval = defaultPollInterval;
 
@@ -19,16 +20,16 @@ export default BrowserListPoller.extend({
 
   // Using observer to change interval instead of computed property to suppress set
   // of interval property when it does not change (this would invoke).
-  archivesObserver: observer('archives.@each.metaState', function archivesObserver() {
-    if (!this.archives) {
-      return;
+  archivesObserver: asyncObserver(
+    'archives.@each.metaState',
+    function archivesObserver() {
+      this.reconfigurePollInterval();
     }
-    this.reconfigurePollInterval();
-  }),
+  ),
 
   init() {
     this._super(...arguments);
-    this.archivesObserver();
+    this.reconfigurePollInterval();
   },
 
   /**

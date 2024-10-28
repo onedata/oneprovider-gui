@@ -8,11 +8,26 @@
 
 import BaseTabModel from './base-tab-model';
 import { promise, eq, conditional, raw, and, not } from 'ember-awesome-macros';
-import { computed, get, observer } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { resolve } from 'rsvp';
 import FileSizeViewModel from 'oneprovider-gui/utils/file-size-view-model';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
+
+const FileSizeViewModelInTab = FileSizeViewModel.extend({
+  /**
+   * @virtual
+   * @type {Component.SizeTabModel} sizeTabModel
+   */
+  sizeTabModel: undefined,
+
+  isActive: reads('sizeTabModel.isActive'),
+});
 
 export default BaseTabModel.extend({
   /**
@@ -49,11 +64,6 @@ export default BaseTabModel.extend({
    * @type {({ providerId: string }) => string}
    */
   getProvidersUrl: undefined,
-
-  /**
-   * @type {Utils.FileSizeViewModel}
-   */
-  viewModel: null,
 
   /**
    * @override
@@ -160,23 +170,23 @@ export default BaseTabModel.extend({
    */
   isSpaceRootDir: eq('file.entityId', 'space.rootDir.entityId'),
 
-  viewModelSetter: observer(
+  /**
+   * @type {FileSizeViewModelInTab}
+   */
+  viewModel: destroyableComputed(
     'file',
     'space',
     'dirStatsServiceState',
     'getProvidersUrl',
-    function viewModelSetter() {
-      this.viewModel?.destroy();
-      this.set('viewModel', FileSizeViewModel.extend({
-        isActive: reads('sizeTabModel.isActive'),
-      }).create({
+    function viewModel() {
+      return FileSizeViewModelInTab.create({
         ownerSource: this,
         file: this.file,
         space: this.space,
         dirStatsServiceState: this.dirStatsServiceState,
         getProvidersUrl: this.getProvidersUrl,
         sizeTabModel: this,
-      }));
+      });
     }
   ),
 
@@ -185,7 +195,7 @@ export default BaseTabModel.extend({
    */
   init() {
     this._super(...arguments);
-    this.viewModelSetter();
+    initDestroyableCache(this);
   },
 
   /**
@@ -193,7 +203,7 @@ export default BaseTabModel.extend({
    */
   willDestroy() {
     try {
-      this.viewModel?.destroy();
+      destroyDestroyableComputedValues(this);
     } finally {
       this._super(...arguments);
     }

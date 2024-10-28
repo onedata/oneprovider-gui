@@ -10,7 +10,6 @@ import EmberObject, { set, get, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import {
-  array,
   conditional,
   raw,
   equal,
@@ -194,9 +193,14 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * True if any file metadata is protected.
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  metadataIsProtected: array.isAny('files', raw('metadataIsProtected')),
+  metadataIsProtected: computed(
+    'files.@each.metadataIsProtected',
+    function metadataIsProtected() {
+      return this.files?.some(file => file && get(file, 'metadataIsProtected'));
+    }
+  ),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -293,17 +297,16 @@ export default EmberObject.extend(...mixins, {
    * Initial selected permissions type for viewing/editing inferred from files.
    * @type {Ember.ComputedProperty<FilePermissionsType>}
    */
-  initialActivePermissionsType: conditional(
-    array.isEvery('files', raw('activePermissionsType'), raw('posix')),
-    raw('posix'),
-    raw('acl')
+  initialActivePermissionsType: computed(
+    'files.@each.activePermissionsType',
+    function initialActivePermissionsType() {
+      return this.files?.every(file =>
+        file && get(file, 'activePermissionsType') === 'posix'
+      ) ? 'posix' : 'acl';
+    }
   ),
 
-  filesHaveTheSamePermissionsType: array.isEvery(
-    'files',
-    raw('activePermissionsType'),
-    'files.0.activePermissionsType'
-  ),
+  filesHaveTheSamePermissionsType: isEveryTheSame('files', 'activePermissionsType'),
 
   /**
    * Posix permissions octal value inferred from files permissions. Fallbacks
@@ -338,7 +341,7 @@ export default EmberObject.extend(...mixins, {
    */
   filesHaveCompatiblePosixPermissions: isEveryTheSame(
     'files',
-    raw('posixPermissions')
+    'posixPermissions'
   ),
 
   ownersCount: computed(
@@ -581,6 +584,9 @@ export default EmberObject.extend(...mixins, {
     if (effUserList) {
       return get(effUserList, 'list').toArray();
     } else {
+      if (this.isDestroyed) {
+        return [];
+      }
       const currentUser = this.currentUser.user;
       const spaceId = this.get('space.entityId');
       const spaceGroups = await this.spaceGroupsProxy;
@@ -859,6 +865,7 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * @param {FilePermissionsType} tabId
+   * @returns {Promise<false|undefined>}
    */
   async changeTab(tabId) {
     if (

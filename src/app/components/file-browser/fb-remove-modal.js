@@ -2,7 +2,7 @@
  * Shows confirmation modal to remove a file and implements remove action
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -14,11 +14,13 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import { inject as service } from '@ember/service';
-import { bool, sum, array, and, raw } from 'ember-awesome-macros';
+import { bool, and } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import FileConsumerMixin, { computedMultiUsedFileGris } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import computedSumBy from 'onedata-gui-common/utils/computed-sum-by';
 
 const mixins = [
   I18n,
@@ -115,9 +117,13 @@ export default Component.extend(...mixins, {
   filesProcessedCount: 0,
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  filesContainDirectory: array.isAny('files', raw('type'), raw('dir')),
+  filesContainDirectory: computed('files.@each.type', function filesContainDirectory() {
+    return this.files?.some(file =>
+      file && get(file, 'type') === LegacyFileType.Directory
+    );
+  }),
 
   /**
    * @type {ComputedProperty<Number>}
@@ -125,14 +131,19 @@ export default Component.extend(...mixins, {
   filesToRemoveCount: reads('files.length'),
 
   /**
-   * @type {ComputedProperty<Number>}
+   * @type {ComputedProperty<number>}
    */
-  sharedFilesToRemoveCount: array.length(array.filterBy('files', raw('sharesCount'))),
+  sharedFilesToRemoveCount: computed(
+    'files.@each.sharesCount',
+    function sharedFilesToRemoveCount() {
+      return this.files.filter(file => file && get(file, 'sharesCount')).length;
+    }
+  ),
 
   /**
-   * @type {ComputedProperty<Number>}
+   * @type {ComputedProperty<number>}
    */
-  sharesToRemoveCount: sum(array.compact(array.mapBy('files', raw('sharesCount')))),
+  sharesToRemoveCount: computedSumBy('files', 'sharesCount'),
 
   /**
    * @type {ComputedProperty<Boolean>}

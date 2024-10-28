@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
@@ -11,11 +11,15 @@ import { run } from '@ember/runloop';
 import ArchivePropertiesViewModel from 'oneprovider-gui/utils/archive-properties-view-model';
 
 describe('Integration | Component | archive-properties', function () {
-  setupRenderingTest();
+  const { beforeEach, afterEach } = setupRenderingTest();
 
   beforeEach(async function () {
     await run(() => createDataset(this));
     await run(() => createArchive(this));
+  });
+
+  afterEach(function () {
+    this.get('viewModel')?.destroy();
   });
 
   it('renders "Description" field with label and textarea in edit mode', async function () {
