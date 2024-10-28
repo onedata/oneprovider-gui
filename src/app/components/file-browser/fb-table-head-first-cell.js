@@ -35,21 +35,21 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {(index: number) => void}
+   * @type {(index: number, event: Object) => void}
    */
-  onHeadingDropAction: notImplementedIgnore,
+  onHeadingDrop: notImplementedIgnore,
 
   /**
    * @virtual
-   * @type {(isOverBeforeArea: boolean) => void }
+   * @type {(isOverBeforeArea: boolean, event: Object) => void }
    */
-  onHeadingDragOverAction: notImplementedIgnore,
+  onHeadingDragOver: notImplementedIgnore,
 
   /**
    * @virtual
-   * @type {() => void}
+   * @type {(event: Object) => void }
    */
-  onHeadingDragLeaveAction: notImplementedIgnore,
+  onHeadingDragLeave: notImplementedIgnore,
 
   /**
    * @type {boolean}
@@ -58,15 +58,15 @@ export default Component.extend(...mixins, {
 
   actions: {
     headingDragOver(event) {
-      this.onHeadingDragOverAction(false, event);
+      this.onHeadingDragOver(false, event);
     },
 
     headingDragLeave(event) {
-      this.onHeadingDragLeaveAction(event);
+      this.onHeadingDragLeave(event);
     },
 
     headingDrop(event) {
-      this.onHeadingDropAction(0, event);
+      this.onHeadingDrop(0, event);
     },
   },
 });

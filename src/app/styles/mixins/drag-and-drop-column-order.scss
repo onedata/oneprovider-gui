@@ -1,8 +1,9 @@
 .drag-and-drop-column-order {
   border-collapse: separate;
+  --border-width: 2px;
 
   th {
-    border-left: 2px solid transparent;
+    border-left: var(--border-width) solid transparent;
   }
   th.border-dashed.before-drag-over-border,
   th.after-drag-over-border + th {
@@ -14,9 +15,9 @@
     &::after {
       content: '';
       position: absolute;
-      bottom: calc(-1 * var(--triangle-height) + 1px);
+      bottom: calc(-1 * var(--triangle-height) + 0.5 * var(--border-width));
       // half triangle width and half border width
-      left: calc(-1 * var(--triangle-half-width) - 1px);
+      left: calc(-1 * var(--triangle-half-width) - 0.5 * var(--border-width));
       width: 0;
       height: 0;
       border-left: var(--triangle-half-width) solid transparent;
@@ -43,7 +44,7 @@
 
   .after-drop-area {
     left: calc(0.5 * var(--column-width));
-    width: calc(0.5 * var(--column-width) + 2px);
+    width: calc(0.5 * var(--column-width) + var(--border-width));
   }
 
   thead tr th:first-child .after-drop-area {

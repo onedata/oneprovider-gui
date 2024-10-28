@@ -1,8 +1,8 @@
 {{#component headFirstCellComponentName
   browserModel=browserModel
-  onHeadingDragOverAction=(action "headingDragOver")
-  onHeadingDragLeaveAction=(action "headingDragLeave")
-  onHeadingDropAction=(action "headingDrop")
+  onHeadingDragOver=(action "headingDragOver")
+  onHeadingDragLeave=(action "headingDragLeave")
+  onHeadingDrop=(action "headingDrop")
   isDropBorderShown=isDropBorderShown
 }}
   {{yield}}
@@ -21,7 +21,6 @@
       draggable=true
       ondragstart={{action "headingDrag" columnName}}
       ondragend={{action "headingDragEnd"}}
-
     >
       <div
         class={{concat-classes "before-drop-area" (if isDropBorderShown "drop-area")}}
@@ -100,7 +99,7 @@
   browserModel=browserModel
   dragStartAction=(if browserModel.isUsingUploadArea (action "checkboxDragStart"))
   dragEndAction=(if browserModel.isUsingUploadArea (action "checkboxDragEnd"))
-  onHeadingDragOverAction=(action "headingDragOver" true)
-  onHeadingDragLeaveAction=(action "headingDragLeave")
-  onHeadingDropAction=(action "headingDrop" visibleColumnsNumber)
+  onHeadingDragOver=(action "headingDragOver" true)
+  onHeadingDragLeave=(action "headingDragLeave")
+  onHeadingDrop=(action "headingDrop" lastVisibleColumnIndex)
 }}

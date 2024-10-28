@@ -52,31 +52,31 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {(index: number) => void}
+   * @type {(index: number, event: Object) => void}
    */
-  onHeadingDropAction: notImplementedIgnore,
+  onHeadingDrop: notImplementedIgnore,
 
   /**
    * @virtual
-   * @type {(isOverBeforeArea: boolean) => void }
+   * @type {(isOverBeforeArea: boolean, event: Object) => void }
    */
-  onHeadingDragOverAction: notImplementedIgnore,
+  onHeadingDragOver: notImplementedIgnore,
 
   /**
    * @virtual
-   * @type {() => void}
+   * @type {(event: Object) => void}
    */
-  onHeadingDragLeaveAction: notImplementedIgnore,
+  onHeadingDragLeave: notImplementedIgnore,
 
   actions: {
     headingDragOver(event) {
-      this.onHeadingDragOverAction(event);
+      this.onHeadingDragOver(event);
     },
     headingDragLeave(event) {
-      this.onHeadingDragLeaveAction(event);
+      this.onHeadingDragLeave(event);
     },
     headingDrop(event) {
-      this.onHeadingDropAction(event);
+      this.onHeadingDrop(event);
     },
   },
 });

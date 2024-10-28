@@ -59,9 +59,9 @@ export default Component.extend(...mixins, {
    */
   currentProviderName: reads('currentProviderProxy.content.name'),
 
-  visibleColumnsNumber: computed(
-    'columnsConfiguration.columns',
-    function visibleColumnsNumber() {
+  lastVisibleColumnIndex: computed(
+    'columnsConfiguration.{columns,columnsOrder}',
+    function lastVisibleColumnIndex() {
       let index = 0;
       for (const [i, value] of this.columnsConfiguration.columnsOrder.entries()) {
         if (this.columnsConfiguration.columns[value].isVisible) {
