@@ -1,29 +1,29 @@
 .drag-and-drop-column-order {
   border-collapse: separate;
-  --border-width: 2px;
+  --drop-separator-border-width: 2px;
 
   th {
-    border-left: var(--border-width) solid transparent;
+    border-left: var(--drop-separator-border-width) solid transparent;
   }
   th.border-dashed.before-drag-over-border,
   th.after-drag-over-border + th {
     border-left-style: solid;
     border-left-color: lighten($color-one-blue-gray, 20%);
-    --triangle-height: 11px;
-    --triangle-half-width: 8px;
+    --drop-separator-triangle-height: 11px;
+    --drop-separator-triangle-half-width: 8px;
 
     &::after {
       content: '';
       position: absolute;
-      bottom: calc(-1 * var(--triangle-height) + 0.5 * var(--border-width));
+      bottom: calc(-1 * var(--drop-separator-triangle-height) + 0.5 * var(--drop-separator-border-width));
       // half triangle width and half border width
-      left: calc(-1 * var(--triangle-half-width) - 0.5 * var(--border-width));
+      left: calc(-1 * var(--drop-separator-triangle-half-width) - 0.5 * var(--drop-separator-border-width));
       width: 0;
       height: 0;
-      border-left: var(--triangle-half-width) solid transparent;
-      border-right: var(--triangle-half-width) solid transparent;
+      border-left: var(--drop-separator-triangle-half-width) solid transparent;
+      border-right: var(--drop-separator-triangle-half-width) solid transparent;
 
-      border-bottom: var(--triangle-height) solid lighten($color-one-blue-gray, 20%);
+      border-bottom: var(--drop-separator-triangle-height) solid lighten($color-one-blue-gray, 20%);
       z-index: 2;
     }
   }
@@ -44,7 +44,7 @@
 
   .after-drop-area {
     left: calc(0.5 * var(--column-width));
-    width: calc(0.5 * var(--column-width) + var(--border-width));
+    width: calc(0.5 * var(--column-width) + var(--drop-separator-border-width));
   }
 
   thead tr th:first-child .after-drop-area {

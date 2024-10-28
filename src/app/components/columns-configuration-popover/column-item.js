@@ -108,7 +108,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {(columnName: string, event: Object) => void }
+   * @type {(event: DragEvent) => void }
    */
   onHeadingDrag: notImplementedIgnore,
 
@@ -120,19 +120,19 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {(index: number, event: Object) => void}
+   * @type {(index: number, event: DragEvent) => void }
    */
   onHeadingDrop: notImplementedIgnore,
 
   /**
    * @virtual
-   * @type {(isOverBeforeArea: boolean, event: Object) => void }
+   * @type {(isOverBeforeArea: boolean, event: DragEvent) => void }
    */
   onHeadingDragOver: notImplementedIgnore,
 
   /**
    * @virtual
-   * @type {(event: Object) => void }
+   * @type {(event: DragEvent) => void }
    */
   onHeadingDragLeave: notImplementedIgnore,
 
