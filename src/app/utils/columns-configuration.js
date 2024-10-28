@@ -210,7 +210,7 @@ export default EmberObject.extend(...mixins, {
     );
   },
 
-  addNewColumn(columnName, key, type) {
+  checkIfColumnExist(columnName, key, type) {
     let columnNameVariable = this.columnNameToVariable(columnName, type);
 
     // try to create name variable that does not exist or return
@@ -221,9 +221,17 @@ export default EmberObject.extend(...mixins, {
         key === this.columns[columnNameVariable].xattrKey
       ) {
         // return if a column with the same name and key already exists
-        return;
+        return true;
       }
       columnNameVariable += '#';
+    }
+    return columnNameVariable;
+  },
+
+  addNewColumn(columnName, key, type) {
+    const columnNameVariable = this.checkIfColumnExist(columnName, key, type);
+    if (columnNameVariable === true) {
+      return;
     }
 
     this.columns[columnNameVariable] = EmberObject.create({

@@ -102,6 +102,16 @@
                     @disabled={{isDisabledAddButton}}
                   >
                     {{tt this "addBtn"}}
+                    {{#if isDisabledAddButton}}
+                      <OneTooltip @title={{if
+                        (or
+                          (not xattrColumnName)
+                          (not xattrKeyNameDropdownField.value)
+                        )
+                        (tt this "emptyValueTooltip")
+                        (tt this "columnExistsTooltip")
+                      }} />
+                    {{/if}}
                   </OneButton>
                 </div>
               </PromiseProxyContainer>
@@ -147,8 +157,19 @@
                     @class="modify-column-btn"
                     @size="sm"
                     @onClick={{action "modifyColumn"}}
+                    @disabled={{isDisabledModifyButton}}
                   >
                     {{tt this "modifyBtn"}}
+                    {{#if isDisabledModifyButton}}
+                      <OneTooltip @title={{if
+                        (or
+                          (not modifiedColumnNewValue)
+                          (not xattrKeyModifiedNameDropdownField.value)
+                        )
+                        (tt this "emptyValueTooltip")
+                        (tt this "columnExistsTooltip")
+                      }} />
+                    {{/if}}
                   </OneButton>
                 </div>
               </PromiseProxyContainer>

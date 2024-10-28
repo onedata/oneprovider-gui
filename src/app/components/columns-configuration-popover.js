@@ -256,7 +256,29 @@ export default Component.extend(I18n, {
     'xattrColumnName',
     'xattrKeyNameDropdownField.value',
     function isDisabledAddButton() {
-      return !this.xattrColumnName || !this.xattrKeyNameDropdownField.value;
+      return !this.xattrColumnName || !this.xattrKeyNameDropdownField.value ||
+        this.columnsConfiguration.checkIfColumnExist(
+          this.xattrColumnName,
+          this.xattrKeyNameDropdownField.value,
+          'xattr',
+        ) === true;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isDisabledModifyButton: computed(
+    'modifiedColumnNewValue',
+    'xattrKeyModifiedNameDropdownField.value',
+    function isDisabledModifyButton() {
+      return !this.modifiedColumnNewValue ||
+        !this.xattrKeyModifiedNameDropdownField.value ||
+        this.columnsConfiguration.checkIfColumnExist(
+          this.modifiedColumnNewValue,
+          this.xattrKeyModifiedNameDropdownField.value,
+          'xattr',
+        ) === true;
     }
   ),
 
