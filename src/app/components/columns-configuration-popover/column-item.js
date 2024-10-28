@@ -190,9 +190,15 @@ export default Component.extend(I18n, {
       this.removeXattrColumn(columnName);
     },
     headingDrag(event) {
+      if (this.dragStartAction) {
+        this.dragStartAction();
+      }
       this.onHeadingDrag(event);
     },
     headingDragEnd() {
+      if (this.dragEndAction) {
+        this.dragEndAction();
+      }
       this.onHeadingDragEnd();
     },
     headingDrop(index, event) {
