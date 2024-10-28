@@ -69,6 +69,11 @@ export default Component.extend(I18n, {
   isOpened: false,
 
   /**
+   * @type {boolean}
+   */
+  hasXattrSettings: reads('columnsConfiguration.hasXattrSettings'),
+
+  /**
    * @type {string}
    */
   modifiedColumn: '',

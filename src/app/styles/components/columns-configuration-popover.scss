@@ -1,7 +1,6 @@
-.webui-popover-columns-configuration {
-  --min-height-popover: 240px;
+.webui-popover-columns-configuration-with-xattrs,
+.webui-popover-columns-configuration-without-xattrs {
   width: 300px;
-  min-height: var(--min-height-popover);
 
   .webui-popover-content {
     padding: 0;
@@ -203,7 +202,7 @@
   }
   .xattr-column-add, .xattr-column-modify {
     position: relative;
-    min-height: var(--min-height-popover);
+    min-height: var(--min-height-popover, 0);
     padding: 12px;
 
     h1 {
@@ -233,4 +232,9 @@
       padding-top: 10px;
     }
   }
+}
+
+.webui-popover-columns-configuration-with-xattrs {
+  --min-height-popover: 240px;
+  min-height: var(--min-height-popover);
 }

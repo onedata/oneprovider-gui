@@ -1,6 +1,11 @@
 <RenderLater @triggerRender={{isOpened}}>
   <OneWebuiPopover
-    @popoverStyle="columns-configuration"
+    class="columns-configuration"
+    @popoverStyle={{if
+      hasXattrSettings
+      "columns-configuration-with-xattrs"
+      "columns-configuration-without-xattrs"
+    }}
     @open={{isOpened}}
     @triggerSelector={{triggerSelector}}
     as |popover|
