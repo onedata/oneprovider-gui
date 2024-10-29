@@ -35,6 +35,7 @@ gui-image.conf
 .vscode/
 jsconfig.json
 typings/
+.history/
 
 # misc
 .sass-cache
