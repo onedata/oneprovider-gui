@@ -66,7 +66,7 @@
 <div class="table-bottom-spacing"></div>
 {{#if (eq listLoadState.state "pending")}}
   <div class="loading-dir-box">
-    <SpinSpinnerBlock @sizeClass="lg" class="absolute-middle-centered" />
+    <SpinSpinnerBlock @sizeClass={{spinnerSizeClass}} class="absolute-middle-centered" />
   </div>
 {{/if}}
 {{#if (and dirLoadError dirLoadErrorComponentName)}}
@@ -110,7 +110,7 @@
 
 {{#if renderRefreshSpinner}}
   <SpinSpinnerBlock
-    @sizeClass="lg"
+    @sizeClass={{spinnerSizeClass}}
     class="absolute-middle-centered refresh-spinner"
   />
 {{/if}}

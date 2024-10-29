@@ -15,6 +15,7 @@ import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import globals from 'onedata-gui-common/utils/globals';
+import { commonIframeInjectedProperties } from 'onedata-gui-common/services/app-proxy';
 
 export default Component.extend({
   classNames: ['one-embedded-component'],
@@ -62,6 +63,13 @@ export default Component.extend({
    */
   callParent: undefined,
 
+  allIframeInjectedProperties: computed(
+    'iframeInjectedProperties',
+    function allIframeInjectedProperties() {
+      return [...commonIframeInjectedProperties, ...this.iframeInjectedProperties];
+    }
+  ),
+
   init() {
     this._super(...arguments);
 
@@ -73,7 +81,7 @@ export default Component.extend({
       };
 
       // fetch declared injected properties
-      this.iframeInjectedProperties.forEach(propertyName => {
+      this.allIframeInjectedProperties.forEach(propertyName => {
         defineProperty(
           this,
           propertyName,

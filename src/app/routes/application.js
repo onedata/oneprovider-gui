@@ -27,19 +27,19 @@ export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   }),
 
   generateDevelopmentModel() {
-    return this.get('mockBackend').generateDevelopmentModel();
+    return this.mockBackend.generateDevelopmentModel();
   },
 
   async beforeModel() {
     const superPromise = this._super(...arguments);
     if (UnifiedGuiController.shouldRedirectToOnezone()) {
-      const providerId = this.get('providerManager').getCurrentProviderId();
+      const providerId = this.providerManager.getCurrentProviderId();
       const path = `#/onedata/providers/${providerId}`;
       UnifiedGuiController.redirectToOnezone(path);
       return;
     }
     try {
-      await this.get('onedataWebsocket.webSocketInitializedProxy');
+      await this.onedataWebsocket.webSocketInitializedProxy;
     } catch (error) {
       throw {
         isOnedataCustomError: true,
