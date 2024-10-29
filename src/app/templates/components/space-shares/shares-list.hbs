@@ -1,18 +1,22 @@
-{{#promise-proxy-container proxy=dataProxy}}
+<PromiseProxyContainer
+  @proxy={{dataProxy}}
+  @sizeClass="lg"
+  @loadingLabel={{oneproviderName}}
+>
   {{#if shares.length}}
     <div class="one-collapsible-list">
       {{#each sortedShares as |share|}}
-        {{space-shares/list-item
-          space=space
-          share=share
-          pointsToDeletedFile=(contains share sharesWithDeletedFiles)
-          getShareUrl=(action "getShareUrl")
-          startRemoveShare=(action "startRemoveShare")
-          startRenameShare=(action "startRenameShare")
-        }}
+        <SpaceShares::ListItem
+          @space={{space}}
+          @share={{share}}
+          @pointsToDeletedFile={{contains share sharesWithDeletedFiles}}
+          @getShareUrl={{action "getShareUrl"}}
+          @startRemoveShare={{action "startRemoveShare"}}
+          @startRenameShare={{action "startRenameShare"}}
+        />
       {{/each}}
     </div>
   {{else}}
-    {{content-shares-empty forSpace=true dataTabUrl=dataTabUrl}}
+    <ContentSharesEmpty @forSpace={{true}} @dataTabUrl={{dataTabUrl}} />
   {{/if}}
-{{/promise-proxy-container}}
+</PromiseProxyContainer>

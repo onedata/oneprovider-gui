@@ -8,6 +8,7 @@
 
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { promise, collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -18,6 +19,7 @@ export default Component.extend(createDataProxyMixin('shares'), {
 
   shareManager: service(),
   spaceManager: service(),
+  appProxy: service(),
 
   /**
    * @virtual
@@ -67,6 +69,8 @@ export default Component.extend(createDataProxyMixin('shares'), {
    * @type {ShareShowTabId}
    */
   initialTabId: undefined,
+
+  oneproviderName: reads('appProxy.injectedData.oneproviderName'),
 
   shareActions: collect('btnDelete', 'btnRename'),
 
