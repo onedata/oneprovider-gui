@@ -2,18 +2,19 @@
  * Utils to change the order of columns using drag and drop actions.
  *
  * To use that add to table's headers in hbs draggable event handlers:
- * - ondragstart with headingDragAction action assigned to it and pass column name as an argument
- * - ondragend with headingDragEndAction action assigned to it
+ * - ondragstart with headingDrag action assigned to it and pass column name as an argument
+ * - ondragend with headingDragEnd action assigned to it
  *
- * Add also div element which creates a draggable area, where headers can be dropped,
+ * Add also div elements which creates a draggable area, where headers can be dropped,
  * and to that element add event handlers:
- * - ondragover with headingDragOverAction action assigned to it
- * - ondragleave with headingDragLeaveAction action assigned to it
- * - ondrop with headingDropAction action assigned to it and pass an index of column,
+ * - ondragover with headingDragOver action assigned to it
+ * - ondragleave with headingDragLeave action assigned to it
+ * - ondrop with headingDrop action assigned to it and pass an index of column,
  *   in some of the places the first column is not included in the list of columns,
  *   in such case, this index should be incremented by 1.
  *
  * Add drag-and-drop-column-order class to table, to properly show borders and drag icon in headers.
+ * It is also possible for a list, in which case you should override 'dragAndDropTagName'.
  *
  * Example:
  * ```
@@ -22,16 +23,21 @@
  *    <tr>
  *      {{#each visibleColumns as |columnName i|}}
  *        <th
- *          ondragstart={{action "headingDragAction" columnName}}
- *          ondragend={{action "headingDragEndAction"}}
+ *          ondragstart={{action "headingDrag" columnName}}
+ *          ondragend={{action "headingDragEnd"}}
  *        >
- *          ...
  *          <div
- *            ondragover={{action "headingDragOverAction"}}
- *            ondragleave={{action "headingDragLeaveAction"}}
- *            ondrop={{action "headingDropAction" i}}
- *          >
- *          </div>
+ *            class={{concat-classes "before-drop-area" (if isDropBorderShown "drop-area")}}
+ *            ondragover={{action "headingDragOver" true}}
+ *            ondragleave={{action "headingDragLeave"}}
+ *            ondrop={{action "headingDrop" i}}
+ *          ></div>
+ *          <div
+ *            class={{concat-classes "after-drop-area" (if isDropBorderShown "drop-area")}}
+ *            ondragover={{action "headingDragOver" false}}
+ *            ondragleave={{action "headingDragLeave"}}
+ *            ondrop={{action "headingDrop" (add i 1)}}
+ *          ></div>
  *        </th>
  *      {{/each}}
  *      ...
@@ -61,6 +67,11 @@ export default Mixin.create({
    */
   lastActiveDropOverElem: undefined,
 
+  /**
+   * @type {string}
+   */
+  dragAndDropTagName: 'th',
+
   moveColumn(index, columnName) {
     this.columnsConfiguration.moveColumn(columnName, index);
     this.columnsConfiguration.saveColumnsOrder();
@@ -69,28 +80,38 @@ export default Mixin.create({
   },
 
   actions: {
-    headingDragAction(columnName, event) {
+    headingDrag(columnName, event) {
       event.dataTransfer.setData('text', columnName);
+      event.dataTransfer.effectAllowed = 'move';
       this.set('isDropBorderShown', true);
     },
-    headingDragEndAction() {
+    headingDragEnd() {
       this.set('isDropBorderShown', false);
     },
-    headingDropAction(index, event) {
+    headingDrop(index, event) {
       const columnName = event.dataTransfer.getData('text');
       this.moveColumn(index, columnName);
-      event.target.closest('th').classList.remove('border-solid');
+      event.target.closest(this.dragAndDropTagName).classList.remove(
+        'before-drag-over-border',
+        'after-drag-over-border',
+      );
       this.set('isDropBorderShown', false);
     },
-    headingDragOverAction(event) {
+    headingDragOver(isOverBeforeArea, event) {
       event.preventDefault();
-      const lastActiveDropOverElem = event.target.closest('th');
-      lastActiveDropOverElem.classList.add('border-solid');
+      event.dataTransfer.dropEffect = 'move';
+      const lastActiveDropOverElem = event.target.closest(this.dragAndDropTagName);
+      lastActiveDropOverElem.classList.add(
+        isOverBeforeArea ? 'before-drag-over-border' : 'after-drag-over-border'
+      );
 
       this.set('lastActiveDropOverElem', lastActiveDropOverElem);
     },
-    headingDragLeaveAction() {
-      this.lastActiveDropOverElem?.classList.remove('border-solid');
+    headingDragLeave(event) {
+      event.target.closest(this.dragAndDropTagName).classList.remove(
+        'before-drag-over-border',
+        'after-drag-over-border',
+      );
     },
   },
 });

@@ -1,9 +1,9 @@
 {{#component headFirstCellComponentName
   browserModel=browserModel
+  onHeadingDragOver=(action "headingDragOver")
+  onHeadingDragLeave=(action "headingDragLeave")
+  onHeadingDrop=(action "headingDrop")
   isDropBorderShown=isDropBorderShown
-  headingDragOverAction=(action "headingDragOverAction")
-  headingDragLeaveAction=(action "headingDragLeaveAction")
-  headingDropAction=(action "headingDropAction")
 }}
   {{yield}}
 {{/component}}
@@ -14,13 +14,26 @@
         (concat "fb-table-col-" columnName)
         "fb-table-secondary-col"
         "hidden-xs"
+        "draggable-area"
         (if isDropBorderShown "border-dashed")
       }}
       style={{get columnsConfiguration (concat "columnsStyle." columnName)}}
       draggable=true
-      ondragstart={{action "headingDragAction" columnName}}
-      ondragend={{action "headingDragEndAction"}}
+      ondragstart={{action "headingDrag" columnName}}
+      ondragend={{action "headingDragEnd"}}
     >
+      <div
+        class={{concat-classes "before-drop-area" (if isDropBorderShown "drop-area")}}
+        ondragover={{action "headingDragOver" true}}
+        ondragleave={{action "headingDragLeave"}}
+        ondrop={{action "headingDrop" i}}
+      ></div>
+      <div
+        class={{concat-classes "after-drop-area" (if isDropBorderShown "drop-area")}}
+        ondragover={{action "headingDragOver" false}}
+        ondragleave={{action "headingDragLeave"}}
+        ondrop={{action "headingDrop" (add i 1)}}
+      ></div>
       <div class="column-info-container">
         <div
           class="column-name"
@@ -77,19 +90,16 @@
           </div>
         {{/if}}
       </div>
-      <div
-        class="draggable-area"
-        ondragover={{action "headingDragOverAction"}}
-        ondragleave={{action "headingDragLeaveAction"}}
-        ondrop={{action "headingDropAction" (add i 1)}}
-      >
-      </div>
     </th>
   {{/if}}
 {{/each}}
 {{columns-configuration-cell
   columnsConfiguration=columnsConfiguration
+  isDropBorderShown=isDropBorderShown
   browserModel=browserModel
   dragStartAction=(if browserModel.isUsingUploadArea (action "checkboxDragStart"))
   dragEndAction=(if browserModel.isUsingUploadArea (action "checkboxDragEnd"))
+  onHeadingDragOver=(action "headingDragOver" true)
+  onHeadingDragLeave=(action "headingDragLeave")
+  onHeadingDrop=(action "headingDrop" lastVisibleColumnIndex)
 }}

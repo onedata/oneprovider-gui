@@ -60,6 +60,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {number}
+   */
+  columnIndex: undefined,
+
+  /**
+   * @virtual
    * @type {(columName: string, newValue: boolean) => void}
    */
   checkboxChanged: notImplementedWarn,
@@ -102,9 +108,45 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {(event: DragEvent) => void }
+   */
+  onHeadingDrag: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {() => void}
+   */
+  onHeadingDragEnd: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(index: number, event: DragEvent) => void }
+   */
+  onHeadingDrop: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(isOverBeforeArea: boolean, event: DragEvent) => void }
+   */
+  onHeadingDragOver: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(event: DragEvent) => void }
+   */
+  onHeadingDragLeave: notImplementedIgnore,
+
+  /**
+   * @virtual
    * @type {boolean}
    */
   isColumnListVisible: false,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  isDropBorderShown: false,
 
   /**
    * @type {boolean}
@@ -141,21 +183,32 @@ export default Component.extend(I18n, {
     moveColumnUp(columnName) {
       return this.moveColumnUp(columnName);
     },
-    dragStartAction() {
-      if (this.dragStartAction) {
-        return this.dragStartAction();
-      }
-    },
-    dragEndAction() {
-      if (this.dragEndAction) {
-        return this.dragEndAction();
-      }
-    },
     openXattrModification(columnName) {
       this.openXattrModification(columnName);
     },
     removeXattrColumn(columnName) {
       this.removeXattrColumn(columnName);
+    },
+    headingDrag(event) {
+      if (this.dragStartAction) {
+        this.dragStartAction();
+      }
+      this.onHeadingDrag(event);
+    },
+    headingDragEnd() {
+      if (this.dragEndAction) {
+        this.dragEndAction();
+      }
+      this.onHeadingDragEnd();
+    },
+    headingDrop(index, event) {
+      this.onHeadingDrop(index, event);
+    },
+    headingDragOver(isOverBeforeArea, event) {
+      this.onHeadingDragOver(isOverBeforeArea, event);
+    },
+    headingDragLeave(event) {
+      this.onHeadingDragLeave(event);
     },
   },
 });
