@@ -47,6 +47,13 @@ export default Component.extend({
   frameElement: computed(() => globals.window.frameElement),
 
   /**
+   * Uses commonly injected oneproviderName from appProxy.
+   * For use in main loading spinner to display what provider is being loaded.
+   * @type {ComputedProperty<string>}
+   */
+  oneproviderLoadingLabel: reads('oneproviderName'),
+
+  /**
    * Properties:
    * - onezoneVersionDetails: object
    *   - serviceVersion: string

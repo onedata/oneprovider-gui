@@ -1,14 +1,19 @@
-{{#promise-proxy-container proxy=spaceProxy spinnerBlockClass="absolute-middle-centered"}}
-  {{space-automation
-    space=spaceProxy.content
-    tab=tab
-    atmWorkflowExecutionId=workflowExecutionId
-    atmWorkflowSchemaId=workflowSchemaId
-    atmWorkflowSchemaRevisionNumber=workflowSchemaRevision
-    fillInputStores=fillInputStores
-    changeTab=(action "changeTab")
-    openPreviewTab=(action "openPreviewTab")
-    closePreviewTab=(action "closePreviewTab")
-    chooseWorkflowSchemaToRun=(action "chooseWorkflowSchemaToRun")
-  }}
-{{/promise-proxy-container}}
+<PromiseProxyContainer
+  @proxy={{spaceProxy}}
+  @spinnerBlockClass="absolute-middle-centered"
+  @sizeClass="lg"
+  @loadingLabel={{oneproviderLoadingLabel}}
+>
+  <SpaceAutomation
+    @space={{spaceProxy.content}}
+    @tab={{tab}}
+    @atmWorkflowExecutionId={{workflowExecutionId}}
+    @atmWorkflowSchemaId={{workflowSchemaId}}
+    @atmWorkflowSchemaRevisionNumber={{workflowSchemaRevision}}
+    @fillInputStores={{fillInputStores}}
+    @changeTab={{action "changeTab"}}
+    @openPreviewTab={{action "openPreviewTab"}}
+    @closePreviewTab={{action "closePreviewTab"}}
+    @chooseWorkflowSchemaToRun={{action "chooseWorkflowSchemaToRun"}}
+  />
+</PromiseProxyContainer>

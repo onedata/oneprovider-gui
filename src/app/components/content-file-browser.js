@@ -185,12 +185,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return this.dirGri ? [this.dirGri] : [];
   }),
 
-  /**
-   * Uses commonly injected oneproviderName from appProxy.
-   * @type {ComputedProperty<string>}
-   */
-  oneproviderLoadingLabel: reads('oneproviderName'),
-
   dirGri: computed('dirEntityId', function dirGri() {
     return getFileGri(this.dirEntityId, 'private');
   }),
