@@ -76,17 +76,6 @@
       padding: 0;
     }
 
-    th.border-dashed.border-solid {
-      .draggable-area::after {
-        top: 61px;
-        right: 1px;
-      }
-    }
-
-    .draggable-area {
-      width: 20px;
-      right: -10px;
-    }
     .column-move-icon, .column-info-icon {
       position: static;
     }

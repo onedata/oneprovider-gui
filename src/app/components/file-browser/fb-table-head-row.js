@@ -59,6 +59,19 @@ export default Component.extend(...mixins, {
    */
   currentProviderName: reads('currentProviderProxy.content.name'),
 
+  lastVisibleColumnIndex: computed(
+    'columnsConfiguration.{columns,columnsOrder}',
+    function lastVisibleColumnIndex() {
+      let index = 0;
+      for (const [i, value] of this.columnsConfiguration.columnsOrder.entries()) {
+        if (this.columnsConfiguration.columns[value].isVisible) {
+          index = i;
+        }
+      }
+      return index + 1;
+    }
+  ),
+
   previewMode: reads('browserModel.previewMode'),
 
   didInsertElement() {
@@ -74,14 +87,6 @@ export default Component.extend(...mixins, {
     checkboxDragEnd() {
       // Invoked when item in columns configuration popover drag is ended
       // only when browserModel.isUsingUploadArea is true
-    },
-    headingDragAction(columnName, event) {
-      event.dataTransfer.setData('text', columnName);
-
-      this.set('isDropBorderShown', true);
-    },
-    headingDragEndAction() {
-      this.set('isDropBorderShown', false);
     },
   },
 });

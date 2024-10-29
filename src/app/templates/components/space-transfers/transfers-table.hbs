@@ -6,29 +6,43 @@
           class={{concat-classes
             (concat "transfers-table-col-" column.id)
             column.className
-            (if isDropBorderShown "border-dashed")
+            "draggable-area"
+            (if (and isDropBorderShown (not-eq i 0)) "border-dashed")
           }}
           style={{get columnsConfiguration.columnsStyle column.id}}
           draggable={{not-eq i 0}}
-          ondragstart={{action "headingDragAction" column.id}}
-          ondragend={{action "headingDragEndAction"}}
+          ondragstart={{action "headingDrag" column.id}}
+          ondragend={{action "headingDragEnd"}}
         >
+          {{#if (not-eq i 0)}}
+            <div
+              class={{concat-classes "before-drop-area" (if isDropBorderShown "drop-area")}}
+              ondragover={{action "headingDragOver" true}}
+              ondragleave={{action "headingDragLeave"}}
+              ondrop={{action "headingDropWithColumnName" column 0}}
+            ></div>
+          {{/if}}
+          <div
+            class={{concat-classes "after-drop-area" (if isDropBorderShown "drop-area")}}
+            ondragover={{action "headingDragOver" false}}
+            ondragleave={{action "headingDragLeave"}}
+            ondrop={{action "headingDropWithColumnName" column 1}}
+          ></div>
           <span class="column-name">
             {{#if (not-eq i 0)}}
               <OneIcon @icon="drag" @class="column-move-icon visible-on-hover" />
             {{/if}}
             {{tt this (concat "headers.name." column.id)}}
           </span>
-          <div
-            class="draggable-area"
-            ondragover={{action "headingDragOverAction"}}
-            ondragleave={{action "headingDragLeaveAction"}}
-            ondrop={{action "headingDropAction" i}}
-          >
-          </div>
         </th>
       {{/each}}
-      <ColumnsConfigurationCell @columnsConfiguration={{columnsConfiguration}} />
+      <ColumnsConfigurationCell
+        @columnsConfiguration={{columnsConfiguration}}
+        @isDropBorderShown={{isDropBorderShown}}
+        @onHeadingDragOver={{action "headingDragOver" true}}
+        @onHeadingDragLeave={{action "headingDragLeave"}}
+        @onHeadingDrop={{action "headingDropWithColumnName" visibleColumns.lastObject 1}}
+      />
     </tr>
   </thead>
   <tbody class="transfers-table-tbody">

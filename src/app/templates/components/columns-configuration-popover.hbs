@@ -16,10 +16,6 @@
             as |perfectScrollbarContainer|
           >
             <ul class="columns-list">
-              {{one-draggable-object-target
-                action=(action "acceptDraggedElement" -1)
-                validateDragEvent=(action "validateDragEvent")
-              }}
               {{#each columnsConfiguration.columnsOrder as |columnName index|}}
                 {{columns-configuration-popover/column-item
                   columnName=columnName
@@ -36,12 +32,16 @@
                   openXattrModification=(action "openXattrModification")
                   removeXattrColumn=(action "removeXattrColumn")
                   isColumnListVisible=(eq activeSlide "column-configuration")
-                }}
-                {{one-draggable-object-target
-                  action=(action "acceptDraggedElement" index)
-                  validateDragEvent=(action "validateDragEvent")
+                  columnIndex=index
+                  onHeadingDrag=(action "headingDrag" columnName)
+                  onHeadingDragEnd=(action "headingDragEnd")
+                  onHeadingDragOver=(action "headingDragOver")
+                  onHeadingDragLeave=(action "headingDragLeave")
+                  onHeadingDrop=(action "headingDrop")
+                  isDropBorderShown=isDropBorderShown
                 }}
               {{/each}}
+              <div class="space-between-item-area"></div>
             </ul>
           </PerfectScrollbarElement>
           {{#if columnsConfiguration.hasXattrSettings}}
