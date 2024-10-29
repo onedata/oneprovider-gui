@@ -17,6 +17,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import Looper from 'onedata-gui-common/utils/looper';
 import globals from 'onedata-gui-common/utils/globals';
 
+// FIXME: zmienić spinner na lg?
 export default OneEmbeddedComponent.extend(
   I18n,
   ErrorCheckViewMixin,
