@@ -220,12 +220,18 @@ export default Component.extend(I18n, {
           options: this.xattrOptions,
           valueChanged(option) {
             this._super(...arguments);
-            this.set('columnsConfigurationPopoverComponent.xattrColumnName', option);
+            if (this.oldValue === undefined ||
+              this.oldValue === this.columnsConfigurationPopoverComponent.xattrColumnName
+            ) {
+              this.set('columnsConfigurationPopoverComponent.xattrColumnName', option);
+            }
+            this.set('oldValue', this.value);
           },
         })
         .create({
           columnsConfigurationPopoverComponent: this,
           name: this.xattrKeyFieldName,
+          oldValue: undefined,
           size: 'sm',
           isOptional: true,
           injectedCustomValueInputPlaceholder: this.t('dropdownPlaceholder'),
@@ -241,10 +247,23 @@ export default Component.extend(I18n, {
       return CustomValueDropdownField
         .extend({
           options: this.xattrOptions,
+          valueChanged(option) {
+            this._super(...arguments);
+            if (this.oldValue ===
+              this.columnsConfigurationPopoverComponent.modifiedColumnNewValue
+            ) {
+              this.set(
+                'columnsConfigurationPopoverComponent.modifiedColumnNewValue',
+                option
+              );
+            }
+            this.set('oldValue', this.value);
+          },
         })
         .create({
           columnsConfigurationPopoverComponent: this,
           name: this.xattrKeyModifiedFieldName,
+          oldValue: this.modifiedXattrKey,
           size: 'sm',
           isOptional: true,
           defaultValue: this.modifiedXattrKey,
