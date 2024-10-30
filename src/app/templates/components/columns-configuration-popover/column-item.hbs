@@ -1,125 +1,141 @@
-{{#one-draggable-object
-  content=this
-  dragStartHook=(action "dragStartAction")
-  dragEndHook=(action "dragEndAction")
-}}
-  <OneIcon @icon="drag" class="column-move-icon visible-on-hover" />
-  {{one-checkbox
-    inputId=checkboxInputId
-    checked=(get columnValue "isEnabled")
-    update=(action "checkboxChanged" columnName)
-    class=(concat-classes
-      "filter-column-checkbox"
-      (concat columnName "-checkbox")
-    )
-  }}
-  <label
-    for={{checkboxInputId}}
-    class="column-name-label"
-  >
-    <TruncatedString>
-      {{#if (eq (get columnValue "type") "xattr")}}
-        {{get columnValue "displayedName"}}
-      {{else}}
-        {{tt this (concat translationKey ".name." columnName)}}
-      {{/if}}
-    </TruncatedString>
-    {{#if columnValue.hasSubname}}
-      <span class="subname-text">
+<div
+  class="drag-drop-area"
+  draggable=true
+  ondragstart={{action "headingDrag"}}
+  ondragend={{action "headingDragEnd"}}
+>
+  <div
+    class={{concat-classes "before-drop-area" (if isDropBorderShown "drop-area")}}
+    ondragover={{action "headingDragOver" true}}
+    ondragleave={{action "headingDragLeave"}}
+    ondrop={{action "headingDrop" columnIndex}}
+  ></div>
+  <div
+    class={{concat-classes "after-drop-area" (if isDropBorderShown "drop-area")}}
+    ondragover={{action "headingDragOver" false}}
+    ondragleave={{action "headingDragLeave"}}
+    ondrop={{action "headingDrop" (add columnIndex 1)}}
+  ></div>
+  <div class="space-between-item-area"></div>
+  <div class="checkbox-line">
+    <OneIcon @icon="drag" class="column-move-icon visible-on-hover" />
+    {{one-checkbox
+      inputId=checkboxInputId
+      checked=(get columnValue "isEnabled")
+      update=(action "checkboxChanged" columnName)
+      class=(concat-classes
+        "filter-column-checkbox"
+        (concat columnName "-checkbox")
+      )
+    }}
+    <label
+      for={{checkboxInputId}}
+      class="column-name-label"
+    >
+      <TruncatedString>
         {{#if (eq (get columnValue "type") "xattr")}}
-          ({{tt this (concat translationKey ".subname.xattr")}})
+          {{get columnValue "displayedName"}}
         {{else}}
-          ({{tt this (concat translationKey ".subname." columnName)}})
+          {{tt this (concat translationKey ".name." columnName)}}
         {{/if}}
-      </span>
-    {{/if}}
-  </label>
-  <div class="icons-container">
-    {{#if (eq (get columnValue "type") "xattr")}}
-      <div
-        class="modify-column icon-container"
-        onClick={{action "openXattrModification" columnName}}
-      >
-        <OneIcon @icon="browser-rename" class="visible-on-hover"/>
-        {{#if isColumnListVisible}}
-          <OneTooltip
-            @title={{tt this "modifyTip"}}
+      </TruncatedString>
+      {{#if columnValue.hasSubname}}
+        <span class="subname-text">
+          {{#if (eq (get columnValue "type") "xattr")}}
+            ({{tt this (concat translationKey ".subname.xattr")}})
+          {{else}}
+            ({{tt this (concat translationKey ".subname." columnName)}})
+          {{/if}}
+        </span>
+      {{/if}}
+    </label>
+    <div class="icons-container">
+      {{#if (eq (get columnValue "type") "xattr")}}
+        <div
+          class="modify-column icon-container"
+          onClick={{action "openXattrModification" columnName}}
+        >
+          <OneIcon @icon="browser-rename" class="visible-on-hover"/>
+          {{#if isColumnListVisible}}
+            <OneTooltip
+              @title={{tt this "modifyTip"}}
+            />
+          {{/if}}
+        </div>
+        <div
+          class="remove-column icon-container"
+          onClick={{action "removeXattrColumn" columnName}}
+        >
+          <OneIcon @icon="close" class="visible-on-hover"/>
+          {{#if isColumnListVisible}}
+            <OneTooltip
+              @title={{tt this "removeTip"}}
+            />
+          {{/if}}
+        </div>
+      {{/if}}
+      {{#if (and
+        (not (get columnValue "isVisible"))
+        (get columnValue "isEnabled")
+      )}}
+        <div class="no-view icon-container">
+          <OneIcon @icon="no-view" class="no-view-icon" />
+          {{#if isColumnListVisible}}
+            <OneTooltip @title={{tt this "noViewTip"}} />
+          {{/if}}
+        </div>
+      {{/if}}
+      {{#if columnValue.hasTooltip}}
+        <div class="column-info icon-container">
+          <OneIcon @icon="browser-info" class="column-info-icon" />
+          {{#if isColumnListVisible}}
+            <OneTooltip
+              @title={{if (eq (get columnValue "type") "xattr")
+                (tt this
+                  (concat translationKey ".tip.xattr")
+                  key=(get columnValue "xattrKey")
+                )
+                (tt this
+                  (concat translationKey ".tip." columnName)
+                  oneprovider=currentProviderName
+                )
+              }}
+            />
+          {{/if}}
+        </div>
+      {{/if}}
+      <div class="arrows-container">
+        <span
+          class="move-down-button icon-container"
+          onClick={{action "moveColumnDown" columnName}}
+        >
+          <OneIcon
+            @icon="move-down"
+            class={{if isMoveDownIconDisabled "disabled-icon"}}
           />
-        {{/if}}
-      </div>
-      <div
-        class="remove-column icon-container"
-        onClick={{action "removeXattrColumn" columnName}}
-      >
-        <OneIcon @icon="close" class="visible-on-hover"/>
-        {{#if isColumnListVisible}}
-          <OneTooltip
-            @title={{tt this "removeTip"}}
+          {{#if (and
+            (and (not isMoveDownIconDisabled) isArrowTooltipVisible)
+            isColumnListVisible
+          )}}
+            <OneTooltip @title={{tt this "moveDown"}} />
+          {{/if}}
+        </span>
+        <span
+          class="move-up-button icon-container"
+          onClick={{action "moveColumnUp" columnName}}
+        >
+          <OneIcon
+            @icon="move-up"
+            class={{if isMoveUpIconDisabled "disabled-icon"}}
           />
-        {{/if}}
+          {{#if (and
+            (and (not isMoveUpIconDisabled) isArrowTooltipVisible)
+            isColumnListVisible
+          )}}
+            <OneTooltip @title={{tt this "moveUp"}} />
+          {{/if}}
+        </span>
       </div>
-    {{/if}}
-    {{#if (and
-      (not (get columnValue "isVisible"))
-      (get columnValue "isEnabled")
-    )}}
-      <div class="no-view icon-container">
-        <OneIcon @icon="no-view" class="no-view-icon" />
-        {{#if isColumnListVisible}}
-          <OneTooltip @title={{tt this "noViewTip"}} />
-        {{/if}}
-      </div>
-    {{/if}}
-    {{#if columnValue.hasTooltip}}
-      <div class="column-info icon-container">
-        <OneIcon @icon="browser-info" class="column-info-icon" />
-        {{#if isColumnListVisible}}
-          <OneTooltip
-            @title={{if (eq (get columnValue "type") "xattr")
-              (tt this
-                (concat translationKey ".tip.xattr")
-                key=(get columnValue "xattrKey")
-              )
-              (tt this
-                (concat translationKey ".tip." columnName)
-                oneprovider=currentProviderName
-              )
-            }}
-          />
-        {{/if}}
-      </div>
-    {{/if}}
-    <div class="arrows-container">
-      <span
-        class="move-down-button icon-container"
-        onClick={{action "moveColumnDown" columnName}}
-      >
-        <OneIcon
-          @icon="move-down"
-          class={{if isMoveDownIconDisabled "disabled-icon"}}
-        />
-        {{#if (and
-          (and (not isMoveDownIconDisabled) isArrowTooltipVisible)
-          isColumnListVisible
-        )}}
-          <OneTooltip @title={{tt this "moveDown"}} />
-        {{/if}}
-      </span>
-      <span
-        class="move-up-button icon-container"
-        onClick={{action "moveColumnUp" columnName}}
-      >
-        <OneIcon
-          @icon="move-up"
-          class={{if isMoveUpIconDisabled "disabled-icon"}}
-        />
-        {{#if (and
-          (and (not isMoveUpIconDisabled) isArrowTooltipVisible)
-          isColumnListVisible
-        )}}
-          <OneTooltip @title={{tt this "moveUp"}} />
-        {{/if}}
-      </span>
     </div>
   </div>
-{{/one-draggable-object}}
+</div>

@@ -14,6 +14,9 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 export default Component.extend(I18n, {
   tagName: 'th',
   classNames: ['columns-configuration-cell', 'hidden-xs'],
+  classNameBindings: [
+    'isDropBorderShown:border-dashed',
+  ],
 
   i18n: service(),
   media: service(),
@@ -46,4 +49,34 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   dragEndAction: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(event: DragEvent) => void }
+   */
+  onHeadingDrop: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(event: DragEvent) => void }
+   */
+  onHeadingDragOver: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(event: DragEvent) => void }
+   */
+  onHeadingDragLeave: notImplementedIgnore,
+
+  actions: {
+    headingDragOver(event) {
+      this.onHeadingDragOver(event);
+    },
+    headingDragLeave(event) {
+      this.onHeadingDragLeave(event);
+    },
+    headingDrop(event) {
+      this.onHeadingDrop(event);
+    },
+  },
 });

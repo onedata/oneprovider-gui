@@ -9,6 +9,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { reads } from '@ember/object/computed';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 const mixins = [
   I18n,
@@ -16,9 +17,9 @@ const mixins = [
 
 export default Component.extend(...mixins, {
   tagName: 'th',
+  classNames: ['draggable-area'],
   classNameBindings: [
     'browserModel.firstColumnClass',
-    'isDropBorderShown:border-dashed',
   ],
 
   /**
@@ -33,19 +34,39 @@ export default Component.extend(...mixins, {
   browserModel: undefined,
 
   /**
+   * @virtual
+   * @type {(index: number, event: DragEvent) => void }
+   */
+  onHeadingDrop: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(isOverBeforeArea: boolean, event: DragEvent) => void }
+   */
+  onHeadingDragOver: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {(event: DragEvent) => void }
+   */
+  onHeadingDragLeave: notImplementedIgnore,
+
+  /**
    * @type {boolean}
    */
   isDropBorderShown: false,
 
   actions: {
-    headingDragOverAction(event) {
-      this.headingDragOverAction(event);
+    headingDragOver(event) {
+      this.onHeadingDragOver(false, event);
     },
-    headingDragLeaveAction() {
-      this.headingDragLeaveAction();
+
+    headingDragLeave(event) {
+      this.onHeadingDragLeave(event);
     },
-    headingDropAction(index, event) {
-      this.headingDropAction(index, event);
+
+    headingDrop(event) {
+      this.onHeadingDrop(0, event);
     },
   },
 });

@@ -130,7 +130,10 @@
       {{/if}}
     </div>
   {{/if}}
-  {{#if displayed.effQosInheritancePath.isShown}}
+  {{#if (and
+    displayed.effQosInheritancePath.isShown
+    (not browserModel.columnsConfiguration.columns.qos.isVisible)
+  )}}
     <div
       class={{concat-classes
         "file-status-tag-group qos-file-status-tag-group"

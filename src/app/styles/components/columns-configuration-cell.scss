@@ -34,4 +34,7 @@
     margin-bottom: calc(0 - var(--columns-configuration-button-pull-down));
     margin-top: var(--columns-configuration-button-pull-down);
   }
+  .before-drop-area {
+    width: 100%;
+  }
 }

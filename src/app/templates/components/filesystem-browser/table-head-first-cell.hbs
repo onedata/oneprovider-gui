@@ -1,3 +1,9 @@
+<div
+  class={{concat-classes "after-drop-area" (if isDropBorderShown "drop-area")}}
+  ondragover={{action "headingDragOver"}}
+  ondragleave={{action "headingDragLeave"}}
+  ondrop={{action "headingDrop"}}
+></div>
 <div class="fb-table-first-col-container">
   <div class="table-header-text">{{tt this "headers.name.firstColumnName"}}</div>
   {{!--
@@ -15,12 +21,3 @@
   </div>
   <div class="table-header-status-bar">{{yield}}</div>
 </div>
-{{#unless (media "isMobile")}}
-  <div
-    class="draggable-area"
-    ondragover={{action "headingDragOverAction"}}
-    ondragleave={{action "headingDragLeaveAction"}}
-    ondrop={{action "headingDropAction" 0}}
-  >
-  </div>
-{{/unless}}

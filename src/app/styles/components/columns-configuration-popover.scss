@@ -2,6 +2,7 @@
   --min-height-popover: 240px;
   width: 300px;
   min-height: var(--min-height-popover);
+  --drop-area-height: 20px;
 
   .webui-popover-content {
     padding: 0;
@@ -35,12 +36,17 @@
       padding-left: 0.3em;
     }
 
-    .column-item .draggable-object {
+    .column-item .drag-drop-area {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
       margin-bottom: $padding-base-vertical;
       position: relative;
+
+      .checkbox-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
       .disabled-icon {
         opacity: 0.2;
@@ -192,15 +198,36 @@
       }
     }
   }
-  .draggable-object-target {
+  .space-between-item-area {
     height: 10px;
+  }
 
-    &.accepts-drag {
-      border: 1px dashed darken($color-one-gray-sand, 10%);
-      background-color: rgba($color-one-gray-sand, 0.75);
-      border-radius: $border-radius-small;
+  .before-drag-over-border .space-between-item-area,
+  .after-drag-over-border + li .space-between-item-area,
+  .after-drag-over-border + .space-between-item-area {
+    border: 1px dashed darken($color-one-gray-sand, 10%);
+    background-color: rgba($color-one-gray-sand, 0.75);
+    border-radius: $border-radius-small;
+  }
+
+  .before-drop-area, .after-drop-area {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: var(--drop-area-height);
+    z-index: -1;
+    &.drop-area {
+      z-index: $zindex-tooltip;
     }
   }
+
+  .before-drop-area {
+    top: 0;
+  }
+  .after-drop-area {
+    top: var(--drop-area-height);
+  }
+
   .xattr-column-add, .xattr-column-modify {
     position: relative;
     min-height: var(--min-height-popover);
