@@ -16,6 +16,9 @@
 
   .columns-configuration-list {
     max-height: 60vh;
+    @media (max-height: $screen-sm-max) {
+      max-height: 40vh;
+    }
     padding: $padding-xs-horizontal $padding-base-vertical;
     @media (hover: hover) {
       padding-left: $padding-xs-horizontal;
@@ -263,6 +266,8 @@
 }
 
 .webui-popover-columns-configuration-with-xattrs {
-  --min-height-popover: 240px;
-  min-height: var(--min-height-popover);
+  @media (min-height: $screen-sm-min) {
+    --min-height-popover: 240px;
+  }
+  min-height: var(--min-height-popover, 0);
 }
