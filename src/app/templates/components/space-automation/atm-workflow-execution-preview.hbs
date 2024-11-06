@@ -1,14 +1,14 @@
-{{#promise-proxy-container proxy=initialLoadingProxy}}
-  {{workflow-visualiser
-    mode="view"
-    rawData=rawSchema
-    usedLambdasMap=usedLambdasMapProxy.content
-    actionsFactory=actionsFactory
-    executionDataFetcher=executionDataFetcher
-    pauseResumeExecutionAction=pauseResumeAction
-    cancelExecutionAction=cancelAction
-    forceContinueExecutionAction=forceContinueAction
-    removeExecutionAction=removeAction
-  }}
-{{/promise-proxy-container}}
+<PromiseProxyContainer @proxy={{initialLoadingProxy}} @sizeClass="lg">
+  <WorkflowVisualiser
+    @mode="view"
+    @rawData={{rawSchema}}
+    @usedLambdasMap={{usedLambdasMapProxy.content}}
+    @actionsFactory={{actionsFactory}}
+    @executionDataFetcher={{executionDataFetcher}}
+    @pauseResumeExecutionAction={{pauseResumeAction}}
+    @cancelExecutionAction={{cancelAction}}
+    @forceContinueExecutionAction={{forceContinueAction}}
+    @removeExecutionAction={{removeAction}}
+  />
+</PromiseProxyContainer>
 {{yield}}

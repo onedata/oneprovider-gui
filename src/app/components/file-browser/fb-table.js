@@ -170,6 +170,11 @@ export default Component.extend(...mixins, {
   rowFocusAnimationClasses: Object.freeze(['animate-attention', 'slow']),
 
   /**
+   * @type {string}
+   */
+  spinnerSizeClass: 'lg',
+
+  /**
    * JS time when context menu was last repositioned
    * @type {Number}
    */

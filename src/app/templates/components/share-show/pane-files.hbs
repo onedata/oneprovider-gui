@@ -1,4 +1,4 @@
-<PromiseProxyContainer @proxy={{shareRootDeletedProxy}}>
+<PromiseProxyContainer @proxy={{shareRootDeletedProxy}} @sizeClass="lg">
   {{#if shareRootDeletedProxy.content}}
     <ContentInfo
       class="scroll-breakpoint-400"
@@ -12,7 +12,7 @@
       @text={{shareDataErrorText}}
     />
   {{else}}
-    <PromiseProxyContainer @proxy={{requiredDataProxy}}>
+    <PromiseProxyContainer @proxy={{requiredDataProxy}} @sizeClass="lg">
       <FileBrowser
         @browserModel={{browserModel}}
         @customRootDir={{rootDir}}
