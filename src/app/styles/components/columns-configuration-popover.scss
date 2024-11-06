@@ -1,7 +1,6 @@
-.webui-popover-columns-configuration-with-xattrs,
-.webui-popover-columns-configuration-without-xattrs {
+.webui-popover-columns-configuration {
   width: 300px;
-  min-height: var(--min-height-popover);
+  min-height: var(--min-height-popover, 0);
   --drop-area-height: 20px;
 
   .webui-popover-content {
@@ -269,5 +268,4 @@
   @media (min-height: $screen-sm-min) {
     --min-height-popover: 240px;
   }
-  min-height: var(--min-height-popover, 0);
 }

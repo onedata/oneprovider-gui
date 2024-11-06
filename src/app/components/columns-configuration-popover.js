@@ -80,11 +80,6 @@ export default Component.extend(...mixins, {
   isOpened: false,
 
   /**
-   * @type {boolean}
-   */
-  hasXattrSettings: reads('columnsConfiguration.hasXattrSettings'),
-
-  /**
    * @type {string}
    */
   modifiedColumn: '',
@@ -146,6 +141,19 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<string>}
    */
   translationKey: reads('columnsConfiguration.translationKey'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasXattrSettings: reads('columnsConfiguration.hasXattrSettings'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  popoverStyle: computed('hasXattrSettings', function popoverStyle() {
+    return 'columns-configuration' +
+      (this.hasXattrSettings ? ' webui-popover-columns-configuration-with-xattrs' : '');
+  }),
 
   xattrOptionsProxy: computed(
     'browserModel.itemsArray',
@@ -277,15 +285,70 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<Boolean>}
    */
   isDisabledAddButton: computed(
+    'isEmptyValueForAddedColumn',
+    'isAddedColumnAlreadyExisting',
+    'isAddedColumnLabelAlreadyExisting',
+    function isDisabledAddButton() {
+      return this.isEmptyValueForAddedColumn ||
+        this.isAddedColumnAlreadyExisting ||
+        this.isAddedColumnLabelAlreadyExisting;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  disabledAddButtonTooltip: computed(
+    'isEmptyValueForAddedColumn',
+    'isAddedColumnAlreadyExisting',
+    'isAddedColumnLabelAlreadyExisting',
+    function disabledAddButtonTooltip() {
+      if (this.isEmptyValueForAddedColumn) {
+        return this.t('emptyValueTooltip');
+      }
+      if (this.isAddedColumnAlreadyExisting) {
+        return this.t('columnExistsTooltip');
+      }
+      if (this.isAddedColumnLabelAlreadyExisting) {
+        return this.t('columnLabelExistsTooltip');
+      }
+      return '';
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isEmptyValueForAddedColumn: computed(
     'xattrColumnName',
     'xattrKeyNameDropdownField.value',
-    function isDisabledAddButton() {
-      return !this.xattrColumnName || !this.xattrKeyNameDropdownField.value ||
-        this.columnsConfiguration.checkIfColumnExist(
-          this.xattrColumnName,
-          this.xattrKeyNameDropdownField.value,
-          'xattr',
-        ) === true;
+    function isEmptyValueForAddedColumn() {
+      return !this.xattrColumnName || !this.xattrKeyNameDropdownField.value;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isAddedColumnLabelAlreadyExisting: computed(
+    'xattrColumnName',
+    function isAddedColumnLabelAlreadyExisting() {
+      return this.columnsConfiguration.checkIfDisplayedNameExist(this.xattrColumnName);
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isAddedColumnAlreadyExisting: computed(
+    'xattrColumnName',
+    'xattrKeyNameDropdownField.value',
+    function isAddedColumnAlreadyExisting() {
+      return this.columnsConfiguration.tryCreateUniqueColumnKey(
+        this.xattrColumnName,
+        this.xattrKeyNameDropdownField.value,
+        'xattr',
+      ).exists === true;
     }
   ),
 
@@ -293,16 +356,75 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<Boolean>}
    */
   isDisabledModifyButton: computed(
+    'isEmptyValueForModifiedColumn',
+    'isModifiedColumnAlreadyExisting',
+    'isModifiedColumnLabelAlreadyExisting',
+    function isDisabledModifyButton() {
+      return this.isEmptyValueForModifiedColumn ||
+        this.isModifiedColumnAlreadyExisting ||
+        this.isModifiedColumnLabelAlreadyExisting;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  disabledModifyButtonTooltip: computed(
+    'isEmptyValueForModifiedColumn',
+    'isModifiedColumnAlreadyExisting',
+    'isModifiedColumnLabelAlreadyExisting',
+    function disabledModifyButtonTooltip() {
+      if (this.isEmptyValueForModifiedColumn) {
+        return this.t('emptyValueTooltip');
+      }
+      if (this.isModifiedColumnAlreadyExisting) {
+        return this.t('columnExistsTooltip');
+      }
+      if (this.isModifiedColumnLabelAlreadyExisting) {
+        return this.t('columnLabelExistsTooltip');
+      }
+      return '';
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isEmptyValueForModifiedColumn: computed(
     'modifiedColumnNewValue',
     'xattrKeyModifiedNameDropdownField.value',
-    function isDisabledModifyButton() {
+    function isEmptyValueForModifiedColumn() {
       return !this.modifiedColumnNewValue ||
-        !this.xattrKeyModifiedNameDropdownField.value ||
-        this.columnsConfiguration.checkIfColumnExist(
-          this.modifiedColumnNewValue,
-          this.xattrKeyModifiedNameDropdownField.value,
-          'xattr',
-        ) === true;
+        !this.xattrKeyModifiedNameDropdownField.value;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isModifiedColumnAlreadyExisting: computed(
+    'modifiedColumnNewValue',
+    'xattrKeyModifiedNameDropdownField.value',
+    function isModifiedColumnAlreadyExisting() {
+      return this.columnsConfiguration.tryCreateUniqueColumnKey(
+        this.modifiedColumnNewValue,
+        this.xattrKeyModifiedNameDropdownField.value,
+        'xattr',
+      ).exists === true;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isModifiedColumnLabelAlreadyExisting: computed(
+    'modifiedColumn',
+    'modifiedColumnNewValue',
+    function isModifiedColumnLabelAlreadyExisting() {
+      const oldLabel = this.columnsConfiguration.columns[this.modifiedColumn]
+        .displayedName;
+      return oldLabel !== this.modifiedColumnNewValue &&
+        this.columnsConfiguration.checkIfDisplayedNameExist(this.modifiedColumnNewValue);
     }
   ),
 

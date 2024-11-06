@@ -1,11 +1,7 @@
 <RenderLater @triggerRender={{isOpened}}>
   <OneWebuiPopover
     class="columns-configuration"
-    @popoverStyle={{if
-      hasXattrSettings
-      "columns-configuration-with-xattrs"
-      "columns-configuration-without-xattrs"
-    }}
+    @popoverStyle={{popoverStyle}}
     @open={{isOpened}}
     @triggerSelector={{triggerSelector}}
     as |popover|
@@ -108,14 +104,7 @@
                   >
                     {{tt this "addBtn"}}
                     {{#if isDisabledAddButton}}
-                      <OneTooltip @title={{if
-                        (or
-                          (not xattrColumnName)
-                          (not xattrKeyNameDropdownField.value)
-                        )
-                        (tt this "emptyValueTooltip")
-                        (tt this "columnExistsTooltip")
-                      }} />
+                      <OneTooltip @title={{disabledAddButtonTooltip}} />
                     {{/if}}
                   </OneButton>
                 </div>
@@ -166,14 +155,7 @@
                   >
                     {{tt this "modifyBtn"}}
                     {{#if isDisabledModifyButton}}
-                      <OneTooltip @title={{if
-                        (or
-                          (not modifiedColumnNewValue)
-                          (not xattrKeyModifiedNameDropdownField.value)
-                        )
-                        (tt this "emptyValueTooltip")
-                        (tt this "columnExistsTooltip")
-                      }} />
+                      <OneTooltip @title={{disabledModifyButtonTooltip}} />
                     {{/if}}
                   </OneButton>
                 </div>

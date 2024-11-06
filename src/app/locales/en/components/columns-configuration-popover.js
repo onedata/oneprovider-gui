@@ -15,4 +15,5 @@ export default {
   customKeyPlaceholder: 'Custom xattr key...',
   columnExistsTooltip: 'This column already exists.',
   emptyValueTooltip: 'Requires non-empty key and label.',
+  columnLabelExistsTooltip: 'Column with this label already exists.',
 };

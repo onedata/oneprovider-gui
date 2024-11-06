@@ -210,7 +210,7 @@ export default EmberObject.extend(...mixins, {
     );
   },
 
-  checkIfColumnExist(columnName, key, type) {
+  tryCreateUniqueColumnKey(columnName, key, type) {
     let columnNameVariable = this.columnNameToVariable(columnName, type);
 
     // try to create name variable that does not exist or return
@@ -221,18 +221,25 @@ export default EmberObject.extend(...mixins, {
         key === this.columns[columnNameVariable].xattrKey
       ) {
         // return if a column with the same name and key already exists
-        return true;
+        return { exists: true };
       }
       columnNameVariable += '#';
     }
-    return columnNameVariable;
+    return { exists: false, uniqueName: columnNameVariable };
+  },
+
+  checkIfDisplayedNameExist(columnName) {
+    return Object.values(this.columns).filter(
+      (column) => column.displayedName === columnName
+    ).length > 0;
   },
 
   addNewColumn(columnName, key, type) {
-    const columnNameVariable = this.checkIfColumnExist(columnName, key, type);
-    if (columnNameVariable === true) {
+    const newColumnInfo = this.tryCreateUniqueColumnKey(columnName, key, type);
+    if (newColumnInfo.exists === true) {
       return;
     }
+    const columnNameVariable = newColumnInfo.uniqueName;
 
     this.columns[columnNameVariable] = EmberObject.create({
       isVisible: false,
