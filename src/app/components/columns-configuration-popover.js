@@ -20,6 +20,7 @@ import { Promise } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
+import { bool } from '@ember/object/computed';
 
 const mixins = [
   I18n,
@@ -284,16 +285,7 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isDisabledAddButton: computed(
-    'isEmptyValueForAddedColumn',
-    'isAddedColumnAlreadyExisting',
-    'isAddedColumnLabelAlreadyExisting',
-    function isDisabledAddButton() {
-      return this.isEmptyValueForAddedColumn ||
-        this.isAddedColumnAlreadyExisting ||
-        this.isAddedColumnLabelAlreadyExisting;
-    }
-  ),
+  isDisabledAddButton: bool('disabledAddButtonTooltip'),
 
   /**
    * @type {ComputedProperty<SafeString>}
@@ -355,16 +347,7 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isDisabledModifyButton: computed(
-    'isEmptyValueForModifiedColumn',
-    'isModifiedColumnAlreadyExisting',
-    'isModifiedColumnLabelAlreadyExisting',
-    function isDisabledModifyButton() {
-      return this.isEmptyValueForModifiedColumn ||
-        this.isModifiedColumnAlreadyExisting ||
-        this.isModifiedColumnLabelAlreadyExisting;
-    }
-  ),
+  isDisabledModifyButton: bool('disabledModifyButtonTooltip'),
 
   /**
    * @type {ComputedProperty<SafeString>}
@@ -420,6 +403,7 @@ export default Component.extend(...mixins, {
   isModifiedColumnLabelAlreadyExisting: computed(
     'modifiedColumn',
     'modifiedColumnNewValue',
+    'columnsConfiguration.columns',
     function isModifiedColumnLabelAlreadyExisting() {
       const oldLabel = this.columnsConfiguration.columns[this.modifiedColumn]
         .displayedName;
