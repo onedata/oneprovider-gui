@@ -1,6 +1,7 @@
 <RenderLater @triggerRender={{isOpened}}>
   <OneWebuiPopover
-    @popoverStyle="columns-configuration"
+    class="columns-configuration"
+    @popoverStyle={{popoverStyle}}
     @open={{isOpened}}
     @triggerSelector={{triggerSelector}}
     as |popover|
@@ -102,6 +103,9 @@
                     @disabled={{isDisabledAddButton}}
                   >
                     {{tt this "addBtn"}}
+                    {{#if isDisabledAddButton}}
+                      <OneTooltip @title={{disabledAddButtonTooltip}} />
+                    {{/if}}
                   </OneButton>
                 </div>
               </PromiseProxyContainer>
@@ -147,8 +151,12 @@
                     @class="modify-column-btn"
                     @size="sm"
                     @onClick={{action "modifyColumn"}}
+                    @disabled={{isDisabledModifyButton}}
                   >
                     {{tt this "modifyBtn"}}
+                    {{#if isDisabledModifyButton}}
+                      <OneTooltip @title={{disabledModifyButtonTooltip}} />
+                    {{/if}}
                   </OneButton>
                 </div>
               </PromiseProxyContainer>

@@ -1362,7 +1362,7 @@ export default BaseBrowserModel.extend(...mixins, {
           columns.size = EmberObject.create({
             isVisible: true,
             isEnabled: true,
-            width: 140,
+            width: 160,
             hasSubname: false,
             hasTooltip: false,
             type: 'basic',

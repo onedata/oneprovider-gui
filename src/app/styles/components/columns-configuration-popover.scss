@@ -1,7 +1,6 @@
 .webui-popover-columns-configuration {
-  --min-height-popover: 240px;
   width: 300px;
-  min-height: var(--min-height-popover);
+  min-height: var(--min-height-popover, 0);
   --drop-area-height: 20px;
 
   .webui-popover-content {
@@ -16,6 +15,9 @@
 
   .columns-configuration-list {
     max-height: 60vh;
+    @media (max-height: $screen-sm-max) {
+      max-height: 40vh;
+    }
     padding: $padding-xs-horizontal $padding-base-vertical;
     @media (hover: hover) {
       padding-left: $padding-xs-horizontal;
@@ -230,7 +232,7 @@
 
   .xattr-column-add, .xattr-column-modify {
     position: relative;
-    min-height: var(--min-height-popover);
+    min-height: var(--min-height-popover, 0);
     padding: 12px;
 
     h1 {
@@ -259,5 +261,11 @@
       align-items: center;
       padding-top: 10px;
     }
+  }
+}
+
+.webui-popover-columns-configuration-with-xattrs {
+  @media (min-height: $screen-sm-min) {
+    --min-height-popover: 240px;
   }
 }

@@ -79,6 +79,17 @@
     .column-move-icon, .column-info-icon {
       position: static;
     }
+
+    .column-name {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      width: var(--column-width, 200px);
+
+      .column-icon {
+        min-width: 25px;
+      }
+    }
   }
 }
 
