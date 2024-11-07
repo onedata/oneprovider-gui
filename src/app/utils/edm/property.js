@@ -100,7 +100,10 @@ class EdmProperty {
     return this.spec?.val || EdmPropertyValueType.Any;
   }
 
-  get predefinedValues() {
+  /**
+   * @type {EdmPredefinedValueOptions}
+   */
+  get predefinedValueOptions() {
     const predef = this.spec?.predef;
     if (!predef) {
       return undefined;
@@ -114,8 +117,31 @@ class EdmProperty {
     return undefined;
   }
 
+  /**
+   * @type {Array<EdmPredefinedValue>}
+   */
+  get predefinedValues() {
+    const options = this.predefinedValueOptions;
+    if (!options) {
+      return undefined;
+    }
+    if (this.spec?.predefGrouped) {
+      const flatPredefs = options.reduce((allPredef, group) => {
+        allPredef.push(...group.options);
+        return allPredef;
+      }, []);
+      return flatPredefs;
+    } else {
+      return options;
+    }
+  }
+
   get hasPredefinedValues() {
     return Boolean(this.predefinedValues);
+  }
+
+  get hasGroupedPredefinedValues() {
+    return this.hasPredefinedValues && this.spec?.predefGrouped;
   }
 
   get recommendation() {

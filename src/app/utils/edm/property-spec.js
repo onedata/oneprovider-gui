@@ -43,6 +43,22 @@ import EdmObjectType, { EdmObjectTagName } from './object-type';
  */
 
 /**
+ * @typedef {Object} EdmPredefinedValue
+ * @property {string} label
+ * @property {string} value
+ */
+
+/**
+ * @typedef {Object} EdmPredefinedValueGroup
+ * @property {string} groupName
+ * @property {Array<EdmPredefinedValue>}
+ */
+
+/**
+ * @typedef {Array<EdmPredefinedValue|EdmPredefinedValueGroup>} EdmPredefinedValueOptions
+ */
+
+/**
  * @typedef {Object} EdmPropertySpec
  * @property {EdmPropertyValueType} val How the data should be stored in the XML - see
  *   `EdmPropertyValueType`.
@@ -53,22 +69,25 @@ import EdmObjectType, { EdmObjectTagName } from './object-type';
  *   single EDM object - see `EdmPropertyMaxOccurrences`.
  * @property {boolean} [viewOnly] If true, then the property will be not available to
  *   select when adding new property. It will be only visible if it is defined in XML.
- * @property {Array<{ label: string, value: string }>} [predef] If provided, the property
- *   has predefined set of values that should be applied to the property. The `label` is
- *   shown in the visual editor and `value` is applied as property value.
+ * @property {EdmPredefinedValueOptions} [predef] If provided, the property has predefined
+ *   set of values that should be applied to the property. The `label` is shown in the
+ *   visual editor and `value` is applied as property value.
+ * @property {boolean} [predefGrouped] If true, predef is considered to be array of
+ *   EdmPredefinedValueGroup.
  * @property {boolean|string} [lang] If truish, the optional language (`lang` XML
  *   attribute) can be set for the property. If it is a non-empty string - the language
- *   will be automatically set to the provided language code on init and can be changed
- *   by user.
+ *   will be automatically set to the provided language code on init and can be changed by
+ *   user.
  * @property {string} [def] Default value.
  * @property {boolean} [long] The string value is typically long and could contain line
  *   breaks. Effectively, it will be displayed as textarea in the visual editor.
  * @property {string} [example] The example of value displayed in tooltip.
- * @property {string|EdmPropertySpecValues} [placeholder] The example in the input placeholder.
+ * @property {string|EdmPropertySpecValues} [placeholder] The example in the input
+ * placeholder.
  * @property {boolean} [disabled] If true, the field is always disabled.
- * @property {boolean|RegExp} [custom] If true, allows to input custom values for properties
- *   with predefined set of values without validation error. If it is a RegExp instance,
- *   allow only custom values that matche the regexp.
+ * @property {boolean|RegExp} [custom] If true, allows to input custom values for
+ *   properties with predefined set of values without validation error. If it is a RegExp
+ *   instance, allow only custom values that matche the regexp.
  */
 
 /**
@@ -366,22 +385,157 @@ function createAllSpecs() {
         rec: Rec.Mandatory,
         max: Max.Any,
         tip: 'List of materials making up the original object. You should define as many materials as possible by repeating this field. The predefined list provides the main material categories, but you can use the XML editor to be more specific. Accepted vocabularies are Getty (e.g. http://vocab.getty.edu/aat/300010439) and Wikidata (e.g. http://www.wikidata.org/entity/Q13085).',
-        custom: /^(https?:\/\/vocab\.getty\.edu\/aat\/\d+)|(https?:\/\/www\.wikidata\.org\/entity\/(\w|-)+)$/,
-        predef: [
-          { label: 'Bone', value: 'http://vocab.getty.edu/aat/300011798' },
-          { label: 'Ceramic', value: 'http://vocab.getty.edu/aat/300235507' },
-          { label: 'Clay', value: 'http://vocab.getty.edu/aat/300010439' },
-          { label: 'Concrete', value: 'http://vocab.getty.edu/aat/300010737' },
-          { label: 'Glass', value: 'http://vocab.getty.edu/aat/300010797' },
-          { label: 'Leather', value: 'http://vocab.getty.edu/aat/300011845' },
-          { label: 'Metal', value: 'http://vocab.getty.edu/aat/300010900' },
-          { label: 'Mortar', value: 'http://vocab.getty.edu/aat/300014741' },
-          { label: 'Paper', value: 'http://vocab.getty.edu/aat/300014109' },
-          { label: 'Papyrus', value: 'http://vocab.getty.edu/aat/300014127' },
-          { label: 'Plaster', value: 'http://vocab.getty.edu/aat/300014922' },
-          { label: 'Stone', value: 'http://vocab.getty.edu/aat/300011692' },
-          { label: 'Textile', value: 'http://vocab.getty.edu/aat/300231565' },
-          { label: 'Wood', value: 'http://vocab.getty.edu/aat/300011914' },
+        // FIXME: added page - ask Nacho
+        custom: /^(https?:\/\/vocab\.getty\.edu\/(page\/)?aat\/\d+)|(https?:\/\/www\.wikidata\.org\/entity\/(\w|-)+)$/,
+        predefGrouped: true,
+        predef: [{
+            groupName: 'Finish',
+            options: [
+              { label: 'Finish (coating)', value: 'http://vocab.getty.edu/page/aat/300155103' },
+              { label: 'Aniline dye', value: 'http://vocab.getty.edu/page/aat/300013094' },
+              { label: 'Asphaltum (pigment)', value: 'http://vocab.getty.edu/page/aat/300013342' },
+              { label: 'Overpaint (paint layer)', value: 'http://vocab.getty.edu/page/aat/300178448' },
+              { label: 'Imprimatura', value: 'http://vocab.getty.edu/page/aat/300178452' },
+              { label: 'Charcoal (material)', value: 'http://vocab.getty.edu/page/aat/300012862' },
+              { label: 'Covers (overlying objects)', value: 'http://vocab.getty.edu/page/aat/300246275' },
+              { label: 'Shellac', value: 'http://vocab.getty.edu/page/aat/300014918' },
+              { label: 'Script and kind signs', value: 'http://vocab.getty.edu/page/aat/300194297' },
+              { label: 'Lacquer (material)', value: 'http://vocab.getty.edu/page/aat/300014916' },
+              { label: 'Patina (condition)', value: 'http://vocab.getty.edu/page/aat/300250552' },
+              { label: 'Skate', value: 'http://vocab.getty.edu/page/aat/300065245' },
+              { label: 'Burnishing (polishing)', value: 'http://vocab.getty.edu/page/aat/300053869' },
+              { label: 'Glaze (coating by location)', value: 'http://vocab.getty.edu/page/aat/300015091' },
+            ],
+          },
+          {
+            groupName: 'Part of the devices',
+            options: [
+              { label: 'Bellows', value: 'http://vocab.getty.edu/page/aat/300400578' },
+              { label: 'Chimney hood', value: 'http://vocab.getty.edu/page/aat/300003960' },
+              { label: 'Base', value: 'http://vocab.getty.edu/page/aat/300001656' },
+              { label: 'Spool', value: 'http://vocab.getty.edu/page/aat/300023528' },
+              { label: 'Belts (tool components)', value: 'http://vocab.getty.edu/page/aat/300024878' },
+              { label: 'Body', value: 'http://vocab.getty.edu/page/aat/300203467' },
+              { label: 'Burners (oil lamp components)', value: 'http://vocab.getty.edu/page/aat/300179654' },
+              { label: 'Slides', value: 'http://vocab.getty.edu/page/aat/300128371' },
+              { label: 'Disks (object genres)', value: 'http://vocab.getty.edu/page/aat/300251427' },
+              { label: 'Shaft', value: 'http://vocab.getty.edu/page/aat/300024970' },
+              { label: 'Electrical plug', value: 'http://vocab.getty.edu/page/aat/300425038' },
+              { label: 'Gears', value: 'http://vocab.getty.edu/page/aat/300125467' },
+              { label: 'Key light', value: 'http://vocab.getty.edu/page/aat/300180332' },
+              { label: 'Hinge', value: 'http://vocab.getty.edu/page/aat/300033367' },
+              { label: 'Tool handles', value: 'http://vocab.getty.edu/page/aat/300233925' },
+              { label: 'Crank', value: 'http://vocab.getty.edu/page/aat/300424022' },
+              { label: 'Frame', value: 'http://vocab.getty.edu/page/aat/300189814' },
+              { label: 'Mechanical devices', value: 'http://vocab.getty.edu/page/aat/300427288' },
+              { label: 'Wicks', value: 'http://vocab.getty.edu/page/aat/300181108' },
+              { label: 'Spiral spring', value: 'http://vocab.getty.edu/page/aat/300433552' },
+              { label: 'Moldings (object components)', value: 'http://vocab.getty.edu/page/aat/300003429' },
+              { label: 'Electric motors', value: 'http://vocab.getty.edu/page/aat/300424014' },
+              { label: 'Handle', value: 'http://vocab.getty.edu/page/aat/300024927' },
+              { label: 'Photographic lenses', value: 'http://vocab.getty.edu/page/aat/300022665' },
+              { label: 'Shutter', value: 'http://vocab.getty.edu/page/aat/300266330' },
+              { label: 'Furniture feet', value: 'http://vocab.getty.edu/page/aat/300233918' },
+              { label: 'Photographic plates', value: 'http://vocab.getty.edu/page/aat/300127369' },
+              { label: 'Nameplates', value: 'http://vocab.getty.edu/page/aat/300078438' },
+              { label: 'Measuring devices (instruments)', value: 'http://vocab.getty.edu/page/aat/300207870' },
+              { label: 'Lamp holder', value: 'http://vocab.getty.edu/page/aat/300181491' },
+              { label: 'Roll film holders', value: 'http://vocab.getty.edu/page/aat/300430075' },
+              { label: 'Photographic plate holders', value: 'http://vocab.getty.edu/page/aat/300430223' },
+              { label: 'Roll film transparencies', value: 'http://vocab.getty.edu/page/aat/300430077' },
+              { label: 'Exposure meters', value: 'http://vocab.getty.edu/page/aat/300225799' },
+              { label: 'Film holders', value: 'http://vocab.getty.edu/page/aat/300400773' },
+              { label: 'Lock', value: 'http://vocab.getty.edu/page/aat/300033407' },
+              { label: 'Thermometer', value: 'http://vocab.getty.edu/page/aat/300198647' },
+              { label: 'Crossbeam', value: 'http://vocab.getty.edu/page/aat/300001525' },
+              { label: 'Tripods (camera accessories)', value: 'http://vocab.getty.edu/page/aat/300022692' },
+              { label: 'Viewfinder', value: 'http://vocab.getty.edu/page/aat/300400579' },
+              { label: 'Chimney', value: 'http://vocab.getty.edu/page/aat/300003933' },
+            ],
+          },
+          {
+            groupName: 'Wood',
+            options: [
+              { label: 'Mahogany (wood)', value: 'http://vocab.getty.edu/page/aat/300012221' },
+              { label: 'Chestnut (wood)', value: 'http://vocab.getty.edu/page/aat/300012039' },
+              { label: 'Color (perceived attribute)', value: 'http://vocab.getty.edu/page/aat/300056130' },
+              { label: 'Coniferophyta (division)', value: 'http://vocab.getty.edu/page/aat/300265702' },
+              { label: 'Plant fiber', value: 'http://vocab.getty.edu/page/aat/300014031' },
+              { label: 'Angiospermae (division)', value: 'http://vocab.getty.edu/page/aat/300265706' },
+              { label: 'Wood (plant material)', value: 'http://vocab.getty.edu/page/aat/300011914' },
+              { label: 'Grain (structure)', value: 'http://vocab.getty.edu/page/aat/300219467' },
+              { label: 'Coarse-grain material', value: 'http://vocab.getty.edu/page/aat/300014650' },
+              { label: 'Fine-grain material', value: 'http://vocab.getty.edu/page/aat/300014645' },
+              { label: 'Medium-grain material', value: 'http://vocab.getty.edu/page/aat/300014648' },
+              { label: 'Laminate', value: 'http://vocab.getty.edu/page/aat/300250554' },
+              { label: 'Marquetry (process or technique)', value: 'http://vocab.getty.edu/page/aat/300053853' },
+              { label: 'Walnut (wood)', value: 'http://vocab.getty.edu/page/aat/300012476' },
+              { label: 'Pine', value: 'http://vocab.getty.edu/page/aat/300012620' },
+              { label: 'Dendrochronology', value: 'http://vocab.getty.edu/page/aat/300054715' },
+            ],
+          },
+          {
+            groupName: 'Metal',
+            options: [
+              { label: 'Alloy', value: 'http://vocab.getty.edu/page/aat/300010902' },
+              { label: 'Steel (alloy)', value: 'http://vocab.getty.edu/page/aat/300133751' },
+              { label: 'Copper alloy', value: 'http://vocab.getty.edu/page/aat/300010942' },
+              { label: 'Aluminum (metal)', value: 'http://vocab.getty.edu/page/aat/300011015' },
+              { label: 'Bronze (metal)', value: 'http://vocab.getty.edu/page/aat/300010957' },
+              { label: 'Furniture hardware', value: 'http://vocab.getty.edu/page/aat/300045374' },
+              { label: 'Iron (metal)', value: 'http://vocab.getty.edu/page/aat/300011002' },
+              { label: 'Lost-wax process', value: 'http://vocab.getty.edu/page/aat/300053113' },
+              { label: 'Engraving (action)', value: 'http://vocab.getty.edu/page/aat/300053829' },
+              { label: 'Brass (alloy)', value: 'http://vocab.getty.edu/page/aat/300010946' },
+              { label: 'Magnetism', value: 'http://vocab.getty.edu/page/aat/300195455' },
+              { label: 'Mercury', value: 'http://vocab.getty.edu/page/aat/300011026' },
+              { label: 'Nickel (metal)', value: 'http://vocab.getty.edu/page/aat/300011028' },
+              { label: 'Rust', value: 'http://vocab.getty.edu/page/aat/300213355' },
+              { label: 'Embossing (technique)', value: 'http://vocab.getty.edu/page/aat/300053826' },
+            ],
+          },
+          {
+            groupName: 'Paper-cardboard',
+            options: [
+              { label: 'Albumen paper', value: 'http://vocab.getty.edu/page/aat/300411855' },
+              { label: 'Rag paper', value: 'http://vocab.getty.edu/page/aat/300014130' },
+              { label: 'Cardboard', value: 'http://vocab.getty.edu/page/aat/300014224' },
+              { label: 'Labels (identifying artifacts)', value: 'http://vocab.getty.edu/page/aat/300028730' },
+              { label: 'Stereoscopic photographs', value: 'http://vocab.getty.edu/page/aat/300162872' },
+              { label: 'Printing paper', value: 'http://vocab.getty.edu/page/aat/300014172' },
+              { label: 'Machine-made paper', value: 'http://vocab.getty.edu/page/aat/300411878' },
+              { label: 'Handmade', value: 'http://vocab.getty.edu/page/aat/300191818' },
+              { label: 'Carbon paper', value: 'http://vocab.getty.edu/page/aat/300014156' },
+              { label: 'Newsprint', value: 'http://vocab.getty.edu/page/aat/300014137' },
+              { label: 'Drawing paper', value: 'http://vocab.getty.edu/page/aat/300014157' },
+              { label: 'Coated paper', value: 'http://vocab.getty.edu/page/aat/300312356' },
+              { label: 'Photographic paper', value: 'http://vocab.getty.edu/page/aat/300014190' },
+              { label: 'Textured paper', value: 'http://FIXME:0' },
+              { label: 'Tissue paper', value: 'http://vocab.getty.edu/page/aat/300014145' },
+              { label: 'Tracing paper', value: 'http://vocab.getty.edu/page/aat/300014161' },
+            ],
+          },
+          {
+            groupName: 'Glass',
+            options: [
+              { label: 'Biscuit (porcelain, material)', value: 'http://vocab.getty.edu/page/aat/300242297' },
+              { label: 'Ceramic (material)', value: 'http://vocab.getty.edu/page/aat/300235507' },
+              { label: 'Lenses', value: 'http://vocab.getty.edu/page/aat/300266807' },
+              { label: 'Mirrors', value: 'http://vocab.getty.edu/page/aat/300037682' },
+              { label: 'Feldspar', value: 'http://vocab.getty.edu/page/aat/300011087' },
+              { label: 'Ground glass', value: 'http://vocab.getty.edu/page/aat/300010847' },
+              { label: 'Glass', value: 'http://vocab.getty.edu/page/aat/300010797' },
+            ],
+          },
+          {
+            groupName: 'Other',
+            options: [
+              { label: 'Bakelite', value: 'http://vocab.getty.edu/page/aat/300014544' },
+              { label: 'Braiding', value: 'http://vocab.getty.edu/page/aat/300053638' },
+              { label: 'Felt (textile)', value: 'http://vocab.getty.edu/page/aat/300014107' },
+              { label: 'Ribbon (material)', value: 'http://vocab.getty.edu/page/aat/300014668' },
+            ],
+          },
         ],
       },
       spatial: {

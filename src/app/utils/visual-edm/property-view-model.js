@@ -155,29 +155,29 @@ const PropertyViewModel = EmberObject.extend({
 
   predefinedValueOptions: computed(
     'inputType',
-    'model.predefinedValues',
+    'model.predefinedValueOptions',
     function predefinedValueOptions() {
       if (this.inputType !== 'dropdown') {
         return null;
       }
-      return this.model.predefinedValues;
+      return this.model.predefinedValueOptions;
     }
   ),
 
   selectedPredefinedValueOption: computed(
-    'predefinedValueOptions',
+    'model.predefinedValues',
     'value',
     function selectedPredefinedValueOption() {
       if (!this.value) {
         return;
       }
-      const predefinedOption = this.predefinedValueOptions?.find(({ value }) =>
+      const predefinedOption = this.model.predefinedValues?.find(({ value }) =>
         value === this.value
       );
       if (!predefinedOption) {
         return { value: this.value };
       }
-      return this.predefinedValueOptions?.find(({ value }) => value === this.value);
+      return predefinedOption;
     }
   ),
 
