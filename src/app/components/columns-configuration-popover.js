@@ -10,7 +10,7 @@ import Component from '@ember/component';
 import { trySet, computed, get } from '@ember/object';
 import { next } from '@ember/runloop';
 import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
-import { reads } from '@ember/object/computed';
+import { reads, bool } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
@@ -20,7 +20,6 @@ import { Promise } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
-import { bool } from '@ember/object/computed';
 
 const mixins = [
   I18n,
