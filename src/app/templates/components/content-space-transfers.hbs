@@ -1,14 +1,19 @@
-{{#promise-proxy-container proxy=spaceProxy spinnerBlockClass="absolute-middle-centered"}}
+<PromiseProxyContainer
+  @proxy={{spaceProxy}}
+  @spinnerBlockClass="absolute-middle-centered"
+  @sizeClass="lg"
+  @loadingLabel={{oneproviderLoadingLabel}}
+>
   {{#if hasPermissions}}
-    {{space-transfers
-      space=spaceProxy.content
-      fileId=fileEntityId
-      tab=tab
-      resetQueryParams=(action "resetQueryParams")
-      changeListTab=(action "changeListTab")
-      closeFileTab=(action "closeFileTab")
-    }}
+    <SpaceTransfers
+      @space={{spaceProxy.content}}
+      @fileId={{fileEntityId}}
+      @tab={{tab}}
+      @resetQueryParams={{action "resetQueryParams"}}
+      @changeListTab={{action "changeListTab"}}
+      @closeFileTab={{action "closeFileTab"}}
+    />
   {{else}}
-    {{errors/no-permissions class="no-permissions-space-transfers"}}
+    <Errors::NoPermissions class="no-permissions-space-transfers" />
   {{/if}}
-{{/promise-proxy-container}}
+</PromiseProxyContainer>

@@ -1,18 +1,19 @@
-{{#promise-proxy-container proxy=initialTabProxy}}
-  {{#bs-tab
+<PromiseProxyContainer @proxy={{initialTabProxy}} @sizeClass="lg">
+  <BsTab
     class="bs-tab bs-tab-onedata bs-tab-modern space-automation-tabs fill-flex-using-column"
-    fade=false
-    customTabs=true
-    activeId=normalizedTab
-    as |bsTab|
-  }}
-    {{#bs-nav type="tabs" as |nav|}}
+    @fade={{false}}
+    @customTabs={{true}}
+    @activeId={{normalizedTab}} as |bsTab|
+  >
+    <BsNav
+      @type="tabs" as |nav|
+    >
       {{#each visibleTabs as |tabId|}}
         {{#if (or (not-eq tabId "preview") atmWorkflowExecutionIdInPreview)}}
-          {{#nav.item
-            class=(concat "nav-item-" tabId)
-            active=(eq bsTab.activeId tabId)
-          }}
+          <nav.item
+            class={{concat "nav-item-" tabId}}
+            @active={{eq bsTab.activeId tabId}}
+          >
             <a
               class="nav-link nav-link-{{tabId}}"
               role="tab"
@@ -20,12 +21,12 @@
             >
               <span class="tab-label">
                 {{#if (get tabIcons tabId)}}
-                  {{one-icon class="tab-icon" icon=(get tabIcons tabId)}}
+                  <OneIcon class="tab-icon" @icon={{get tabIcons tabId}} />
                 {{/if}}
-                {{#truncated-string class="one-label tab-name"}}
+                <TruncatedString class="one-label tab-name">
                   {{#if (eq tabId "preview")}}
                     {{#if atmWorkflowExecutionForPreviewProxy.isFulfilled}}
-                      {{name-conflict item=atmWorkflowExecutionForPreviewLabelData}}
+                      <NameConflict @item={{atmWorkflowExecutionForPreviewLabelData}} />
                       {{tt this "tabs.preview.tabLoadedRevLabel"
                         revisionNumber=atmWorkflowExecutionForPreviewLabelData.revisionNumber
                       }}
@@ -37,7 +38,7 @@
                   {{else}}
                     {{evaluate-function getTabLabel tabId}}
                   {{/if}}
-                {{/truncated-string}}
+                </TruncatedString>
                 {{#if (and
                   (eq tabId AtmWorkflowExecutionPhase.Suspended)
                   suspendedExecutionsCountInfo.content
@@ -51,56 +52,59 @@
                     class="tab-close clickable"
                     onClick={{disable-bubbling (action "closeWorkflowPreview")}}
                   >
-                    {{one-icon icon="close"}}
+                    <OneIcon @icon="close" />
                   </span>
                 {{/if}}
               </span>
             </a>
-          {{/nav.item}}
+          </nav.item>
         {{/if}}
       {{/each}}
-    {{/bs-nav}}
+    </BsNav>
     <div class="tab-content no-vertical-padding fill-flex-using-column">
       {{#each atmWorkflowExecutionPhases as |tabId|}}
-        {{#bsTab.pane elementId=tabId}}
+        <bsTab.pane @elementId={{tabId}}>
           {{#if (eq bsTab.activeId tabId)}}
             <div class="row loadable-row">
-              {{space-automation/atm-workflow-executions-table
-                space=space
-                phase=tabId
-                onAtmWorkflowExecutionLifecycleChange=(action "workflowLifecycleChanged")
-                onAtmWorkflowExecutionSelect=(action "workflowSelected")
-              }}
+              <SpaceAutomation::AtmWorkflowExecutionsTable
+                @space={{space}}
+                @phase={{tabId}}
+                @onAtmWorkflowExecutionLifecycleChange={{action "workflowLifecycleChanged"}}
+                @onAtmWorkflowExecutionSelect={{action "workflowSelected"}}
+              />
             </div>
           {{/if}}
-        {{/bsTab.pane}}
+        </bsTab.pane>
       {{/each}}
-      {{#bsTab.pane elementId="preview" class="fill-flex-using-column"}}
+      <bsTab.pane
+        @elementId="preview"
+        class="fill-flex-using-column"
+      >
         {{#if (and (eq bsTab.activeId "preview") atmWorkflowExecutionIdInPreview)}}
-          {{space-automation/atm-workflow-execution-preview
-            space=space
+          <SpaceAutomation::AtmWorkflowExecutionPreview
+            @space={{space}}
             class="fill-flex-using-column"
-            atmWorkflowExecutionProxy=atmWorkflowExecutionForPreviewProxy
-            onClose=(action "closeWorkflowPreview")
-          }}
+            @atmWorkflowExecutionProxy={{atmWorkflowExecutionForPreviewProxy}}
+            @onClose={{action "closeWorkflowPreview"}}
+          />
         {{/if}}
-      {{/bsTab.pane}}
-      {{#bsTab.pane elementId="create"}}
+      </bsTab.pane>
+      <bsTab.pane @elementId="create">
         {{#if (eq bsTab.activeId "create")}}
           <div class="row">
             <div class="col-xs-12">
-              {{space-automation/run-workflow-creator
-                space=space
-                atmWorkflowSchemaId=atmWorkflowSchemaId
-                atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumber
-                fillInputStores=fillInputStores
-                chooseWorkflowSchemaToRun=(action "chooseWorkflowSchemaToRun")
-                onWorkflowStarted=(action "workflowStarted")
-              }}
+              <SpaceAutomation::RunWorkflowCreator
+                @space={{space}}
+                @atmWorkflowSchemaId={{atmWorkflowSchemaId}}
+                @atmWorkflowSchemaRevisionNumber={{atmWorkflowSchemaRevisionNumber}}
+                @fillInputStores={{fillInputStores}}
+                @chooseWorkflowSchemaToRun={{action "chooseWorkflowSchemaToRun"}}
+                @onWorkflowStarted={{action "workflowStarted"}}
+              />
             </div>
           </div>
         {{/if}}
-      {{/bsTab.pane}}
+      </bsTab.pane>
     </div>
-  {{/bs-tab}}
-{{/promise-proxy-container}}
+  </BsTab>
+</PromiseProxyContainer>

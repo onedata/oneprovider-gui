@@ -16,6 +16,7 @@ import { promise } from 'ember-awesome-macros';
 import _ from 'lodash';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { inject as service } from '@ember/service';
 
 const mixins = [
   FileConsumerMixin,
@@ -24,6 +25,8 @@ const mixins = [
 
 export default Component.extend(...mixins, {
   classNames: ['shares-list'],
+
+  appProxy: service(),
 
   /**
    * @virtual
@@ -60,6 +63,8 @@ export default Component.extend(...mixins, {
    * @type {Function}
    */
   startRenameShare: notImplementedThrow,
+
+  oneproviderName: reads('appProxy.injectedData.oneproviderName'),
 
   shares: reads('sharesProxy.content'),
 

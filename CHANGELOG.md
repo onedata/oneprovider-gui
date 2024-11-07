@@ -5,6 +5,7 @@
 ### Latest changes
 
 * VFS-12249 Improved UX for adding/modification xattrs column and fixed headers in others browser
+* VFS-12370 Improved loading indicators by showing loading Oneprovider name
 * VFS-12291 Changed the drop area for columns to larger and removed redundant QoS badge if the column is enabled
 * VFS-12278 Changed File ID column in the file browser to show the copy icon only on hover and allow copying the ID by clicking on the text
 * VFS-10341 Upgraded EmberJS to v3.16.10

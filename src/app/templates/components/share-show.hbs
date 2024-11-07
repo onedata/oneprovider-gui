@@ -1,43 +1,49 @@
-{{#promise-proxy-container proxy=requiredDataProxy}}
+<PromiseProxyContainer
+  @proxy={{requiredDataProxy}}
+  @sizeClass="lg"
+>
   <div class="row share-header-container">
     {{#if publicMode}}
-      {{share-show/header-public
-        share=share
-        showHandle=(eq handleState "available")
-      }}
+      <ShareShow::HeaderPublic
+        @share={{share}}
+        @showHandle={{eq handleState "available"}}
+      />
     {{else}}
-      {{share-show/header-management
-        share=share
-        space=space
-        shareRootDeleted=shareRootDeleted
-        showHandle=(eq handleState "available")
-        getDataUrl=(action "getDataUrl")
-        onShowShareList=(action "onShowShareList")
-      }}
+      <ShareShow::HeaderManagement
+        @share={{share}}
+        @space={{space}}
+        @shareRootDeleted={{shareRootDeleted}}
+        @showHandle={{eq handleState "available"}}
+        @getDataUrl={{action "getDataUrl"}}
+        @onShowShareList={{action "onShowShareList"}}
+      />
     {{/if}}
-    {{#bs-tab
+    <BsTab
       class="bs-tab bs-tab-onedata bs-tab-modern tab-share-show-mode"
-      customTabs=true
-      activeId=activeTab
+      @customTabs={{true}}
+      @activeId={{activeTab}}
       as |tab|
-    }}
-      {{#bs-nav
-        type="tabs"
-        class=navTabsShareModeClassname
+    >
+      <BsNav
+        @type="tabs"
+        class={{navTabsShareModeClassname}}
         as |nav|
-      }}
+      >
         {{#each tabIds as |tabId|}}
-          {{#nav.item
-            active=(eq tab.activeId tabId)
-            disabled=(contains tabId disabledTabs)
-          }}
+          <nav.item
+            @active={{eq tab.activeId tabId}}
+            @disabled={{contains tabId disabledTabs}}
+          >
             <a href={{concat "#" tabId}}
               class={{concat "nav-link nav-link-" tabId}}
               role="tab"
               {{action (mut activeTab) tabId}}
             >
               <span class="tab-label {{get tabClasses tabId}}">
-                {{one-icon class="tab-icon" icon=(get tabIcons tabId)}}
+                <OneIcon
+                  class="tab-icon"
+                  @icon={{get tabIcons tabId}}
+                />
                 <div class="one-label tab-name">
                   {{#if (and
                     (eq tabId "opendata")
@@ -52,9 +58,9 @@
                 </div>
               </span>
             </a>
-          {{/nav.item}}
+          </nav.item>
         {{/each}}
-      {{/bs-nav}}
+      </BsNav>
       {{#if areEuLogosShown}}
         <div class="eu-logo-container">
           <a
@@ -69,14 +75,16 @@
           ></a>
         </div>
       {{/if}}
-    {{/bs-tab}}
+    </BsTab>
   </div>
 
   {{#each tabIds as |tabId|}}
     <div
       class="share-show-pane-container share-show-pane-container-{{tabId}} fill-flex-using-column {{if (not (eq activeTab tabId)) "hidden"}}"
     >
-      {{#render-later triggerRender=(eq activeTab tabId)}}
+      <RenderLater
+        @triggerRender={{eq activeTab tabId}}
+      >
         {{component (concat "share-show/pane-" tabId)
           class="share-show-pane fill-flex-using-column"
           publicMode=publicMode
@@ -87,11 +95,11 @@
           getDataUrl=(action "getDataUrl")
           shareRootDeletedProxy=shareRootDeletedProxy
         }}
-      {{/render-later}}
+      </RenderLater>
     </div>
   {{/each}}
 
   {{#if publicMode}}
     {{public-footer}}
   {{/if}}
-{{/promise-proxy-container}}
+</PromiseProxyContainer>
