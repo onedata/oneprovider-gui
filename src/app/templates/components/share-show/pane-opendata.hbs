@@ -128,12 +128,12 @@
               {{#if (eq selectedMetadataType MetadataType.Edm)}}
                 <ShareShow::Edm
                   class="full-height"
-                  @initialData={{initialData}}
                   @handleService={{selectedHandleService}}
                   @isReadOnly={{false}}
                   @isPublished={{false}}
                   @isPublicView={{false}}
                   @shareRootFile={{rootFileProxy.content}}
+                  @share={{share}}
                   @onUpdateXml={{action "updateXml"}}
                   @onSubmit={{action "submit"}}
                   @onBack={{action "back"}}

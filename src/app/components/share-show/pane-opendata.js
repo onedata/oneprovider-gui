@@ -40,6 +40,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Models.Share}
    */
   share: undefined,
 

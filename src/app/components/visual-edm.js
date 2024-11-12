@@ -24,4 +24,15 @@ export default Component.extend(I18n, {
    * @virtual
    */
   viewModel: undefined,
+
+  /**
+   * @override
+   */
+  didInsertElement() {
+    /** @type {HTMLInputElement} */
+    const titleElement = this.element.querySelector('.edm-property-type-dc-title input');
+    if (titleElement) {
+      titleElement.focus();
+    }
+  },
 });

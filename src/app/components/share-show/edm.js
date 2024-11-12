@@ -69,6 +69,12 @@ export default Component.extend(I18n, {
   shareRootFile: undefined,
 
   /**
+   * @virtual optional
+   * @type {Models.Share}
+   */
+  share: undefined,
+
+  /**
    * @virtual
    * @type {(xml: string) => void}
    */
@@ -382,7 +388,8 @@ export default Component.extend(I18n, {
       }
     } else {
       edmMetadata = this.isReadOnly ?
-        metadataFactory.createEmptyMetadata() : metadataFactory.createInitialMetadata();
+        metadataFactory.createEmptyMetadata() :
+        metadataFactory.createInitialMetadata(this.share);
     }
     if (!this.isXmlValueInvalid) {
       const validator = EdmMetadataValidator.create({ edmMetadata });
@@ -557,7 +564,7 @@ export default Component.extend(I18n, {
       if (this.isEmpty) {
         const factory = new EdmMetadataFactory();
         factory.shareRootFile = this.shareRootFile;
-        const newModel = factory.createInitialMetadata();
+        const newModel = factory.createInitialMetadata(this.share);
         set(this.visualEdmViewModel, 'edmMetadata', newModel);
       } else {
         this.replaceModelUsingCurrentXml();

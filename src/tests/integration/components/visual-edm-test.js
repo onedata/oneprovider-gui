@@ -12,9 +12,14 @@ import { findByText } from '../../helpers/find';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { makeAllPropertiesValid } from '../../helpers/edm-utils';
 import OneDropdownHelper from '../../helpers/one-dropdown';
+import { clearStoreAfterEach } from '../../helpers/clear-store';
+import { lookupService } from '../../helpers/stub-service';
+import globals from 'onedata-gui-common/utils/globals';
 
 describe('Integration | Component | visual-edm', function () {
   const { afterEach } = setupRenderingTest();
+
+  clearStoreAfterEach();
 
   afterEach(function () {
     this.helper?.destroy();
@@ -783,6 +788,27 @@ describe('Integration | Component | visual-edm', function () {
     const propertyInput = find('.edm-property-value input');
 
     expect(propertyInput.placeholder).to.equal('Example: Musical instrument');
+  });
+
+  it('has Title property filled and focused when metadata is initialized with share', async function () {
+    // given
+    const share = await lookupService(this, 'store').createRecord('share', {
+      name: 'hello world',
+    }).save();
+    const helper = new Helper(
+      this,
+      new EdmMetadataFactory().createInitialMetadata(share)
+    );
+    helper.visualEdmViewModel.set('isReadOnly', false);
+
+    // when
+    await helper.render();
+
+    // then
+    /** @type {HTMLInputElement} */
+    const titleInput = helper.element.querySelector('.edm-property-type-dc-title input');
+    expect(titleInput.value).to.equal('hello world');
+    expect(globals.document.activeElement).to.equal(titleInput);
   });
 });
 
