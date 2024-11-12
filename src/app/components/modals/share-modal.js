@@ -2,7 +2,7 @@
  * Create new share modal.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -32,6 +32,7 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
 import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 /**
  * @typedef {Object} ShareModalOptions
@@ -224,8 +225,21 @@ export default Component.extend(...mixins, {
   },
 
   setInitialShareName() {
-    const fileName = this.get('file.originalName');
-    this.set('newShareName', backendifyName(fileName));
+    this.set('newShareName', this.createInitialShareName(this.file));
+  },
+
+  /**
+   * @param {Models.File} file
+   * @returns {string}
+   */
+  createInitialShareName(file) {
+    /** @type {string} */
+    let name = file.originalName;
+    if (file.type !== LegacyFileType.Directory) {
+      name = name.match(/(.*)\..*/)?.[1] ?? name;
+    }
+    name = backendifyName(name);
+    return name;
   },
 
   close() {
