@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12469 Improved UX of managing share name and Open Data title; disabled some operations when user has insufficient privileges for space shares
 * VFS-12249 Improved UX for adding/modification xattrs column and fixed headers in others browser
 * VFS-12370 Improved loading indicators by showing loading Oneprovider name
 * VFS-12291 Changed the drop area for columns to larger and removed redundant QoS badge if the column is enabled

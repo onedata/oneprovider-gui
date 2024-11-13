@@ -26,6 +26,7 @@ export default class ShareValidation extends Component.extend(...mixins) {
   @service shareManager;
   @service globalNotify;
   @service currentUser;
+  @service appProxy;
 
   classNames = ['share-validation'];
 
@@ -163,6 +164,7 @@ export default class ShareValidation extends Component.extend(...mixins) {
     } catch (error) {
       this.globalNotify.backendError(this.t('settingShareName'), error);
     }
+    this.appProxy.callParent('reloadCurrentShareRecord');
   }
 
   /**
