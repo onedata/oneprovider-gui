@@ -9,6 +9,7 @@
           @isPublished={{true}}
           @isReadOnly={{not isModifyingExistingMetadata}}
           @isPublicView={{publicMode}}
+          @space={{space}}
           @share={{share}}
           @shareRootFile={{rootFileProxy.content}}
           @onChangeEditMode={{action "changeEditMode"}}
@@ -46,29 +47,30 @@
       </p>
     {{/if}}
   {{else}}
-    {{#promise-proxy-container proxy=handleServicesProxy}}
+    <PromiseProxyContainer @proxy={{handleServicesProxy}}>
       {{#if handleServices.length}}
-        {{#one-carousel
-          activeSlideId=activeSlideOfCreator
-          animated=false
+        <OneCarousel
+          @activeSlideId={{activeSlideOfCreator}}
+          @animated={{false}}
           class="opendata-one-carousel full-height"
           as |carousel|
-        }}
-          {{#carousel.slide slideId="welcome"}}
-            {{#content-info
-              class=(concat-classes
+        >
+          <carousel.slide @slideId="welcome">
+            <ContentInfo
+              class={{concat-classes
                 "fill-flex-using-column content-info-publish-open-data-welcome"
                 "scroll-breakpoint-900"
-              )
-              header=(tt this "publishWelcome.title")
-              text=(tt this "publishWelcome.content")
-              buttonAction=(action (mut publishOpenDataStarted) true)
-              buttonLabel=(tt this "publishWelcome.publishButton")
-              buttonDisabled=isWelcomeProceedDisabled
-            }}
+              }}
+              @header={{tt this "publishWelcome.title"}}
+              @text={{tt this "publishWelcome.content"}}
+              @buttonAction={{action (mut publishOpenDataStarted) true}}
+              @buttonLabel={{tt this "publishWelcome.publishButton"}}
+              @buttonDisabled={{isWelcomeProceedDisabled}}
+              @buttonTip={{welcomeProceedDisabledTip}}
+            >
               <p>
                 {{tt this "publishWelcome.handleServiceText"}}
-                {{one-label-tip title=(tt this "publishWelcome.handleServiceTextMore")}}
+                <OneLabelTip @title={{tt this "publishWelcome.handleServiceTextMore"}} />
               </p>
               <div class="row row-handle-service-select">
                 <OneDropdown
@@ -82,27 +84,30 @@
                   @onChange={{action (mut selectedHandleService)}}
                   as |handleService|
                 >
-                  <div class="option-container" data-handle-id={{handleService.entityId}}>
-                    {{#truncated-string}}
-                      {{name-conflict
-                        item=(hash
+                  <div
+                    class="option-container"
+                    data-handle-id={{handleService.entityId}}
+                  >
+                    <TruncatedString>
+                      <NameConflict
+                        @item={{hash
                           name=handleService.name
                           conflictLabel=(truncate handleService.entityId 6 false)
-                        )
-                        separator=" #"
-                      }}
-                    {{/truncated-string}}
+                        }}
+                        @separator=" #"
+                      />
+                    </TruncatedString>
                   </div>
                 </OneDropdown>
               </div>
               <p class="metadata-type-text">
                 {{tt this "publishWelcome.metadataTypeText"}}
-                {{#one-label-tip tooltipClass="tooltip-lg tooltip-text-left"}}
+                <OneLabelTip @tooltipClass="tooltip-lg tooltip-text-left">
                   <p>{{tt this "publishWelcome.metadataTypeMore.intro"}}</p>
                   <p>{{tt this "publishWelcome.metadataTypeMore.dublinCore"}}</p>
                   <p>{{tt this "publishWelcome.metadataTypeMore.edm"}}</p>
                   <p>{{tt this "publishWelcome.metadataTypeMore.outro"}}</p>
-                {{/one-label-tip}}
+                </OneLabelTip>
               </p>
               <div class="row row-metadata-type-select">
                 <OneDropdown
@@ -116,15 +121,15 @@
                   as |metadataType|
                 >
                   <div class="option-container">
-                    {{#truncated-string}}
+                    <TruncatedString>
                       {{tt this (concat "publishWelcome.metadataTypes." metadataType)}}
-                    {{/truncated-string}}
+                    </TruncatedString>
                   </div>
                 </OneDropdown>
               </div>
-            {{/content-info}}
-          {{/carousel.slide}}
-          {{#carousel.slide slideId="createMetadata" class="full-height" as |slide|}}
+            </ContentInfo>
+          </carousel.slide>
+          <carousel.slide @slideId="createMetadata" class="full-height" as |slide|>
             {{#if (eq slide.state "active-from-right")}}
               {{#if (eq selectedMetadataType MetadataType.Edm)}}
                 <ShareShow::Edm
@@ -135,6 +140,7 @@
                   @isPublicView={{false}}
                   @shareRootFile={{rootFileProxy.content}}
                   @share={{share}}
+                  @space={{space}}
                   @onUpdateXml={{action "updateXml"}}
                   @onSubmit={{action "submit"}}
                   @onBack={{action "back"}}
@@ -153,15 +159,18 @@
                 />
               {{/if}}
             {{/if}}
-          {{/carousel.slide}}
-        {{/one-carousel}}
+          </carousel.slide>
+        </OneCarousel>
       {{else}}
-        {{content-info
-          class=(if (media "isMobile") "scroll-breakpoint-600" "scroll-breakpoint-500")
-          header=(tt this "noHandleServices.title")
-          text=(tt this "noHandleServices.content")
-        }}
+        <ContentInfo
+          class={{if (media "isMobile")
+            "scroll-breakpoint-600"
+            "scroll-breakpoint-500"
+          }}
+          @header={{tt this "noHandleServices.title"}}
+          @text={{tt this "noHandleServices.content"}}
+        />
       {{/if}}
-    {{/promise-proxy-container}}
+    </PromiseProxyContainer>
   {{/if}}
 </PromiseProxyContainer>

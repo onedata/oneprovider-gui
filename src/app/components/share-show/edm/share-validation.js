@@ -10,7 +10,7 @@
 
 import Component from '@ember/component';
 import { action, computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { bool, reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
@@ -40,6 +40,12 @@ export default class ShareValidation extends Component.extend(...mixins) {
    */
   visualEdmViewModel = undefined;
 
+  /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space = undefined;
+
   @tracked
   isDismissed = undefined;
 
@@ -63,9 +69,16 @@ export default class ShareValidation extends Component.extend(...mixins) {
    */
   @reads('currentUser.userId') userId;
 
-  @computed('share.name', 'visualEdmTitles.length', 'isPublicView', 'isDismissed')
+  @computed(
+    'share.name',
+    'visualEdmTitles.length',
+    'isPublicView',
+    'isDismissed',
+    'hasManageSharesPrivilege',
+  )
   get isShareNameWarningShown() {
     if (
+      !this.hasManageSharesPrivilege ||
       this.isPublicView ||
       this.isDismissed ||
       !this.share ||
@@ -104,10 +117,18 @@ export default class ShareValidation extends Component.extend(...mixins) {
     return this.visualEdmTitles[0];
   }
 
+  /**
+   * @type {string}
+   */
   @computed('shareId', 'userId')
   get nameWarningDismissKey() {
     return `shareValidation.user:${this.userId}.share:${this.shareId}.nameWarningDismissed`;
   }
+
+  /**
+   * @type {boolean}
+   */
+  @bool('space.privileges.manageShares') hasManageSharesPrivilege;
 
   init() {
     super.init(...arguments);

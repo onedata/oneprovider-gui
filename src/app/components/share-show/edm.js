@@ -14,7 +14,7 @@ import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
 import { set, setProperties, computed } from '@ember/object';
-import { not, reads, or as emberOr } from '@ember/object/computed';
+import { not, reads, bool, or as emberOr } from '@ember/object/computed';
 import { cancel, debounce } from '@ember/runloop';
 import { dasherize } from '@ember/string';
 import { inject as service } from '@ember/service';
@@ -23,6 +23,7 @@ import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 import EdmObjectType from '../../utils/edm/object-type';
 import EdmPropertyFactory from '../../utils/edm/property-factory';
 import { asyncObserver } from 'onedata-gui-common/utils/observer';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const defaultMode = 'visual';
 
@@ -43,6 +44,7 @@ export default Component.extend(I18n, {
   ],
 
   media: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -70,12 +72,6 @@ export default Component.extend(I18n, {
   shareRootFile: undefined,
 
   /**
-   * @virtual optional
-   * @type {Models.Share}
-   */
-  share: undefined,
-
-  /**
    * @virtual
    * @type {(xml: string) => void}
    */
@@ -92,6 +88,18 @@ export default Component.extend(I18n, {
    * @type {() => void}
    */
   onBack: undefined,
+
+  /**
+   * @virtual optional Needed in private views.
+   * @type {Models.Share}
+   */
+  share: undefined,
+
+  /**
+   * @virtual optional Needed in private views.
+   * @type {Models.Space}
+   */
+  space: undefined,
 
   /**
    * @virtual optional
@@ -203,6 +211,11 @@ export default Component.extend(I18n, {
 
   isValid: reads('validator.isValid'),
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasManageSharesPrivilege: bool('space.privileges.manageShares'),
+
   isModifyButtonShown: computed(
     'isPublicView',
     'editMode',
@@ -235,6 +248,24 @@ export default Component.extend(I18n, {
     'isReadOnly',
     function isModifyingExistingMetadata() {
       return this.isPublished && !this.isReadOnly;
+    }
+  ),
+
+  isModifyDisabled: bool('modifyDisabledTip'),
+
+  modifyDisabledTip: computed(
+    'isModifyingExistingMetadata',
+    function modifyDisabledTip() {
+      if (this.isModifyingExistingMetadata) {
+        return this.i18n.t('components.shareShow.modifyingButtonTip');
+      }
+      if (!this.hasManageSharesPrivilege) {
+        return insufficientPrivilegesMessage({
+          i18n: this.i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_manage_shares',
+        });
+      }
     }
   ),
 

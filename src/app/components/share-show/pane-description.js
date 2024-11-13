@@ -2,14 +2,16 @@
  * Content for "description" tab for single share
  *
  * @author Jakub Liput
- * @copyright (C) 2020-2021 ACK CYFRONET AGH
+ * @copyright (C) 2020-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import { set } from '@ember/object';
+import { set, computed } from '@ember/object';
+import { bool } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 export default Component.extend(I18n, {
   classNames: ['share-show-pane-description', 'pane-description', 'row'],
@@ -29,6 +31,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
+   * @virtual
+   * @type {Models.Share}
    */
   share: undefined,
 
@@ -45,6 +54,26 @@ export default Component.extend(I18n, {
   isEmptyDescriptionInfoVisible: false,
 
   currentMarkdown: undefined,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasManageSharesPrivilege: bool('space.privileges.manageShares'),
+
+  isStartButtonDisabled: bool('startButtonDisabledTip'),
+
+  startButtonDisabledTip: computed(
+    'hasManageSharesPrivilege',
+    function startButtonDisabledTip() {
+      if (!this.hasManageSharesPrivilege) {
+        return insufficientPrivilegesMessage({
+          i18n: this.i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_manage_shares',
+        });
+      }
+    }
+  ),
 
   init() {
     this._super(...arguments);

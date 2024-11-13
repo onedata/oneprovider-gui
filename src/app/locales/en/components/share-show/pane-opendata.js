@@ -26,7 +26,7 @@ export default {
       [MetadataType.Edm]: 'Europeana Data Model',
     },
     publishButton: 'Proceed',
-
+    selectHandleAndTypeFirst: 'Select handle service and metadata type first',
   },
   noHandleServices: {
     title: 'No handle services available',
