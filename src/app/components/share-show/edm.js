@@ -13,7 +13,7 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 import VisualEdmViewModel from 'oneprovider-gui/utils/visual-edm/view-model';
 import EdmMetadataFactory, { InvalidEdmMetadataXmlDocument } from 'oneprovider-gui/utils/edm/metadata-factory';
 import EdmMetadataValidator from 'oneprovider-gui/utils/edm/metadata-validator';
-import { set, setProperties, computed, observer } from '@ember/object';
+import { set, setProperties, computed } from '@ember/object';
 import { not, reads, or as emberOr } from '@ember/object/computed';
 import { cancel, debounce } from '@ember/runloop';
 import { dasherize } from '@ember/string';
@@ -22,6 +22,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 import EdmObjectType from '../../utils/edm/object-type';
 import EdmPropertyFactory from '../../utils/edm/property-factory';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
 
 const defaultMode = 'visual';
 
@@ -126,6 +127,11 @@ export default Component.extend(I18n, {
   //#endregion
 
   //#region state
+
+  /**
+   * @type {VisualEdmViewModel}
+   */
+  visualEdmViewModel: undefined,
 
   /**
    * Last XML value that is synchronized between visual and XML editor.
@@ -352,7 +358,7 @@ export default Component.extend(I18n, {
 
   isEffDisabled: emberOr('isDisabled', 'isSaving'),
 
-  xmlObserver: observer('xmlValue', function xmlObserver() {
+  xmlObserver: asyncObserver('xmlValue', function xmlObserver() {
     this.initMetadataModel();
     this.replaceCurrentXmlValueUsingModel();
   }),
@@ -377,9 +383,10 @@ export default Component.extend(I18n, {
     const metadataFactory = new EdmMetadataFactory();
     metadataFactory.shareRootFile = this.shareRootFile;
     let edmMetadata;
-    if (this.xmlValue) {
+    const xmlValue = this.acceptedXmlValue ?? this.xmlValue;
+    if (xmlValue) {
       try {
-        edmMetadata = EdmMetadataFactory.fromXml(this.xmlValue);
+        edmMetadata = EdmMetadataFactory.fromXml(xmlValue);
       } catch (error) {
         if (!(error instanceof InvalidEdmMetadataXmlDocument)) {
           throw error;

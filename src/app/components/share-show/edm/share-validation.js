@@ -80,7 +80,7 @@ export default class ShareValidation extends Component.extend(...mixins) {
   /**
    * @type {Array<string>}
    */
-  @computed('visualEdmModel.model')
+  @computed('visualEdmViewModel.model')
   get visualEdmTitles() {
     if (!this.visualEdmViewModel) {
       return [];
