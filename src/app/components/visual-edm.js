@@ -20,10 +20,16 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.visualEdm',
 
   /**
-   * @type {VisualEdmViewModel}
    * @virtual
+   * @type {VisualEdmViewModel}
    */
   viewModel: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Models.Share}
+   */
+  share: undefined,
 
   /**
    * @override

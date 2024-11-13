@@ -43,6 +43,8 @@
     </p>
   {{/unless}}
 
+  <ShareShow::Edm::ShareValidation @visualEdmViewModel={{visualEdmViewModel}} />
+
   {{#if (eq mode "visual")}}
     {{#if isXmlValueInvalid}}
       <div class="xml-value-invalid-info alert alert-warning">

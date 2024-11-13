@@ -402,13 +402,16 @@ export default Component.extend(I18n, {
 
   initVisualEdmViewModel({ edmMetadata, validator }) {
     const visualEdmViewModel = VisualEdmViewModel.extend({
+        // properties that can change in the lifetime of EDM view are computed
         isRepresentativeImageShown: not('container.isRepresentativeImageInParent'),
         isReadOnly: reads('container.isReadOnly'),
         isDisabled: reads('container.isDisabled'),
       })
       .create({
         container: this,
+        share: this.share,
         shareRootFile: this.shareRootFile,
+        isPublicView: this.isPublicView,
         edmMetadata,
         validator,
       });
