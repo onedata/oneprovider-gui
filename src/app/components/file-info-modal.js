@@ -321,7 +321,7 @@ export default Component.extend(...mixins, {
           url,
           label: this.t('fileLinkLabel.public.download'),
           tip: this.t('fileLinkTip.public.download', {
-            type: _.lowerCase(this.typeTranslation),
+            type: this.typeTranslation,
           }, {
             defaultValue: '',
           }),
@@ -336,7 +336,7 @@ export default Component.extend(...mixins, {
           }),
           label: this.t(`fileLinkLabel.browser.${fileLinkType}`),
           tip: this.t(`fileLinkTip.browser.${fileLinkType}`, {
-            type: _.lowerCase(this.typeTranslation),
+            type: this.typeTranslation,
           }, {
             defaultValue: '',
           }),
@@ -359,9 +359,9 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  headerText: computed('typeTranslation', function headerText() {
-    if (this.typeTranslation) {
-      return this.t('header', { type: this.typeTranslation });
+  headerText: computed('typeTranslationUpperFirst', function headerText() {
+    if (this.typeTranslationUpperFirst) {
+      return this.t('header', { type: this.typeTranslationUpperFirst });
     } else {
       return this.t('headerDefault');
     }
