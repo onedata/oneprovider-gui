@@ -8,7 +8,7 @@ export default {
     multi: {
       shareName: 'The share name (<strong>{{shareName}}</strong>) does not match any title specified in the EDM metadata.',
       consider: 'Consider using one of the titles as the share name to achieve consistent presentation in the',
-      adjustName: 'You may adjust the share name using the actions menu.',
+      adjustName: 'You may adjust the share name using the actions menu ("three dots" at the top right).',
     },
     publicShareView: 'public share view',
   },
