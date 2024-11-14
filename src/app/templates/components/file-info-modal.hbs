@@ -184,7 +184,10 @@
                 {{tt this "cdmiObjectId"}}
                 {{one-label-tip
                   title=(tt this
-                    (if previewMode "fileIdTip.public" "fileIdTip.priv")
+                    (if previewMode
+                      "cdmiObjectIdTooltip.public"
+                      "cdmiObjectIdTooltip.priv"
+                    )
                     type=typeTranslation
                   )
                 }}
@@ -209,10 +212,27 @@
           </tr>
           {{#if space.entityId}}
             <tr class="file-info-row-space-id">
-              <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "spaceId"}}</td>
+              <td class="property-name with-input{{if smallContent "-sm"}}">
+                {{tt this "spaceId"}}
+              </td>
               <td class="property-value">
                 {{clipboard-line
                   value=space.entityId
+                  class="monospace-font"
+                  size=(if smallContent "sm")
+                }}
+              </td>
+            </tr>
+          {{/if}}
+          {{#if share.entityId}}
+            <tr class="file-info-row-share-id">
+              <td class="property-name with-input{{if smallContent "-sm"}}">
+                {{tt this "shareId"}}
+                {{one-label-tip title=(tt this "shareIdTooltip" type=typeTranslation)}}
+              </td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=share.entityId
                   class="monospace-font"
                   size=(if smallContent "sm")
                 }}
