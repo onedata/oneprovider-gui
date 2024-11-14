@@ -230,7 +230,7 @@
     top: var(--drop-area-height);
   }
 
-  .xattr-column-add, .xattr-column-modify {
+  .column-editor {
     position: relative;
     min-height: var(--min-height-popover, 0);
     padding: 12px;
@@ -246,7 +246,7 @@
         margin-left: -0.3em;
       }
 
-      .add-column-header {
+      .edit-column-header {
         padding-left: 0.3em;
       }
     }

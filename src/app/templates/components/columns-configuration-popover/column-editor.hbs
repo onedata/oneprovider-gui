@@ -1,0 +1,45 @@
+<h1>
+  <OneIcon @icon="arrow-left" class="back-icon" onClick={{action "goBack"}}>
+    <OneTooltip @title={{tt this "backTooltip"}} />
+  </OneIcon>
+  <div class="edit-column-header">
+    {{tt this (if isNewColumn "addNewColumnHeader" "modifyColumnHeader")}}
+  </div>
+</h1>
+<PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
+  <p>{{tt this "xattrNameLabel"}}</p>
+  <FormComponent::FieldRenderer @field={{xattrKeyNameField}} />
+  <p>{{tt this "columnNameLabel"}}</p>
+  <input
+    id={{inputId}}
+    type="text"
+    class="form-control new-item-name input-sm"
+    value={{newColumnName}}
+    oninput={{action (mut newColumnName) value="target.value"}}
+    disabled={{isSaving}}
+    autofocus={{false}}
+  >
+  <div class="xattr-footer">
+    <OneButton
+      @type="default"
+      @class="back-column-btn"
+      @size="sm"
+      @onClick={{action "goBack"}}
+    >
+      {{tt this "cancelBtn"}}
+    </OneButton>
+    <OneButton
+      @type="primary"
+      @buttonType="submit"
+      @class="edit-column-btn"
+      @size="sm"
+      @onClick={{action "editColumn"}}
+      @disabled={{isDisabledEditButton}}
+    >
+      {{tt this (if isNewColumn "addBtn" "modifyBtn")}}
+      {{#if isDisabledEditButton}}
+        <OneTooltip @title={{disabledEditButtonTooltip}} />
+      {{/if}}
+    </OneButton>
+  </div>
+</PromiseProxyContainer>
