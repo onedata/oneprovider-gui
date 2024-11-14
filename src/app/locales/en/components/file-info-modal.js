@@ -15,6 +15,7 @@ export default {
   unknownSpaceInSymlink: 'unknown space',
   spaceId: 'Space ID',
   cdmiObjectId: 'File ID',
+  cdmiObjectIdSubname: 'public',
   mtime: 'Modified',
   mtimeSubname: 'content',
   atime: 'Accessed',
@@ -51,6 +52,10 @@ export default {
     file: 'file',
     dir: 'directory',
     symlink: 'symbolic link',
+  },
+  fileIdTip: {
+    priv: 'File ID is a unique, global identifier associated with this {{type}}. It can be used to access and interact with the {{type}} using different interfaces (e.g. REST API), but only by authorized users that have permission to do so.',
+    public: 'Public File ID is a unique, global identifier associated with this shared {{type}}. As opposed to a non-public File ID, it grants public (unauthenticated) read-only access to the {{type}} using different interfaces (e.g. REST API).',
   },
   tabs: {
     general: {

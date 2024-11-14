@@ -67,9 +67,18 @@
                         (concat "columns." columnName ".xattrKey")
                       )
                     )
-                    (tt this
-                      (concat "headers.tip." columnName)
-                      oneprovider=currentProviderName
+                    (if (eq columnName "fileId")
+                      (tt this
+                        (concat
+                          "headers.tip."
+                          columnName
+                          (if previewMode ".public" ".priv")
+                        )
+                      )
+                      (tt this
+                        (concat "headers.tip." columnName)
+                        oneprovider=currentProviderName
+                      )
                     )
                   }}
                 />

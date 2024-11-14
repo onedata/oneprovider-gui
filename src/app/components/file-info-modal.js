@@ -280,10 +280,17 @@ export default Component.extend(...mixins, {
     if (this.isMultiFile) {
       return '';
     }
-    return _.upperFirst(this.t(`fileType.${this.itemType}`, {}, {
+    return this.t(`fileType.${this.itemType}`, {}, {
       defaultValue: this.t('fileType.file'),
-    }));
+    });
   }),
+
+  typeTranslationUpperFirst: computed(
+    'typeTranslation',
+    function typeTranslationUpperFirst() {
+      return _.upperFirst(this.typeTranslation);
+    }
+  ),
 
   /**
    * @type {boolean}
