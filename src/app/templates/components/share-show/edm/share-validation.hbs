@@ -1,10 +1,27 @@
 {{#if this.isShareNameWarningShown}}
   <div class="alert alert-warning share-name-validation-alert">
     <div class="share-validation-message">
-      {{tt this "shareNameDoesNotMatch"
-        shareName=this.share.name
-        metadataTitle=this.firstMetadataTitle
-      }}
+      {{#if this.isSingleMetadataTitle}}
+        {{tt this "shareNameDoesNotMatch.single.shareName" shareName=this.share.name}}
+        {{tt this "shareNameDoesNotMatch.single.consider"}}
+        <a
+          target="_blank"
+          href={{sharePublicUrl}}
+          class="navy text-underlined"
+        >{{tt this "shareNameDoesNotMatch.publicShareView"}}</a>.
+        {{tt this "shareNameDoesNotMatch.single.update"
+          metadataTitle=this.firstMetadataTitle
+        }}
+      {{else}}
+        {{tt this "shareNameDoesNotMatch.multi.shareName" shareName=this.share.name}}
+        {{tt this "shareNameDoesNotMatch.multi.consider"}}
+        <a
+          target="_blank"
+          href={{sharePublicUrl}}
+          class="navy text-underlined"
+        >{{tt this "shareNameDoesNotMatch.publicShareView"}}</a>.
+        {{tt this "shareNameDoesNotMatch.multi.adjustName"}}
+      {{/if}}
     </div>
     <div class="share-validation-buttons">
       <OneButton
@@ -14,13 +31,15 @@
       >
         {{tt this "dismiss"}}
       </OneButton>
-      <OneButton
-        @type="primary"
-        @size="sm"
-        @onClick={{this.applyName}}
-      >
-        {{tt this "applyName"}}
-      </OneButton>
+      {{#if this.isSingleMetadataTitle}}
+        <OneButton
+          @type="primary"
+          @size="sm"
+          @onClick={{this.applyName}}
+        >
+          {{tt this "applyName"}}
+        </OneButton>
+      {{/if}}
     </div>
   </div>
 {{/if}}

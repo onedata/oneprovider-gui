@@ -10,7 +10,7 @@
 
 import Component from '@ember/component';
 import { action, computed } from '@ember/object';
-import { bool, reads } from '@ember/object/computed';
+import { bool, reads, equal } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import EdmObjectType from 'oneprovider-gui/utils/edm/object-type';
@@ -70,6 +70,9 @@ export default class ShareValidation extends Component.extend(...mixins) {
    */
   @reads('currentUser.userId') userId;
 
+  /**
+   * @type {boolean}
+   */
   @computed(
     'share.name',
     'visualEdmTitles.length',
@@ -130,6 +133,16 @@ export default class ShareValidation extends Component.extend(...mixins) {
    * @type {boolean}
    */
   @bool('space.privileges.manageShares') hasManageSharesPrivilege;
+
+  /**
+   * @type {boolean}
+   */
+  @equal('visualEdmTitles.length', 1) isSingleMetadataTitle;
+
+  /**
+   * @type {string}
+   */
+  @reads('share.publicUrl') sharePublicUrl;
 
   init() {
     super.init(...arguments);
