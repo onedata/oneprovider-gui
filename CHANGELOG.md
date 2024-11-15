@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12582 Added tooltips to file ID column header and label in file details and added share ID
 * VFS-12249 Improved UX for adding/modification xattrs column and fixed headers in others browser
 * VFS-12370 Improved loading indicators by showing loading Oneprovider name
 * VFS-12291 Changed the drop area for columns to larger and removed redundant QoS badge if the column is enabled
