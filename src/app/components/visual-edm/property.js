@@ -75,7 +75,7 @@ export default Component.extend(I18n, {
 
   propertyTypeClass: computed(
     'viewModel.model.{namespace,edmPropertyType}',
-    function objectTypeClass() {
+    function propertyTypeClass() {
       const namespace = dasherize(this.viewModel.model.namespace) || 'unknown';
       const edmPropertyType = dasherize(this.viewModel.model.edmPropertyType) || 'unknown';
       return `edm-property-type-${namespace}-${edmPropertyType}`;
