@@ -2,18 +2,24 @@
  * Backend operations for shares
  *
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Service, { inject as service } from '@ember/service';
-import { get, set } from '@ember/object';
+import { computed, get, set } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
+import {
+  getFileGri,
+} from 'oneprovider-gui/models/file';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export default Service.extend({
   store: service(),
   onedataGraph: service(),
+  appProxy: service(),
+  fileManager: service(),
 
   /**
    * @param {Models.File} file
@@ -67,4 +73,110 @@ export default Service.extend({
     });
     return this.get('store').findRecord('share', requestGri);
   },
+
+  /**
+   *
+   * @param {InfiniteListQuery} listQuery
+   * @returns {ShareDataListPage}
+   */
+  async getOnezoneSpaceShareList(spaceId, listQuery) {
+    const {
+      array,
+      isLast,
+    } = await this.appProxy.callParent('getSpaceShareList', spaceId, listQuery);
+    const fileManager = this.fileManager;
+    return {
+      array: array.map(shareData => new OneproviderShareListItem({
+        shareData,
+        fileManager,
+      })),
+      isLast,
+    };
+  },
 });
+
+export class OneproviderShareListItem {
+  /**
+   * @virtual
+   * @type {ShareListItem}
+   */
+  shareData = undefined;
+
+  fileManager = undefined;
+
+  constructor({ shareData, fileManager }) {
+    this.shareData = shareData;
+    this.fileManager = fileManager;
+  }
+
+  //#region proxied properties
+
+  get index() {
+    return this.shareData.index;
+  }
+
+  get entityId() {
+    return this.shareData.shareId;
+  }
+
+  get name() {
+    return this.shareData.name;
+  }
+
+  /** @type {FileType} */
+  get rootFileType() {
+    return this.shareData.rootFileType;
+  }
+
+  get rootFileId() {
+    return this.shareData.rootFileId;
+  }
+
+  get privateFileId() {
+    return this.shareData.privateFileId;
+  }
+
+  get handleId() {
+    return this.shareData.handleId;
+  }
+
+  get sharePublicUrl() {
+    return this.shareData.sharePublicUrl;
+  }
+
+  get handlePublicUrl() {
+    return this.shareData.handlePublicUrl;
+  }
+
+  get rootFileGri() {
+    return getFileGri(this.rootFileId, 'public');
+  }
+
+  get privateFileGri() {
+    return getFileGri(this.rootFileId, 'private');
+  }
+
+  //#endregion
+
+  get hasHandle() {
+    return Boolean(this.handleId);
+  }
+
+  @computed
+  get rootFileProxy() {
+    return promiseObject(this.getRootFile());
+  }
+
+  @computed
+  get privateFileProxy() {
+    return promiseObject(this.getPrivateFile());
+  }
+
+  async getRootFile() {
+    return await this.fileManager.getFileById(this.rootFileId, { scope: 'public' });
+  }
+
+  async getPrivateFile() {
+    return await this.fileManager.getFileById(this.privateFileId);
+  }
+}

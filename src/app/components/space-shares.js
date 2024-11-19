@@ -7,14 +7,13 @@
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise, collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
-export default Component.extend(createDataProxyMixin('shares'), {
+export default Component.extend({
   classNames: ['space-shares', 'fill-flex-using-column'],
 
   shareManager: service(),
@@ -75,40 +74,28 @@ export default Component.extend(createDataProxyMixin('shares'), {
   shareActions: collect('btnDelete', 'btnRename'),
 
   spaceProxy: promise.object(computed('spaceId', function spacesProxy() {
-    const {
-      spaceId,
-      spaceManager,
-    } = this.getProperties('spaceId', 'spaceManager');
-    return spaceManager.getSpace(spaceId);
+    return this.spaceManager.getSpace(this.spaceId);
   })),
 
   shareProxy: promise.object(computed('shareId', function shareProxy() {
     const {
       shareManager,
       shareId,
-    } = this.getProperties('shareManager', 'shareId');
+    } = this;
     return shareId ? shareManager.getShare(shareId) : null;
   })),
 
-  /**
-   * @override
-   */
-  fetchShares() {
-    return this.get('spaceProxy')
-      .then(space => get(space, 'shareList'))
-      .then(shareList => get(shareList, 'list'));
-  },
-
   actions: {
     getShareUrl(...args) {
-      return this.get('getShareUrl')(...args);
+      return this.getShareUrl(...args);
     },
     updateDirId(dirId) {
-      return this.get('updateDirId')(dirId);
+      return this.updateDirId(dirId);
     },
     getDataUrl(...args) {
-      return this.get('getDataUrl')(...args);
+      return this.getDataUrl(...args);
     },
+    // FIXME: share to teraz OneproviderShareListItem
     startRemoveShare(share) {
       this.set('shareToRemove', share);
     },
@@ -116,16 +103,18 @@ export default Component.extend(createDataProxyMixin('shares'), {
       this.set('shareToRename', share);
     },
     closeRemoveShare() {
+      // FIXME: dorobić odświeżanie listy
       this.set('shareToRemove', null);
     },
     closeRenameShare() {
+      // FIXME: dorobić odświeżanie listy
       this.set('shareToRename', null);
     },
     onShowShareList() {
-      return this.get('onShowShareList')();
+      return this.onShowShareList();
     },
-    reloadShareList() {
-      return this.updateSharesProxy();
+    async reloadShareList() {
+      // FIXME: zmienić implementację, być może do wyrzucenia
     },
   },
 });
