@@ -20,8 +20,25 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.visualEdm',
 
   /**
-   * @type {VisualEdmViewModel}
    * @virtual
+   * @type {VisualEdmViewModel}
    */
   viewModel: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Models.Share}
+   */
+  share: undefined,
+
+  /**
+   * @override
+   */
+  didInsertElement() {
+    /** @type {HTMLInputElement} */
+    const titleElement = this.element.querySelector('.edm-property-type-dc-title input');
+    if (titleElement) {
+      titleElement.focus();
+    }
+  },
 });

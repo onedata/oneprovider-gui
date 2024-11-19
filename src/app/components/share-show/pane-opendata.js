@@ -9,17 +9,18 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed, get, set, observer } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, bool } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import moment from 'moment';
-import { conditional, raw, not, or, eq } from 'ember-awesome-macros';
+import { conditional, raw, eq } from 'ember-awesome-macros';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { MetadataType } from 'oneprovider-gui/models/handle';
 import { allSettled } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 /**
  * @typedef {'show'|'edit'|'create'} MetadataEditorEditMode
@@ -40,6 +41,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Models.Share}
    */
   share: undefined,
 
@@ -97,9 +99,29 @@ export default Component.extend(I18n, {
 
   isEdmMetadataType: eq('selectedMetadataType', raw(MetadataType.Edm)),
 
-  isWelcomeProceedDisabled: or(
-    not('selectedHandleService'),
-    not('selectedMetadataType')
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasManageSharesPrivilege: bool('space.privileges.manageShares'),
+
+  isWelcomeProceedDisabled: bool('welcomeProceedDisabledTip'),
+
+  welcomeProceedDisabledTip: computed(
+    'selectedHandleService',
+    'selectedMetadataType',
+    'hasManageSharesPrivilege',
+    function welcomeProceedDisabledTip() {
+      if (!this.hasManageSharesPrivilege) {
+        return insufficientPrivilegesMessage({
+          i18n: this.i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_manage_shares',
+        });
+      }
+      if (!this.selectedHandleService || !this.selectedMetadataType) {
+        return this.t('publishWelcome.selectHandleAndTypeFirst');
+      }
+    }
   ),
 
   /**

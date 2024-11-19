@@ -260,6 +260,7 @@ function createAllSpecs() {
         max: Max.Any,
         lang: 'en',
         example: 'Portrait of a young woman / Saint Paul\'s Cathedral / Mona Lisa',
+        tip: 'The title of this Open Data record in the EDM metadata. It\'s independent of the share name that will be displayed on the public view. To unify them, you may adjust the share name using the actions menu.',
         placeholder: {
           [EdmPropertyValueType.Literal]: 'Saint Paul\'s Cathedral',
         },

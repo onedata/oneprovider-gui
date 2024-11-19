@@ -30,6 +30,12 @@ const VisualEdmViewModel = EmberObject.extend({
 
   /**
    * @virtual optional
+   * @type {Models.Share}
+   */
+  share: undefined,
+
+  /**
+   * @virtual optional
    * @type {Models.File}
    */
   shareRootFile: undefined,
@@ -37,6 +43,8 @@ const VisualEdmViewModel = EmberObject.extend({
   //#endregion
 
   isRepresentativeImageShown: false,
+
+  isPublicView: false,
 
   isReadOnly: false,
 

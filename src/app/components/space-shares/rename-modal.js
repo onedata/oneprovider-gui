@@ -2,7 +2,7 @@
  * Shows modal allowing to change share name.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -15,6 +15,7 @@ import { inject as service } from '@ember/service';
 export default Component.extend(I18n, {
   shareManager: service(),
   globalNotify: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -49,24 +50,27 @@ export default Component.extend(I18n, {
   isNewNameValid: gte(string.length(string.trim('newName')), raw(2)),
 
   actions: {
-    submit() {
+    async submit() {
       const {
         share,
         shareManager,
         newName,
         globalNotify,
-      } = this.getProperties('share', 'shareManager', 'newName', 'globalNotify');
-      return shareManager.renameShare(share, newName.trim())
-        .catch(error => {
-          globalNotify.backendError(this.t('renaming'), error);
-          throw error;
-        })
-        .then(() => {
-          this.get('close')();
-        });
+      } = this;
+      try {
+        await shareManager.renameShare(share, newName.trim());
+      } catch (error) {
+        globalNotify.backendError(this.t('renaming'), error);
+        throw error;
+      }
+      try {
+        await this.appProxy.callParent('reloadCurrentShareRecord');
+      } finally {
+        this.close();
+      }
     },
     close() {
-      this.get('close')();
+      this.close();
     },
   },
 });

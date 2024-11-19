@@ -1,28 +1,30 @@
 {{#if publicMode}}
   <div class="col-xs-12 col-md-7">
-    {{one-markdown-to-html
+    <OneMarkdownToHtml
       class="markdown-view"
-      markdown=currentMarkdown
-    }}
+      @markdown={{currentMarkdown}}
+    />
   </div>
 {{else}}
   {{#if isEmptyDescriptionInfoVisible}}
-    {{content-info
+    <ContentInfo
       class="scroll-breakpoint-500 fill-flex-using-column"
-      header=(tt this "emptyDescriptionInfo.title")
-      text=(tt this "emptyDescriptionInfo.content")
-      buttonAction=(action "startEdit")
-      buttonLabel=(tt this "emptyDescriptionInfo.startButton")
-    }}
+      @header={{tt this "emptyDescriptionInfo.title"}}
+      @text={{tt this "emptyDescriptionInfo.content"}}
+      @buttonAction={{action "startEdit"}}
+      @buttonLabel={{tt this "emptyDescriptionInfo.startButton"}}
+      @buttonDisabled={{isStartButtonDisabled}}
+      @buttonTip={{startButtonDisabledTip}}
+    />
   {{else}}
-    {{share-show/markdown-editor
-      mode=editorMode
-      markdown=currentMarkdown
-      placeholder=(tt this "typeDescriptionPlaceholder")
-      onMarkdownChange=(action (mut currentMarkdown))
-      onModeChange=(action (mut editorMode))
-      onDiscard=(action "onDiscard")
-      onSave=(action "onSave")
-    }}
+    <ShareShow::MarkdownEditor
+      @mode={{editorMode}}
+      @markdown={{currentMarkdown}}
+      @placeholder={{tt this "typeDescriptionPlaceholder"}}
+      @onMarkdownChange={{action (mut currentMarkdown)}}
+      @onModeChange={{action (mut editorMode)}}
+      @onDiscard={{action "onDiscard"}}
+      @onSave={{action "onSave"}}
+    />
   {{/if}}
 {{/if}}
