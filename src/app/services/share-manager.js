@@ -115,7 +115,7 @@ export class OneproviderShareListItem {
     return this.shareData.index;
   }
 
-  get entityId() {
+  get id() {
     return this.shareData.shareId;
   }
 
@@ -128,55 +128,55 @@ export class OneproviderShareListItem {
     return this.shareData.rootFileType;
   }
 
-  get rootFileId() {
-    return this.shareData.rootFileId;
+  get rootFilePrivateId() {
+    return this.shareData.rootFilePrivateId;
   }
 
-  get privateFileId() {
-    return this.shareData.privateFileId;
+  get rootFilePublicId() {
+    return this.shareData.rootFilePublicId;
   }
 
   get handleId() {
     return this.shareData.handleId;
   }
 
-  get sharePublicUrl() {
-    return this.shareData.sharePublicUrl;
-  }
-
   get handlePublicUrl() {
     return this.shareData.handlePublicUrl;
   }
 
-  get rootFileGri() {
-    return getFileGri(this.rootFileId, 'public');
-  }
-
-  get privateFileGri() {
-    return getFileGri(this.rootFileId, 'private');
+  get sharePublicUrl() {
+    return this.shareData.sharePublicUrl;
   }
 
   //#endregion
+
+  get rootFilePublicGri() {
+    return getFileGri(this.rootFileId, 'public');
+  }
+
+  get rootFilePrivateGri() {
+    return getFileGri(this.rootFileId, 'private');
+  }
 
   get hasHandle() {
     return Boolean(this.handleId);
   }
 
   @computed
-  get rootFileProxy() {
-    return promiseObject(this.getRootFile());
+  get rootFilePublicProxy() {
+    return promiseObject(this.getRootFilePublic());
   }
 
   @computed
-  get privateFileProxy() {
-    return promiseObject(this.getPrivateFile());
+  get rootFilePrivateProxy() {
+    return promiseObject(this.getRootFilePrivate());
   }
 
-  async getRootFile() {
-    return await this.fileManager.getFileById(this.rootFileId, { scope: 'public' });
+  async getRootFilePublic() {
+    return await this.fileManager.getFileById(this.rootFilePublicId, { scope: 'public' });
   }
 
-  async getPrivateFile() {
-    return await this.fileManager.getFileById(this.privateFileId);
+  async getRootFilePrivate() {
+    return await this.fileManager.getFileById(this.rootFilePrivateId);
   }
 }

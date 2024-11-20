@@ -175,11 +175,12 @@ export default Component.extend(...mixins, {
     // FIXME: resize observer;
   },
 
-  async getShareList() {
+  // FIXME: type
+  async getShareList(index, limit, offset) {
     return await this.shareManager.getOnezoneSpaceShareList(this.spaceId, {
-      index: null,
-      limit: 10,
-      offset: 0,
+      index,
+      limit,
+      offset,
     });
   },
 

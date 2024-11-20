@@ -29,6 +29,7 @@ const mixins = [
 ];
 
 export default Component.extend(...mixins, {
+  classNames: ['share-list-item'],
   attributeBindings: ['dataRowId:data-row-id'],
 
   globalNotify: service(),
@@ -86,13 +87,13 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  fileRequirements: computed('rootFileGri', function fileRequirements() {
-    if (!this.rootFileGri) {
+  fileRequirements: computed('rootFilePublicGri', function fileRequirements() {
+    if (!this.rootFilePublicGri) {
       return [];
     }
     return [
       new FileRequirement({
-        fileGri: this.rootFileGri,
+        fileGri: this.rootFilePublicGri,
         properties: ['posixPermissions'],
       }),
     ];
@@ -102,15 +103,24 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFileGris: computed('rootFileGri', function usedFileGris() {
-    return this.rootFileGri ? [this.rootFileGri] : [];
+  usedFileGris: computed('rootFilePublicGri', function usedFileGris() {
+    return this.rootFilePublicGri ? [this.rootFilePublicGri] : [];
   }),
 
-  rootFileGri: reads('share.rootFileGri'),
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  rootFilePublicGri: reads('share.rootFilePublicGri'),
 
-  rootFileProxy: reads('share.rootFileProxy'),
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.File>>}
+   */
+  rootFilePublicProxy: reads('share.rootFilePublicProxy'),
 
-  privateFileProxy: reads('share.privateFileProxy'),
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.File>>}
+   */
+  rootFilePrivateProxy: reads('share.rootFilePrivateProxy'),
 
   /**
    * Frame name, where Onezone share link should be opened
@@ -120,7 +130,7 @@ export default Component.extend(...mixins, {
 
   actionsOpened: false,
 
-  dataRowId: reads('share.entityId'),
+  dataRowId: reads('share.id'),
 
   /**
    * @type {Array<object>}
@@ -188,7 +198,7 @@ export default Component.extend(...mixins, {
       getShareUrl,
       share,
     } = this;
-    return htmlSafe(getShareUrl({ shareId: get(share, 'entityId') }));
+    return htmlSafe(getShareUrl({ shareId: get(share, 'id') }));
   }),
 
   triggerClass: tag`actions-share-${'componentGuid'}`,
@@ -220,20 +230,20 @@ export default Component.extend(...mixins, {
   ),
 
   isViewForOtherForbiddenProxy: promise.object(computed(
-    'rootFileProxy.content.{type,posixPermissions}',
+    'rootFilePublicProxy.content.{type,posixPermissions}',
     async function isViewForOtherForbiddenProxy() {
-      const rootFile = await this.rootFileProxy;
+      const rootFilePublic = await this.rootFilePublicProxy;
       const octalNumber = 2;
-      return isPosixViewForbidden(rootFile, octalNumber);
+      return isPosixViewForbidden(rootFilePublic, octalNumber);
     }
   )),
 
   forbiddenTooltipTextProxy: promise.object(computed(
-    'rootFileProxy.content.type',
+    'rootFilePublicProxy.content.type',
     async function forbiddenTooltipTextProxy() {
-      const rootFile = await this.rootFileProxy;
+      const rootFilePublic = await this.rootFilePublicProxy;
       return this.t(
-        'warning.' + (rootFile.type === LegacyFileType.Regular ? 'file' : 'dir')
+        'warning.' + (rootFilePublic.type === LegacyFileType.Regular ? 'file' : 'dir')
       );
     }
   )),
@@ -244,13 +254,13 @@ export default Component.extend(...mixins, {
 
   isLabelsContanierShown: or('isNoPublicAccessLabelShown', 'isOpenDataLabelShown'),
 
-  shareFilePathProxy: computed('privateFileProxy', function shareFilePathProxy() {
+  shareFilePathProxy: computed('rootFilePrivateProxy', function shareFilePathProxy() {
     const promise = (async () => {
-      const file = await this.privateFileProxy;
-      if (!file) {
+      const rootFilePrivate = await this.rootFilePrivateProxy;
+      if (!rootFilePrivate) {
         return null;
       }
-      return stringifyFilePath(await resolveFilePath(file));
+      return stringifyFilePath(await resolveFilePath(rootFilePrivate));
     })();
     return promiseObject(promise);
   }),
@@ -267,7 +277,7 @@ export default Component.extend(...mixins, {
   ),
 
   // FIXME: experimental
-  privateFileError: reads('privateFileProxy.reason'),
+  privateFileError: reads('rootFilePrivateProxy.reason'),
 
   shareFilePathErrorMessage: computed(
     'privateFileError',

@@ -5,9 +5,10 @@
 >
   <div class="one-collapsible-list entries-table {{unless shares.length "hidden"}}">
     <div class="table-start-row"></div>
-    <div class="first-row"></div>
+    <div class="first-row" style={{infiniteScroll.firstRowModel.style}}></div>
     {{#each shares as |share|}}
       <SpaceShares::ListItem
+        class="data-row"
         @space={{space}}
         @share={{share}}
         @getShareUrl={{action "getShareUrl"}}

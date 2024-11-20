@@ -1,3 +1,5 @@
+import { FileType } from 'onedata-gui-common/utils/file';
+
 export default {
   removeShare: 'Remove share',
   rename: 'Rename',
@@ -14,9 +16,9 @@ export default {
     dir: 'This directory is not accessible via any public share because it does not have both <em>read</em> and <em>execute</em> POSIX permissions for <em>other</em>.',
   },
   fileType: {
-    file: 'file',
-    dir: 'directory',
-    symlink: 'symbolic link',
+    [FileType.Regular]: 'file',
+    [FileType.Directory]: 'directory',
+    [FileType.SymbolicLink]: 'symbolic link',
     item: 'item',
   },
 };
