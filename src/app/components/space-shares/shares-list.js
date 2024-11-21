@@ -8,9 +8,8 @@
 
 import Component from '@ember/component';
 import { computed } from '@ember/object';
-import { reads, sort } from '@ember/object/computed';
+import { reads } from '@ember/object/computed';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { promise } from 'ember-awesome-macros';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { inject as service } from '@ember/service';
@@ -49,12 +48,6 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {PromiseArray<Models.Share>}
-   */
-  sharesProxy: undefined,
-
-  /**
-   * @virtual
    * @type {Function}
    */
   onStartRemoveShare: notImplementedThrow,
@@ -73,13 +66,6 @@ export default Component.extend(...mixins, {
 
   //#region state
 
-  /**
-   * @type {Utils.InfiniteScroll}
-   */
-  infiniteScroll: undefined,
-
-  shares: undefined,
-
   // FIXME: używać? może jak wracamy z widoku pojedynczego shera
   initialJumpIndex: null,
 
@@ -92,62 +78,72 @@ export default Component.extend(...mixins, {
    */
   spaceId: reads('space.entityId'),
 
-  // FIXME: do implementacji
   /**
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  // fileRequirements: computed('sharesProxy.content', function fileRequirements() {
-  //   const shares = this.sharesProxy?.content ?? [];
-  //   return shares.map(share =>
-  //     new FileRequirement({
-  //       fileGri: share.belongsTo('rootFile').id(),
-  //       // This requirement is used by internally used list-item component to pre-load
-  //       // files data with needed properties, avoiding files reload when these components
-  //       // are being inserted.
-  //       properties: ['posixPermissions'],
-  //     })
-  //   );
-  // }),
+  fileRequirements: computed(
+    'shares.sourceArray.[]',
+    function fileRequirements() {
+      const shares = this.shares?.sourceArray.toArray();
+      if (!shares) {
+        return [];
+      }
+      const requirements = shares.map(share =>
+        new FileRequirement({
+          fileGri: share.rootFilePublicGri,
+          // This requirement is used by internally used list-item component to pre-load
+          // files data with needed properties, avoiding files reload when these components
+          // are being inserted.
+          properties: ['posixPermissions'],
+        })
+      );
+      return requirements;
+    }
+  ),
 
-  // FIXME: do implementacji
   /**
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  // usedFileGris: computed('sharesProxy.content', function usedFileGris() {
-  //   const shares = this.get('sharesProxy.content');
-  //   if (!shares) {
-  //     return [];
-  //   }
-  //   return shares.map(share => share.belongsTo('rootFile').id());
-  // }),
+  usedFileGris: computed(
+    'shares.sourceArray.[]',
+    function usedFileGris() {
+      /** @type {Array<OneproviderShareListItem>} */
+      const loadedShareItems = this.shares?.sourceArray.toArray();
+      if (!loadedShareItems) {
+        return [];
+      }
+      const gris = loadedShareItems.map(share => share.rootFilePublicGri);
+      return gris;
+    }
+  ),
 
   dataTabUrl: computed('spaceId', function dataTabUrl() {
     return this.onGetDataUrl({ spaceId: this.spaceId });
   }),
 
-  init() {
-    this._super(...arguments);
-    const shares = ReplacingChunksArray.create({
+  shares: computed(function () {
+    return ReplacingChunksArray.create({
       fetch: this.getShareList.bind(this),
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
       initialJumpIndex: this.initialJumpIndex,
     });
+  }),
 
-    const infiniteScroll = InfiniteScroll.create({
-      entries: shares,
+  infiniteScroll: computed('shares', function () {
+    return InfiniteScroll.create({
+      entries: this.shares,
       singleRowHeight: this.rowHeight,
       // FIXME: implement, może auto refresh
       // onScroll: this.handleTableScroll.bind(this),
     });
+  }),
 
-    this.setProperties({
-      shares,
-      infiniteScroll,
-    });
+  init() {
+    this._super(...arguments);
 
     // FIXME: debug code
     ((name) => {

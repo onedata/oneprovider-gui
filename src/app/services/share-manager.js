@@ -151,11 +151,11 @@ export class OneproviderShareListItem {
   //#endregion
 
   get rootFilePublicGri() {
-    return getFileGri(this.rootFileId, 'public');
+    return getFileGri(this.rootFilePublicId, 'public');
   }
 
   get rootFilePrivateGri() {
-    return getFileGri(this.rootFileId, 'private');
+    return getFileGri(this.rootFilePrivateId, 'private');
   }
 
   get hasHandle() {

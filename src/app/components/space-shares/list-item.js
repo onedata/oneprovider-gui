@@ -22,6 +22,7 @@ import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insuffi
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { FileType, LegacyFileType } from 'onedata-gui-common/utils/file';
+import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
 
 const mixins = [
   I18n,
@@ -59,12 +60,12 @@ export default Component.extend(...mixins, {
    */
   share: undefined,
 
-  // FIXME: to teraz powinno być obliczane w tym miejscu
-  // get(error || {}, 'details.errno') === 'enoent'
   /**
-   * @type {Boolean}
+   * @type {ComputedProperty<Boolean>}
    */
-  pointsToDeletedFile: false,
+  pointsToDeletedFile: computed('publicFileError', function pointsToDeletedFile() {
+    return isNotFoundError(this.publicFileError);
+  }),
 
   /**
    * @virtual
@@ -84,6 +85,8 @@ export default Component.extend(...mixins, {
   hasManageSharesPrivilege: bool('space.privileges.manageShares'),
 
   /**
+   * We need posixPermissions only for public file to show warning about lack of "Others"
+   * POSIX permission.
    * @override
    * @implements {Mixins.FileConsumer}
    */
@@ -111,6 +114,11 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<string>}
    */
   rootFilePublicGri: reads('share.rootFilePublicGri'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  rootFilePrivateGri: reads('share.rootFilePrivateGri'),
 
   /**
    * @type {ComputedProperty<PromiseObject<Models.File>>}
@@ -276,6 +284,8 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  publicFileError: reads('rootFilePublicProxy.reason'),
+
   // FIXME: experimental
   privateFileError: reads('rootFilePrivateProxy.reason'),
 
@@ -286,6 +296,10 @@ export default Component.extend(...mixins, {
       return this.errorExtractor.getMessage(error)?.message;
     }
   ),
+
+  init() {
+    this._super(...arguments);
+  },
 
   actions: {
     toggleActions(open) {
