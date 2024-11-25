@@ -17,6 +17,7 @@ import InfiniteScroll from 'onedata-gui-common/utils/infinite-scroll';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import globals from 'onedata-gui-common/utils/globals';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import conflictIdsArray from 'onedata-gui-common/utils/conflict-ids-array';
 
 const mixins = [
   FileConsumerMixin,
@@ -133,12 +134,22 @@ export default Component.extend(...mixins, {
     });
   }),
 
-  infiniteScroll: computed('shares', function () {
+  // FIXME: type
+  infiniteScroll: computed('shares', function infiniteScroll() {
     return InfiniteScroll.create({
       entries: this.shares,
       singleRowHeight: this.rowHeight,
       // FIXME: implement, może auto refresh
       // onScroll: this.handleTableScroll.bind(this),
+    });
+  }),
+
+  // FIXME: type
+  conflictableShares: computed('shares', function conflictableShares() {
+    return conflictIdsArray.create({
+      content: this.shares,
+      diffProperty: 'id',
+      conflictProperty: 'name',
     });
   }),
 
