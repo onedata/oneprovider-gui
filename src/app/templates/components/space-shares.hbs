@@ -33,15 +33,16 @@
     <SpaceShares::RemoveModal
       @share={{shareToRemove}}
       @fileSharesCount={{fileSharesCount}}
-      @opened={{and shareToRemove (not shareToRemove.isDeleted)}}
+      @opened={{bool shareToRemove}}
       @close={{action "closeRemoveShare"}}
     />
   </RenderLater>
 
   <RenderLater @triggerRender={{shareToRename}}>
     <SpaceShares::RenameModal
-      @share={{shareToRename}}
-      @opened={{and shareToRename}}
+      @shareId={{shareToRename.id}}
+      @initialName={{shareToRename.name}}
+      @opened={{bool shareToRename}}
       @close={{action "closeRenameShare"}}
     />
   </RenderLater>

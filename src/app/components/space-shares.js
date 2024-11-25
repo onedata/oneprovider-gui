@@ -69,6 +69,20 @@ export default Component.extend({
    */
   initialTabId: undefined,
 
+  //#region state
+
+  /**
+   * @type {OneproviderShareListItem}
+   */
+  shareToRename: undefined,
+
+  /**
+   * @type {OneproviderShareListItem}
+   */
+  shareToRemove: undefined,
+
+  //#endregion
+
   oneproviderName: reads('appProxy.injectedData.oneproviderName'),
 
   shareActions: collect('btnDelete', 'btnRename'),
@@ -85,6 +99,8 @@ export default Component.extend({
     return shareId ? shareManager.getShare(shareId) : null;
   })),
 
+  share: reads('shareProxy.content'),
+
   actions: {
     getShareUrl(...args) {
       return this.getShareUrl(...args);
@@ -95,7 +111,6 @@ export default Component.extend({
     getDataUrl(...args) {
       return this.getDataUrl(...args);
     },
-    // FIXME: share to teraz OneproviderShareListItem
     startRemoveShare(share) {
       this.set('shareToRemove', share);
     },
@@ -104,11 +119,11 @@ export default Component.extend({
     },
     closeRemoveShare() {
       // FIXME: dorobić odświeżanie listy
-      this.set('shareToRemove', null);
+      this.set('shareToRemove', undefined);
     },
     closeRenameShare() {
       // FIXME: dorobić odświeżanie listy
-      this.set('shareToRename', null);
+      this.set('shareToRename', undefined);
     },
     onShowShareList() {
       return this.onShowShareList();

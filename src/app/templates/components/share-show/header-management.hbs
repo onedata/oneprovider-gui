@@ -79,7 +79,8 @@
 
 <RenderLater @triggerRender={{renameShareOpened}}>
   <SpaceShares::RenameModal
-    @share={{share}}
+    @shareId={{share.entityId}}
+    @initialName={{share.name}}
     @opened={{renameShareOpened}}
     @close={{action (mut renameShareOpened) false}}
   />

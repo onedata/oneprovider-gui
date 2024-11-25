@@ -40,7 +40,9 @@ export default Service.extend({
       .save();
   },
 
-  async removeShare(share) {
+  async removeShare(shareRecordOrId) {
+    const share = typeof shareRecordOrId === 'string' ?
+      (await this.getShare(shareRecordOrId)) : shareRecordOrId;
     try {
       return await share.destroyRecord();
     } catch (error) {
@@ -54,14 +56,17 @@ export default Service.extend({
     }
   },
 
-  renameShare(share, name) {
-    const currentName = get(share, 'name');
+  async renameShare(shareRecordOrId, name) {
+    const share = typeof shareRecordOrId === 'string' ?
+      (await this.getShare(shareRecordOrId)) : shareRecordOrId;
+    const currentName = share.name;
     set(share, 'name', name);
-    return share.save()
-      .catch((error) => {
-        set(share, 'name', currentName);
-        throw error;
-      });
+    try {
+      return await share.save();
+    } catch (error) {
+      set(share, 'name', currentName);
+      throw error;
+    }
   },
 
   getShare(shareId, scope = 'private') {
@@ -116,6 +121,10 @@ export class OneproviderShareListItem {
   }
 
   get id() {
+    return this.shareData.shareId;
+  }
+
+  get entityId() {
     return this.shareData.shareId;
   }
 

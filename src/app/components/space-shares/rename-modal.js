@@ -2,7 +2,7 @@
  * Shows modal allowing to change share name.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -29,17 +29,21 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.Share}
+   * @type {string}
    */
-  share: undefined,
+  shareId: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  initialName: undefined,
 
   /**
    * @virtual
    * @type {Function}
    */
   close: notImplementedThrow,
-
-  newName: '',
 
   inputId: tag `${'elementId'}-input`,
 
@@ -49,24 +53,23 @@ export default Component.extend(I18n, {
   isNewNameValid: gte(string.length(string.trim('newName')), raw(2)),
 
   actions: {
-    submit() {
+    async submit() {
       const {
-        share,
+        shareId,
         shareManager,
         newName,
         globalNotify,
-      } = this.getProperties('share', 'shareManager', 'newName', 'globalNotify');
-      return shareManager.renameShare(share, newName.trim())
-        .catch(error => {
-          globalNotify.backendError(this.t('renaming'), error);
-          throw error;
-        })
-        .then(() => {
-          this.get('close')();
-        });
+      } = this;
+      try {
+        await shareManager.renameShare(shareId, newName.trim());
+        this.close();
+      } catch (error) {
+        globalNotify.backendError(this.t('renaming'), error);
+        throw error;
+      }
     },
     close() {
-      this.get('close')();
+      this.close();
     },
   },
 });
