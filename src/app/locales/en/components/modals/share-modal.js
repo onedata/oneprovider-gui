@@ -11,13 +11,13 @@ export default {
   publishTip: 'Choose this option to create a share and directly proceed to publish it as an Open Data record. The shared data collection will be registered in a handle service — assigned a persistent identifier (e.g. PID or DOI) and exposed for discovery by Open Data indexes via OAI PMH protocol. This process will make your data collection publicly available (without an account in Onedata) and anyone will be able to look it up in the Open Data indexes.',
   publishImpossibleTip: noHandleServicesText,
   validations: {
-    nameTooShort: 'Name must have at least {{length}} characters',
+    empty: 'Name cannot be empty',
     nameTooLong: 'Name cannot be longer than {{length}} characters',
-    regexp: 'Name contains invalid characters',
+    regexp: 'Name contains invalid characters or is forbidden',
   },
   fileType: {
     file: 'file',
     dir: 'directory',
   },
-  regexpHint: 'Name must be composed only of UTF-8 letters, digits, parentheses and underscores. Dashes, spaces and dots are allowed (but not at the beginning or the end).',
+  regexpHint: 'Name cannot contain slashes (/) and null characters. It cannot be also a single dot (".") or two dots ("..").',
 };

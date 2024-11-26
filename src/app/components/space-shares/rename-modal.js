@@ -15,6 +15,7 @@ import { inject as service } from '@ember/service';
 export default Component.extend(I18n, {
   shareManager: service(),
   globalNotify: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -74,6 +75,11 @@ export default Component.extend(I18n, {
         throw error;
       }
       this.onRenamed?.();
+      try {
+        await this.appProxy.callParent('reloadCurrentShareRecord');
+      } finally {
+        this.close();
+      }
     },
     close() {
       this.close();

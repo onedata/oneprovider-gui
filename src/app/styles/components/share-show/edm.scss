@@ -117,6 +117,12 @@ $share-show-edm-empirical-header-height: 68px;
     }
   }
 
+  .share-validation {
+    .alert:first-of-type {
+      margin-top: 0;
+    }
+  }
+
   &.xml-sync-waiting {
     .xml-source-validation-row {
       .edm-info-row {
@@ -142,3 +148,5 @@ $share-show-edm-empirical-header-height: 68px;
     flex-direction: row;
   }
 }
+
+@import './edm/share-validation';

@@ -93,9 +93,10 @@ export default class EdmMetadataFactory {
   }
 
   /**
+   * @param {Models.Share} [share]
    * @returns {EdmMetadata}
    */
-  createInitialMetadata() {
+  createInitialMetadata(share) {
     const metadata = EdmMetadataFactory.createEmptyMetadata();
     const objectFactory = new EdmObjectFactory(metadata);
     objectFactory.shareRootFile = this.shareRootFile;
@@ -104,6 +105,11 @@ export default class EdmMetadataFactory {
       objectFactory.createInitialObject(EdmObjectType.WebResource),
       objectFactory.createInitialObject(EdmObjectType.Aggregation),
     ];
+    if (share) {
+      const titleProperty = metadata.edmObjects[0].edmProperties
+        .find(p => p.xmlTagName === 'dc:title');
+      titleProperty.setSupportedValue(share.name ?? '');
+    }
 
     const comment =
       'EDM XML metadata; refer to: https://pro.europeana.eu/page/edm-documentation';

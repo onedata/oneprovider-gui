@@ -21,13 +21,13 @@
           class="modify-metadata-btn"
           @onClick={{action "startModify"}}
           @size="sm"
-          @disabled={{isModifyingExistingMetadata}}
+          @disabled={{isModifyDisabled}}
         >
           <OneIcon @icon="browser-rename" />
           {{t "components.shareShow.modifyButton"}}
         </OneButton>
-        {{#if isModifyingExistingMetadata}}
-          <OneTooltip @title={{t "components.shareShow.modifyingButtonTip"}} />
+        {{#if modifyDisabledTip}}
+          <OneTooltip @title={{modifyDisabledTip}} />
         {{/if}}
       </div>
     {{/if}}
@@ -42,6 +42,11 @@
       <OneLabelTip @title={{tt this "introTip"}} />
     </p>
   {{/unless}}
+
+  <ShareShow::Edm::ShareValidation
+    @space={{space}}
+    @visualEdmViewModel={{visualEdmViewModel}}
+  />
 
   {{#if (eq mode "visual")}}
     {{#if isXmlValueInvalid}}
