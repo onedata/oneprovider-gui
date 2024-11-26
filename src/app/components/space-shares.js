@@ -13,6 +13,7 @@ import { promise, collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
+import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend({
   classNames: ['space-shares', 'fill-flex-using-column'],
@@ -159,8 +160,10 @@ export default Component.extend({
       return this.onShowShareList();
     },
     async reloadShareList() {
-      return this.reloadShares();
-      // FIXME: call parent, żeby przeładować sidebar?
+      allFulfilled([
+        await this.reloadShares(),
+        await this.appProxy.callParent('reloadShareList'),
+      ]);
     },
   },
 });

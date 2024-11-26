@@ -11,6 +11,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import { tag, string, gte, raw } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
+import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend(I18n, {
   shareManager: service(),
@@ -76,7 +77,10 @@ export default Component.extend(I18n, {
       }
       this.onRenamed?.();
       try {
-        await this.appProxy.callParent('reloadCurrentShareRecord');
+        await allFulfilled([
+          this.appProxy.callParent('reloadCurrentShareRecord', shareId),
+          this.appProxy.callParent('reloadShareList'),
+        ]);
       } finally {
         this.close();
       }
