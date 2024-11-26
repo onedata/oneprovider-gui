@@ -126,8 +126,12 @@ class EdmProperty {
       return undefined;
     }
     if (this.spec?.predefGrouped) {
-      const flatPredefs = options.reduce((allPredef, group) => {
-        allPredef.push(...group.options);
+      const flatPredefs = options.reduce((allPredef, groupOrOption) => {
+        if (groupOrOption.options) {
+          allPredef.push(...groupOrOption.options);
+        } else {
+          allPredef.push(groupOrOption);
+        }
         return allPredef;
       }, []);
       return flatPredefs;
