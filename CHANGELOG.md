@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12441 Added new grouped entries to the Material list in the EDM visual editor
 * VFS-13176 Fixed randomly not working file download using the download URL
 * VFS-13176 Added replacing file data feature
 * VFS-13277 Fixed using the "Files" tab as default when opening share's URL
