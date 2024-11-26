@@ -50,6 +50,7 @@ export default Component.extend(...mixins, {
   globalNotify: service(),
   modalManager: service(),
   handleManager: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -250,12 +251,13 @@ export default Component.extend(...mixins, {
       globalNotify,
       file,
       newShareName: name,
-    } = this.getProperties('shareManager', 'globalNotify', 'file', 'newShareName');
+    } = this;
     this.set('isSaving', true);
     try {
       let share;
       try {
         share = await shareManager.createShare(file, name.trim());
+        this.appProxy.callParent('reloadShareList');
       } catch (error) {
         globalNotify.backendError(this.t('creatingShare'), error);
         throw error;
