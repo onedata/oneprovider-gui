@@ -261,17 +261,20 @@ export default Component.extend(...mixins, {
 
   actions: {
     getDataUrl() {
-      return this.get('getDataUrl')(...arguments);
+      return this.getDataUrl(...arguments);
     },
-    onShowShareList() {
-      return this.get('reloadShareList')()
-        .then(() => this.get('onShowShareList')());
+    async onShowShareList() {
+      await this.reloadShareList();
+      this.onShowShareList();
     },
     updateDirId() {
-      return this.get('updateDirId')(...arguments);
+      return this.updateDirId(...arguments);
     },
     containerScrollTop() {
-      return this.get('containerScrollTop')(...arguments);
+      return this.containerScrollTop(...arguments);
+    },
+    reloadShareList() {
+      this.reloadShareList();
     },
   },
 });

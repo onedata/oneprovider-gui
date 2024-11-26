@@ -46,6 +46,12 @@ export default HeaderBaseComponent.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  onReloadShareList: undefined,
+
+  /**
+   * @virtual
    * @type {Boolean}
    */
   shareRootDeleted: false,
@@ -187,11 +193,7 @@ export default HeaderBaseComponent.extend(I18n, {
         spaceId,
         navigateDirTarget,
         filesViewResolver,
-      } = this.getProperties(
-        'spaceId',
-        'navigateDirTarget',
-        'filesViewResolver'
-      );
+      } = this;
 
       const filesViewContextFactory =
         FilesViewContextFactory.create({ ownerSource: this });
@@ -205,6 +207,12 @@ export default HeaderBaseComponent.extend(I18n, {
     toggleActions(open) {
       const _open = (typeof open === 'boolean') ? open : !this.get('actionsOpened');
       this.set('actionsOpened', _open);
+    },
+    showShareList() {
+      this.onShowShareList?.();
+    },
+    reloadShareList() {
+      this.onReloadShareList?.();
     },
   },
 });

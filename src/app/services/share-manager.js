@@ -82,7 +82,7 @@ export default Service.extend({
   /**
    *
    * @param {InfiniteListQuery} listQuery
-   * @returns {ShareDataListPage}
+   * @returns {Promise<ShareDataListPage>}
    */
   async getOnezoneSpaceShareList(spaceId, listQuery) {
     const {

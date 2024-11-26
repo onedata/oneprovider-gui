@@ -45,6 +45,12 @@ export default Component.extend(I18n, {
    */
   close: notImplementedThrow,
 
+  /**
+   * @virtual
+   * @type {() => void}
+   */
+  onRenamed: undefined,
+
   inputId: tag `${'elementId'}-input`,
 
   /**
@@ -67,6 +73,7 @@ export default Component.extend(I18n, {
         globalNotify.backendError(this.t('renaming'), error);
         throw error;
       }
+      this.onRenamed?.();
     },
     close() {
       this.close();

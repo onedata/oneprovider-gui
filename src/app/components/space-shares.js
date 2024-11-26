@@ -12,6 +12,7 @@ import { reads } from '@ember/object/computed';
 import { promise, collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 
 export default Component.extend({
   classNames: ['space-shares', 'fill-flex-using-column'],
@@ -101,6 +102,35 @@ export default Component.extend({
 
   share: reads('shareProxy.content'),
 
+  shares: computed(function () {
+    return ReplacingChunksArray.create({
+      fetch: this.getShareList.bind(this),
+      startIndex: 0,
+      endIndex: 50,
+      indexMargin: 10,
+      // FIXME: na razie nie używane, ale przydatne będzie do powrotu z widoku shera
+      initialJumpIndex: this.initialJumpIndex,
+    });
+  }),
+
+  /**
+   * @param {string|null} [index]
+   * @param {number} [limit]
+   * @param {number} [offset]
+   * @returns {Promise<ShareDataListPage>}
+   */
+  async getShareList(index, limit, offset) {
+    return await this.shareManager.getOnezoneSpaceShareList(this.spaceId, {
+      index,
+      limit,
+      offset,
+    });
+  },
+
+  async reloadShares() {
+    return await this.cacheFor('shares')?.scheduleReload();
+  },
+
   actions: {
     getShareUrl(...args) {
       return this.getShareUrl(...args);
@@ -129,7 +159,8 @@ export default Component.extend({
       return this.onShowShareList();
     },
     async reloadShareList() {
-      // FIXME: zmienić implementację, być może do wyrzucenia
+      return this.reloadShares();
+      // FIXME: call parent, żeby przeładować sidebar?
     },
   },
 });

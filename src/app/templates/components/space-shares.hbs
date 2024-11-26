@@ -21,6 +21,7 @@
     </PromiseProxyContainer>
   {{else}}
     <SpaceShares::SharesList
+      @shares={{shares}}
       @space={{spaceProxy.content}}
       @onGetShareUrl={{action "getShareUrl"}}
       @onGetDataUrl={{action "getDataUrl"}}
@@ -34,6 +35,7 @@
       @share={{shareToRemove}}
       @fileSharesCount={{fileSharesCount}}
       @opened={{bool shareToRemove}}
+      @onRemoved={{action "reloadShareList"}}
       @close={{action "closeRemoveShare"}}
     />
   </RenderLater>
@@ -44,6 +46,7 @@
       @initialName={{shareToRename.name}}
       @opened={{bool shareToRename}}
       @close={{action "closeRenameShare"}}
+      @onRenamed={{action "reloadShareList"}}
     />
   </RenderLater>
 

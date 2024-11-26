@@ -71,13 +71,19 @@ export default Component.extend(...mixins, {
    * @virtual
    * @type {Function}
    */
-  startRemoveShare: notImplementedThrow,
+  onStartRemoveShare: notImplementedThrow,
 
   /**
    * @virtual
    * @type {Function}
    */
-  startRenameShare: notImplementedThrow,
+  onStartRenameShare: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  onShareListChanged: undefined,
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -163,7 +169,7 @@ export default Component.extend(...mixins, {
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: () => {
-        return this.startRemoveShare(this.share);
+        return this.onStartRemoveShare(this.share);
       },
       class: 'btn-remove-share',
     };
@@ -183,7 +189,7 @@ export default Component.extend(...mixins, {
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: () => {
-        return this.startRenameShare(this.share);
+        return this.onStartRenameShare(this.share);
       },
       class: 'btn-rename-share',
     };
@@ -305,6 +311,9 @@ export default Component.extend(...mixins, {
     toggleActions(open) {
       const _open = (typeof open === 'boolean') ? open : !this.get('actionsOpened');
       this.set('actionsOpened', _open);
+    },
+    shareListChanged() {
+      return this.onShareListChanged?.();
     },
   },
 });

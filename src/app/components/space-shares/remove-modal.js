@@ -20,6 +20,12 @@ export default ProceedProcessModal.extend({
 
   /**
    * @virtual
+   * @type {() => void}
+   */
+  onRemoved: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   onShowShareList: notImplementedIgnore,
@@ -87,11 +93,13 @@ export default ProceedProcessModal.extend({
     } = this;
     try {
       await shareManager.removeShare(shareId);
-      return await this.onShowShareList?.();
+      // FIXME: czy to musi być obok onRemoved?
+      await this.onShowShareList?.();
     } catch (error) {
       globalNotify.backendError(this.t('deletingShare'), error);
     } finally {
       this.close();
     }
+    this.onRemoved?.();
   },
 });

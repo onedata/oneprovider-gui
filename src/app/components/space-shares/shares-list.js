@@ -14,7 +14,6 @@ import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { inject as service } from '@ember/service';
 import InfiniteScroll from 'onedata-gui-common/utils/infinite-scroll';
-import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import globals from 'onedata-gui-common/utils/globals';
 import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import ConflictIdsArray from 'onedata-gui-common/utils/conflict-ids-array';
@@ -46,6 +45,12 @@ export default Component.extend(...mixins, {
    * @type {Models.Space}
    */
   space: undefined,
+
+  /**
+   * @virtual
+   * @type {ReplacingChunksArray<OneproviderShareListItem>}
+   */
+  shares: undefined,
 
   /**
    * @virtual
@@ -124,16 +129,6 @@ export default Component.extend(...mixins, {
     return this.onGetDataUrl({ spaceId: this.spaceId });
   }),
 
-  shares: computed(function () {
-    return ReplacingChunksArray.create({
-      fetch: this.getShareList.bind(this),
-      startIndex: 0,
-      endIndex: 50,
-      indexMargin: 10,
-      initialJumpIndex: this.initialJumpIndex,
-    });
-  }),
-
   // FIXME: type
   infiniteScroll: computed('shares', function infiniteScroll() {
     return InfiniteScroll.create({
@@ -180,15 +175,6 @@ export default Component.extend(...mixins, {
       );
     })();
     // FIXME: resize observer;
-  },
-
-  // FIXME: type
-  async getShareList(index, limit, offset) {
-    return await this.shareManager.getOnezoneSpaceShareList(this.spaceId, {
-      index,
-      limit,
-      offset,
-    });
   },
 
   dataProxy: reads('shares.initialLoad'),
