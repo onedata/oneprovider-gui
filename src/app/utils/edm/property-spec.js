@@ -420,6 +420,14 @@ function createAllSpecs() {
           [EdmPropertyValueType.Literal]: 'Zuidwestbrabants Museum',
         },
       },
+      intermediateProvider: {
+        val: EdmPropertyValueType.Any,
+        obj: EdmObjectType.Aggregation,
+        lang: true,
+        rec: Rec.None,
+        max: Max.Any,
+        tip: 'The name of an intermediate organization that selects, collates, or curates the object on behalf of the content provider institution',
+      },
       isShownAt: {
         val: EdmPropertyValueType.Reference,
         obj: EdmObjectType.Aggregation,
