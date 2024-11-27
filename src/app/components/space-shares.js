@@ -109,8 +109,6 @@ export default Component.extend({
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
-      // FIXME: na razie nie używane, ale przydatne będzie do powrotu z widoku shera
-      initialJumpIndex: this.initialJumpIndex,
     });
   }),
 
@@ -149,11 +147,9 @@ export default Component.extend({
       this.set('shareToRename', share);
     },
     closeRemoveShare() {
-      // FIXME: dorobić odświeżanie listy
       this.set('shareToRemove', undefined);
     },
     closeRenameShare() {
-      // FIXME: dorobić odświeżanie listy
       this.set('shareToRename', undefined);
     },
     onShowShareList() {

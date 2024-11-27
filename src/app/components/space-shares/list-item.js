@@ -292,7 +292,6 @@ export default Component.extend(...mixins, {
 
   publicFileError: reads('rootFilePublicProxy.reason'),
 
-  // FIXME: experimental
   privateFileError: reads('rootFilePrivateProxy.reason'),
 
   shareFilePathErrorMessage: computed(
