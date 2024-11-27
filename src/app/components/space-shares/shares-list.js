@@ -72,7 +72,7 @@ export default Component.extend(...mixins, {
 
   //#region state
 
-  // FIXME: używać? może jak wracamy z widoku pojedynczego shera
+  // TODO: VFS-12506 It can be used for implementing scrolling to item after back
   initialJumpIndex: null,
 
   //#endregion
@@ -91,13 +91,10 @@ export default Component.extend(...mixins, {
   fileRequirements: computed(
     'shares.sourceArray.[]',
     function fileRequirements() {
-      const shares = this.shares?.sourceArray.toArray();
-      if (!shares) {
-        return [];
-      }
-      const requirements = shares.map(share =>
+      const gris = this.getRootFilePublicGris();
+      const requirements = gris.map(fileGri =>
         new FileRequirement({
-          fileGri: share.rootFilePublicGri,
+          fileGri,
           // This requirement is used by internally used list-item component to pre-load
           // files data with needed properties, avoiding files reload when these components
           // are being inserted.
@@ -115,31 +112,40 @@ export default Component.extend(...mixins, {
   usedFileGris: computed(
     'shares.sourceArray.[]',
     function usedFileGris() {
-      /** @type {Array<OneproviderShareListItem>} */
-      const loadedShareItems = this.shares?.sourceArray.toArray();
-      if (!loadedShareItems) {
-        return [];
-      }
-      const gris = loadedShareItems.map(share => share.rootFilePublicGri);
-      return gris;
+      return this.getRootFilePublicGris();
     }
   ),
+
+  /**
+   * NOTE: For some unknown Ember reason, when using computed properties to cache this
+   * value for usage in `fileRequirements` and `usedFileGris` it does not recompute
+   * properly, so falling back to computing GRIs always in these computed propeties.
+   * @returns {Array<string>}
+   */
+  getRootFilePublicGris() {
+    const gris = this.shares?.sourceArray.toArray().map(item =>
+      item.rootFilePublicGri
+    ).filter(gri => gri);
+    return gris ?? [];
+  },
 
   dataTabUrl: computed('spaceId', function dataTabUrl() {
     return this.onGetDataUrl({ spaceId: this.spaceId });
   }),
 
-  // FIXME: type
+  /**
+   * @type {ComputedProperty<Utils.InfiniteScroll>}
+   */
   infiniteScroll: computed('shares', function infiniteScroll() {
     return InfiniteScroll.create({
       entries: this.shares,
       singleRowHeight: this.rowHeight,
-      // FIXME: implement, może auto refresh
-      // onScroll: this.handleTableScroll.bind(this),
     });
   }),
 
-  // FIXME: type
+  /**
+   * @type {ComputedProperties<ConflictIdsArray<OneproviderShareListItem>>}
+   */
   conflictableShares: computed('shares', function conflictableShares() {
     return ConflictIdsArray.create({
       content: this.shares,
@@ -147,16 +153,6 @@ export default Component.extend(...mixins, {
       conflictProperty: 'name',
     });
   }),
-
-  init() {
-    this._super(...arguments);
-
-    // FIXME: debug code
-    ((name) => {
-      window[name] = this;
-      console.log(`window.${name}`, window[name]);
-    })('debug_shares_list');
-  },
 
   /**
    * @override
@@ -174,7 +170,7 @@ export default Component.extend(...mixins, {
         globals.document.querySelector('#content-scroll')
       );
     })();
-    // FIXME: resize observer;
+    // TODO: VFS-12506 resize observer - reload
   },
 
   dataProxy: reads('shares.initialLoad'),
