@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12511 Removed obsolete space-shares dummy component
 * VFS-12470 Changed static shares list to infinite scroll
 * VFS-12469 Improved UX of managing share name and Open Data title; disabled some operations when user has insufficient privileges for space shares
 * VFS-12582 Added tooltips to file ID column header and label in file details and added share ID

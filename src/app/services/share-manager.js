@@ -80,7 +80,7 @@ export default Service.extend({
   },
 
   /**
-   *
+   * @param {string} spaceId
    * @param {InfiniteListQuery} listQuery
    * @returns {Promise<ShareDataListPage>}
    */
