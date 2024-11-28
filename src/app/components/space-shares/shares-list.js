@@ -7,38 +7,38 @@
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
-import { reads, sort } from '@ember/object/computed';
+import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { all as allFulfilled } from 'rsvp';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { promise } from 'ember-awesome-macros';
-import _ from 'lodash';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { inject as service } from '@ember/service';
+import InfiniteScroll from 'onedata-gui-common/utils/infinite-scroll';
+import globals from 'onedata-gui-common/utils/globals';
+import waitForRender from 'onedata-gui-common/utils/wait-for-render';
+import ConflictIdsArray from 'onedata-gui-common/utils/conflict-ids-array';
 
 const mixins = [
   FileConsumerMixin,
-  createDataProxyMixin('sharesWithDeletedFiles'),
 ];
 
 export default Component.extend(...mixins, {
   classNames: ['shares-list'],
 
   appProxy: service(),
+  shareManager: service(),
 
   /**
    * @virtual
    * @type {Function}
    */
-  getShareUrl: undefined,
+  onGetShareUrl: undefined,
 
   /**
    * @virtual optional
    * @type {Function}
    */
-  getDataUrl: undefined,
+  onGetDataUrl: undefined,
 
   /**
    * @virtual
@@ -48,29 +48,36 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {PromiseArray<Models.Share>}
+   * @type {ReplacingChunksArray<OneproviderShareListItem>}
    */
-  sharesProxy: undefined,
+  shares: undefined,
 
   /**
    * @virtual
    * @type {Function}
    */
-  startRemoveShare: notImplementedThrow,
+  onStartRemoveShare: notImplementedThrow,
 
   /**
    * @virtual
    * @type {Function}
    */
-  startRenameShare: notImplementedThrow,
+  onStartRenameShare: notImplementedThrow,
+
+  //#region configuration
+
+  rowHeight: 65,
+
+  //#endregion
+
+  //#region state
+
+  // TODO: VFS-12506 It can be used for implementing scrolling to item after back
+  initialJumpIndex: null,
+
+  //#endregion
 
   oneproviderName: reads('appProxy.injectedData.oneproviderName'),
-
-  shares: reads('sharesProxy.content'),
-
-  sharesSorting: Object.freeze(['hasHandle:desc', 'name:asc']),
-
-  sortedShares: sort('shares', 'sharesSorting'),
 
   /**
    * @type {ComputedProperty<string>}
@@ -81,69 +88,102 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  fileRequirements: computed('sharesProxy.content', function fileRequirements() {
-    const shares = this.sharesProxy?.content ?? [];
-    return shares.map(share =>
-      new FileRequirement({
-        fileGri: share.belongsTo('rootFile').id(),
-        // This requirement is used by internally used list-item component to pre-load
-        // files data with needed properties, avoiding files reload when these components
-        // are being inserted.
-        properties: ['posixPermissions'],
-      })
-    );
-  }),
+  fileRequirements: computed(
+    'shares.sourceArray.[]',
+    function fileRequirements() {
+      const gris = this.getRootFilePublicGris();
+      const requirements = gris.map(fileGri =>
+        new FileRequirement({
+          fileGri,
+          // This requirement is used by internally used list-item component to pre-load
+          // files data with needed properties, avoiding files reload when these components
+          // are being inserted.
+          properties: ['posixPermissions'],
+        })
+      );
+      return requirements;
+    }
+  ),
 
   /**
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFileGris: computed('sharesProxy.content', function usedFileGris() {
-    const shares = this.get('sharesProxy.content');
-    if (!shares) {
-      return [];
+  usedFileGris: computed(
+    'shares.sourceArray.[]',
+    function usedFileGris() {
+      return this.getRootFilePublicGris();
     }
-    return shares.map(share => share.belongsTo('rootFile').id());
-  }),
+  ),
+
+  /**
+   * NOTE: For some unknown Ember reason, when using computed properties to cache this
+   * value for usage in `fileRequirements` and `usedFileGris` it does not recompute
+   * properly, so falling back to computing GRIs always in these computed propeties.
+   * @returns {Array<string>}
+   */
+  getRootFilePublicGris() {
+    const gris = this.shares?.sourceArray.toArray().map(item =>
+      item.rootFilePublicGri
+    ).filter(gri => gri);
+    return gris ?? [];
+  },
 
   dataTabUrl: computed('spaceId', function dataTabUrl() {
-    const {
-      getDataUrl,
-      spaceId,
-    } = this.getProperties('getDataUrl', 'spaceId');
-    return getDataUrl({ spaceId });
+    return this.onGetDataUrl({ spaceId: this.spaceId });
   }),
 
   /**
-   * @type {ComputedProperty<PromiseObject>}
+   * @type {ComputedProperty<Utils.InfiniteScroll>}
    */
-  dataProxy: promise.object(promise.all(
-    'sharesProxy',
-    'sharesWithDeletedFilesProxy',
-  )),
+  infiniteScroll: computed('shares', function infiniteScroll() {
+    return InfiniteScroll.create({
+      entries: this.shares,
+      singleRowHeight: this.rowHeight,
+    });
+  }),
+
+  /**
+   * @type {ComputedProperties<ConflictIdsArray<OneproviderShareListItem>>}
+   */
+  conflictableShares: computed('shares', function conflictableShares() {
+    return ConflictIdsArray.create({
+      content: this.shares,
+      diffProperty: 'id',
+      conflictProperty: 'name',
+    });
+  }),
 
   /**
    * @override
    */
-  async fetchSharesWithDeletedFiles() {
-    return this.get('sharesProxy')
-      .then(shares => allFulfilled(
-        shares.map(share => share.getRelation('rootFile')
-          .then(() => null)
-          .catch(error => get(error || {}, 'details.errno') === 'enoent' ? share : null)
-        )))
-      .then(shares => _.compact(shares));
+  didInsertElement() {
+    this._super(...arguments);
+
+    (async () => {
+      await this.shares.initialLoad;
+      await waitForRender();
+      /** @type {HTMLElement} */
+      const entriesTable = this.element.querySelector('.entries-table');
+      this.infiniteScroll.mount(
+        entriesTable,
+        globals.document.querySelector('#content-scroll')
+      );
+    })();
+    // TODO: VFS-12506 resize observer - reload
   },
+
+  dataProxy: reads('shares.initialLoad'),
 
   actions: {
     getShareUrl(...args) {
-      return this.get('getShareUrl')(...args);
+      return this.onGetShareUrl(...args);
     },
     startRemoveShare(...args) {
-      return this.get('startRemoveShare')(...args);
+      return this.onStartRemoveShare(...args);
     },
     startRenameShare(...args) {
-      return this.get('startRenameShare')(...args);
+      return this.onStartRenameShare(...args);
     },
   },
 });

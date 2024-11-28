@@ -72,15 +72,17 @@
   <SpaceShares::RemoveModal
     @share={{share}}
     @opened={{removeShareOpened}}
-    @onShowShareList={{onShowShareList}}
+    @onRemoved={{action "showShareList"}}
     @close={{action (mut removeShareOpened) false}}
   />
 </RenderLater>
 
 <RenderLater @triggerRender={{renameShareOpened}}>
   <SpaceShares::RenameModal
-    @share={{share}}
+    @shareId={{share.entityId}}
+    @initialName={{share.name}}
     @opened={{renameShareOpened}}
     @close={{action (mut renameShareOpened) false}}
+    @onRenamed={{action "reloadShareList"}}
   />
 </RenderLater>

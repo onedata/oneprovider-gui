@@ -1,45 +1,53 @@
-{{#if shareId}}
-  <PromiseProxyContainer
-    @proxy={{shareProxy}}
-    @spinnerBlockClass="absolute-middle-centered"
-    @sizeClass="lg"
-    @loadingLabel={{oneproviderName}}
-  >
-    <ShareShow
-      @share={{shareProxy.content}}
-      @dirId={{dirId}}
-      @initialTabId={{initialTabId}}
+<PromiseProxyContainer
+  @proxy={{spaceProxy}}
+>
+  {{#if shareId}}
+    <PromiseProxyContainer
+      @proxy={{shareProxy}}
+      @spinnerBlockClass="absolute-middle-centered"
+      @sizeClass="lg"
+      @loadingLabel={{oneproviderName}}
+    >
+      <ShareShow
+        @share={{shareProxy.content}}
+        @dirId={{dirId}}
+        @initialTabId={{initialTabId}}
+        @space={{spaceProxy.content}}
+        @updateDirId={{action "updateDirId"}}
+        @getDataUrl={{action "getDataUrl"}}
+        @onShowShareList={{action "onShowShareList"}}
+        @reloadShareList={{action "reloadShareList"}}
+      />
+    </PromiseProxyContainer>
+  {{else}}
+    <SpaceShares::SharesList
+      @shares={{shares}}
       @space={{spaceProxy.content}}
-      @updateDirId={{action "updateDirId"}}
-      @getDataUrl={{action "getDataUrl"}}
-      @onShowShareList={{action "onShowShareList"}}
-      @reloadShareList={{action "reloadShareList"}}
+      @onGetShareUrl={{action "getShareUrl"}}
+      @onGetDataUrl={{action "getDataUrl"}}
+      @onStartRemoveShare={{action "startRemoveShare"}}
+      @onStartRenameShare={{action "startRenameShare"}}
     />
-  </PromiseProxyContainer>
-{{else}}
-  <SpaceShares::SharesList
-    @space={{spaceProxy.content}}
-    @sharesProxy={{sharesProxy}}
-    @getShareUrl={{action "getShareUrl"}}
-    @getDataUrl={{action "getDataUrl"}}
-    @startRemoveShare={{action "startRemoveShare"}}
-    @startRenameShare={{action "startRenameShare"}}
-  />
-{{/if}}
+  {{/if}}
 
-<RenderLater @triggerRender={{shareToRemove}}>
-  <SpaceShares::RemoveModal
-    @share={{shareToRemove}}
-    @fileSharesCount={{fileSharesCount}}
-    @opened={{and shareToRemove (not shareToRemove.isDeleted)}}
-    @close={{action "closeRemoveShare"}}
-  />
-</RenderLater>
+  <RenderLater @triggerRender={{shareToRemove}}>
+    <SpaceShares::RemoveModal
+      @share={{shareToRemove}}
+      @fileSharesCount={{fileSharesCount}}
+      @opened={{bool shareToRemove}}
+      @onRemoved={{action "reloadShareList"}}
+      @close={{action "closeRemoveShare"}}
+    />
+  </RenderLater>
 
-<RenderLater @triggerRender={{shareToRename}}>
-  <SpaceShares::RenameModal
-    @share={{shareToRename}}
-    @opened={{and shareToRename}}
-    @close={{action "closeRenameShare"}}
-  />
-</RenderLater>
+  <RenderLater @triggerRender={{shareToRename}}>
+    <SpaceShares::RenameModal
+      @shareId={{shareToRename.id}}
+      @initialName={{shareToRename.name}}
+      @opened={{bool shareToRename}}
+      @close={{action "closeRenameShare"}}
+      @onRenamed={{action "reloadShareList"}}
+    />
+  </RenderLater>
+
+</PromiseProxyContainer>

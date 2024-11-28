@@ -33,6 +33,7 @@ export default Component.extend(I18n, {
   currentUser: service(),
   handleManager: service(),
   globalNotify: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -239,12 +240,23 @@ export default Component.extend(I18n, {
       if (!this.selectedMetadataType || !this.selectedHandleService) {
         throw new Error('no selectedMetadataType or selectedHandleService specified');
       }
-      await this.handleManager.createHandle({
-        share: this.share,
-        metadataPrefix: this.selectedMetadataType,
-        metadataString: xml,
-        handleServiceId: get(this.selectedHandleService, 'entityId'),
-      });
+      try {
+        await this.handleManager.createHandle({
+          share: this.share,
+          metadataPrefix: this.selectedMetadataType,
+          metadataString: xml,
+          handleServiceId: get(this.selectedHandleService, 'entityId'),
+        });
+      } finally {
+        try {
+          this.appProxy.callParent('reloadShareList');
+        } catch (error) {
+          console.error(
+            'share-show/pane-opendata: failed to reload share list in Onezone GUI',
+            error
+          );
+        }
+      }
       safeExec(this, 'loadXml');
     },
     back() {

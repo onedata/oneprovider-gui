@@ -48,6 +48,7 @@ export const propertyName = {
     aggregatedCHO: 'Aggregated CHO',
     currentLocation: 'Current location',
     dataProvider: 'Content provider institution',
+    intermediateProvider: 'Intermediate organisation',
     isShownAt: 'Object on provider\'s Website',
     object: 'Representative image',
     provider: 'Name of organisation uploading the data',

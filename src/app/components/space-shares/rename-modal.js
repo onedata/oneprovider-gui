@@ -11,6 +11,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import { tag, string, gte, raw } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
+import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend(I18n, {
   shareManager: service(),
@@ -30,9 +31,15 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.Share}
+   * @type {string}
    */
-  share: undefined,
+  shareId: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  initialName: undefined,
 
   /**
    * @virtual
@@ -40,7 +47,11 @@ export default Component.extend(I18n, {
    */
   close: notImplementedThrow,
 
-  newName: '',
+  /**
+   * @virtual
+   * @type {() => void}
+   */
+  onRenamed: undefined,
 
   inputId: tag `${'elementId'}-input`,
 
@@ -52,19 +63,24 @@ export default Component.extend(I18n, {
   actions: {
     async submit() {
       const {
-        share,
+        shareId,
         shareManager,
         newName,
         globalNotify,
       } = this;
       try {
-        await shareManager.renameShare(share, newName.trim());
+        await shareManager.renameShare(shareId, newName.trim());
+        this.close();
       } catch (error) {
         globalNotify.backendError(this.t('renaming'), error);
         throw error;
       }
+      this.onRenamed?.();
       try {
-        await this.appProxy.callParent('reloadCurrentShareRecord');
+        await allFulfilled([
+          this.appProxy.callParent('reloadCurrentShareRecord', shareId),
+          this.appProxy.callParent('reloadShareList'),
+        ]);
       } finally {
         this.close();
       }
