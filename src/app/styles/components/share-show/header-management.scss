@@ -41,4 +41,17 @@
   .share-menu-trigger {
     padding-right: 0;
   }
+  .root-file-path-error-container {
+    display: flex;
+    align-items: center;
+  }
+  .root-file-path-error {
+    font-style: italic;
+    opacity: $disabled-opacity;
+    // a fix for truncated italic text; it also makes space for optional label tip
+    padding-right: 0.8em;
+  }
+  .root-file-path-error-label-tip {
+    line-height: 0;
+  }
 }

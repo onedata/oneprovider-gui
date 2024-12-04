@@ -6,22 +6,25 @@
  * menus and sidebars.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2021 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { MetadataType } from 'oneprovider-gui/models/handle';
 import { inject as service } from '@ember/service';
-import { computed, get, observer } from '@ember/object';
-import { reads, equal } from '@ember/object/computed';
+import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import { conditional, raw, and, not, promise } from 'ember-awesome-macros';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import { promise } from 'ember-awesome-macros';
 import { resolve } from 'rsvp';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
+import { asyncObserver } from 'onedata-gui-common/utils/observer';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import ShareRootErrorInfo, { ShareFileErrorType } from 'oneprovider-gui/utils/share-root-error-info';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 /**
  * @typedef {'opendata'|'description'|'files'} ShareShowTabId
@@ -29,7 +32,6 @@ import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 
 const mixins = [
   I18n,
-  createDataProxyMixin('shareRootDeleted'),
 ];
 
 export default Component.extend(...mixins, {
@@ -115,6 +117,24 @@ export default Component.extend(...mixins, {
   }),
 
   /**
+   * @type {ComputedProperty<Utils.ShareRootErrorInfo>}
+   */
+  shareRootErrorInfo: computed(
+    'share.{rootFileType,rootFile,privateRootFile}',
+    function shareRootErrorInfo() {
+      if (!this.share) {
+        return;
+      }
+      return ShareRootErrorInfo.create({
+        ownerSource: this,
+        rootFileType: this.share.rootFileType,
+        rootFilePrivateProxy: this.share.privateRootFile,
+        rootFilePublicProxy: this.share.rootFile,
+      });
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<String>}
    */
   description: reads('share.description'),
@@ -154,6 +174,7 @@ export default Component.extend(...mixins, {
           ids.push('opendata');
         }
         return ids;
+        2024 - 12 - 04 10: 53: 09
       });
     }
   )),
@@ -163,20 +184,60 @@ export default Component.extend(...mixins, {
    */
   tabIds: reads('tabIdsProxy.content'),
 
-  /**
-   * @type {ComputedProperty<Array<String>>}
-   */
-  disabledTabs: conditional(
-    and('shareRootDeleted', not(equal('handleStateProxy.content', 'available'))),
-    raw(['opendata']),
-    raw([])
+  rootFileErrorType: reads('shareRootErrorInfo.rootFileErrorType'),
+
+  shareRootDeletedProxy: computed(
+    'shareRootErrorInfo.publicFileProxy',
+    'rootFileErrorType',
+    function shareRootDeletedProxy() {
+      const promise = (async () => {
+        await this.shareRootErrorInfo.publicFileProxy;
+        return this.rootFileErrorType === ShareFileErrorType.NotFound;
+      })();
+      return promiseObject(promise);
+    }
   ),
 
-  tabClasses: conditional(
-    and(equal('handleStateProxy.content', 'noHandle'), not('shareRootDeleted')),
-    raw({ opendata: 'tab-label-notice' }),
-    raw({})
+  rootFilePathErrorTip: computed(
+    'rootFilePathText',
+    'shareRootErrorInfo.errorDetails',
+    function rootFilePathErrorTip() {
+      if (!this.rootFilePathText) {
+        return;
+      }
+      return this.shareRootErrorInfo.errorDetails;
+    }
   ),
+
+  /**
+   * @type {ComputedProperty<Array<string>>}
+   */
+  disabledTabs: computed('isShareRootDeleted', function disabledTabs() {
+    if (this.isShareRootDeleted) {
+      return ['opendata'];
+    } else {
+      return [];
+    }
+  }),
+
+  tabClasses: computed(
+    'rootFileErrorType',
+    'handleStateProxy.content',
+    function tabClasses() {
+      if (
+        this.handleStateProxy.content === 'noHandle' &&
+        this.rootFileErrorType !== ShareFileErrorType.notFound
+      ) {
+        return { opendata: 'tab-label-notice' };
+      } else {
+        return {};
+      }
+    }
+  ),
+
+  rootFilePrivateProxy: computedRelationProxy('share.privateRootFile'),
+
+  rootFilePublicProxy: computedRelationProxy('share.rootFile'),
 
   scopeClass: computed('publicMode', function scopeClass() {
     const publicMode = this.get('publicMode');
@@ -220,12 +281,11 @@ export default Component.extend(...mixins, {
     return get(handle, 'metadataPrefix') === MetadataType.Edm;
   }),
 
-  shareObserver: observer('share', function shareObserver() {
-    this.updateShareRootDeletedProxy();
-  }),
-
-  tabScrollObserver: observer('activeTab', function tabScrollObserver() {
-    scrollTopClosest(this.get('element'));
+  // FIXME: przetestować
+  tabScrollObserver: asyncObserver('activeTab', function tabScrollObserver() {
+    if (this.element) {
+      scrollTopClosest(this.element);
+    }
   }),
 
   init() {
@@ -248,15 +308,6 @@ export default Component.extend(...mixins, {
         }
       }
     })();
-  },
-
-  /**
-   * @override
-   */
-  fetchShareRootDeleted() {
-    return this.get('share').getRelation('rootFile')
-      .then(() => false)
-      .catch(error => get(error || {}, 'details.errno') === 'enoent');
   },
 
   actions: {
