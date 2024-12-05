@@ -10,7 +10,7 @@ export default {
   noPublicAccess: 'No public access',
   openData: 'Open Data',
   openDataTip: 'This {{fileType}} is published as Open Data.',
-  couldNotGetPath: 'Could not resolve share root file path',
+  notAvailable: 'n/a',
   warning: {
     file: 'This file is not accessible via any public share because it has no <em>read</em> POSIX permission for <em>other</em>.',
     dir: 'This directory is not accessible via any public share because it does not have both <em>read</em> and <em>execute</em> POSIX permissions for <em>other</em>.',
@@ -18,7 +18,6 @@ export default {
   fileType: {
     [FileType.Regular]: 'file',
     [FileType.Directory]: 'directory',
-    [FileType.SymbolicLink]: 'symbolic link',
     item: 'item',
   },
 };

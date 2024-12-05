@@ -2,7 +2,7 @@
  * Single share of space on list
  *
  * @author Jakub Liput
- * @copyright (C) 2020-2023 ACK CYFRONET AGH
+ * @copyright (C) 2020-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -22,7 +22,7 @@ import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insuffi
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { FileType, LegacyFileType } from 'onedata-gui-common/utils/file';
-import isNotFoundError from 'oneprovider-gui/utils/is-not-found-error';
+import ShareRootErrorInfo, { ShareFileErrorType } from 'oneprovider-gui/utils/share-root-error-info';
 
 const mixins = [
   I18n,
@@ -59,13 +59,6 @@ export default Component.extend(...mixins, {
    * @type {OneproviderShareListItem}
    */
   share: undefined,
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  pointsToDeletedFile: computed('publicFileError', function pointsToDeletedFile() {
-    return isNotFoundError(this.publicFileError);
-  }),
 
   /**
    * @virtual
@@ -115,6 +108,11 @@ export default Component.extend(...mixins, {
   usedFileGris: computed('rootFilePublicGri', function usedFileGris() {
     return this.rootFilePublicGri ? [this.rootFilePublicGri] : [];
   }),
+
+  /**
+   * @type {ComputedProperty<FileType>}
+   */
+  rootFileType: reads('share.rootFileType'),
 
   /**
    * @type {ComputedProperty<string>}
@@ -222,26 +220,59 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<string>}
    */
-  icon: computed('share.rootFileType', function icon() {
-    return this.share?.rootFileType === FileType.Regular ?
+  icon: computed('rootFileType', function icon() {
+    return this.rootFileType === FileType.Regular ?
       'browser-file' : 'browser-directory';
   }),
 
-  /**
-   * @type {ComputedProperty<string>}
-   */
-  iconTip: computed(
-    'share.rootFileType',
-    'pointsToDeletedFile',
-    function icon() {
-      if (this.pointsToDeletedFile) {
-        const tipKey = this.share?.rootFileType === FileType.Regular ?
-          'deletedFileIconTip' : 'deletedDirectoryIconTip';
-        return this.t(tipKey);
-      }
-
+  shareRootErrorInfo: computed(
+    'rootFileType',
+    'rootFilePublicProxy',
+    'rootFilePrivateProxy',
+    function shareRootErrorInfo() {
+      return ShareRootErrorInfo.create({
+        ownerSource: this,
+        rootFileType: this.rootFileType,
+        rootFilePrivateProxy: this.rootFilePrivateProxy,
+        rootFilePublicProxy: this.rootFilePublicProxy,
+      });
     }
   ),
+
+  /**
+   * @type {ComputedProperty<ShareFileErrorType>}
+   */
+  rootFileErrorType: reads('shareRootErrorInfo.rootFileErrorType'),
+
+  tagIcon: computed('rootFileErrorType', function tagIcon() {
+    switch (this.rootFileErrorType) {
+      case ShareFileErrorType.NotFound:
+        return 'x';
+      case ShareFileErrorType.NoAccess:
+        return 'ban-left';
+      case ShareFileErrorType.OtherError:
+        return 'warning';
+      default:
+        break;
+    }
+  }),
+
+  iconClass: computed('rootFileErrorType', function iconClass() {
+    switch (this.rootFileErrorType) {
+      case ShareFileErrorType.NotFound:
+      case ShareFileErrorType.OtherError:
+        return 'danger-tag';
+      case ShareFileErrorType.NoAccess:
+        return 'bold-tag warning-tag';
+      default:
+        break;
+    }
+  }),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  rootFileTip: reads('shareRootErrorInfo.tip'),
 
   isViewForOtherForbiddenProxy: promise.object(computed(
     'rootFilePublicProxy.content.{type,posixPermissions}',
@@ -293,14 +324,6 @@ export default Component.extend(...mixins, {
   publicFileError: reads('rootFilePublicProxy.reason'),
 
   privateFileError: reads('rootFilePrivateProxy.reason'),
-
-  shareFilePathErrorMessage: computed(
-    'privateFileError',
-    function shareFilePathErrorMessage() {
-      const error = this.privateFileError;
-      return this.errorExtractor.getMessage(error)?.message;
-    }
-  ),
 
   init() {
     this._super(...arguments);
