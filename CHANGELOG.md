@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12528 Added xattrs columns in share browser
 * VFS-12511 Removed obsolete space-shares dummy component
 * VFS-12470 Changed static shares list to infinite scroll
 * VFS-12469 Improved UX of managing share name and Open Data title; disabled some operations when user has insufficient privileges for space shares
