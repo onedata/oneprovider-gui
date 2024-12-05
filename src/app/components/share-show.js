@@ -174,7 +174,6 @@ export default Component.extend(...mixins, {
           ids.push('opendata');
         }
         return ids;
-        2024 - 12 - 04 10: 53: 09
       });
     }
   )),
@@ -226,7 +225,7 @@ export default Component.extend(...mixins, {
     function tabClasses() {
       if (
         this.handleStateProxy.content === 'noHandle' &&
-        this.rootFileErrorType !== ShareFileErrorType.notFound
+        this.rootFileErrorType !== ShareFileErrorType.NotFound
       ) {
         return { opendata: 'tab-label-notice' };
       } else {
@@ -281,7 +280,6 @@ export default Component.extend(...mixins, {
     return get(handle, 'metadataPrefix') === MetadataType.Edm;
   }),
 
-  // FIXME: przetestować
   tabScrollObserver: asyncObserver('activeTab', function tabScrollObserver() {
     if (this.element) {
       scrollTopClosest(this.element);
