@@ -17,6 +17,7 @@ import { inject as service } from '@ember/service';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import globals from 'onedata-gui-common/utils/globals';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { ShareFileErrorType } from 'oneprovider-gui/utils/share-root-error-info';
 
 export default HeaderBaseComponent.extend(I18n, {
   classNames: [
@@ -52,15 +53,14 @@ export default HeaderBaseComponent.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Boolean}
-   */
-  shareRootDeleted: false,
-
-  /**
-   * @virtual
    * @type {Models.Space}
    */
   space: undefined,
+
+  /**
+   * @type {ComputedProperty<Utils.ShareRootErrorInfo>}
+   */
+  shareRootErrorInfo: undefined,
 
   /**
    * @type {Boolean}
@@ -185,6 +185,15 @@ export default HeaderBaseComponent.extend(I18n, {
     'archiveInfo.isInArchive',
     'archiveInfo.archiveRelativeFilePath.firstObject',
     raw(undefined)
+  ),
+
+  rootPathErrorTip: computed(
+    'shareRootErrorInfo.{errorDetails,rootFileErrorType}',
+    function rootPathErrorTip() {
+      if (this.shareRootErrorInfo.rootFileErrorType === ShareFileErrorType.OtherError) {
+        return this.shareRootErrorInfo.errorDetails;
+      }
+    }
   ),
 
   actions: {

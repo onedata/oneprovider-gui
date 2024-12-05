@@ -2,14 +2,14 @@
   <div class="one-collapsible-list-item-header row list-header-row truncate hoverable">
     <div class="list-header-content">
       <span class="item-icon-container">
-        {{one-icon-tagged
-          icon=icon
-          class="item-icon tag-right"
-          tagIcon=(if pointsToDeletedFile "x")
-          shadowType=(if pointsToDeletedFile "circle" "none")
-        }}
-        {{#if iconTip}}
-          {{one-tooltip title=iconTip}}
+        <OneIconTagged
+          class="item-icon tag-right {{iconClass}}"
+          @icon={{icon}}
+          @tagIcon={{tagIcon}}
+          @shadowType={{if tagIcon "circle" "none"}}
+        />
+        {{#if rootFileTip}}
+          <OneTooltip @title={{rootFileTip}} />
         {{/if}}
       </span>
       <div class="share-name-container">
@@ -24,9 +24,9 @@
         {{#if isPathNotAvailable}}
           <span class="share-file-path truncate">
             <span class="share-file-path-error">
-              {{tt this "couldNotGetPath"}}
-              {{#if shareFilePathErrorMessage}}
-                <OneTooltip @title={{shareFilePathErrorMessage}} />
+              {{tt this "notAvailable"}}
+              {{#if rootFileTip}}
+                <OneTooltip @title={{rootFileTip}} />
               {{/if}}
             </span>
           </span>
@@ -60,32 +60,32 @@
           {{/if}}
         </div>
       {{/if}}
-      {{one-menu-toggle
-        class=(concat-classes triggerClass "share-menu-trigger")
-        click=(disable-bubbling (action "toggleActions"))
-      }}
+      <OneMenuToggle
+        class={{concat-classes triggerClass "share-menu-trigger"}}
+        @click={{disable-bubbling (action "toggleActions")}}
+      />
 
-      {{#render-later triggerRender=actionsOpened}}
-        {{#one-webui-popover
+      <RenderLater @triggerRender={{actionsOpened}}>
+        <OneWebuiPopover
           class="transfer-actions"
-          popoverStyle="with-dropdown"
-          padding=false
-          triggerSelector=triggerSelector
-          open=actionsOpened
-          onToggle=(action "toggleActions")
-        }}
-          {{#click-outside
-            onClickOutside=(action "toggleActions" false)
-            exceptSelector=triggerSelector
-          }}
-            {{actions-popover-content
-              actionsArray=menuActions
-              actionClicked=(action "toggleActions" false)
+          @popoverStyle="with-dropdown"
+          @padding={{false}}
+          @triggerSelector={{triggerSelector}}
+          @open={{actionsOpened}}
+          @onToggle={{action "toggleActions"}}
+        >
+          <ClickOutside
+            @onClickOutside={{action "toggleActions" false}}
+            @exceptSelector={{triggerSelector}}
+          >
+            <ActionsPopoverContent
+              @actionsArray={{menuActions}}
+              @actionClicked={{action "toggleActions" false}}
               class="share-actions"
-            }}
-          {{/click-outside}}
-        {{/one-webui-popover}}
-      {{/render-later}}
+            />
+          </ClickOutside>
+        </OneWebuiPopover>
+      </RenderLater>
     </div>
   </div>
 </a>

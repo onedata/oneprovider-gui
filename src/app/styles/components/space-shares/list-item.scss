@@ -25,14 +25,29 @@
   }
   .share-file-path-error {
     font-style: italic;
+    opacity: $disabled-opacity * 0.9;
   }
   .share-file-path {
     opacity: $disabled-opacity;
     font-size: $font-size-small;
   }
 
-  .one-icon-tag-icon {
-    color: $color-one-danger;
+  .one-icon-tagged {
+    &.bold-tag {
+      .one-icon-tag-icon {
+        font-weight: bold;
+      }
+    }
+    &.warning-tag {
+      .one-icon-tag-icon {
+        color: $color-one-warning;
+      }
+    }
+    &.danger-tag {
+      .one-icon-tag-icon {
+        color: $color-one-danger;
+      }
+    }
   }
 
   .share-menu-trigger {

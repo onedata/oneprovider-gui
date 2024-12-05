@@ -77,6 +77,7 @@ import fileDistributionViewModel from './utils/file-distribution-view-model';
 import archivePropertiesViewModel from './utils/archive-properties-view-model';
 import itemsTooltipContent from './utils/items-tooltip-content';
 import langSpec from './utils/lang-spec';
+import shareRootErrorInfo from './utils/share-root-error-info';
 
 const translations = {
   components: {
@@ -154,6 +155,7 @@ const translations = {
     archivePropertiesViewModel,
     itemsTooltipContent,
     langSpec,
+    shareRootErrorInfo,
     archiveForm: {
       baseModel: archiveFormBaseModel,
       viewModel: archiveFormViewModel,

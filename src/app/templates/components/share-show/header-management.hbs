@@ -3,8 +3,18 @@
     {{tt this "path"}}
   </div>
   <div class="col-value">
-    {{#if shareRootDeleted}}
-      <em class="root-file-deleted">{{tt this "pathForDeletedRootFile"}}</em>
+    {{#if shareRootErrorInfo.errorText}}
+      <div class="root-file-path-error-container">
+        <TruncatedString class="root-file-path-error">
+          {{shareRootErrorInfo.errorText}}
+        </TruncatedString>
+        {{#if rootPathErrorTip}}
+          <OneLabelTip
+            class="root-file-path-error-label-tip"
+            @title={{rootPathErrorTip}}
+          />
+        {{/if}}
+      </div>
     {{else}}
       <PromiseProxyContainer
         @sizeClass="xs"
