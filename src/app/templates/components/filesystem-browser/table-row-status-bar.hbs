@@ -28,15 +28,15 @@
     >
       {{tt this "status.shared"}}
     </div>
-    {{#if isOpenData}}
+    {{#if isPublicData}}
       <div
-        class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-open-data"
+        class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-public-data"
       >
         {{one-icon
           icon="globe-cursor"
-          class="file-open-data-icon"
+          class="file-public-data-icon"
         }}
-        {{one-tooltip title=(tt this "hintOpenData" fileType=typeText)}}
+        {{one-tooltip title=(tt this "hintPublicData" fileType=typeText)}}
       </div>
     {{/if}}
   </div>

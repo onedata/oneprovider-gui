@@ -295,9 +295,9 @@ export default Component.extend(...mixins, {
 
   isNoPublicAccessLabelShown: bool('isViewForOtherForbiddenProxy.content'),
 
-  isOpenDataLabelShown: reads('share.hasHandle'),
+  isPublicDataLabelShown: reads('share.hasHandle'),
 
-  isLabelsContanierShown: or('isNoPublicAccessLabelShown', 'isOpenDataLabelShown'),
+  isLabelsContanierShown: or('isNoPublicAccessLabelShown', 'isPublicDataLabelShown'),
 
   shareFilePathProxy: computed('rootFilePrivateProxy', function shareFilePathProxy() {
     const promise = (async () => {

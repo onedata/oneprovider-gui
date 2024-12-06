@@ -48,11 +48,11 @@
               <OneTooltip @title={{forbiddenTooltipTextProxy.content}} />
             </span>
           {{/if}}
-          {{#if isOpenDataLabelShown}}
-            <span class="label label-primary open-data-tag">
-              <span class="text">{{tt this "openData"}}</span>
+          {{#if isPublicDataLabelShown}}
+            <span class="label label-primary public-data-tag">
+              <span class="text">{{tt this "publicData"}}</span>
               <OneTooltip
-                @title={{tt this "openDataTip"
+                @title={{tt this "publicDataTip"
                   fileType=(tt this (concat "fileType." (or share.rootFileType "item")))
                 }}
               />

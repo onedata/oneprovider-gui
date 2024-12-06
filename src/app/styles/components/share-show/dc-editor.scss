@@ -1,10 +1,10 @@
 .share-show-dc-editor {
   .one-carousel-slide[data-one-carousel-slide-id=xml] {
-    padding-right: $open-data-remove-col-width;
+    padding-right: $public-data-remove-col-width;
   }
 
-  .col-open-data-editor-additional {
-    padding-right: $open-data-remove-col-width;
+  .col-public-data-editor-additional {
+    padding-right: $public-data-remove-col-width;
   }
 
   .row-metadata-form.no-entries + .row-metadata-group-add {
@@ -16,7 +16,7 @@
     .metadata-group-header {
       display: flex;
       align-items: baseline;
-      padding-right: $open-data-remove-col-width;
+      padding-right: $public-data-remove-col-width;
       .metadata-group-name {
         flex-grow: 1;
       }
@@ -35,7 +35,7 @@
       display: flex;
       align-items: center;
       .remove-icon {
-        flex: 0 0 $open-data-remove-col-width;
+        flex: 0 0 $public-data-remove-col-width;
         text-align: right;
       }
       textarea.form-control {
@@ -58,12 +58,12 @@
     }
   }
   .row-metadata-group-add {
-    padding-right: $open-data-remove-col-width;
+    padding-right: $public-data-remove-col-width;
   }
   .row-metadata-group-add {
     margin-top: 3em;
   }
-  .open-data-xml-form-group {
+  .public-data-xml-form-group {
     margin-bottom: 0;
     &:not(.has-error) {
       .form-message {

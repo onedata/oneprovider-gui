@@ -1,5 +1,5 @@
 /**
- * Visual editor for Open Data metadata in Europeana Data Model format
+ * Visual editor for Public Data metadata in Europeana Data Model format
  *
  * @author Jakub Liput
  * @copyright (C) 2024 ACK CYFRONET AGH
