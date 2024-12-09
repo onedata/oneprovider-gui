@@ -1,7 +1,8 @@
 export default {
   linkLabel: {
-    share: 'Public share link',
+    // FIXME: zastanawiam się teraz nad "share link" — może być trochę niejednoznaczne, bo możne znaczyć "udostępnij link"; może Share's link? podobnie niżej
+    share: 'Share link',
     handle: 'Public handle link',
-    rest: 'Public REST endpoint',
+    rest: 'Share REST endpoint',
   },
 };

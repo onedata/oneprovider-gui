@@ -10,9 +10,9 @@ import { get } from '@ember/object';
 import globals from 'onedata-gui-common/utils/globals';
 
 const urlTypeTranslations = {
-  share: 'Public share link',
+  share: 'Share link',
   handle: 'Public handle link',
-  rest: 'Public REST endpoint',
+  rest: 'Share REST endpoint',
 };
 
 const shareUrl = 'http://share-url';

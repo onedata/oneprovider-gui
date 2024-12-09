@@ -198,7 +198,7 @@ export default Component.extend(I18n, {
    */
   availableUrlTypes: conditional(
     'effShowHandle',
-    raw(['share', 'handle', 'rest']),
+    raw(['handle', 'share', 'rest']),
     raw(['share', 'rest'])
   ),
 
