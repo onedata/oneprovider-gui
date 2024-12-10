@@ -648,19 +648,34 @@ export default OneEmbeddedComponent.extend(...mixins, {
       onFilesRemoved: onRemoved,
     });
   },
-  closeRemoveModal(removeInvoked, results) {
-    const newIds = [];
+  async closeRemoveModal(removeInvoked, results) {
+    let notDeletedIds = [];
     if (removeInvoked) {
       for (const fileId in results) {
-        if (get(results[fileId], 'state') === 'rejected') {
-          newIds.push(fileId);
+        if (results[fileId].state === 'rejected') {
+          notDeletedIds.push(fileId);
         }
       }
     }
-    const filesToRemove = this.get('filesToRemove');
-    if (filesToRemove) {
+    // Sometimes, there can be an error when deleting file(s), but files are deleted
+    // anyway by backend, so check if they do not exist.
+    const existingDeleted = await allFulfilled(notDeletedIds.map(async (fileId) => {
+      let exists;
+      try {
+        const file = await this.fileManager.getFileById(fileId, { reload: true });
+        exists = Boolean(file);
+      } catch {
+        exists = false;
+      }
+      return [fileId, exists];
+    }));
+    notDeletedIds = existingDeleted
+      .filter(([, exists]) => exists)
+      .map(([fileId]) => fileId);
+
+    if (this.filesToRemove) {
       this.changeSelectedItems(
-        filesToRemove.filter(file => newIds.includes(get(file, 'entityId')))
+        this.filesToRemove.filter(file => notDeletedIds.includes(get(file, 'entityId')))
       );
     }
     this.setProperties({
