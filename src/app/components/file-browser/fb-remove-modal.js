@@ -250,17 +250,7 @@ export default Component.extend(...mixins, {
         fileManager,
         parentDir,
         shouldRemoveShares,
-      } = this.getProperties(
-        'files',
-        'onHide',
-        'globalNotify',
-        'errorExtractor',
-        'i18n',
-        'i18nPrefix',
-        'fileManager',
-        'parentDir',
-        'shouldRemoveShares'
-      );
+      } = this;
       const filesToRemove = [...files];
       this.set('processing', true);
 
