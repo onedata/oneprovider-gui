@@ -18,7 +18,7 @@ import EmberObject, {
 } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { dasherize } from '@ember/string';
+import { htmlSafe, dasherize } from '@ember/string';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
@@ -440,8 +440,12 @@ export default EmberObject.extend(...mixins, {
     'lastRefreshTime',
     function refreshBtnTip() {
       if (this.anyDataLoadError) {
-        const errorText = this.errorExtractor
+        let errorText = this.errorExtractor
           .getMessage(this.anyDataLoadError)?.message ?? this.t('unknownError');
+        const errorTextRaw = String(errorText);
+        if (errorText && errorTextRaw.endsWith('.')) {
+          errorText = htmlSafe(errorTextRaw.slice(0, errorTextRaw.length - 1));
+        }
         return this.t('refreshTip.lastError', {
           errorText,
         });

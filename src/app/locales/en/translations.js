@@ -79,6 +79,8 @@ import itemsTooltipContent from './utils/items-tooltip-content';
 import langSpec from './utils/lang-spec';
 import shareRootErrorInfo from './utils/share-root-error-info';
 
+import serviceTemporarilyUnavailable from './components/errors/service-temporarily-unavailable';
+
 const translations = {
   components: {
     modals,
@@ -129,6 +131,9 @@ const translations = {
     columnsConfigurationCell,
     visualEdm,
     storageLocationPerProviderTable,
+    errors: {
+      serviceTemporarilyUnavailable,
+    },
   },
   services: {
     uploadManager,
