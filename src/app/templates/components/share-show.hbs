@@ -12,10 +12,11 @@
       <ShareShow::HeaderManagement
         @share={{share}}
         @space={{space}}
-        @shareRootDeleted={{shareRootDeleted}}
+        @shareRootErrorInfo={{shareRootErrorInfo}}
         @showHandle={{eq handleState "available"}}
         @getDataUrl={{action "getDataUrl"}}
         @onShowShareList={{action "onShowShareList"}}
+        @onReloadShareList={{action "reloadShareList"}}
       />
     {{/if}}
     <BsTab
@@ -50,7 +51,7 @@
                     (eq handleState "noHandle")
                   )}}
                     {{tt this "tabs.publishOpenData"}}
-                  {{else if (and (eq tabId "files") shareRootDeleted)}}
+                  {{else if (and (eq tabId "files") shareRootDeletedProxy.content)}}
                     {{tt this "tabs.filesDeleted"}}
                   {{else}}
                     {{tt this (concat "tabs." tabId)}}

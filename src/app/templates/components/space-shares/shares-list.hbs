@@ -3,20 +3,21 @@
   @sizeClass="lg"
   @loadingLabel={{oneproviderName}}
 >
-  {{#if shares.length}}
-    <div class="one-collapsible-list">
-      {{#each sortedShares as |share|}}
-        <SpaceShares::ListItem
-          @space={{space}}
-          @share={{share}}
-          @pointsToDeletedFile={{contains share sharesWithDeletedFiles}}
-          @getShareUrl={{action "getShareUrl"}}
-          @startRemoveShare={{action "startRemoveShare"}}
-          @startRenameShare={{action "startRenameShare"}}
-        />
-      {{/each}}
-    </div>
-  {{else}}
+  <div class="one-collapsible-list entries-table {{unless shares.length "hidden"}}">
+    <div class="table-start-row"></div>
+    <div class="first-row" style={{infiniteScroll.firstRowModel.style}}></div>
+    {{#each conflictableShares as |share|}}
+      <SpaceShares::ListItem
+        class="data-row"
+        @space={{space}}
+        @share={{share}}
+        @getShareUrl={{action "getShareUrl"}}
+        @onStartRemoveShare={{action "startRemoveShare"}}
+        @onStartRenameShare={{action "startRenameShare"}}
+      />
+    {{/each}}
+  </div>
+  {{#unless shares.length}}
     <ContentSharesEmpty @forSpace={{true}} @dataTabUrl={{dataTabUrl}} />
-  {{/if}}
+  {{/unless}}
 </PromiseProxyContainer>

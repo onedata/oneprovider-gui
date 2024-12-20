@@ -5,7 +5,7 @@
   proceedButtonClass="btn btn-primary"
   modalClass="rename-share-modal"
   close=(action "close")
-  onShown=(action (mut newName) share.name)
+  onShown=(action (mut newName) initialName)
   onHidden=(action (mut newName) "")
   proceedDisabled=(not isNewNameValid)
   as |proceedModal|

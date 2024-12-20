@@ -2,27 +2,27 @@
  * Single share of space on list
  *
  * @author Jakub Liput
- * @copyright (C) 2020-2023 ACK CYFRONET AGH
+ * @copyright (C) 2020-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { htmlSafe } from '@ember/string';
-import { conditional, raw, eq, tag, collect, promise } from 'ember-awesome-macros';
+import { tag, collect, promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';
-import computedT from 'onedata-gui-common/utils/computed-t';
 import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
 import FileConsumerMixin from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
-import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { reads, bool, or } from '@ember/object/computed';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import { FileType, LegacyFileType } from 'onedata-gui-common/utils/file';
+import ShareRootErrorInfo, { ShareFileErrorType } from 'oneprovider-gui/utils/share-root-error-info';
 
 const mixins = [
   I18n,
@@ -30,6 +30,9 @@ const mixins = [
 ];
 
 export default Component.extend(...mixins, {
+  classNames: ['share-list-item'],
+  attributeBindings: ['dataRowId:data-row-id'],
+
   globalNotify: service(),
   globalClipboard: service(),
   errorExtractor: service(),
@@ -53,37 +56,27 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {Models.Share}
+   * @type {OneproviderShareListItem}
    */
   share: undefined,
 
   /**
    * @virtual
-   * @type {Boolean}
+   * @type {Function}
    */
-  pointsToDeletedFile: false,
+  onStartRemoveShare: notImplementedThrow,
 
   /**
    * @virtual
    * @type {Function}
    */
-  startRemoveShare: notImplementedThrow,
+  onStartRenameShare: notImplementedThrow,
 
   /**
    * @virtual
    * @type {Function}
    */
-  startRenameShare: notImplementedThrow,
-
-  //#region state
-
-  /**
-   * Error from fetching share private root.
-   * @type {any}
-   */
-  sharePrivateRootFileError: undefined,
-
-  //#endregion
+  onShareListChanged: undefined,
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -91,16 +84,18 @@ export default Component.extend(...mixins, {
   hasManageSharesPrivilege: bool('space.privileges.manageShares'),
 
   /**
+   * We need posixPermissions only for public file to show warning about lack of "Others"
+   * POSIX permission.
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  fileRequirements: computed('rootFileGri', function fileRequirements() {
-    if (!this.rootFileGri) {
+  fileRequirements: computed('rootFilePublicGri', function fileRequirements() {
+    if (!this.rootFilePublicGri) {
       return [];
     }
     return [
       new FileRequirement({
-        fileGri: this.rootFileGri,
+        fileGri: this.rootFilePublicGri,
         properties: ['posixPermissions'],
       }),
     ];
@@ -110,18 +105,34 @@ export default Component.extend(...mixins, {
    * @override
    * @implements {Mixins.FileConsumer}
    */
-  usedFileGris: computed('rootFileGri', function usedFileGris() {
-    return this.rootFileGri ? [this.rootFileGri] : [];
+  usedFileGris: computed('rootFilePublicGri', function usedFileGris() {
+    return this.rootFilePublicGri ? [this.rootFilePublicGri] : [];
   }),
 
-  rootFileGri: computed('share', function rootFileGri() {
-    return this.share?.belongsTo('rootFile').id();
-  }),
+  /**
+   * @type {ComputedProperty<FileType>}
+   */
+  rootFileType: reads('share.rootFileType'),
 
-  rootFileProxy: computedRelationProxy(
-    'share',
-    'rootFile'
-  ),
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  rootFilePublicGri: reads('share.rootFilePublicGri'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  rootFilePrivateGri: reads('share.rootFilePrivateGri'),
+
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.File>>}
+   */
+  rootFilePublicProxy: reads('share.rootFilePublicProxy'),
+
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.File>>}
+   */
+  rootFilePrivateProxy: reads('share.rootFilePrivateProxy'),
 
   /**
    * Frame name, where Onezone share link should be opened
@@ -130,6 +141,8 @@ export default Component.extend(...mixins, {
   target: '_top',
 
   actionsOpened: false,
+
+  dataRowId: reads('share.id'),
 
   /**
    * @type {Array<object>}
@@ -154,11 +167,7 @@ export default Component.extend(...mixins, {
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: () => {
-        const {
-          startRemoveShare,
-          share,
-        } = this.getProperties('startRemoveShare', 'share');
-        return startRemoveShare(share);
+        return this.onStartRemoveShare(this.share);
       },
       class: 'btn-remove-share',
     };
@@ -178,11 +187,7 @@ export default Component.extend(...mixins, {
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: () => {
-        const {
-          startRenameShare,
-          share,
-        } = this.getProperties('startRenameShare', 'share');
-        return startRenameShare(share);
+        return this.onStartRenameShare(this.share);
       },
       class: 'btn-rename-share',
     };
@@ -192,8 +197,8 @@ export default Component.extend(...mixins, {
     return {
       title: this.t('copyPublicUrl'),
       icon: 'browser-copy',
-      action: () => this.get('globalClipboard').copy(
-        this.get('share.publicUrl'),
+      action: () => this.globalClipboard.copy(
+        this.share.sharePublicUrl,
         this.t('publicUrl')
       ),
       class: 'btn-rename-share',
@@ -204,8 +209,8 @@ export default Component.extend(...mixins, {
     const {
       getShareUrl,
       share,
-    } = this.getProperties('getShareUrl', 'share');
-    return htmlSafe(getShareUrl({ shareId: get(share, 'entityId') }));
+    } = this;
+    return htmlSafe(getShareUrl({ shareId: get(share, 'id') }));
   }),
 
   triggerClass: tag`actions-share-${'componentGuid'}`,
@@ -213,45 +218,78 @@ export default Component.extend(...mixins, {
   triggerSelector: tag`.${'triggerClass'}`,
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
-  icon: conditional(
-    eq('share.rootFileType', raw('file')),
-    raw('browser-file'),
-    raw('browser-directory')
+  icon: computed('rootFileType', function icon() {
+    return this.rootFileType === FileType.Regular ?
+      'browser-file' : 'browser-directory';
+  }),
+
+  shareRootErrorInfo: computed(
+    'rootFileType',
+    'rootFilePublicProxy',
+    'rootFilePrivateProxy',
+    function shareRootErrorInfo() {
+      return ShareRootErrorInfo.create({
+        ownerSource: this,
+        rootFileType: this.rootFileType,
+        rootFilePrivateProxy: this.rootFilePrivateProxy,
+        rootFilePublicProxy: this.rootFilePublicProxy,
+      });
+    }
   ),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<ShareFileErrorType>}
    */
-  iconTip: conditional(
-    'pointsToDeletedFile',
-    conditional(
-      eq('share.rootFileType', raw('file')),
-      computedT('deletedFileIconTip'),
-      computedT('deletedDirectoryIconTip'),
-    ),
-    raw(undefined)
-  ),
+  rootFileErrorType: reads('shareRootErrorInfo.rootFileErrorType'),
+
+  tagIcon: computed('rootFileErrorType', function tagIcon() {
+    switch (this.rootFileErrorType) {
+      case ShareFileErrorType.NotFound:
+        return 'x';
+      case ShareFileErrorType.NoAccess:
+        return 'ban-left';
+      case ShareFileErrorType.OtherError:
+        return 'warning';
+      default:
+        break;
+    }
+  }),
+
+  iconClass: computed('rootFileErrorType', function iconClass() {
+    switch (this.rootFileErrorType) {
+      case ShareFileErrorType.NotFound:
+      case ShareFileErrorType.OtherError:
+        return 'danger-tag';
+      case ShareFileErrorType.NoAccess:
+        return 'bold-tag warning-tag';
+      default:
+        break;
+    }
+  }),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  rootFileTip: reads('shareRootErrorInfo.tip'),
 
   isViewForOtherForbiddenProxy: promise.object(computed(
-    'rootFileProxy.content.{type,posixPermissions}',
+    'rootFilePublicProxy.content.{type,posixPermissions}',
     async function isViewForOtherForbiddenProxy() {
-      const rootFile = await this.rootFileProxy;
+      const rootFilePublic = await this.rootFilePublicProxy;
       const octalNumber = 2;
-      return isPosixViewForbidden(rootFile, octalNumber);
+      return isPosixViewForbidden(rootFilePublic, octalNumber);
     }
   )),
 
   forbiddenTooltipTextProxy: promise.object(computed(
-    'rootFileProxy.content.type',
+    'rootFilePublicProxy.content.type',
     async function forbiddenTooltipTextProxy() {
-      const rootFile = await this.rootFileProxy;
-      if (get(rootFile, 'type') === 'file') {
-        return this.t('warning.file');
-      } else {
-        return this.t('warning.dir');
-      }
+      const rootFilePublic = await this.rootFilePublicProxy;
+      return this.t(
+        'warning.' + (rootFilePublic.type === LegacyFileType.Regular ? 'file' : 'dir')
+      );
     }
   )),
 
@@ -261,18 +299,13 @@ export default Component.extend(...mixins, {
 
   isLabelsContanierShown: or('isNoPublicAccessLabelShown', 'isOpenDataLabelShown'),
 
-  privateRootFileProxy: computedRelationProxy('share', 'privateRootFile', {
-    reload: true,
-    computedRelationErrorProperty: 'sharePrivateRootFileError',
-  }),
-
-  shareFilePathProxy: computed('privateRootFileProxy', function shareFilePathProxy() {
+  shareFilePathProxy: computed('rootFilePrivateProxy', function shareFilePathProxy() {
     const promise = (async () => {
-      const file = await this.privateRootFileProxy;
-      if (!file) {
+      const rootFilePrivate = await this.rootFilePrivateProxy;
+      if (!rootFilePrivate) {
         return null;
       }
-      return stringifyFilePath(await resolveFilePath(file));
+      return stringifyFilePath(await resolveFilePath(rootFilePrivate));
     })();
     return promiseObject(promise);
   }),
@@ -288,18 +321,21 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  shareFilePathErrorMessage: computed(
-    'sharePrivateRootFileError',
-    function shareFilePathErrorMessage() {
-      const reason = this.sharePrivateRootFileError;
-      return this.errorExtractor.getMessage(reason)?.message;
-    }
-  ),
+  publicFileError: reads('rootFilePublicProxy.reason'),
+
+  privateFileError: reads('rootFilePrivateProxy.reason'),
+
+  init() {
+    this._super(...arguments);
+  },
 
   actions: {
     toggleActions(open) {
       const _open = (typeof open === 'boolean') ? open : !this.get('actionsOpened');
       this.set('actionsOpened', _open);
+    },
+    shareListChanged() {
+      return this.onShareListChanged?.();
     },
   },
 });

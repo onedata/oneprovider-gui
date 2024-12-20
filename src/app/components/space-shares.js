@@ -7,14 +7,15 @@
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise, collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
+import { all as allFulfilled } from 'rsvp';
 
-export default Component.extend(createDataProxyMixin('shares'), {
+export default Component.extend({
   classNames: ['space-shares', 'fill-flex-using-column'],
 
   shareManager: service(),
@@ -70,44 +71,74 @@ export default Component.extend(createDataProxyMixin('shares'), {
    */
   initialTabId: undefined,
 
+  //#region state
+
+  /**
+   * @type {OneproviderShareListItem}
+   */
+  shareToRename: undefined,
+
+  /**
+   * @type {OneproviderShareListItem}
+   */
+  shareToRemove: undefined,
+
+  //#endregion
+
   oneproviderName: reads('appProxy.injectedData.oneproviderName'),
 
   shareActions: collect('btnDelete', 'btnRename'),
 
   spaceProxy: promise.object(computed('spaceId', function spacesProxy() {
-    const {
-      spaceId,
-      spaceManager,
-    } = this.getProperties('spaceId', 'spaceManager');
-    return spaceManager.getSpace(spaceId);
+    return this.spaceManager.getSpace(this.spaceId);
   })),
 
   shareProxy: promise.object(computed('shareId', function shareProxy() {
     const {
       shareManager,
       shareId,
-    } = this.getProperties('shareManager', 'shareId');
+    } = this;
     return shareId ? shareManager.getShare(shareId) : null;
   })),
 
+  share: reads('shareProxy.content'),
+
+  shares: computed(function () {
+    return ReplacingChunksArray.create({
+      fetch: this.getShareList.bind(this),
+      startIndex: 0,
+      endIndex: 50,
+      indexMargin: 10,
+    });
+  }),
+
   /**
-   * @override
+   * @param {string|null} [index]
+   * @param {number} [limit]
+   * @param {number} [offset]
+   * @returns {Promise<ShareDataListPage>}
    */
-  fetchShares() {
-    return this.get('spaceProxy')
-      .then(space => get(space, 'shareList'))
-      .then(shareList => get(shareList, 'list'));
+  async getShareList(index, limit, offset) {
+    return await this.shareManager.getOnezoneSpaceShareList(this.spaceId, {
+      index,
+      limit,
+      offset,
+    });
+  },
+
+  async reloadShares() {
+    return await this.cacheFor('shares')?.scheduleReload();
   },
 
   actions: {
     getShareUrl(...args) {
-      return this.get('getShareUrl')(...args);
+      return this.getShareUrl(...args);
     },
     updateDirId(dirId) {
-      return this.get('updateDirId')(dirId);
+      return this.updateDirId(dirId);
     },
     getDataUrl(...args) {
-      return this.get('getDataUrl')(...args);
+      return this.getDataUrl(...args);
     },
     startRemoveShare(share) {
       this.set('shareToRemove', share);
@@ -116,16 +147,19 @@ export default Component.extend(createDataProxyMixin('shares'), {
       this.set('shareToRename', share);
     },
     closeRemoveShare() {
-      this.set('shareToRemove', null);
+      this.set('shareToRemove', undefined);
     },
     closeRenameShare() {
-      this.set('shareToRename', null);
+      this.set('shareToRename', undefined);
     },
     onShowShareList() {
-      return this.get('onShowShareList')();
+      return this.onShowShareList();
     },
-    reloadShareList() {
-      return this.updateSharesProxy();
+    async reloadShareList() {
+      allFulfilled([
+        await this.reloadShares(),
+        await this.appProxy.callParent('reloadShareList'),
+      ]);
     },
   },
 });

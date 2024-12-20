@@ -22,6 +22,7 @@ import sleep from 'onedata-gui-common/utils/sleep';
 import isUrl from 'onedata-gui-common/utils/is-url';
 import { htmlSafe } from '@ember/string';
 import { anchorizeText } from 'onedata-gui-common/utils/anchorize-text';
+import { dasherize } from '@ember/string';
 
 /**
  * @typedef {EdmPropertyValueType.Literal|EdmPropertyValueType.Reference} VisualEdmPropertyValueType
@@ -29,7 +30,7 @@ import { anchorizeText } from 'onedata-gui-common/utils/anchorize-text';
 
 export default Component.extend(I18n, {
   classNames: ['visual-edm-property'],
-  classNameBindings: ['noOptions'],
+  classNameBindings: ['noOptions', 'propertyTypeClass'],
 
   visualEdmTranslation: service(),
 
@@ -71,6 +72,15 @@ export default Component.extend(I18n, {
   langOptions: undefined,
 
   value: reads('viewModel.value'),
+
+  propertyTypeClass: computed(
+    'viewModel.model.{namespace,edmPropertyType}',
+    function propertyTypeClass() {
+      const namespace = dasherize(this.viewModel.model.namespace) || 'unknown';
+      const edmPropertyType = dasherize(this.viewModel.model.edmPropertyType) || 'unknown';
+      return `edm-property-type-${namespace}-${edmPropertyType}`;
+    }
+  ),
 
   /**
    * @type {ComputedProperty<SafeString>}

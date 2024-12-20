@@ -11,6 +11,7 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import humanizeString from 'oneprovider-gui/utils/humanize-string';
+import { dasherize } from '@ember/string';
 
 /**
  * @typedef {Object} EdmPropertyGroup
@@ -28,6 +29,7 @@ export default Component.extend(I18n, {
   ],
   classNameBindings: [
     'hasSomeProperties::has-no-properties',
+    'objectTypeClass',
   ],
 
   /**
@@ -41,14 +43,14 @@ export default Component.extend(I18n, {
    */
   viewModel: undefined,
 
+  objectIcon: 'browser-metadata',
+
+  isAddPropertyOpened: false,
+
   /**
    * @type {ComputedProperty<Utils.VisualEdmViewModel>}
    */
   visualEdmViewModel: reads('viewModel.visualEdmViewModel'),
-
-  objectIcon: 'browser-metadata',
-
-  isAddPropertyOpened: false,
 
   hasSomeProperties: reads('edmProperties.length'),
 
@@ -56,6 +58,11 @@ export default Component.extend(I18n, {
    * @type {Computed<Array<EdmProperty>>}
    */
   edmProperties: reads('viewModel.edmProperties'),
+
+  objectTypeClass: computed('viewModel.model.edmObjectType', function objectTypeClass() {
+    const edmObjectType = dasherize(this.viewModel.model.edmObjectType) || 'unknown';
+    return `edm-object-type-${edmObjectType}`;
+  }),
 
   objectTypeName: computed('viewModel.model.edmObjectType', function objectTypeName() {
     const objectType = this.viewModel.model.edmObjectType;

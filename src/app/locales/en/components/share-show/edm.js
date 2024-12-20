@@ -1,4 +1,5 @@
 import dcCommon, { editorHeaderTipCommon } from './dc-common';
+import shareValidation from './edm/share-validation';
 
 const metadataEditorIntro = dcCommon.metadataEditorIntro;
 const edmReadonlyTip = dcCommon.metadataPublicHeaderTip.edm;
@@ -6,6 +7,7 @@ const edmIntroExtra = dcCommon.metadataEditorIntroExtra.edm;
 export const imageNotFound = 'Cannot load representative image';
 
 export default {
+  shareValidation,
   header: 'Europeana Data Model (EDM) metadata',
   headerMobile: 'Metadata',
   metadataEditorIntro,

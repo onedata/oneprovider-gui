@@ -2,5 +2,5 @@ export default {
   validation: {
     reservedKey: 'This key is reserved',
   },
-  description: 'Extended attributes — simple, textual key-value pairs, compatible with POSIX extended attributes.',
+  description: 'Extended attributes — textual or binary key-value pairs for storing additional metadata, compatible with POSIX extended attributes.',
 };

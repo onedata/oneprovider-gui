@@ -151,11 +151,12 @@ export default Component.extend(...mixins, {
 
       const files = get(this.browserModel.itemsArray, 'sourceArray').toArray();
       const filesWithXattrs = files.filter(file => file && get(file, 'hasCustomMetadata'));
+      const scope = this.browserModel.previewMode ? 'public' : 'private';
 
       const promise = (async () => {
         const xattrsListPerFileProxy = await Promise.all(
           filesWithXattrs.map(file =>
-            this.metadataManager.getMetadata(file, 'xattrs', 'private'))
+            this.metadataManager.getMetadata(file, 'xattrs', scope))
         );
         const xattrs = new Set();
         const xattrsList = [];

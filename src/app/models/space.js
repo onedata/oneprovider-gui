@@ -35,7 +35,6 @@ export default Model.extend(
     providerList: belongsTo('provider-list'),
     effUserList: belongsTo('user-list'),
     effGroupList: belongsTo('group-list'),
-    shareList: belongsTo('share-list'),
     currentUserEffPrivileges: attr('array', { defaultValue: () => [] }),
     currentUserIsOwner: attr('boolean'),
     providersWithReadonlySupport: attr('array', { defaultValue: () => [] }),

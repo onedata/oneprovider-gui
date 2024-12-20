@@ -2,7 +2,7 @@
  * Shows modal allowing to change share name.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -11,10 +11,12 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import { tag, string, gte, raw } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
+import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend(I18n, {
   shareManager: service(),
   globalNotify: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -29,9 +31,15 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.Share}
+   * @type {string}
    */
-  share: undefined,
+  shareId: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  initialName: undefined,
 
   /**
    * @virtual
@@ -39,7 +47,11 @@ export default Component.extend(I18n, {
    */
   close: notImplementedThrow,
 
-  newName: '',
+  /**
+   * @virtual
+   * @type {() => void}
+   */
+  onRenamed: undefined,
 
   inputId: tag `${'elementId'}-input`,
 
@@ -49,24 +61,32 @@ export default Component.extend(I18n, {
   isNewNameValid: gte(string.length(string.trim('newName')), raw(2)),
 
   actions: {
-    submit() {
+    async submit() {
       const {
-        share,
+        shareId,
         shareManager,
         newName,
         globalNotify,
-      } = this.getProperties('share', 'shareManager', 'newName', 'globalNotify');
-      return shareManager.renameShare(share, newName.trim())
-        .catch(error => {
-          globalNotify.backendError(this.t('renaming'), error);
-          throw error;
-        })
-        .then(() => {
-          this.get('close')();
-        });
+      } = this;
+      try {
+        await shareManager.renameShare(shareId, newName.trim());
+        this.close();
+      } catch (error) {
+        globalNotify.backendError(this.t('renaming'), error);
+        throw error;
+      }
+      this.onRenamed?.();
+      try {
+        await allFulfilled([
+          this.appProxy.callParent('reloadCurrentShareRecord', shareId),
+          this.appProxy.callParent('reloadShareList'),
+        ]);
+      } finally {
+        this.close();
+      }
     },
     close() {
-      this.get('close')();
+      this.close();
     },
   },
 });

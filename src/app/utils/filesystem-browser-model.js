@@ -1452,8 +1452,8 @@ export default BaseBrowserModel.extend(...mixins, {
             isVisible: false,
             isEnabled: false,
             width: 135,
-            hasSubname: false,
-            hasTooltip: false,
+            hasSubname: this.previewMode,
+            hasTooltip: true,
             type: 'basic',
             fileProperty: 'fileId',
           });

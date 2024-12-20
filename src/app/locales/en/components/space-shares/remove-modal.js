@@ -1,3 +1,5 @@
+import { FileType } from 'onedata-gui-common/utils/file';
+
 export default {
   headerText: 'Remove share',
   messageText: 'Are you sure you want to remove share <strong>{{shareName}}</strong>? The shared {{fileType}} will no longer be accessible via the associated public link.',
@@ -6,7 +8,7 @@ export default {
   proceed: 'Remove',
   cancel: 'Cancel',
   fileType: {
-    file: 'file',
-    dir: 'directory',
+    [FileType.Regular]: 'file',
+    [FileType.Directory]: 'directory',
   },
 };

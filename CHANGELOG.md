@@ -4,6 +4,14 @@
 
 ### Latest changes
 
+* VFS-12267 Added support for "service unavailable" error
+* VFS-12417 Fixed wrong list of selected files after delete failure
+* VFS-12528 Added xattrs columns in share browser
+* VFS-12376 Improved showing issues with access to share root file; fixed glitched share header when user has no access to root file path
+* VFS-12511 Removed obsolete space-shares dummy component
+* VFS-12470 Changed static shares list to infinite scroll
+* VFS-12469 Improved UX of managing share name and Open Data title; disabled some operations when user has insufficient privileges for space shares
+* VFS-12582 Added tooltips to file ID column header and label in file details and added share ID
 * VFS-12249 Improved UX for adding/modification xattrs column and fixed headers in others browser
 * VFS-12370 Improved loading indicators by showing loading Oneprovider name
 * VFS-12291 Changed the drop area for columns to larger and removed redundant QoS badge if the column is enabled

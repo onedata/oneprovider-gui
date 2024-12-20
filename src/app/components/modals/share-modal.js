@@ -2,7 +2,7 @@
  * Create new share modal.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -10,21 +10,13 @@ import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import {
-  and,
   or,
-  raw,
-  string,
-  lt,
-  gt,
   notEmpty,
-  not,
 } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import backendNameRegexp from 'onedata-gui-common/utils/backend-name-regexp';
-import backendifyName, {
-  minLength as shareNameMin,
+import {
   maxLength as shareNameMax,
 } from 'onedata-gui-common/utils/backendify-name';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
@@ -32,11 +24,17 @@ import waitForRender from 'onedata-gui-common/utils/wait-for-render';
 import globals from 'onedata-gui-common/utils/globals';
 import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import { isValidFilename } from 'onedata-gui-common/utils/file';
 
 /**
  * @typedef {Object} ShareModalOptions
  * @property {Model.File} file
  * @property {() => void} onClose
+ */
+
+/**
+ * @typedef {'empty'|'nameTooLong'|'nameIsValid'} ShareNameValidationError
  */
 
 const mixins = [
@@ -52,6 +50,7 @@ export default Component.extend(...mixins, {
   globalNotify: service(),
   modalManager: service(),
   handleManager: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -123,8 +122,7 @@ export default Component.extend(...mixins, {
 
   submitNewDisabled: or(
     notEmpty('validationError'),
-    'isSaving',
-    lt(string.length(string.trim('newShareName')), raw(2))
+    'isSaving'
   ),
 
   inputId: computed('elementId', function inputId() {
@@ -139,23 +137,25 @@ export default Component.extend(...mixins, {
     });
   }),
 
-  nameIsValid: string.match('newShareName', raw(backendNameRegexp)),
-
-  validationError: or(
-    and(
-      lt('newShareName.length', raw(shareNameMin)),
-      raw('nameTooShort')
-    ),
-    and(
-      gt('newShareName.length', raw(shareNameMax)),
-      raw('nameTooLong')
-    ),
-    and(
-      not('nameIsValid'),
-      raw('regexp')
-    ),
-    null,
-  ),
+  /**
+   * @type {ComputedProperty<ShareNameValidationError|undefined>}
+   */
+  validationError: computed('newShareName.length', function validationError() {
+    const name = this.newShareName;
+    const nameLength = name.length;
+    if (nameLength == null) {
+      return;
+    }
+    if (nameLength === 0) {
+      return 'empty';
+    }
+    if (nameLength > shareNameMax) {
+      return 'nameTooLong';
+    }
+    if (!isValidFilename(name)) {
+      return 'regexp';
+    }
+  }),
 
   validationErrorMessage: computed(
     'validationError',
@@ -164,9 +164,6 @@ export default Component.extend(...mixins, {
       if (validationError) {
         let interpolations;
         switch (validationError) {
-          case 'nameTooShort':
-            interpolations = { length: shareNameMin };
-            break;
           case 'nameTooLong':
             interpolations = { length: shareNameMax };
             break;
@@ -224,8 +221,20 @@ export default Component.extend(...mixins, {
   },
 
   setInitialShareName() {
-    const fileName = this.get('file.originalName');
-    this.set('newShareName', backendifyName(fileName));
+    this.set('newShareName', this.createInitialShareName(this.file));
+  },
+
+  /**
+   * @param {Models.File} file
+   * @returns {string}
+   */
+  createInitialShareName(file) {
+    /** @type {string} */
+    let name = file.originalName;
+    if (file.type !== LegacyFileType.Directory) {
+      name = name.match(/(.*)\..*/)?.[1] ?? name;
+    }
+    return name;
   },
 
   close() {
@@ -242,12 +251,13 @@ export default Component.extend(...mixins, {
       globalNotify,
       file,
       newShareName: name,
-    } = this.getProperties('shareManager', 'globalNotify', 'file', 'newShareName');
+    } = this;
     this.set('isSaving', true);
     try {
       let share;
       try {
         share = await shareManager.createShare(file, name.trim());
+        this.appProxy.callParent('reloadShareList');
       } catch (error) {
         globalNotify.backendError(this.t('creatingShare'), error);
         throw error;
