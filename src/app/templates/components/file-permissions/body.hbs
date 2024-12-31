@@ -2,10 +2,14 @@
   <div class="owner-info-line">
     <strong class="owner-info-label">{{tt this "owner"}}:</strong>
     {{#if viewModel.filesHaveSameOwner}}
-      {{record-info-with-icon
-        record=owner
-        errorReason=errorReasonForOwnerProxy
-      }}
+      {{#if owner}}
+        {{record-info-with-icon
+          record=owner
+          errorReason=errorReasonForOwnerProxy
+        }}
+      {{else}}
+        —
+      {{/if}}
     {{else}}
       {{tt this "multipleOwners" count=viewModel.ownersCount}}
     {{/if}}
