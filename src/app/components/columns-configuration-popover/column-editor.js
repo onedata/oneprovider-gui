@@ -116,6 +116,8 @@ export default Component.extend(I18n, {
           isOptional: true,
           injectedCustomValueInputPlaceholder: this.t('dropdownPlaceholder'),
           injectedCustomValueOptionTextPrefix: this.t('customKeyPlaceholder'),
+          initiallyOpened: true,
+          renderInPlace: true,
         });
     }
   ),

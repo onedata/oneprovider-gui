@@ -169,7 +169,6 @@
   .column-configuration-header {
     position: sticky;
     @include before-bottom-shadow;
-    @include content-shadow-leftovers;
     padding-top: 16px;
     padding-bottom: 16px;
     padding-left: 23px;
@@ -193,7 +192,6 @@
     position: sticky;
     bottom: 0px;
     @include before-top-shadow;
-    @include content-shadow-leftovers;
 
     @media (hover: none) {
       // empirical alignment to the checkbox above
