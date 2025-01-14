@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12591 Fixed legend and replaced 'blocks' with 'chunks' in data distribution text
 * VFS-12497 Fixed info icon when owner is unknown
 * VFS-12267 Added support for "service unavailable" error
 * VFS-12417 Fixed wrong list of selected files after delete failure

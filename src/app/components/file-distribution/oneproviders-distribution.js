@@ -365,7 +365,7 @@ export default Component.extend(I18n, {
     'fileDistributionData.{length,0.fileType}',
     function hasSingleRegFile() {
       return this.fileDistributionData?.length === 1 &&
-        this.fileDistributionData[0].fileType === LegacyFileType.File;
+        this.fileDistributionData[0].fileType === LegacyFileType.Regular;
     }
   ),
 
