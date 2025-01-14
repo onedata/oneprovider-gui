@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12593 Fixed highlight of child file badges on parent badge hover in file browser
 * VFS-12497 Fixed info icon when owner is unknown
 * VFS-12267 Added support for "service unavailable" error
 * VFS-12417 Fixed wrong list of selected files after delete failure
