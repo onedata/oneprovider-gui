@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12591 Fixed legend and replaced "blocks" with "chunks" in data distribution text
 * VFS-12594 Fixed error message after deleting imported file
 * VFS-12593 Fixed highlight of child file badges on parent badge hover in file browser
 * VFS-12497 Fixed info icon when owner is unknown
