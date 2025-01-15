@@ -94,7 +94,7 @@ export default Component.extend(I18n, {
     const {
       fileSizeOnStorage,
       chunkCount,
-    } = this.getProperties('fileSizeOnStorage', 'chunkCount');
+    } = this;
     return this.t('chunksSize', {
       size: bytesToString(fileSizeOnStorage),
       chunkCount,
