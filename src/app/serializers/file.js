@@ -71,7 +71,7 @@ export default Serializer.extend({
       ],
       [belongsToPropertyToRawAttribute('owner')]: (attribute) => [
         'owner',
-        attribute === '0' ? null : gri({
+        (!attribute || attribute === '0') ? null : gri({
           entityType: userEntityType,
           entityId: attribute,
           aspect: 'instance',
