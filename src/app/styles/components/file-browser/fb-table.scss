@@ -131,6 +131,17 @@
     position: sticky;
     top: var(--file-browser-header-height);
     z-index: $tbody-z-index + 1;
+    th:first-child {
+      // Prevent interactive elements in the first header to be overlayed with drop-area
+      // when it's not in drag&drop mode.
+      .after-drop-area + * {
+        z-index: 1;
+        position: relative;
+      }
+      .after-drop-area.drop-area + * {
+        z-index: auto;
+      }
+    }
     th {
       background-color: white;
       vertical-align: middle;
