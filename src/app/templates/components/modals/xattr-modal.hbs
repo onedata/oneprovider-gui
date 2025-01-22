@@ -1,7 +1,7 @@
 <GlobalModal
   @classNames="xattr-modal"
   @modalId={{modalId}}
-  @allowClose={{true}}
+  @allowClose={{false}}
   @onHide={{action "onHide"}}
   as |modal|
 >
@@ -20,19 +20,65 @@
   </modal.header>
 
   <modal.body>
-    <ClipboardLine
-      @value={{xattrValue}}
-      @type="textarea"
-      class="monospace-font compact"
-    />
+    <div class="xattr-key-value">
+      <textarea
+        class="form-control no-resize input-sm"
+        value={{editValue}}
+        rows="5"
+        oninput={{action (mut editValue) value="target.value"}}
+        disabled={{isSaving}}
+        autofocus=true
+        readonly={{not isModifiedMode}}
+      />
+    </div>
   </modal.body>
 
   <modal.footer>
-    <OneButton
-      @onClick={{modal.close}}
-    >
-      {{tt this "close"}}
-    </OneButton>
+    {{#if isModifiedMode}}
+      <OneButton
+        @type="warning"
+        @disabled={{processing}}
+        @onClick={{action "discard"}}
+      >
+        {{tt this "discard"}}
+      </OneButton>
+      <OneButton
+        @type="primary"
+        @buttonType="submit"
+        @onClick={{action "submit"}}
+        @isPending={{processing}}
+        @disabled={{submitDisabled}}
+      >
+        {{tt this "submit"}}
+      </OneButton>
+    {{else}}
+      <div class="link-texts-container">
+        <OneCopyButton
+          @class="clipboard-btn xattr-value-clipboard-btn clickable"
+          @clipboardText={{editValue}}
+        >
+          <span class="copy-text">
+            {{tt this "copy"}}
+          </span>
+          <div class="inline-icon-container copy-icon-container">
+            {{one-icon icon="browser-copy"}}
+          </div>
+        </OneCopyButton>
+        |
+        <div
+          class="modify-text"
+          onClick={{action (mut isModifiedMode)}}
+        >
+          {{tt this "modify"}}
+        </div>
+      </div>
+      <OneButton
+        @disabled={{processing}}
+        @onClick={{modal.close}}
+      >
+        {{tt this "close"}}
+      </OneButton>
+    {{/if}}
   </modal.footer>
 
 </GlobalModal>
