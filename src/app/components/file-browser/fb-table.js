@@ -25,7 +25,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool, eq } from 'ember-awesome-macros';
-import { all as allFulfilled, allSettled, defer } from 'rsvp';
+import { Promise, all as allFulfilled, allSettled, defer } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -198,12 +198,6 @@ export default Component.extend(...mixins, {
   refreshDefer: null,
 
   rowHeight: 61,
-
-  /**
-   * When scroll position is changed by code, use this flag to ignore next scroll event
-   * @type {Boolean}
-   */
-  ignoreNextScroll: false,
 
   fetchingPrev: false,
 
@@ -418,7 +412,6 @@ export default Component.extend(...mixins, {
     console.debug(
       `component:file-browser/fb-table#adjustScroll: adjusting scroll by ${topDiff}`
     );
-    this.set('ignoreNextScroll', true);
     this.scrollTopAfterFrameRender(topDiff, true);
   },
 
@@ -677,8 +670,6 @@ export default Component.extend(...mixins, {
         );
         return;
       }
-      // wait for render of array fragment containing item to jump
-      this.set('ignoreNextScroll', true);
       await sleep(0);
       if (this.isDestroyed || this.isDestroying) {
         return;
@@ -687,6 +678,7 @@ export default Component.extend(...mixins, {
     this.focusOnRow(entityId, false);
     this.highlightAnimateRows(effItems.map(item => get(item, 'entityId')));
     listWatcher.scrollHandler();
+    this.filesArray.startChanged();
   },
 
   /**
@@ -699,8 +691,6 @@ export default Component.extend(...mixins, {
   focusOnRow(rowId, animate = true) {
     const [row] = this.findItemRows([rowId]);
     if (row) {
-      // force handle scroll into view, because scroll adjust might disabled it
-      this.set('ignoreNextScroll', false);
       row.scrollIntoView({ block: 'center' });
       if (animate) {
         scheduleOnce('afterRender', () => {
@@ -867,7 +857,9 @@ export default Component.extend(...mixins, {
     if (dir && dir.reload) {
       promises.push(dir.reload());
     }
-    const filesArrayReload = filesArray.scheduleReload(forced ? { forced: true } : {})
+    const reloadHead = filesArray._start === 0;
+    const reloadOptions = { forced, head: reloadHead };
+    const filesArrayReload = filesArray.scheduleReload(reloadOptions)
       .finally(async () => {
         const sourceArray = get(filesArray, 'sourceArray');
         // care about selection change only if there are some items selected that are not
@@ -903,14 +895,21 @@ export default Component.extend(...mixins, {
             ),
             endIndex: fullLengthAfterReload || 50,
           });
-          next(() => {
-            const firstRenderedRow = this.element
-              .querySelector('.data-row[data-row-id]');
-            if (firstRenderedRow) {
-              firstRenderedRow.scrollIntoView();
-            } else {
-              containerScrollTop(0);
-            }
+          await new Promise((resolve, reject) => {
+            next(() => {
+              try {
+                const firstRenderedRow = this.element
+                  .querySelector('.data-row[data-row-id]');
+                if (firstRenderedRow) {
+                  firstRenderedRow.scrollIntoView();
+                } else {
+                  containerScrollTop(0);
+                }
+                resolve();
+              } catch (error) {
+                reject(error);
+              }
+            });
           });
         }
       });
@@ -919,7 +918,7 @@ export default Component.extend(...mixins, {
     if (browserModelRefreshPromise) {
       promises.push(browserModelRefreshPromise);
     }
-    return await allFulfilled(promises);
+    await allFulfilled(promises);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
@@ -961,10 +960,6 @@ export default Component.extend(...mixins, {
 
   onTableScroll(items, headerVisible) {
     if (!this.browserModel.dirProxy?.isSettled) {
-      return;
-    }
-    if (this.ignoreNextScroll) {
-      this.set('ignoreNextScroll', false);
       return;
     }
 
