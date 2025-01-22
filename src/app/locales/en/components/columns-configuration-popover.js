@@ -5,4 +5,5 @@ export default {
   columnItem,
   columnEditor,
   addNewColumn: 'New xattr column...',
+  header: 'Columns configuration',
 };

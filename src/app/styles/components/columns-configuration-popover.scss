@@ -179,6 +179,10 @@
       // empirical alignment to the checkbox above
       padding-left: 12px;
     }
+
+    @media (max-height: 400px) {
+      display: none;
+    }
   }
 
   .add-new-column {

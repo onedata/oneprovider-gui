@@ -10,12 +10,10 @@ import Component from '@ember/component';
 import { trySet, computed, get } from '@ember/object';
 import { next } from '@ember/runloop';
 import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
-import { reads, bool } from '@ember/object/computed';
+import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import CustomValueDropdownField from 'onedata-gui-common/utils/form-component/custom-value-dropdown-field';
-import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
 import { Promise } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
@@ -170,7 +168,7 @@ export default Component.extend(...mixins, {
             xattrsList.push({ value: xattr, label: xattr });
           }
         }
-        return xattrsList;
+        return xattrsList.sortBy('label');
       })();
 
       return promiseObject(promise);
