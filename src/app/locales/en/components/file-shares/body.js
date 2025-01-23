@@ -5,6 +5,6 @@ export default {
   },
   noShares: {
     header: 'This {{fileType}} is not shared',
-    buttonCreateShare: 'Create share',
+    buttonCreateShare: 'Create Share',
   },
 };

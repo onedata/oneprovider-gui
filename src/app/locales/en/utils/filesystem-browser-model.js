@@ -12,7 +12,6 @@ export default _.merge({}, BaseBrowserModel, {
     recallInfo: 'Recall information',
     download: 'Download',
     downloadTar: 'Download (tar)',
-    // FIXME: Share / Expose wygląda tutaj średnio — menu kontekstowe pliku
     share: 'Share / Publish',
     metadata: 'Metadata',
     datasets: 'Datasets',

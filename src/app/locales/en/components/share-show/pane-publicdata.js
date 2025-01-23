@@ -9,7 +9,7 @@ export const noHandleServicesText =
 export default {
   publishWelcome: {
     title: 'Expose as Public Data',
-    content: '<p>This shared data collection can be converted to a Public Data record. To do so, you must have access to a Public Data handle service, which is typically configured by the managers in your organization or a Onezone admin.</p><p>Upon conversion, the record will be assigned a persistent identifier (e.g. PID or DOI) and exposed for discovery by Public Data indexes via the OAI PMH protocol. This process will make your data collection globally and publicly available; anyone will be able to find it in Public Data indexes. To make it findable and comprehensible, in the next step provide as much information as possible in the metadata that will be attached to this record.</p>',
+    content: '<p>This shared data collection can be converted to a Public Data record. To do so, you must have access to a handle service, which is typically configured by the managers in your organization or a Onezone admin.</p><p>Upon conversion, the record will be assigned a persistent identifier (e.g. PID or DOI) and exposed for discovery by Public Data indexes via the OAI PMH protocol. This process will make your data collection globally and publicly available; anyone will be able to find it in Public Data indexes. To make it findable and comprehensible, in the next step provide as much information as possible in the metadata that will be attached to this record.</p>',
     selectHandleServicePlaceholder: 'Choose a handle service...',
     selectMetadataTypePlaceholder: 'Choose a metadata type...',
     handleServiceText: 'Choose the handle service that will register the record and provide the public identifier',
