@@ -3,10 +3,10 @@ import { FileType } from 'onedata-gui-common/utils/file';
 export default {
   removeShare: 'Remove Share',
   rename: 'Rename',
-  copyPublicUrl: 'Copy public URL',
+  copyShareUrl: 'Copy Share URL',
   deletedFileIconTip: 'This Share points to a deleted file.',
   deletedDirectoryIconTip: 'This Share points to a deleted directory.',
-  publicUrl: 'Share public URL',
+  shareUrl: 'Share URL',
   noPublicAccess: 'No public access',
   publicData: 'Public Data',
   publicDataTip: 'This {{fileType}} is exposed as Public Data.',
