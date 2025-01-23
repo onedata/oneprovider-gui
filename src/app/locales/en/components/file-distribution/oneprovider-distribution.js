@@ -11,6 +11,6 @@ export default {
   noTransfersText: 'There have been no manual transfers scheduled directly for this {{elementType}}.',
   noTransfersTooltip: 'This {{elementType}} could have been transferred as a part of a bigger manual transfer. However, such information is not available as the transfer history is recorded only for the root file/directory of every transfer.',
   cannotLoadTransfers: 'Cannot load transfers',
-  blockDistributionLegend: 'Block distribution',
+  blockDistributionLegend: 'Replicated chunk',
   replicationRatioLegend: 'Replication ratio',
 };

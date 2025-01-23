@@ -3,7 +3,7 @@
  * we reached login route which was intended.
  *
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -21,6 +21,7 @@ export default Route.extend(
   I18n,
   AuthenticationErrorHandlerMixin, {
     i18n: service(),
+    onedataWebsocket: service(),
 
     // TODO: this route should have some other title or no title at all
 
@@ -28,5 +29,17 @@ export default Route.extend(
      * @override
      */
     i18nPrefix: 'routes.login',
+
+    isServiceUnavailableError: false,
+
+    async model() {
+      await this._super(...arguments);
+      if (this.onedataWebsocket.handshakeFatalError) {
+        return {
+          isServiceUnavailableError: true,
+        };
+      }
+      return {};
+    },
   }
 );

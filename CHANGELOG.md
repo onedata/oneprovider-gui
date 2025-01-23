@@ -5,6 +5,12 @@
 ### Latest changes
 
 * VFS-12461 Changed Open Data to Public Data naming
+* VFS-12591 Fixed legend and replaced "blocks" with "chunks" in data distribution text
+* VFS-12594 Fixed error message after deleting imported file
+* VFS-12593 Fixed highlight of child file badges on parent badge hover in file browser
+* VFS-12497 Fixed info icon when owner is unknown
+* VFS-12267 Added support for "service unavailable" error
+* VFS-12417 Fixed wrong list of selected files after delete failure
 * VFS-12528 Added xattrs columns in share browser
 * VFS-12376 Improved showing issues with access to share root file; fixed glitched share header when user has no access to root file path
 * VFS-12511 Removed obsolete space-shares dummy component
