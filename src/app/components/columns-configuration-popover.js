@@ -138,6 +138,9 @@ export default Component.extend(...mixins, {
       (this.hasXattrSettings ? ' webui-popover-columns-configuration-with-xattrs' : '');
   }),
 
+  /**
+   * @type {PromiseObject<Array<{value: string, label: string}>>}
+   */
   xattrOptionsProxy: computed(
     'browserModel.itemsArray',
     'activeSlide',

@@ -33,6 +33,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {PromiseObject<Array<{value: string, label: string}>>}
    */
   xattrOptionsProxy: undefined,
 
