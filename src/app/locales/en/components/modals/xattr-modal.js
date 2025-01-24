@@ -1,6 +1,6 @@
 export default {
   header: 'Extended attribute value',
-  submit: 'Save',
+  save: 'Save',
   copy: 'Copy',
   modify: 'Modify',
   close: 'Close',

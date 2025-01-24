@@ -106,7 +106,7 @@ export default Component.extend(...mixins, {
   }),
 
   /**
-   * @type {string}
+   * @type {string} One of: 'xattr-add', 'xattr-modify', 'column-configuration'
    */
   activeSlide: 'column-configuration',
 

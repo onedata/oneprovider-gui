@@ -69,8 +69,8 @@
             <ColumnsConfigurationPopover::ColumnEditor
               @isNewColumn={{true}}
               @xattrOptionsProxy={{xattrOptionsProxy}}
-              @editColumnAction={{action "editColumn"}}
-              @goBackAction={{action "goBack"}}
+              @onSubmitColumn={{action "editColumn"}}
+              @onGoBack={{action "goBack"}}
               @columnsConfiguration={{columnsConfiguration}}
             />
           {{/if}}
@@ -80,10 +80,9 @@
             <ColumnsConfigurationPopover::ColumnEditor
               @isNewColumn={{false}}
               @xattrOptionsProxy={{xattrOptionsProxy}}
-              @editColumnAction={{action "editColumn"}}
-              @goBackAction={{action "goBack"}}
+              @onSubmitColumn={{action "editColumn"}}
+              @onGoBack={{action "goBack"}}
               @columnsConfiguration={{columnsConfiguration}}
-              @newColumnName={{modifiedDisplayedName}}
               @oldDisplayedName={{modifiedDisplayedName}}
               @oldXattrKey={{modifiedXattrKey}}
             />

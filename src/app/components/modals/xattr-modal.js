@@ -28,7 +28,6 @@ export default Component.extend(...mixins, {
 
   i18n: service(),
   modalManager: service(),
-  globalClipboard: service(),
   metadataManager: service(),
 
   /**
@@ -91,24 +90,24 @@ export default Component.extend(...mixins, {
     onHide() {
       this.close();
     },
-    submit() {
-      this.set('processing', true);
+    async submit() {
       const xattr = {};
       xattr[this.xattrKey] = this.editValue;
-      this.metadataManager.setMetadata(this.modalOptions.file, 'xattrs', xattr)
-        .catch(error => {
-          console.error(`saveXattrs failed: ${JSON.stringify(error)}`);
-          throw error;
-        })
-        .then(() => safeExec(this, 'set', 'xattrValue', this.editValue))
-        .finally(() => {
-          safeExec(this, 'set', 'processing', false);
-          safeExec(this, 'set', 'isModifiedMode', false);
-        });
+      try {
+        await this.metadataManager.setMetadata(this.modalOptions.file, 'xattrs', xattr);
+        safeExec(this, 'set', 'xattrValue', this.editValue);
+      } catch (error) {
+        console.error(`saveXattrs failed: ${JSON.stringify(error)}`);
+        throw error;
+      } finally {
+        safeExec(this, 'set', 'isModifiedMode', false);
+      }
     },
     discard() {
-      this.set('editValue', this.xattrValue);
-      this.set('isModifiedMode', false);
+      this.setProperties({
+        editValue: this.xattrValue,
+        isModifiedMode: false,
+      });
     },
   },
 });

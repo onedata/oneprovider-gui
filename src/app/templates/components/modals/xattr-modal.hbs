@@ -37,7 +37,6 @@
     {{#if isModifiedMode}}
       <OneButton
         @type="warning"
-        @disabled={{processing}}
         @onClick={{action "discard"}}
       >
         {{tt this "discard"}}
@@ -46,10 +45,9 @@
         @type="primary"
         @buttonType="submit"
         @onClick={{action "submit"}}
-        @isPending={{processing}}
         @disabled={{submitDisabled}}
       >
-        {{tt this "submit"}}
+        {{tt this "save"}}
       </OneButton>
     {{else}}
       <div class="link-texts-container">
@@ -70,10 +68,12 @@
           onClick={{action (mut isModifiedMode)}}
         >
           {{tt this "modify"}}
+          <div class="inline-icon-container edit-icon-container">
+            {{one-icon icon="browser-rename"}}
+          </div>
         </div>
       </div>
       <OneButton
-        @disabled={{processing}}
         @onClick={{modal.close}}
       >
         {{tt this "close"}}

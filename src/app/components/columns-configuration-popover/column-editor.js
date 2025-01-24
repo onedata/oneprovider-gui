@@ -46,19 +46,13 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {(name: string, key: string, isNewColumn: boolean) => void}
    */
-  editColumnAction: notImplementedWarn,
+  onSubmitColumn: notImplementedWarn,
 
   /**
    * @virtual
    * @type {() => void}
    */
-  goBackAction: notImplementedWarn,
-
-  /**
-   * @virtual optional
-   * @type {string}
-   */
-  newColumnName: '',
+  onGoBack: notImplementedWarn,
 
   /**
    * @virtual optional
@@ -71,6 +65,11 @@ export default Component.extend(I18n, {
    * @type {string}
    */
   oldXattrKey: undefined,
+
+  /**
+   * @type {string}
+   */
+  newColumnName: '',
 
   /**
    * @type {string}
@@ -96,10 +95,10 @@ export default Component.extend(I18n, {
     function xattrKeyNameDropdownField() {
       return CustomValueDropdownField
         .extend({
-          options: this.xattrOptions,
           valueChanged(option) {
             this._super(...arguments);
-            if (this.oldValue === undefined ||
+            if (
+              this.oldValue === undefined ||
               this.oldValue === this.columnEditorComponent.newColumnName
             ) {
               this.set('columnEditorComponent.newColumnName', option);
@@ -108,15 +107,13 @@ export default Component.extend(I18n, {
           },
         })
         .create({
+          options: this.xattrOptions,
           columnEditorComponent: this,
           name: this.xattrKeyFieldName,
           oldValue: this.oldXattrKey,
           defaultValue: this.oldXattrKey,
           size: 'sm',
           isOptional: true,
-          injectedCustomValueInputPlaceholder: this.t('dropdownPlaceholder'),
-          injectedCustomValueOptionTextPrefix: this.t('customKeyPlaceholder'),
-          customPlaceholder: this.t('customPlaceholder'),
         });
     }
   ),
@@ -130,11 +127,12 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<SafeString>}
    */
   disabledEditButtonTooltip: computed(
-    'isEmptyValue',
     'isColumnAlreadyExisting',
     'isColumnLabelAlreadyExisting',
+    'newColumnName',
+    'xattrKeyNameDropdownField.value',
     function disabledEditButtonTooltip() {
-      if (this.isEmptyValue) {
+      if (!this.newColumnName || !this.xattrKeyNameDropdownField.value) {
         return this.t('emptyValueTooltip');
       }
       if (this.isColumnAlreadyExisting) {
@@ -150,24 +148,14 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isEmptyValue: computed(
-    'newColumnName',
-    'xattrKeyNameDropdownField.value',
-    function isEmptyValue() {
-      return !this.newColumnName || !this.xattrKeyNameDropdownField.value;
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
   isColumnLabelAlreadyExisting: computed(
     'newColumnName',
     'oldDisplayedName',
     function isColumnLabelAlreadyExisting() {
-      return (this.oldDisplayedName === undefined ||
-          this.oldDisplayedName !== this.newColumnName) &&
-        this.columnsConfiguration.checkIfDisplayedNameExist(this.newColumnName);
+      return (
+        this.oldDisplayedName === undefined ||
+        this.oldDisplayedName !== this.newColumnName
+      ) && this.columnsConfiguration.checkIfDisplayedNameExist(this.newColumnName);
     }
   ),
 
@@ -187,12 +175,17 @@ export default Component.extend(I18n, {
     }
   ),
 
+  init() {
+    this._super(...arguments);
+    this.set('newColumnName', this.oldDisplayedName);
+  },
+
   actions: {
     goBack() {
-      this.goBackAction();
+      this.onGoBack();
     },
     editColumn() {
-      this.editColumnAction(
+      this.onSubmitColumn(
         this.newColumnName,
         this.xattrKeyNameDropdownField.value,
         this.isNewColumn,
