@@ -14,6 +14,11 @@ import { reads, bool } from '@ember/object/computed';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import CustomValueDropdownField from 'onedata-gui-common/utils/form-component/custom-value-dropdown-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
+import {
+  destroyDestroyableComputedValues,
+  destroyableComputed,
+  initDestroyableCache,
+} from 'onedata-gui-common/utils/destroyable-computed';
 
 export default Component.extend(I18n, {
   classNames: ['column-editor'],
@@ -59,13 +64,13 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {string}
    */
-  oldDisplayedName: '',
+  initialDisplayedName: '',
 
   /**
    * @virtual optional
    * @type {string}
    */
-  oldXattrKey: undefined,
+  initialXattrKey: undefined,
 
   /**
    * @type {string}
@@ -79,23 +84,26 @@ export default Component.extend(I18n, {
 
   xattrOptions: reads('xattrOptionsProxy.content'),
 
-  xattrKeyNameField: computed('xattrKeyNameDropdownField', function xattrKeyNameField() {
-    return FormFieldsRootGroup
-      .create({
-        ownerSource: this,
-        columnEditorComponent: this,
-        i18nPrefix: this.i18nPrefix,
-        fields: [
-          this.xattrKeyNameDropdownField,
-        ],
-      });
-  }),
+  xattrKeyRootField: destroyableComputed(
+    'xattrKeyDropdownField',
+    function xattrKeyRootField() {
+      return FormFieldsRootGroup
+        .create({
+          ownerSource: this,
+          columnEditorComponent: this,
+          i18nPrefix: this.i18nPrefix,
+          fields: [
+            this.xattrKeyDropdownField,
+          ],
+        });
+    }
+  ),
 
-  xattrKeyNameDropdownField: computed(
-    'xattrOptions',
-    function xattrKeyNameDropdownField() {
+  xattrKeyDropdownField: computed(
+    function xattrKeyDropdownField() {
       return CustomValueDropdownField
         .extend({
+          options: reads('columnEditorComponent.xattrOptions'),
           valueChanged(option) {
             this._super(...arguments);
             if (
@@ -108,11 +116,10 @@ export default Component.extend(I18n, {
           },
         })
         .create({
-          options: this.xattrOptions,
           columnEditorComponent: this,
           name: this.xattrKeyFieldName,
-          oldValue: this.oldXattrKey,
-          defaultValue: this.oldXattrKey,
+          oldValue: this.initialXattrKey,
+          defaultValue: this.initialXattrKey,
           size: 'sm',
           isOptional: true,
         });
@@ -131,9 +138,9 @@ export default Component.extend(I18n, {
     'isColumnAlreadyExisting',
     'isColumnLabelAlreadyExisting',
     'newColumnName',
-    'xattrKeyNameDropdownField.value',
+    'xattrKeyDropdownField.value',
     function disabledEditButtonTooltip() {
-      if (!this.newColumnName || !this.xattrKeyNameDropdownField.value) {
+      if (!this.newColumnName || !this.xattrKeyDropdownField.value) {
         return this.t('emptyValueTooltip');
       }
       if (this.isColumnAlreadyExisting) {
@@ -151,11 +158,11 @@ export default Component.extend(I18n, {
    */
   isColumnLabelAlreadyExisting: computed(
     'newColumnName',
-    'oldDisplayedName',
+    'initialDisplayedName',
     function isColumnLabelAlreadyExisting() {
       return (
-        this.oldDisplayedName === undefined ||
-        this.oldDisplayedName !== this.newColumnName
+        this.initialDisplayedName === undefined ||
+        this.initialDisplayedName !== this.newColumnName
       ) && this.columnsConfiguration.checkIfDisplayedNameExist(this.newColumnName);
     }
   ),
@@ -165,30 +172,42 @@ export default Component.extend(I18n, {
    */
   isColumnAlreadyExisting: computed(
     'newColumnName',
-    'xattrKeyNameDropdownField.value',
+    'xattrKeyDropdownField.value',
     function isColumnAlreadyExisting() {
       return this.columnsConfiguration
         .tryCreateUniqueColumnKey(
           this.newColumnName,
-          this.xattrKeyNameDropdownField.value,
+          this.xattrKeyDropdownField.value,
           'xattr',
         ).exists === true;
     }
   ),
 
   init() {
+    initDestroyableCache(this);
     this._super(...arguments);
-    this.set('newColumnName', this.oldDisplayedName);
+    this.set('newColumnName', this.initialDisplayedName);
+  },
+
+  /**
+   * @override
+   */
+  willDestroy() {
+    try {
+      destroyDestroyableComputedValues(this);
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   actions: {
     goBack() {
       this.onGoBack();
     },
-    editColumn() {
+    submitColumn() {
       this.onSubmitColumn(
         this.newColumnName,
-        this.xattrKeyNameDropdownField.value,
+        this.xattrKeyDropdownField.value,
         this.isNewColumn,
       );
     },

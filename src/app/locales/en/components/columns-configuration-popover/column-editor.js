@@ -13,6 +13,6 @@ export default {
   xattrKey: {
     customValueOptionTextPrefix: 'Custom xattr key...',
     customValueInputPlaceholder: 'Enter an xattr key...',
-    placeholder: 'Choose an xattr key',
+    placeholder: 'Choose an xattr key...',
   },
 };

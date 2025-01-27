@@ -22,7 +22,7 @@
   <modal.body>
     <div class="xattr-key-value">
       <textarea
-        class="form-control no-resize input-sm"
+        class="form-control no-resize"
         value={{editValue}}
         rows="5"
         oninput={{action (mut editValue) value="target.value"}}
@@ -59,7 +59,7 @@
             {{tt this "copy"}}
           </span>
           <div class="inline-icon-container copy-icon-container">
-            {{one-icon icon="browser-copy"}}
+            <OneIcon @icon="browser-copy" />
           </div>
         </OneCopyButton>
         |
@@ -69,7 +69,7 @@
         >
           {{tt this "modify"}}
           <div class="inline-icon-container edit-icon-container">
-            {{one-icon icon="browser-rename"}}
+            <OneIcon @icon="browser-rename" />
           </div>
         </div>
       </div>

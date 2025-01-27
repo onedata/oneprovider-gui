@@ -8,7 +8,7 @@
 </h1>
 <PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
   <p>{{tt this "xattrNameLabel"}}</p>
-  <FormComponent::FieldRenderer @field={{xattrKeyNameField}} />
+  <FormComponent::FieldRenderer @field={{xattrKeyRootField}} />
   <p>{{tt this "columnNameLabel"}}</p>
   <input
     id={{inputId}}
@@ -32,7 +32,7 @@
       @type="primary"
       @class="edit-column-btn"
       @size="sm"
-      @onClick={{action "editColumn"}}
+      @onClick={{action "submitColumn"}}
       @disabled={{isDisabledEditButton}}
     >
       {{tt this (if isNewColumn "addBtn" "modifyBtn")}}

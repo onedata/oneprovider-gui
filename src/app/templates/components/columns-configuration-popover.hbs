@@ -69,7 +69,7 @@
             <ColumnsConfigurationPopover::ColumnEditor
               @isNewColumn={{true}}
               @xattrOptionsProxy={{xattrOptionsProxy}}
-              @onSubmitColumn={{action "editColumn"}}
+              @onSubmitColumn={{action "submitColumn"}}
               @onGoBack={{action "goBack"}}
               @columnsConfiguration={{columnsConfiguration}}
             />
@@ -80,11 +80,11 @@
             <ColumnsConfigurationPopover::ColumnEditor
               @isNewColumn={{false}}
               @xattrOptionsProxy={{xattrOptionsProxy}}
-              @onSubmitColumn={{action "editColumn"}}
+              @onSubmitColumn={{action "submitColumn"}}
               @onGoBack={{action "goBack"}}
               @columnsConfiguration={{columnsConfiguration}}
-              @oldDisplayedName={{modifiedDisplayedName}}
-              @oldXattrKey={{modifiedXattrKey}}
+              @initialDisplayedName={{modifiedDisplayedName}}
+              @initialXattrKey={{modifiedXattrKey}}
             />
           {{/if}}
         </carousel.slide>

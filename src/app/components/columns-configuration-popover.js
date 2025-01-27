@@ -106,7 +106,7 @@ export default Component.extend(...mixins, {
   }),
 
   /**
-   * @type {string} One of: 'xattr-add', 'xattr-modify', 'column-configuration'
+   * @type {'xattr-add'|'xattr-modify'|'column-configuration'}
    */
   activeSlide: 'column-configuration',
 
@@ -222,7 +222,7 @@ export default Component.extend(...mixins, {
         this.applyCurrentColumnsOrder();
       }
     },
-    editColumn(name, key, isNewColumn) {
+    submitColumn(name, key, isNewColumn) {
       if (isNewColumn) {
         this.columnsConfiguration.addNewColumn(name, key, 'xattr');
       } else {
