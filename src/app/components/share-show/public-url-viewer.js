@@ -208,8 +208,8 @@ export default Component.extend(I18n, {
   compactUrlTypeSelectorActions: conditional(
     'effShowHandle',
     collect(
-      'urlTypeSelectShareAction',
       'urlTypeSelectHandleAction',
+      'urlTypeSelectShareAction',
       'urlTypeSelectRestAction'
     ),
     collect(
