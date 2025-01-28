@@ -4,7 +4,7 @@ export const handleServiceTextMore =
   'Handle service is used as a mediator to register a persistent identifier for your data collection. Handle services are typically configured by the managers in your organization or a Onezone admin, who can add members (users or groups) and grant them the privileges to publish new records.';
 
 export const noHandleServicesText =
-  'You do not have access to any Public Data handle service, which is necessary to register Public Data records. You can either create a new handle service (requires <code>oz_handle_services_create</code> admin privilege) or request access to an existing handle service from the site administrators.';
+  'You do not have access to any handle service, which is necessary to register Public Data records. You can either create a new handle service (requires <code>oz_handle_services_create</code> admin privilege) or request access to an existing handle service from the site administrators.';
 
 export default {
   publishWelcome: {
