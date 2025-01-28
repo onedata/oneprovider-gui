@@ -1,9 +1,39 @@
 .xattr-modal {
-  .inline-icon-container {
-    width: 1.7em;
-    margin-left: -5px;
+  .modal-header {
+    .inline-icon-container {
+      width: 1.7em;
+      margin-left: -5px;
+    }
+    .xattr-key-subheader {
+      padding-top: 0.3em;
+    }
   }
-  .xattr-key-subheader {
-    padding-top: 0.3em;
+
+  .link-texts-container {
+    position: absolute;
+    left: $modal-inner-padding;
+    top: $padding-small-vertical;
+    display: flex;
+    color: $color-one-light-gray;
+
+    .xattr-value-clipboard-btn, .modify-text {
+      border: 0;
+      background: transparent;
+      color: $color-one-mint;
+      padding: 0 0.3em 0 0;
+      cursor: pointer;
+
+      &:hover {
+        color: darken($color-one-mint, 20%);
+      }
+    }
+
+    .modify-text {
+      padding-left: 0.6em;
+    }
+
+    .inline-icon-container {
+      font-size: 0.8em;
+    }
   }
 }

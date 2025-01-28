@@ -10,12 +10,10 @@ import Component from '@ember/component';
 import { trySet, computed, get } from '@ember/object';
 import { next } from '@ember/runloop';
 import browser, { BrowserName } from 'onedata-gui-common/utils/browser';
-import { reads, bool } from '@ember/object/computed';
+import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import CustomValueDropdownField from 'onedata-gui-common/utils/form-component/custom-value-dropdown-field';
-import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
 import { Promise } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
@@ -87,7 +85,7 @@ export default Component.extend(...mixins, {
   /**
    * @type {string}
    */
-  modifiedColumnNewValue: '',
+  modifiedDisplayedName: '',
 
   /**
    * Actual modified xattr key, used to display as the default value in the dropdown.
@@ -108,24 +106,9 @@ export default Component.extend(...mixins, {
   }),
 
   /**
-   * @type {string}
+   * @type {'xattr-add'|'xattr-modify'|'column-configuration'}
    */
   activeSlide: 'column-configuration',
-
-  /**
-   * @type {string}
-   */
-  xattrKeyFieldName: 'xattrKey',
-
-  /**
-   * @type {string}
-   */
-  xattrKeyModifiedFieldName: 'xattrKeyModified',
-
-  /**
-   * @type {string}
-   */
-  xattrColumnName: '',
 
   /**
    * @type {boolean}
@@ -155,6 +138,9 @@ export default Component.extend(...mixins, {
       (this.hasXattrSettings ? ' webui-popover-columns-configuration-with-xattrs' : '');
   }),
 
+  /**
+   * @type {PromiseObject<Array<{value: string, label: string}>>}
+   */
   xattrOptionsProxy: computed(
     'browserModel.itemsArray',
     'activeSlide',
@@ -185,230 +171,10 @@ export default Component.extend(...mixins, {
             xattrsList.push({ value: xattr, label: xattr });
           }
         }
-        return xattrsList;
+        return xattrsList.sortBy('label');
       })();
 
       return promiseObject(promise);
-    }
-  ),
-
-  xattrOptions: reads('xattrOptionsProxy.content'),
-
-  xattrKeyNameField: computed('xattrKeyNameDropdownField', function xattrKeyNameField() {
-    return FormFieldsRootGroup
-      .create({
-        ownerSource: this,
-        columnsConfigurationPopoverComponent: this,
-        i18nPrefix: this.i18nPrefix,
-        fields: [
-          this.xattrKeyNameDropdownField,
-        ],
-      });
-  }),
-
-  xattrKeyModifiedNameField: computed(
-    'xattrKeyModifiedNameDropdownField',
-    function xattrKeyModifiedNameField() {
-      return FormFieldsRootGroup
-        .create({
-          ownerSource: this,
-          columnsConfigurationPopoverComponent: this,
-          i18nPrefix: this.i18nPrefix,
-          fields: [
-            this.xattrKeyModifiedNameDropdownField,
-          ],
-        });
-    }
-  ),
-
-  xattrKeyNameDropdownField: computed(
-    'xattrOptions',
-    function xattrKeyNameDropdownField() {
-      return CustomValueDropdownField
-        .extend({
-          options: this.xattrOptions,
-          valueChanged(option) {
-            this._super(...arguments);
-            if (this.oldValue === undefined ||
-              this.oldValue === this.columnsConfigurationPopoverComponent.xattrColumnName
-            ) {
-              this.set('columnsConfigurationPopoverComponent.xattrColumnName', option);
-            }
-            this.set('oldValue', this.value);
-          },
-        })
-        .create({
-          columnsConfigurationPopoverComponent: this,
-          name: this.xattrKeyFieldName,
-          oldValue: undefined,
-          size: 'sm',
-          isOptional: true,
-          injectedCustomValueInputPlaceholder: this.t('dropdownPlaceholder'),
-          injectedCustomValueOptionTextPrefix: this.t('customKeyPlaceholder'),
-        });
-    }
-  ),
-
-  xattrKeyModifiedNameDropdownField: computed(
-    'xattrOptions',
-    'modifiedXattrKey',
-    function xattrKeyModifiedNameDropdownField() {
-      return CustomValueDropdownField
-        .extend({
-          options: this.xattrOptions,
-          valueChanged(option) {
-            this._super(...arguments);
-            if (this.oldValue ===
-              this.columnsConfigurationPopoverComponent.modifiedColumnNewValue
-            ) {
-              this.set(
-                'columnsConfigurationPopoverComponent.modifiedColumnNewValue',
-                option
-              );
-            }
-            this.set('oldValue', this.value);
-          },
-        })
-        .create({
-          columnsConfigurationPopoverComponent: this,
-          name: this.xattrKeyModifiedFieldName,
-          oldValue: this.modifiedXattrKey,
-          size: 'sm',
-          isOptional: true,
-          defaultValue: this.modifiedXattrKey,
-          injectedCustomValueInputPlaceholder: this.t('dropdownPlaceholder'),
-          injectedCustomValueOptionTextPrefix: this.t('customKeyPlaceholder'),
-        });
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isDisabledAddButton: bool('disabledAddButtonTooltip'),
-
-  /**
-   * @type {ComputedProperty<SafeString>}
-   */
-  disabledAddButtonTooltip: computed(
-    'isEmptyValueForAddedColumn',
-    'isAddedColumnAlreadyExisting',
-    'isAddedColumnLabelAlreadyExisting',
-    function disabledAddButtonTooltip() {
-      if (this.isEmptyValueForAddedColumn) {
-        return this.t('emptyValueTooltip');
-      }
-      if (this.isAddedColumnAlreadyExisting) {
-        return this.t('columnExistsTooltip');
-      }
-      if (this.isAddedColumnLabelAlreadyExisting) {
-        return this.t('columnLabelExistsTooltip');
-      }
-      return '';
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isEmptyValueForAddedColumn: computed(
-    'xattrColumnName',
-    'xattrKeyNameDropdownField.value',
-    function isEmptyValueForAddedColumn() {
-      return !this.xattrColumnName || !this.xattrKeyNameDropdownField.value;
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isAddedColumnLabelAlreadyExisting: computed(
-    'xattrColumnName',
-    function isAddedColumnLabelAlreadyExisting() {
-      return this.columnsConfiguration.checkIfDisplayedNameExist(this.xattrColumnName);
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isAddedColumnAlreadyExisting: computed(
-    'xattrColumnName',
-    'xattrKeyNameDropdownField.value',
-    function isAddedColumnAlreadyExisting() {
-      return this.columnsConfiguration.tryCreateUniqueColumnKey(
-        this.xattrColumnName,
-        this.xattrKeyNameDropdownField.value,
-        'xattr',
-      ).exists === true;
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isDisabledModifyButton: bool('disabledModifyButtonTooltip'),
-
-  /**
-   * @type {ComputedProperty<SafeString>}
-   */
-  disabledModifyButtonTooltip: computed(
-    'isEmptyValueForModifiedColumn',
-    'isModifiedColumnAlreadyExisting',
-    'isModifiedColumnLabelAlreadyExisting',
-    function disabledModifyButtonTooltip() {
-      if (this.isEmptyValueForModifiedColumn) {
-        return this.t('emptyValueTooltip');
-      }
-      if (this.isModifiedColumnAlreadyExisting) {
-        return this.t('columnExistsTooltip');
-      }
-      if (this.isModifiedColumnLabelAlreadyExisting) {
-        return this.t('columnLabelExistsTooltip');
-      }
-      return '';
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isEmptyValueForModifiedColumn: computed(
-    'modifiedColumnNewValue',
-    'xattrKeyModifiedNameDropdownField.value',
-    function isEmptyValueForModifiedColumn() {
-      return !this.modifiedColumnNewValue ||
-        !this.xattrKeyModifiedNameDropdownField.value;
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isModifiedColumnAlreadyExisting: computed(
-    'modifiedColumnNewValue',
-    'xattrKeyModifiedNameDropdownField.value',
-    function isModifiedColumnAlreadyExisting() {
-      return this.columnsConfiguration.tryCreateUniqueColumnKey(
-        this.modifiedColumnNewValue,
-        this.xattrKeyModifiedNameDropdownField.value,
-        'xattr',
-      ).exists === true;
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isModifiedColumnLabelAlreadyExisting: computed(
-    'modifiedColumn',
-    'modifiedColumnNewValue',
-    'columnsConfiguration.columns',
-    function isModifiedColumnLabelAlreadyExisting() {
-      const oldLabel = this.columnsConfiguration.columns[this.modifiedColumn]
-        .displayedName;
-      return oldLabel !== this.modifiedColumnNewValue &&
-        this.columnsConfiguration.checkIfDisplayedNameExist(this.modifiedColumnNewValue);
     }
   ),
 
@@ -456,19 +222,12 @@ export default Component.extend(...mixins, {
         this.applyCurrentColumnsOrder();
       }
     },
-    addNewColumn() {
-      const newColumn = this.xattrColumnName;
-      const key = this.xattrKeyNameDropdownField.value;
-      this.columnsConfiguration.addNewColumn(newColumn, key, 'xattr');
-      this.set('activeSlide', 'column-configuration');
-    },
-    modifyColumn() {
-      const key = this.xattrKeyModifiedNameDropdownField.value;
-      this.columnsConfiguration.modifyColumn(
-        this.modifiedColumn,
-        this.modifiedColumnNewValue,
-        key,
-      );
+    submitColumn(name, key, isNewColumn) {
+      if (isNewColumn) {
+        this.columnsConfiguration.addNewColumn(name, key, 'xattr');
+      } else {
+        this.columnsConfiguration.modifyColumn(this.modifiedColumn, name, key);
+      }
       this.set('activeSlide', 'column-configuration');
     },
     removeXattrColumn(removedColumn) {
@@ -476,7 +235,6 @@ export default Component.extend(...mixins, {
     },
     goXattrConfiguration() {
       this.set('activeSlide', 'xattr-add');
-      this.set('xattrColumnName', '');
     },
     openXattrModification(columnName) {
       const xattrKey = this.columnsConfiguration.columns[columnName].xattrKey;
@@ -484,7 +242,7 @@ export default Component.extend(...mixins, {
         modifiedXattrKey: xattrKey,
         activeSlide: 'xattr-modify',
         modifiedColumn: columnName,
-        modifiedColumnNewValue: this.columnsConfiguration.columns[columnName]
+        modifiedDisplayedName: this.columnsConfiguration.columns[columnName]
           .displayedName,
       });
     },
