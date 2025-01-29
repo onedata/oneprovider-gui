@@ -11,6 +11,7 @@ import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 /**
  * @typedef {Object} XattrModalOptions
@@ -27,6 +28,7 @@ export default Component.extend(...mixins, {
 
   i18n: service(),
   modalManager: service(),
+  metadataManager: service(),
 
   /**
    * @override
@@ -44,6 +46,24 @@ export default Component.extend(...mixins, {
    * @type {XattrModalOptions}
    */
   modalOptions: undefined,
+
+  /**
+   * @type {boolean}
+   */
+  isModifiedMode: false,
+
+  /**
+   * Stores current value of input
+   * @type {string}
+   */
+  editValue: reads('xattrValue'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  submitDisabled: computed('editValue', 'xattrValue', function submitDisabled() {
+    return this.editValue === this.xattrValue;
+  }),
 
   /**
    * @type {Array<Model.File>}
@@ -69,6 +89,25 @@ export default Component.extend(...mixins, {
   actions: {
     onHide() {
       this.close();
+    },
+    async submit() {
+      const xattr = {};
+      xattr[this.xattrKey] = this.editValue;
+      try {
+        await this.metadataManager.setMetadata(this.modalOptions.file, 'xattrs', xattr);
+        safeExec(this, 'set', 'xattrValue', this.editValue);
+      } catch (error) {
+        console.error(`saveXattrs failed: ${JSON.stringify(error)}`);
+        throw error;
+      } finally {
+        safeExec(this, 'set', 'isModifiedMode', false);
+      }
+    },
+    discard() {
+      this.setProperties({
+        editValue: this.xattrValue,
+        isModifiedMode: false,
+      });
     },
   },
 });
