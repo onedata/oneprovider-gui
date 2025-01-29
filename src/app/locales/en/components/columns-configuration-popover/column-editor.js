@@ -1,6 +1,5 @@
 export default {
   addNewColumnHeader: 'New xattr column',
-  xattrNameLabel: 'Extended attribute key:',
   columnNameLabel: 'Column label:',
   addBtn: 'Create',
   cancelBtn: 'Cancel',
@@ -11,8 +10,31 @@ export default {
   emptyValueTooltip: 'Requires non-empty key and label.',
   columnLabelExistsTooltip: 'Column with this label already exists.',
   xattrKey: {
+    label: 'Extended attribute key',
     customValueOptionTextPrefix: 'Custom xattr key...',
     customValueInputPlaceholder: 'Enter an xattr key...',
     placeholder: 'Choose an xattr key...',
+  },
+  metadataType: {
+    label: 'Metadata type',
+    options: {
+      xattr: {
+        label: 'xattr',
+      },
+      json: {
+        label: 'JSON',
+      },
+    },
+  },
+  jsonType: {
+    label: 'JSON type',
+    options: {
+      all: {
+        label: 'All',
+      },
+      key: {
+        label: 'Key',
+      },
+    },
   },
 };

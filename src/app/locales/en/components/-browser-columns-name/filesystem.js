@@ -22,6 +22,7 @@ export default {
     creationTime: 'Time the item was created.',
     posixPermissions: 'Permissions regulating data access rights. It can be expressed either by the standard POSIX permissions system or by the Access Control List (ACL). If there is an ACL specified, the POSIX permissions are ignored.<br>Click on the cell to see more details.',
     xattr: 'The extended attribute value for key: <strong>{{key}}</strong>',
+    json: 'Custom JSON metadata assigned to the file.',
     fileId: {
       priv: 'File ID is a unique, global identifier associated with a file/directory. It can be used to access and interact with the file/directory using different interfaces (e.g. REST API), but only by authorized users that have permission to do so.',
       public: 'Public File ID is a unique, global identifier associated with a shared file/directory. As opposed to a non-public File ID, it grants public (unauthenticated) read-only access to the file/directory using different interfaces (e.g. REST API).',
@@ -31,6 +32,7 @@ export default {
     modification: 'content',
     ctime: 'metadata',
     xattr: 'xattr',
+    json: 'JSON',
     fileId: 'public',
   },
 };

@@ -14,6 +14,7 @@ import { reads, bool } from '@ember/object/computed';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import CustomValueDropdownField from 'onedata-gui-common/utils/form-component/custom-value-dropdown-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
+import RadioField from 'onedata-gui-common/utils/form-component/radio-field';
 import {
   destroyDestroyableComputedValues,
   destroyableComputed,
@@ -70,7 +71,19 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {string}
    */
+  initialMetadataType: 'xattr',
+
+  /**
+   * @virtual optional
+   * @type {string}
+   */
   initialXattrKey: undefined,
+
+  /**
+   * @virtual optional
+   * @type {string}
+   */
+  initialJsonQueryType: 'all',
 
   /**
    * @type {string}
@@ -84,16 +97,21 @@ export default Component.extend(I18n, {
 
   xattrOptions: reads('xattrOptionsProxy.content'),
 
-  xattrKeyRootField: destroyableComputed(
+  fields: destroyableComputed(
     'xattrKeyDropdownField',
-    function xattrKeyRootField() {
+    'metadataTypeField',
+    'jsonTypeField',
+    function fields() {
       return FormFieldsRootGroup
         .create({
           ownerSource: this,
           columnEditorComponent: this,
           i18nPrefix: this.i18nPrefix,
+          size: 'sm',
           fields: [
             this.xattrKeyDropdownField,
+            this.metadataTypeField,
+            this.jsonTypeField,
           ],
         });
     }
@@ -120,11 +138,46 @@ export default Component.extend(I18n, {
           name: this.xattrKeyFieldName,
           oldValue: this.initialXattrKey,
           defaultValue: this.initialXattrKey,
-          size: 'sm',
           isOptional: true,
         });
     }
   ),
+
+  metadataTypeField: computed(function metadataTypeField() {
+    return RadioField.create({
+      name: 'metadataType',
+      options: [
+        { value: 'xattr' },
+        { value: 'json' },
+      ],
+      tooltipClass: 'tooltip-lg tooltip-text-left',
+      defaultValue: this.initialMetadataType,
+    });
+  }),
+
+  jsonTypeField: computed(function jsonTypeField() {
+    return RadioField.create({
+      name: 'jsonType',
+      defaultValue: this.initialJsonQueryType,
+      options: [
+        { value: 'all' },
+        { value: 'key' },
+      ],
+      tooltipClass: 'tooltip-lg tooltip-text-left',
+    });
+  }),
+
+  xattrKeyDropdown: computed('fields', 'xattrKeyFieldName', function xattrKeyDropdown() {
+    return this.fields.getFieldByPath(this.xattrKeyFieldName);
+  }),
+
+  metadataType: computed('fields', function metadataType() {
+    return this.fields.getFieldByPath('metadataType');
+  }),
+
+  jsonType: computed('fields', function jsonTypeField() {
+    return this.fields.getFieldByPath('jsonType');
+  }),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -140,7 +193,10 @@ export default Component.extend(I18n, {
     'newColumnName',
     'xattrKeyDropdownField.value',
     function disabledEditButtonTooltip() {
-      if (!this.newColumnName || !this.xattrKeyDropdownField.value) {
+      if (
+        !this.newColumnName ||
+        (!this.xattrKeyDropdownField.value && this.metadataTypeField.value === 'xattr')
+      ) {
         return this.t('emptyValueTooltip');
       }
       if (this.isColumnAlreadyExisting) {
@@ -167,19 +223,43 @@ export default Component.extend(I18n, {
     }
   ),
 
+  metadataTypeValue: computed(
+    'isNewColumn',
+    'metadataTypeField.value',
+    'initialMetadataType',
+    function metadataTypeValue() {
+      if (this.isNewColumn) {
+        return this.metadataTypeField.value;
+      } else {
+        return this.initialMetadataType;
+      }
+    }
+  ),
+
   /**
    * @type {ComputedProperty<Boolean>}
    */
   isColumnAlreadyExisting: computed(
     'newColumnName',
     'xattrKeyDropdownField.value',
+    'jsonTypeField.value',
+    'metadataTypeValue',
     function isColumnAlreadyExisting() {
-      return this.columnsConfiguration
-        .tryCreateUniqueColumnKey(
-          this.newColumnName,
-          this.xattrKeyDropdownField.value,
-          'xattr',
-        ).exists === true;
+      if (this.metadataTypeValue === 'xattr') {
+        return this.columnsConfiguration
+          .tryCreateUniqueColumnKey(
+            this.newColumnName,
+            this.xattrKeyDropdownField.value,
+            'xattr',
+          ).exists === true;
+      } else {
+        return this.columnsConfiguration
+          .tryCreateUniqueColumnKey(
+            this.newColumnName,
+            this.jsonTypeField.value,
+            'json',
+          ).exists === true;
+      }
     }
   ),
 
@@ -205,10 +285,14 @@ export default Component.extend(I18n, {
       this.onGoBack();
     },
     submitColumn() {
+      const type = this.metadataTypeValue;
+      const option = type === 'xattr' ?
+        this.xattrKeyDropdownField.value : this.jsonTypeField.value;
       this.onSubmitColumn(
-        this.newColumnName,
-        this.xattrKeyDropdownField.value,
         this.isNewColumn,
+        type,
+        this.newColumnName,
+        option,
       );
     },
   },

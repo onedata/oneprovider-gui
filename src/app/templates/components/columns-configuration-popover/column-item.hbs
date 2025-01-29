@@ -33,7 +33,10 @@
       class="column-name-label"
     >
       <TruncatedString>
-        {{#if (eq (get columnValue "type") "xattr")}}
+        {{#if (or
+          (eq (get columnValue "type") "xattr")
+          (eq (get columnValue "type") "json")
+        )}}
           {{get columnValue "displayedName"}}
         {{else}}
           {{tt this (concat translationKey ".name." columnName)}}
@@ -43,6 +46,8 @@
         <span class="subname-text">
           {{#if (eq (get columnValue "type") "xattr")}}
             ({{tt this (concat translationKey ".subname.xattr")}})
+          {{else if (eq (get columnValue "type") "json")}}
+            ({{tt this (concat translationKey ".subname.json")}})
           {{else}}
             ({{tt this (concat translationKey ".subname." columnName)}})
           {{/if}}
@@ -50,10 +55,13 @@
       {{/if}}
     </label>
     <div class="icons-container">
-      {{#if (eq (get columnValue "type") "xattr")}}
+      {{#if (or
+        (eq (get columnValue "type") "xattr")
+        (eq (get columnValue "type") "json")
+      )}}
         <div
-          class="modify-column icon-container"
-          onClick={{action "openXattrModification" columnName}}
+          class="modify-column icon-container inline-icon-container"
+          onClick={{action "openColumnEditor" columnName}}
         >
           <OneIcon @icon="browser-rename" class="visible-on-hover"/>
           {{#if isColumnListVisible}}
@@ -63,8 +71,8 @@
           {{/if}}
         </div>
         <div
-          class="remove-column icon-container"
-          onClick={{action "removeXattrColumn" columnName}}
+          class="remove-column icon-container inline-icon-container"
+          onClick={{action "removeMetadataColumn" columnName}}
         >
           <OneIcon @icon="close" class="visible-on-hover"/>
           {{#if isColumnListVisible}}
@@ -90,16 +98,7 @@
           <OneIcon @icon="browser-info" class="column-info-icon" />
           {{#if isColumnListVisible}}
             <OneTooltip
-              @title={{if (eq (get columnValue "type") "xattr")
-                (tt this
-                  (concat translationKey ".tip.xattr")
-                  key=(get columnValue "xattrKey")
-                )
-                (tt this
-                  (concat translationKey ".tip." columnName)
-                  oneprovider=currentProviderName
-                )
-              }}
+              @title={{tooltipText}}
             />
           {{/if}}
         </div>

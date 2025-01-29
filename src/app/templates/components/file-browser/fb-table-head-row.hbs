@@ -43,9 +43,15 @@
             <OneIcon @icon="drag" class="column-move-icon visible-on-hover" />
           </div>
           <TruncatedString>
-            {{#if (eq
-              (get columnsConfiguration (concat "columns." columnName ".type"))
-              "xattr"
+            {{#if (or
+              (eq
+                (get columnsConfiguration (concat "columns." columnName ".type"))
+                "xattr"
+              )
+              (eq
+                (get columnsConfiguration (concat "columns." columnName ".type"))
+                "json"
+              )
             )}}
               {{get columnsConfiguration (concat "columns." columnName ".displayedName")}}
             {{else}}
@@ -67,17 +73,23 @@
                         (concat "columns." columnName ".xattrKey")
                       )
                     )
-                    (if (eq columnName "fileId")
-                      (tt this
-                        (concat
-                          "headers.tip."
-                          columnName
-                          (if previewMode ".public" ".priv")
-                        )
+                    (if (eq
+                        (get columnsConfiguration (concat "columns." columnName ".type"))
+                        "json"
                       )
-                      (tt this
-                        (concat "headers.tip." columnName)
-                        oneprovider=currentProviderName
+                      (tt this "headers.tip.json")
+                      (if (eq columnName "fileId")
+                        (tt this
+                          (concat
+                            "headers.tip."
+                            columnName
+                            (if previewMode ".public" ".priv")
+                          )
+                        )
+                        (tt this
+                          (concat "headers.tip." columnName)
+                          oneprovider=currentProviderName
+                        )
                       )
                     )
                   }}
@@ -93,6 +105,11 @@
               "xattr"
             )}}
               ({{tt this "headers.subname.xattr"}})
+            {{else if (eq
+              (get columnsConfiguration (concat "columns." columnName ".type"))
+              "json"
+            )}}
+              ({{tt this "headers.subname.json"}})
             {{else}}
               ({{tt this (concat "headers.subname." columnName)}})
             {{/if}}

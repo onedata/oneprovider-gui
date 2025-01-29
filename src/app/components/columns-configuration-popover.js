@@ -88,10 +88,21 @@ export default Component.extend(...mixins, {
   modifiedDisplayedName: '',
 
   /**
+   * @type {string}
+   */
+  modifiedMetadataType: '',
+
+  /**
    * Actual modified xattr key, used to display as the default value in the dropdown.
    * @type {string}
    */
   modifiedXattrKey: '',
+
+  /**
+   * Actual modified JSON query type, used to display as the default value in radio buttons.
+   * @type {string}
+   */
+  modifiedJsonQueryType: '',
 
   /**
    * @type {ComputedProperty<string>}
@@ -106,7 +117,7 @@ export default Component.extend(...mixins, {
   }),
 
   /**
-   * @type {'xattr-add'|'xattr-modify'|'column-configuration'}
+   * @type {'column-add'|'column-modify'|'column-configuration'}
    */
   activeSlide: 'column-configuration',
 
@@ -128,14 +139,16 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  hasXattrSettings: reads('columnsConfiguration.hasXattrSettings'),
+  hasMetadataSettings: reads('columnsConfiguration.hasMetadataSettings'),
 
   /**
    * @type {ComputedProperty<string>}
    */
-  popoverStyle: computed('hasXattrSettings', function popoverStyle() {
+  popoverStyle: computed('hasMetadataSettings', function popoverStyle() {
     return 'columns-configuration' +
-      (this.hasXattrSettings ? ' webui-popover-columns-configuration-with-xattrs' : '');
+      (this.hasMetadataSettings ?
+        ' webui-popover-columns-configuration-with-metadata' : ''
+      );
   }),
 
   /**
@@ -222,29 +235,39 @@ export default Component.extend(...mixins, {
         this.applyCurrentColumnsOrder();
       }
     },
-    submitColumn(name, key, isNewColumn) {
+    submitColumn(isNewColumn, type, name, option) {
       if (isNewColumn) {
-        this.columnsConfiguration.addNewColumn(name, key, 'xattr');
+        this.columnsConfiguration.addNewColumn(name, option, type);
       } else {
-        this.columnsConfiguration.modifyColumn(this.modifiedColumn, name, key);
+        this.columnsConfiguration.modifyColumn(this.modifiedColumn, name, option);
       }
       this.set('activeSlide', 'column-configuration');
     },
-    removeXattrColumn(removedColumn) {
-      this.columnsConfiguration.removeXattrColumn(removedColumn);
+    removeMetadataColumn(removedColumn) {
+      this.columnsConfiguration.removeMetadataColumn(removedColumn);
     },
     goXattrConfiguration() {
-      this.set('activeSlide', 'xattr-add');
+      this.set('activeSlide', 'column-add');
     },
-    openXattrModification(columnName) {
-      const xattrKey = this.columnsConfiguration.columns[columnName].xattrKey;
+    openColumnEditor(columnName) {
       this.setProperties({
-        modifiedXattrKey: xattrKey,
-        activeSlide: 'xattr-modify',
+        activeSlide: 'column-modify',
         modifiedColumn: columnName,
+        modifiedMetadataType: this.columnsConfiguration.columns[columnName].type,
         modifiedDisplayedName: this.columnsConfiguration.columns[columnName]
           .displayedName,
       });
+      if (this.columnsConfiguration.columns[columnName].type === 'xattr') {
+        this.set(
+          'modifiedXattrKey',
+          this.columnsConfiguration.columns[columnName].xattrKey
+        );
+      } else {
+        this.set(
+          'modifiedJsonQueryType',
+          this.columnsConfiguration.columns[columnName].queryType
+        );
+      }
     },
     goBack() {
       this.set('activeSlide', 'column-configuration');

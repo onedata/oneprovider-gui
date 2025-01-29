@@ -86,13 +86,13 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {(columnName: string) => void}
    */
-  openXattrModification: notImplementedWarn,
+  openColumnEditor: notImplementedWarn,
 
   /**
    * @virtual
    * @type {(columnName: string) => void}
    */
-  removeXattrColumn: notImplementedWarn,
+  removeMetadataColumn: notImplementedWarn,
 
   /**
    * @virtual
@@ -173,6 +173,29 @@ export default Component.extend(I18n, {
    */
   currentProviderName: reads('currentProviderProxy.content.name'),
 
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  tooltipText: computed(
+    'columnValue.{type,xattrKey}',
+    'translationKey',
+    'columnName',
+    'currentProviderName',
+    function tooltipText() {
+      if (this.columnValue.type === 'xattr') {
+        return this.t(`${this.translationKey}.tip.xattr`, {
+          key: this.columnValue.xattrKey,
+        });
+      } else if (this.columnValue.type === 'json') {
+        return this.t(`${this.translationKey}.tip.json`);
+      } else {
+        return this.t(`${this.translationKey}.tip.${this.columnName}`, {
+          oneprovider: this.currentProviderName,
+        });
+      }
+    }
+  ),
+
   actions: {
     checkboxChanged(columnName, newValue) {
       return this.checkboxChanged(columnName, newValue);
@@ -183,11 +206,11 @@ export default Component.extend(I18n, {
     moveColumnUp(columnName) {
       return this.moveColumnUp(columnName);
     },
-    openXattrModification(columnName) {
-      this.openXattrModification(columnName);
+    openColumnEditor(columnName) {
+      this.openColumnEditor(columnName);
     },
-    removeXattrColumn(columnName) {
-      this.removeXattrColumn(columnName);
+    removeMetadataColumn(columnName) {
+      this.removeMetadataColumn(columnName);
     },
     headingDrag(event) {
       if (this.dragStartAction) {

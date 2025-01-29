@@ -369,7 +369,7 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @type {boolean}
    */
-  hasXattrColumnsSupport: true,
+  hasMetadataColumnsSupport: true,
 
   parentDirRequirement: computed(
     'dir',
@@ -1475,7 +1475,7 @@ export default BaseBrowserModel.extend(...mixins, {
     }
     return ColumnsConfiguration.create({
       configurationType: this.browserPersistedConfigurationKey,
-      hasXattrSettings: this.hasXattrColumnsSupport,
+      hasMetadataSettings: this.hasMetadataColumnsSupport,
       columns,
       columnsOrder,
       firstColumnWidth: 380,

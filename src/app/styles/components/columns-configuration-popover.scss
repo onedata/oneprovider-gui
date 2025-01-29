@@ -64,6 +64,11 @@
           width: 10em;
         }
 
+        .inline-icon-container {
+          width: 1.2em;
+          height: auto;
+        }
+
         .icon-container .oneicon {
           vertical-align: middle;
         }
@@ -187,6 +192,10 @@
     }
   }
 
+  .metadata-state-selector {
+    padding-bottom: 15px;
+  }
+
   .add-new-column {
     display: flex;
     align-items: center;
@@ -280,7 +289,7 @@
   }
 }
 
-.webui-popover-columns-configuration-with-xattrs {
+.webui-popover-columns-configuration-with-metadata {
   @media (min-height: $screen-sm-min) {
     --min-height-popover: 240px;
   }

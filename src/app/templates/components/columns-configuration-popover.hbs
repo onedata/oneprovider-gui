@@ -33,8 +33,8 @@
                   moveColumnUp=(action "moveColumnUp")
                   dragStartAction=dragStartAction
                   dragEndAction=dragEndAction
-                  openXattrModification=(action "openXattrModification")
-                  removeXattrColumn=(action "removeXattrColumn")
+                  openColumnEditor=(action "openColumnEditor")
+                  removeMetadataColumn=(action "removeMetadataColumn")
                   isColumnListVisible=(eq activeSlide "column-configuration")
                   columnIndex=index
                   onHeadingDrag=(action "headingDrag" columnName)
@@ -48,7 +48,7 @@
               <div class="space-between-item-area"></div>
             </ul>
           </PerfectScrollbarElement>
-          {{#if columnsConfiguration.hasXattrSettings}}
+          {{#if columnsConfiguration.hasMetadataSettings}}
             <div
               class="add-new-column new-column-item"
               onClick={{action "goXattrConfiguration"}}
@@ -64,8 +64,8 @@
             </div>
           {{/if}}
         </carousel.slide>
-        <carousel.slide @slideId="xattr-add">
-          {{#if (eq activeSlide "xattr-add")}}
+        <carousel.slide @slideId="column-add">
+          {{#if (eq activeSlide "column-add")}}
             <ColumnsConfigurationPopover::ColumnEditor
               @isNewColumn={{true}}
               @xattrOptionsProxy={{xattrOptionsProxy}}
@@ -75,8 +75,8 @@
             />
           {{/if}}
         </carousel.slide>
-        <carousel.slide @slideId="xattr-modify">
-          {{#if (eq activeSlide "xattr-modify")}}
+        <carousel.slide @slideId="column-modify">
+          {{#if (eq activeSlide "column-modify")}}
             <ColumnsConfigurationPopover::ColumnEditor
               @isNewColumn={{false}}
               @xattrOptionsProxy={{xattrOptionsProxy}}
@@ -85,6 +85,8 @@
               @columnsConfiguration={{columnsConfiguration}}
               @initialDisplayedName={{modifiedDisplayedName}}
               @initialXattrKey={{modifiedXattrKey}}
+              @initialJsonQueryType={{modifiedJsonQueryType}}
+              @initialMetadataType={{modifiedMetadataType}}
             />
           {{/if}}
         </carousel.slide>

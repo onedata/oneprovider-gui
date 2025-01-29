@@ -241,6 +241,10 @@
         @style={{get columnsConfiguration.columnsStyle columnName}}
         @openXattrModal={{action "openXattrModal"}}
       />
+    {{else if (eq (get (get columnsConfiguration.columns columnName) "type") "json")}}
+      <FilesystemBrowser::TableCellJsonInfo
+        @style={{get columnsConfiguration.columnsStyle columnName}}
+      />
     {{/if}}
   {{/if}}
 {{/each}}
