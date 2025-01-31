@@ -219,14 +219,15 @@ export default EmberObject.extend(...mixins, {
       if (
         type === 'xattr' &&
         columnName === this.columns[columnNameVariable].displayedName &&
-        option === this.columns[columnNameVariable].xattrKey
+        option.xattrKey === this.columns[columnNameVariable].xattrKey
       ) {
         // return if a column with the same name and key already exists
         return { exists: true };
       } else if (
         type === 'json' &&
         columnName === this.columns[columnNameVariable].displayedName &&
-        option === this.columns[columnNameVariable].queryType
+        option.queryType === this.columns[columnNameVariable].queryType &&
+        option.jsonKey === this.columns[columnNameVariable].jsonKey
       ) {
         // return if a column with the same name and query type already exists
         return { exists: true };
@@ -257,13 +258,13 @@ export default EmberObject.extend(...mixins, {
         hasSubname: true,
         hasTooltip: true,
         type: type,
-        xattrKey: option,
+        xattrKey: option.xattrKey,
         displayedName: columnName,
-        fileProperty: `xattr.${option}`,
+        fileProperty: `xattr.${option.xattrKey}`,
       });
       globals.localStorage.setItem(
         `${this.persistedCustomColumnConfigKey(columnNameVariable)}.xattrKey`,
-        option
+        option.xattrKey
       );
     } else {
       this.columns[columnNameVariable] = EmberObject.create({
@@ -273,13 +274,20 @@ export default EmberObject.extend(...mixins, {
         hasSubname: true,
         hasTooltip: true,
         type: type,
-        queryType: option,
+        queryType: option.queryType,
+        jsonKey: option.jsonKey,
         displayedName: columnName,
       });
       globals.localStorage.setItem(
         `${this.persistedCustomColumnConfigKey(columnNameVariable)}.queryType`,
-        option
+        option.queryType
       );
+      if (option.queryType === 'key') {
+        globals.localStorage.setItem(
+          `${this.persistedCustomColumnConfigKey(columnNameVariable)}.jsonKey`,
+          option.jsonKey
+        );
+      }
     }
 
     globals.localStorage.setItem(
@@ -296,17 +304,22 @@ export default EmberObject.extend(...mixins, {
   removeMetadataColumn(columnName) {
     this.changeColumnVisibility(columnName, false);
     const type = this.columns[columnName].type;
-    delete this.columns[columnName];
     if (type === 'xattr') {
       globals.localStorage.removeItem(
         `${this.persistedCustomColumnConfigKey(columnName)}.xattrKey`
       );
     } else {
+      const queryType = this.columns[columnName].queryType;
       globals.localStorage.removeItem(
         `${this.persistedCustomColumnConfigKey(columnName)}.queryType`
       );
+      if (queryType === 'key') {
+        globals.localStorage.removeItem(
+          `${this.persistedCustomColumnConfigKey(columnName)}.jsonKey`
+        );
+      }
     }
-
+    delete this.columns[columnName];
     globals.localStorage.removeItem(
       `${this.persistedCustomColumnConfigKey(columnName)}.label`
     );
@@ -328,22 +341,29 @@ export default EmberObject.extend(...mixins, {
     if (column.type === 'xattr') {
       setProperties(column, {
         displayedName: newColumnName,
-        xattrKey: option,
-        fileProperty: 'xattr.' + option,
+        xattrKey: option.xattrKey,
+        fileProperty: 'xattr.' + option.xattrKey,
       });
       globals.localStorage.setItem(
         `${this.persistedCustomColumnConfigKey(columnName)}.xattrKey`,
-        option
+        option.xattrKey
       );
     } else {
       setProperties(column, {
         displayedName: newColumnName,
-        queryType: option,
+        queryType: option.queryType,
+        jsonKey: option.jsonKey,
       });
       globals.localStorage.setItem(
         `${this.persistedCustomColumnConfigKey(columnName)}.queryType`,
-        option
+        option.queryType
       );
+      if (option.queryType === 'key') {
+        globals.localStorage.setItem(
+          `${this.persistedCustomColumnConfigKey(columnName)}.jsonKey`,
+          option.jsonKey
+        );
+      }
     }
 
     globals.localStorage.setItem(
@@ -422,6 +442,12 @@ export default EmberObject.extend(...mixins, {
     const queryType = globals.localStorage.getItem(
       `${this.persistedCustomColumnConfigKey(columnName)}.queryType`
     );
+    let jsonKey = '';
+    if (queryType === 'key') {
+      jsonKey = globals.localStorage.getItem(
+        `${this.persistedCustomColumnConfigKey(columnName)}.jsonKey`
+      );
+    }
     const displayedName = globals.localStorage.getItem(
       `${this.persistedCustomColumnConfigKey(columnName)}.label`
     );
@@ -435,7 +461,8 @@ export default EmberObject.extend(...mixins, {
       hasSubname: true,
       hasTooltip: true,
       type: 'json',
-      queryType: 'all',
+      queryType,
+      jsonKey,
       displayedName,
     });
   },

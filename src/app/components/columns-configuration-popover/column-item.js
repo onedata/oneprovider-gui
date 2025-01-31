@@ -177,7 +177,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<SafeString>}
    */
   tooltipText: computed(
-    'columnValue.{type,xattrKey}',
+    'columnValue.{type,xattrKey,queryType,jsonType}',
     'translationKey',
     'columnName',
     'currentProviderName',

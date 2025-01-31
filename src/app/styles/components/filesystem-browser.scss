@@ -205,6 +205,7 @@
       padding-right: $padding-xs-horizontal;
     }
     .file-json {
+      cursor: pointer;
       position: relative;
 
       code {
@@ -232,8 +233,12 @@
     &:hover .copy-icon {
       visibility: visible;
       opacity: 1;
-      color: $color-one-mint;
+
+      &:hover {
+        color: $color-one-mint;
+      }
     }
+
   }
 
   .fb-table-col-file-id {

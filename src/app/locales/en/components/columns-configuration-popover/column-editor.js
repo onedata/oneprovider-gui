@@ -1,6 +1,7 @@
 export default {
   addNewColumnHeader: 'New xattr column',
   columnNameLabel: 'Column label:',
+  jsonKeyLabel: 'JSON key:',
   addBtn: 'Create',
   cancelBtn: 'Cancel',
   modifyColumnHeader: 'Modify xattr column',

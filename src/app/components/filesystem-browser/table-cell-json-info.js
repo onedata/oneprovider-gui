@@ -15,6 +15,7 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { htmlSafe } from '@ember/string';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-json';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export const emptyValue = { ___empty___: true };
 
@@ -25,6 +26,12 @@ export default Component.extend({
 
   metadataManager: service(),
   globalClipboard: service(),
+
+  /**
+   * @virtual
+   * @type {(item: any, actionName: string) => void}
+   */
+  invokeFileAction: notImplementedReject,
 
   /**
    * @virtual
@@ -118,7 +125,11 @@ export default Component.extend({
   },
 
   actions: {
-    copyJson() {
+    invokeFileAction(file, btnId, ...args) {
+      this.get('invokeFileAction')(file, btnId, ...args);
+    },
+    copyJson(event) {
+      event.stopPropagation();
       this.globalClipboard.copy(this.json);
     },
   },

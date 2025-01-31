@@ -1,4 +1,7 @@
-<div class="file-json">
+<div
+  class="file-json"
+  onclick={{action "invokeFileAction" file "info" "metadata"}}
+>
   <PromiseProxyContainer @proxy={{jsonProxy}}>
     {{#if json}}
       <div class="file-json-text">

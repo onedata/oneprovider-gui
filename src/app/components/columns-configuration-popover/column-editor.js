@@ -71,6 +71,12 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {string}
    */
+  initialJsonKey: '',
+
+  /**
+   * @virtual optional
+   * @type {string}
+   */
   initialMetadataType: 'xattr',
 
   /**
@@ -89,6 +95,11 @@ export default Component.extend(I18n, {
    * @type {string}
    */
   newColumnName: '',
+
+  /**
+   * @type {string}
+   */
+  newJsonKey: '',
 
   /**
    * @type {string}
@@ -192,10 +203,15 @@ export default Component.extend(I18n, {
     'isColumnLabelAlreadyExisting',
     'newColumnName',
     'xattrKeyDropdownField.value',
+    'metadataTypeField.value',
+    'jsonTypeField.value',
+    'newJsonKey',
     function disabledEditButtonTooltip() {
       if (
         !this.newColumnName ||
-        (!this.xattrKeyDropdownField.value && this.metadataTypeField.value === 'xattr')
+        (!this.xattrKeyDropdownField.value && this.metadataTypeField.value === 'xattr') ||
+        (!this.newJsonKey && this.metadataTypeField.value === 'json' &&
+          this.jsonTypeField.value === 'key')
       ) {
         return this.t('emptyValueTooltip');
       }
@@ -244,19 +260,21 @@ export default Component.extend(I18n, {
     'xattrKeyDropdownField.value',
     'jsonTypeField.value',
     'metadataTypeValue',
+    'newJsonKey',
     function isColumnAlreadyExisting() {
       if (this.metadataTypeValue === 'xattr') {
         return this.columnsConfiguration
           .tryCreateUniqueColumnKey(
-            this.newColumnName,
-            this.xattrKeyDropdownField.value,
+            this.newColumnName, { xattrKey: this.xattrKeyDropdownField.value },
             'xattr',
           ).exists === true;
       } else {
         return this.columnsConfiguration
           .tryCreateUniqueColumnKey(
-            this.newColumnName,
-            this.jsonTypeField.value,
+            this.newColumnName, {
+              queryType: this.jsonTypeField.value,
+              jsonKey: this.newJsonKey,
+            },
             'json',
           ).exists === true;
       }
@@ -267,6 +285,7 @@ export default Component.extend(I18n, {
     initDestroyableCache(this);
     this._super(...arguments);
     this.set('newColumnName', this.initialDisplayedName);
+    this.set('newJsonKey', this.initialJsonKey);
   },
 
   /**
@@ -286,8 +305,10 @@ export default Component.extend(I18n, {
     },
     submitColumn() {
       const type = this.metadataTypeValue;
-      const option = type === 'xattr' ?
-        this.xattrKeyDropdownField.value : this.jsonTypeField.value;
+      const option = type === 'xattr' ? { xattrKey: this.xattrKeyDropdownField.value } : {
+        queryType: this.jsonTypeField.value,
+        jsonKey: this.newJsonKey,
+      };
       this.onSubmitColumn(
         this.isNewColumn,
         type,

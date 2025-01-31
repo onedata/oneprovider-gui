@@ -104,6 +104,11 @@ export default Component.extend(...mixins, {
   modifiedJsonQueryType: '',
 
   /**
+   * @type {string}
+   */
+  modifiedJsonKey: '',
+
+  /**
    * @type {ComputedProperty<string>}
    */
   columnsCount: reads('columnsConfiguration.columnsOrder.length'),
@@ -262,10 +267,17 @@ export default Component.extend(...mixins, {
           this.columnsConfiguration.columns[columnName].xattrKey
         );
       } else {
+        const queryType = this.columnsConfiguration.columns[columnName].queryType;
         this.set(
           'modifiedJsonQueryType',
-          this.columnsConfiguration.columns[columnName].queryType
+          queryType
         );
+        if (queryType === 'key') {
+          this.set(
+            'modifiedJsonKey',
+            this.columnsConfiguration.columns[columnName].jsonKey
+          );
+        }
       }
     },
     goBack() {
