@@ -1,5 +1,5 @@
 /**
- * Shows warnings about share in OpenData metadata context.
+ * Shows warnings about share in PublicData metadata context.
  *
  * Currently shows only "different name" warning.
  *

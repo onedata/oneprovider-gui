@@ -1,7 +1,7 @@
 export default {
   linkLabel: {
-    share: 'Public share link',
+    share: 'Share link',
     handle: 'Public handle link',
-    rest: 'Public REST endpoint',
+    rest: 'Share REST endpoint',
   },
 };

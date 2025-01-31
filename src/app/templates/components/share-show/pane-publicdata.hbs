@@ -53,18 +53,18 @@
         <OneCarousel
           @activeSlideId={{activeSlideOfCreator}}
           @animated={{false}}
-          class="opendata-one-carousel full-height"
+          class="publicdata-one-carousel full-height"
           as |carousel|
         >
           <carousel.slide @slideId="welcome">
             <ContentInfo
               class={{concat-classes
-                "fill-flex-using-column content-info-publish-open-data-welcome"
+                "fill-flex-using-column content-info-publish-public-data-welcome"
                 "scroll-breakpoint-900"
               }}
               @header={{tt this "publishWelcome.title"}}
               @text={{tt this "publishWelcome.content"}}
-              @buttonAction={{action (mut publishOpenDataStarted) true}}
+              @buttonAction={{action (mut exposePublicDataStarted) true}}
               @buttonLabel={{tt this "publishWelcome.publishButton"}}
               @buttonDisabled={{isWelcomeProceedDisabled}}
               @buttonTip={{welcomeProceedDisabledTip}}

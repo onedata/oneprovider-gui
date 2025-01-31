@@ -4,7 +4,7 @@
       {{tt this (if (media "isMobile") "common.metadataMobile" "common.metadata")}}
       <OneLabelTip @title={{tt this "common.metadataPublicHeaderTip.dc"}} />
     </h1>
-    <ShareShow::OpenDataModeSwitch @mode={{mode}} @onModeChange={{action changeMode}} />
+    <ShareShow::PublicDataModeSwitch @mode={{mode}} @onModeChange={{action changeMode}} />
     {{#unless isPublicView}}
       <div class="btn-tooltip-container">
         <OneButton
@@ -34,7 +34,7 @@
                 {{tt this (concat "common.dcElementNames." group.type)}}
               </h2>
               {{#each group.values as |value|}}
-                <div class="metadata-value open-data-value">
+                <div class="metadata-value public-data-value">
                   {{value}}
                 </div>
               {{/each}}
@@ -43,15 +43,15 @@
         </carousel.slide>
         <carousel.slide @slideId="xml">
           <OneClipboardLine
-            @inputClass="open-data-xml-textarea"
+            @inputClass="public-data-xml-textarea"
             @type="textarea"
             @value={{xmlValue}}
           />
         </carousel.slide>
       </OneCarousel>
     </div>
-    <div class="hidden-xs hidden-sm col-md-4 col-lg-5 col-open-data-logo">
-      <div class="open-data-logo">
+    <div class="hidden-xs hidden-sm col-md-4 col-lg-5 col-public-data-logo">
+      <div class="public-data-logo">
       </div>
     </div>
   {{else}}

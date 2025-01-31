@@ -18,5 +18,5 @@ export default {
     conflict: 'Conflict',
     forbidden: 'No access',
   },
-  hintOpenData: 'This {{fileType}} is published as Open Data.',
+  hintPublicData: 'This {{fileType}} is exposed as Public Data.',
 };

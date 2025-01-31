@@ -1,5 +1,5 @@
 /**
- * Open Data viewer with visual (Dublin Core Metadata values render) and XML (raw text)
+ * Public Data viewer with visual (Dublin Core Metadata values render) and XML (raw text)
  * modes.
  *
  * @author Jakub Liput

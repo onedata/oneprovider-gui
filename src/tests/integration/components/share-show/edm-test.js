@@ -82,7 +82,7 @@ describe('Integration | Component | share-show/edm', function () {
     }
   );
 
-  it('renders open data logo in isReadOnly mode if representative image is not provided',
+  it('renders public data logo in isReadOnly mode if representative image is not provided',
     async function () {
       // given
       const helper = new Helper(this);
@@ -93,7 +93,7 @@ describe('Integration | Component | share-show/edm', function () {
       await helper.render();
 
       // then
-      expect(helper.element.querySelector('.open-data-logo')).to.exist;
+      expect(helper.element.querySelector('.public-data-logo')).to.exist;
     }
   );
 

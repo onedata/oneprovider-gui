@@ -1,5 +1,5 @@
 /**
- * Pill-button for changing display/edit mode in open-data components
+ * Pill-button for changing display/edit mode in public-data components
  *
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
@@ -11,12 +11,12 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 
 export default Component.extend(I18n, {
-  classNames: ['open-data-mode-switch'],
+  classNames: ['public-data-mode-switch'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.shareShow.openDataModeSwitch',
+  i18nPrefix: 'components.shareShow.publicDataModeSwitch',
 
   /**
    * @virtual

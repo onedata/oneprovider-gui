@@ -62,7 +62,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       .metadata-header-section {
         top: var(--share-show-content-header-height);
       }
-      textarea.open-data-xml-textarea {
+      textarea.public-data-xml-textarea {
         // the non-variable value is typical height of metadata-header-section,
         // because its height is dynamic
         --vertical-elements-height: calc(var(--share-show-content-header-height) + #{$share-show-public-footer-height + 2 * $content-col-padding});
@@ -120,7 +120,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
   &.share-show-private {
     --share-show-content-header-height: 150px;
     .share-show-dc-preview {
-      textarea.open-data-xml-textarea {
+      textarea.public-data-xml-textarea {
         // the non-variable value is typical height of metadata-header-section,
         // because its height is dynamic
         --vertical-elements-height: calc(
@@ -186,7 +186,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     position: relative;
   }
 
-  .opendata-one-carousel {
+  .publicdata-one-carousel {
     // overflow cannot be hidden, because of sticky elements inside
     overflow: visible;
   }
@@ -259,7 +259,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     }
   }
 
-  .open-data {
+  .public-data {
     .metadata-header-section {
       top: var(--share-show-content-header-height);
     }
@@ -272,20 +272,20 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     margin-right: -$content-col-padding;
   }
 
-  // Open Data logo commonly used by metadata presenters
-  .col-open-data-logo {
-    .open-data-logo {
-      $open-data-logo-size: 200px;
+  // Public Data logo commonly used by metadata presenters
+  .col-public-data-logo {
+    .public-data-logo {
+      $public-data-logo-size: 200px;
       position: sticky;
       top: calc(50% + #{$share-show-content-padding-horizontal});
-      height: $open-data-logo-size;
+      height: $public-data-logo-size;
       width: 100%;
-      background-image: url($root-url + 'images/open-data.svg');
+      background-image: url($root-url + 'images/public-data.svg');
       background-repeat: no-repeat;
       background-position: center center;
       background-size: contain;
       transition: all 0.2s ease;
-      @media (max-height: calc(var(--share-show-content-header-height) + #{$share-show-public-footer-height $open-data-logo-size})) {
+      @media (max-height: calc(var(--share-show-content-header-height) + #{$share-show-public-footer-height $public-data-logo-size})) {
         display: none;
       }
     }
@@ -316,7 +316,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
   }
 }
 
-.open-data-metadata-editor {
+.public-data-metadata-editor {
   padding-bottom: $content-col-padding;
   &.form-group {
     margin-bottom: 0;
@@ -341,4 +341,4 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
 @import './share-show/markdown-editor';
 @import './share-show/edm';
 @import './share-show/metadata-editor-footer';
-@import './share-show/pane-opendata';
+@import './share-show/pane-publicdata';
