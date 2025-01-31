@@ -244,6 +244,8 @@
     {{else if (eq (get (get columnsConfiguration.columns columnName) "type") "json")}}
       <FilesystemBrowser::TableCellJsonInfo
         @style={{get columnsConfiguration.columnsStyle columnName}}
+        @file={{file}}
+        @previewMode={{browserModel.previewMode}}
       />
     {{/if}}
   {{/if}}

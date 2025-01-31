@@ -197,6 +197,43 @@
   .fb-table-col-json {
     position: relative;
     text-align: center;
+
+    .file-json-text {
+      font-size: 80%;
+      @include font-monospace();
+      padding-left: $padding-xs-horizontal;
+      padding-right: $padding-xs-horizontal;
+    }
+    .file-json {
+      position: relative;
+
+      code {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+        font-size: inherit;
+        color: inherit;
+      }
+    }
+    .copy-icon {
+      cursor: pointer;
+      position: absolute;
+      right: -0.94em;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: $disabled-opacity;
+      visibility: hidden;
+      font-size: 160%;
+
+      .copy-btn-icon {
+        line-height: 1;
+      }
+    }
+    &:hover .copy-icon {
+      visibility: visible;
+      opacity: 1;
+      color: $color-one-mint;
+    }
   }
 
   .fb-table-col-file-id {

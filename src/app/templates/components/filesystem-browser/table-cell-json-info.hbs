@@ -1,3 +1,23 @@
-<div class="file-json" >
-  —
+<div class="file-json">
+  <PromiseProxyContainer @proxy={{jsonProxy}}>
+    {{#if json}}
+      <div class="file-json-text">
+        <div>
+          <code class="language-json">{{get fileJsonPart 0}}</code>
+        </div>
+        {{#if (get fileJsonPart 1)}}
+          <div>
+            <code class="language-json">{{get fileJsonPart 1}}{{#if isWrapText}}&#8230;{{/if}}</code>
+          </div>
+        {{/if}}
+        <OneTooltip
+          @title={{jsonTooltipText}}
+          class="tooltip-text-monospace tooltip-text-left tooltip-lg"
+        />
+      </div>
+      <OneIcon @icon="browser-copy" class="copy-icon" onclick={{action "copyJson"}}/>
+    {{else}}
+      —
+    {{/if}}
+  </PromiseProxyContainer>
 </div>
