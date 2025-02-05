@@ -21,7 +21,7 @@
         type="text"
         class="form-control new-json-key input-sm"
         value={{newJsonKey}}
-        oninput={{action (mut newJsonKey) value="target.value"}}
+        oninput={{action "changeJsonKey" value="target.value"}}
         disabled={{isSaving}}
         autofocus={{false}}
       >

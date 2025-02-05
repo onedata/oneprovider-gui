@@ -101,6 +101,8 @@ export default Component.extend(I18n, {
    */
   newJsonKey: '',
 
+  oldColumnName: undefined,
+
   /**
    * @type {string}
    */
@@ -286,6 +288,7 @@ export default Component.extend(I18n, {
     this._super(...arguments);
     this.set('newColumnName', this.initialDisplayedName);
     this.set('newJsonKey', this.initialJsonKey);
+    this.set('oldColumnName', this.initialJsonKey);
   },
 
   /**
@@ -315,6 +318,13 @@ export default Component.extend(I18n, {
         this.newColumnName,
         option,
       );
+    },
+    changeJsonKey(key) {
+      this.set('newJsonKey', key);
+      if (this.oldColumnName === undefined || this.oldColumnName === this.newColumnName) {
+        this.set('newColumnName', key);
+        this.set('oldColumnName', key);
+      }
     },
   },
 });
