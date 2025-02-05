@@ -208,28 +208,30 @@
       cursor: pointer;
       position: relative;
 
-      code {
-        background: none !important;
-        border: none !important;
-        padding: 0 !important;
-        font-size: inherit;
-        color: inherit;
-      }
-    }
-    .copy-icon {
-      cursor: pointer;
-      position: absolute;
-      right: -0.94em;
-      top: 50%;
-      transform: translateY(-50%);
-      opacity: $disabled-opacity;
-      visibility: hidden;
-      font-size: 160%;
+      .copy-icon {
+        cursor: pointer;
+        position: absolute;
+        right: -0.94em;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: $disabled-opacity;
+        visibility: hidden;
+        font-size: 160%;
 
-      .copy-btn-icon {
-        line-height: 1;
+        .copy-btn-icon {
+          line-height: 1;
+        }
+      }
+
+      &.single-line-content {
+        display: inline-block;
+
+        .copy-icon {
+          right: -1.2em;
+        }
       }
     }
+
     &:hover .copy-icon {
       visibility: visible;
       opacity: 1;

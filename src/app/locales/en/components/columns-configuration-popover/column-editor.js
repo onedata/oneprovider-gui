@@ -1,10 +1,10 @@
 export default {
-  addNewColumnHeader: 'New xattr column',
+  addNewColumnHeader: 'New metadata column',
   columnNameLabel: 'Column label:',
   jsonKeyLabel: 'JSON key:',
   addBtn: 'Create',
   cancelBtn: 'Cancel',
-  modifyColumnHeader: 'Modify xattr column',
+  modifyColumnHeader: 'Modify metadata column',
   modifyBtn: 'Apply',
   backTooltip: 'Back',
   columnExistsTooltip: 'This column already exists.',

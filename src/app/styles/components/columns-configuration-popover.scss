@@ -276,6 +276,10 @@
       }
     }
 
+    input {
+      margin-bottom: 20px;
+    }
+
     .back-column-btn {
       margin-right: $padding-xs-horizontal;
     }
@@ -284,7 +288,6 @@
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      padding-top: 10px;
     }
   }
 }

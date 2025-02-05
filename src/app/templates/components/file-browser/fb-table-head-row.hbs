@@ -77,7 +77,16 @@
                         (get columnsConfiguration (concat "columns." columnName ".type"))
                         "json"
                       )
-                      (tt this "headers.tip.json")
+                      (if (eq
+                        (get columnsConfiguration (concat "columns." columnName ".queryType"))
+                        "all"
+                      )
+                        (tt this "headers.tip.json.all")
+                        (tt this "headers.tip.json.key" key=(get
+                        columnsConfiguration
+                        (concat "columns." columnName ".jsonKey")
+                      ))
+                      )
                       (if (eq columnName "fileId")
                         (tt this
                           (concat

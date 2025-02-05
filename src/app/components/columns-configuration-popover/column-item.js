@@ -187,7 +187,13 @@ export default Component.extend(I18n, {
           key: this.columnValue.xattrKey,
         });
       } else if (this.columnValue.type === 'json') {
-        return this.t(`${this.translationKey}.tip.json`);
+        if (this.columnValue.queryType === 'all') {
+          return this.t(`${this.translationKey}.tip.json.all`);
+        } else {
+          return this.t(`${this.translationKey}.tip.json.key`, {
+            key: this.columnValue.jsonKey,
+          });
+        }
       } else {
         return this.t(`${this.translationKey}.tip.${this.columnName}`, {
           oneprovider: this.currentProviderName,
