@@ -66,6 +66,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {boolean}
+   */
+  previewMode: undefined,
+
+  /**
+   * @virtual
    * @type {(columName: string, newValue: boolean) => void}
    */
   checkboxChanged: notImplementedWarn,
@@ -172,6 +178,31 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   currentProviderName: reads('currentProviderProxy.content.name'),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  tooltipText: computed(
+    'columnValue.{type,xattrKey}',
+    'translationKey',
+    'previewMode',
+    'columnName',
+    'currentProviderName',
+    function tooltipText() {
+      if (this.columnValue.type === 'xattr') {
+        return this.t(`${this.translationKey}.tip.xattr`, {
+          key: this.columnValue.xattrKey,
+        });
+      } else if (this.columnName === 'fileId') {
+        const mode = this.previewMode ? 'public' : 'priv';
+        return this.t(`${this.translationKey}.tip.fileId.${mode}`);
+      } else {
+        return this.t(`${this.translationKey}.tip.${this.columnName}`, {
+          oneprovider: this.currentProviderName,
+        });
+      }
+    }
+  ),
 
   actions: {
     checkboxChanged(columnName, newValue) {
