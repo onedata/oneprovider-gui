@@ -27,7 +27,7 @@ import ShareRootErrorInfo, { ShareFileErrorType } from 'oneprovider-gui/utils/sh
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 /**
- * @typedef {'opendata'|'description'|'files'} ShareShowTabId
+ * @typedef {'publicdata'|'description'|'files'} ShareShowTabId
  */
 
 const mixins = [
@@ -111,7 +111,7 @@ export default Component.extend(...mixins, {
   activeTab: undefined,
 
   tabIcons: Object.freeze({
-    opendata: 'globe-cursor',
+    publicdata: 'globe-cursor',
     files: 'browser-directory',
     description: 'browser-rename',
   }),
@@ -164,14 +164,14 @@ export default Component.extend(...mixins, {
         } = this.getProperties('publicMode', 'description');
         const ids = [];
         if (handleState === 'available') {
-          ids.push('opendata');
+          ids.push('publicdata');
         }
         if (!publicMode || description) {
           ids.push('description');
         }
         ids.push('files');
         if (!publicMode && handleState === 'noHandle') {
-          ids.push('opendata');
+          ids.push('publicdata');
         }
         return ids;
       });
@@ -213,7 +213,7 @@ export default Component.extend(...mixins, {
    */
   disabledTabs: computed('isShareRootDeleted', function disabledTabs() {
     if (this.isShareRootDeleted) {
-      return ['opendata'];
+      return ['publicdata'];
     } else {
       return [];
     }
@@ -227,7 +227,7 @@ export default Component.extend(...mixins, {
         this.handleStateProxy.content === 'noHandle' &&
         this.rootFileErrorType !== ShareFileErrorType.NotFound
       ) {
-        return { opendata: 'tab-label-notice' };
+        return { publicdata: 'tab-label-notice' };
       } else {
         return {};
       }
@@ -298,7 +298,7 @@ export default Component.extend(...mixins, {
       if (!this.activeTab) {
         const handleState = await this.handleStateProxy;
         if (handleState === 'available') {
-          this.set('activeTab', 'opendata');
+          this.set('activeTab', 'publicdata');
         } else if (this.get('share.description')) {
           this.set('activeTab', 'description');
         } else {

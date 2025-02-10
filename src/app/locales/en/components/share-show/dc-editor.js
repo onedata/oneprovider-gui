@@ -2,7 +2,7 @@ import { editorHeaderTipCommon } from './dc-common';
 
 // NOTE: This is a mixin to extend dc-common translations
 export default {
-  publishingData: 'publishing as Open Data',
+  publishingData: 'publishing',
   publish: 'Publish',
   xmlTextareaPlaceholder: 'Type Dublin Core XML metadata here...',
   add: 'Add another',

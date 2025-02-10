@@ -147,7 +147,7 @@ export default Component.extend(...mixins, {
   /**
    * @type {Array<object>}
    */
-  menuActions: collect('btnRename', 'btnRemove', 'btnCopyPublicUrl'),
+  menuActions: collect('btnRename', 'btnRemove', 'btnCopyShareUrl'),
 
   componentGuid: computed(function componentGuid() {
     return guidFor(this);
@@ -193,15 +193,15 @@ export default Component.extend(...mixins, {
     };
   }),
 
-  btnCopyPublicUrl: computed(function btnCopyPublicUrl() {
+  btnCopyShareUrl: computed(function btnCopyShareUrl() {
     return {
-      title: this.t('copyPublicUrl'),
+      title: this.t('copyShareUrl'),
       icon: 'browser-copy',
       action: () => this.globalClipboard.copy(
         this.share.sharePublicUrl,
-        this.t('publicUrl')
+        this.t('shareUrl')
       ),
-      class: 'btn-rename-share',
+      class: 'btn-copy-share-url',
     };
   }),
 
@@ -295,9 +295,9 @@ export default Component.extend(...mixins, {
 
   isNoPublicAccessLabelShown: bool('isViewForOtherForbiddenProxy.content'),
 
-  isOpenDataLabelShown: reads('share.hasHandle'),
+  isPublicDataLabelShown: reads('share.hasHandle'),
 
-  isLabelsContanierShown: or('isNoPublicAccessLabelShown', 'isOpenDataLabelShown'),
+  isLabelsContanierShown: or('isNoPublicAccessLabelShown', 'isPublicDataLabelShown'),
 
   shareFilePathProxy: computed('rootFilePrivateProxy', function shareFilePathProxy() {
     const promise = (async () => {

@@ -1,4 +1,4 @@
 export default {
-  openData: 'Open Data',
+  publicData: 'Public Data',
   showDetails: 'Show details',
 };

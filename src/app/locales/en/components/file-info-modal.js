@@ -15,7 +15,7 @@ export default {
   unknownSpaceInSymlink: 'unknown space',
   spaceId: 'Space ID',
   shareId: 'Share ID',
-  shareIdTooltip: 'The identifier of the Share containing this {{type}}. It\'s the same for all files and directories in this shared data collection. It can be used to interact with the Share using different interfaces (e.g. REST API) and is used to build the public Share URL.',
+  shareIdTooltip: 'The identifier of the Share containing this {{type}}. It\'s the same for all files and directories in this shared data collection. It can be used to interact with the Share using different interfaces (e.g. REST API) and is used to build the Share URL.',
   cdmiObjectId: 'File ID',
   cdmiObjectIdSubname: 'public',
   cdmiObjectIdTooltip: {

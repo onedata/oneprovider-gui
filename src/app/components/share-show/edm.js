@@ -35,7 +35,7 @@ const EdmModelXmlSyncState = Object.freeze({
 });
 
 export default Component.extend(I18n, {
-  classNames: ['share-show-edm', 'open-data-metadata-editor', 'form-group'],
+  classNames: ['share-show-edm', 'public-data-metadata-editor', 'form-group'],
   classNameBindings: [
     'isValid::invalid-metadata',
     'isReadOnly:readonly',

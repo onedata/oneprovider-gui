@@ -1950,7 +1950,7 @@ export default BaseBrowserModel.extend(...mixins, {
         file,
         onSubmitted: (share, isPublishing) => {
           if (isPublishing) {
-            this.openShareOpenData(share);
+            this.openSharePublicData(share);
           } else {
             this.openInfo([file], 'shares');
           }
@@ -1970,10 +1970,10 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @param {Models.Share} share
    */
-  openShareOpenData(share) {
+  openSharePublicData(share) {
     const url = this.appProxy.callParent('getShareUrl', {
       shareId: get(share, 'entityId'),
-      tabId: 'opendata',
+      tabId: 'publicdata',
     });
     this.parentAppNavigation.openUrl(url);
   },

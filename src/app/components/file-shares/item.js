@@ -45,5 +45,5 @@ export default Component.extend(I18n, {
 
   publicShareUrl: reads('share.publicUrl'),
 
-  isOpenData: reads('share.hasHandle'),
+  isPublicData: reads('share.hasHandle'),
 });

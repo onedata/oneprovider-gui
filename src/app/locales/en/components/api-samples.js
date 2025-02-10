@@ -8,7 +8,7 @@ export default _.merge({}, ApiSamples, {
       filePrivate: 'The Oneprovider\'s REST API can be used to perform all data access and management related operations on files and directories.',
     },
     xrootd: {
-      filePublic: 'This environment offers an XRootD server that exposes all Open Data collections (shared files and directories that had been registered under a handle) for public, read-only access. Below are some basic XRootD commands that can be used to browse and download the data, assuming that the XRootD CLI tools are already installed.',
+      filePublic: 'This environment offers an XRootD server that exposes all Public Data collections (shared files and directories that had been registered under a handle) for public, read-only access. Below are some basic XRootD commands that can be used to browse and download the data, assuming that the XRootD CLI tools are already installed.',
     },
   },
 });
