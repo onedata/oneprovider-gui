@@ -226,7 +226,7 @@ export default Component.extend({
     } = this;
 
     if (tableTopVisible) {
-      await transfersArray.scheduleReload();
+      await transfersArray.scheduleReload({ head: true });
     }
     const nonEndedTransfers = transfersArray.filter(transfer => {
       return get(transfer, 'state') !== 'ended' ||
