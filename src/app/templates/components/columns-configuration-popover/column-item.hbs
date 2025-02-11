@@ -90,16 +90,7 @@
           <OneIcon @icon="browser-info" class="column-info-icon" />
           {{#if isColumnListVisible}}
             <OneTooltip
-              @title={{if (eq (get columnValue "type") "xattr")
-                (tt this
-                  (concat translationKey ".tip.xattr")
-                  key=(get columnValue "xattrKey")
-                )
-                (tt this
-                  (concat translationKey ".tip." columnName)
-                  oneprovider=currentProviderName
-                )
-              }}
+              @title={{tooltipText}}
             />
           {{/if}}
         </div>
