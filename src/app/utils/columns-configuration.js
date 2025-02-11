@@ -299,6 +299,7 @@ export default EmberObject.extend(...mixins, {
     this.changeColumnVisibility(columnNameVariable, true);
     this.checkColumnsVisibility();
     this.notifyPropertyChange('columnsOrder');
+    return columnNameVariable;
   },
 
   removeMetadataColumn(columnName) {
@@ -333,45 +334,20 @@ export default EmberObject.extend(...mixins, {
     this.notifyPropertyChange('columnsOrder');
   },
 
-  modifyColumn(columnName, newColumnName, option) {
+  modifyColumn(columnName, newColumnName, option, type) {
     const column = this.get(`columns.${columnName}`);
     if (!column) {
       return;
     }
-    if (column.type === 'xattr') {
-      setProperties(column, {
-        displayedName: newColumnName,
-        xattrKey: option.xattrKey,
-        fileProperty: 'xattr.' + option.xattrKey,
-      });
-      globals.localStorage.setItem(
-        `${this.persistedCustomColumnConfigKey(columnName)}.xattrKey`,
-        option.xattrKey
-      );
-    } else {
-      setProperties(column, {
-        displayedName: newColumnName,
-        queryType: option.queryType,
-        jsonKey: option.jsonKey,
-      });
-      globals.localStorage.setItem(
-        `${this.persistedCustomColumnConfigKey(columnName)}.queryType`,
-        option.queryType
-      );
-      if (option.queryType === 'key') {
-        globals.localStorage.setItem(
-          `${this.persistedCustomColumnConfigKey(columnName)}.jsonKey`,
-          option.jsonKey
-        );
-      }
-    }
+    const isEnabled = column.isEnabled;
+    const index = this.columnsOrder.indexOf(columnName);
+    this.removeMetadataColumn(columnName);
+    const newColumnNameVariable = this.addNewColumn(newColumnName, option, type);
 
-    globals.localStorage.setItem(
-      `${this.persistedCustomColumnConfigKey(columnName)}.label`,
-      newColumnName
-    );
-
-    this.checkColumnsVisibility();
+    this.moveColumn(newColumnNameVariable, index);
+    this.saveColumnsOrder();
+    this.notifyPropertyChange('columnsOrder');
+    this.changeColumnVisibility(newColumnNameVariable, isEnabled);
   },
 
   saveColumnsOrder() {

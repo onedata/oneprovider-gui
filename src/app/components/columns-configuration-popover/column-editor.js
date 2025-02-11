@@ -171,7 +171,7 @@ export default Component.extend(I18n, {
   jsonTypeField: computed(function jsonTypeField() {
     return RadioField.create({
       name: 'jsonType',
-      defaultValue: this.initialJsonQueryType,
+      defaultValue: this.initialJsonQueryType ? this.initialJsonQueryType : 'all',
       options: [
         { value: 'all' },
         { value: 'key' },
@@ -241,18 +241,7 @@ export default Component.extend(I18n, {
     }
   ),
 
-  metadataTypeValue: computed(
-    'isNewColumn',
-    'metadataTypeField.value',
-    'initialMetadataType',
-    function metadataTypeValue() {
-      if (this.isNewColumn) {
-        return this.metadataTypeField.value;
-      } else {
-        return this.initialMetadataType;
-      }
-    }
-  ),
+  metadataTypeValue: reads('metadataTypeField.value'),
 
   /**
    * @type {ComputedProperty<Boolean>}

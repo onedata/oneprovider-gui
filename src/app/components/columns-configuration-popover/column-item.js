@@ -173,6 +173,25 @@ export default Component.extend(I18n, {
    */
   currentProviderName: reads('currentProviderProxy.content.name'),
 
+  subnameText: computed(
+    'columnValue.type',
+    'translationKey',
+    'columnName',
+    function subnameText() {
+      if (this.columnValue.type === 'xattr') {
+        return this.t(`${this.translationKey}.subname.xattr`);
+      } else if (this.columnValue.type === 'json') {
+        if (this.columnValue.displayedName.length > 9) {
+          return this.t(`${this.translationKey}.subname.jsonShort`);
+        } else {
+          return this.t(`${this.translationKey}.subname.jsonLong`);
+        }
+      } else {
+        return this.t(`${this.translationKey}.subname.${this.columnName}`);
+      }
+    }
+  ),
+
   /**
    * @type {ComputedProperty<SafeString>}
    */

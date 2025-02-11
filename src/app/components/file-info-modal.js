@@ -166,6 +166,8 @@ export default Component.extend(...mixins, {
    */
   initialTab: undefined,
 
+  initialChildTab: undefined,
+
   /**
    * @virtual
    * @type {DirStatsServiceState}
@@ -893,11 +895,15 @@ export default Component.extend(...mixins, {
     this._super(...arguments);
     const initialTab = this.initialTab;
     const visibleTabs = this.visibleTabs;
+    const initialChildTab = this.initialChildTab;
     this.set('activeTab', visibleTabs.includes(initialTab) ? initialTab : visibleTabs[0]);
 
     // BUGFIX: `isActive` property value does not recalculate properly when we
     // enter directly "size" tab. We need to kick changes detection manually.
     this.activeTabModel?.notifyPropertyChange('isActive');
+    if (initialChildTab) {
+      this.set('activeTabModel.viewModel.activeTab', initialChildTab);
+    }
 
     // check just the first file, because all files should have the same scope
     if (this.showStorageLocations && get(this.file, 'scope') !== 'public') {

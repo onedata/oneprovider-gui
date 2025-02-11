@@ -3,7 +3,7 @@
     "file-json"
     (if (not (get jsonToShowInCell 1)) "single-line-content")
   }}
-  onclick={{action "invokeFileAction" file "info" "metadata"}}
+  onclick={{action "invokeFileAction" file "metadata" "json"}}
 >
   <PromiseProxyContainer @proxy={{jsonProxy}}>
     {{#if (not rawJson)}}
@@ -23,7 +23,7 @@
           />
         </div>
       {{else}}
-        <span>{{get jsonToShowInCell 0}}</span>
+        <span class="file-json-text">{{get jsonToShowInCell 0}}</span>
       {{/if}}
       <OneIcon @icon="browser-copy" class="copy-icon" onclick={{action "copyJson"}}/>
     {{else}}

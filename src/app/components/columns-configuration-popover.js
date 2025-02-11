@@ -243,7 +243,7 @@ export default Component.extend(...mixins, {
       if (isNewColumn) {
         this.columnsConfiguration.addNewColumn(name, option, type);
       } else {
-        this.columnsConfiguration.modifyColumn(this.modifiedColumn, name, option);
+        this.columnsConfiguration.modifyColumn(this.modifiedColumn, name, option, type);
       }
       this.set('activeSlide', 'column-configuration');
     },

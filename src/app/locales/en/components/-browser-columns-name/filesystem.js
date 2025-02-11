@@ -36,6 +36,8 @@ export default {
     ctime: 'metadata',
     xattr: 'xattr',
     json: 'JSON metadata',
+    jsonShort: 'JSON',
+    jsonLong: 'JSON metadata',
     fileId: 'public',
   },
 };

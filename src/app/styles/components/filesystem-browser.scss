@@ -197,12 +197,16 @@
   .fb-table-col-json {
     position: relative;
     text-align: center;
+    font-size: 80%;
 
     .file-json-text {
-      font-size: 80%;
       @include font-monospace();
       padding-left: $padding-xs-horizontal;
       padding-right: $padding-xs-horizontal;
+
+      .token.number, .token.boolean, .token.null {
+        color: #690;
+      }
     }
     .file-json {
       cursor: pointer;

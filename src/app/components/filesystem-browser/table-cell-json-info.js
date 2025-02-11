@@ -99,42 +99,41 @@ export default Component.extend({
         return '';
       }
       const jsonObj = JSON.parse(this.json);
+      if (!jsonObj) {
+        return '';
+      }
       if (typeof jsonObj[this.jsonKey] === 'string') {
         return '"' + jsonObj[this.jsonKey] + '"';
       }
-      return jsonObj[this.jsonKey];
+      return JSON.stringify(jsonObj[this.jsonKey], null, 2);
     }
   ),
 
   jsonTooltipText: computed('rawJson', function jsonTooltipText() {
     let text = this.rawJson;
+    const maxLines = 12;
     if (typeof text === 'object') {
       text = JSON.stringify(text, null, 2);
     }
+
+    const lines = text.split('\n');
+
+    if (lines.length > maxLines) {
+      text = lines.slice(0, maxLines).join('\n') + '&#8230;';
+      return htmlSafe(`<pre>${text}</pre>` + '<br><span class="view-more-text">Click to view more.</span>');
+    }
+
     return htmlSafe(`<pre>${text}</pre>`);
   }),
 
   isWrapText: false,
 
   jsonToShowInCell: computed('rawJson', function jsonToShowInCell() {
-    let trimmedText = this.rawJson;
-    if (!this.rawJson) {
+    const trimmedText = this.rawJson;
+    if (!trimmedText) {
       return;
     }
-    if (this.queryType === 'key' && typeof this.rawJson === 'object') {
-      trimmedText = JSON.stringify(this.rawJson);
-    } else if (this.queryType === 'key') {
-      if (this.rawJson.length > 24) {
-        this.set('isWrapText', this.rawJson.length > 48);
-        return [
-          this.rawJson.substring(0, 24),
-          this.rawJson.substring(24, 48),
-        ];
-      } else {
-        this.set('isWrapText', false);
-        return [this.rawJson];
-      }
-    }
+
     trimmedText.substring(0, 500).replace(/(\r\n|\n|\r)/gm, '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const coloredText = Prism.highlight(trimmedText, Prism.languages.json, 'json');
     const formattedText = coloredText.replace(/>(\r\n|\n|\r| )+</gm, '><');

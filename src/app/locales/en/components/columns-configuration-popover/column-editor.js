@@ -1,7 +1,7 @@
 export default {
   addNewColumnHeader: 'New metadata column',
   columnNameLabel: 'Column label:',
-  jsonKeyLabel: 'JSON key:',
+  jsonKeyLabel: 'Top-level key:',
   addBtn: 'Create',
   cancelBtn: 'Cancel',
   modifyColumnHeader: 'Modify metadata column',
@@ -28,13 +28,13 @@ export default {
     },
   },
   jsonType: {
-    label: 'JSON type',
+    label: 'Mode',
     options: {
       all: {
-        label: 'All',
+        label: 'Whole document',
       },
       key: {
-        label: 'Key',
+        label: 'Extract key',
       },
     },
   },

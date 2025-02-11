@@ -44,13 +44,7 @@
       </TruncatedString>
       {{#if columnValue.hasSubname}}
         <span class="subname-text">
-          {{#if (eq (get columnValue "type") "xattr")}}
-            ({{tt this (concat translationKey ".subname.xattr")}})
-          {{else if (eq (get columnValue "type") "json")}}
-            ({{tt this (concat translationKey ".subname.json")}})
-          {{else}}
-            ({{tt this (concat translationKey ".subname." columnName)}})
-          {{/if}}
+          ({{subnameText}})
         </span>
       {{/if}}
     </label>

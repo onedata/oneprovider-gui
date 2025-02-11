@@ -7,9 +7,7 @@
   </div>
 </h1>
 <PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
-  {{#if isNewColumn}}
-    <FormComponent::FieldRenderer @field={{metadataType}} />
-  {{/if}}
+  <FormComponent::FieldRenderer @field={{metadataType}} />
   {{#if (eq metadataTypeValue "xattr")}}
     <FormComponent::FieldRenderer @field={{xattrKeyDropdown}} />
   {{else}}

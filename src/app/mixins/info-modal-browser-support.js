@@ -26,12 +26,13 @@ export default Mixin.create({
    * @param {Models.File|Array<Models.File>} files
    * @param {FileInfoTabId} activeTab
    */
-  openInfoModal(files, activeTab) {
+  openInfoModal(files, activeTab, activeChildTab = undefined) {
     // we want to see items selected under the info panel
     this.browserModel.changeSelectedItems(files);
     this.setProperties({
       filesToShowInfo: isArray(files) ? files : [files],
       showInfoInitialTab: activeTab || 'general',
+      showInfoInitialChildTab: activeChildTab,
     });
   },
 

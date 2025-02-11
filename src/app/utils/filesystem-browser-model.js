@@ -708,8 +708,8 @@ export default BaseBrowserModel.extend(...mixins, {
       icon: commonActionIcons.metadata,
       disabled: Boolean(disabledTip),
       tip: disabledTip,
-      action: (files) => {
-        return this.get('openInfo')(files, 'metadata');
+      action: (files, activeChildTab) => {
+        return this.get('openInfo')(files, 'metadata', activeChildTab);
       },
       showIn: [
         actionContext.singleDir,
