@@ -111,16 +111,35 @@ export default Component.extend({
 
   jsonTooltipText: computed('rawJson', function jsonTooltipText() {
     let text = this.rawJson;
+    let result = '';
     const maxLines = 12;
+    const maxLenLine = 20;
     if (typeof text === 'object') {
       text = JSON.stringify(text, null, 2);
     }
 
     const lines = text.split('\n');
+    let i = 0;
 
-    if (lines.length > maxLines) {
-      text = lines.slice(0, maxLines).join('\n') + '&#8230;';
-      return htmlSafe(`<pre>${text}</pre>` + '<br><span class="view-more-text">Click to view more.</span>');
+    for (const line of lines) {
+      if (i > maxLines) {
+        result = result.replace(/\n$/g, '');
+        return htmlSafe(`<pre>${result}&#8230;</pre>` +
+          '<hr><span class="view-more-text">Click to view more.</span>');
+      }
+      result += line.substring(0, maxLenLine) + '\n';
+      i += 1;
+      let tmpLine = line.substring(maxLenLine);
+      while (tmpLine.length > maxLenLine) {
+        if (i > maxLines) {
+          result = result.replace(/\n$/g, '');
+          return htmlSafe(`<pre>${result}&#8230;</pre>` +
+            '<hr><span class="view-more-text">Click to view more.</span>');
+        }
+        result += tmpLine.substring(0, maxLenLine) + '\n';
+        i += 1;
+        tmpLine = tmpLine.substring(maxLenLine);
+      }
     }
 
     return htmlSafe(`<pre>${text}</pre>`);
@@ -191,7 +210,10 @@ export default Component.extend({
         } else if (secondCountChars + elem[1].length === 23) {
           secondPart += formattedText.substring(startSecondPart, elem[0] + elem[1].length) + '</span>';
           secondCountChars = 23;
-          this.set('isWrapText', true);
+          if (i !== textsAndIndexesArray.length - 1) {
+            this.set('isWrapText', true);
+          }
+
           break;
         } else {
           let chunk = elem[1].substring(0, 23 - secondCountChars);

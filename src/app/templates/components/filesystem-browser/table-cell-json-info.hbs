@@ -17,10 +17,12 @@
           <div>
             {{get jsonToShowInCell 1}}{{#if isWrapText}}&#8230;{{/if}}
           </div>
-          <OneTooltip
-            @title={{jsonTooltipText}}
-            class="tooltip-text-monospace tooltip-text-left tooltip-lg"
-          />
+          {{#if isWrapText}}
+            <OneTooltip
+              @title={{jsonTooltipText}}
+              class="json-tooltip tooltip-text-left"
+            />
+          {{/if}}
         </div>
       {{else}}
         <span class="file-json-text">{{get jsonToShowInCell 0}}</span>

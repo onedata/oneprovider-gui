@@ -204,8 +204,20 @@
       padding-left: $padding-xs-horizontal;
       padding-right: $padding-xs-horizontal;
 
-      .token.number, .token.boolean, .token.null {
-        color: #690;
+      .token.number {
+        color: darken($color-one-mint, 10%);
+      }
+      .token.boolean {
+        color: darken(#8ca7d9, 10%);
+      }
+      .token.null {
+        color: #284a8a;
+      }
+      .token.string {
+        color: darken($color-one-mint, 20%);
+      }
+      .token.property {
+        color: darken($color-one-red, 10%);
       }
     }
     .file-json {
