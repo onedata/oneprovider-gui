@@ -1,4 +1,4 @@
-{{#loading-container isLoading=atmWorkflowExecutionSummaries.isLoading}}
+<LoadingContainer @isLoading={{atmWorkflowExecutionSummaries.isLoading}}>
   <table class="table one-infinite-list">
     <thead>
       <tr>
@@ -24,34 +24,38 @@
         {{#if (and atmWorkflowExecutionSummaries.initialLoad.isSettled fetchingPrev)}}
           <tr class="loading-row">
             <td colspan="9999" class="loading-row-cell">
-              {{spin-spinner-block
-                sizeClass="sm"
-                class="absolute-middle-centered"
-              }}
+              <SpinSpinnerBlock @sizeClass="sm" @class="absolute-middle-centered" />
             </td>
           </tr>
         {{/if}}
         {{#each atmWorkflowExecutionSummaries as |atmWorkflowExecutionSummary|}}
-          {{space-automation/atm-workflow-executions-table/workflow-row
-            class="clickable"
-            atmWorkflowExecutionSummary=atmWorkflowExecutionSummary
-            columns=columns
-            onSelect=onAtmWorkflowExecutionSelect
-            onLifecycleChange=(action "atmWorkflowExecutionLifecycleChanged" atmWorkflowExecutionSummary)
-          }}
+          {{#if (is-empty-object atmWorkflowExecutionSummary)}}
+            {{!-- Some entries may be empty after ReplacingChunksArray reload --}}
+            <tr class="workflow-row data-row">
+              <td clas="workflow-row-cell cell-empty-placeholder" colspan="999"></td>
+            </tr>
+          {{else}}
+            <SpaceAutomation::AtmWorkflowExecutionsTable::WorkflowRow
+              class="clickable"
+              @atmWorkflowExecutionSummary={{atmWorkflowExecutionSummary}}
+              @columns={{columns}}
+              @onSelect={{onAtmWorkflowExecutionSelect}}
+              @onLifecycleChange={{action
+                "atmWorkflowExecutionLifecycleChanged"
+                atmWorkflowExecutionSummary
+              }}
+            />
+          {{/if}}
         {{/each}}
         {{#if (and atmWorkflowExecutionSummaries.initialLoad.isSettled fetchingNext)}}
           <tr class="loading-row">
             <td colspan="9999" class="loading-row-cell">
-              {{spin-spinner-block
-                sizeClass="sm"
-                class="absolute-middle-centered"
-              }}
+              <SpinSpinnerBlock @sizeClass="sm" @class="absolute-middle-centered" />
             </td>
           </tr>
         {{/if}}
       {{/unless}}
     </tbody>
   </table>
-{{/loading-container}}
+</LoadingContainer>
 {{yield}}
