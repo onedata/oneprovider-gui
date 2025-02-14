@@ -277,6 +277,7 @@ export default EmberObject.extend(...mixins, {
         queryType: option.queryType,
         jsonKey: option.jsonKey,
         displayedName: columnName,
+        fileProperty: 'jsonMetadata',
       });
       globals.localStorage.setItem(
         `${this.persistedCustomColumnConfigKey(columnNameVariable)}.queryType`,
@@ -440,6 +441,7 @@ export default EmberObject.extend(...mixins, {
       queryType,
       jsonKey,
       displayedName,
+      fileProperty: 'jsonMetadata',
     });
   },
 
@@ -514,16 +516,16 @@ export default EmberObject.extend(...mixins, {
     columnsOrder.splice(index, 0, element);
   },
   listFilesProperties() {
-    const filesProperties = [];
+    const filesProperties = new Set();
     const columnRequirementsEnableProperty = this.isMounted ?
       'isVisible' : 'isEnabled';
     const columns = this.columns;
     for (const column of Object.values(columns)) {
       if (column[columnRequirementsEnableProperty]) {
-        filesProperties.push(column.fileProperty);
+        filesProperties.add(column.fileProperty);
       }
     }
-    this.set('listedFilesProperties', filesProperties);
+    this.set('listedFilesProperties', [...filesProperties]);
     this.notifyPropertyChange('listedFilesProperties');
   },
 });

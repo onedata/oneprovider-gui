@@ -5,31 +5,29 @@
   }}
   onclick={{action "invokeFileAction" file "metadata" "json"}}
 >
-  <PromiseProxyContainer @proxy={{jsonProxy}}>
-    {{#if (not rawJson)}}
-      —
-    {{else if json}}
-      {{#if (get jsonToShowInCell 1)}}
-        <div class="file-json-text">
-          <div>
-            {{get jsonToShowInCell 0}}
-          </div>
-          <div>
-            {{get jsonToShowInCell 1}}{{#if isWrapText}}&#8230;{{/if}}
-          </div>
-          {{#if isWrapText}}
-            <OneTooltip
-              @title={{jsonTooltipText}}
-              class="json-tooltip tooltip-text-left"
-            />
-          {{/if}}
+  {{#if (not rawJson)}}
+    —
+  {{else if json}}
+    {{#if (get jsonToShowInCell 1)}}
+      <div class="file-json-text">
+        <div>
+          {{get jsonToShowInCell 0}}
         </div>
-      {{else}}
-        <span class="file-json-text">{{get jsonToShowInCell 0}}</span>
-      {{/if}}
-      <OneIcon @icon="browser-copy" class="copy-icon" onclick={{action "copyJson"}}/>
+        <div>
+          {{get jsonToShowInCell 1}}{{#if isWrapText}}&#8230;{{/if}}
+        </div>
+        {{#if isWrapText}}
+          <OneTooltip
+            @title={{jsonTooltipText}}
+            class="json-tooltip tooltip-text-left"
+          />
+        {{/if}}
+      </div>
     {{else}}
-      —
+      <span class="file-json-text">{{get jsonToShowInCell 0}}</span>
     {{/if}}
-  </PromiseProxyContainer>
+    <OneIcon @icon="browser-copy" class="copy-icon" onclick={{action "copyJson"}}/>
+  {{else}}
+    —
+  {{/if}}
 </div>

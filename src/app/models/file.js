@@ -525,6 +525,8 @@ export default Model.extend(
      */
     xattrs: attr('object', { defaultValue: () => {} }),
 
+    jsonMetadata: attr('object'),
+
     /**
      * One of: `posix`, `acl`. Cannot be modified
      */

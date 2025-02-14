@@ -51,6 +51,7 @@ export const possibleFileProperties = Object.freeze([
   'storageLocationInfo',
   'symlinkValue',
   'type',
+  'jsonMetadata',
 
   // runtime properties
   'cdmiObjectId',

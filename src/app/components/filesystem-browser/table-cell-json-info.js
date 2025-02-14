@@ -51,57 +51,28 @@ export default Component.extend({
    */
   file: undefined,
 
-  /**
-   * @virtual
-   * @type {ComputedProperty<boolean>}
-   */
-  previewMode: undefined,
-
   queryType: reads('columnInfo.queryType'),
 
   jsonKey: reads('columnInfo.jsonKey'),
 
-  jsonProxy: computed('file', 'previewMode', function jsonProxy() {
-    const scope = this.previewMode ? 'public' : 'private';
-    const promise = (async () => {
-      try {
-        const metadata = await this.metadataManager
-          .getMetadata(this.file, 'json', scope);
-        if (_.isEmpty(metadata)) {
-          return '';
-        } else {
-          return metadata;
-        }
-      } catch (error) {
-        const isNoDataError = error && error.id === 'posix' &&
-          error.details && error.details.errno === 'enodata';
-        if (isNoDataError) {
-          return '';
-        } else {
-          throw error;
-        }
-      }
-    })();
-    return promiseObject(promise);
-  }),
-
-  json: reads('jsonProxy.content'),
+  json: reads('file.effFile.jsonMetadata'),
 
   rawJson: computed(
     'queryType',
     'jsonKey',
     'json',
     function rawJson() {
+      const jsonObj = this.json;
+      if (Object.keys(jsonObj).length === 0) {
+        return '';
+      }
       if (this.queryType === 'all') {
-        return this.json;
+        return JSON.stringify(this.json);
       }
       if (!this.jsonKey || !this.json) {
         return '';
       }
-      const jsonObj = JSON.parse(this.json);
-      if (!jsonObj) {
-        return '';
-      }
+
       if (typeof jsonObj[this.jsonKey] === 'string') {
         return '"' + jsonObj[this.jsonKey] + '"';
       }
