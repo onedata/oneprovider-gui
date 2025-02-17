@@ -256,7 +256,7 @@ export default Component.extend(I18n, {
     }
 
     if (isEmpty(items) && !isEmpty(sourceArray)) {
-      atmWorkflowExecutionSummaries.setProperties({ startIndex: 0, endIndex: 50 });
+      atmWorkflowExecutionSummaries.setIndices(0, 50);
       return;
     }
 
@@ -281,7 +281,7 @@ export default Component.extend(I18n, {
       endIndex = atmWorkflowExecutionSummariesIds.indexOf(lastId, startIndex);
     }
 
-    atmWorkflowExecutionSummaries.setProperties({ startIndex, endIndex });
+    atmWorkflowExecutionSummaries.setIndices(startIndex, endIndex);
 
     next(() => {
       const isBackwardLoading = startIndex > 0 &&
