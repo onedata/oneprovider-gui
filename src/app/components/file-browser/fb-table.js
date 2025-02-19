@@ -995,8 +995,8 @@ export default Component.extend(...mixins, {
         endIndex = 50;
       }
     } else {
-      const searchEndFrom = firstId === -1 ? 0 : firstId;
       startIndex = filesArrayIds.indexOf(firstId);
+      const searchEndFrom = startIndex === -1 ? 0 : startIndex;
       endIndex = filesArrayIds.indexOf(lastId, searchEndFrom);
     }
     if (startIndex <= endIndex) {
