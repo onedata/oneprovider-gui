@@ -65,7 +65,7 @@ export default Component.extend({
         return '';
       }
       if (this.queryType === 'all') {
-        return JSON.stringify(this.json);
+        return JSON.stringify(this.json, null, 2);
       }
       if (!this.jsonKey || !this.json) {
         return '';
@@ -109,15 +109,18 @@ export default Component.extend({
         i += 1;
         tmpLine = tmpLine.substring(maxLenLine);
       }
+      if (tmpLine.length > 0) {
+        result += tmpLine + '\n';
+      }
     }
-
-    return htmlSafe(`<pre>${text}</pre>`);
+    result = result.replace(/\n$/g, '');
+    return htmlSafe(`<pre>${result}</pre>`);
   }),
 
   isWrapText: false,
 
   jsonToShowInCell: computed('rawJson', function jsonToShowInCell() {
-    const trimmedText = this.rawJson;
+    let trimmedText = this.rawJson;
     if (!trimmedText) {
       return;
     }
