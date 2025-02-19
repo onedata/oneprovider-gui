@@ -18,9 +18,14 @@
         </div>
         {{#if isWrapText}}
           <OneTooltip
-            @title={{jsonTooltipText}}
             class="json-tooltip tooltip-text-left"
-          />
+          >
+            <pre>{{jsonTooltipText}}{{#if isTooltipWrap}}&#8230;{{/if}}</pre>
+            {{#if isTooltipWrap}}
+              <hr>
+              <span class="view-more-text">Click to view more.</span>
+            {{/if}}
+          </OneTooltip>
         {{/if}}
       </div>
     {{else}}

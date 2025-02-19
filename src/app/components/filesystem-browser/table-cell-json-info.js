@@ -78,6 +78,8 @@ export default Component.extend({
     }
   ),
 
+  isTooltipWrap: false,
+
   jsonTooltipText: computed('rawJson', function jsonTooltipText() {
     let text = this.rawJson;
     let result = '';
@@ -93,8 +95,8 @@ export default Component.extend({
     for (const line of lines) {
       if (i > maxLines) {
         result = result.replace(/\n$/g, '');
-        return htmlSafe(`<pre>${result}&#8230;</pre>` +
-          '<hr><span class="view-more-text">Click to view more.</span>');
+        this.set('isTooltipWrap', true);
+        return result;
       }
       result += line.substring(0, maxLenLine) + '\n';
       i += 1;
@@ -102,8 +104,8 @@ export default Component.extend({
       while (tmpLine.length > maxLenLine) {
         if (i > maxLines) {
           result = result.replace(/\n$/g, '');
-          return htmlSafe(`<pre>${result}&#8230;</pre>` +
-            '<hr><span class="view-more-text">Click to view more.</span>');
+          this.set('isTooltipWrap', true);
+          return result;
         }
         result += tmpLine.substring(0, maxLenLine) + '\n';
         i += 1;
@@ -113,8 +115,9 @@ export default Component.extend({
         result += tmpLine + '\n';
       }
     }
+    this.set('isTooltipWrap', false);
     result = result.replace(/\n$/g, '');
-    return htmlSafe(`<pre>${result}</pre>`);
+    return result;
   }),
 
   isWrapText: false,
