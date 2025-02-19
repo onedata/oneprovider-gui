@@ -61,7 +61,7 @@ export default Component.extend({
     'json',
     function rawJson() {
       const jsonObj = this.json;
-      if (Object.keys(jsonObj).length === 0) {
+      if (jsonObj === undefined || Object.keys(jsonObj).length === 0) {
         return '';
       }
       if (this.queryType === 'all') {
@@ -123,7 +123,7 @@ export default Component.extend({
   isWrapText: false,
 
   jsonToShowInCell: computed('rawJson', function jsonToShowInCell() {
-    let trimmedText = this.rawJson;
+    const trimmedText = this.rawJson;
     if (!trimmedText) {
       return;
     }
@@ -189,7 +189,7 @@ export default Component.extend({
 
           break;
         } else {
-          let chunk = elem[1].substring(0, 23 - secondCountChars);
+          const chunk = elem[1].substring(0, 23 - secondCountChars);
           secondPart += formattedText.substring(startSecondPart, elem[0]) + chunk + '</span>';
           secondCountChars = 23;
           this.set('isWrapText', true);

@@ -55,17 +55,17 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
   });
 
   const jsonForKeyTest = {
-    "key1": "value",
-    "key2": null,
-    "key3": false,
-    "key4": {
-      "key1_1": "value2",
-      "key1_2": "value3"
+    key1: 'value',
+    key2: null,
+    key3: false,
+    key4: {
+      key1_1: 'value2',
+      key1_2: 'value3',
     },
-    "key5": {
-      "key1_1": "value2",
-      "key1_2": "value3",
-      "key1_3": "value4"
+    key5: {
+      key1_1: 'value2',
+      key1_2: 'value3',
+      key1_3: 'value4',
     },
   };
 
@@ -151,7 +151,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
   });
 
   it('renders the entire JSON object with a boolean value inside', async function () {
-    const json = { "key1": false };
+    const json = { key1: false };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
@@ -163,7 +163,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
   });
 
   it('renders a JSON object containing an array', async function () {
-    const json = { "k1": [1, 2, 3] };
+    const json = { k1: [1, 2, 3] };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
@@ -179,7 +179,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
   });
 
   it('renders a long two-line JSON object with a numeric value inside', async function () {
-    const json = { "key1": "value", "key2": 524657376, "key3": 455123 };
+    const json = { key1: 'value', key2: 524657376, key3: 455123 };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
@@ -201,7 +201,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
   });
 
   it('renders a long JSON object truncated after two lines, containing a null value', async function () {
-    const json = { "key1": "val1", "key2": null, "key3": 32, "key4": null };
+    const json = { key1: 'val1', key2: null, key3: 32, key4: null };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
@@ -213,17 +213,10 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     expect(findAll('.file-json-text div')[1].textContent.trim()).to.equal(
       'll,"key3":32,"key4":nul…'
     );
-    // expect(findAll('.token.property')[0].textContent.trim()).to.equal('"key1"');
-    // expect(findAll('.token.string')[0].textContent.trim()).to.equal('"value"');
-    // expect(findAll('.token.property')[1].textContent.trim()).to.equal('"key2"');
-    // expect(findAll('.token.number')[0].textContent.trim()).to.equal('5');
-    // expect(findAll('.token.number')[1].textContent.trim()).to.equal('24657376');
-    // expect(findAll('.token.property')[2].textContent.trim()).to.equal('"key3"');
-    // expect(findAll('.token.number')[2].textContent.trim()).to.equal('455123');
   });
 
   it('renders a JSON object containing an empty array', async function () {
-    const json = { "key1": "val1", "key2": [], "key3": 32 };
+    const json = { key1: 'val1', key2: [], key3: 32 };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
@@ -238,7 +231,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
   });
 
   it('renders a JSON object containing an empty object', async function () {
-    const json = { "key1": "val1", "key2": {}, "key3": 32 };
+    const json = { key1: 'val1', key2: {}, key3: 32 };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
@@ -253,7 +246,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
   });
 
   it('renders a JSON object containing an array of objects', async function () {
-    const json = { "key1": "val1", "key2": ["val2", 123, "val3"], "key3": 32 };
+    const json = { key1: 'val1', key2: ['val2', 123, 'val3'], key3: 32 };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
@@ -268,7 +261,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
   });
 
   it('renders a JSON object with a truncated long string value', async function () {
-    const json = { "key1": "qwertyui opasdfgh jklzxcvbnm qwertyuiopasdfgh", "key3": 32 };
+    const json = { key1: 'qwertyui opasdfgh jklzxcvbnm qwertyuiopasdfgh', key3: 32 };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
@@ -284,7 +277,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
 
   it('renders a JSON object with a truncated long string key', async function () {
     const
-      json = { "key1qwertyui opasdfgh jklzxcvbnm qwertyuiopasdfgh": "val1", "key3": 32 };
+      json = { 'key1qwertyui opasdfgh jklzxcvbnm qwertyuiopasdfgh': 'val1', key3: 32 };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
