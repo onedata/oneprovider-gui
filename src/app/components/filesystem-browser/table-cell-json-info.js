@@ -10,8 +10,6 @@ import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import _ from 'lodash';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { htmlSafe } from '@ember/string';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-json';
@@ -148,8 +146,8 @@ export default Component.extend({
           firstPart = formattedText.substring(0, elem[0]) + chunk1 + '</span>';
           startSecondPart = elem[0] + elem[1].length + 7;
           firstCountChars = 24;
-          if (chunk2.length < 23) {
-            secondCountChars = chunk2.length;
+          secondCountChars = chunk2.length;
+          if (secondCountChars < 23) {
             let tmp = '';
             if (i - 1 >= 0) {
               const t = textsAndIndexesArray[i - 1][0] +
@@ -158,10 +156,8 @@ export default Component.extend({
             } else {
               tmp = formattedText.substring(0, elem[0]);
             }
-            //
             secondPart = tmp + chunk2 + '</span>';
           } else {
-            secondCountChars = chunk2.length;
             let tmp = '';
             if (i - 1 >= 0) {
               const t = textsAndIndexesArray[i - 1][0] +
@@ -224,16 +220,13 @@ export default Component.extend({
     const texts = [];
     const regex = /<span[^>]*>(.*?)<\/span>/g;
     let match;
-    let currentIndex = 0;
 
     while ((match = regex.exec(htmlString)) !== null) {
       if (match[1].trim().length > 0) {
-        const startIndex = htmlString.indexOf(match[1], currentIndex);
+        const startIndex = match.index + match[0].lastIndexOf(match[1]);
         texts.push([startIndex, match[1]]);
-        currentIndex = startIndex + match[1].length;
       }
     }
-
     return texts;
   },
 
