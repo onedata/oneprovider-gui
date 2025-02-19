@@ -277,8 +277,9 @@ export default Component.extend(I18n, {
       startIndex = firstRowTop < 0 ? Math.floor(blankStart / this.rowHeight) : 0;
       endIndex = Math.max(Math.floor(blankEnd / this.rowHeight), 0);
     } else {
+      const searchEndFrom = firstId === -1 ? 0 : firstId;
       startIndex = atmWorkflowExecutionSummariesIds.indexOf(firstId);
-      endIndex = atmWorkflowExecutionSummariesIds.indexOf(lastId, startIndex);
+      endIndex = atmWorkflowExecutionSummariesIds.indexOf(lastId, searchEndFrom);
     }
 
     atmWorkflowExecutionSummaries.setIndices(startIndex, endIndex);
