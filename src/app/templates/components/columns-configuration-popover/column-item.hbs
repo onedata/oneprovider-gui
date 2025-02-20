@@ -33,10 +33,7 @@
       class="column-name-label"
     >
       <TruncatedString>
-        {{#if (or
-          (eq (get columnValue "type") "xattr")
-          (eq (get columnValue "type") "json")
-        )}}
+        {{#if isMetadataColumn}}
           {{get columnValue "displayedName"}}
         {{else}}
           {{tt this (concat translationKey ".name." columnName)}}
@@ -49,10 +46,7 @@
       {{/if}}
     </label>
     <div class="icons-container">
-      {{#if (or
-        (eq (get columnValue "type") "xattr")
-        (eq (get columnValue "type") "json")
-      )}}
+      {{#if isMetadataColumn}}
         <div
           class="modify-column icon-container inline-icon-container"
           onClick={{action "openColumnEditor" columnName}}

@@ -154,6 +154,13 @@ export default Component.extend(I18n, {
   isArrowTooltipVisible: true,
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isMetadataColumn: computed('columnValue', function isMetadataColumn() {
+    return this.columnValue.type === 'xattr' || this.columnValue.type === 'json';
+  }),
+
+  /**
    * @virtual
    * @type {ComputedProperty<string>}
    */

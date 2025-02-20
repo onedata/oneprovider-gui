@@ -236,10 +236,6 @@
         opacity: $disabled-opacity;
         visibility: hidden;
         font-size: 160%;
-
-        .copy-btn-icon {
-          line-height: 1;
-        }
       }
 
       &.single-line-content {
@@ -259,7 +255,6 @@
         color: $color-one-mint;
       }
     }
-
   }
 
   .fb-table-col-file-id {
