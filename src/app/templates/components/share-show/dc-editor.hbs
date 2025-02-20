@@ -2,7 +2,7 @@
   <div
     class={{concat-classes
       colClassname
-      "col-open-data-editor-additional metadata-header-section-content"
+      "col-public-data-editor-additional metadata-header-section-content"
     }}
   >
     <h1 class="section-name">
@@ -11,7 +11,7 @@
         {{one-label-tip title=(tt this "common.metadataPublicHeaderTip.dc")}}
       {{/if}}
     </h1>
-    {{share-show/open-data-mode-switch mode=mode onModeChange=(action changeMode)}}
+    {{share-show/public-data-mode-switch mode=mode onModeChange=(action changeMode)}}
     {{#if isModifyButtonShown}}
       <div class="btn-tooltip-container">
         <OneButton
@@ -29,7 +29,7 @@
 </div>
 
 {{#unless (media "isMobile")}}
-  <div class={{concat-classes colClassname "col-open-data-editor-additional"}}>
+  <div class={{concat-classes colClassname "col-public-data-editor-additional"}}>
     <p class="metadata-text">
       {{tt this "common.metadataEditorIntro"}}
     </p>
@@ -40,7 +40,7 @@
   </div>
 {{/unless}}
 
-<div class={{concat-classes colClassname "col-open-data-editor-main"}}>
+<div class={{concat-classes colClassname "col-public-data-editor-main"}}>
   {{#one-carousel animated=false activeSlideId=mode as |carousel|}}
     {{#carousel.slide slideId="visual"}}
       <div class="row row-metadata-form {{if (eq groupedEntries.length 0) "no-entries"}}">
@@ -132,13 +132,13 @@
       </div>
     {{/carousel.slide}}
     {{#carousel.slide slideId="xml"}}
-      <div class="form-group open-data-xml-form-group {{if parserError "has-error"}}">
+      <div class="form-group public-data-xml-form-group {{if parserError "has-error"}}">
         <textarea
           value={{currentXmlValue}}
           oninput={{action "updateXml" value="target.value"}}
           placeholder={{tt this "editor.xmlTextareaPlaceholder"}}
           disabled={{formDisabled}}
-          class="no-resize code-textarea open-data-xml-textarea form-control"
+          class="no-resize code-textarea public-data-xml-textarea form-control"
         ></textarea>
         <div class="form-message text-right">
           {{#if parserError}}
@@ -154,7 +154,7 @@
 </div>
 
 <ShareShow::MetadataEditorFooter
-  class={{concat-classes colClassname "col-open-data-editor-additional"}}
+  class={{concat-classes colClassname "col-public-data-editor-additional"}}
   @handleService={{handleService}}
   @isCancelDisabled={{formDisabled}}
   @isSubmitDisabled={{submitDisabled}}

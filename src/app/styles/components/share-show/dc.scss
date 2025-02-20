@@ -1,4 +1,4 @@
-$open-data-remove-col-width: $content-col-padding;
+$public-data-remove-col-width: $content-col-padding;
 
 .share-show-dc {
   h1 {
@@ -13,7 +13,7 @@ $open-data-remove-col-width: $content-col-padding;
     margin-bottom: 1em;
   }
 
-  textarea.open-data-xml-textarea {
+  textarea.public-data-xml-textarea {
     min-height: 250px;
     height: calc(100vh - 500px);
     @include font-monospace;

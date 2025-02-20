@@ -66,7 +66,7 @@ const metadataMixinMap = {
   },
 };
 
-// Set dc or edm from metatadataMixins for share with Open Data
+// Set dc or edm from metatadataMixins for share with Public Data
 const metadataMixin = metadataMixinMap.edm;
 
 const modelTypes = [

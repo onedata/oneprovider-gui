@@ -1,5 +1,5 @@
 /**
- * Content for "opendata" tab for single share
+ * Content for "publicdata" tab for single share
  *
  * @author Jakub Liput
  * @copyright (C) 2021-2024 ACK CYFRONET AGH
@@ -27,7 +27,7 @@ import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insuffi
  */
 
 export default Component.extend(I18n, {
-  classNames: ['share-show-pane-opendata', 'pane-opendata', 'row'],
+  classNames: ['share-show-pane-publicdata', 'pane-publicdata', 'row'],
 
   fileManager: service(),
   currentUser: service(),
@@ -59,7 +59,7 @@ export default Component.extend(I18n, {
   publicMode: false,
 
   /**
-   * Current XML content of Open Data metadata.
+   * Current XML content of Public Data metadata.
    * @type {String}
    */
   xml: undefined,
@@ -129,7 +129,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   activeSlideOfCreator: conditional(
-    'publishOpenDataStarted',
+    'exposePublicDataStarted',
     raw('createMetadata'),
     raw('welcome')
   ),
@@ -252,7 +252,7 @@ export default Component.extend(I18n, {
           this.appProxy.callParent('reloadShareList');
         } catch (error) {
           console.error(
-            'share-show/pane-opendata: failed to reload share list in Onezone GUI',
+            'share-show/pane-publicdata: failed to reload share list in Onezone GUI',
             error
           );
         }
@@ -261,7 +261,7 @@ export default Component.extend(I18n, {
     },
     back() {
       this.setProperties({
-        publishOpenDataStarted: false,
+        exposePublicDataStarted: false,
         xml: undefined,
         selectedHandleService: undefined,
         selectedMetadataType: undefined,

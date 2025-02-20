@@ -6,7 +6,7 @@
         <OneLabelTip @title={{tt this "readonlyHeaderTip"}} />
       {{/if}}
     </h1>
-    <ShareShow::OpenDataModeSwitch
+    <ShareShow::PublicDataModeSwitch
       @mode={{mode}}
       @isVisualModeDisabled={{isVisualModeDisabled}}
       @visualModeTip={{if
@@ -154,7 +154,7 @@
 </div>
 
 {{#if isRepresentativeImageInParent}}
-  <div class="col-md-4 col-lg-5 col-open-data-logo">
+  <div class="col-md-4 col-lg-5 col-public-data-logo">
     {{#if imageUrl}}
       <div class="representative-image-container">
         {{#if representativeImageError}}
@@ -173,7 +173,7 @@
         {{/if}}
       </div>
     {{else}}
-      <div class="open-data-logo">
+      <div class="public-data-logo">
       </div>
     {{/if}}
   </div>

@@ -252,5 +252,5 @@ export default EmberObject.extend(OwnerInjector, {
 });
 
 function timeReadable(timestamp) {
-  return (timestamp && moment.unix(timestamp).format(startEndTimeFormat)) || '‐';
+  return (timestamp && moment.unix(timestamp).format(startEndTimeFormat));
 }

@@ -55,7 +55,7 @@ export default Component.extend(I18n, {
   /**
    * One of: share, handle, rest.
    * If share - it is a link to Onezone's share.
-   * If handle - it is a link to published Open Data (in handle service).
+   * If handle - it is a link to exposed Public Data (in handle service).
    * If rest - it is a link to REST endpoint, where data about share can be found.
    * @virtual
    * @type {String}
@@ -198,7 +198,7 @@ export default Component.extend(I18n, {
    */
   availableUrlTypes: conditional(
     'effShowHandle',
-    raw(['share', 'handle', 'rest']),
+    raw(['handle', 'share', 'rest']),
     raw(['share', 'rest'])
   ),
 
@@ -208,8 +208,8 @@ export default Component.extend(I18n, {
   compactUrlTypeSelectorActions: conditional(
     'effShowHandle',
     collect(
-      'urlTypeSelectShareAction',
       'urlTypeSelectHandleAction',
+      'urlTypeSelectShareAction',
       'urlTypeSelectRestAction'
     ),
     collect(

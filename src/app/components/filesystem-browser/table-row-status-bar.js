@@ -34,10 +34,10 @@ export default FbTableRowStatusBar.extend({
 
   isShared: reads('file.isShared'),
 
-  isOpenDataProxy: promise.object(computed(
+  isPublicDataProxy: promise.object(computed(
     'isShared',
     'file.shareRecords.@each.hasHandle',
-    async function isOpenDataProxy() {
+    async function isPublicDataProxy() {
       if (!this.isShared) {
         return null;
       }
@@ -55,7 +55,7 @@ export default FbTableRowStatusBar.extend({
     }
   )),
 
-  isOpenData: reads('isOpenDataProxy.content'),
+  isPublicData: reads('isPublicDataProxy.content'),
 
   typeText: computed('type', function typeText() {
     const type = this.get('type');

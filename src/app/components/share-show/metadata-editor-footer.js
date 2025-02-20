@@ -1,5 +1,5 @@
 /**
- * Generic footer for Open Data metadata editor with some summary and submit button.
+ * Generic footer for Public Data metadata editor with some summary and submit button.
  *
  * @author Jakub Liput
  * @copyright (C) 2023 ACK CYFRONET AGH

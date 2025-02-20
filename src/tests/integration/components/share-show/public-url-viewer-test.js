@@ -10,9 +10,9 @@ import { get } from '@ember/object';
 import globals from 'onedata-gui-common/utils/globals';
 
 const urlTypeTranslations = {
-  share: 'Public share link',
+  share: 'Share link',
   handle: 'Public handle link',
-  rest: 'Public REST endpoint',
+  rest: 'Share REST endpoint',
 };
 
 const shareUrl = 'http://share-url';
@@ -111,7 +111,7 @@ describe('Integration | Component | share-show/public-url-viewer', function () {
           await clickTrigger('.col-key');
 
           const options = globals.document.querySelectorAll('li.ember-power-select-option');
-          checkUrlTypeOptions(options, ['share', 'handle', 'rest']);
+          checkUrlTypeOptions(options, ['handle', 'share', 'rest']);
           expect(globals.document.querySelector('.public-url-viewer-handle'), 'handle mode')
             .to.exist;
         }
@@ -201,7 +201,7 @@ describe('Integration | Component | share-show/public-url-viewer', function () {
 
         const options =
           globals.document.querySelectorAll('.compact-url-type-selector-actions li');
-        checkUrlTypeOptions(options, ['share', 'handle', 'rest']);
+        checkUrlTypeOptions(options, ['handle', 'share', 'rest']);
       });
 
       it('renders only "share" and "rest" url options without "handle" in selector if handle rejects',

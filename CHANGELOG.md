@@ -4,6 +4,8 @@
 
 ### Latest changes
 
+* VFS-12610 Fixed showing times for transfer in transfers table and fixed showing tooltip for File Id in column configuration popover
+* VFS-12461 Changed Open Data to Public Data naming
 * VFS-12437 Improved UX for configuring columns and added the option to modify value in the xattr modal
 * VFS-12591 Fixed legend and replaced "blocks" with "chunks" in data distribution text
 * VFS-12594 Fixed error message after deleting imported file

@@ -66,6 +66,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {boolean}
+   */
+  previewMode: undefined,
+
+  /**
+   * @virtual
    * @type {(columName: string, newValue: boolean) => void}
    */
   checkboxChanged: notImplementedWarn,
@@ -210,6 +216,7 @@ export default Component.extend(I18n, {
     'translationKey',
     'columnName',
     'currentProviderName',
+    'previewMode',
     function tooltipText() {
       if (this.columnValue.type === 'xattr') {
         return this.t(`${this.translationKey}.tip.xattr`, {
@@ -223,6 +230,9 @@ export default Component.extend(I18n, {
             key: this.columnValue.jsonKey,
           });
         }
+      } else if (this.columnName === 'fileId') {
+        const mode = this.previewMode ? 'public' : 'priv';
+        return this.t(`${this.translationKey}.tip.fileId.${mode}`);
       } else {
         return this.t(`${this.translationKey}.tip.${this.columnName}`, {
           oneprovider: this.currentProviderName,

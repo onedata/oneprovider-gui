@@ -47,10 +47,10 @@
                 />
                 <div class="one-label tab-name">
                   {{#if (and
-                    (eq tabId "opendata")
+                    (eq tabId "publicdata")
                     (eq handleState "noHandle")
                   )}}
-                    {{tt this "tabs.publishOpenData"}}
+                    {{tt this "tabs.exposePublicData"}}
                   {{else if (and (eq tabId "files") shareRootDeletedProxy.content)}}
                     {{tt this "tabs.filesDeleted"}}
                   {{else}}
