@@ -841,52 +841,62 @@ export default Component.extend(...mixins, {
     if (this.isDestroyed) {
       return;
     }
-    const {
-      dir,
-      filesArray,
-      viewTester,
-      containerScrollTop,
-      element,
-    } = this;
-    const $element = $(element);
-    const visibleLengthBeforeReload = $element.find('.data-row').toArray()
-      .filter(row => viewTester.isInView(row)).length;
+    const { dir } = this;
 
     const promises = [];
     if (dir && dir.reload) {
       promises.push(dir.reload());
     }
+    promises.push(this.filesArrayReload(forced));
+    const browserModelRefreshPromise = this.browserModel.onListRefresh?.();
+    if (browserModelRefreshPromise) {
+      promises.push(browserModelRefreshPromise);
+    }
+    return await allFulfilled(promises);
+  },
+
+  /**
+   * @private
+   * @param {boolean} isForce Passed as `forced` option to
+   *   ReplacingChunksArray.scheduleReload.
+   * @returns {Promise}
+   */
+  async filesArrayReload(isForced) {
+    const { viewTester, filesArray } = this;
+    const visibleLengthBeforeReload =
+      Array.from(this.element.querySelectorAll('.data-row'))
+      .filter(row => viewTester.isInView(row))
+      .length;
     const reloadHead = filesArray._start === 0;
-    const reloadOptions = { forced, head: reloadHead };
-    const filesArrayReload = filesArray.scheduleReload(reloadOptions)
-      .finally(async () => {
-        const sourceArray = get(filesArray, 'sourceArray');
-        // care about selection change only if there are some items selected that are not
-        // current dir
-        if (
-          !isEmpty(this.selectedItems) &&
-          !this.browserModel.isOnlyCurrentDirSelected
-        ) {
-          const updatedSelectedItems = this.selectedItems.filter(selectedFile =>
-            sourceArray.includes(selectedFile)
-          );
-          // refresh may result in loss of some previously selected item, so only check
-          // length - checking content of array is unnecessary
-          if (this.selectedItems.length != updatedSelectedItems.length) {
-            this.changeSelectedItems(updatedSelectedItems);
-          }
+    const reloadOptions = { forced: isForced, head: reloadHead };
+    try {
+      await filesArray.scheduleReload(reloadOptions);
+      await filesArray.startChanged();
+    } finally {
+      const sourceArray = filesArray.sourceArray;
+      // care about selection change only if there are some items selected that are not
+      // current dir
+      if (
+        !isEmpty(this.selectedItems) &&
+        !this.browserModel.isOnlyCurrentDirSelected
+      ) {
+        const updatedSelectedItems = this.selectedItems.filter(selectedFile =>
+          sourceArray.includes(selectedFile)
+        );
+        // refresh may result in loss of some previously selected item, so only check
+        // length - checking content of array is unnecessary
+        if (this.selectedItems.length != updatedSelectedItems.length) {
+          this.changeSelectedItems(updatedSelectedItems);
         }
+      }
 
-        await waitForRender();
-        if (this.isDestroyed) {
-          return;
-        }
-
+      await waitForRender();
+      if (!this.isDestroyed && !this.isDetroying) {
         const dataRows = this.element.querySelectorAll('.data-row');
         const anyRowVisible = Array.from(dataRows).some(row => viewTester.isInView(row));
 
         if (!anyRowVisible) {
-          const fullLengthAfterReload = get(sourceArray, 'length');
+          const fullLengthAfterReload = sourceArray.length;
           const startIndex = Math.max(
             0,
             fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
@@ -901,7 +911,7 @@ export default Component.extend(...mixins, {
                 if (firstRenderedRow) {
                   firstRenderedRow.scrollIntoView();
                 } else {
-                  containerScrollTop(0);
+                  this.containerScrollTop(0);
                 }
                 resolve();
               } catch (error) {
@@ -910,13 +920,8 @@ export default Component.extend(...mixins, {
             });
           });
         }
-      });
-    promises.push(filesArrayReload);
-    const browserModelRefreshPromise = this.browserModel.onListRefresh?.();
-    if (browserModelRefreshPromise) {
-      promises.push(browserModelRefreshPromise);
+      }
     }
-    await allFulfilled(promises);
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
