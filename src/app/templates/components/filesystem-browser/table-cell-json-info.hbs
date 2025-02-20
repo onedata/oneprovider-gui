@@ -5,25 +5,23 @@
   }}
   onclick={{action "invokeFileAction" file "metadata" "json"}}
 >
-  {{#if (not rawJson)}}
+  {{#if (not selectedJsonData)}}
     —
-  {{else if json}}
+  {{else}}
     {{#if (get jsonToShowInCell 1)}}
       <div class="file-json-text">
         <div>
           {{get jsonToShowInCell 0}}
         </div>
         <div>
-          {{get jsonToShowInCell 1}}{{#if isWrapText}}&#8230;{{/if}}
+          {{get jsonToShowInCell 1}}{{#if isTextTruncated}}&#8230;{{/if}}
         </div>
-        {{#if isWrapText}}
-          <OneTooltip
-            class="json-tooltip tooltip-text-left"
-          >
-            <pre>{{jsonTooltipText}}{{#if isTooltipWrap}}&#8230;{{/if}}</pre>
-            {{#if isTooltipWrap}}
+        {{#if isTextTruncated}}
+          <OneTooltip class="json-tooltip tooltip-text-left">
+            <pre>{{tooltipJsonText}}{{#if isTooltipTextTruncated}}&#8230;{{/if}}</pre>
+            {{#if isTooltipTextTruncated}}
               <hr>
-              <span class="view-more-text">Click to view more.</span>
+              <span class="view-more-text">{{tt this "viewMore"}}</span>
             {{/if}}
           </OneTooltip>
         {{/if}}
@@ -32,7 +30,5 @@
       <span class="file-json-text">{{get jsonToShowInCell 0}}</span>
     {{/if}}
     <OneIcon @icon="browser-copy" class="copy-icon" onclick={{action "copyJson"}}/>
-  {{else}}
-    —
   {{/if}}
 </div>
