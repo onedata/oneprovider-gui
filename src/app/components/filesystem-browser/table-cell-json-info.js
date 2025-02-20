@@ -21,7 +21,6 @@ export default Component.extend(I18n, {
   classNames: ['fb-table-col-json', 'multiline', 'hidden-xs'],
   attributeBindings: ['style'],
 
-  metadataManager: service(),
   globalClipboard: service(),
 
   /**
@@ -63,6 +62,9 @@ export default Component.extend(I18n, {
    */
   maxTooltipLineLength: 20,
 
+  /**
+   * @type {number}
+   */
   maxLineLength: 24,
 
   /**
@@ -261,7 +263,7 @@ export default Component.extend(I18n, {
     },
     copyJson(event) {
       event.stopPropagation();
-      this.globalClipboard.copy(this.json);
+      this.globalClipboard.copy(this.selectedJsonData);
     },
   },
 });

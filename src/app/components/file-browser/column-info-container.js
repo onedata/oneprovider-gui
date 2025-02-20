@@ -67,10 +67,13 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isMetadataColumn: computed('columnInfo', function isMetadataColumn() {
+  isMetadataColumn: computed('columnInfo.type', function isMetadataColumn() {
     return this.columnInfo.type === 'xattr' || this.columnInfo.type === 'json';
   }),
 
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
   tooltipText: computed(
     'columnInfo.{type,queryType,xattrKey}',
     'columnName',

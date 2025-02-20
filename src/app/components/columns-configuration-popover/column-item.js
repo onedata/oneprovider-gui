@@ -156,7 +156,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isMetadataColumn: computed('columnValue', function isMetadataColumn() {
+  isMetadataColumn: computed('columnValue.type', function isMetadataColumn() {
     return this.columnValue.type === 'xattr' || this.columnValue.type === 'json';
   }),
 
@@ -180,6 +180,9 @@ export default Component.extend(I18n, {
    */
   currentProviderName: reads('currentProviderProxy.content.name'),
 
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
   subnameText: computed(
     'columnValue.type',
     'translationKey',
@@ -191,7 +194,7 @@ export default Component.extend(I18n, {
         if (this.columnValue.displayedName.length > 9) {
           return this.t(`${this.translationKey}.subname.jsonShort`);
         } else {
-          return this.t(`${this.translationKey}.subname.jsonLong`);
+          return this.t(`${this.translationKey}.subname.json`);
         }
       } else {
         return this.t(`${this.translationKey}.subname.${this.columnName}`);

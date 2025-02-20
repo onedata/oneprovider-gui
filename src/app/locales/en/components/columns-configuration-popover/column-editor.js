@@ -8,7 +8,7 @@ export default {
   modifyBtn: 'Apply',
   backTooltip: 'Back',
   columnExistsTooltip: 'This column already exists.',
-  emptyValueTooltip: 'Requires non-empty key and label.',
+  emptyValueTooltip: 'Requires non-empty inputs.',
   columnLabelExistsTooltip: 'Column with this label already exists.',
   xattrKey: {
     label: 'Extended attribute key',

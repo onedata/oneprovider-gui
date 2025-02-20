@@ -37,7 +37,6 @@ export default {
     xattr: 'xattr',
     json: 'JSON metadata',
     jsonShort: 'JSON',
-    jsonLong: 'JSON metadata',
     fileId: 'public',
   },
 };

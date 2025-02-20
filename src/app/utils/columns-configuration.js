@@ -30,8 +30,13 @@ import { reads } from '@ember/object/computed';
  * @property {number} width
  * @property {boolean} hasSubname
  * @property {boolean} hasTooltip
- * @property { 'basic' | 'xattr' } type Distinguishes whether this is one of the
- * default columns or a user-added xattr column.
+ * @property { 'basic' | 'xattr' | 'json' } type Distinguishes whether this is one of the
+ * default columns or a user-added metadata column.'
+ * @property {string} displayedName If this is a user-added metadata column,
+ * this string is used as the column label.
+ * @property {string} xattrKey This applies only if the type is 'xattr'.
+ * @property { 'all' | 'key' } queryType This applies only if the type is 'json'.
+ * @property {string} jsonKey This applies only if the queryType is 'key'.
  * @property {string} fileProperty Property that should be included in the file
  * requirement attributes when the column is enabled and visible.
  */

@@ -101,12 +101,25 @@ export default Component.extend(I18n, {
    */
   newJsonKey: '',
 
+  /**
+   * @type {string}
+   */
   oldColumnName: undefined,
 
   /**
    * @type {string}
    */
   xattrKeyFieldName: 'xattrKey',
+
+  /**
+   * @type {string}
+   */
+  metadataTypeFieldName: 'metadataType',
+
+  /**
+   * @type {string}
+   */
+  jsonTypeFieldName: 'jsonType',
 
   xattrOptions: reads('xattrOptionsProxy.content'),
 
@@ -156,40 +169,60 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<Utils.FormComponent.RadioField>}
+   */
   metadataTypeField: computed(function metadataTypeField() {
     return RadioField.create({
-      name: 'metadataType',
+      name: this.metadataTypeFieldName,
       options: [
         { value: 'xattr' },
         { value: 'json' },
       ],
-      tooltipClass: 'tooltip-lg tooltip-text-left',
       defaultValue: this.initialMetadataType,
+      tooltipClass: 'tooltip-lg tooltip-text-left',
     });
   }),
 
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  metadataTypeValue: reads('metadataTypeField.value'),
+
+  /**
+   * @type {ComputedProperty<Utils.FormComponent.RadioField>}
+   */
   jsonTypeField: computed(function jsonTypeField() {
     return RadioField.create({
-      name: 'jsonType',
-      defaultValue: this.initialJsonQueryType ? this.initialJsonQueryType : 'all',
+      name: this.jsonTypeFieldName,
       options: [
         { value: 'all' },
         { value: 'key' },
       ],
+      defaultValue: this.initialJsonQueryType,
       tooltipClass: 'tooltip-lg tooltip-text-left',
     });
   }),
 
+  /**
+   * @type {ComputedProperty<Utils.FormComponent.FormElement>}
+   */
   xattrKeyDropdown: computed('fields', 'xattrKeyFieldName', function xattrKeyDropdown() {
     return this.fields.getFieldByPath(this.xattrKeyFieldName);
   }),
 
-  metadataType: computed('fields', function metadataType() {
-    return this.fields.getFieldByPath('metadataType');
+  /**
+   * @type {ComputedProperty<Utils.FormComponent.FormElement>}
+   */
+  metadataType: computed('fields', 'metadataTypeFieldName', function metadataType() {
+    return this.fields.getFieldByPath(this.metadataTypeFieldName);
   }),
 
-  jsonType: computed('fields', function jsonTypeField() {
-    return this.fields.getFieldByPath('jsonType');
+  /**
+   * @type {ComputedProperty<Utils.FormComponent.FormElement>}
+   */
+  jsonType: computed('fields', 'jsonTypeFieldName', function jsonTypeField() {
+    return this.fields.getFieldByPath(this.jsonTypeFieldName);
   }),
 
   /**
@@ -205,14 +238,14 @@ export default Component.extend(I18n, {
     'isColumnLabelAlreadyExisting',
     'newColumnName',
     'xattrKeyDropdownField.value',
-    'metadataTypeField.value',
+    'metadataTypeValue',
     'jsonTypeField.value',
     'newJsonKey',
     function disabledEditButtonTooltip() {
       if (
         !this.newColumnName ||
-        (!this.xattrKeyDropdownField.value && this.metadataTypeField.value === 'xattr') ||
-        (!this.newJsonKey && this.metadataTypeField.value === 'json' &&
+        (!this.xattrKeyDropdownField.value && this.metadataTypeValue === 'xattr') ||
+        (!this.newJsonKey && this.metadataTypeValue === 'json' &&
           this.jsonTypeField.value === 'key')
       ) {
         return this.t('emptyValueTooltip');
@@ -241,8 +274,6 @@ export default Component.extend(I18n, {
     }
   ),
 
-  metadataTypeValue: reads('metadataTypeField.value'),
-
   /**
    * @type {ComputedProperty<Boolean>}
    */
@@ -253,22 +284,21 @@ export default Component.extend(I18n, {
     'metadataTypeValue',
     'newJsonKey',
     function isColumnAlreadyExisting() {
+      let properties = {};
       if (this.metadataTypeValue === 'xattr') {
-        return this.columnsConfiguration
-          .tryCreateUniqueColumnKey(
-            this.newColumnName, { xattrKey: this.xattrKeyDropdownField.value },
-            'xattr',
-          ).exists === true;
+        properties = { xattrKey: this.xattrKeyDropdownField.value };
       } else {
-        return this.columnsConfiguration
-          .tryCreateUniqueColumnKey(
-            this.newColumnName, {
-              queryType: this.jsonTypeField.value,
-              jsonKey: this.newJsonKey,
-            },
-            'json',
-          ).exists === true;
+        properties = {
+          queryType: this.jsonTypeField.value,
+          jsonKey: this.newJsonKey,
+        };
       }
+      return this.columnsConfiguration
+        .tryCreateUniqueColumnKey(
+          this.newColumnName,
+          properties,
+          this.metadataTypeValue,
+        ).exists === true;
     }
   ),
 

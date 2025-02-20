@@ -30,8 +30,6 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
       ownerSource: this.owner,
       firstColumnWidth: 20,
       loadColumnsConfigFromLocalStorage() {
-        this.set('columns.modification.isEnabled', true);
-        this.set('columns.replication.isEnabled', true);
         this.set('columns.jsonColumn.isEnabled', true);
       },
     }));
