@@ -202,10 +202,11 @@ export default Component.extend({
       endIndex = Math.max(Math.floor(blankEnd / this.rowHeight), 0);
     } else {
       startIndex = transfersArrayIds.indexOf(firstId);
-      endIndex = transfersArrayIds.indexOf(lastId, startIndex);
+      const searchEndFrom = startIndex === -1 ? 0 : startIndex;
+      endIndex = transfersArrayIds.indexOf(lastId, searchEndFrom);
     }
 
-    transfersArray.setProperties({ startIndex, endIndex });
+    transfersArray.setIndices(startIndex, endIndex);
 
     next(() => {
       const isBackwardLoading = startIndex > 0 &&
