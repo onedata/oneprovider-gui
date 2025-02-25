@@ -3,7 +3,7 @@
  * Supports infinite scroll.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2024 ACK CYFRONET AGH
+ * @copyright (C) 2019-2025 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,7 +12,6 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import EmberObject, {
   get,
   computed,
-  setProperties,
   getProperties,
 } from '@ember/object';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
@@ -888,13 +887,12 @@ export default Component.extend(...mixins, {
 
         if (!anyRowVisible) {
           const fullLengthAfterReload = get(sourceArray, 'length');
-          setProperties(filesArray, {
-            startIndex: Math.max(
-              0,
-              fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
-            ),
-            endIndex: fullLengthAfterReload || 50,
-          });
+          const startIndex = Math.max(
+            0,
+            fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
+          );
+          const endIndex = fullLengthAfterReload || 50;
+          filesArray.setIndices(startIndex, endIndex);
           await new Promise((resolve, reject) => {
             next(() => {
               try {
@@ -998,7 +996,8 @@ export default Component.extend(...mixins, {
       }
     } else {
       startIndex = filesArrayIds.indexOf(firstId);
-      endIndex = filesArrayIds.indexOf(lastId, startIndex);
+      const searchEndFrom = startIndex === -1 ? 0 : startIndex;
+      endIndex = filesArrayIds.indexOf(lastId, searchEndFrom);
     }
     if (startIndex <= endIndex) {
       const {
@@ -1006,7 +1005,7 @@ export default Component.extend(...mixins, {
         endIndex: oldEndIndex,
       } = getProperties(filesArray, 'startIndex', 'endIndex');
       if (oldStartIndex !== startIndex || oldEndIndex !== endIndex) {
-        setProperties(filesArray, { startIndex, endIndex });
+        filesArray.setIndices(startIndex, endIndex);
       }
     } else {
       console.error(
