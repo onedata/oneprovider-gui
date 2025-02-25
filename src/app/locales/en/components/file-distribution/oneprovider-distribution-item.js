@@ -1,5 +1,6 @@
 const disabledActionSingleOneprovider =
   ' is available only with two or more supporting providers.';
+const unavailable = 'Storage location unavailable';
 
 export default {
   replicationInProgress: 'The data is being replicated to this Oneprovider.',
@@ -25,4 +26,11 @@ export default {
   at: 'at',
   na: 'not applicable',
   naTooltip: 'No replica has been created on this storage system yet.',
+  emptyDirTooltip: 'This directory is empty.',
+  unavailableDetails: unavailable + ': {{details}}',
+  empty: 'this {{type}} is empty',
+  noReplica: 'no replica present on this storage system',
+  dir: 'directory',
+  file: 'file',
+  unavailable,
 };

@@ -759,6 +759,28 @@ export default Component.extend(I18n, {
     }
   ),
 
+  naLocationTextDetails: computed(
+    'storageFileLocation',
+    'hasSingleRegFile',
+    'percentage',
+    'filesSizeOnStorage',
+    function naLocationTextDetails() {
+      if (this.storageFileLocation) {
+        return '';
+      }
+      let details = this.t('na');
+      if (this.percentage === 100 && this.filesSizeOnStorage === 0) {
+        const type = this.hasSingleRegFile ? 'file' : 'dir';
+        const typeText = this.t(type);
+        details = this.t('empty', { type: typeText });
+      }
+      if (this.percentage === 0) {
+        details = this.t('noReplica');
+      }
+      return details;
+    }
+  ),
+
   startReplication() {
     const {
       onReplicate,

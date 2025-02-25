@@ -22,10 +22,15 @@
           enableValueTip=true
         }}
       {{else}}
-        {{#one-icon icon="browser-info" class="na-location-info-icon"}}
-          {{one-tooltip title=(tt this "naTooltip")}}
-        {{/one-icon}}
-        <span class="na-location-text">{{tt this "na"}}</span>
+        <div class="na-location-info-small-screen">
+          {{#one-icon icon="browser-info" class="na-location-info-icon"}}
+            {{one-tooltip title=naLocationTextDetails}}
+          {{/one-icon}}
+          <span class="na-location-text">{{tt this "unavailable"}}</span>
+        </div>
+        <span class="na-location-info na-location-text">
+          {{tt this "unavailableDetails" details=naLocationTextDetails}}
+        </span>
       {{/if}}
     </div>
   </div>

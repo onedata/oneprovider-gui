@@ -79,6 +79,22 @@
           opacity: 0.4;
         }
 
+        .na-location-info-small-screen {
+          display: flex;
+        }
+
+        .na-location-info-small-screen {
+          @media (min-width: 1010px) {
+            display: none;
+          }
+        }
+
+        .na-location-info {
+          @media (max-width: 1009px) {
+            display: none;
+          }
+        }
+
         .na-location-text {
           padding-left: 4px;
           @include font-regular;
