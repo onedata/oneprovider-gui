@@ -69,7 +69,37 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     },
   };
 
+  it('renders without any JSON object', async function () {
+    const json = null;
+    this.set('file', createFile({ hasJsonMetadata: false, jsonMetadata: json }));
+    enableJsonColumn(this, 'key', 'key1');
+
+    await renderComponent(this);
+    expect(find('.table-cell-json-info')).to.exist;
+    expect(find('.table-cell-json-info').textContent.trim()).to.equal('—');
+  });
+
   it('renders an empty JSON object', async function () {
+    const json = {};
+    this.set('file', createFile({ jsonMetadata: json }));
+    enableJsonColumn(this, 'all');
+
+    await renderComponent(this);
+    expect(find('.table-cell-json-info')).to.exist;
+    expect(find('.table-cell-json-info').textContent.trim()).to.equal('{}');
+  });
+
+  it('renders null JSON object', async function () {
+    const json = null;
+    this.set('file', createFile({ jsonMetadata: json }));
+    enableJsonColumn(this, 'all');
+
+    await renderComponent(this);
+    expect(find('.table-cell-json-info')).to.exist;
+    expect(find('.table-cell-json-info').textContent.trim()).to.equal('null');
+  });
+
+  it('renders an empty JSON object for the "key1" key', async function () {
     const json = {};
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'key', 'key1');
@@ -79,7 +109,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     expect(find('.table-cell-json-info').textContent.trim()).to.equal('—');
   });
 
-  it('renders only the value of the "key1" key', async function () {
+  it('renders a string value for the "key1" key', async function () {
     this.set('file', createFile({ jsonMetadata: jsonForKeyTest }));
     enableJsonColumn(this, 'key', 'key1');
 
@@ -90,7 +120,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     expect(find('.token.string').textContent.trim()).to.equal('"value"');
   });
 
-  it('renders a null value for "key2” key', async function () {
+  it('renders a null value for "key2" key', async function () {
     this.set('file', createFile({ jsonMetadata: jsonForKeyTest }));
     enableJsonColumn(this, 'key', 'key2');
 
@@ -100,7 +130,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     expect(find('.token.null')).to.exist;
   });
 
-  it('renders a boolean value for "key3” key', async function () {
+  it('renders a boolean value for "key3" key', async function () {
     this.set('file', createFile({ jsonMetadata: jsonForKeyTest }));
     enableJsonColumn(this, 'key', 'key3');
 
@@ -110,7 +140,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     expect(find('.token.boolean')).to.exist;
   });
 
-  it('renders only an object for “key4” key', async function () {
+  it('renders only an object for "key4" key', async function () {
     this.set('file', createFile({ jsonMetadata: jsonForKeyTest }));
     enableJsonColumn(this, 'key', 'key4');
 
@@ -129,7 +159,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     expect(findAll('.token.string')[1].textContent.trim()).to.equal('"value3"');
   });
 
-  it('renders a truncated object for “key5” key', async function () {
+  it('renders a truncated object for "key5" key', async function () {
     this.set('file', createFile({ jsonMetadata: jsonForKeyTest }));
     enableJsonColumn(this, 'key', 'key5');
 
@@ -261,17 +291,38 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
   });
 
   it('renders a JSON object with a truncated long string value', async function () {
-    const json = { key1: 'qwertyui opasdfgh jklzxcvbnm qwertyuiopasdfgh', key3: 32 };
+    const json = {
+      key1: 'Amet sint ad culpa duis non pariatur sint consequat laborum deserunt fugiat. Labore eiusmod in in cillum est ut occaecat ullamco aliquip fugiat aute voluptate. Duis aliqua commodo deserunt cupidatat deserunt ex proident. Consectetur minim nisi et consequat. Eu minim non dolore officia voluptate reprehenderit est sint ex pariatur adipisicing deserunt proident ad. Magna proident proident dolor commodo occaecat laborum pariatur excepteur veniam. Enim esse cupidatat veniam aute ex ullamco. Veniam nostrud sint amet quis reprehenderit laboris. Veniam sint dolor qui id nostrud esse magna ullamco ex ad proident sit. Nulla commodo velit nostrud esse ex magna. Proident duis esse excepteur aute laborum fugiat. Mollit enim magna anim quis ea aliqua aliqua mollit anim irure tempor sunt eiusmod irure. Labore non Lorem proident irure qui incididunt magna incididunt cillum amet do laboris ex. Exercitation commodo ut ea tempor. Tempor et adipisicing est enim.',
+      key3: 32,
+    };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
     await renderComponent(this);
     expect(find('.table-cell-json-info')).to.exist;
     expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
-      '{"key1":"qwertyui opasdf'
+      '{"key1":"Amet sint ad cu'
     );
     expect(findAll('.file-json-text div')[1].textContent.trim()).to.equal(
-      'gh jklzxcvbnm qwertyuio…'
+      'lpa duis non pariatur s…'
+    );
+  });
+
+  it('renders a JSON object with a truncated long string value for second key', async function () {
+    const json = {
+      world: '123456789',
+      key1: 'Amet sint ad culpa duis non pariatur sint consequat laborum deserunt fugiat. Labore eiusmod in in cillum est ut occaecat ullamco aliquip fugiat aute voluptate. Duis aliqua commodo deserunt cupidatat deserunt ex proident. Consectetur minim nisi et consequat. Eu minim non dolore officia voluptate reprehenderit est sint ex pariatur adipisicing deserunt proident ad. Magna proident proident dolor commodo occaecat laborum pariatur excepteur veniam. Enim esse cupidatat veniam aute ex ullamco. Veniam nostrud sint amet quis reprehenderit laboris. Veniam sint dolor qui id nostrud esse magna ullamco ex ad proident sit. Nulla commodo velit nostrud esse ex magna. Proident duis esse excepteur aute laborum fugiat. Mollit enim magna anim quis ea aliqua aliqua mollit anim irure tempor sunt eiusmod irure. Labore non Lorem proident irure qui incididunt magna incididunt cillum amet do laboris ex. Exercitation commodo ut ea tempor. Tempor et adipisicing est enim.',
+    };
+    this.set('file', createFile({ jsonMetadata: json }));
+    enableJsonColumn(this, 'all');
+
+    await renderComponent(this);
+    expect(find('.table-cell-json-info')).to.exist;
+    expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
+      '{"world":"123456789","ke'
+    );
+    expect(findAll('.file-json-text div')[1].textContent.trim()).to.equal(
+      'y1":"Amet sint ad culpa…'
     );
   });
 
@@ -312,6 +363,7 @@ function createFile(override = {}, ownerGri = userGri) {
         ids: () => [],
       };
     },
+    hasJsonMetadata: true,
   }, override);
 
   const file = FileMock.create(data);
@@ -335,24 +387,15 @@ async function renderComponent(testCase) {
 }
 
 function enableJsonColumn(mochaContext, queryType, jsonKey = '') {
-  mochaContext.set(
-    'browserModel.columnsConfiguration.columns.jsonColumn.isEnabled',
-    true
-  );
-  mochaContext.set(
-    'browserModel.columnsConfiguration.columns.jsonColumn.isVisible',
-    true
-  );
-  mochaContext.set(
-    'browserModel.columnsConfiguration.columns.jsonColumn.type',
-    'json'
-  );
-  mochaContext.set(
-    'browserModel.columnsConfiguration.columns.jsonColumn.options.queryType',
-    queryType
-  );
-  mochaContext.set(
-    'browserModel.columnsConfiguration.columns.jsonColumn.options.jsonKey',
-    jsonKey
-  );
+  const jsonColumn =
+    mochaContext.get('browserModel.columnsConfiguration.columns.jsonColumn');
+  jsonColumn.setProperties({
+    isEnabled: true,
+    isVisible: true,
+    type: 'json',
+    options: {
+      queryType,
+      jsonKey,
+    },
+  });
 }

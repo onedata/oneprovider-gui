@@ -456,6 +456,7 @@ export default Model.extend(
     size: attr('number'),
     posixPermissions: attr('string'),
     hasCustomMetadata: attr('boolean'),
+    hasJsonMetadata: attr('boolean'),
     hardlinkCount: attr('number', { defaultValue: 1 }),
     localReplicationRate: attr('number'),
     isFullyReplicatedLocally: attr('boolean'),
@@ -525,7 +526,10 @@ export default Model.extend(
      */
     xattrs: attr('object', { defaultValue: () => {} }),
 
-    jsonMetadata: attr('object'),
+    /**
+     * @type {ComputedProperty<Object|string|null>}
+     */
+    jsonMetadata: attr(),
 
     /**
      * One of: `posix`, `acl`. Cannot be modified

@@ -162,10 +162,15 @@ export default Component.extend(...mixins, {
   /**
    * Possible values the same as for `activeTab` property
    * @virtual optional
-   * @type {String}
+   * @type {string}
    */
   initialTab: undefined,
 
+  /**
+   * Name of a initial tab that is nested within parent tab
+   * @virtual optional
+   * @type {string}
+   */
   initialChildTab: undefined,
 
   /**

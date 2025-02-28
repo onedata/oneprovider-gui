@@ -83,6 +83,11 @@ export default Component.extend(I18n, {
   json: reads('file.effFile.jsonMetadata'),
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasJsonMetadata: reads('file.effFile.hasJsonMetadata'),
+
+  /**
    * Depending on the query type this can contains the entire JSON object as a string or
    * contains the value of the top-level key as a string.
    * @type {ComputedProperty<string>}
@@ -91,9 +96,10 @@ export default Component.extend(I18n, {
     'queryType',
     'jsonKey',
     'json',
+    'hasJsonMetadata',
     function selectedJsonString() {
       const jsonObj = this.json;
-      if (jsonObj === undefined) {
+      if (!this.hasJsonMetadata || jsonObj === undefined) {
         return '';
       }
       if (this.queryType === 'all') {
@@ -166,8 +172,7 @@ export default Component.extend(I18n, {
         isTruncated: false,
       };
     }
-
-    const preFormattedText = this.selectedJsonString.substring(0, 500)
+    const preFormattedText = this.selectedJsonString
       .replace(/(\r\n|\n|\r)/gm, '')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');

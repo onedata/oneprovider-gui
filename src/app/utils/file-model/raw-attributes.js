@@ -31,6 +31,7 @@ export const sharedFileRawAttributes = Object.freeze([
   FileAttribute.DirectShareIds,
   FileAttribute.FileId,
   FileAttribute.HasCustomMetadata,
+  FileAttribute.HasJsonMetadata,
   FileAttribute.Index,
   FileAttribute.Mtime,
   FileAttribute.Name,
@@ -40,6 +41,7 @@ export const sharedFileRawAttributes = Object.freeze([
   FileAttribute.CreationTime,
   FileAttribute.SymlinkValue,
   FileAttribute.Type,
+  FileAttribute.JsonMetadata,
   // NOTE: there are also special attributes "xattr.*" for getting specific xattrs of file
   // record but its support is not implemented in frontend yet.
 ]);

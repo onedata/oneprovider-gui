@@ -564,6 +564,9 @@ export default EmberObject.extend(...mixins, {
         filesProperties.add(column.fileProperty);
       }
     }
+    if (filesProperties.has('jsonMetadata')) {
+      filesProperties.add('hasJsonMetadata');
+    }
     this.set('listedFilesProperties', [...filesProperties]);
     this.notifyPropertyChange('listedFilesProperties');
   },

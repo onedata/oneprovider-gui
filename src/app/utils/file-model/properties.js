@@ -35,6 +35,7 @@ export const possibleFileProperties = Object.freeze([
   'fileQosSummary',
   'hardlinkCount',
   'hasCustomMetadata',
+  'hasJsonMetadata',
   'index',
   'isFullyReplicatedLocally',
   'localReplicationRate',
