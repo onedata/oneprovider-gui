@@ -518,7 +518,7 @@ export default Component.extend(...mixins, {
     'filesArray.sourceArray.length',
     async function sourceArrayLengthObserver() {
       await waitForRender();
-      if (!this.isDestroyed() && !this.isDestroying() && this.listWatcher) {
+      if (!this.isDestroyed && !this.isDestroying && this.listWatcher) {
         this.listWatcher.scrollHandler();
       }
     }
