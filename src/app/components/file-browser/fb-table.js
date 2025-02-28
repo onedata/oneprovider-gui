@@ -514,10 +514,13 @@ export default Component.extend(...mixins, {
    * Using sync observer, because async causes problems when with reading rendered
    * item elements (probably doing it too late).
    */
-  sourceArrayLengthObserver: syncObserver(
+  sourceArrayLengthObserver: asyncObserver(
     'filesArray.sourceArray.length',
-    function sourceArrayLengthObserver() {
-      this.listWatcher?.scrollHandler();
+    async function sourceArrayLengthObserver() {
+      await waitForRender();
+      if (!this.isDestroyed() && !this.isDestroying() && this.listWatcher) {
+        this.listWatcher.scrollHandler();
+      }
     }
   ),
 
