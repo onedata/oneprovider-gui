@@ -54,15 +54,14 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * @type {boolean}
-   */
-  previewMode: false,
-
-  /**
-   * @virtual
    * @type {string}
    */
   currentProviderName: undefined,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  previewMode: reads('browserModel.previewMode'),
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -75,18 +74,21 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<SafeString>}
    */
   tooltipText: computed(
-    'columnInfo.{type,queryType,xattrKey}',
+    'columnInfo.{type,options.queryType,options.xattrKey}',
     'columnName',
     'previewMode',
     'currentProviderName',
     function tooltipText() {
+      if (!this.columnInfo.hasTooltip) {
+        return '';
+      }
       if (this.columnInfo.type === 'xattr') {
-        return this.t('headers.tip.xattr', { key: this.columnInfo.xattrKey });
+        return this.t('headers.tip.xattr', { key: this.columnInfo.options.xattrKey });
       } else if (this.columnInfo.type === 'json') {
-        if (this.columnInfo.queryType === 'all') {
+        if (this.columnInfo.options.queryType === 'all') {
           return this.t('headers.tip.json.all');
         } else {
-          return this.t('headers.tip.json.key', { key: this.columnInfo.jsonKey });
+          return this.t('headers.tip.json.key', { key: this.columnInfo.options.jsonKey });
         }
       } else if (this.columnName === 'fileId') {
         const scope = this.previewMode ? 'public' : 'priv';

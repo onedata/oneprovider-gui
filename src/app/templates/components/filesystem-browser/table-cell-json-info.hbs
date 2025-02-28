@@ -1,20 +1,20 @@
 <div
   class={{concat-classes
     "file-json"
-    (if (not (get jsonToShowInCell 1)) "single-line-content")
+    (if (not (get htmlContentLines 1)) "single-line-content")
   }}
   onclick={{action "invokeFileAction" file "metadata" "json"}}
 >
-  {{#if (not selectedJsonData)}}
+  {{#if (not selectedJsonString)}}
     —
   {{else}}
-    {{#if (get jsonToShowInCell 1)}}
+    {{#if (get htmlContentLines 1)}}
       <div class="file-json-text">
-        <div>
-          {{get jsonToShowInCell 0}}
+        <div class="json-first-line">
+          {{get htmlContentLines 0}}
         </div>
-        <div>
-          {{get jsonToShowInCell 1}}{{#if isTextTruncated}}&#8230;{{/if}}
+        <div class="json-second-line">
+          {{get htmlContentLines 1}}{{#if isTextTruncated}}&#8230;{{/if}}
         </div>
         {{#if isTextTruncated}}
           <OneTooltip class="json-tooltip tooltip-text-left">
@@ -27,8 +27,8 @@
         {{/if}}
       </div>
     {{else}}
-      <span class="file-json-text">{{get jsonToShowInCell 0}}</span>
+      <span class="file-json-text">{{get htmlContentLines 0}}</span>
     {{/if}}
-    <OneIcon @icon="browser-copy" class="copy-icon" onclick={{action "copyJson"}}/>
+    <OneIcon @icon="browser-copy" class="copy-icon" onclick={{action "copyJson"}} />
   {{/if}}
 </div>

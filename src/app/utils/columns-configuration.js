@@ -30,20 +30,37 @@ import { reads } from '@ember/object/computed';
  * @property {number} width
  * @property {boolean} hasSubname
  * @property {boolean} hasTooltip
- * @property { 'basic' | 'xattr' | 'json' } type Distinguishes whether this is one of the
- * default columns or a user-added metadata column.'
+ * @property {ColumnType} type Distinguishes whether this is one of the
+ * default columns or a user-added metadata column.
  * @property {string} displayedName If this is a user-added metadata column,
  * this string is used as the column label.
- * @property {string} xattrKey This applies only if the type is 'xattr'.
- * @property { 'all' | 'key' } queryType This applies only if the type is 'json'.
- * @property {string} jsonKey This applies only if the queryType is 'key'.
+ * @property {XattrColumnOptions|JsonColumnOptions|undefined} options
  * @property {string} fileProperty Property that should be included in the file
  * requirement attributes when the column is enabled and visible.
  */
 
 /**
- * Unique label of column in a table
- * @typedef {string} ColumnName
+ * Determines how JSON data should be queried.
+ * - all: Returns the entire JSON object.
+ * - key: Returns the value of the top-level key in the JSON hierarchy.
+ * @typedef {'all'|'key'} JsonQueryType
+ */
+
+/**
+ * Distinguishes whether this is one of the
+ * default columns or a user - added metadata column.
+ * @typedef {'basic'|'xattr'|'json'} ColumnType
+ */
+
+/**
+ * @typedef {Object} XattrColumnOptions
+ * @property {string} xattrKey This applies only if the type is 'xattr'.
+ */
+
+/**
+ * @typedef {Object} JsonColumnOptions
+ * @property {JsonQueryType} queryType This applies only if the type is 'json'.
+ * @property {string} [jsonKey] This applies only if the queryType is 'key'.
  */
 
 const mixins = [
@@ -214,7 +231,13 @@ export default EmberObject.extend(...mixins, {
     );
   },
 
-  tryCreateUniqueColumnKey(columnName, option, type) {
+  /**
+   * @param {ColumnName} columnName
+   * @param {XattrColumnOptions|JsonColumnOptions} options
+   * @param {ColumnType} type
+   * @returns {Object<boolean,string>}
+   */
+  tryCreateUniqueColumnKey(columnName, options, type) {
     let columnNameVariable = this.columnNameToVariable(columnName, type);
 
     // try to create name variable that does not exist or return
@@ -223,15 +246,15 @@ export default EmberObject.extend(...mixins, {
       if (
         type === 'xattr' &&
         columnName === this.columns[columnNameVariable].displayedName &&
-        option.xattrKey === this.columns[columnNameVariable].xattrKey
+        options.xattrKey === this.columns[columnNameVariable].options.xattrKey
       ) {
         // return if a column with the same name and key already exists
         return { exists: true };
       } else if (
         type === 'json' &&
         columnName === this.columns[columnNameVariable].displayedName &&
-        option.queryType === this.columns[columnNameVariable].queryType &&
-        option.jsonKey === this.columns[columnNameVariable].jsonKey
+        options.queryType === this.columns[columnNameVariable].options.queryType &&
+        options.jsonKey === this.columns[columnNameVariable].options.jsonKey
       ) {
         // return if a column with the same name and query type already exists
         return { exists: true };
@@ -247,53 +270,61 @@ export default EmberObject.extend(...mixins, {
     ).length > 0;
   },
 
-  addNewColumn(columnName, option, type) {
-    const newColumnInfo = this.tryCreateUniqueColumnKey(columnName, option, type);
+  /**
+   * @param {ColumnName} columnName
+   * @param {XattrColumnOptions|JsonColumnOptions} options
+   * @param {ColumnType} type
+   * @returns {string}
+   */
+  addNewColumn(columnName, options, type) {
+    const newColumnInfo = this.tryCreateUniqueColumnKey(columnName, options, type);
     if (newColumnInfo.exists === true) {
       return;
     }
     const columnNameVariable = newColumnInfo.uniqueName;
+    let specificOptions = {};
 
     if (type === 'xattr') {
-      this.columns[columnNameVariable] = EmberObject.create({
-        isVisible: false,
-        isEnabled: false,
+      specificOptions = {
         width: 160,
-        hasSubname: true,
-        hasTooltip: true,
-        type: type,
-        xattrKey: option.xattrKey,
-        displayedName: columnName,
-        fileProperty: `xattr.${option.xattrKey}`,
-      });
+        options: {
+          xattrKey: options.xattrKey,
+        },
+        fileProperty: `xattr.${options.xattrKey}`,
+      };
       globals.localStorage.setItem(
         `${this.persistedCustomColumnConfigKey(columnNameVariable)}.xattrKey`,
-        option.xattrKey
+        options.xattrKey
       );
     } else {
-      this.columns[columnNameVariable] = EmberObject.create({
-        isVisible: false,
-        isEnabled: false,
+      specificOptions = {
         width: 210,
-        hasSubname: true,
-        hasTooltip: true,
-        type: type,
-        queryType: option.queryType,
-        jsonKey: option.jsonKey,
-        displayedName: columnName,
+        options: {
+          queryType: options.queryType,
+          jsonKey: options.jsonKey,
+        },
         fileProperty: 'jsonMetadata',
-      });
+      };
       globals.localStorage.setItem(
         `${this.persistedCustomColumnConfigKey(columnNameVariable)}.queryType`,
-        option.queryType
+        options.queryType
       );
-      if (option.queryType === 'key') {
+      if (options.queryType === 'key') {
         globals.localStorage.setItem(
           `${this.persistedCustomColumnConfigKey(columnNameVariable)}.jsonKey`,
-          option.jsonKey
+          options.jsonKey
         );
       }
     }
+    this.columns[columnNameVariable] = EmberObject.create({
+      isVisible: false,
+      isEnabled: false,
+      hasSubname: true,
+      hasTooltip: true,
+      type: type,
+      displayedName: columnName,
+      ...specificOptions,
+    });
 
     globals.localStorage.setItem(
       `${this.persistedCustomColumnConfigKey(columnNameVariable)}.label`,
@@ -315,7 +346,7 @@ export default EmberObject.extend(...mixins, {
         `${this.persistedCustomColumnConfigKey(columnName)}.xattrKey`
       );
     } else {
-      const queryType = this.columns[columnName].queryType;
+      const queryType = this.columns[columnName].options.queryType;
       globals.localStorage.removeItem(
         `${this.persistedCustomColumnConfigKey(columnName)}.queryType`
       );
@@ -339,7 +370,7 @@ export default EmberObject.extend(...mixins, {
     this.notifyPropertyChange('columnsOrder');
   },
 
-  modifyColumn(columnName, newColumnName, option, type) {
+  modifyColumn(columnName, newColumnName, options, type) {
     const column = this.get(`columns.${columnName}`);
     if (!column) {
       return;
@@ -347,7 +378,7 @@ export default EmberObject.extend(...mixins, {
     const isEnabled = column.isEnabled;
     const index = this.columnsOrder.indexOf(columnName);
     this.removeMetadataColumn(columnName);
-    const newColumnNameVariable = this.addNewColumn(newColumnName, option, type);
+    const newColumnNameVariable = this.addNewColumn(newColumnName, options, type);
 
     this.moveColumn(newColumnNameVariable, index);
     this.saveColumnsOrder();
@@ -413,7 +444,9 @@ export default EmberObject.extend(...mixins, {
       hasSubname: true,
       hasTooltip: true,
       type: 'xattr',
-      xattrKey,
+      options: {
+        xattrKey,
+      },
       displayedName,
       fileProperty: `xattr.${xattrKey}`,
     });
@@ -442,8 +475,10 @@ export default EmberObject.extend(...mixins, {
       hasSubname: true,
       hasTooltip: true,
       type: 'json',
-      queryType,
-      jsonKey,
+      options: {
+        queryType,
+        jsonKey,
+      },
       displayedName,
       fileProperty: 'jsonMetadata',
     });
@@ -463,9 +498,9 @@ export default EmberObject.extend(...mixins, {
     const columnsOrderList = [];
 
     if (enabledColumnsList) {
-      for (const columName in this.columns) {
-        this.set(`columns.${columName}.isEnabled`,
-          Boolean(enabledColumnsList?.includes(columName))
+      for (const columnName in this.columns) {
+        this.set(`columns.${columnName}.isEnabled`,
+          Boolean(enabledColumnsList?.includes(columnName))
         );
       }
       for (const columnName of enabledColumnsList) {

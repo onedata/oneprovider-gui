@@ -13,7 +13,7 @@ import { reads, gt } from '@ember/object/computed';
 
 export default Component.extend({
   tagName: 'td',
-  classNames: ['fb-table-col-xattr', 'multiline', 'hidden-xs'],
+  classNames: ['table-cell-xattr-info', 'multiline', 'hidden-xs'],
   classNameBindings: [
     'xattrValue:clickable',
   ],
@@ -46,7 +46,7 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<string>}
    */
-  xattrKey: reads('columnInfo.xattrKey'),
+  xattrKey: reads('columnInfo.options.xattrKey'),
 
   /**
    * @type {ComputedProperty<string>}

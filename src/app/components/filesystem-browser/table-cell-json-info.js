@@ -18,7 +18,7 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 
 export default Component.extend(I18n, {
   tagName: 'td',
-  classNames: ['fb-table-col-json', 'multiline', 'hidden-xs'],
+  classNames: ['table-cell-json-info', 'multiline', 'hidden-xs'],
   attributeBindings: ['style'],
 
   globalClipboard: service(),
@@ -68,24 +68,14 @@ export default Component.extend(I18n, {
   maxLineLength: 24,
 
   /**
-   * @type {boolean}
+   * @type {ComputedProperty<JsonQueryType>}
    */
-  isTooltipTextTruncated: false,
+  queryType: reads('columnInfo.options.queryType'),
 
   /**
-   * @type {boolean}
+   * @type {ComputedProperty<string>}
    */
-  isTextTruncated: false,
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  queryType: reads('columnInfo.queryType'),
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  jsonKey: reads('columnInfo.jsonKey'),
+  jsonKey: reads('columnInfo.options.jsonKey'),
 
   /**
    * @type {ComputedProperty<Object>}
@@ -93,13 +83,15 @@ export default Component.extend(I18n, {
   json: reads('file.effFile.jsonMetadata'),
 
   /**
-   * @type {ComputedProperty<String>}
+   * Depending on the query type this can contains the entire JSON object as a string or
+   * contains the value of the top-level key as a string.
+   * @type {ComputedProperty<string>}
    */
-  selectedJsonData: computed(
+  selectedJsonString: computed(
     'queryType',
     'jsonKey',
     'json',
-    function selectedJsonData() {
+    function selectedJsonString() {
       const jsonObj = this.json;
       if (jsonObj === undefined) {
         return '';
@@ -112,19 +104,19 @@ export default Component.extend(I18n, {
       }
 
       const selectedData = jsonObj[this.jsonKey];
-      if (typeof selectedData === 'string') {
-        return '"' + selectedData + '"';
-      }
       return JSON.stringify(selectedData, null, 2);
     }
   ),
 
-  tooltipJsonText: computed(
-    'selectedJsonData',
+  /**
+   * @type {ComputedProperty<Object<string,boolean>>}
+   */
+  tooltipSpec: computed(
+    'selectedJsonString',
     'tooltipMaxLines',
     'maxTooltipLineLength',
-    function tooltipJsonText() {
-      const lines = this.selectedJsonData.split('\n');
+    function tooltipSpec() {
+      const lines = this.selectedJsonString.split('\n');
 
       let jsonText = '';
       let currentLineNumber = 0;
@@ -133,9 +125,11 @@ export default Component.extend(I18n, {
         let remainingLineText = line;
         do {
           if (currentLineNumber > this.tooltipMaxLines) {
-            this.set('isTooltipTextTruncated', true);
             jsonText = jsonText.replace(/\n$/g, '');
-            return jsonText;
+            return {
+              text: jsonText,
+              isTruncated: true,
+            };
           }
 
           jsonText += remainingLineText.substring(0, this.maxTooltipLineLength) + '\n';
@@ -144,24 +138,42 @@ export default Component.extend(I18n, {
         } while (remainingLineText.length > 0);
       }
 
-      this.set('isTooltipTextTruncated', false);
       jsonText = jsonText.replace(/\n$/g, '');
-      return jsonText;
+      return {
+        text: jsonText,
+        isTruncated: false,
+      };
     }
   ),
 
-  jsonToShowInCell: computed('selectedJsonData', function jsonToShowInCell() {
-    if (!this.selectedJsonData) {
-      return;
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  tooltipJsonText: reads('tooltipSpec.text'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isTooltipTextTruncated: reads('tooltipSpec.isTruncated'),
+
+  /**
+   * @type {ComputedProperty<Object<Array<string>,boolean>>}
+   */
+  htmlContentSpec: computed('selectedJsonString', function htmlContentSpec() {
+    if (!this.selectedJsonString) {
+      return {
+        lines: [],
+        isTruncated: false,
+      };
     }
 
-    const preFormattedText = this.selectedJsonData.substring(0, 500)
+    const preFormattedText = this.selectedJsonString.substring(0, 500)
       .replace(/(\r\n|\n|\r)/gm, '')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
     const coloredText = Prism.highlight(preFormattedText, Prism.languages.json, 'json');
     const formattedText = coloredText.replace(/>(\r\n|\n|\r| )+</gm, '><');
-    const textsAndIndexesArray = this.getTextsAndIndexes(formattedText);
+    const textsAndIndexesArray = this.getTokensAndIndexes(formattedText);
     const closingSpanTag = '</span>';
     const maxSecondLineLength = this.maxLineLength - 1;
 
@@ -172,50 +184,54 @@ export default Component.extend(I18n, {
     let secondLine = '';
     let secondCountChars = 0;
 
-    this.set('isTextTruncated', false);
+    let isTruncated = false;
 
-    for (const [i, elem] of textsAndIndexesArray.entries()) {
+    for (const [i, [startIndex, text]] of textsAndIndexesArray.entries()) {
       if (firstCountChars < this.maxLineLength) {
-        if (firstCountChars + elem[1].length < this.maxLineLength) {
-          firstCountChars += elem[1].length;
+        if (firstCountChars + text.length < this.maxLineLength) {
+          firstCountChars += text.length;
         } else {
-          const currentText = elem[1].substring(0, this.maxLineLength - firstCountChars);
-          const remainingText = elem[1].slice(this.maxLineLength - firstCountChars);
-          firstLine = formattedText.substring(0, elem[0]) + currentText + closingSpanTag;
-          startSecondPart = elem[0] + elem[1].length + closingSpanTag.length;
+          const currentText = text.substring(0, this.maxLineLength - firstCountChars);
+          const remainingText = text.slice(this.maxLineLength - firstCountChars);
+          firstLine =
+            formattedText.substring(0, startIndex) + currentText + closingSpanTag;
+          startSecondPart = startIndex + text.length + closingSpanTag.length;
           firstCountChars = this.maxLineLength;
 
           if (remainingText) {
             secondCountChars = remainingText.length;
             let htmlBeforeText = '';
-            let startIndex = 0;
+            let secondLineStartIndex = 0;
 
             if (i - 1 >= 0) {
-              startIndex = textsAndIndexesArray[i - 1][0] +
+              secondLineStartIndex = textsAndIndexesArray[i - 1][0] +
                 textsAndIndexesArray[i - 1][1].length + closingSpanTag.length;
             }
-            htmlBeforeText = formattedText.substring(startIndex, elem[0]);
+            htmlBeforeText = formattedText.substring(secondLineStartIndex, startIndex);
             secondLine = htmlBeforeText +
               remainingText.substring(0, maxSecondLineLength) + closingSpanTag;
 
             if (secondCountChars > maxSecondLineLength) {
-              this.set('isTextTruncated', true);
+              isTruncated = true;
               break;
             }
           }
         }
       } else {
-        if (secondCountChars + elem[1].length < maxSecondLineLength) {
-          secondCountChars += elem[1].length;
+        if (secondCountChars + text.length < maxSecondLineLength) {
+          secondCountChars += text.length;
         } else {
-          const currentText = elem[1].substring(
-            0, maxSecondLineLength - secondCountChars);
-          secondLine += formattedText.substring(startSecondPart, elem[0]) +
+          const currentText = text.substring(
+            0,
+            maxSecondLineLength - secondCountChars,
+          );
+          secondLine += formattedText.substring(startSecondPart, startIndex) +
             currentText + closingSpanTag;
-          secondCountChars += elem[1].length;
+          secondCountChars += text.length;
           if (secondCountChars > maxSecondLineLength ||
-            i < textsAndIndexesArray.length - 1) {
-            this.set('isTextTruncated', true);
+            i < textsAndIndexesArray.length - 1
+          ) {
+            isTruncated = true;
           }
           break;
         }
@@ -226,24 +242,47 @@ export default Component.extend(I18n, {
       secondLine += formattedText.substring(startSecondPart);
     }
     if (!firstLine) {
-      return [
-        htmlSafe(formattedText),
-      ];
+      return {
+        lines: [htmlSafe(formattedText)],
+        isTruncated,
+      };
     }
 
     if (!secondLine) {
-      return [
-        htmlSafe(firstLine),
-      ];
+      return {
+        lines: [htmlSafe(firstLine)],
+        isTruncated,
+      };
     }
 
-    return [
-      htmlSafe(firstLine),
-      htmlSafe(secondLine),
-    ];
+    return {
+      lines: [
+        htmlSafe(firstLine),
+        htmlSafe(secondLine),
+      ],
+      isTruncated,
+    };
   }),
 
-  getTextsAndIndexes(htmlString) {
+  /**
+   * @type {ComputedProperty<Array<string>>}
+   */
+  htmlContentLines: reads('htmlContentSpec.lines'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isTextTruncated: reads('htmlContentSpec.isTruncated'),
+
+  /**
+   * Extracts all visible text segments from an HTML string and
+   * returns their starting indices.
+   * @param {string} htmlString
+   * @returns {Array<Array<number|string>>} An array of two-element arrays, where
+   *  first element is starting index of the text segment within html string,
+   *  and second element is extracted visible text segment.
+   */
+  getTokensAndIndexes(htmlString) {
     const texts = [];
     const regex = /<span[^>]*>(.*?)<\/span>/g;
     let match;
@@ -259,11 +298,11 @@ export default Component.extend(I18n, {
 
   actions: {
     invokeFileAction(file, btnId, ...args) {
-      this.get('invokeFileAction')(file, btnId, ...args);
+      this.invokeFileAction(file, btnId, ...args);
     },
     copyJson(event) {
       event.stopPropagation();
-      this.globalClipboard.copy(this.selectedJsonData);
+      this.globalClipboard.copy(this.selectedJsonString);
     },
   },
 });

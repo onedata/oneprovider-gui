@@ -40,8 +40,10 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
       hasSubname: true,
       hasTooltip: true,
       type: 'json',
-      queryType: 'all',
-      jsonKey: '',
+      options: {
+        queryType: 'all',
+        jsonKey: '',
+      },
       displayedName: 'json',
       fileProperty: 'jsonMetadata',
     }));
@@ -73,8 +75,8 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'key', 'key1');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
-    expect(find('.fb-table-col-json').textContent.trim()).to.equal('—');
+    expect(find('.table-cell-json-info')).to.exist;
+    expect(find('.table-cell-json-info').textContent.trim()).to.equal('—');
   });
 
   it('renders only the value of the "key1" key', async function () {
@@ -82,29 +84,29 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'key', 'key1');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
-    expect(find('.fb-table-col-json').textContent.trim()).to.equal('"value"');
+    expect(find('.table-cell-json-info')).to.exist;
+    expect(find('.table-cell-json-info').textContent.trim()).to.equal('"value"');
     expect(find('.token.string')).to.exist;
     expect(find('.token.string').textContent.trim()).to.equal('"value"');
   });
 
-  it('renders a null value for "key1” key', async function () {
+  it('renders a null value for "key2” key', async function () {
     this.set('file', createFile({ jsonMetadata: jsonForKeyTest }));
     enableJsonColumn(this, 'key', 'key2');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
-    expect(find('.fb-table-col-json').textContent.trim()).to.equal('null');
+    expect(find('.table-cell-json-info')).to.exist;
+    expect(find('.table-cell-json-info').textContent.trim()).to.equal('null');
     expect(find('.token.null')).to.exist;
   });
 
-  it('renders a boolean value for "key1” key', async function () {
+  it('renders a boolean value for "key3” key', async function () {
     this.set('file', createFile({ jsonMetadata: jsonForKeyTest }));
     enableJsonColumn(this, 'key', 'key3');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
-    expect(find('.fb-table-col-json').textContent.trim()).to.equal('false');
+    expect(find('.table-cell-json-info')).to.exist;
+    expect(find('.table-cell-json-info').textContent.trim()).to.equal('false');
     expect(find('.token.boolean')).to.exist;
   });
 
@@ -113,7 +115,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'key', 'key4');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
+    expect(find('.table-cell-json-info')).to.exist;
     expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
       '{"key1_1":"value2","key1'
     );
@@ -132,7 +134,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'key', 'key5');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
+    expect(find('.table-cell-json-info')).to.exist;
     expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
       '{"key1_1":"value2","key1'
     );
@@ -154,8 +156,8 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'all');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
-    expect(find('.fb-table-col-json').textContent.trim()).to.equal('{"key1":false}');
+    expect(find('.table-cell-json-info')).to.exist;
+    expect(find('.table-cell-json-info').textContent.trim()).to.equal('{"key1":false}');
     expect(findAll('.token.property')[0].textContent.trim()).to.equal('"key1"');
     expect(findAll('.token.boolean')[0].textContent.trim()).to.equal('false');
   });
@@ -166,8 +168,8 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'all');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
-    expect(find('.fb-table-col-json').textContent.trim()).to.equal('{"k1":[1,2,3]}');
+    expect(find('.table-cell-json-info')).to.exist;
+    expect(find('.table-cell-json-info').textContent.trim()).to.equal('{"k1":[1,2,3]}');
     expect(findAll('.token.property')[0].textContent.trim()).to.equal('"k1"');
     expect(findAll('.token.punctuation')[1].textContent.trim()).to.equal('[');
     expect(findAll('.token.number')[0].textContent.trim()).to.equal('1');
@@ -182,7 +184,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'all');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
+    expect(find('.table-cell-json-info')).to.exist;
     expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
       '{"key1":"value","key2":5'
     );
@@ -204,7 +206,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'all');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
+    expect(find('.table-cell-json-info')).to.exist;
     expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
       '{"key1":"val1","key2":nu'
     );
@@ -219,7 +221,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'all');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
+    expect(find('.table-cell-json-info')).to.exist;
     expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
       '{"key1":"val1","key2":[]'
     );
@@ -234,7 +236,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'all');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
+    expect(find('.table-cell-json-info')).to.exist;
     expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
       '{"key1":"val1","key2":{}'
     );
@@ -249,7 +251,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'all');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
+    expect(find('.table-cell-json-info')).to.exist;
     expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
       '{"key1":"val1","key2":["'
     );
@@ -264,7 +266,7 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
     enableJsonColumn(this, 'all');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
+    expect(find('.table-cell-json-info')).to.exist;
     expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
       '{"key1":"qwertyui opasdf'
     );
@@ -274,13 +276,15 @@ describe('Integration | Component | filesystem-browser/table-cell-json-info', fu
   });
 
   it('renders a JSON object with a truncated long string key', async function () {
-    const
-      json = { 'key1qwertyui opasdfgh jklzxcvbnm qwertyuiopasdfgh': 'val1', key3: 32 };
+    const json = {
+      'key1qwertyui opasdfgh jklzxcvbnm qwertyuiopasdfgh': 'val1',
+      'key3': 32,
+    };
     this.set('file', createFile({ jsonMetadata: json }));
     enableJsonColumn(this, 'all');
 
     await renderComponent(this);
-    expect(find('.fb-table-col-json')).to.exist;
+    expect(find('.table-cell-json-info')).to.exist;
     expect(findAll('.file-json-text div')[0].textContent.trim()).to.equal(
       '{"key1qwertyui opasdfgh'
     );
@@ -344,11 +348,11 @@ function enableJsonColumn(mochaContext, queryType, jsonKey = '') {
     'json'
   );
   mochaContext.set(
-    'browserModel.columnsConfiguration.columns.jsonColumn.queryType',
+    'browserModel.columnsConfiguration.columns.jsonColumn.options.queryType',
     queryType
   );
   mochaContext.set(
-    'browserModel.columnsConfiguration.columns.jsonColumn.jsonKey',
+    'browserModel.columnsConfiguration.columns.jsonColumn.options.jsonKey',
     jsonKey
   );
 }

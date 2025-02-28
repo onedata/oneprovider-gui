@@ -165,7 +165,7 @@
     }
   }
 
-  .fb-table-col-xattr {
+  .table-cell-xattr-info {
     position: relative;
     text-align: center;
 
@@ -197,7 +197,7 @@
     }
   }
 
-  .fb-table-col-json {
+  .table-cell-json-info {
     position: relative;
     text-align: center;
     font-size: 80%;
@@ -221,6 +221,9 @@
       }
       .token.property {
         color: darken($color-one-red, 10%);
+      }
+      .token.operator {
+        background: none;
       }
     }
     .file-json {

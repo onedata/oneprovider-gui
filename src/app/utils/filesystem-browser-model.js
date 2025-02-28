@@ -709,7 +709,7 @@ export default BaseBrowserModel.extend(...mixins, {
       disabled: Boolean(disabledTip),
       tip: disabledTip,
       action: (files, activeChildTab) => {
-        return this.get('openInfo')(files, 'metadata', activeChildTab);
+        return this.get('openInfo')(files, 'metadata', { activeChildTab });
       },
       showIn: [
         actionContext.singleDir,

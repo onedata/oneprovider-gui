@@ -9,6 +9,11 @@
 import Mixin from '@ember/object/mixin';
 import { isArray } from '@ember/array';
 
+/**
+ * @typedef {object} FileInfoViewOptions
+ * @property {string} activeChildTab
+ */
+
 export default Mixin.create({
   // required property: browserModel
 
@@ -25,8 +30,9 @@ export default Mixin.create({
   /**
    * @param {Models.File|Array<Models.File>} files
    * @param {FileInfoTabId} activeTab
+   * @param {FileInfoViewOptions} [options]
    */
-  openInfoModal(files, activeTab, activeChildTab = undefined) {
+  openInfoModal(files, activeTab, { activeChildTab } = {}) {
     // we want to see items selected under the info panel
     this.browserModel.changeSelectedItems(files);
     this.setProperties({

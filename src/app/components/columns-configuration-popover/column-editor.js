@@ -75,7 +75,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {string}
+   * @type {ColumnType}
    */
   initialMetadataType: 'xattr',
 
@@ -87,7 +87,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {string}
+   * @type {JsonQueryType}
    */
   initialJsonQueryType: 'all',
 
@@ -221,7 +221,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Utils.FormComponent.FormElement>}
    */
-  jsonType: computed('fields', 'jsonTypeFieldName', function jsonTypeField() {
+  jsonType: computed('fields', 'jsonTypeFieldName', function jsonType() {
     return this.fields.getFieldByPath(this.jsonTypeFieldName);
   }),
 
@@ -242,11 +242,11 @@ export default Component.extend(I18n, {
     'jsonTypeField.value',
     'newJsonKey',
     function disabledEditButtonTooltip() {
-      if (
-        !this.newColumnName ||
+      if (!this.newColumnName ||
         (!this.xattrKeyDropdownField.value && this.metadataTypeValue === 'xattr') ||
         (!this.newJsonKey && this.metadataTypeValue === 'json' &&
-          this.jsonTypeField.value === 'key')
+          this.jsonTypeField.value === 'key'
+        )
       ) {
         return this.t('emptyValueTooltip');
       }
@@ -305,9 +305,11 @@ export default Component.extend(I18n, {
   init() {
     initDestroyableCache(this);
     this._super(...arguments);
-    this.set('newColumnName', this.initialDisplayedName);
-    this.set('newJsonKey', this.initialJsonKey);
-    this.set('oldColumnName', this.initialJsonKey);
+    this.setProperties({
+      newColumnName: this.initialDisplayedName,
+      oldColumnName: this.initialJsonKey,
+      newJsonKey: this.initialJsonKey,
+    });
   },
 
   /**
@@ -327,7 +329,7 @@ export default Component.extend(I18n, {
     },
     submitColumn() {
       const type = this.metadataTypeValue;
-      const option = type === 'xattr' ? { xattrKey: this.xattrKeyDropdownField.value } : {
+      const options = type === 'xattr' ? { xattrKey: this.xattrKeyDropdownField.value } : {
         queryType: this.jsonTypeField.value,
         jsonKey: this.newJsonKey,
       };
@@ -335,14 +337,16 @@ export default Component.extend(I18n, {
         this.isNewColumn,
         type,
         this.newColumnName,
-        option,
+        options,
       );
     },
     changeJsonKey(key) {
       this.set('newJsonKey', key);
       if (this.oldColumnName === undefined || this.oldColumnName === this.newColumnName) {
-        this.set('newColumnName', key);
-        this.set('oldColumnName', key);
+        this.setProperties({
+          newColumnName: key,
+          oldColumnName: key,
+        });
       }
     },
   },

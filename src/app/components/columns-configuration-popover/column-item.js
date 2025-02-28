@@ -212,7 +212,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<SafeString>}
    */
   tooltipText: computed(
-    'columnValue.{type,xattrKey,queryType,jsonType}',
+    'columnValue.{type,options.xattrKey,options.queryType,options.jsonType}',
     'translationKey',
     'columnName',
     'currentProviderName',
@@ -220,14 +220,14 @@ export default Component.extend(I18n, {
     function tooltipText() {
       if (this.columnValue.type === 'xattr') {
         return this.t(`${this.translationKey}.tip.xattr`, {
-          key: this.columnValue.xattrKey,
+          key: this.columnValue.options.xattrKey,
         });
       } else if (this.columnValue.type === 'json') {
-        if (this.columnValue.queryType === 'all') {
+        if (this.columnValue.options.queryType === 'all') {
           return this.t(`${this.translationKey}.tip.json.all`);
         } else {
           return this.t(`${this.translationKey}.tip.json.key`, {
-            key: this.columnValue.jsonKey,
+            key: this.columnValue.options.jsonKey,
           });
         }
       } else if (this.columnName === 'fileId') {

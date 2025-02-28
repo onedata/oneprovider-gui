@@ -87,7 +87,7 @@ export default Component.extend(...mixins, {
   modifiedDisplayedName: '',
 
   /**
-   * @type {string}
+   * @type {ColumnType}
    */
   modifiedMetadataType: '',
 
@@ -99,7 +99,7 @@ export default Component.extend(...mixins, {
 
   /**
    * Actual modified JSON query type, used to display as the default value in radio buttons.
-   * @type {string}
+   * @type {JsonQueryType}
    */
   modifiedJsonQueryType: '',
 
@@ -239,11 +239,11 @@ export default Component.extend(...mixins, {
         this.applyCurrentColumnsOrder();
       }
     },
-    submitColumn(isNewColumn, type, name, option) {
+    submitColumn(isNewColumn, type, name, options) {
       if (isNewColumn) {
-        this.columnsConfiguration.addNewColumn(name, option, type);
+        this.columnsConfiguration.addNewColumn(name, options, type);
       } else {
-        this.columnsConfiguration.modifyColumn(this.modifiedColumn, name, option, type);
+        this.columnsConfiguration.modifyColumn(this.modifiedColumn, name, options, type);
       }
       this.set('activeSlide', 'column-configuration');
     },
@@ -254,20 +254,20 @@ export default Component.extend(...mixins, {
       this.set('activeSlide', 'column-add');
     },
     openColumnEditor(columnName) {
+      const columnInfo = this.columnsConfiguration.columns[columnName];
       this.setProperties({
         activeSlide: 'column-modify',
         modifiedColumn: columnName,
-        modifiedMetadataType: this.columnsConfiguration.columns[columnName].type,
-        modifiedDisplayedName: this.columnsConfiguration.columns[columnName]
-          .displayedName,
+        modifiedMetadataType: columnInfo.type,
+        modifiedDisplayedName: columnInfo.displayedName,
       });
-      if (this.columnsConfiguration.columns[columnName].type === 'xattr') {
+      if (columnInfo.type === 'xattr') {
         this.set(
           'modifiedXattrKey',
-          this.columnsConfiguration.columns[columnName].xattrKey
+          columnInfo.options.xattrKey
         );
       } else {
-        const queryType = this.columnsConfiguration.columns[columnName].queryType;
+        const queryType = columnInfo.options.queryType;
         this.set(
           'modifiedJsonQueryType',
           queryType
@@ -275,7 +275,7 @@ export default Component.extend(...mixins, {
         if (queryType === 'key') {
           this.set(
             'modifiedJsonKey',
-            this.columnsConfiguration.columns[columnName].jsonKey
+            columnInfo.options.jsonKey
           );
         }
       }
