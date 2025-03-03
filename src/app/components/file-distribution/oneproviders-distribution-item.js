@@ -193,6 +193,17 @@ export default Component.extend(I18n, {
   ),
 
   /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  hasSingleDir: computed(
+    'fileDistributionData.{length,0.fileType}',
+    function hasSingleDir() {
+      return this.fileDistributionData.length === 1 &&
+        this.fileDistributionData[0].fileType === LegacyFileType.Directory;
+    }
+  ),
+
+  /**
    * @type {Ember.ComputedProperty<number>}
    */
   filesSize: computedSumBy('fileDistributionData', 'fileSize'),
@@ -764,6 +775,7 @@ export default Component.extend(I18n, {
     'hasSingleRegFile',
     'percentage',
     'filesSizeOnStorage',
+    'hasSingleDir',
     function naLocationTextDetails() {
       if (this.storageFileLocation) {
         return '';
@@ -773,9 +785,10 @@ export default Component.extend(I18n, {
         const type = this.hasSingleRegFile ? 'file' : 'dir';
         const typeText = this.t(type);
         details = this.t('empty', { type: typeText });
-      }
-      if (this.percentage === 0) {
+      } else if (this.percentage === 0) {
         details = this.t('noReplica');
+      } else if (this.hasSingleDir) {
+        details = '';
       }
       return details;
     }

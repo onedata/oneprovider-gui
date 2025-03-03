@@ -24,13 +24,20 @@
       {{else}}
         <div class="na-location-info-small-screen">
           {{#one-icon icon="browser-info" class="na-location-info-icon"}}
-            {{one-tooltip title=naLocationTextDetails}}
+            {{one-tooltip title=(if naLocationTextDetails
+              naLocationTextDetails
+              (tt this "dirNotSupported")
+            )}}
           {{/one-icon}}
           <span class="na-location-text">{{tt this "unavailable"}}</span>
         </div>
-        <span class="na-location-info na-location-text">
-          {{tt this "unavailableDetails" details=naLocationTextDetails}}
-        </span>
+          <span class="na-location-info na-location-text">
+            {{#if naLocationTextDetails}}
+              {{tt this "unavailableDetails" details=naLocationTextDetails}}
+            {{else}}
+              {{tt this "dirNotSupported"}}
+            {{/if}}
+          </span>
       {{/if}}
     </div>
   </div>
