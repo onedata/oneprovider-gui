@@ -770,6 +770,9 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<string>}
+   */
   naLocationTextDetails: computed(
     'storageFileLocation',
     'hasSingleRegFile',
