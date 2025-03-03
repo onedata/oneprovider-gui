@@ -11,6 +11,9 @@ const defineSassColors = require(
 const defineSassBreakpoints = require(
   './lib/onedata-gui-common/addon/utils/define-sass-breakpoints'
 );
+const { CustomBroccoliHasher } = require(
+  './lib/onedata-gui-common/addom/utils/custom-broccoli-hasher'
+);
 const colors = require('./lib/onedata-gui-common/config/colors');
 const breakpoints = require('./lib/onedata-gui-common/config/breakpoints');
 const copyDynamicLibraries = require('./lib/onedata-gui-common/addon/utils/copy-dynamic-libraries');
@@ -19,6 +22,8 @@ const dynamicLibraries = require('./lib/onedata-gui-common/config/dynamic-librar
 const sass = require('sass-embedded');
 
 const environment = EmberApp.env();
+const customHasher = new CustomBroccoliHasher('oneprovider-gui');
+const customHash = customHasher.hash.bind(customHasher);
 
 module.exports = function (defaults) {
   suppressNodeBuildErrors();
@@ -43,6 +48,7 @@ module.exports = function (defaults) {
       replaceExtensions: ['html', 'css', 'js', 'webmanifest'],
       generateAssetMap: true,
       fingerprintAssetMap: true,
+      customHash,
     },
     // see: https://github.com/babel/ember-cli-babel/tree/v7.3.0#options
     'babel': {},

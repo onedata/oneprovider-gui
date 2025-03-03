@@ -5,6 +5,7 @@
 ### Latest changes
 
 * VFS-12259 Added JSON columns in file browser
+* VFS-12542 Added custom fingerprint hashes based on file content and current git revision for some assets
 * VFS-12610 Fixed showing times for transfer in transfers table and fixed showing tooltip for File Id in column configuration popover
 * VFS-12461 Changed Open Data to Public Data naming
 * VFS-12437 Improved UX for configuring columns and added the option to modify value in the xattr modal
