@@ -60,7 +60,7 @@ export default Component.extend(I18n, {
   /**
    * @type {number}
    */
-  maxTooltipLineLength: 20,
+  maxTooltipLineLength: 30,
 
   /**
    * @type {number}
@@ -126,6 +126,7 @@ export default Component.extend(I18n, {
 
       let jsonText = '';
       let currentLineNumber = 0;
+      let currentFragment = '';
 
       for (const line of lines) {
         let remainingLineText = line;
@@ -137,10 +138,17 @@ export default Component.extend(I18n, {
               isTruncated: true,
             };
           }
-
-          jsonText += remainingLineText.substring(0, this.maxTooltipLineLength) + '\n';
-          currentLineNumber += 1;
+          currentFragment = remainingLineText.substring(0, this.maxTooltipLineLength);
           remainingLineText = remainingLineText.substring(this.maxTooltipLineLength);
+          if (remainingLineText.startsWith(': {') ||
+            remainingLineText.startsWith(': [') ||
+            remainingLineText.startsWith(': "')
+          ) {
+            currentFragment += remainingLineText.substring(0, 3);
+            remainingLineText = remainingLineText.substring(3);
+          }
+          jsonText += currentFragment + '\n';
+          currentLineNumber += 1;
         } while (remainingLineText.length > 0);
       }
 

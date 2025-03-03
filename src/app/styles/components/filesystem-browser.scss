@@ -208,19 +208,19 @@
       padding-right: $padding-xs-horizontal;
 
       .token.number {
-        color: darken($color-one-mint, 10%);
+        color: rgb(0, 0, 205);
       }
       .token.boolean {
-        color: darken(#8ca7d9, 10%);
+        color: rgb(88, 92, 246);
       }
       .token.null {
-        color: #284a8a;
+        color: $main-text-color;
       }
       .token.string {
-        color: darken($color-one-mint, 20%);
+        color: rgb(3, 106, 7);
       }
       .token.property {
-        color: darken($color-one-red, 10%);
+        color: rgb(49, 132, 149);
       }
       .token.operator {
         background: none;
