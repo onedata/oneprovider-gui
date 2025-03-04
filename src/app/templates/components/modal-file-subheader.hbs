@@ -1,15 +1,15 @@
-{{#truncated-string
-  customTooltipText=truncatedTextTip
-  tooltipClass=truncatedTextTooltipClass
-  tooltipOnShown=(action "onItemsTooltipShown")
-}}
+<TruncatedString
+  @customTooltipText={{truncatedTextTip}}
+  @tooltipClass={{truncatedTextTooltipClass}}
+  @tooltipOnShown={{action "onItemsTooltipShown"}}
+>
   {{#if icon}}
     <div class={{concat-classes
       "inline-icon-container"
       "file-item-icon-container"
       (concat "file-item-icon-container-" type)
     }}>
-      {{one-icon icon=icon class=(concat "file-item-icon file-item-icon-" type)}}
+      <OneIcon @icon={{icon}} class={{concat "file-item-icon file-item-icon-" type}} />
     </div>
   {{/if}}
   {{#if multi}}
@@ -23,12 +23,15 @@
       {{#let (sub files.length 1) as |lastIndex|}}
         {{#each files as |file i|}}
           {{!-- must be in single-line to avoid unnecessary space before comma --}}
-          {{file-name-conflict class="file-name" file=file}}{{#if (lt i lastIndex)}},{{/if}}
+          <FileNameConflict
+            class="file-name"
+            @file={{file}}
+          />{{#if (lt i lastIndex)}},{{/if}}
         {{/each}}
       {{/let}}
     </span>
   {{else}}
-    {{file-name-conflict class="file-name" file=firstFile}}
+    <FileNameConflict class="file-name" @file={{firstFile}} />
   {{/if}}
   {{yield}}
-{{/truncated-string}}
+</TruncatedString>

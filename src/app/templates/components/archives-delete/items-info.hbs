@@ -1,17 +1,14 @@
 {{#if isSingleItem}}
   <div class="single-file-info details-with-icon">
-    {{one-icon icon="browser-archive" class="details-icon"}}
+    <OneIcon @icon="browser-archive" class="details-icon" />
     <div class="details-content">
-      {{#truncated-string
-        tagName="div"
-        class="single-file-info-file-name details-title"
-      }}
+      <TruncatedString @tagName="div" class="single-file-info-file-name details-title">
         {{firstItem.name}}
-      {{/truncated-string}}
+      </TruncatedString>
       <ul class="details-property-list">
         <li class="property-row">
           <span class="property-label">{{tt this "archived"}}:</span>
-          {{archive-content-count archive=firstItem class="property-value"}}
+          <ArchiveContentCount @archive={{firstItem}} class="property-value" />
         </li>
       </ul>
     </div>
@@ -21,25 +18,25 @@
     {{#each items as |item|}}
       <div class="row-item">
         <div class="browsable-item-icon">
-          {{one-icon icon="browser-archive"}}
+          <OneIcon @icon="browser-archive" />
         </div>
-        {{#truncated-string class="sinble-browsable-item-name"}}
+        <TruncatedString class="sinble-browsable-item-name">
           {{item.name}}
-        {{/truncated-string}}
-        {{#one-label-tip
-          tooltipClass="browsable-items-info-tooltip"
+        </TruncatedString>
+        <OneLabelTip
+          @tooltipClass="browsable-items-info-tooltip"
           class="item-info-tip-trigger"
-          icon="sign-info-rounded"
-        }}
+          @icon="sign-info-rounded"
+        >
           <div class="text-left">
             <span class="item-info-label">
               {{tt this "archived"}}:
             </span>
             <span class="item-info-value archive-size">
-              {{archive-content-count archive=item}}
+              <ArchiveContentCount @archive={{item}} />
             </span>
           </div>
-        {{/one-label-tip}}
+        </OneLabelTip>
       </div>
     {{/each}}
   </div>

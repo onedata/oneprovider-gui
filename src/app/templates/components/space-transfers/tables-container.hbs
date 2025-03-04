@@ -1,17 +1,13 @@
-{{#bs-tab
+<BsTab
   class="bs-tab bs-tab-onedata bs-tab-modern s-tab-transfer-list-types"
-  fade=false
-  customTabs=true
-  activeId=verifiedTab
+  @fade={{false}}
+  @customTabs={{true}}
+  @activeId={{verifiedTab}}
   as |bsTab|
-}}
-  {{#bs-nav
-    type="tabs"
-    class="nav-tabs-transfers nav-tabs-with-loading"
-    as |nav|
-  }}
+>
+  <BsNav @type="tabs" class="nav-tabs-transfers nav-tabs-with-loading" as |nav|>
     {{#each tabIds as |type|}}
-      {{#nav.item active=(eq bsTab.activeId type)}}
+      <nav.item @active={{eq bsTab.activeId type}}>
         <a href={{concat "#" type}}
           class={{concat "nav-link nav-link-" type}}
           role="tab"
@@ -19,13 +15,13 @@
         >
           {{#if (eq type "file")}}
             <span class="tab-label">
-              {{#one-icon class="tab-icon" icon=fileTabIcon}}
-                {{one-tooltip title=fileTabHint}}
-              {{/one-icon}}
+              <OneIcon class="tab-icon" @icon={{fileTabIcon}}>
+                <OneTooltip @title={{fileTabHint}} />
+              </OneIcon>
               {{#if fileProxy.isFulfilled}}
-                {{#truncated-string class="one-label tab-name"}}
+                <TruncatedString class="one-label tab-name">
                   {{or file.name (tt this "unknownFileName")}}
-                {{/truncated-string}}
+                </TruncatedString>
               {{else}}
                 <div class="one-label tab-name">
                   {{tt this "unknownFileName"}}
@@ -33,7 +29,7 @@
               {{/if}}
             </span>
             <span class="tab-close clickable" {{action "closeFileTab"}}>
-              {{one-icon icon="close"}}
+              <OneIcon @icon="close" />
             </span>
           {{else}}
             <span class="tab-label">
@@ -41,12 +37,12 @@
             </span>
           {{/if}}
         </a>
-      {{/nav.item}}
+      </nav.item>
     {{/each}}
-  {{/bs-nav}}
+  </BsNav>
   <div class="tab-content tab-content-transfers-list no-vertical-padding">
     {{#each tabIds as |type|}}
-      {{#bsTab.pane elementId=type}}
+      <bsTab.pane @elementId={{type}}>
         {{#if (eq bsTab.activeId type)}}
           <div class={{concat "row row-" type "-transfers"}}>
             <div class={{concat "col-xs-12 col-" type "-transfers"}}>
@@ -65,15 +61,15 @@
             </div>
           </div>
         {{/if}}
-      {{/bsTab.pane}}
+      </bsTab.pane>
     {{/each}}
   </div>
-{{/bs-tab}}
+</BsTab>
 
-{{db-view-modal
-  open=dbViewModalOpened
-  space=space
-  dbViewName=dbViewModalName
-  close=(action (mut dbViewModalOpened) false)
-  onHidden=(action "dbViewModalHidden")
-}}
+<DbViewModal
+  @open={{dbViewModalOpened}}
+  @space={{space}}
+  @dbViewName={{dbViewModalName}}
+  @close={{action (mut dbViewModalOpened) false}}
+  @onHidden={{action "dbViewModalHidden"}}
+/>

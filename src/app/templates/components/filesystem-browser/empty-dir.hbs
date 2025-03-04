@@ -4,19 +4,19 @@
   {{#if dir.dataIsProtected}}
     <h2 class="empty-dir-text dir-box-text">
       {{tt this "dataIsWriteProtected"}}
-      {{#one-icon
-        icon="sign-question-rounded"
+      <OneIcon
+        @icon="sign-question-rounded"
         class="hint-trigger clickable directory-write-protected-hint-trigger"
-      }}
-        {{one-tooltip title=(tt this "dataIsWriteProtectedTip")}}
-      {{/one-icon}}
+      >
+        <OneTooltip @title={{tt this "dataIsWriteProtectedTip"}} />
+      </OneIcon>
     </h2>
   {{else}}
     <h2 class="empty-dir-text dir-box-text">
       {{tt this "dragFilesHere"}}
       <a class="empty-dir-upload-action nowrap clickable" {{action emptyDirUpload}}>
         <div class="inline-icon-container bind-right-text">
-          {{one-icon icon="browser-upload"}}
+          <OneIcon @icon="browser-upload" />
         </div>&nbsp;{{tt this "upload"}}
       </a>
       {{tt this "or"}}
@@ -25,7 +25,7 @@
         {{action emptyDirNewDirectory}}
       >
         <div class="inline-icon-container bind-right-text">
-          {{one-icon icon="browser-new-directory"}}
+          <OneIcon @icon="browser-new-directory" />
         </div>&nbsp;{{tt this "createNewDirectory"}}</a>.
     </h2>
     {{#if fileClipboardFiles.length}}
@@ -37,7 +37,7 @@
             {{action emptyDirPlaceSymlink}}
           >
             <div class="inline-icon-container bind-right-text">
-              {{one-icon icon="shortcut"}}
+              <OneIcon @icon="shortcut" />
             </div>&nbsp;{{tt this "placeSymlinks"}}
           </a>
           {{tt this "toFilesInClipboard"}}.
@@ -47,7 +47,7 @@
             {{action emptyDirPlaceHardlink}}
           >
             <div class="inline-icon-container bind-right-text">
-              {{one-icon icon="text-link"}}
+              <OneIcon @icon="text-link" />
             </div>&nbsp;{{tt this "placeHardlinks"}}
           </a>
           {{tt this "toFilesInClipboard"}}.
@@ -57,7 +57,7 @@
             {{action emptyDirPaste}}
           >
             <div class="inline-icon-container bind-right-text">
-              {{one-icon icon="clipboard-copy"}}
+              <OneIcon @icon="clipboard-copy" />
             </div>&nbsp;{{tt this "paste"}}
           </a>
           {{tt this "filesFromClipboard"}}.

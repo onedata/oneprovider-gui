@@ -11,32 +11,37 @@
     as |provider|
   >
     <div class="option-container">
-      {{#truncated-string}}
-        {{one-icon icon=(if (eq transferStatProviderId "__all__") "providers" "provider")}}
+      <TruncatedString>
+        <OneIcon
+          @icon={{if (eq transferStatProviderId "__all__") "providers" "provider"}}
+        />
         <span class="text">
           {{provider.name}}
         </span>
-      {{/truncated-string}}
+      </TruncatedString>
     </div>
   </OneDropdown>
 
   {{#if (and (not statsError) _statsLoaded)}}
-    {{#bs-button-group
-      value=timeUnit
-      onChange=(action (mut timeUnit))
-      type="radio"
-      size="sm"
+    <BsButtonGroup
+      @value={{timeUnit}}
+      @onChange={{action (mut timeUnit)}}
+      @type="radio"
+      @size="sm"
       class="btn-group-time-unit"
       as |bg|
-    }}
+    >
       {{#each (array "minute" "hour" "day" "month") as |unit|}}
-        {{#bg.button value=unit}}{{tt this (concat "timeUnit." unit)}}{{/bg.button}}
+        <bg.button @value={{unit}}>{{tt this (concat "timeUnit." unit)}}</bg.button>
       {{/each}}
-    {{/bs-button-group}}
+    </BsButtonGroup>
   {{/if}}
 </div>
 <div class="row loadable-row row-main-chart">
-  {{#loading-container isLoading=(not _statsLoaded) errorReason=timeStatForUnitProxy.reason}}
+  <LoadingContainer
+    @isLoading={{not _statsLoaded}}
+    @errorReason={{timeStatForUnitProxy.reason}}
+  >
     {{#if _noStatsForUnit}}
       <div class="waiting-for-stats no-stats-for-unit-info">
         <div class="chart-placeholder-image"></div>
@@ -45,24 +50,24 @@
         </span>
       </div>
     {{else}}
-      {{#one-chartist data=_chartData options=_chartOptions type="line"}}
+      <OneChartist @data={{_chartData}} @options={{_chartOptions}} @type="line">
         <div class="ct-tooltip">
           <div class="tooltip-header">
             {{_tooltipHeader}}
           </div>
           {{#if _tooltipInProviders.length}}
-            {{space-transfers/tooltip-providers-list
-              providers=_tooltipInProviders
-              title=(tt this (if transferStatProviderId "receivedFrom" "input"))
-              sum=_tooltipInSum
-            }}
+            <SpaceTransfers::TooltipProvidersList
+              @providers={{_tooltipInProviders}}
+              @title={{tt this (if transferStatProviderId "receivedFrom" "input")}}
+              @sum={{_tooltipInSum}}
+            />
           {{/if}}
           {{#if _tooltipOutProviders.length}}
-            {{space-transfers/tooltip-providers-list
-              providers=_tooltipOutProviders
-              title=(tt this (if transferStatProviderId "sentTo" "output"))
-              sum=_tooltipOutSum
-            }}
+            <SpaceTransfers::TooltipProvidersList
+              @providers={{_tooltipOutProviders}}
+              @title={{tt this (if transferStatProviderId "sentTo" "output")}}
+              @sum={{_tooltipOutSum}}
+            />
           {{/if}}
           <div class="ct-tooltip-arrow"></div>
         </div>
@@ -72,7 +77,7 @@
         <div class="output-half half-description">
           {{tt this (if transferStatProviderId "sentTo" "output")}}
         </div>
-      {{/one-chartist}}
+      </OneChartist>
     {{/if}}
-  {{/loading-container}}
+  </LoadingContainer>
 </div>

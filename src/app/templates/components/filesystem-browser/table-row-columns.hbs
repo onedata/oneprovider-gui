@@ -20,7 +20,7 @@
                 </span>
               {{/if}}
             {{else}}
-              {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+              <SpinSpinnerBlock @sizeClass="xs" class="absolute-middle-centered" />
             {{/if}}
           {{else if isItemDirStatsFeatureHidden}}
             {{#if isUnknownSizeShown}}
@@ -41,14 +41,9 @@
                     {{bytes-to-string file.effFile.size}}
                   {{/if}}
                 </span>
-                {{one-icon
-                  icon="overview"
-                  class="inline-icon-container"
-                }}
+                <OneIcon @icon="overview" class="inline-icon-container" />
                 {{#if tooltipText}}
-                  {{one-tooltip
-                    title=tooltipText
-                  }}
+                  <OneTooltip @title={{tooltipText}} />
                 {{/if}}
               </span>
             </div>
@@ -77,10 +72,10 @@
         style={{columnsConfiguration.columnsStyle.owner}}
       >
         <span class="file-item-text">
-          {{filesystem-browser/table-cell-owner-info
-            owner=owner
-            errorReason=errorReasonForOwnerProxy
-          }}
+          <FilesystemBrowser::TableCellOwnerInfo
+            @owner={{owner}}
+            @errorReason={{errorReasonForOwnerProxy}}
+          />
         </span>
       </td>
     {{else if (eq columnName "replication")}}
@@ -117,7 +112,7 @@
               >
             </span>
           {{/if}}
-          {{one-tooltip title=(tt this "replicationRateTooltip")}}
+          <OneTooltip @title={{tt this "replicationRateTooltip"}} />
         </span>
       </td>
     {{else if (eq columnName "qos")}}
@@ -134,11 +129,16 @@
         >
           {{#if (not qosStatus)}}
             <span class="no-qos-text">—</span>
-            {{one-tooltip title=(tt this "qosStatusHint.noQos" fileType=fileTypeText)}}
+            <OneTooltip @title={{tt this "qosStatusHint.noQos" fileType=fileTypeText}} />
           {{else}}
             <span class="status-icon">
-              {{one-icon icon=statusIcon class=(concat "qos-status-icon qos-status-" qosStatus)}}
-              {{one-tooltip title=(tt this (concat "qosStatusHint." qosStatus) fileType=fileTypeText)}}
+              <OneIcon
+                @icon={{statusIcon}}
+                class={{concat "qos-status-icon qos-status-" qosStatus}}
+              />
+              <OneTooltip
+                @title={{tt this (concat "qosStatusHint." qosStatus) fileType=fileTypeText}}
+              />
             </span>
           {{/if}}
         </span>

@@ -14,11 +14,11 @@
   </div>
 {{/unless}}
 <div class="col-value">
-  {{#loading-container
-    isLoading=handleDataProxy.isPending
-    centered=false
-    sizeClass="xs"
-  }}
+  <LoadingContainer
+    @isLoading={{handleDataProxy.isPending}}
+    @centered={{false}}
+    @sizeClass="xs"
+  >
     <div class="clipboard-line sm">
       <div class="input-group input-group-sm">
         {{#if compact}}
@@ -30,40 +30,43 @@
             }}
           >
             <div class="compact-url-type-selector-container">
-              {{one-icon class="compact-url-type-selector-icon" icon=selectedUrlTypeIcon}}
-              {{one-icon
-                icon=(if compactUrlTypeSelectorOpened "arrow-up" "arrow-down")
+              <OneIcon
+                class="compact-url-type-selector-icon"
+                @icon={{selectedUrlTypeIcon}}
+              />
+              <OneIcon
+                @icon={{if compactUrlTypeSelectorOpened "arrow-up" "arrow-down"}}
                 class="compact-url-type-selector-arrow"
-              }}
+              />
             </div>
           </div>
 
-          {{#one-webui-popover
+          <OneWebuiPopover
             class="compact-url-type-selector-popover"
-            popoverStyle="with-dropdown"
-            padding=false
-            open=compactUrlTypeSelectorOpened
-            triggerSelector=(concat "#" elementId " .compact-url-type-selector-arrow")
+            @popoverStyle="with-dropdown"
+            @padding={{false}}
+            @open={{compactUrlTypeSelectorOpened}}
+            @triggerSelector={{concat "#" elementId " .compact-url-type-selector-arrow"}}
             as |popover|
-          }}
-            {{#click-outside
-              onClickOutside=(action (mut compactUrlTypeSelectorOpened) false)
-              exceptSelector=".url-type-selector-trigger, .compact-url-type-selector-actions"
-            }}
-              {{actions-popover-content
-                actionsArray=compactUrlTypeSelectorActions
-                actionClicked=(action (mut compactUrlTypeSelectorOpened) false)
+          >
+            <ClickOutside
+              @onClickOutside={{action (mut compactUrlTypeSelectorOpened) false}}
+              @exceptSelector=".url-type-selector-trigger, .compact-url-type-selector-actions"
+            >
+              <ActionsPopoverContent
+                @actionsArray={{compactUrlTypeSelectorActions}}
+                @actionClicked={{action (mut compactUrlTypeSelectorOpened) false}}
                 class="compact-url-type-selector-actions"
-              }}
-            {{/click-outside}}
-          {{/one-webui-popover}}
+              />
+            </ClickOutside>
+          </OneWebuiPopover>
         {{/if}}
         <div
           class="input-group-addon url-type-info-trigger input-group-addon-left clickable {{if typeInfoTriggerText "input-group-addon-text" "input-group-addon-icon"}}"
           {{action (mut urlTypeInfoOpened) (not urlTypeInfoOpened)}}
         >
           <div class="url-type-info-container">
-            {{one-icon icon="browser-info" class="url-type-info-icon"}}
+            <OneIcon @icon="browser-info" class="url-type-info-icon" />
             {{#if typeInfoTriggerText}}
               <a class="input-handle-service-name black truncate">
                 {{handleServiceProxy.name}}
@@ -71,17 +74,17 @@
             {{/if}}
           </div>
         </div>
-        {{#one-webui-popover
+        <OneWebuiPopover
           class="url-type-info"
-          popoverStyle="url-type-info"
-          open=urlTypeInfoOpened
-          triggerSelector=(concat "#" elementId " .url-type-info-trigger")
+          @popoverStyle="url-type-info"
+          @open={{urlTypeInfoOpened}}
+          @triggerSelector={{concat "#" elementId " .url-type-info-trigger"}}
           as |popover|
-        }}
-          {{#click-outside
-            onClickOutside=(action (mut urlTypeInfoOpened) false)
-            exceptSelector=".url-type-info-trigger, .webui-popover-url-type-info"
-          }}
+        >
+          <ClickOutside
+            @onClickOutside={{action (mut urlTypeInfoOpened) false}}
+            @exceptSelector=".url-type-info-trigger, .webui-popover-url-type-info"
+          >
             {{component (concat "share-show/url-info-" effSelectedUrlType)
               class=(concat-classes
                 urlTypeInfoContentClass
@@ -89,8 +92,8 @@
               )
               share=share
             }}
-          {{/click-outside}}
-        {{/one-webui-popover}}
+          </ClickOutside>
+        </OneWebuiPopover>
         <input
           type="text"
           class="clipboard-line-public-url-input clipboard-input form-control input-sm"
@@ -98,13 +101,13 @@
           readonly
         >
       </div>
-      {{#one-copy-button
+      <OneCopyButton
         class="clipboard-btn clipboard-btn-input"
-        clipboardTarget=(concat "#" elementId " .clipboard-line-public-url-input")
-      }}
+        @clipboardTarget={{concat "#" elementId " .clipboard-line-public-url-input"}}
+      >
         <div class="copy-btn-background"></div>
-        {{one-icon class="copy-btn-icon" icon="browser-copy"}}
-      {{/one-copy-button}}
+        <OneIcon class="copy-btn-icon" @icon="browser-copy" />
+      </OneCopyButton>
     </div>
-  {{/loading-container}}
+  </LoadingContainer>
 </div>

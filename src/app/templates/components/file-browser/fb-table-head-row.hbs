@@ -102,13 +102,13 @@
     </th>
   {{/if}}
 {{/each}}
-{{columns-configuration-cell
-  columnsConfiguration=columnsConfiguration
-  isDropBorderShown=isDropBorderShown
-  browserModel=browserModel
-  dragStartAction=(if browserModel.isUsingUploadArea (action "checkboxDragStart"))
-  dragEndAction=(if browserModel.isUsingUploadArea (action "checkboxDragEnd"))
-  onHeadingDragOver=(action "headingDragOver" true)
-  onHeadingDragLeave=(action "headingDragLeave")
-  onHeadingDrop=(action "headingDrop" lastVisibleColumnIndex)
-}}
+<ColumnsConfigurationCell
+  @columnsConfiguration={{columnsConfiguration}}
+  @isDropBorderShown={{isDropBorderShown}}
+  @browserModel={{browserModel}}
+  @dragStartAction={{if browserModel.isUsingUploadArea (action "checkboxDragStart")}}
+  @dragEndAction={{if browserModel.isUsingUploadArea (action "checkboxDragEnd")}}
+  @onHeadingDragOver={{action "headingDragOver" true}}
+  @onHeadingDragLeave={{action "headingDragLeave"}}
+  @onHeadingDrop={{action "headingDrop" lastVisibleColumnIndex}}
+/>

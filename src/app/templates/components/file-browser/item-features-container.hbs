@@ -4,10 +4,7 @@
     class={{tagClassName}}
     {{action "inheritanceTagClicked" bubbles=false}}
   >
-    {{one-icon
-      icon="inheritance"
-      class="item-inheritance-icon inherited-icon"
-    }}
-    {{one-tooltip title=(tt this "expandTip")}}
+    <OneIcon @icon="inheritance" class="item-inheritance-icon inherited-icon" />
+    <OneTooltip @title={{tt this "expandTip"}} />
   </div>
 {{/if}}

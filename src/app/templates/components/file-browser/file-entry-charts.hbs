@@ -1,15 +1,15 @@
 {{#if (or (eq dirStatsServiceState.status "initializing") dirStatsNotReady)}}
-  {{#content-info
+  <ContentInfo
     class="scroll-breakpoint-600 fill-flex-using-column content-info-no-statistics"
-    header=(tt this "noStatisticsTitle")
-    imagePath="assets/images/dir-stats-not-ready.svg"
-  }}
+    @header={{tt this "noStatisticsTitle"}}
+    @imagePath="assets/images/dir-stats-not-ready.svg"
+  >
     <div class="no-statistics-message">
       {{tt this "noStatisticsContent"}}
     </div>
-  {{/content-info}}
+  </ContentInfo>
 {{else}}
-  {{#promise-proxy-container proxy=loadingProxy}}
+  <PromiseProxyContainer @proxy={{loadingProxy}}>
     <div class="current-size-section">
        <h2 class="current-size-header">
         {{tt this "currentSize.header"}}
@@ -18,9 +18,9 @@
           classProvidersCount
         }}>({{currentSizeExtraInfo}})</span>
         {{#if isHeaderWarningIconVisible}}
-          {{#one-icon icon="sign-warning-rounded" class="header-info-warning"}}
-            {{one-tooltip title=(tt this "currentSize.currentSizeTip")}}
-          {{/one-icon}}
+          <OneIcon @icon="sign-warning-rounded" class="header-info-warning">
+            <OneTooltip @title={{tt this "currentSize.currentSizeTip"}} />
+          </OneIcon>
         {{/if}}
       </h2>
       <p class="latest-dir-stats-values">
@@ -53,7 +53,7 @@
                   ({{logicalSizeExtraInfo}}&nbsp;B)
                 </span>
               {{/if}}
-              {{one-label-tip title=(tt this "currentSize.logicalSizeTip")}}
+              <OneLabelTip @title={{tt this "currentSize.logicalSizeTip"}} />
             </span>
           </li>
           <li class="property-row property-physical-size">
@@ -65,7 +65,7 @@
               {{#if totalPhysicalSizeExtraInfo}}
                 <span class="extra-info">({{totalPhysicalSizeExtraInfo}}&nbsp;B)</span>
               {{/if}}
-              {{one-label-tip title=(tt this "currentSize.totalPhysicalSizeTip")}}
+              <OneLabelTip @title={{tt this "currentSize.totalPhysicalSizeTip"}} />
             </span>
           </li>
         </ul>
@@ -79,27 +79,27 @@
         >
           {{#if (not areSizeStatsExpanded)}}
             {{tt this "showMoreStats"}}
-            {{one-icon icon="arrow-down"}}
+            <OneIcon @icon="arrow-down" />
           {{else}}
             {{tt this "hideMoreStats"}}
-            {{one-icon icon="arrow-up"}}
+            <OneIcon @icon="arrow-up" />
           {{/if}}
         </a>
       </div>
       {{#if areSizeStatsExpanded}}
-        {{file-browser/size-stats-per-provider-table
-          dirSizeStatsValues=latestDirSizeStatsValues
-        }}
+        <FileBrowser::SizeStatsPerProviderTable
+          @dirSizeStatsValues={{latestDirSizeStatsValues}}
+        />
       {{/if}}
     {{/if}}
     {{#if areChartsRendered}}
-      {{one-time-series-charts-section
+      <OneTimeSeriesChartsSection
         class="historical-size-section"
-        sectionSpec=dashboardSpec.rootSection
-        externalDataSources=chartsExternalDataSources
-        onGetTimeSeriesSchemas=(action "getTimeSeriesSchemas")
-        onQueryBatcherFetchData=(action "queryBatcherFetchData")
-      }}
+        @sectionSpec={{dashboardSpec.rootSection}}
+        @externalDataSources={{chartsExternalDataSources}}
+        @onGetTimeSeriesSchemas={{action "getTimeSeriesSchemas"}}
+        @onQueryBatcherFetchData={{action "queryBatcherFetchData"}}
+      />
     {{/if}}
-  {{/promise-proxy-container}}
+  </PromiseProxyContainer>
 {{/if}}

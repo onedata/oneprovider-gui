@@ -7,67 +7,64 @@
       )}}
     </strong>
     {{#if isAddMode}}
-      {{one-icon
-        icon="sign-question-rounded"
+      <OneIcon
+        @icon="sign-question-rounded"
         class="qos-header-hint-trigger qos-add-hint-trigger hint-trigger clickable"
-      }}
-      {{#one-switchable-popover-modal
+      />
+      <OneSwitchablePopoverModal
         class="qos-add-hint qos-hint"
-        triggersConfiguration=".qos-add-hint-trigger"
-        popoverStyle="qos-add-hint-info"
-        modalClass="modal-compact-help"
-        layoutType="modal"
+        @triggersConfiguration=".qos-add-hint-trigger"
+        @popoverStyle="qos-add-hint-info"
+        @modalClass="modal-compact-help"
+        @layoutType="modal"
         as |ospm|
-      }}
-        {{#ospm.modal.header}}
+      >
+        <ospm.modal.header>
           <h1>{{tt this "addHintTitle"}}</h1>
-        {{/ospm.modal.header}}
-        {{#ospm.modal.body}}
+        </ospm.modal.header>
+        <ospm.modal.body>
           <p>{{tt this "addHint"}}</p>
-        {{/ospm.modal.body}}
-        {{#ospm.modal.footer}}
+        </ospm.modal.body>
+        <ospm.modal.footer>
           <div class="btn-toolbar text-right visible-xs-block">
-            {{#one-button class="btn btn-sm" type="info" onClick=ospm.close}}
+            <OneButton class="btn btn-sm" @type="info" @onClick={{ospm.close}}>
               {{tt this "hintClose"}}
-            {{/one-button}}
+            </OneButton>
           </div>
-        {{/ospm.modal.footer}}
-      {{/one-switchable-popover-modal}}
+        </ospm.modal.footer>
+      </OneSwitchablePopoverModal>
     {{else}}
-      {{one-icon
-        icon="sign-question-rounded"
+      <OneIcon
+        @icon="sign-question-rounded"
         class="qos-header-hint-trigger qos-show-hint-trigger hint-trigger clickable"
-      }}
-      {{#one-switchable-popover-modal
+      />
+      <OneSwitchablePopoverModal
         class="qos-show-hint qos-hint"
-        triggersConfiguration=".qos-show-hint-trigger"
-        popoverStyle="qos-show-hint-info webui-popover-file-info-view-hint"
-        modalClass="modal-compact-help"
-        layoutType="modal"
+        @triggersConfiguration=".qos-show-hint-trigger"
+        @popoverStyle="qos-show-hint-info webui-popover-file-info-view-hint"
+        @modalClass="modal-compact-help"
+        @layoutType="modal"
         as |ospm|
-      }}
-        {{#ospm.modal.header}}
+      >
+        <ospm.modal.header>
           <h1>{{tt this "showHintTitle"}}</h1>
-        {{/ospm.modal.header}}
-        {{#ospm.modal.body}}
+        </ospm.modal.header>
+        <ospm.modal.body>
           <p>{{tt this "showHintIntro"}}</p>
           <p>{{tt this "showHintTransfers"}}</p>
           <p>{{tt this "showHintRemoving"}}</p>
           <p>
-            {{one-doc-see-more
-              linkName=(tt this "showHintDocLinkName")
-              topic="qos"
-            }}
+            <OneDocSeeMore @linkName={{tt this "showHintDocLinkName"}} @topic="qos" />
           </p>
-        {{/ospm.modal.body}}
-        {{#ospm.modal.footer}}
+        </ospm.modal.body>
+        <ospm.modal.footer>
           <div class="btn-toolbar text-right visible-xs-block">
-            {{#one-button class="btn btn-sm" type="info" onClick=ospm.close}}
+            <OneButton class="btn btn-sm" @type="info" @onClick={{ospm.close}}>
               {{tt this "hintClose"}}
-            {{/one-button}}
+            </OneButton>
           </div>
-        {{/ospm.modal.footer}}
-      {{/one-switchable-popover-modal}}
+        </ospm.modal.footer>
+      </OneSwitchablePopoverModal>
     {{/if}}
   </div>
 </div>

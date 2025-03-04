@@ -1,6 +1,6 @@
 {{#if record.transferProgressError}}
-  {{error-inline error=record.transferProgressError}}
+  <ErrorInline @error={{record.transferProgressError}} />
 {{else}}
-  {{one-icon icon=_icon class="transfer-status-icon"}}
-  {{bs-tooltip placement="top" title=_hint}}
+  <OneIcon @icon={{_icon}} class="transfer-status-icon" />
+  <BsTooltip @placement="top" @title={{_hint}} />
 {{/if}}

@@ -1,36 +1,37 @@
-{{one-menu-toggle
-  class=(concat-classes triggerClass)
-  click=(disable-bubbling (action "toggleActions"))
-}}
+<OneMenuToggle
+  class={{concat-classes triggerClass}}
+  @click={{disable-bubbling (action "toggleActions")}}
+/>
 
-{{#render-later triggerRender=actionsOpened}}
-  {{#one-webui-popover
+<RenderLater @triggerRender={{actionsOpened}}>
+  <OneWebuiPopover
     class="transfer-actions"
-    popoverStyle="with-dropdown"
-    padding=false
-    triggerSelector=triggerSelector
-    open=actionsOpened
-    onToggle=(action "toggleActions")}}
-    {{#click-outside
-      onClickOutside=(action "toggleActions" false)
-      exceptSelector=triggerSelector
-    }}
-      {{actions-popover-content
-        actionsArray=menuActions
-        actionClicked=(action "toggleActions" false)
+    @popoverStyle="with-dropdown"
+    @padding={{false}}
+    @triggerSelector={{triggerSelector}}
+    @open={{actionsOpened}}
+    @onToggle={{action "toggleActions"}}
+  >
+    <ClickOutside
+      @onClickOutside={{action "toggleActions" false}}
+      @exceptSelector={{triggerSelector}}
+    >
+      <ActionsPopoverContent
+        @actionsArray={{menuActions}}
+        @actionClicked={{action "toggleActions" false}}
         class="transfer-actions"
-      }}
-    {{/click-outside}}
-  {{/one-webui-popover}}
-{{/render-later}}
+      />
+    </ClickOutside>
+  </OneWebuiPopover>
+</RenderLater>
 
 {{#if message}}
   <div class="action-message {{messageType}}">
     {{message}}
-    {{one-icon
-      icon="close"
+    <OneIcon
+      @icon="close"
       class="clickable close-message"
-      click=(action "closeMessage")
-    }}
+      onclick={{action "closeMessage"}}
+    />
   </div>
 {{/if}}

@@ -1,33 +1,33 @@
-{{#one-collapsible-list accordionMode=true as |list|}}
+<OneCollapsibleList @accordionMode={{true}} as |list|>
   {{#each aceListItems key="id" as |aceItem|}}
-    {{#list.item class="ace" id=(concat "ace-item-" aceItem.id) as |listItem index|}}
-      {{acl-editor/ace-editor
-        listItem=listItem
-        ace=aceItem.ace
-        context=context
-        readonly=readonly
-        onChange=(action "aceChanged" aceItem.ace)
-        onMoveUp=(action "moveUp" aceItem.ace)
-        onMoveDown=(action "moveDown" aceItem.ace)
-        onRemove=(action "remove" aceItem.ace)
-        isFirstAce=(eq aceItem aceListItems.firstObject)
-        isLastAce=(eq aceItem aceListItems.lastObject)
-      }}
-    {{/list.item}}
+    <list.item class="ace" @id={{concat "ace-item-" aceItem.id}} as |listItem index|>
+      <AclEditor::AceEditor
+        @listItem={{listItem}}
+        @ace={{aceItem.ace}}
+        @context={{context}}
+        @readonly={{readonly}}
+        @onChange={{action "aceChanged" aceItem.ace}}
+        @onMoveUp={{action "moveUp" aceItem.ace}}
+        @onMoveDown={{action "moveDown" aceItem.ace}}
+        @onRemove={{action "remove" aceItem.ace}}
+        @isFirstAce={{eq aceItem aceListItems.firstObject}}
+        @isLastAce={{eq aceItem aceListItems.lastObject}}
+      />
+    </list.item>
   {{else}}
-    {{#list.item class="no-ace" as |listItem|}}
-      {{#listItem.header isCollapsible=false}}
+    <list.item class="no-ace" as |listItem|>
+      <listItem.header @isCollapsible={{false}}>
         {{tt this "noAce"}}
         <br />
         <strong>{{tt this "posixPermissionsWillApply"}}</strong>
-      {{/listItem.header}}
-    {{/list.item}}
+      </listItem.header>
+    </list.item>
   {{/each}}
   {{#unless readonly}}
-    {{#list.item class="add-user-group-ace" as |listItem|}}
-      {{#listItem.header isCollapsible=false truncate=false}}
+    <list.item class="add-user-group-ace" as |listItem|>
+      <listItem.header @isCollapsible={{false}} @truncate={{false}}>
         <span class="item-icon-container">
-          {{one-icon icon="group-invite" class="item-icon"}}
+          <OneIcon @icon="group-invite" class="item-icon" />
         </span>
         <OneDropdown
           @triggerClass="add-user-group-ace-trigger"
@@ -40,8 +40,8 @@
           as |entity|
         >
           <div class="option-container" data-entity-id={{entity.entityId}}>
-            {{#truncated-string}}
-              {{one-icon icon=(or entity.constructor.modelName entity.equivalentType)}}
+            <TruncatedString>
+              <OneIcon @icon={{or entity.constructor.modelName entity.equivalentType}} />
               <span class="text {{if entity.isSystemSubject "system-subject-name"}}">
                 {{entity.name}}
               </span>
@@ -50,7 +50,7 @@
                   ({{entity.description}})
                 </span>
               {{/if}}
-            {{/truncated-string}}
+            </TruncatedString>
           </div>
         </OneDropdown>
         {{#if hasInferredSubjectList}}
@@ -65,7 +65,7 @@
             <OneLabelTip @title={{tt this "subjectListInferredTip"}} />
           </div>
         {{/if}}
-      {{/listItem.header}}
-    {{/list.item}}
+      </listItem.header>
+    </list.item>
   {{/unless}}
-{{/one-collapsible-list}}
+</OneCollapsibleList>

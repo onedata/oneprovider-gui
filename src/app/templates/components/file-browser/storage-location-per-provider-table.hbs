@@ -1,38 +1,36 @@
 <tr class="oneprovider-name-row">
   <td colspan="2" class="oneprovider-name-cell">
-    {{#truncated-string class="provider-record"}}
-      {{record-info-with-icon
-        record=oneprovider
-      }}
+    <TruncatedString class="provider-record">
+      <RecordInfoWithIcon @record={{oneprovider}} />
       &nbsp;
       <span class="provider-details">
         ({{tt this (if (eq currentProviderId oneprovider.entityId) "local" "remote")}})
       </span>
-    {{/truncated-string}}
+    </TruncatedString>
   </td>
 </tr>
 {{#each locations as |location|}}
   <tr class="oneprovider-storage-location-row">
     {{#if location.storageName}}
       <td class="storage-name-cell">
-        {{#truncated-string}}
+        <TruncatedString>
           {{location.storageName}}
-        {{/truncated-string}}
+        </TruncatedString>
       </td>
       <td class="location-cell">
         {{#if location.path}}
-          {{clipboard-line
-            value=location.path
-            size="sm"
+          <ClipboardLine
+            @value={{location.path}}
+            @size="sm"
             class="location-cell-clipboard"
-          }}
+          />
         {{else}}
           <span class="empty-location-cell">–</span>
         {{/if}}
       </td>
     {{else}}
       <td colspan="2" class="error-cell">
-        {{one-icon icon="sign-warning-rounded" class="inline-icon-container"}}
+        <OneIcon @icon="sign-warning-rounded" class="inline-icon-container" />
         {{errorMessage}}
       </td>
     {{/if}}

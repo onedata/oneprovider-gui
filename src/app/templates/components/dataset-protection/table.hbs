@@ -1,14 +1,14 @@
-{{#promise-proxy-container
-  proxy=fileDatasetSummaryProxy
-  tagName="div"
+<PromiseProxyContainer
+  @proxy={{fileDatasetSummaryProxy}}
+  @tagName="div"
   class="loadable-row dataset-protection-summary-loadable-row"
-  customErrorMessage=(tt this "cannotLoadFileDatasetSummary")
-}}
+  @customErrorMessage={{tt this "cannotLoadFileDatasetSummary"}}
+>
   <table class="table datasets-table {{unless (media "isMobile") "table-striped"}}">
     <thead class="datasets-table-head">
       <th class="col-dataset-info">
         <div class="table-header-content">
-          {{one-icon icon="inheritance"}}
+          <OneIcon @icon="inheritance" />
           <span class="table-header-text">{{tt this "hierarchy"}}</span>
         </div>
       </th>
@@ -17,48 +17,46 @@
           <span class="protection-header-label">
             {{tt this (concat "tableHeaders." protectionType)}}
           </span>
-          {{#one-icon
-            icon="sign-question-rounded"
+          <OneIcon
+            @icon="sign-question-rounded"
             class="hint-trigger protection-label-hint-trigger clickable"
-          }}
-            {{one-tooltip
-              title=(tt this "protectionHeaderHint"
+          >
+            <OneTooltip @title={{tt this "protectionHeaderHint"
                 fileType=(tt this (concat "fileType." file.type))
                 protectionTypeUpper=(capitalize
                   (tt this (concat "protectionType." protectionType))
                 )
                 protectionType=(tt this (concat "protectionType." protectionType))
-              )
-            }}
-          {{/one-icon}}
+              }} />
+          </OneIcon>
         </th>
       {{/each}}
     </thead>
     {{#unless directDatasetProxy.isPending}}
-      {{dataset-protection/ancestor-datasets
-        ancestorDatasetsProxy=ancestorDatasetsProxy
-        readonly=(not editPrivilege)
-        mode=mode
-        insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-        fileType=file.type
-        close=(action close)
-        getDataUrl=(action getDataUrl)
-        getDatasetsUrl=(action getDatasetsUrl)
-        updateOpenedFileData=(action "updateOpenedFileData")
-        ancestorsInitiallyCollapsed=(bool directDataset)
-      }}
+      <DatasetProtection::AncestorDatasets
+        @ancestorDatasetsProxy={{ancestorDatasetsProxy}}
+        @readonly={{not editPrivilege}}
+        @mode={{mode}}
+        @insufficientEditPrivilegesMessage={{insufficientEditPrivilegesMessage}}
+        @fileType={{file.type}}
+        @close={{action close}}
+        @getDataUrl={{action getDataUrl}}
+        @getDatasetsUrl={{action getDatasetsUrl}}
+        @updateOpenedFileData={{action "updateOpenedFileData"}}
+        @ancestorsInitiallyCollapsed={{bool directDataset}}
+      />
     {{/unless}}
-    {{#promise-proxy-container sizeClass="sm" proxy=directDatasetProxy}}
+    <PromiseProxyContainer @sizeClass="sm" @proxy={{directDatasetProxy}}>
       {{#if directDataset}}
-        {{dataset-protection/direct-dataset
-          file=file
-          mode=mode
-          directDatasetProxy=directDatasetProxy
-          readonly=(not editPrivilege)
-          insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-          getDatasetsUrl=getDatasetsUrl
-        }}
+        <DatasetProtection::DirectDataset
+          @file={{file}}
+          @mode={{mode}}
+          @directDatasetProxy={{directDatasetProxy}}
+          @readonly={{not editPrivilege}}
+          @insufficientEditPrivilegesMessage={{insufficientEditPrivilegesMessage}}
+          @getDatasetsUrl={{getDatasetsUrl}}
+        />
       {{/if}}
-    {{/promise-proxy-container}}
+    </PromiseProxyContainer>
   </table>
-{{/promise-proxy-container}}
+</PromiseProxyContainer>

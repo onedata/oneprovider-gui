@@ -68,7 +68,7 @@
             )
             value="allow"
           }}
-            {{one-icon icon="checkbox-filled"}} {{tt this "aceTypes.allow"}}
+            <OneIcon @icon="checkbox-filled" /> {{tt this "aceTypes.allow"}}
           {{/bg.button}}
           {{#bg.button
             type=(if (and (not hasNoRulesEnabled) (eq aceType "deny")) "danger" "default")
@@ -78,7 +78,7 @@
             )
             value="deny"
           }}
-            {{one-icon icon="checkbox-filled-x"}}{{tt this "aceTypes.deny"}}
+            <OneIcon @icon="checkbox-filled-x" /> {{tt this "aceTypes.deny"}}
           {{/bg.button}}
         {{/bs-button-group}}
       </div>

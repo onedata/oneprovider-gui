@@ -1,68 +1,68 @@
-{{#promise-proxy-container
-  proxy=directDatasetProxy
-  spinnerBlockClass="direct-dataset-spinner-block"
-  absoluteCentered=false
-  sizeClass="xs"
-}}
+<PromiseProxyContainer
+  @proxy={{directDatasetProxy}}
+  @spinnerBlockClass="direct-dataset-spinner-block"
+  @absoluteCentered={{false}}
+  @sizeClass="xs"
+>
   <div class="direct-dataset-control-inner">
-    {{one-icon
-      class="direct-dataset-col-icon"
-      icon=statusIcon
-    }}
+    <OneIcon class="direct-dataset-col-icon" @icon={{statusIcon}} />
     <div class="direct-dataset-col-text">
       <span class="status-text">{{statusText}}</span>
       {{#if statusTip}}
         <div class="status-tip-container">
-          {{one-label-tip title=statusTip tooltipClass="tooltip-lg tooltip-text-left"}}
+          <OneLabelTip
+            @title={{statusTip}}
+            @tooltipClass="tooltip-lg tooltip-text-left"
+          />
         </div>
       {{/if}}
     </div>
     <div class="direct-dataset-col-label-action-trigger">
       {{#if (eq status "notEstablished")}}
         <div class="btn-tooltip-container">
-          {{#one-button
+          <OneButton
             class="btn-sm establish-btn"
-            type="primary"
-            disabled=(bool establishButtonDisabledTip)
-            onClick=(action "establishDirectDataset")
-          }}
+            @type="primary"
+            @disabled={{bool establishButtonDisabledTip}}
+            @onClick={{action "establishDirectDataset"}}
+          >
             {{tt this "establishDatasetHere"}}
-          {{/one-button}}
+          </OneButton>
           {{#if establishButtonDisabledTip}}
-            {{one-tooltip title=establishButtonDisabledTip}}
+            <OneTooltip @title={{establishButtonDisabledTip}} />
           {{/if}}
         </div>
       {{else}}
-        {{#one-button
+        <OneButton
           class="btn-sm direct-dataset-actions-trigger"
-          onClick=(action "toggleActionsOpen")
-        }}
-          {{one-icon icon="settings"}}
+          @onClick={{action "toggleActionsOpen"}}
+        >
+          <OneIcon @icon="settings" />
           <span class="text">{{tt this "actionsButton"}}</span>
-          {{one-icon class="menu-trigger-arrow" icon="arrow-down"}}
-        {{/one-button}}
-        {{#render-later triggerRender=areActionsOpened}}
-          {{#one-webui-popover
+          <OneIcon class="menu-trigger-arrow" @icon="arrow-down" />
+        </OneButton>
+        <RenderLater @triggerRender={{areActionsOpened}}>
+          <OneWebuiPopover
             class="direct-dataset-actions"
-            padding=false
-            popoverStyle="with-dropdown"
-            triggerSelector=actionsTriggerSelector
-            open=areActionsOpened
+            @padding={{false}}
+            @popoverStyle="with-dropdown"
+            @triggerSelector={{actionsTriggerSelector}}
+            @open={{areActionsOpened}}
             as |popover|
-          }}
-            {{#click-outside
-              onClickOutside=(action "toggleActionsOpen" false)
-              exceptSelector=actionsTriggerSelector
-            }}
-              {{actions-popover-content
-                actionsArray=directDatasetActions
-                actionsArg=(array directDataset)
-                actionClicked=(action "toggleActionsOpen" false)
-              }}
-            {{/click-outside}}
-          {{/one-webui-popover}}
-        {{/render-later}}
+          >
+            <ClickOutside
+              @onClickOutside={{action "toggleActionsOpen" false}}
+              @exceptSelector={{actionsTriggerSelector}}
+            >
+              <ActionsPopoverContent
+                @actionsArray={{directDatasetActions}}
+                @actionsArg={{array directDataset}}
+                @actionClicked={{action "toggleActionsOpen" false}}
+              />
+            </ClickOutside>
+          </OneWebuiPopover>
+        </RenderLater>
       {{/if}}
     </div>
   </div>
-{{/promise-proxy-container}}
+</PromiseProxyContainer>
