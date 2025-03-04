@@ -80,17 +80,13 @@
         }
 
         .na-location-info-small-screen {
-          display: flex;
+          display: none;
         }
-
-        .na-location-info-small-screen {
-          @media (min-width: 1010px) {
-            display: none;
+        @media (max-width: 1010px) {
+          .na-location-info-small-screen {
+            display: flex;
           }
-        }
-
-        .na-location-info {
-          @media (max-width: 1009px) {
+          .na-location-info {
             display: none;
           }
         }

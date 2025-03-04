@@ -771,19 +771,20 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {ComputedProperty<string>}
+   * @type {ComputedProperty<Object<boolean,string>>}
    */
-  naLocationTextDetails: computed(
+  naLocationTextSpec: computed(
     'storageFileLocation',
     'hasSingleRegFile',
     'percentage',
     'filesSizeOnStorage',
     'hasSingleDir',
-    function naLocationTextDetails() {
+    function naLocationTextSpec() {
       if (this.storageFileLocation) {
         return '';
       }
       let details = this.t('na');
+      let isShowPrefix = true;
       if (this.percentage === 100 && this.filesSizeOnStorage === 0) {
         const type = this.hasSingleRegFile ? 'file' : 'dir';
         const typeText = this.t(type);
@@ -791,11 +792,25 @@ export default Component.extend(I18n, {
       } else if (this.percentage === 0) {
         details = this.t('noReplica');
       } else if (this.hasSingleDir) {
-        details = '';
+        details = this.t('dirNotSupported');
+        isShowPrefix = false;
       }
-      return details;
+      return {
+        isShowPrefix,
+        text: details,
+      };
     }
   ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  naLocationTextDetails: reads('naLocationTextSpec.text'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isNaLocationPrefixVisible: reads('naLocationTextSpec.isShowPrefix'),
 
   startReplication() {
     const {
