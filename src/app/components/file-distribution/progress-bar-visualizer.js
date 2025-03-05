@@ -86,9 +86,13 @@ export default Component.extend(I18n, {
    */
   occupiedSpaceBarStyle: computed(
     'percentageNormalized',
+    'size',
     function occupiedSpaceBarStyle() {
       const percentageNormalized =
         this.get('percentageNormalized');
+      if (percentageNormalized === 100 && this.size === 0) {
+        return htmlSafe('flex-basis: 0%');
+      }
       return htmlSafe(
         percentageNormalized === undefined ?
         '' : `flex-basis: ${percentageNormalized}%`
