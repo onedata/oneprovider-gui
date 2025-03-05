@@ -79,8 +79,23 @@
           opacity: 0.4;
         }
 
+        .na-location-info-small-screen {
+          display: none;
+        }
+        @media (max-width: 1010px) {
+          .na-location-info-small-screen {
+            display: flex;
+          }
+          .na-location-info {
+            display: none;
+          }
+        }
+
+        .na-location-info-icon {
+          padding-right: 4px;
+        }
+
         .na-location-text {
-          padding-left: 4px;
           @include font-regular;
           font-style: italic;
           opacity: $disabled-opacity;
