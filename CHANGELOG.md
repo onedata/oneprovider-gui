@@ -5,6 +5,7 @@
 ### Latest changes
 
 * VFS-12259 Added JSON columns in file browser
+* VFS-12650 Changed texts when path in data distribution is unavailable
 * VFS-12542 Added custom fingerprint hashes based on file content and current git revision for some assets
 * VFS-12610 Fixed showing times for transfer in transfers table and fixed showing tooltip for File Id in column configuration popover
 * VFS-12461 Changed Open Data to Public Data naming
