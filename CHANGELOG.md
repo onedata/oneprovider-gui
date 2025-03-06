@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12622 Refactored OneIcon component to Glimmer
 * VFS-12543 Fixed showing only first 10 items in file browser, after first item on the list has been deleted
 * VFS-12554 Using common code with infinite scroll sidebars
 * VFS-12610 Fixed showing times for transfer in transfers table and fixed showing tooltip for File Id in column configuration popover
