@@ -527,7 +527,7 @@ export default Model.extend(
     xattrs: attr('object', { defaultValue: () => {} }),
 
     /**
-     * @type {ComputedProperty<Object|string|null>}
+     * @type {ComputedProperty<Object|string|number|boolean|null>}
      */
     jsonMetadata: attr(),
 

@@ -54,13 +54,14 @@ import { reads } from '@ember/object/computed';
 
 /**
  * @typedef {Object} XattrColumnOptions
- * @property {string} xattrKey This applies only if the type is 'xattr'.
+ * @property {string} xattrKey
  */
 
 /**
  * @typedef {Object} JsonColumnOptions
- * @property {JsonQueryType} queryType This applies only if the type is 'json'.
- * @property {string} [jsonKey] This applies only if the queryType is 'key'.
+ * @property {JsonQueryType} queryType Determines how JSON data should be queried.
+ * @property {string} [jsonKey] Name of the top-level key in the JSON hierarchy.
+ * This applies only if the queryType is 'key'.
  */
 
 const mixins = [
@@ -235,7 +236,7 @@ export default EmberObject.extend(...mixins, {
    * @param {ColumnName} columnName
    * @param {XattrColumnOptions|JsonColumnOptions} options
    * @param {ColumnType} type
-   * @returns {Object<boolean,string>}
+   * @returns {{exists: boolean, uniqueName: string}}
    */
   tryCreateUniqueColumnKey(columnName, options, type) {
     let columnNameVariable = this.columnNameToVariable(columnName, type);

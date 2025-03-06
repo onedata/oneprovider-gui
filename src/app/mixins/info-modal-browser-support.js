@@ -11,7 +11,8 @@ import { isArray } from '@ember/array';
 
 /**
  * @typedef {object} FileInfoViewOptions
- * @property {string} activeChildTab
+ * @property {string} activeChildTab Indicates which child tab is selected
+ * within the active parent tab
  */
 
 export default Mixin.create({

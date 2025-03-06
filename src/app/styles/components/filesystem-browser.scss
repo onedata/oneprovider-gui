@@ -1,4 +1,5 @@
 .filesystem-browser {
+  $info-icon-size: 200%;
   // special adjustments because of jump-control presence
   .filesystem-table-head-row {
     height: 63px;
@@ -174,7 +175,7 @@
     }
 
     .info-icon {
-      font-size: 200%;
+      font-size: $info-icon-size;
       visibility: hidden;
       vertical-align: middle;
     }
@@ -207,6 +208,7 @@
       padding-left: $padding-xs-horizontal;
       padding-right: $padding-xs-horizontal;
 
+      // colors compatibility with ACE Editor
       .token.number {
         color: rgb(0, 0, 205);
       }
@@ -238,7 +240,7 @@
         transform: translateY(-50%);
         opacity: $disabled-opacity;
         visibility: hidden;
-        font-size: 200%;
+        font-size: $info-icon-size;
       }
 
       &.single-line-content {
@@ -274,7 +276,7 @@
       top: 0.24em;
       opacity: $disabled-opacity;
       visibility: hidden;
-      font-size: 200%;
+      font-size: $info-icon-size;
 
       .copy-btn-icon {
         line-height: 1;

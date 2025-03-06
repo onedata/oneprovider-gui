@@ -88,7 +88,7 @@ export default Component.extend(I18n, {
   hasJsonMetadata: reads('file.effFile.hasJsonMetadata'),
 
   /**
-   * Depending on the query type this can contains the entire JSON object as a string or
+   * Depending on the query type, contains the entire JSON object as a string or
    * contains the value of the top-level key as a string.
    * @type {ComputedProperty<string>}
    */
@@ -115,7 +115,7 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {ComputedProperty<Object<string,boolean>>}
+   * @type {ComputedProperty<{ text: string, isTruncated: boolean }>}
    */
   tooltipSpec: computed(
     'selectedJsonString',
@@ -140,7 +140,8 @@ export default Component.extend(I18n, {
           }
           currentFragment = remainingLineText.substring(0, this.maxTooltipLineLength);
           remainingLineText = remainingLineText.substring(this.maxTooltipLineLength);
-          if (remainingLineText.startsWith(': {') ||
+          if (
+            remainingLineText.startsWith(': {') ||
             remainingLineText.startsWith(': [') ||
             remainingLineText.startsWith(': "')
           ) {
@@ -171,7 +172,7 @@ export default Component.extend(I18n, {
   isTooltipTextTruncated: reads('tooltipSpec.isTruncated'),
 
   /**
-   * @type {ComputedProperty<Object<Array<string>,boolean>>}
+   * @type {ComputedProperty<{ lines: Array<string>, isTruncated: boolean }>}
    */
   htmlContentSpec: computed('selectedJsonString', function htmlContentSpec() {
     if (!this.selectedJsonString) {
@@ -288,12 +289,12 @@ export default Component.extend(I18n, {
   isTextTruncated: reads('htmlContentSpec.isTruncated'),
 
   /**
-   * Extracts all visible text segments from an HTML string and
+   * Extracts all visible text from an HTML string and
    * returns their starting indices.
    * @param {string} htmlString
-   * @returns {Array<Array<number|string>>} An array of two-element arrays, where
-   *  first element is starting index of the text segment within html string,
-   *  and second element is extracted visible text segment.
+   * @returns {Array<Array<[number, string]>>} An array of two-element arrays, where
+   *  first element is starting index of the text within html string,
+   *  and second element is extracted visible text.
    */
   getTokensAndIndexes(htmlString) {
     const texts = [];

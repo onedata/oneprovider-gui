@@ -74,7 +74,7 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<SafeString>}
    */
   tooltipText: computed(
-    'columnInfo.{type,options.queryType,options.xattrKey}',
+    'columnInfo.{type,options}',
     'columnName',
     'previewMode',
     'currentProviderName',

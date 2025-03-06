@@ -290,7 +290,8 @@
       align-items: center;
     }
     .radio-inline {
-      vertical-align: middle;
+      display: inline-flex;
+      align-items: center;
     }
   }
 }

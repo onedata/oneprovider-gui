@@ -151,8 +151,12 @@ export default Component.extend(I18n, {
           valueChanged(option) {
             this._super(...arguments);
             if (
-              this.oldValue === undefined ||
-              this.oldValue === this.columnEditorComponent.newColumnName
+              (
+                this.oldValue === undefined &&
+                !this.columnEditorComponent.newColumnName
+              ) ||
+              this.oldValue === this.columnEditorComponent.newColumnName ||
+              !this.columnEditorComponent.newColumnName
             ) {
               this.set('columnEditorComponent.newColumnName', option);
             }
@@ -173,15 +177,43 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Utils.FormComponent.RadioField>}
    */
   metadataTypeField: computed(function metadataTypeField() {
-    return RadioField.create({
-      name: this.metadataTypeFieldName,
-      options: [
-        { value: 'xattr' },
-        { value: 'json' },
-      ],
-      defaultValue: this.initialMetadataType,
-      tooltipClass: 'tooltip-lg tooltip-text-left',
-    });
+    return RadioField
+      .extend({
+        valueChanged(option) {
+          this._super(...arguments);
+          const editor = this.columnEditorComponent;
+          if (
+            option === 'json' &&
+            editor.jsonTypeField.value === 'all' &&
+            (
+              !editor.newColumnName ||
+              editor.newColumnName === editor.xattrKeyDropdownField.value
+            )
+          ) {
+            this.set('columnEditorComponent.newColumnName', 'JSON');
+          }
+          if (
+            option === 'xattr' &&
+            editor.newColumnName === 'JSON'
+          ) {
+            this.set(
+              'columnEditorComponent.newColumnName',
+              editor.xattrKeyDropdownField.value
+            );
+          }
+          this.set('oldValue', this.value);
+        },
+      })
+      .create({
+        columnEditorComponent: this,
+        name: this.metadataTypeFieldName,
+        options: [
+          { value: 'xattr' },
+          { value: 'json' },
+        ],
+        defaultValue: this.initialMetadataType,
+        tooltipClass: 'tooltip-lg tooltip-text-left',
+      });
   }),
 
   /**
@@ -193,15 +225,39 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Utils.FormComponent.RadioField>}
    */
   jsonTypeField: computed(function jsonTypeField() {
-    return RadioField.create({
-      name: this.jsonTypeFieldName,
-      options: [
-        { value: 'all' },
-        { value: 'key' },
-      ],
-      defaultValue: this.initialJsonQueryType,
-      tooltipClass: 'tooltip-lg tooltip-text-left',
-    });
+    return RadioField
+      .extend({
+        valueChanged(option) {
+          this._super(...arguments);
+          const editor = this.columnEditorComponent;
+          if (
+            option === 'all' &&
+            (
+              !editor.newColumnName ||
+              editor.newJsonKey === editor.newColumnName
+            )
+          ) {
+            this.set('columnEditorComponent.newColumnName', 'JSON');
+          }
+          if (
+            option === 'key' &&
+            editor.newColumnName === 'JSON'
+          ) {
+            this.set('columnEditorComponent.newColumnName', editor.newJsonKey);
+          }
+          this.set('oldValue', this.value);
+        },
+      })
+      .create({
+        columnEditorComponent: this,
+        name: this.jsonTypeFieldName,
+        options: [
+          { value: 'all' },
+          { value: 'key' },
+        ],
+        defaultValue: this.initialJsonQueryType,
+        tooltipClass: 'tooltip-lg tooltip-text-left',
+      });
   }),
 
   /**
@@ -242,9 +298,11 @@ export default Component.extend(I18n, {
     'jsonTypeField.value',
     'newJsonKey',
     function disabledEditButtonTooltip() {
-      if (!this.newColumnName ||
+      if (
+        !this.newColumnName ||
         (!this.xattrKeyDropdownField.value && this.metadataTypeValue === 'xattr') ||
-        (!this.newJsonKey && this.metadataTypeValue === 'json' &&
+        (
+          !this.newJsonKey && this.metadataTypeValue === 'json' &&
           this.jsonTypeField.value === 'key'
         )
       ) {
@@ -342,7 +400,11 @@ export default Component.extend(I18n, {
     },
     changeJsonKey(key) {
       this.set('newJsonKey', key);
-      if (this.oldColumnName === undefined || this.oldColumnName === this.newColumnName) {
+      if (
+        this.oldColumnName === undefined ||
+        this.oldColumnName === this.newColumnName ||
+        !this.newColumnName
+      ) {
         this.setProperties({
           newColumnName: key,
           oldColumnName: key,
