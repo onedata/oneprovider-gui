@@ -5,13 +5,13 @@
       value={{permissions.octalRepresentation}}
       maxlength="3"
       size="3"
-      disabled={{if readonly true}}
-      oninput={{if readonly (no-action) (action "octalChanged" value="target.value")}}
-      onkeydown={{if readonly (no-action) (invoke-on-enter (action "save"))}}
+      disabled={{if isReadOnly true}}
+      oninput={{if isReadOnly (no-action) (action "octalChanged" value="target.value")}}
+      onkeydown={{if isReadOnly (no-action) (invoke-on-enter (action "save"))}}
     >
   </div>
-  {{#if readonly}}
-    <OneIcon @icon="lock" class="permissions-input-readonly-lock-icon">
+  {{#if isReadOnly}}
+    <OneIcon @icon="lock" class="permissions-input-isReadOnly-lock-icon">
       {{#if readonlyTip}}
         <OneTooltip @title={{readonlyTip}} />
       {{/if}}
@@ -36,7 +36,7 @@
               @inputId={{concat elementId entity permission}}
               @checked={{get (get permissions entity) permission}}
               @update={{action "checkboxChanged" entity permission}}
-              @isReadOnly={{readonly}}
+              @isReadOnly={{isReadOnly}}
               class={{concat entity "-" permission "-checkbox permission-checkbox"}}
             />
             <label for={{concat elementId entity permission}}>

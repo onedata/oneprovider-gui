@@ -35,7 +35,7 @@
     {{#unless directDatasetProxy.isPending}}
       <DatasetProtection::AncestorDatasets
         @ancestorDatasetsProxy={{ancestorDatasetsProxy}}
-        @readonly={{not editPrivilege}}
+        @isReadOnly={{not editPrivilege}}
         @mode={{mode}}
         @insufficientEditPrivilegesMessage={{insufficientEditPrivilegesMessage}}
         @fileType={{file.type}}
@@ -52,7 +52,7 @@
           @file={{file}}
           @mode={{mode}}
           @directDatasetProxy={{directDatasetProxy}}
-          @readonly={{not editPrivilege}}
+          @isReadOnly={{not editPrivilege}}
           @insufficientEditPrivilegesMessage={{insufficientEditPrivilegesMessage}}
           @getDatasetsUrl={{getDatasetsUrl}}
         />

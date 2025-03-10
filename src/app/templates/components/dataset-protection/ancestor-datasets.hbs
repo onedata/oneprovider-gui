@@ -6,7 +6,7 @@
         (if ancestorDatasetsCollapsed "closed" "opened")
       }}
       @dataset={{virtualParentDataset}}
-      @readonly={{true}}
+      @isReadOnly={{true}}
       @dataToggleReadonlyMessage={{tt this "summaryAncestorsReadonlyFlags"
         protectionType=(tt this "protectionType.data")
       }}
@@ -46,7 +46,7 @@
             (if ancestorDatasetsCollapsed "closed" "opened")
           }}
           @dataset={{data.dataset}}
-          @readonly={{readonly}}
+          @isReadOnly={{isReadOnly}}
           @togglesReadonlyMessage={{insufficientEditPrivilegesMessage}}
           @updateOpenedFileData={{updateOpenedFileData}}
         >

@@ -1,6 +1,6 @@
 <p class="metadata-description">{{tt this "description"}}</p>
 <form role="form" class="form form-horizontal" onkeypress={{ignore-enter}}>
-  {{#if readonly}}
+  {{#if isReadOnly}}
     {{#each metadataForPreview key="key" as |item|}}
       <div class="col-xs-12 form-group">
         <div class="row">

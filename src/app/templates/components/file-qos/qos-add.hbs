@@ -3,7 +3,7 @@
     <table class="table table-info table-info-large table-info-collapsible">
       <tbody>
         <tr class="qos-info-row-replicas-number">
-          <td class="property-name {{unless readonly "with-input"}}">
+          <td class="property-name {{unless isReadOnly "with-input"}}">
             {{tt this "replicasNumber"}}
           </td>
           <td class="property-value form-horizontal">
@@ -26,7 +26,7 @@
           </td>
         </tr>
         <tr class="qos-info-row-expression">
-          <td class="property-name {{unless readonly "with-input"}}">
+          <td class="property-name {{unless isReadOnly "with-input"}}">
             <div class="qos-label-expression">{{tt this "expression"}}</div>
           </td>
           <td class="property-value form-horizontal relative">
@@ -43,7 +43,7 @@
                   @operators={{array "and" "or" "except"}}
                   @popoverPlacement="auto-top"
                   @rootQueryBlock={{rootQueryBlock}}
-                  @readonly={{false}}
+                  @isReadOnly={{false}}
                   @refreshQueryProperties={{action "refreshQueryProperties"}}
                   @onValidityChange={{action (mut queryBuilderValid)}}
                 >

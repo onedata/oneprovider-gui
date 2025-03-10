@@ -41,7 +41,7 @@ export default EmberObject.extend({
     'tabOptions.permissions',
     function permissions() {
       return this.tabModelFactory.createTabModel('permissions', {
-        readonly: this.previewMode,
+        isReadOnly: this.previewMode,
         ...this.tabOptions?.permissions,
       });
     }

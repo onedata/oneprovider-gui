@@ -5,7 +5,7 @@
         @listItem={{listItem}}
         @ace={{aceItem.ace}}
         @context={{context}}
-        @readonly={{readonly}}
+        @isReadOnly={{isReadOnly}}
         @onChange={{action "aceChanged" aceItem.ace}}
         @onMoveUp={{action "moveUp" aceItem.ace}}
         @onMoveDown={{action "moveDown" aceItem.ace}}
@@ -23,7 +23,7 @@
       </listItem.header>
     </list.item>
   {{/each}}
-  {{#unless readonly}}
+  {{#unless isReadOnly}}
     <list.item class="add-user-group-ace" as |listItem|>
       <listItem.header @isCollapsible={{false}} @truncate={{false}}>
         <span class="item-icon-container">

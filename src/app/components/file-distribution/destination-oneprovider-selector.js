@@ -123,13 +123,13 @@ export default Component.extend(I18n, {
         .without(sourceOneprovider)
         .map(oneprovider => {
           const isEvicting = evictingOneproviders.includes(oneprovider);
-          const isReadonly =
+          const isReadOnly =
             providersWithReadonlySupport.includes(get(oneprovider, 'entityId'));
-          const disabled = isEvicting || isReadonly;
+          const disabled = isEvicting || isReadOnly;
           return {
             oneprovider,
             text: get(oneprovider, 'name') +
-              (disabled ? ` (${this.t(isReadonly ? 'readonly' : 'evicting')})` : ''),
+              (disabled ? ` (${this.t(isReadOnly ? 'readonly' : 'evicting')})` : ''),
             disabled,
           };
         });

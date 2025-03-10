@@ -36,7 +36,7 @@
       {{toolbar.icon icon=status.icon hint=status.tooltipText status=status.stateClass}}
     {{/each}}
   {{/status-toolbar}}
-  {{#unless readonly}}
+  {{#unless isReadOnly}}
     {{actions-toolbar
       isMinimized=true
       toolbarClasses=""
@@ -54,17 +54,17 @@
         {{#bs-button-group
           class=(concat-classes
             "ace-type-selector"
-            (if readonly "disabled")
+            (if isReadOnly "disabled")
           )
           value=aceType
           type="radio"
-          onChange=(if readonly (no-action) (action "aceTypeChanged"))
+          onChange=(if isReadOnly (no-action) (action "aceTypeChanged"))
         as |bg|}}
           {{#bg.button
             type=(if (and (not hasNoRulesEnabled) (eq aceType "allow")) "primary" "default")
             class=(concat-classes
               "btn-sm ace-type ace-type-allow"
-              (if readonly "disabled")
+              (if isReadOnly "disabled")
             )
             value="allow"
           }}
@@ -74,7 +74,7 @@
             type=(if (and (not hasNoRulesEnabled) (eq aceType "deny")) "danger" "default")
             class=(concat-classes
               "btn-sm ace-type ace-type-deny"
-              (if readonly "disabled")
+              (if isReadOnly "disabled")
             )
             value="deny"
           }}
@@ -86,7 +86,7 @@
         <div class="no-rules-enabled-warning">
           <OneIcon @icon="warning" class="no-rules-enabled-warning-icon"/>
           <div class="text">
-            {{tt this (if readonly "noRulesEnabledReadonly" "noRulesEnabled")}}
+            {{tt this (if isReadOnly "noRulesEnabledReadonly" "noRulesEnabled")}}
           </div>
           <OneLabelTip @title={{tt this "noRulesEnabledTip"}} />
         </div>
@@ -99,7 +99,7 @@
         privilegesTranslationsPath="components.aclEditor.permissions"
         comparePrivileges=persistedPermissionsTree
         overridePrivileges=initialPermissionsTree
-        editionEnabled=(not readonly)
+        editionEnabled=(not isReadOnly)
         onChange=(action "permissionsChanged")
       }}
     {{/render-later}}
