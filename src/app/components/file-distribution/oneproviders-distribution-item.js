@@ -193,6 +193,17 @@ export default Component.extend(I18n, {
   ),
 
   /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  hasSingleDir: computed(
+    'fileDistributionData.{length,0.fileType}',
+    function hasSingleDir() {
+      return this.fileDistributionData.length === 1 &&
+        this.fileDistributionData[0].fileType === LegacyFileType.Directory;
+    }
+  ),
+
+  /**
    * @type {Ember.ComputedProperty<number>}
    */
   filesSize: computedSumBy('fileDistributionData', 'fileSize'),
@@ -758,6 +769,48 @@ export default Component.extend(I18n, {
       }
     }
   ),
+
+  /**
+   * @type {ComputedProperty<{ isPrefixShown: boolean, text: SafeString }>}
+   */
+  naLocationTextSpec: computed(
+    'storageFileLocation',
+    'hasSingleRegFile',
+    'percentage',
+    'filesSizeOnStorage',
+    'hasSingleDir',
+    function naLocationTextSpec() {
+      if (this.storageFileLocation) {
+        return '';
+      }
+      let details = this.t('na');
+      let isPrefixShown = true;
+      if (this.percentage === 100 && this.filesSizeOnStorage === 0) {
+        const type = this.hasSingleRegFile ? 'file' : 'dir';
+        const typeText = this.t(type);
+        details = this.t('empty', { type: typeText });
+      } else if (this.percentage === 0) {
+        details = this.t('noReplica');
+      } else if (this.hasSingleDir) {
+        details = this.t('dirNotSupported');
+        isPrefixShown = false;
+      }
+      return {
+        isPrefixShown,
+        text: details,
+      };
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  naLocationTextDetails: reads('naLocationTextSpec.text'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isNaLocationPrefixVisible: reads('naLocationTextSpec.isPrefixShown'),
 
   startReplication() {
     const {

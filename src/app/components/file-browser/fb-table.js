@@ -672,7 +672,12 @@ export default Component.extend(...mixins, {
         );
         return;
       }
-      await sleep(0);
+      const listWatcherLock = this.listWatcher.lock();
+      try {
+        await waitForRender();
+      } finally {
+        listWatcherLock.unlock();
+      }
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
