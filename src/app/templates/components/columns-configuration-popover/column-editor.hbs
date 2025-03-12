@@ -15,7 +15,7 @@
     type="text"
     class="form-control new-item-name input-sm"
     value={{newColumnName}}
-    oninput={{action (mut newColumnName) value="target.value"}}
+    oninput={{action "changeColumnName" value="target.value"}}
     disabled={{isSaving}}
     autofocus={{false}}
   >

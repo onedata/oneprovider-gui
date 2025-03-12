@@ -11,8 +11,6 @@ export default {
   emptyValueTooltip: 'Requires non-empty key and label.',
   columnLabelExistsTooltip: 'Column with this label already exists.',
   xattrKey: {
-    customValueOptionTextPrefix: 'Custom xattr key...',
     customValueInputPlaceholder: 'Enter an xattr key...',
-    placeholder: 'Choose an xattr key...',
   },
 };

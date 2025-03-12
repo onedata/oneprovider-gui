@@ -12,7 +12,7 @@ import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import { reads, bool } from '@ember/object/computed';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
-import CustomValueDropdownField from 'onedata-gui-common/utils/form-component/custom-value-dropdown-field';
+import AutocompleteDropdownField from 'onedata-gui-common/utils/form-component/autocomplete-dropdown-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
 import {
   destroyDestroyableComputedValues,
@@ -75,14 +75,38 @@ export default Component.extend(I18n, {
   /**
    * @type {string}
    */
-  newColumnName: '',
+  xattrKeyFieldName: 'xattrKey',
+
+  xattrOptions: reads('xattrOptionsProxy.content'),
+
+  /**
+   * @type {boolean}
+   */
+  isColumnNameModified: false,
 
   /**
    * @type {string}
    */
-  xattrKeyFieldName: 'xattrKey',
+  columnName: '',
 
-  xattrOptions: reads('xattrOptionsProxy.content'),
+  /**
+   * @type {string}
+   */
+  newColumnName: computed(
+    'columnName',
+    'xattrKeyDropdownField.value',
+    'isColumnNameModified',
+    'initialDisplayedName',
+    function newColumnName() {
+      if (this.isColumnNameModified) {
+        return this.columnName;
+      }
+      if (this.initialDisplayedName) {
+        return this.initialDisplayedName;
+      }
+      return this.xattrKeyDropdownField.value;
+    }
+  ),
 
   xattrKeyRootField: destroyableComputed(
     'xattrKeyDropdownField',
@@ -101,24 +125,13 @@ export default Component.extend(I18n, {
 
   xattrKeyDropdownField: computed(
     function xattrKeyDropdownField() {
-      return CustomValueDropdownField
+      return AutocompleteDropdownField
         .extend({
           options: reads('columnEditorComponent.xattrOptions'),
-          valueChanged(option) {
-            this._super(...arguments);
-            if (
-              this.oldValue === undefined ||
-              this.oldValue === this.columnEditorComponent.newColumnName
-            ) {
-              this.set('columnEditorComponent.newColumnName', option);
-            }
-            this.set('oldValue', this.value);
-          },
         })
         .create({
           columnEditorComponent: this,
           name: this.xattrKeyFieldName,
-          oldValue: this.initialXattrKey,
           defaultValue: this.initialXattrKey,
           size: 'sm',
           isOptional: true,
@@ -186,7 +199,6 @@ export default Component.extend(I18n, {
   init() {
     initDestroyableCache(this);
     this._super(...arguments);
-    this.set('newColumnName', this.initialDisplayedName);
   },
 
   /**
@@ -203,6 +215,10 @@ export default Component.extend(I18n, {
   actions: {
     goBack() {
       this.onGoBack();
+    },
+    changeColumnName(value) {
+      this.set('isColumnNameModified', true);
+      this.set('columnName', value);
     },
     submitColumn() {
       this.onSubmitColumn(
