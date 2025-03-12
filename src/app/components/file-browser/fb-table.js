@@ -411,16 +411,18 @@ export default Component.extend(...mixins, {
     console.debug(
       `component:file-browser/fb-table#adjustScroll: adjusting scroll by ${topDiff}`
     );
-    this.scrollTopAfterFrameRender(topDiff, true);
+    const lock = this.listWatcher.lock();
+    try {
+      await this.scrollTopAfterFrameRender(topDiff, true);
+    } finally {
+      lock.unlock();
+    }
   },
 
   async scrollTopAfterFrameRender(value = 0, isDelta = false) {
-    scheduleOnce('afterRender', this, () => {
-      globals.window.requestAnimationFrame(() => {
-        safeExec(this, () => {
-          this.get('containerScrollTop')(value, isDelta);
-        });
-      });
+    await waitForRender();
+    safeExec(this, () => {
+      this.containerScrollTop(value, isDelta);
     });
   },
 
@@ -524,11 +526,7 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  /**
-   * Using sync observer to make sure that jumpToSelection will be invoked before
-   * changing start/end index that is read from DOM after jump.
-   */
-  selectedItemsForJumpObserver: syncObserver(
+  selectedItemsForJumpObserver: asyncObserver(
     'selectedItemsForJump',
     function selectedItemsForJumpObserver() {
       const {
@@ -564,8 +562,9 @@ export default Component.extend(...mixins, {
     this.registerApi(this.api);
     (async () => {
       await this.browserModel.dirProxy;
-      if (get(this.filesArray, 'initialJumpIndex')) {
-        await get(this.filesArray, 'initialLoad');
+      if (this.filesArray.initialJumpIndex) {
+        await this.filesArray.initialLoad;
+        await this.filesArray.taskQueue.waitForAllTasks();
         this.selectedItemsForJumpObserver();
       }
       this.listWatcherObserver();
@@ -636,8 +635,7 @@ export default Component.extend(...mixins, {
   },
 
   async jumpToSelection() {
-    const selectedItems = this.get('selectedItems');
-    return this.jump(selectedItems);
+    return this.jump(this.selectedItems);
   },
 
   /**
@@ -648,18 +646,15 @@ export default Component.extend(...mixins, {
     const effItem = Array.isArray(items) ? A(items).sortBy('name').objectAt(0) : items;
     const effItems = Array.isArray(items) ? items : [items];
 
-    const {
-      filesArray,
-      listWatcher,
-    } = this;
+    const { filesArray } = this;
     const {
       entityId,
       index,
     } = getProperties(effItem, 'entityId', 'index');
 
     // ensure that array is loaded and rendered
-    await get(filesArray, 'initialLoad');
-    await sleep(0);
+    await filesArray.initialLoad;
+    await waitForRender();
     if (this.isDestroyed || this.isDestroying) {
       return;
     }
@@ -684,8 +679,6 @@ export default Component.extend(...mixins, {
     }
     this.focusOnRow(entityId, false);
     this.highlightAnimateRows(effItems.map(item => get(item, 'entityId')));
-    listWatcher.scrollHandler();
-    this.filesArray.startChanged();
   },
 
   /**
