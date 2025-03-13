@@ -31,12 +31,12 @@ import { reads } from '@ember/object/computed';
  * @property {boolean} hasSubname
  * @property {boolean} hasTooltip
  * @property {ColumnType} type Distinguishes whether this is one of the
- * default columns or a user-added metadata column.
+ *   default columns or a user-added metadata column.
  * @property {string} displayedName If this is a user-added metadata column,
- * this string is used as the column label.
+ *   this string is used as the column label.
  * @property {XattrColumnOptions|JsonColumnOptions|undefined} options
  * @property {string} fileProperty Property that should be included in the file
- * requirement attributes when the column is enabled and visible.
+ *   requirement attributes when the column is enabled and visible.
  */
 
 /**
@@ -61,7 +61,7 @@ import { reads } from '@ember/object/computed';
  * @typedef {Object} JsonColumnOptions
  * @property {JsonQueryType} queryType Determines how JSON data should be queried.
  * @property {string} [jsonKey] Name of the top-level key in the JSON hierarchy.
- * This applies only if the queryType is 'key'.
+ *   This applies only if the queryType is 'key'.
  */
 
 const mixins = [

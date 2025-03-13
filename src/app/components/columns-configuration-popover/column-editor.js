@@ -21,6 +21,8 @@ import {
   initDestroyableCache,
 } from 'onedata-gui-common/utils/destroyable-computed';
 
+const defaultWholeJsonLabel = 'JSON';
+
 export default Component.extend(I18n, {
   classNames: ['column-editor'],
 
@@ -182,26 +184,19 @@ export default Component.extend(I18n, {
         valueChanged(option) {
           this._super(...arguments);
           const editor = this.columnEditorComponent;
-          if (
-            option === 'json' &&
-            editor.jsonTypeField.value === 'all' &&
-            (
-              !editor.newColumnName ||
-              editor.newColumnName === editor.xattrKeyDropdownField.value
-            )
-          ) {
-            this.set('columnEditorComponent.newColumnName', 'JSON');
-          }
-          if (
-            option === 'xattr' &&
-            editor.newColumnName === 'JSON'
-          ) {
+
+          if (option === 'json') {
+            if (editor.jsonTypeField.value === 'all') {
+              this.set('columnEditorComponent.newColumnName', defaultWholeJsonLabel);
+            } else {
+              this.set('columnEditorComponent.newColumnName', editor.newJsonKey);
+            }
+          } else if (option === 'xattr') {
             this.set(
               'columnEditorComponent.newColumnName',
               editor.xattrKeyDropdownField.value
             );
           }
-          this.set('oldValue', this.value);
         },
       })
       .create({
@@ -237,11 +232,11 @@ export default Component.extend(I18n, {
               editor.newJsonKey === editor.newColumnName
             )
           ) {
-            this.set('columnEditorComponent.newColumnName', 'JSON');
+            this.set('columnEditorComponent.newColumnName', defaultWholeJsonLabel);
           }
           if (
             option === 'key' &&
-            editor.newColumnName === 'JSON'
+            editor.newColumnName === defaultWholeJsonLabel
           ) {
             this.set('columnEditorComponent.newColumnName', editor.newJsonKey);
           }
