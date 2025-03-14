@@ -4,40 +4,35 @@
       {{tt this "protectionHeader"}}
     </span>
     <div class="inline-icon-container">
-      {{one-icon
-        icon="sign-question-rounded"
+      <OneIcon
+        @icon="sign-question-rounded"
         class="hint-trigger protection-header-hint-trigger clickable"
-      }}
+      />
     </div>
-    {{#one-switchable-popover-modal
+    <OneSwitchablePopoverModal
       class="protection-hint"
-      modalClass="modal-compact-help"
-      triggersConfiguration=".protection-header-hint-trigger"
-      layoutType="modal"
-      popoverStyle="protection-hint-info"
+      @modalClass="modal-compact-help"
+      @triggersConfiguration=".protection-header-hint-trigger"
+      @layoutType="modal"
+      @popoverStyle="protection-hint-info"
       as |ospm|
-    }}
-      {{#ospm.modal.header}}
+    >
+      <ospm.modal.header>
         <h1>{{tt this "hint.title"}}</h1>
-      {{/ospm.modal.header}}
-      {{#ospm.modal.body}}
+      </ospm.modal.header>
+      <ospm.modal.body>
         <p>{{tt this "hint.intro"}}</p>
-      {{/ospm.modal.body}}
-      {{#ospm.modal.footer}}
+      </ospm.modal.body>
+      <ospm.modal.footer>
         <div class="btn-toolbar text-right visible-xs-block">
-          {{#one-button class="btn btn-sm" type="info" onClick=ospm.close}}
+          <OneButton class="btn btn-sm" @type="info" @onClick={{ospm.close}}>
             {{tt this "hint.close"}}
-          {{/one-button}}
+          </OneButton>
         </div>
-      {{/ospm.modal.footer}}
-    {{/one-switchable-popover-modal}}
+      </ospm.modal.footer>
+    </OneSwitchablePopoverModal>
   </h1>
-  {{modal-dataset-subheader
-    datasets=(array dataset)
-  }}
+  <ModalDatasetSubheader @datasets={{array dataset}} />
 </div>
 
-{{dataset-protection/effective-info
-  file=file
-  mode="dataset"
-}}
+<DatasetProtection::EffectiveInfo @file={{file}} @mode="dataset" />

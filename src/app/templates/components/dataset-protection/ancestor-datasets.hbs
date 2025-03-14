@@ -1,28 +1,25 @@
 {{#if ancestorDatasetsProxy.isFulfilled}}
   {{#if ancestorDatasets.length}}
-    {{#dataset-protection/dataset-item
-      class=(concat-classes
+    <DatasetProtection::DatasetItem
+      class={{concat-classes
         "parent-group-dataset-item dataset-item-head-row"
         (if ancestorDatasetsCollapsed "closed" "opened")
-      )
-      dataset=virtualParentDataset
-      readonly=true
-      dataToggleReadonlyMessage=(tt this "summaryAncestorsReadonlyFlags"
+      }}
+      @dataset={{virtualParentDataset}}
+      @isReadOnly={{true}}
+      @dataToggleReadonlyMessage={{tt this "summaryAncestorsReadonlyFlags"
         protectionType=(tt this "protectionType.data")
-      )
-      metadataToggleReadonlyMessage=(tt this "summaryAncestorsReadonlyFlags"
+      }}
+      @metadataToggleReadonlyMessage={{tt this "summaryAncestorsReadonlyFlags"
         protectionType=(tt this "protectionType.metadata")
-      )
-      click=(action "toggleParentDatasetsCollapse")
-    }}
+      }}
+      @click={{action "toggleParentDatasetsCollapse"}}
+    >
       <div class="parents-collapse-text">
         <div class="dataset-label-section">
-          {{#one-icon
-            class="path-icon"
-            icon="browser-info"
-          }}
-            {{one-tooltip title=(tt this "ancestorDatasetsTip")}}
-          {{/one-icon}}
+          <OneIcon class="path-icon" @icon="browser-info">
+            <OneTooltip @title={{tt this "ancestorDatasetsTip"}} />
+          </OneIcon>
           <div class="dataset-label">
             {{tt this "ancestorDatasets"}} ({{ancestorDatasets.length}})
           </div>
@@ -30,34 +27,31 @@
             "inline-icon-container collapse-icon-container"
             (if ancestorDatasetsCollapsed "closed" "opened")
           }}>
-            {{one-icon
-              class="collapse-icon"
-              icon="arrow-down"
-            }}
+            <OneIcon class="collapse-icon" @icon="arrow-down" />
           </div>
         </div>
       </div>
-    {{/dataset-protection/dataset-item}}
-    {{#dataset-protection/datasets-list-container
-      getDataUrl=getDataUrl
-      getDatasetsUrl=getDatasetsUrl
-      mode=mode
-      datasets=ancestorDatasets
+    </DatasetProtection::DatasetItem>
+    <DatasetProtection::DatasetsListContainer
+      @getDataUrl={{getDataUrl}}
+      @getDatasetsUrl={{getDatasetsUrl}}
+      @mode={{mode}}
+      @datasets={{ancestorDatasets}}
       as |dataList|
-    }}
+    >
       {{#each dataList as |data|}}
-        {{#dataset-protection/dataset-item
-          class=(concat-classes
+        <DatasetProtection::DatasetItem
+          class={{concat-classes
             "parent-dataset-item"
             (if ancestorDatasetsCollapsed "closed" "opened")
-          )
-          dataset=data.dataset
-          readonly=readonly
-          togglesReadonlyMessage=insufficientEditPrivilegesMessage
-          updateOpenedFileData=updateOpenedFileData
-        }}
+          }}
+          @dataset={{data.dataset}}
+          @isReadOnly={{isReadOnly}}
+          @togglesReadonlyMessage={{insufficientEditPrivilegesMessage}}
+          @updateOpenedFileData={{updateOpenedFileData}}
+        >
           <div class="dataset-label-section">
-            {{one-icon class="path-icon" icon=ancestorIcon}}
+            <OneIcon class="path-icon" @icon={{ancestorIcon}} />
             <div class="dataset-label path-label">
               <a
                 onclick={{action "ancestorLinkClicked"}}
@@ -69,22 +63,19 @@
               </a>
             </div>
           </div>
-        {{/dataset-protection/dataset-item}}
+        </DatasetProtection::DatasetItem>
       {{/each}}
-    {{/dataset-protection/datasets-list-container}}
+    </DatasetProtection::DatasetsListContainer>
   {{else}}
     <tr class="dataset-item dataset-item-head-row no-parent-datasets-row">
       <td class="no-parent-datasets-cell col-dataset-info">
         <span class="parents-collapse-text parents-collapse-text-empty">
           <div class="dataset-label-section">
-            {{#one-icon
-              class="path-icon no-dataset-icon"
-              icon="browser-info"
-            }}
-              {{one-tooltip title=(tt this "noAncestorDatasetsTip"
+            <OneIcon class="path-icon no-dataset-icon" @icon="browser-info">
+              <OneTooltip @title={{tt this "noAncestorDatasetsTip"
                 fileType=(tt this (concat "fileType." fileType))
-              )}}
-            {{/one-icon}}
+              }} />
+            </OneIcon>
             <div class="dataset-label no-parent-datasets-text">
               {{tt this "noAncestorDatasets"
                 fileType=(tt this (concat "fileType." fileType))
@@ -103,14 +94,14 @@
   >
     {{#if ancestorDatasetsProxy.isRejected}}
       <td class="col-dataset-info" colspan="3">
-        {{resource-load-error
-          message=(tt this "cannotLoadAncestorDatasets")
-          reason=ancestorDatasetsProxy.reason
-        }}
+        <ResourceLoadError
+          @message={{tt this "cannotLoadAncestorDatasets"}}
+          @reason={{ancestorDatasetsProxy.reason}}
+        />
       </td>
     {{else}}
       <td class="col-dataset-info">
-        {{spin-spinner-block class="dataset-items-spinner" sizeClass="xs"}}
+        <SpinSpinnerBlock class="dataset-items-spinner" @sizeClass="xs" />
       </td>
       <td class="col-dataset-protection col-dataset-protection-data"></td>
       <td class="col-dataset-protection col-dataset-protection-metadata"></td>

@@ -1,10 +1,13 @@
 <p class="description">{{descriptionText}}</p>
 <div class="visualization-container">
   <div class="source-oneprovider-visualization">
-    {{one-icon icon="provider" class="oneprovider-icon"}}
+    <OneIcon @icon="provider" class="oneprovider-icon" />
     <div class="oneprovider-name">{{sourceOneprovider.name}}</div>
   </div>
-  {{#one-arrow direction=(if (media "isMobile") "down" "right") arrowText=(tt this "migrationArrowText")}}
+  <OneArrow
+    @direction={{if (media "isMobile") "down" "right"}}
+    @arrowText={{tt this "migrationArrowText"}}
+  >
     <div class="transfer-animation-positioner">
       <div class="transfer-animation-container">
         <div class="wind-container">
@@ -12,10 +15,10 @@
           <div class="wind-element"></div>
           <div class="wind-element"></div>
         </div>
-        {{one-icon class="file-icon" icon="browser-file"}}
+        <OneIcon class="file-icon" @icon="browser-file" />
       </div>
     </div>
-  {{/one-arrow}}
+  </OneArrow>
   <OneDropdown
     @triggerClass="small target-oneprovider-selector"
     @dropdownClass="small target-oneprovider-dropdown"
@@ -28,27 +31,27 @@
     @searchEnabled={{true}}
     as |item|
   >
-    {{#truncated-string}}
+    <TruncatedString>
       <div class="inline-icon-container">
-        {{one-icon icon="provider"}}
+        <OneIcon @icon="provider" />
       </div>
       <span class="oneprovider-name">{{item.text}}</span>
-    {{/truncated-string}}
+    </TruncatedString>
   </OneDropdown>
 </div>
 <div class="btn-toolbar">
-  {{#one-button onClick=onCancel disabled=(not canCancel) size="sm"}}
+  <OneButton @onClick={{onCancel}} @disabled={{not canCancel}} @size="sm">
     {{tt this "cancelButton"}}
-  {{/one-button}}
-  {{#one-button
-    onClick=(action "migrate")
-    type="primary"
-    buttonType="submit"
-    size="sm"
+  </OneButton>
+  <OneButton
+    @onClick={{action "migrate"}}
+    @type="primary"
+    @buttonType="submit"
+    @size="sm"
     class="start-migration"
-    disabled=(not canMigrate)
-  }}
+    @disabled={{not canMigrate}}
+  >
     {{tt this "migrateButton"}}
-  {{/one-button}}
+  </OneButton>
 </div>
 {{yield}}

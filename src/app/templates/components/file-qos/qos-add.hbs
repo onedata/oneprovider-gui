@@ -3,7 +3,7 @@
     <table class="table table-info table-info-large table-info-collapsible">
       <tbody>
         <tr class="qos-info-row-replicas-number">
-          <td class="property-name {{unless readonly "with-input"}}">
+          <td class="property-name {{unless isReadOnly "with-input"}}">
             {{tt this "replicasNumber"}}
           </td>
           <td class="property-value form-horizontal">
@@ -26,57 +26,57 @@
           </td>
         </tr>
         <tr class="qos-info-row-expression">
-          <td class="property-name {{unless readonly "with-input"}}">
+          <td class="property-name {{unless isReadOnly "with-input"}}">
             <div class="qos-label-expression">{{tt this "expression"}}</div>
           </td>
           <td class="property-value form-horizontal relative">
-            {{#promise-proxy-container
-              proxy=queryPropertiesProxy
-              sizeClass="xs"
-              spinnerBlockClass="spinner-qos-expression-editor"
-              absoluteCentered=true
-            }}
+            <PromiseProxyContainer
+              @proxy={{queryPropertiesProxy}}
+              @sizeClass="xs"
+              @spinnerBlockClass="spinner-qos-expression-editor"
+              @absoluteCentered={{true}}
+            >
               {{#if (eq inputMode "visual")}}
-                {{#query-builder
-                  queryProperties=queryPropertiesProxy.content
-                  valuesBuilder=valuesBuilder
-                  operators=(array "and" "or" "except")
-                  popoverPlacement="auto-top"
-                  rootQueryBlock=rootQueryBlock
-                  readonly=false
-                  refreshQueryProperties=(action "refreshQueryProperties")
-                  onValidityChange=(action (mut queryBuilderValid))
-                }}
+                <QueryBuilder
+                  @queryProperties={{queryPropertiesProxy.content}}
+                  @valuesBuilder={{valuesBuilder}}
+                  @operators={{array "and" "or" "except"}}
+                  @popoverPlacement="auto-top"
+                  @rootQueryBlock={{rootQueryBlock}}
+                  @isReadOnly={{false}}
+                  @refreshQueryProperties={{action "refreshQueryProperties"}}
+                  @onValidityChange={{action (mut queryBuilderValid)}}
+                >
                   {{#unless rootQueryBlock.operands.length}}
                     <a class="enter-text-link clickable" {{action "enterTextClicked"}}>
                       {{tt this "enterText"}}
                     </a>
                   {{/unless}}
-                {{/query-builder}}
+                </QueryBuilder>
               {{else if (eq inputMode "text")}}
-                {{one-inline-editor
+                <OneInlineEditor
                   class="query-text-input"
-                  value=inputText
-                  isEditing=true
-                  onInputValueChanged=(action (mut inputText))
-                  onEdit=(action "textModeOnEdit")
-                  onSave=(action "textModeApply")
-                  inputPlaceholder=(tt this "enterQosExpression")
-                }}
+                  @value={{inputText}}
+                  @isEditing={{true}}
+                  @onInputValueChanged={{action (mut inputText)}}
+                  @onEdit={{action "textModeOnEdit"}}
+                  @onSave={{action "textModeApply"}}
+                  @inputPlaceholder={{tt this "enterQosExpression"}}
+                />
               {{/if}}
               <div class="qos-subheader-container">
                 <div class="qos-subheader qos-info-subheader with-icon-left">
-                  {{qos-evaluation-info qosEvaluationProxy=qosEvaluationProxy}}
+                  <QosEvaluationInfo @qosEvaluationProxy={{qosEvaluationProxy}} />
                 </div>
                 {{#if rootQueryBlock.operands.length}}
                   <div class="qos-subheader qos-expression-copy-subheader">
-                    {{#one-copy-button
+                    <OneCopyButton
                       class="clipboard-btn expression-clipboard-btn clickable"
-                      clipboardTarget=(local-selector
+                      @clipboardTarget={{local-selector
                         elementId
                         ".hidden-clipboard-source.raw-expression-infix"
-                      )
-                    }}
+                      }}
+                    >
                       <span class="copy-expression-text">
                         {{tt this "copyExpression"}}
                       </span>
@@ -85,17 +85,19 @@
                         "copy-expression-icon-container"
                         "info-icon"
                       }}>
-                        {{one-icon icon="browser-copy"}}
+                        <OneIcon @icon="browser-copy" />
                       </div>
                       {{#if expressionInfix}}
                         {{!-- do not break line, because Firefox interprets it as extra line in raw code vieew --}}
-                        {{#one-tooltip class="tooltip-lg"}}<code class="raw-expression-infix-preview">{{expressionInfix}}</code>{{/one-tooltip}}
+                        <OneTooltip
+                          class="tooltip-lg"
+                        ><code class="raw-expression-infix-preview">{{expressionInfix}}</code></OneTooltip>
                       {{/if}}
-                    {{/one-copy-button}}
+                    </OneCopyButton>
                   </div>
                 {{/if}}
               </div>
-            {{/promise-proxy-container}}
+            </PromiseProxyContainer>
           </td>
         </tr>
       </tbody>

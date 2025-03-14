@@ -18,15 +18,15 @@
     >
       <span class="tag-text">{{creatingStateLabel}}</span>
       {{#if (eq displayedState.archiveCreating.membership "ancestor")}}
-        {{one-icon
+        <OneIcon
           class="tag-icon archive-creating-inherited-icon inherited-icon"
-          icon=inheritedIcon
-        }}
+          @icon={{inheritedIcon}}
+        />
       {{/if}}
-      {{#one-tooltip}}
+      <OneTooltip>
         <p class="semibold">{{tt this "parentArchiveState"}}:</p>
-        <p>{{archive-state archive=archive}}</p>
-      {{/one-tooltip}}
+        <p><ArchiveState @archive={{archive}} /></p>
+      </OneTooltip>
     </div>
   </div>
 {{/if}}
@@ -53,14 +53,14 @@
         {{tt this "failed"}}
       </span>
       {{#if (eq displayedState.archiveFailed.membership "ancestor")}}
-        {{one-icon
+        <OneIcon
           class="tag-icon archive-failed-inherited-icon inherited-icon"
-          icon=inheritedIcon
-        }}
+          @icon={{inheritedIcon}}
+        />
       {{/if}}
-      {{#one-tooltip}}
+      <OneTooltip>
         {{tt this "failedArchiveBuild"}}
-      {{/one-tooltip}}
+      </OneTooltip>
     </div>
   </div>
 {{/if}}
@@ -87,14 +87,14 @@
         {{tt this "cancelled"}}
       </span>
       {{#if (eq displayedState.archiveCancelled.membership "ancestor")}}
-        {{one-icon
+        <OneIcon
           class="tag-icon archive-cancelled-inherited-icon inherited-icon"
-          icon=inheritedIcon
-        }}
+          @icon={{inheritedIcon}}
+        />
       {{/if}}
-      {{#one-tooltip}}
+      <OneTooltip>
         {{tt this "cancelledArchiveBuild"}}
-      {{/one-tooltip}}
+      </OneTooltip>
     </div>
   </div>
 {{/if}}

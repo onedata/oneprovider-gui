@@ -8,10 +8,10 @@
     <h1 class="section-name">
       {{tt this (if (media "isMobile") "common.metadataMobile" "common.metadata")}}
       {{#if (media "isMobile")}}
-        {{one-label-tip title=(tt this "common.metadataPublicHeaderTip.dc")}}
+        <OneLabelTip @title={{tt this "common.metadataPublicHeaderTip.dc"}} />
       {{/if}}
     </h1>
-    {{share-show/public-data-mode-switch mode=mode onModeChange=(action changeMode)}}
+    <ShareShow::PublicDataModeSwitch @mode={{mode}} @onModeChange={{action changeMode}} />
     {{#if isModifyButtonShown}}
       <div class="btn-tooltip-container">
         <OneButton
@@ -35,14 +35,14 @@
     </p>
     <p class="metadata-text">
       {{tt this "common.metadataEditorIntroExtra.dc"}}
-      {{one-label-tip title=(tt this "editor.metadataTextMore")}}
+      <OneLabelTip @title={{tt this "editor.metadataTextMore"}} />
     </p>
   </div>
 {{/unless}}
 
 <div class={{concat-classes colClassname "col-public-data-editor-main"}}>
-  {{#one-carousel animated=false activeSlideId=mode as |carousel|}}
-    {{#carousel.slide slideId="visual"}}
+  <OneCarousel @animated={{false}} @activeSlideId={{mode}} as |carousel|>
+    <carousel.slide @slideId="visual">
       <div class="row row-metadata-form {{if (eq groupedEntries.length 0) "no-entries"}}">
         {{#each groupedEntries as |group|}}
           <div class="metadata-group">
@@ -51,18 +51,18 @@
                 {{tt this (concat "common.dcElementNames." group.type)}}
               </h2>
               <div class="group-add-entry">
-                {{#one-button
-                  type="default"
+                <OneButton
+                  @type="default"
                   class="btn-sm btn-add-entry"
-                  disabled=formDisabled
-                  onClick=(action "addEntry" group.type)
-                }}
-                  {{one-icon class="add-icon" icon="add-filled"}}
+                  @disabled={{formDisabled}}
+                  @onClick={{action "addEntry" group.type}}
+                >
+                  <OneIcon class="add-icon" @icon="add-filled" />
                   <span class="text">
                     {{tt this "editor.add"}}
                     {{lowercase (tt this (concat "common.dcElementNames." group.type))}}
                   </span>
-                {{/one-button}}
+                </OneButton>
               </div>
             </div>
             {{#each group.values as |value index|}}
@@ -100,10 +100,10 @@
                     oninput={{action "setValue" group.type index}}
                   >
                 {{/if}}
-                {{remove-icon
-                  isDisabled=formDisabled
-                  onClick=(action "removeEntry" group.type index)
-                }}
+                <RemoveIcon
+                  @isDisabled={{formDisabled}}
+                  @onClick={{action "removeEntry" group.type index}}
+                />
               </div>
             {{/each}}
           </div>
@@ -122,16 +122,16 @@
           as |groupType|
         >
           <div class="option-container" data-group-type={{groupType}}>
-            {{#truncated-string}}
+            <TruncatedString>
               <span class="text">
                 {{tt this (concat "common.dcElementNames." groupType)}}
               </span>
-            {{/truncated-string}}
+            </TruncatedString>
           </div>
         </OneDropdown>
       </div>
-    {{/carousel.slide}}
-    {{#carousel.slide slideId="xml"}}
+    </carousel.slide>
+    <carousel.slide @slideId="xml">
       <div class="form-group public-data-xml-form-group {{if parserError "has-error"}}">
         <textarea
           value={{currentXmlValue}}
@@ -149,8 +149,8 @@
           {{/if}}
         </div>
       </div>
-    {{/carousel.slide}}
-  {{/one-carousel}}
+    </carousel.slide>
+  </OneCarousel>
 </div>
 
 <ShareShow::MetadataEditorFooter

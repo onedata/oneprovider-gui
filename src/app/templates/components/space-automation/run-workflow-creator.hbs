@@ -1,14 +1,14 @@
-{{#one-carousel activeSlideId=activeSlide as |carousel|}}
-  {{#carousel.slide slideId="list"}}
+<OneCarousel @activeSlideId={{activeSlide}} as |carousel|>
+  <carousel.slide @slideId="list">
     <h1 class="slide-header">{{tt this "slides.list.header"}}</h1>
     <div class="row loadable-row">
-      {{space-automation/atm-workflow-schemas-list
-        onAtmWorkflowSchemaRevisionSelect=(action "atmWorkflowSchemaRevisionSelected")
-      }}
+      <SpaceAutomation::AtmWorkflowSchemasList
+        @onAtmWorkflowSchemaRevisionSelect={{action "atmWorkflowSchemaRevisionSelected"}}
+      />
     </div>
-  {{/carousel.slide}}
-  {{#carousel.slide slideId="setup"}}
-    {{#promise-proxy-container proxy=atmWorkflowSchemaToRunProxy}}
+  </carousel.slide>
+  <carousel.slide @slideId="setup">
+    <PromiseProxyContainer @proxy={{atmWorkflowSchemaToRunProxy}}>
       <h1 class="slide-header">
         {{tt this "slides.setup.header"
           atmWorkflowSchemaName=atmWorkflowSchemaToRunProxy.name
@@ -18,53 +18,53 @@
         <div class="form-container">
           <h2>{{tt this "slides.setup.inputDataHeader"}}</h2>
           {{#if areInitialContentsNeeded}}
-            {{space-automation/input-stores-form
-              atmWorkflowSchema=atmWorkflowSchemaToRunProxy.content
-              atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumberToRun
-              loadValuesFromLocalStorage=fillInputStores
-              space=space
-              onChange=(action "inputStoresChanged")
-              isDisabled=isStartingWorkflow
-            }}
+            <SpaceAutomation::InputStoresForm
+              @atmWorkflowSchema={{atmWorkflowSchemaToRunProxy.content}}
+              @atmWorkflowSchemaRevisionNumber={{atmWorkflowSchemaRevisionNumberToRun}}
+              @loadValuesFromLocalStorage={{fillInputStores}}
+              @space={{space}}
+              @onChange={{action "inputStoresChanged"}}
+              @isDisabled={{isStartingWorkflow}}
+            />
           {{else}}
             <div class="nothing-to-provide-message">
-              {{one-icon icon="checkbox-filled"}}
+              <OneIcon @icon="checkbox-filled" />
               {{tt this "slides.setup.nothingToProvideMessage"}}
             </div>
           {{/if}}
         </div>
         <div class="form-container">
           <h2>{{tt this "slides.setup.optionsHeader"}}</h2>
-          {{space-automation/execution-options-form
-            onChange=(action "executionOptionsChanged")
-            isDisabled=isStartingWorkflow
-          }}
+          <SpaceAutomation::ExecutionOptionsForm
+            @onChange={{action "executionOptionsChanged"}}
+            @isDisabled={{isStartingWorkflow}}
+          />
         </div>
         <div class="btn-toolbar footer-buttons">
           {{#if (not fillInputStores)}}
-            {{#one-button
+            <OneButton
               class="btn-back"
-              disabled=isStartingWorkflow
-              onClick=(action "backSlide")
-            }}
-              {{one-icon icon="arrow-left" class="hidden-custom-xs"}}
+              @disabled={{isStartingWorkflow}}
+              @onClick={{action "backSlide"}}
+            >
+              <OneIcon @icon="arrow-left" class="hidden-custom-xs" />
               <span class="text">
                 {{tt this "slides.setup.backBtn"}}
               </span>
-            {{/one-button}}
+            </OneButton>
           {{/if}}
-          {{#one-button
-            type="primary"
-            buttonType="submit"
+          <OneButton
+            @type="primary"
+            @buttonType="submit"
             class="btn-submit"
-            onClick=(action "runWorkflow")
-            disabled=(not areInputStoresValid)
-          }}
+            @onClick={{action "runWorkflow"}}
+            @disabled={{not areInputStoresValid}}
+          >
             {{tt this "slides.setup.runWorkflowBtn"}}
-          {{/one-button}}
+          </OneButton>
         </div>
       </div>
-    {{/promise-proxy-container}}
-  {{/carousel.slide}}
-{{/one-carousel}}
+    </PromiseProxyContainer>
+  </carousel.slide>
+</OneCarousel>
 {{yield}}

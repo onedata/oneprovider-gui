@@ -2,7 +2,7 @@
   <div class="progress-bar-scale-container"></div>
   {{#if isDataIncomplete}}
     <div class="progress-bar-text na-text error-text">
-      {{#truncated-string}}
+      <TruncatedString>
         {{#if (eq errorOnStorage.id "dirStatsDisabledForSpace")}}
           <a
             href={{providersUrl}}
@@ -10,18 +10,18 @@
             target={{navigateProvidersTarget}}
           >
             {{tt this "disableStatistics"}}
-            {{one-icon icon="overview" class="inline-icon-container dir-stats-icon"}}
-            {{one-tooltip title=(tt this "naTip")}}
+            <OneIcon @icon="overview" class="inline-icon-container dir-stats-icon" />
+            <OneTooltip @title={{tt this "naTip"}} />
           </a>
         {{else if errorOnStorage}}
           {{tt this "error"}}
-          {{one-icon
-            icon="sign-warning-rounded"
+          <OneIcon
+            @icon="sign-warning-rounded"
             class="inline-icon-container error-icon"
-          }}
-          {{one-tooltip title=errorMessage}}
+          />
+          <OneTooltip @title={{errorMessage}} />
         {{/if}}
-      {{/truncated-string}}
+      </TruncatedString>
     </div>
     <div class="progress-bar-background"></div>
   {{else}}

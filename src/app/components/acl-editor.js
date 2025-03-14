@@ -24,7 +24,7 @@ import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend(I18n, {
   classNames: ['acl-editor'],
-  classNameBindings: ['readonly'],
+  classNameBindings: ['isReadOnly:readonly'],
 
   i18n: service(),
 
@@ -76,7 +76,7 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {Boolean}
    */
-  readonly: false,
+  isReadOnly: false,
 
   /**
    * @virtual

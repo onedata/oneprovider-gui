@@ -18,26 +18,28 @@
               onmouseover={{action "rootItemInfoHovered" true}}
               onmouseleave={{action "rootItemInfoHovered" false}}
             >
-              {{flippable-icons
-                iconName=rootIcon
-                isHovered=isRootItemInfoHovered
-                suppressFlipping=isRootItemInfoOpened
-              }}
+              <FlippableIcons
+                @iconName={{rootIcon}}
+                @isHovered={{isRootItemInfoHovered}}
+                @suppressFlipping={{isRootItemInfoOpened}}
+              />
             </div>
-            {{#record-info-popover
-              isOpened=isRootItemInfoOpened
-              triggerSelector=(concat "#" elementId " .icon-info-trigger")
-            }}
-              {{space-info-content
-                record=space
-                closeSpaceInfoPopover=(action "closeSpaceInfoPopover")
-              }}
-            {{/record-info-popover}}
+            <RecordInfoPopover
+              @isOpened={{isRootItemInfoOpened}}
+              @triggerSelector={{concat "#" elementId " .icon-info-trigger"}}
+            >
+              <SpaceInfoContent
+                @record={{space}}
+                @closeSpaceInfoPopover={{action "closeSpaceInfoPopover"}}
+              />
+            </RecordInfoPopover>
           {{else}}
             <div class="inline-icon-container root-icon-container">
-              {{one-icon icon=rootIcon}}
+              <OneIcon @icon={{rootIcon}} />
               {{#if item.isRoot}}
-                {{one-tooltip title=filteredBreadcrumbsItemsProxy.firstObject.file.name}}
+                <OneTooltip
+                  @title={{filteredBreadcrumbsItemsProxy.firstObject.file.name}}
+                />
               {{/if}}
             </div>
           {{/if}}
@@ -50,9 +52,9 @@
               onmouseover={{if (eq rootIcon "space") (action "rootItemInfoHovered" true)}}
               onmouseleave={{if (eq rootIcon "space") (action "rootItemInfoHovered" false)}}
             >
-              {{#truncated-string}}
+              <TruncatedString>
                 {{item.name}}
-              {{/truncated-string}}
+              </TruncatedString>
             </span>
           {{/if}}
         {{else}}
@@ -60,12 +62,12 @@
         {{/if}}
       </a>
       {{#if item.extraName}}
-        {{one-label-tip
+        <OneLabelTip
           class="extra-name-label-tip"
-          tooltipClass=extraNameTooltipClass
-          icon=extraNameIcon
-          title=item.extraName
-        }}
+          @tooltipClass={{extraNameTooltipClass}}
+          @icon={{extraNameIcon}}
+          @title={{item.extraName}}
+        />
       {{/if}}
     </div>
     <div class="fb-breadcrumbs-separator fb-breadcrumbs-element"></div>
@@ -88,24 +90,24 @@
             onmouseover={{action "rootItemInfoHovered" true}}
             onmouseleave={{action "rootItemInfoHovered" false}}
           >
-            {{flippable-icons
-              iconName=rootIcon
-              isHovered=isRootItemInfoHovered
-              suppressFlipping=isRootItemInfoOpened
-            }}
+            <FlippableIcons
+              @iconName={{rootIcon}}
+              @isHovered={{isRootItemInfoHovered}}
+              @suppressFlipping={{isRootItemInfoOpened}}
+            />
           </div>
-          {{#record-info-popover
-            isOpened=isRootItemInfoOpened
-            triggerSelector=(concat "#" elementId " .icon-info-last-element-trigger")
-          }}
-            {{space-info-content
-              record=space
-              closeSpaceInfoPopover=(action "closeSpaceInfoPopover")
-            }}
-          {{/record-info-popover}}
+          <RecordInfoPopover
+            @isOpened={{isRootItemInfoOpened}}
+            @triggerSelector={{concat "#" elementId " .icon-info-last-element-trigger"}}
+          >
+            <SpaceInfoContent
+              @record={{space}}
+              @closeSpaceInfoPopover={{action "closeSpaceInfoPopover"}}
+            />
+          </RecordInfoPopover>
         {{else}}
           <div class="inline-icon-container root-icon-container">
-            {{one-icon icon=rootIcon}}
+            <OneIcon @icon={{rootIcon}} />
           </div>
         {{/if}}
       {{/if}}
@@ -122,36 +124,36 @@
           onmouseleave={{if areItemsEmpty (action "rootItemInfoHovered" false)}}
         >{{currentItem.name}}</span>
         {{#if currentItem.extraName}}
-          {{one-label-tip
+          <OneLabelTip
             class="extra-name-label-tip"
-            tooltipClass=extraNameTooltipClass
-            icon=extraNameIcon
-            title=currentItem.extraName
-          }}
+            @tooltipClass={{extraNameTooltipClass}}
+            @icon={{extraNameIcon}}
+            @title={{currentItem.extraName}}
+          />
         {{/if}}
         <div class="inline-icon-container breadcrumbs-current-dir-actions-trigger">
-          {{one-icon icon="arrow-down"}}
+          <OneIcon @icon="arrow-down" />
         </div>
-        {{#one-webui-popover
-          popoverStyle="with-dropdown webui-popover-in-fb-head"
-          padding=false
-          popoverTrigger="manual"
-          triggerSelector=(concat "#" elementId " .breadcrumbs-current-dir-actions-trigger")
-          open=dirActionsOpen
-          placement="bottom"
+        <OneWebuiPopover
+          @popoverStyle="with-dropdown webui-popover-in-fb-head"
+          @padding={{false}}
+          @popoverTrigger="manual"
+          @triggerSelector={{concat "#" elementId " .breadcrumbs-current-dir-actions-trigger"}}
+          @open={{dirActionsOpen}}
+          @placement="bottom"
           as |popover|
-        }}
-          {{#click-outside onClickOutside=(action "toggleDirActions" false)}}
-            {{#popover-content-limit opened=popover.visible}}
-              {{actions-popover-content
-                actionsArray=menuButtons
-                actionsArg=(array currentItem.file)
-                actionClicked=(action "actionClicked")
+        >
+          <ClickOutside @onClickOutside={{action "toggleDirActions" false}}>
+            <PopoverContentLimit @opened={{popover.visible}}>
+              <ActionsPopoverContent
+                @actionsArray={{menuButtons}}
+                @actionsArg={{array currentItem.file}}
+                @actionClicked={{action "actionClicked"}}
                 class="dir-actions ps--focus"
-              }}
-            {{/popover-content-limit}}
-          {{/click-outside}}
-        {{/one-webui-popover}}
+              />
+            </PopoverContentLimit>
+          </ClickOutside>
+        </OneWebuiPopover>
       </span>
     </a>
   {{else}}
@@ -162,21 +164,21 @@
       >
         {{#if areItemsEmpty}}
           <div class="inline-icon-container root-icon-container">
-            {{one-icon icon=rootIcon}}
+            <OneIcon @icon={{rootIcon}} />
           </div>
         {{/if}}
         {{currentItem.name}}
         {{#if currentItem.isRoot}}
-          {{one-tooltip title=currentItem.name}}
+          <OneTooltip @title={{currentItem.name}} />
         {{/if}}
       </a>
       {{#if currentItem.extraName}}
-        {{one-label-tip
+        <OneLabelTip
           class="extra-name-label-tip"
-          tooltipClass=extraNameTooltipClass
-          icon=extraNameIcon
-          title=currentItem.extraName
-        }}
+          @tooltipClass={{extraNameTooltipClass}}
+          @icon={{extraNameIcon}}
+          @title={{currentItem.extraName}}
+        />
       {{/if}}
     </div>
   {{/if}}

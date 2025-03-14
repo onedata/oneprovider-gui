@@ -1,43 +1,43 @@
-{{#one-modal
-  open=open
-  backdropClose=false
-  keyboard=false
-  onHide=(action "close")
+<OneModal
+  @open={{open}}
+  @backdropClose={{false}}
+  @keyboard={{false}}
+  @onHide={{action "close"}}
   class="proceed-modal fb-remove-modal"
   as |modal|
-}}
-  {{#modal.header}}
+>
+  <modal.header>
     <h1>{{tt this "delete"}}</h1>
-  {{/modal.header}}
-  {{#modal.body}}
+  </modal.header>
+  <modal.body>
     <div class="row row-delete-question">
       {{tt this "questionPrefix"}}
       {{tt this (concat "questionSuffix." itemsType) count=files.length
-      }}{{#if filesContainDirectory}}&nbsp;{{one-label-tip
-        title=(tt this "questionNestedSharesInfo")
-        icon="sign-info-rounded"
-      }}{{/if}}
+      }}{{#if filesContainDirectory}}&nbsp;<OneLabelTip
+        @title={{tt this "questionNestedSharesInfo"}}
+        @icon="sign-info-rounded"
+      />{{/if}}
     </div>
     <div class="browsable-items-info">
       {{#if (eq files.length 1)}}
-        {{single-file-info class="single-item" file=firstFile}}
+        <SingleFileInfo class="single-item" @file={{firstFile}} />
       {{else if (lte files.length maxDisplayFiles)}}
         <div class="row row-delete-files-list row-items-list">
           {{#each files as |file|}}
             <div class="row-delete-file-item row-item">
               <div class="file-item-icon browsable-item-icon">
-                {{one-icon
-                  icon=(if (eq file.type "dir") "browser-directory" "browser-file")
-                }}
+                <OneIcon
+                  @icon={{if (eq file.type "dir") "browser-directory" "browser-file"}}
+                />
               </div>
-              {{#truncated-string class="delete-file-name"}}
-                {{file-name-conflict file=file}}
-              {{/truncated-string}}
-              {{#one-label-tip
-                tooltipClass="fb-remove-modal-file-tooltip browsable-items-info-tooltip tooltip-lg"
+              <TruncatedString class="delete-file-name">
+                <FileNameConflict @file={{file}} />
+              </TruncatedString>
+              <OneLabelTip
+                @tooltipClass="fb-remove-modal-file-tooltip browsable-items-info-tooltip tooltip-lg"
                 class="file-info-tip-trigger item-info-tip-trigger"
-                icon="sign-info-rounded"
-              }}
+                @icon="sign-info-rounded"
+              >
                 {{#if (eq file.type "file")}}
                   <div class="text-left">
                     <span class="file-info-label item-info-label">
@@ -60,7 +60,7 @@
                     }}
                   </span>
                 </div>
-              {{/one-label-tip}}
+              </OneLabelTip>
             </div>
           {{/each}}
         </div>
@@ -72,23 +72,23 @@
         </p>
       {{/if}}
     </div>
-  {{/modal.body}}
+  </modal.body>
 
-  {{#modal.footer class="btn-toolbar"}}
-    {{#one-button disabled=processing onClick=(action "close") class="cancel"}}
+  <modal.footer class="btn-toolbar">
+    <OneButton @disabled={{processing}} @onClick={{action "close"}} class="cancel">
       {{tt this "no"}}
-    {{/one-button}}
-    {{#one-button
-      type="danger"
-      buttonType="submit"
-      onClick=(action "remove")
+    </OneButton>
+    <OneButton
+      @type="danger"
+      @buttonType="submit"
+      @onClick={{action "remove"}}
       class="proceed remove-proceed"
-      disabled=processing
-    }}
+      @disabled={{processing}}
+    >
       {{tt this "yes"}}
       {{#if (and processing (gt filesToRemoveCount 1))}}
         ({{filesProcessedCount}}/{{filesToRemoveCount}})
       {{/if}}
-    {{/one-button}}
-  {{/modal.footer}}
-{{/one-modal}}
+    </OneButton>
+  </modal.footer>
+</OneModal>

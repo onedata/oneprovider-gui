@@ -81,7 +81,7 @@ export default EmberObject.extend(...mixins, {
    * @virtual optional
    * @type {Boolean}
    */
-  readonly: false,
+  isReadOnly: false,
 
   /**
    * @virtual optional
@@ -205,7 +205,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effectiveReadonly: or('readonly', 'effectiveReadonlyTip'),
+  effectiveReadonly: or('isReadOnly', 'effectiveReadonlyTip'),
 
   isRootDir: and(
     not('isMultiFile'),

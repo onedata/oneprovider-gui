@@ -40,7 +40,7 @@ export default BaseTabModel.extend(...mixins, {
    * @virtual
    * @type {boolean}
    */
-  readonly: undefined,
+  isReadOnly: undefined,
 
   /**
    * @override
@@ -132,12 +132,12 @@ export default BaseTabModel.extend(...mixins, {
   /**
    * @type {ComputedProperty<Utils.FilePermissionsViewModel>}
    */
-  viewModel: computed('files.[]', 'space', 'readonly', function viewModel() {
+  viewModel: computed('files.[]', 'space', 'isReadOnly', function viewModel() {
     return FilePermissionsViewModel.create({
       ownerSource: this,
       files: this.files,
       space: this.space,
-      readonly: this.readonly,
+      isReadOnly: this.isReadOnly,
     });
   }),
 
