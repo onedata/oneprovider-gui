@@ -12,7 +12,7 @@ import { get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import { inject as service } from '@ember/service';
-import { resolve, all as allFulfilled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import $ from 'jquery';
 import { next } from '@ember/runloop';
@@ -147,7 +147,7 @@ export default Component.extend({
       transferManager,
       space,
       type,
-    } = this.getProperties('transferManager', 'space', 'type');
+    } = this;
     return transferManager.getTransfersForSpace(
       space,
       type,
@@ -202,10 +202,11 @@ export default Component.extend({
       endIndex = Math.max(Math.floor(blankEnd / this.rowHeight), 0);
     } else {
       startIndex = transfersArrayIds.indexOf(firstId);
-      endIndex = transfersArrayIds.indexOf(lastId, startIndex);
+      const searchEndFrom = startIndex === -1 ? 0 : startIndex;
+      endIndex = transfersArrayIds.indexOf(lastId, searchEndFrom);
     }
 
-    transfersArray.setProperties({ startIndex, endIndex });
+    transfersArray.setIndices(startIndex, endIndex);
 
     next(() => {
       const isBackwardLoading = startIndex > 0 &&
@@ -219,26 +220,22 @@ export default Component.extend({
     });
   },
 
-  updateTransfersArray() {
+  async updateTransfersArray() {
     const {
       tableTopVisible,
       transfersArray,
-    } = this.getProperties('tableTopVisible', 'transfersArray');
-    const listReload = tableTopVisible ?
-      transfersArray.scheduleReload() :
-      resolve(transfersArray);
+    } = this;
 
-    return listReload
-      .then(transfersArray => {
-        return allFulfilled(
-          transfersArray
-          .filter(transfer => {
-            return get(transfer, 'state') !== 'ended' ||
-              !endedStates.has(get(transfer, 'transferProgress.status'));
-          })
-          .map(transfer => transfer.updateTransferProgressProxy({ replace: true }))
-        );
-      });
+    if (tableTopVisible) {
+      await transfersArray.scheduleReload({ head: true });
+    }
+    const nonEndedTransfers = transfersArray.filter(transfer => {
+      return get(transfer, 'state') !== 'ended' ||
+        !endedStates.has(get(transfer, 'transferProgress.status'));
+    });
+    return await allFulfilled(nonEndedTransfers.map(transfer =>
+      transfer.updateTransferProgressProxy({ replace: true })
+    ));
   },
 
   actions: {

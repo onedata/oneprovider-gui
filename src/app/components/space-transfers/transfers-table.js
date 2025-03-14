@@ -373,10 +373,20 @@ export default Component.extend(...mixins, {
   deleteUnusedTableRecordsCache() {
     /** @type {Map<Models.Transfer, TransferTableRecord>} */
     const transferRecordsCache = this.transferRecordsCache;
-    for (const transfer of transferRecordsCache.keys()) {
+    for (const [transfer, transferRecord] of transferRecordsCache.entries()) {
       if (!this.transfers.includes(transfer)) {
         transferRecordsCache.delete(transfer);
+        transferRecord.destroy();
       }
+    }
+  },
+
+  clearTableRecordsCache() {
+    /** @type {Map<Models.Transfer, TransferTableRecord>} */
+    const transferRecordsCache = this.transferRecordsCache;
+    for (const [transfer, transferRecord] of transferRecordsCache.entries()) {
+      transferRecordsCache.delete(transfer);
+      transferRecord.destroy();
     }
   },
 
@@ -522,6 +532,7 @@ export default Component.extend(...mixins, {
   willDestroy() {
     this._super(...arguments);
     this.detachWindowResizeHandler();
+    this.clearTableRecordsCache();
   },
 
   //#region Methods
