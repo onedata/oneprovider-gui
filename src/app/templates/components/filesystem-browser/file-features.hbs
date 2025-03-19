@@ -1,11 +1,11 @@
-{{#file-browser/item-features-container
-  browserModel=browserModel
-  item=item
-  features=features
-  initiallyExpanded=initiallyExpanded
-  disabled=isEffDisabled
+<FileBrowser::ItemFeaturesContainer
+  @browserModel={{browserModel}}
+  @item={{item}}
+  @features={{features}}
+  @initiallyExpanded={{initiallyExpanded}}
+  @disabled={{isEffDisabled}}
   as |displayed itemWithFeatures|
-}}
+>
   {{#if (contains "recallingInheritancePath" features)}}
     {{#if displayed.recallingInheritancePath.isShown}}
       <div
@@ -46,19 +46,19 @@
             {{/unless}}
           </span>
           {{#if (eq displayed.recallingInheritancePath.membership "ancestor")}}
-            {{one-icon
+            <OneIcon
               class="tag-icon recalling-inherited-icon inherited-icon"
-              icon=inheritedIcon
-            }}
+              @icon={{inheritedIcon}}
+            />
           {{/if}}
         </div>
       </div>
     {{else if itemWithFeatures.isRecalled}}
-      {{filesystem-browser/tag-recalled
-        file=itemWithFeatures
-        disabled=effRecallingDisabled
-        onTagClicked=(unless effRecallingDisabled (action "recallTagClicked"))
-      }}
+      <FilesystemBrowser::TagRecalled
+        @file={{itemWithFeatures}}
+        @disabled={{effRecallingDisabled}}
+        @onTagClicked={{unless effRecallingDisabled (action "recallTagClicked")}}
+      />
     {{/if}}
   {{/if}}
   {{#if displayed.effDatasetInheritancePath.isShown}}
@@ -86,11 +86,14 @@
       >
         <span class="tag-text">{{tt this "status.dataset"}}</span>
         {{#if (eq displayed.effDatasetInheritancePath.membership "ancestor")}}
-          {{one-icon class="dataset-inherited-icon inherited-icon" icon=inheritedIcon}}
-          {{one-tooltip title=(tt this "inheritedTip.dataset" fileType=typeText)}}
+          <OneIcon
+            class="dataset-inherited-icon inherited-icon"
+            @icon={{inheritedIcon}}
+          />
+          <OneTooltip @title={{tt this "inheritedTip.dataset" fileType=typeText}} />
         {{/if}}
         {{#if datasetsViewForbidden}}
-          {{one-tooltip title=hintDatasetsViewForbidden}}
+          <OneTooltip @title={{hintDatasetsViewForbidden}} />
         {{/if}}
       </div>
       {{#if hasAnyProtectionFlag}}
@@ -98,19 +101,19 @@
           class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-protected"
         >
           {{#if dataIsProtected}}
-            {{one-icon
-              icon="provider"
+            <OneIcon
+              @icon="provider"
               class="file-protected-icon file-data-protected-icon"
-            }}
+            />
           {{/if}}
           {{#if metadataIsProtected}}
-            {{one-icon
-              icon="browser-attribute"
+            <OneIcon
+              @icon="browser-attribute"
               class="file-protected-icon file-metadata-protected-icon"
-            }}
+            />
           {{/if}}
           {{#if protectionFlagsInfo}}
-            {{one-tooltip title=protectionFlagsInfo}}
+            <OneTooltip @title={{protectionFlagsInfo}} />
           {{/if}}
         </div>
       {{/if}}
@@ -121,11 +124,8 @@
             (if effDatasetDisabled "file-status-tag-disabled")
           }}
         >
-          {{one-icon
-            icon=inheritedIcon
-            class="inherited-icon"
-          }}
-          {{one-tooltip title=(tt this "inheritedTip.dataset" fileType=typeText)}}
+          <OneIcon @icon={{inheritedIcon}} class="inherited-icon" />
+          <OneTooltip @title={{tt this "inheritedTip.dataset" fileType=typeText}} />
         </div>
       {{/if}}
     </div>
@@ -158,11 +158,11 @@
       >
         <span class="tag-text">{{tt this "status.qos"}}</span>
         {{#if (eq displayed.effQosInheritancePath.membership "ancestor")}}
-          {{one-icon class="qos-inherited-icon inherited-icon" icon=inheritedIcon}}
-          {{one-tooltip title=(tt this "inheritedTip.qos.ancestor")}}
+          <OneIcon class="qos-inherited-icon inherited-icon" @icon={{inheritedIcon}} />
+          <OneTooltip @title={{tt this "inheritedTip.qos.ancestor"}} />
         {{/if}}
         {{#if qosViewForbidden}}
-          {{one-tooltip title=hintQosViewForbidden}}
+          <OneTooltip @title={{hintQosViewForbidden}} />
         {{/if}}
       </div>
       {{#if (eq displayed.effQosInheritancePath.membership "directAndAncestor")}}
@@ -172,11 +172,8 @@
             (if effQosDisabled "file-status-tag-disabled")
           }}
         >
-          {{one-icon
-            icon=inheritedIcon
-            class="inherited-icon"
-          }}
-          {{one-tooltip title=(tt this "inheritedTip.qos.directAndAncestor")}}
+          <OneIcon @icon={{inheritedIcon}} class="inherited-icon" />
+          <OneTooltip @title={{tt this "inheritedTip.qos.directAndAncestor"}} />
         </div>
       {{/if}}
     </div>
@@ -190,4 +187,4 @@
     }}
   {{/if}}
   {{yield displayed itemWithFeatures}}
-{{/file-browser/item-features-container}}
+</FileBrowser::ItemFeaturesContainer>

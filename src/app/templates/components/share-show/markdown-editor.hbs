@@ -1,16 +1,13 @@
 <div class="editor-current-mode-bar">
   <div class="hidden-xs">
     <div class="inline-icon-container">
-      {{one-icon icon=modeCurrentIcon}}
+      <OneIcon @icon={{modeCurrentIcon}} />
     </div>
     <span class="text">{{modeCurrentText}}</span>
   </div>
 </div>
 {{#if (eq mode "visual")}}
-  {{one-markdown-to-html
-    class="markdown-view markdown-preview"
-    markdown=markdown
-  }}
+  <OneMarkdownToHtml class="markdown-view markdown-preview" @markdown={{markdown}} />
 {{else}}
   <textarea
     value={{markdown}}
@@ -20,30 +17,30 @@
   ></textarea>
 {{/if}}
 <div class="share-edit-actions-toolbar btn-toolbar">
-  {{#one-button
+  <OneButton
     class="btn-sm btn-switch-editor-mode"
-    type="default"
-    disabled=isToggleEditorDisabled
-    onClick=(action "toggleEditorMode")
-  }}
-    {{one-icon icon=modeSwitchIcon}}
+    @type="default"
+    @disabled={{isToggleEditorDisabled}}
+    @onClick={{action "toggleEditorMode"}}
+  >
+    <OneIcon @icon={{modeSwitchIcon}} />
     <span class="text">{{modeSwitchText}}</span>
-  {{/one-button}}
-  {{#one-button
+  </OneButton>
+  <OneButton
     class="btn-sm"
-    type="warning"
-    disabled=(not isContentChanged)
-    onClick=(action "onDiscard")
-  }}
+    @type="warning"
+    @disabled={{not isContentChanged}}
+    @onClick={{action "onDiscard"}}
+  >
     {{tt this "discard"}}
-  {{/one-button}}
-  {{#one-button
-    type="primary"
-    buttonType="submit"
-    size="sm"
-    disabled=(not isContentChanged)
-    onClick=(action "onSave")
-  }}
+  </OneButton>
+  <OneButton
+    @type="primary"
+    @buttonType="submit"
+    @size="sm"
+    @disabled={{not isContentChanged}}
+    @onClick={{action "onSave"}}
+  >
     {{tt this "save"}}
-  {{/one-button}}
+  </OneButton>
 </div>

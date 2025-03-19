@@ -32,7 +32,7 @@ export default FbEmptyDir.extend(I18n, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  readonly: or('browserModel.readonlyFilesystem', 'previewMode'),
+  isReadOnly: or('browserModel.readonlyFilesystem', 'previewMode'),
 
   emptyDirUpload: modelProxyMethod('emptyDirUpload'),
   emptyDirNewDirectory: modelProxyMethod('emptyDirNewDirectory'),

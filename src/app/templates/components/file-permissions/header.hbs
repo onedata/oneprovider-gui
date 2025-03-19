@@ -1,42 +1,39 @@
 <div class="btn-group-tabs permissions-type-tabs">
-  {{#bs-button-group
+  <BsButtonGroup
     class="permissions-type-selector with-scroll-shadow flex-aligned"
-    value=activeTab
-    type="radio"
-    onChange=(action "changeTab") as |bg|
-  }}
+    @value={{activeTab}}
+    @type="radio"
+    @onChange={{action "changeTab"}}
+    as |bg|
+  >
     {{#each permissionsTypes as |type|}}
-      {{#bg.button
-        type="default"
-        class=(concat-classes
-          "btn-sm"
-          "permissions-type-btn"
-          (concat "permissions-type-btn-" type)
-        )
-        value=type
-      }}
+      <bg.button
+        @type="default"
+        class={{concat-classes "btn-sm" "permissions-type-btn" (concat "permissions-type-btn-" type)}}
+        @value={{type}}
+      >
         {{#if (eq type activePermissionsType)}}
-          {{one-icon class="tab-icon" icon="checkbox-filled"}}
+          <OneIcon class="tab-icon" @icon="checkbox-filled" />
         {{/if}}
         <span class="tab-name">
           {{tt this (concat "types." type)}}
         </span>
-      {{/bg.button}}
+      </bg.button>
     {{/each}}
-  {{/bs-button-group}}
-  {{one-icon
-    icon="sign-question-rounded"
+  </BsButtonGroup>
+  <OneIcon
+    @icon="sign-question-rounded"
     class="permissions-header-hint-trigger permissions-hint-trigger hint-trigger clickable"
-  }}
-  {{#one-switchable-popover-modal
+  />
+  <OneSwitchablePopoverModal
     class="permissions-type-selector-hint"
-    triggersConfiguration=".permissions-hint-trigger"
-    popoverStyle="permissions-hint-info webui-popover-file-info-view-hint"
-    modalClass="modal-compact-help"
-    layoutType="modal"
+    @triggersConfiguration=".permissions-hint-trigger"
+    @popoverStyle="permissions-hint-info webui-popover-file-info-view-hint"
+    @modalClass="modal-compact-help"
+    @layoutType="modal"
     as |ospm|
-  }}
-    {{#ospm.modal.body}}
+  >
+    <ospm.modal.body>
       <p>{{tt this "selectorHint.viewDescription"}}</p>
       <h1>{{tt this "selectorHint.dataAccessHeader"}}</h1>
       {{#each (array
@@ -48,26 +45,26 @@
         <p>{{tt this (concat "selectorHint.dataAccess" translationKey)}}</p>
       {{/each}}
       <p>
-        {{one-doc-see-more
-          linkName=(tt this "selectorHint.docLinkName")
-          topic="data-access-control"
-        }}
+        <OneDocSeeMore
+          @linkName={{tt this "selectorHint.docLinkName"}}
+          @topic="data-access-control"
+        />
       </p>
-    {{/ospm.modal.body}}
-    {{#ospm.modal.footer}}
+    </ospm.modal.body>
+    <ospm.modal.footer>
       <div class="btn-toolbar text-right visible-xs-block">
-        {{#one-button class="btn btn-sm" type="info" onClick=ospm.close}}
+        <OneButton class="btn btn-sm" @type="info" @onClick={{ospm.close}}>
           {{tt this "selectorHint.close"}}
-        {{/one-button}}
+        </OneButton>
       </div>
-    {{/ospm.modal.footer}}
-  {{/one-switchable-popover-modal}}
+    </ospm.modal.footer>
+  </OneSwitchablePopoverModal>
   {{#if effectiveReadonly}}
     <div class="box-item editor-disabled-lock-container with-scroll-shadow hidden-xs">
       <div class="editor-disabled-lock-text">{{tt this "editorDisabled"}}</div>
-      {{one-icon class="editor-disabled-lock-icon" icon="lock"}}
+      <OneIcon class="editor-disabled-lock-icon" @icon="lock" />
       {{#if effectiveReadonlyTip}}
-        {{one-tooltip title=effectiveReadonlyTip}}
+        <OneTooltip @title={{effectiveReadonlyTip}} />
       {{/if}}
     </div>
   {{/if}}

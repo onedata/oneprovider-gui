@@ -38,7 +38,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual optional
    */
-  readonly: false,
+  isReadOnly: false,
 
   /**
    * @virtual optional
@@ -172,7 +172,7 @@ function createToggleViewModel(datasetItem, protectionType) {
     ),
 
     isReadOnly: or(
-      'datasetItem.readonly',
+      'datasetItem.isReadOnly',
       'effToggleReadonlyMessage'
     ),
 

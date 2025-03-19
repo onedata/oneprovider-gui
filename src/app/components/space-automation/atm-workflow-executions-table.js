@@ -1,5 +1,6 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { inject as service } from '@ember/service';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
@@ -59,14 +60,10 @@ export default Component.extend(I18n, {
   onAtmWorkflowExecutionSelect: undefined,
 
   /**
+   * NOTE: should be synchronized with .cell-empty-placeholder height.
    * @type {Number}
    */
   rowHeight: 61,
-
-  /**
-   * @type {Number}
-   */
-  updateInterval: 5000,
 
   /**
    * @type {Utils.Looper}
@@ -84,6 +81,11 @@ export default Component.extend(I18n, {
    * @type {Boolean}
    */
   fetchingNext: false,
+
+  /**
+   * @type {boolean}
+   */
+  isTableTopVisible: true,
 
   /**
    * @type {ComputedProperty<Array<String>>}
@@ -149,14 +151,25 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  updateInterval: computed('isTableTopVisible', function updateInterval() {
+    return this.isTableTopVisible ? 5000 : 0;
+  }),
+
   init() {
     initDestroyableCache(this);
     this._super(...arguments);
 
-    const updater = Looper.create({
-      immediate: false,
-      interval: this.get('updateInterval'),
-    });
+    const updater = Looper
+      .extend({
+        interval: reads('parent.updateInterval'),
+      })
+      .create({
+        immediate: true,
+        parent: this,
+      });
     updater.on('tick', () => this.updateAtmWorkflowExecutionSummaries());
     this.set('updater', updater);
   },
@@ -215,18 +228,20 @@ export default Component.extend(I18n, {
     return new ListWatcher(
       $('#content-scroll'),
       '.data-row',
-      items => safeExec(this, 'onTableScroll', items)
+      (items, headerVisible) => safeExec(this, 'onTableScroll', items, headerVisible),
+      '.table-start-row'
     );
   },
 
   async updateAtmWorkflowExecutionSummaries() {
-    await this.get('atmWorkflowExecutionSummaries').scheduleReload();
+    await this.get('atmWorkflowExecutionSummaries').scheduleReload({ head: true });
   },
 
   /**
    * @param {Array<HTMLElement>} items
+   * @param {boolean} headerVisible
    */
-  onTableScroll(items) {
+  onTableScroll(items, headerVisible) {
     const {
       atmWorkflowExecutionSummaries,
       listWatcher,
@@ -236,8 +251,12 @@ export default Component.extend(I18n, {
     );
     const sourceArray = get(atmWorkflowExecutionSummaries, 'sourceArray');
 
+    if (this.isTableTopVisible !== headerVisible) {
+      this.set('isTableTopVisible', headerVisible);
+    }
+
     if (isEmpty(items) && !isEmpty(sourceArray)) {
-      atmWorkflowExecutionSummaries.setProperties({ startIndex: 0, endIndex: 50 });
+      atmWorkflowExecutionSummaries.setIndices(0, 50);
       return;
     }
 
@@ -259,10 +278,11 @@ export default Component.extend(I18n, {
       endIndex = Math.max(Math.floor(blankEnd / this.rowHeight), 0);
     } else {
       startIndex = atmWorkflowExecutionSummariesIds.indexOf(firstId);
-      endIndex = atmWorkflowExecutionSummariesIds.indexOf(lastId, startIndex);
+      const searchEndFrom = startIndex === -1 ? 0 : startIndex;
+      endIndex = atmWorkflowExecutionSummariesIds.indexOf(lastId, searchEndFrom);
     }
 
-    atmWorkflowExecutionSummaries.setProperties({ startIndex, endIndex });
+    atmWorkflowExecutionSummaries.setIndices(startIndex, endIndex);
 
     next(() => {
       const isBackwardLoading = startIndex > 0 &&

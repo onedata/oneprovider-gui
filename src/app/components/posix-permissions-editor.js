@@ -17,7 +17,7 @@ const octalRegex = new RegExp('^[0-7]{3}$');
 
 export default Component.extend(I18n, {
   classNames: ['posix-permissions-editor'],
-  classNameBindings: ['readonly:posix-permissions-editor-readonly'],
+  classNameBindings: ['isReadOnly:posix-permissions-editor-readonly'],
 
   /**
    * @override
@@ -50,7 +50,7 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {Boolean}
    */
-  readonly: false,
+  isReadOnly: false,
 
   /**
    * @virtual optional

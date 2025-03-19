@@ -1,38 +1,38 @@
-{{#one-modal
-  class=(concat-classes
+<OneModal
+  class={{concat-classes
     "file-info-modal modal-content-overlay with-close-button"
     effModalClass
-  )
-  open=open
-  size="xl"
-  id=modalId
-  backdropClose=true
-  keyboard=true
-  onHide=(action "close")
+  }}
+  @open={{open}}
+  @size="xl"
+  @id={{modalId}}
+  @backdropClose={{true}}
+  @keyboard={{true}}
+  @onHide={{action "close"}}
   as |modal|
-}}
-  {{#modal.header class="file-info-modal-header"}}
+>
+  <modal.header class="file-info-modal-header">
     <h1>{{headerText}}</h1>
-    {{modal-file-subheader files=files}}
-    {{one-tab-bar
+    <ModalFileSubheader @files={{files}} />
+    <OneTabBar
       class="nav-tabs-file-info"
-      items=visibleTabsItems
-      selectedItem=activeTabItem
-      selectDefaultOnInit=true
-      selectedItemChanged=(action "changeTab")
-      tabBarLiComponentName="file-info-modal/tab-bar-li"
-      tabsRenderMode="always"
-      dropdownRenderMode="never"
-      isSorted=false
-    }}
+      @items={{visibleTabsItems}}
+      @selectedItem={{activeTabItem}}
+      @selectDefaultOnInit={{true}}
+      @selectedItemChanged={{action "changeTab"}}
+      @tabBarLiComponentName="file-info-modal/tab-bar-li"
+      @tabsRenderMode="always"
+      @dropdownRenderMode="never"
+      @isSorted={{false}}
+    />
     {{#if activeTabModel.headerComponent}}
       {{component activeTabModel.headerComponent
         class="file-info-header-extension"
         viewModel=activeTabModel.viewModel
       }}
     {{/if}}
-  {{/modal.header}}
-  {{#modal.body class="file-info-modal-body"}}
+  </modal.header>
+  <modal.body class="file-info-modal-body">
     {{#if (eq activeTab "general")}}
       <table
         class="table table-info table-info-large table-info-collapsible table-file-info"
@@ -43,10 +43,7 @@
               {{tt this "name" type=typeTranslationUpperFirst}}
             </td>
             <td class="property-value">
-              {{clipboard-line
-                value=fileName
-                size=(if smallContent "sm")
-              }}
+              <ClipboardLine @value={{fileName}} @size={{if smallContent "sm"}} />
             </td>
           </tr>
           <tr class="file-info-row-path">
@@ -54,41 +51,38 @@
               {{tt this "path" type=typeTranslationUpperFirst}}
             </td>
             <td class="property-value">
-              {{#promise-proxy-container
-                proxy=filePathProxy
-                sizeClass="xs"
-                centered=false
-                spinnerBlockClass="loading-file-path"
-              }}
-                {{clipboard-line
-                  value=filePathProxy.content
-                  size=(if smallContent "sm")
-                }}
-              {{/promise-proxy-container}}
+              <PromiseProxyContainer
+                @proxy={{filePathProxy}}
+                @sizeClass="xs"
+                @centered={{false}}
+                @spinnerBlockClass="loading-file-path"
+              >
+                <ClipboardLine
+                  @value={{filePathProxy.content}}
+                  @size={{if smallContent "sm"}}
+                />
+              </PromiseProxyContainer>
             </td>
           </tr>
           {{#if (and (eq itemType "file") (not previewMode))}}
             <tr class="file-info-row-storage-location">
               <td class="property-name with-input{{if smallContent "-sm"}}">
                 {{tt this "storageLocations"}}
-                {{one-label-tip title=(tt this "storageLocationsTooltip")}}
+                <OneLabelTip @title={{tt this "storageLocationsTooltip"}} />
               </td>
               <td class="property-value">
-                {{#promise-proxy-container
-                  proxy=storageLocationRequiredDataProxy
-                  sizeClass="xs"
-                  centered=false
-                  spinnerBlockClass="loading-file-path"
-                }}
+                <PromiseProxyContainer
+                  @proxy={{storageLocationRequiredDataProxy}}
+                  @sizeClass="xs"
+                  @centered={{false}}
+                  @spinnerBlockClass="loading-file-path"
+                >
                   <table class="storage-locations-table">
-                    {{file-browser/storage-location-per-provider-table
-                      spaceId=spaceId
-                      locations=(get
-                        storageLocationsPerProviderProxy
-                        firstProviderDisplayedId
-                      )
-                      currentProviderId=currentProviderId
-                    }}
+                    <FileBrowser::StorageLocationPerProviderTable
+                      @spaceId={{spaceId}}
+                      @locations={{get storageLocationsPerProviderProxy firstProviderDisplayedId}}
+                      @currentProviderId={{currentProviderId}}
+                    />
                     {{#if (and
                       (gt storageLocationsPerProviderLength 1)
                       areStorageLocationsExpanded
@@ -99,11 +93,11 @@
                           firstProviderDisplayedId
                         )}}
                           <tbody class="space-between-providers"><tr><td></td></tr></tbody>
-                          {{file-browser/storage-location-per-provider-table
-                            spaceId=spaceId
-                            locations=locations
-                            currentProviderId=currentProviderId
-                          }}
+                          <FileBrowser::StorageLocationPerProviderTable
+                            @spaceId={{spaceId}}
+                            @locations={{locations}}
+                            @currentProviderId={{currentProviderId}}
+                          />
                         {{/if}}
                       {{/each}}
                     {{/if}}
@@ -121,7 +115,7 @@
                       </a>
                     </div>
                   {{/if}}
-                {{/promise-proxy-container}}
+                </PromiseProxyContainer>
               </td>
             </tr>
           {{/if}}
@@ -129,10 +123,10 @@
             <tr class="file-info-row-target-path">
               <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "symlinkTargetPath"}}</td>
               <td class="property-value">
-                {{clipboard-line
-                  value=symlinkTargetPath
-                  size=(if smallContent "sm")
-                }}
+                <ClipboardLine
+                  @value={{symlinkTargetPath}}
+                  @size={{if smallContent "sm"}}
+                />
               </td>
             </tr>
           {{/if}}
@@ -150,7 +144,7 @@
                       >
                         <div class="file-link-group-addon-inner">
                           <span>{{fileLinkModel.label}}</span>
-                          {{one-label-tip title=fileLinkModel.tip}}
+                          <OneLabelTip @title={{fileLinkModel.tip}} />
                         </div>
                       </div>
                       <input
@@ -163,16 +157,13 @@
                         readonly
                       >
                     </div>
-                    {{#one-copy-button
+                    <OneCopyButton
                       class="clipboard-btn clipboard-btn-input"
-                      clipboardTarget=(local-selector
-                        modalId
-                        (concat "." fileLinkModel.type "-file-link-clipboard-line-input")
-                      )
-                    }}
+                      @clipboardTarget={{local-selector modalId (concat "." fileLinkModel.type "-file-link-clipboard-line-input")}}
+                    >
                       <div class="copy-btn-background"></div>
-                      {{one-icon class="copy-btn-icon" icon="browser-copy"}}
-                    {{/one-copy-button}}
+                      <OneIcon class="copy-btn-icon" @icon="browser-copy" />
+                    </OneCopyButton>
                   </div>
                 {{/each}}
               </td>
@@ -182,15 +173,13 @@
             <td class="property-name with-input">
               <div>
                 {{tt this "cdmiObjectId"}}
-                {{one-label-tip
-                  title=(tt this
+                <OneLabelTip @title={{tt this
                     (if previewMode
                       "cdmiObjectIdTooltip.public"
                       "cdmiObjectIdTooltip.priv"
                     )
                     type=typeTranslation
-                  )
-                }}
+                  }} />
               </div>
               {{#if previewMode}}
                 <div class="property-subname">
@@ -200,13 +189,13 @@
             </td>
             <td class="property-value">
               <div class="input-group-clipboard-textarea">
-                {{clipboard-line
-                  value=cdmiObjectId
-                  type="textarea"
-                  textareaRows="3"
-                  size=(if smallContent "sm")
+                <ClipboardLine
+                  @value={{cdmiObjectId}}
+                  @type="textarea"
+                  @textareaRows="3"
+                  @size={{if smallContent "sm"}}
                   class="monospace-font compact"
-                }}
+                />
               </div>
             </td>
           </tr>
@@ -216,11 +205,11 @@
                 {{tt this "spaceId"}}
               </td>
               <td class="property-value">
-                {{clipboard-line
-                  value=space.entityId
+                <ClipboardLine
+                  @value={{space.entityId}}
                   class="monospace-font"
-                  size=(if smallContent "sm")
-                }}
+                  @size={{if smallContent "sm"}}
+                />
               </td>
             </tr>
           {{/if}}
@@ -228,14 +217,14 @@
             <tr class="file-info-row-share-id">
               <td class="property-name with-input{{if smallContent "-sm"}}">
                 {{tt this "shareId"}}
-                {{one-label-tip title=(tt this "shareIdTooltip" type=typeTranslation)}}
+                <OneLabelTip @title={{tt this "shareIdTooltip" type=typeTranslation}} />
               </td>
               <td class="property-value">
-                {{clipboard-line
-                  value=share.entityId
+                <ClipboardLine
+                  @value={{share.entityId}}
                   class="monospace-font"
-                  size=(if smallContent "sm")
-                }}
+                  @size={{if smallContent "sm"}}
+                />
               </td>
             </tr>
           {{/if}}
@@ -243,12 +232,12 @@
             <tr class="file-info-row-size">
               <td class="property-name">{{tt this "size"}}</td>
               <td class="property-value">
-                {{#truncated-string}}
+                <TruncatedString>
                   <span class="file-info-size">{{bytes-to-string fileSize}}</span>
                   {{#if (gte fileSize 1024)}}
                     <span class="file-info-detail-size">({{fileSize}} B)</span>
                   {{/if}}
-                {{/truncated-string}}
+                </TruncatedString>
               </td>
             </tr>
           {{/if}}
@@ -256,43 +245,43 @@
             <td class="property-name">
               <div>
                 {{tt this "mtime"}}
-                {{one-label-tip title=(tt this "tip.modification")}}
+                <OneLabelTip @title={{tt this "tip.modification"}} />
               </div>
               <div class="property-subname">
                 ({{tt this "mtimeSubname"}})
               </div>
             </td>
             <td class="property-value">
-              {{#truncated-string}}
+              <TruncatedString>
                 {{date-format mtime format="dateWithSeconds" blank="—"}}
-              {{/truncated-string}}
+              </TruncatedString>
             </td>
           </tr>
           <tr class="file-info-row-atime-time">
             <td class="property-name">
               {{tt this "atime"}}
-              {{one-label-tip title=(tt this "tip.atime")}}
+              <OneLabelTip @title={{tt this "tip.atime"}} />
             </td>
             <td class="property-value">
-              {{#truncated-string}}
+              <TruncatedString>
                 {{date-format atime format="dateWithSeconds" blank="—"}}
-              {{/truncated-string}}
+              </TruncatedString>
             </td>
           </tr>
           <tr class="file-info-row-ctime-time">
             <td class="property-name">
               <div>
                 {{tt this "ctime"}}
-                {{one-label-tip title=(tt this "tip.ctime")}}
+                <OneLabelTip @title={{tt this "tip.ctime"}} />
               </div>
               <div class="property-subname">
                 ({{tt this "ctimeSubname"}})
               </div>
             </td>
             <td class="property-value">
-              {{#truncated-string}}
+              <TruncatedString>
                 {{date-format ctime format="dateWithSeconds" blank="—"}}
-              {{/truncated-string}}
+              </TruncatedString>
             </td>
           </tr>
           {{!-- TODO: VFS-12343 restore creationTime in GUI --}}
@@ -311,28 +300,32 @@
             <tr class="file-info-row-owner">
               <td class="property-name">{{tt this "owner"}}</td>
               <td class="property-value">
-                {{#loading-container
-                  isLoading=ownerProxy.isPending
-                  centered=false
-                  sizeClass="xs"
-                  spinnerBlockClass="loading-owner-full-name"
-                }}
+                <LoadingContainer
+                  @isLoading={{ownerProxy.isPending}}
+                  @centered={{false}}
+                  @sizeClass="xs"
+                  @spinnerBlockClass="loading-owner-full-name"
+                >
                   {{#if owner}}
-                    {{record-info-with-icon
-                      record=owner
-                      errorReason=errorReasonForOwnerProxy
-                    }}
+                    <RecordInfoWithIcon
+                      @record={{owner}}
+                      @errorReason={{errorReasonForOwnerProxy}}
+                    />
                   {{else}}
                     —
                   {{/if}}
-                {{/loading-container}}
+                </LoadingContainer>
               </td>
             </tr>
           {{/if}}
         </tbody>
       </table>
     {{else if (eq activeTab "hardlinks")}}
-      {{#promise-proxy-container tagName="div" class="loadable-row" proxy=fileHardlinksProxy}}
+      <PromiseProxyContainer
+        @tagName="div"
+        class="loadable-row"
+        @proxy={{fileHardlinksProxy}}
+      >
         {{#if (and hardlinksLimitExceeded fileHardlinks.hardlinks.length)}}
           <p class="shows-first-n-hardlinks text-center">
             <em>{{tt this "tabs.hardlinks.showingOnlyNFirst" limit=hardlinksLimit}}</em>
@@ -340,20 +333,20 @@
         {{/if}}
         <ul class="file-hardlinks-list">
           {{#each fileHardlinks.hardlinks as |fileHardlink|}}
-            {{file-info-modal/hardlink-entry
+            <FileInfoModal::HardlinkEntry
               class="file-hardlink"
-              file=fileHardlink.file
-              fileUrl=fileHardlink.fileUrl
-              path=fileHardlink.path
-              closeModal=modal.close
-            }}
+              @file={{fileHardlink.file}}
+              @fileUrl={{fileHardlink.fileUrl}}
+              @path={{fileHardlink.path}}
+              @closeModal={{modal.close}}
+            />
           {{else}}
             <li class="file-hardlink extra-hardlink-description">
               <em>{{tt this "tabs.hardlinks.noAccessToAll"
                 fileType=(tt this (concat "fileType." itemType))
               }}</em>
               {{#if hardlinksFetchError}}
-                {{one-label-tip title=hardlinksFetchError}}
+                <OneLabelTip @title={{hardlinksFetchError}} />
               {{/if}}
             </li>
           {{/each}}
@@ -366,31 +359,31 @@
                 count=(sub fileHardlinks.hardlinkCount fileHardlinks.hardlinks.length)
               }}</em>
               {{#if hardlinksFetchError}}
-                {{one-label-tip title=hardlinksFetchError}}
+                <OneLabelTip @title={{hardlinksFetchError}} />
               {{/if}}
             </li>
           {{/if}}
         </ul>
-      {{/promise-proxy-container}}
+      </PromiseProxyContainer>
     {{else if (eq activeTab "apiSamples")}}
-      {{#promise-proxy-container
-        proxy=apiSamplesProxy
-        sizeClass="sm"
-        centered=false
-        spinnerBlockClass="loading-api-command absolute-middle-centered"
-      }}
-        {{api-samples
-          apiSamples=apiSamples
-          apiSubject=(if previewMode "filePublic" "filePrivate")
-        }}
-      {{/promise-proxy-container}}
+      <PromiseProxyContainer
+        @proxy={{apiSamplesProxy}}
+        @sizeClass="sm"
+        @centered={{false}}
+        @spinnerBlockClass="loading-api-command absolute-middle-centered"
+      >
+        <ApiSamples
+          @apiSamples={{apiSamples}}
+          @apiSubject={{if previewMode "filePublic" "filePrivate"}}
+        />
+      </PromiseProxyContainer>
     {{else}}
       {{component activeTabModel.bodyComponent viewModel=activeTabModel.viewModel}}
     {{/if}}
-  {{/modal.body}}
+  </modal.body>
   {{#if isFooterShown}}
-    {{#modal.footer class="file-info-modal-footer"}}
+    <modal.footer class="file-info-modal-footer">
       {{component activeTabModel.footerComponent viewModel=activeTabModel.viewModel}}
-    {{/modal.footer}}
+    </modal.footer>
   {{/if}}
-{{/one-modal}}
+</OneModal>

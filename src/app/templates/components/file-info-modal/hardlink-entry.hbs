@@ -1,17 +1,17 @@
 <div class="icon-col">
-  {{one-icon class="file-type-icon" icon=icon}}
+  <OneIcon class="file-type-icon" @icon={{icon}} />
 </div>
 <div class="content-col">
-  {{#truncated-string class="file-name"}}{{file.name}}{{/truncated-string}}
+  <TruncatedString class="file-name">{{file.name}}</TruncatedString>
   <small class="file-path">
     <span class="file-path-label">{{tt this "pathLabel"}}:</span>
     {{#if file}}
-      {{file-path
+      <FilePath
         class="anchor-container"
-        file=file
-        target=navigateLinkTarget
-        onLinkClicked=(action "linkClicked")
-      }}
+        @file={{file}}
+        @target={{navigateLinkTarget}}
+        @onLinkClicked={{action "linkClicked"}}
+      />
     {{else}}
       <em>{{tt this "unknownPath"}}</em>
     {{/if}}

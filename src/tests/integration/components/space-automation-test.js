@@ -103,11 +103,10 @@ describe('Integration | Component | space-automation', function () {
     });
   });
 
-  it('has class "run-workflow-creator"', async function () {
+  it('has class "space-automation"', async function () {
     await renderComponent();
 
-    expect(this.element.children).to.have.length(1);
-    expect(this.element.children[0]).to.have.class('space-automation');
+    expect(find('.space-automation')).to.exist;
   });
 
   it('renders tabs: "waiting", "ongoing", "ended", "suspended" and "run workflow"',
@@ -229,15 +228,19 @@ describe('Integration | Component | space-automation', function () {
 });
 
 async function renderComponent() {
-  await render(hbs `{{space-automation
-    space=space
-    tab=tab
-    atmWorkflowExecutionId=atmWorkflowExecutionId
-    atmWorkflowSchemaId=atmWorkflowSchemaId
-    atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumber
-    changeTab=changeTab
-    openPreviewTab=openPreviewTab
-    closePreviewTab=closePreviewTabStub
-    chooseWorkflowSchemaToRun=chooseWorkflowSchemaToRun
-  }}`);
+  await render(hbs `
+    <PerfectScrollbarElement id="content-scroll">
+      <SpaceAutomation
+        @space={{this.space}}
+        @tab={{this.tab}}
+        @atmWorkflowExecutionId={{this.atmWorkflowExecutionId}}
+        @atmWorkflowSchemaId={{this.atmWorkflowSchemaId}}
+        @atmWorkflowSchemaRevisionNumber={{this.atmWorkflowSchemaRevisionNumber}}
+        @changeTab={{this.changeTab}}
+        @openPreviewTab={{this.openPreviewTab}}
+        @closePreviewTab={{this.closePreviewTabStub}}
+        @chooseWorkflowSchemaToRun={{this.chooseWorkflowSchemaToRun}}
+      />
+    </PerfectScrollbarElement>
+  `);
 }

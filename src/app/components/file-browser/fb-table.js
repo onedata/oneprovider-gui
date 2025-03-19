@@ -3,7 +3,7 @@
  * Supports infinite scroll.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2024 ACK CYFRONET AGH
+ * @copyright (C) 2019-2025 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,7 +12,6 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import EmberObject, {
   get,
   computed,
-  setProperties,
   getProperties,
 } from '@ember/object';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
@@ -25,7 +24,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool, eq } from 'ember-awesome-macros';
-import { all as allFulfilled, allSettled, defer } from 'rsvp';
+import { Promise, all as allFulfilled, allSettled, defer } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -198,12 +197,6 @@ export default Component.extend(...mixins, {
   refreshDefer: null,
 
   rowHeight: 61,
-
-  /**
-   * When scroll position is changed by code, use this flag to ignore next scroll event
-   * @type {Boolean}
-   */
-  ignoreNextScroll: false,
 
   fetchingPrev: false,
 
@@ -418,17 +411,18 @@ export default Component.extend(...mixins, {
     console.debug(
       `component:file-browser/fb-table#adjustScroll: adjusting scroll by ${topDiff}`
     );
-    this.set('ignoreNextScroll', true);
-    this.scrollTopAfterFrameRender(topDiff, true);
+    const lock = this.listWatcher.lock();
+    try {
+      await this.scrollTopAfterFrameRender(topDiff, true);
+    } finally {
+      lock.unlock();
+    }
   },
 
   async scrollTopAfterFrameRender(value = 0, isDelta = false) {
-    scheduleOnce('afterRender', this, () => {
-      globals.window.requestAnimationFrame(() => {
-        safeExec(this, () => {
-          this.get('containerScrollTop')(value, isDelta);
-        });
-      });
+    await waitForRender();
+    safeExec(this, () => {
+      this.containerScrollTop(value, isDelta);
     });
   },
 
@@ -522,18 +516,17 @@ export default Component.extend(...mixins, {
    * Using sync observer, because async causes problems when with reading rendered
    * item elements (probably doing it too late).
    */
-  sourceArrayLengthObserver: syncObserver(
+  sourceArrayLengthObserver: asyncObserver(
     'filesArray.sourceArray.length',
-    function sourceArrayLengthObserver() {
-      this.listWatcher?.scrollHandler();
+    async function sourceArrayLengthObserver() {
+      await waitForRender();
+      if (!this.isDestroyed && !this.isDestroying && this.listWatcher) {
+        this.listWatcher.scrollHandler();
+      }
     }
   ),
 
-  /**
-   * Using sync observer to make sure that jumpToSelection will be invoked before
-   * changing start/end index that is read from DOM after jump.
-   */
-  selectedItemsForJumpObserver: syncObserver(
+  selectedItemsForJumpObserver: asyncObserver(
     'selectedItemsForJump',
     function selectedItemsForJumpObserver() {
       const {
@@ -569,8 +562,9 @@ export default Component.extend(...mixins, {
     this.registerApi(this.api);
     (async () => {
       await this.browserModel.dirProxy;
-      if (get(this.filesArray, 'initialJumpIndex')) {
-        await get(this.filesArray, 'initialLoad');
+      if (this.filesArray.initialJumpIndex) {
+        await this.filesArray.initialLoad;
+        await this.filesArray.taskQueue.waitForAllTasks();
         this.selectedItemsForJumpObserver();
       }
       this.listWatcherObserver();
@@ -641,8 +635,7 @@ export default Component.extend(...mixins, {
   },
 
   async jumpToSelection() {
-    const selectedItems = this.get('selectedItems');
-    return this.jump(selectedItems);
+    return this.jump(this.selectedItems);
   },
 
   /**
@@ -653,18 +646,15 @@ export default Component.extend(...mixins, {
     const effItem = Array.isArray(items) ? A(items).sortBy('name').objectAt(0) : items;
     const effItems = Array.isArray(items) ? items : [items];
 
-    const {
-      filesArray,
-      listWatcher,
-    } = this;
+    const { filesArray } = this;
     const {
       entityId,
       index,
     } = getProperties(effItem, 'entityId', 'index');
 
     // ensure that array is loaded and rendered
-    await get(filesArray, 'initialLoad');
-    await sleep(0);
+    await filesArray.initialLoad;
+    await waitForRender();
     if (this.isDestroyed || this.isDestroying) {
       return;
     }
@@ -677,16 +667,18 @@ export default Component.extend(...mixins, {
         );
         return;
       }
-      // wait for render of array fragment containing item to jump
-      this.set('ignoreNextScroll', true);
-      await sleep(0);
+      const listWatcherLock = this.listWatcher.lock();
+      try {
+        await waitForRender();
+      } finally {
+        listWatcherLock.unlock();
+      }
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
     }
     this.focusOnRow(entityId, false);
     this.highlightAnimateRows(effItems.map(item => get(item, 'entityId')));
-    listWatcher.scrollHandler();
   },
 
   /**
@@ -699,8 +691,6 @@ export default Component.extend(...mixins, {
   focusOnRow(rowId, animate = true) {
     const [row] = this.findItemRows([rowId]);
     if (row) {
-      // force handle scroll into view, because scroll adjust might disabled it
-      this.set('ignoreNextScroll', false);
       row.scrollIntoView({ block: 'center' });
       if (animate) {
         scheduleOnce('afterRender', () => {
@@ -852,74 +842,87 @@ export default Component.extend(...mixins, {
     if (this.isDestroyed) {
       return;
     }
-    const {
-      dir,
-      filesArray,
-      viewTester,
-      containerScrollTop,
-      element,
-    } = this;
-    const $element = $(element);
-    const visibleLengthBeforeReload = $element.find('.data-row').toArray()
-      .filter(row => viewTester.isInView(row)).length;
+    const { dir } = this;
 
     const promises = [];
     if (dir && dir.reload) {
       promises.push(dir.reload());
     }
-    const filesArrayReload = filesArray.scheduleReload(forced ? { forced: true } : {})
-      .finally(async () => {
-        const sourceArray = get(filesArray, 'sourceArray');
-        // care about selection change only if there are some items selected that are not
-        // current dir
-        if (
-          !isEmpty(this.selectedItems) &&
-          !this.browserModel.isOnlyCurrentDirSelected
-        ) {
-          const updatedSelectedItems = this.selectedItems.filter(selectedFile =>
-            sourceArray.includes(selectedFile)
-          );
-          // refresh may result in loss of some previously selected item, so only check
-          // length - checking content of array is unnecessary
-          if (this.selectedItems.length != updatedSelectedItems.length) {
-            this.changeSelectedItems(updatedSelectedItems);
-          }
-        }
-
-        await waitForRender();
-        if (this.isDestroyed) {
-          return;
-        }
-
-        const dataRows = this.element.querySelectorAll('.data-row');
-        const anyRowVisible = Array.from(dataRows).some(row => viewTester.isInView(row));
-
-        if (!anyRowVisible) {
-          const fullLengthAfterReload = get(sourceArray, 'length');
-          setProperties(filesArray, {
-            startIndex: Math.max(
-              0,
-              fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
-            ),
-            endIndex: fullLengthAfterReload || 50,
-          });
-          next(() => {
-            const firstRenderedRow = this.element
-              .querySelector('.data-row[data-row-id]');
-            if (firstRenderedRow) {
-              firstRenderedRow.scrollIntoView();
-            } else {
-              containerScrollTop(0);
-            }
-          });
-        }
-      });
-    promises.push(filesArrayReload);
+    promises.push(this.filesArrayReload(forced));
     const browserModelRefreshPromise = this.browserModel.onListRefresh?.();
     if (browserModelRefreshPromise) {
       promises.push(browserModelRefreshPromise);
     }
     return await allFulfilled(promises);
+  },
+
+  /**
+   * @private
+   * @param {boolean} isForce Passed as `forced` option to
+   *   ReplacingChunksArray.scheduleReload.
+   * @returns {Promise}
+   */
+  async filesArrayReload(isForced) {
+    const { viewTester, filesArray } = this;
+    const visibleLengthBeforeReload =
+      Array.from(this.element.querySelectorAll('.data-row'))
+      .filter(row => viewTester.isInView(row))
+      .length;
+    const reloadHead = filesArray._start === 0;
+    const reloadOptions = { forced: isForced, head: reloadHead };
+    try {
+      await filesArray.scheduleReload(reloadOptions);
+      await filesArray.startChanged();
+    } finally {
+      const sourceArray = filesArray.sourceArray;
+      // care about selection change only if there are some items selected that are not
+      // current dir
+      if (
+        !isEmpty(this.selectedItems) &&
+        !this.browserModel.isOnlyCurrentDirSelected
+      ) {
+        const updatedSelectedItems = this.selectedItems.filter(selectedFile =>
+          sourceArray.includes(selectedFile)
+        );
+        // refresh may result in loss of some previously selected item, so only check
+        // length - checking content of array is unnecessary
+        if (this.selectedItems.length != updatedSelectedItems.length) {
+          this.changeSelectedItems(updatedSelectedItems);
+        }
+      }
+
+      await waitForRender();
+      if (!this.isDestroyed && !this.isDetroying) {
+        const dataRows = this.element.querySelectorAll('.data-row');
+        const anyRowVisible = Array.from(dataRows).some(row => viewTester.isInView(row));
+
+        if (!anyRowVisible) {
+          const fullLengthAfterReload = sourceArray.length;
+          const startIndex = Math.max(
+            0,
+            fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
+          );
+          const endIndex = fullLengthAfterReload || 50;
+          filesArray.setIndices(startIndex, endIndex);
+          await new Promise((resolve, reject) => {
+            next(() => {
+              try {
+                const firstRenderedRow = this.element
+                  .querySelector('.data-row[data-row-id]');
+                if (firstRenderedRow) {
+                  firstRenderedRow.scrollIntoView();
+                } else {
+                  this.containerScrollTop(0);
+                }
+                resolve();
+              } catch (error) {
+                reject(error);
+              }
+            });
+          });
+        }
+      }
+    }
   },
 
   // TODO: VFS-10743 Currently not used, but this method may be helpful in not-known
@@ -963,10 +966,6 @@ export default Component.extend(...mixins, {
     if (!this.browserModel.dirProxy?.isSettled) {
       return;
     }
-    if (this.ignoreNextScroll) {
-      this.set('ignoreNextScroll', false);
-      return;
-    }
 
     const filesArray = this.filesArray;
     const sourceArray = get(filesArray, 'sourceArray');
@@ -1003,7 +1002,8 @@ export default Component.extend(...mixins, {
       }
     } else {
       startIndex = filesArrayIds.indexOf(firstId);
-      endIndex = filesArrayIds.indexOf(lastId, startIndex);
+      const searchEndFrom = startIndex === -1 ? 0 : startIndex;
+      endIndex = filesArrayIds.indexOf(lastId, searchEndFrom);
     }
     if (startIndex <= endIndex) {
       const {
@@ -1011,7 +1011,7 @@ export default Component.extend(...mixins, {
         endIndex: oldEndIndex,
       } = getProperties(filesArray, 'startIndex', 'endIndex');
       if (oldStartIndex !== startIndex || oldEndIndex !== endIndex) {
-        setProperties(filesArray, { startIndex, endIndex });
+        filesArray.setIndices(startIndex, endIndex);
       }
     } else {
       console.error(

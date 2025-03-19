@@ -1,19 +1,19 @@
-{{one-icon icon=fileIcon class="details-icon"}}
+<OneIcon @icon={{fileIcon}} class="details-icon" />
 <div class="details-content">
   {{#if (eq nameDisplayMode "name")}}
     <div class="details-title">
-      {{#truncated-string class="single-file-info-file-name"}}
-        {{file-name-conflict file=file}}
-      {{/truncated-string}}
+      <TruncatedString class="single-file-info-file-name">
+        <FileNameConflict @file={{file}} />
+      </TruncatedString>
     </div>
   {{else if (eq nameDisplayMode "link")}}
     <div class="details-title">
-      {{file-path
+      <FilePath
         class="single-file-info-file-link"
-        file=file
-        onLinkClicked=(action "linkClicked")
-        onLinkKeydown=(action "linkClicked")
-      }}
+        @file={{file}}
+        @onLinkClicked={{action "linkClicked"}}
+        @onLinkKeydown={{action "linkClicked"}}
+      />
     </div>
   {{/if}}
   <ul class="details-property-list">

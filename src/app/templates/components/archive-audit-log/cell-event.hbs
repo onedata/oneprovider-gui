@@ -1,6 +1,6 @@
 <div class="flex-vertical-center">
-  {{one-icon icon=icon class="severity-icon"}}
-  {{#truncated-string class="message-text"}}
+  <OneIcon @icon={{icon}} class="severity-icon" />
+  <TruncatedString class="message-text">
     {{displayedMessage}}
-  {{/truncated-string}}
+  </TruncatedString>
 </div>

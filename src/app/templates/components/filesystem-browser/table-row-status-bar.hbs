@@ -32,11 +32,8 @@
       <div
         class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-public-data"
       >
-        {{one-icon
-          icon="globe-cursor"
-          class="file-public-data-icon"
-        }}
-        {{one-tooltip title=(tt this "hintPublicData" fileType=typeText)}}
+        <OneIcon @icon="globe-cursor" class="file-public-data-icon" />
+        <OneTooltip @title={{tt this "hintPublicData" fileType=typeText}} />
       </div>
     {{/if}}
   </div>
@@ -44,13 +41,13 @@
 {{#if nameConflict}}
   <div class="file-status-tag file-status-tag-danger file-status-conflict">
     {{tt this "status.conflict"}}
-    {{one-tooltip title=(tt this "otherFileSameName")}}
+    <OneTooltip @title={{tt this "otherFileSameName"}} />
   </div>
 {{/if}}
 {{#if (and (not isSymlink) isForbidden)}}
   <div class="file-status-tag file-status-tag-warning file-status-forbidden">
     {{tt this "status.forbidden"}}
-    {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
+    <OneTooltip @title={{tt this (concat "hintForbidden." file.type)}} />
   </div>
 {{/if}}
 {{#if (and (not isSymlink) hasCustomMetadata)}}
@@ -88,17 +85,17 @@
   >
     {{tt this "status.acl"}}
     {{#if previewMode}}
-      {{one-tooltip title=(tt this "hintAclPreview" fileType=typeText)}}
+      <OneTooltip @title={{tt this "hintAclPreview" fileType=typeText}} />
     {{/if}}
   </div>
 {{/if}}
 
 {{#unless previewMode}}
-  {{filesystem-browser/file-features
-    browserModel=browserModel
-    item=file
-    disabled=isEffDisabled
-    isFileConsumerDisabled=true
-    onInvokeItemAction=(action invokeFileAction)
-  }}
+  <FilesystemBrowser::FileFeatures
+    @browserModel={{browserModel}}
+    @item={{file}}
+    @disabled={{isEffDisabled}}
+    @isFileConsumerDisabled={{true}}
+    @onInvokeItemAction={{action invokeFileAction}}
+  />
 {{/unless}}

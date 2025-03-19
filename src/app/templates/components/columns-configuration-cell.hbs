@@ -13,11 +13,11 @@
       bubbles=false
     }}
   >
-    {{#one-icon-tagged
-      icon="columns"
-      tagIcon=(if (not columnsConfiguration.isAnyColumnHidden) "settings")
+    <OneIconTagged
+      @icon="columns"
+      @tagIcon={{if (not columnsConfiguration.isAnyColumnHidden) "settings"}}
       class="tag-right"
-    }}
+    >
       {{#if columnsConfiguration.isAnyColumnHidden}}
         <div class="hidden-columns-number-container">
           <span class="hidden-columns-number">
@@ -25,20 +25,20 @@
           </span>
         </div>
       {{/if}}
-    {{/one-icon-tagged}}
+    </OneIconTagged>
     {{#unless columnModificationOpened}}
-      {{one-tooltip title=(if columnsConfiguration.isAnyColumnHidden
+      <OneTooltip @title={{if columnsConfiguration.isAnyColumnHidden
         (tt this "hiddenColumns")
         (tt this "configureColumns")
-      )}}
+      }} />
     {{/unless}}
   </div>
-  {{columns-configuration-popover
-    isOpened=columnModificationOpened
-    triggerSelector=(local-selector elementId ".columns-configuration-button")
-    columnsConfiguration=columnsConfiguration
-    dragStartAction=dragStartAction
-    dragEndAction=dragEndAction
-    browserModel=browserModel
-  }}
+  <ColumnsConfigurationPopover
+    @isOpened={{columnModificationOpened}}
+    @triggerSelector={{local-selector elementId ".columns-configuration-button"}}
+    @columnsConfiguration={{columnsConfiguration}}
+    @dragStartAction={{dragStartAction}}
+    @dragEndAction={{dragEndAction}}
+    @browserModel={{browserModel}}
+  />
 {{/if}}

@@ -56,7 +56,14 @@ export default Component.extend(I18n, {
   updateOpenedFileData: notImplementedWarn,
 
   /**
+   * @virtual optional
+   * @type {boolean}
+   */
+  isReadOnly: false,
+
+  /**
    * If true, ancestors entries will be collapsed on init.
+   * @virtual optional
    * @type {boolean}
    */
   ancestorsInitiallyCollapsed: true,

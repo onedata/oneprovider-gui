@@ -5,28 +5,28 @@
         {{tt this "providersMapOfDist"}}
       </h2>
       <div class="row loadable-row row-providers-map-inner">
-        {{space-transfers/providers-map
-          space=space
-          providersColors=providersColors
-          zoomOnScroll=false
-        }}
+        <SpaceTransfers::ProvidersMap
+          @space={{space}}
+          @providersColors={{providersColors}}
+          @zoomOnScroll={{false}}
+        />
       </div>
     </div>
     <div class="throughput-chart-container providers-container-border">
       <h2><span class="one-label">{{tt this "title"}}</span></h2>
       <div class="row loadable-row">
-        {{space-transfers/throughput-chart
-          space=space
-          providers=providers
-          providersColors=providersColors
-        }}
+        <SpaceTransfers::ThroughputChart
+          @space={{space}}
+          @providers={{providers}}
+          @providersColors={{providersColors}}
+        />
       </div>
     </div>
   </div>
 
   <div class="row-expand-handler hidden-sm" {{action "toggleOverview"}}>
     <span class="toggle-expand left {{if overviewExpanded "opened"}}">
-      {{one-icon class="toggle-icon" icon="arrow-down"}}
+      <OneIcon class="toggle-icon" @icon="arrow-down" />
     </span>
     <span class="one-label">
       {{tt this (if overviewExpanded "hide" "show")}}

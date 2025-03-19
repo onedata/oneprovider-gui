@@ -3,24 +3,21 @@
     "name-section"
   }}>
     <div class="distribution-row-name">
-      {{#truncated-string tagName="span" class="storage-name-container"}}
+      <TruncatedString @tagName="span" class="storage-name-container">
         <span class="storage-name">{{storageName}}</span>
-      {{/truncated-string}}
+      </TruncatedString>
       <span class="at-text">{{tt this "at"}}</span>
-      {{record-info-with-icon
-        record=oneprovider
-        class="oneprovider-name"
-      }}
+      <RecordInfoWithIcon @record={{oneprovider}} class="oneprovider-name" />
     </div>
     <div class="distribution-row-name path-container">
       {{#if storageFileLocation}}
-        {{clipboard-line
-          value=storageFileLocation
-          size="sm"
+        <ClipboardLine
+          @value={{storageFileLocation}}
+          @size="sm"
           class="storage-file-path-clipboard"
-          buttonTip=(tt this "buttonTip")
-          enableValueTip=true
-        }}
+          @buttonTip={{tt this "buttonTip"}}
+          @enableValueTip={{true}}
+        />
       {{else}}
         <div class="na-location-info-small-screen">
           <OneIcon @icon="browser-info" class="na-location-info-icon">
@@ -38,57 +35,68 @@
       {{/if}}
     </div>
   </div>
-  {{#one-pill-button
-    menuItems=actionsArray
-    theme="light"
-    useDots=true
-  }}
-    {{#status-toolbar as |toolbar|}}
-      {{toolbar.icon
-        icon="data-receive"
-        class=(concat-classes "replication-status-icon" (if isReplicationInProgress
-          (concat-classes statusIconActiveClasses "pulse-mint")
-          "inactive"
-        ))
-        hint=(tt this (if isReplicationInProgress "replicationInProgress" "noReplicationInProgress"))
-      }}
-      {{toolbar.icon
-        icon="data-send"
-        class=(concat-classes "migration-status-icon" (if isMigrationInProgress
-          (concat-classes statusIconActiveClasses "pulse-orange")
-          "inactive"
-        ))
-        hint=(tt this (if isMigrationInProgress "migrationInProgress" "noMigrationInProgress"))
-      }}
-      {{toolbar.icon
-        icon="x"
-        class=(concat-classes "eviction-status-icon" (if isEvictionInProgress
-          (concat-classes statusIconActiveClasses "pulse-red")
-          "inactive"
-        ))
-        hint=(tt this (if isEvictionInProgress "evictionInProgress" "noEvictionInProgress"))
-      }}
-    {{/status-toolbar}}
-  {{/one-pill-button}}
+  <OnePillButton @menuItems={{actionsArray}} @theme="light" @useDots={{true}}>
+    <StatusToolbar as |toolbar|>
+      <toolbar.icon
+        @icon="data-receive"
+        class={{concat-classes
+          "replication-status-icon"
+          (if isReplicationInProgress
+            (concat-classes statusIconActiveClasses "pulse-mint")
+            "inactive"
+          )
+        }}
+        @hint={{tt
+          this
+          (if isReplicationInProgress "replicationInProgress" "noReplicationInProgress")
+        }}
+      />
+      <toolbar.icon
+        @icon="data-send"
+        class={{concat-classes
+          "migration-status-icon"
+          (if isMigrationInProgress
+            (concat-classes statusIconActiveClasses "pulse-orange") "inactive"
+          )
+        }}
+        @hint={{tt this
+          (if isMigrationInProgress "migrationInProgress" "noMigrationInProgress")
+        }}
+      />
+      <toolbar.icon
+        @icon="x"
+        class={{concat-classes
+          "eviction-status-icon"
+          (if isEvictionInProgress
+            (concat-classes statusIconActiveClasses "pulse-red")
+            "inactive"
+          )
+        }}
+        @hint={{tt this
+          (if isEvictionInProgress "evictionInProgress" "noEvictionInProgress")
+        }}
+      />
+    </StatusToolbar>
+  </OnePillButton>
   {{#if hasSingleRegFile}}
-    {{file-distribution/chunks-visualizer
-      neverSynchronized=neverSynchronized
-      fileSize=filesSize
-      fileSizeOnStorage=filesSizeOnStorage
-      chunks=chunksBarData
-      percentage=percentage
-      chunksRange=chunksRange
-      chunkCount=blockCount
-      errorOnStorage=errorOnStorage
-    }}
+    <FileDistribution::ChunksVisualizer
+      @neverSynchronized={{neverSynchronized}}
+      @fileSize={{filesSize}}
+      @fileSizeOnStorage={{filesSizeOnStorage}}
+      @chunks={{chunksBarData}}
+      @percentage={{percentage}}
+      @chunksRange={{chunksRange}}
+      @chunkCount={{blockCount}}
+      @errorOnStorage={{errorOnStorage}}
+    />
   {{else}}
-    {{file-distribution/progress-bar-visualizer
-      size=filesSizeOnStorage
-      percentage=percentage
-      getProvidersUrl=(action "getProvidersUrl")
-      providerId=oneprovider.entityId
-      errorOnStorage=errorOnStorage
-    }}
+    <FileDistribution::ProgressBarVisualizer
+      @size={{filesSizeOnStorage}}
+      @percentage={{percentage}}
+      @getProvidersUrl={{action "getProvidersUrl"}}
+      @providerId={{oneprovider.entityId}}
+      @errorOnStorage={{errorOnStorage}}
+    />
   {{/if}}
 </div>
 <div class="first-line-breaker"></div>

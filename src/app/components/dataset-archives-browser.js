@@ -711,6 +711,9 @@ export default Component.extend(...mixins, {
   },
 
   closeArchivePropertiesModal() {
+    if (this.isDestroyed || this.isDestroying) {
+      return;
+    }
     this.setProperties({
       archiveToShowDetails: null,
       archiveDetailsOptions: null,

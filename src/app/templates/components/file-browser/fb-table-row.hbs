@@ -1,9 +1,6 @@
 {{#if isInvalidated}}
   <td colspan="9999" class="special-row-cell invalidated-row-cell">
-    {{spin-spinner-block
-      sizeClass="xs"
-      class="absolute-middle-centered"
-    }}
+    <SpinSpinnerBlock @sizeClass="xs" class="absolute-middle-centered" />
   </td>
 {{else}}
   <td class={{concat-classes "fb-table-col-files" (if multilineInfo "multiline")}}>
@@ -15,10 +12,7 @@
     >
       {{#if isLoadingOnIcon}}
         <div class="inline-icon-container">
-          {{spin-spinner-block
-            sizeClass="xs"
-            class="on-icon-loading-spinner"
-          }}
+          <SpinSpinnerBlock @sizeClass="xs" class="on-icon-loading-spinner" />
         </div>
       {{else}}
         <div
@@ -29,26 +23,26 @@
           onmouseout={{action "changeFileNameHover" false}}
         >
           {{#if infoIconActionName}}
-            {{flippable-icons
-              iconTaggedClass=iconTaggedClass
-              iconTag=iconTag
-              iconName=icon
-              isHovered=isFileNameHovered
-              iconTip=iconTip
-              iconClass="file-icon"
-            }}
+            <FlippableIcons
+              @iconTaggedClass={{iconTaggedClass}}
+              @iconTag={{iconTag}}
+              @iconName={{icon}}
+              @isHovered={{isFileNameHovered}}
+              @iconTip={{iconTip}}
+              @iconClass="file-icon"
+            />
           {{else}}
-            {{#one-icon-tagged
-              class=(concat-classes "tag-right" iconTaggedClass)
-              icon=icon
-              iconClass="file-icon"
-              tagIcon=iconTag
-              shadowType=(if iconTag "circle" "none")
-            }}
+            <OneIconTagged
+              class={{concat-classes "tag-right" iconTaggedClass}}
+              @icon={{icon}}
+              @iconClass="file-icon"
+              @tagIcon={{iconTag}}
+              @shadowType={{if iconTag "circle" "none"}}
+            >
               {{#if iconTip}}
-                {{one-tooltip title=iconTip}}
+                <OneTooltip @title={{iconTip}} />
               {{/if}}
-            {{/one-icon-tagged}}
+            </OneIconTagged>
           {{/if}}
         </div>
       {{/if}}
@@ -56,7 +50,7 @@
         <div class="file-item-text-upper">
           <div class="file-info-container">
             <div class="file-name">
-              {{#truncated-string class="file-name-inner"}}
+              <TruncatedString class="file-name-inner">
                 <span
                   onmouseover={{action "changeFileNameHover" true}}
                   onmouseout={{action "changeFileNameHover" false}}
@@ -65,9 +59,9 @@
                   <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
                 </span>
                 {{#if fileLoadError}}
-                  {{one-tooltip title=fileLoadError.message}}
+                  <OneTooltip @title={{fileLoadError.message}} />
                 {{/if}}
-              {{/truncated-string}}
+              </TruncatedString>
             </div>
             {{#if showSecondaryInfo}}
               {{component secondaryInfoComponentName
@@ -116,17 +110,15 @@
   {{/if}}
   <td class="fb-table-col-actions-menu">
     {{#unless hideMenuTrigger}}
-      {{#one-menu-toggle
+      <OneMenuToggle
         class="file-row-actions-trigger"
-        click=(if (and (not noItemsActions) enableContextMenuToggle)
-          (disable-bubbling (action "openContextMenu"))
-        )
-        disabled=noItemsActions
-      }}
+        @click={{if (and (not noItemsActions) enableContextMenuToggle) (disable-bubbling (action "openContextMenu"))}}
+        @disabled={{noItemsActions}}
+      >
         {{#if noItemsActions}}
-          {{one-tooltip title=(tt this "noActions")}}
+          <OneTooltip @title={{tt this "noActions"}} />
         {{/if}}
-      {{/one-menu-toggle}}
+      </OneMenuToggle>
     {{/unless}}
   </td>
 {{/if}}

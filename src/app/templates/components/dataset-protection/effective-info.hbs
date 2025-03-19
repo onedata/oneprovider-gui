@@ -9,10 +9,10 @@
         (concat "protected-tag-" flagState)
         (concat protectionType "-protected-tag")
       }}>
-        {{one-icon
+        <OneIcon
           class="tag-icon protection-tag-status-icon"
-          icon=(get protectionIcons protectionType)
-        }}
+          @icon={{get protectionIcons protectionType}}
+        />
         <span class="label-text protected-text">
           {{tt this (concat "fileProtectionTag." flagState)
             fileTypeUpper=(capitalize (tt this (if
@@ -23,27 +23,23 @@
             protectionType=(tt this (concat "protectionType." protectionType))
           }}
         </span>
-        {{#one-icon
-          icon="sign-question-rounded"
-          class=(concat-classes
+        <OneIcon
+          @icon="sign-question-rounded"
+          class={{concat-classes
             "hint-trigger clickable"
             (concat protectionType "-protection-hint-trigger")
-          )
-        }}
-          {{one-tooltip
-            title=(if (eq flagState "enabled")
+          }}
+        >
+          <OneTooltip
+            @title={{if (eq flagState "enabled")
               (tt this (concat "fileProtectionTagTip.enabled." protectionType))
-              (tt this (concat "fileProtectionTagTip.disabled")
-                fileType=(tt this (if
-                  (eq mode "dataset")
-                  "dataset"
-                  (concat "fileType." fileType)
-                ))
+              (tt this "fileProtectionTagTip.disabled"
+                fileType=(tt this (if (eq mode "dataset") "dataset" (concat "fileType." fileType)))
                 protectionType=(tt this (concat "protectionType." protectionType))
               )
-            )
-          }}
-        {{/one-icon}}
+            }}
+          />
+        </OneIcon>
       </div>
     </div>
   {{/with}}

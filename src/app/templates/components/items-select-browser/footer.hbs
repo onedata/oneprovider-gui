@@ -3,16 +3,16 @@
     <div class="selection-count-text">
       {{itemsSelectedText}}
       {{#if selectedCount}}
-        {{#one-icon icon="browser-info" class="selection-count-tip-trigger"}}
-          {{one-tooltip
-            title=itemsTooltipContent.tooltipContent
-            class=(concat-classes
+        <OneIcon @icon="browser-info" class="selection-count-tip-trigger">
+          <OneTooltip
+            @title={{itemsTooltipContent.tooltipContent}}
+            class={{concat-classes
               itemsTooltipContent.tooltipClass
               "selection-count-tip-content"
-            )
-            onShown=(action "onItemsTooltipShown")
-          }}
-        {{/one-icon}}
+            }}
+            @onShown={{action "onItemsTooltipShown"}}
+          />
+        </OneIcon>
       {{/if}}
     </div>
   </div>
@@ -20,22 +20,18 @@
     <div class="selection-validation-error text-danger">{{validationError}}</div>
   {{/if}}
 </div>
-{{#one-button
-  onClick=onCancel
-  type="default"
-  class="close-btn"
-}}
+<OneButton @onClick={{onCancel}} @type="default" class="close-btn">
   {{tt this "cancel"}}
-{{/one-button}}
+</OneButton>
 <div class="btn-tooltip-container">
-  {{#one-button
-    onClick=onSubmit
+  <OneButton
+    @onClick={{onSubmit}}
     class="btn btn-primary submit-selection-btn"
-    disabled=submitDisabled
-  }}
+    @disabled={{submitDisabled}}
+  >
     {{submitLabel}}
-  {{/one-button}}
+  </OneButton>
   {{#if validationError}}
-    {{one-tooltip title=validationError}}
+    <OneTooltip @title={{validationError}} />
   {{/if}}
 </div>

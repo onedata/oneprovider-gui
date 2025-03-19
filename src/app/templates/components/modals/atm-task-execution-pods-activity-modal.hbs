@@ -1,52 +1,52 @@
-{{#global-modal
-  classNames="atm-task-execution-pods-activity-modal modal-content-overlay with-close-button"
-  modalId=modalId
-  size="xl"
+<GlobalModal
+  @classNames="atm-task-execution-pods-activity-modal modal-content-overlay with-close-button"
+  @modalId={{modalId}}
+  @size="xl"
   as |modal|
-}}
+>
 
-  {{#modal.header}}
+  <modal.header>
     <h1>{{tt this "header"}}</h1>
     {{#if atmTaskName}}
       <h2 class="normal-case">
-        {{#truncated-string class="header-content"}}
+        <TruncatedString class="header-content">
           <div class="inline-icon-container header-icon">
             <OneIcon @icon="atm-lambda" />
           </div>
           {{atmTaskName}}
-        {{/truncated-string}}
+        </TruncatedString>
       </h2>
     {{/if}}
-  {{/modal.header}}
+  </modal.header>
 
-  {{#modal.body}}
-    {{#promise-proxy-container proxy=podsStatusRegistryProxy}}
+  <modal.body>
+    <PromiseProxyContainer @proxy={{podsStatusRegistryProxy}}>
       <div class="pods-table-section fill-flex-using-column">
-        {{modals/atm-task-execution-pods-activity-modal/pods-table
+        <Modals::AtmTaskExecutionPodsActivityModal::PodsTable
           class="fill-flex-using-column"
-          statusRegistry=podsStatusRegistryProxy.registry
-          selectedPodId=selectedPodId
-          onPodSelect=(action "podSelected")
-        }}
+          @statusRegistry={{podsStatusRegistryProxy.registry}}
+          @selectedPodId={{selectedPodId}}
+          @onPodSelect={{action "podSelected"}}
+        />
       </div>
-      {{modals/atm-task-execution-pods-activity-modal/pods-events-splitter
-        gridTrackNumber=1
-      }}
+      <Modals::AtmTaskExecutionPodsActivityModal::PodsEventsSplitter
+        @gridTrackNumber={{1}}
+      />
       <div class="events-table-section fill-flex-using-column relative">
         {{#if selectedPodId}}
           <h2 class="normal-case">{{tt this "eventsHeader" podName=selectedPodId}}</h2>
-          {{modals/atm-task-execution-pods-activity-modal/events-table
+          <Modals::AtmTaskExecutionPodsActivityModal::EventsTable
             class="fill-flex-using-column"
-            atmTaskExecutionId=atmTaskExecutionId
-            podId=selectedPodId
-          }}
+            @atmTaskExecutionId={{atmTaskExecutionId}}
+            @podId={{selectedPodId}}
+          />
         {{else}}
           <p class="events-table-placeholder">
             {{tt this "eventsTablePlaceholder"}}
           </p>
         {{/if}}
       </div>
-    {{/promise-proxy-container}}
-  {{/modal.body}}
+    </PromiseProxyContainer>
+  </modal.body>
 
-{{/global-modal}}
+</GlobalModal>
