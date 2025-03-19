@@ -217,8 +217,10 @@ export default Component.extend(I18n, {
       this.onGoBack();
     },
     changeColumnName(value) {
-      this.set('isColumnNameModified', true);
-      this.set('columnName', value);
+      this.setProperties({
+        isColumnNameModified: true,
+        columnName: value,
+      });
     },
     submitColumn() {
       this.onSubmitColumn(
