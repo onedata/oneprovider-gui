@@ -369,7 +369,7 @@ export default BaseBrowserModel.extend(...mixins, {
   /**
    * @type {boolean}
    */
-  hasXattrColumnsSupport: true,
+  hasMetadataColumnsSupport: true,
 
   parentDirRequirement: computed(
     'dir',
@@ -708,8 +708,8 @@ export default BaseBrowserModel.extend(...mixins, {
       icon: commonActionIcons.metadata,
       disabled: Boolean(disabledTip),
       tip: disabledTip,
-      action: (files) => {
-        return this.get('openInfo')(files, 'metadata');
+      action: (files, activeChildTab) => {
+        return this.get('openInfo')(files, 'metadata', { activeChildTab });
       },
       showIn: [
         actionContext.singleDir,
@@ -1475,7 +1475,7 @@ export default BaseBrowserModel.extend(...mixins, {
     }
     return ColumnsConfiguration.create({
       configurationType: this.browserPersistedConfigurationKey,
-      hasXattrSettings: this.hasXattrColumnsSupport,
+      hasMetadataSettings: this.hasMetadataColumnsSupport,
       columns,
       columnsOrder,
       firstColumnWidth: 380,

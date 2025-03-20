@@ -64,6 +64,11 @@
           width: 10em;
         }
 
+        .inline-icon-container {
+          width: 1.2em;
+          height: auto;
+        }
+
         .icon-container .oneicon {
           vertical-align: middle;
         }
@@ -187,6 +192,10 @@
     }
   }
 
+  .metadata-state-selector {
+    padding-bottom: 15px;
+  }
+
   .add-new-column {
     display: flex;
     align-items: center;
@@ -267,6 +276,10 @@
       }
     }
 
+    .new-json-key, .new-item-name {
+      margin-bottom: 20px;
+    }
+
     .back-column-btn {
       margin-right: $padding-xs-horizontal;
     }
@@ -275,12 +288,15 @@
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      padding-top: 10px;
+    }
+    .radio-inline {
+      display: inline-flex;
+      align-items: center;
     }
   }
 }
 
-.webui-popover-columns-configuration-with-xattrs {
+.webui-popover-columns-configuration-with-metadata {
   @media (min-height: $screen-sm-min) {
     --min-height-popover: 240px;
   }

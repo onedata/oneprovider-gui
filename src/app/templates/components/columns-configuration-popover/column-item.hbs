@@ -30,7 +30,7 @@
       class="column-name-label"
     >
       <TruncatedString>
-        {{#if (eq (get columnValue "type") "xattr")}}
+        {{#if isMetadataColumn}}
           {{get columnValue "displayedName"}}
         {{else}}
           {{tt this (concat translationKey ".name." columnName)}}
@@ -38,19 +38,15 @@
       </TruncatedString>
       {{#if columnValue.hasSubname}}
         <span class="subname-text">
-          {{#if (eq (get columnValue "type") "xattr")}}
-            ({{tt this (concat translationKey ".subname.xattr")}})
-          {{else}}
-            ({{tt this (concat translationKey ".subname." columnName)}})
-          {{/if}}
+          ({{subnameText}})
         </span>
       {{/if}}
     </label>
     <div class="icons-container">
-      {{#if (eq (get columnValue "type") "xattr")}}
+      {{#if isMetadataColumn}}
         <div
-          class="modify-column icon-container"
-          onClick={{action "openXattrModification" columnName}}
+          class="modify-column icon-container inline-icon-container"
+          onClick={{action "openColumnEditor" columnName}}
         >
           <OneIcon @icon="browser-rename" class="visible-on-hover"/>
           {{#if isColumnListVisible}}
@@ -60,8 +56,8 @@
           {{/if}}
         </div>
         <div
-          class="remove-column icon-container"
-          onClick={{action "removeXattrColumn" columnName}}
+          class="remove-column icon-container inline-icon-container"
+          onClick={{action "removeMetadataColumn" columnName}}
         >
           <OneIcon @icon="close" class="visible-on-hover"/>
           {{#if isColumnListVisible}}

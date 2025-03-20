@@ -92,13 +92,13 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {(columnName: string) => void}
    */
-  openXattrModification: notImplementedWarn,
+  openColumnEditor: notImplementedWarn,
 
   /**
    * @virtual
    * @type {(columnName: string) => void}
    */
-  removeXattrColumn: notImplementedWarn,
+  removeMetadataColumn: notImplementedWarn,
 
   /**
    * @virtual
@@ -160,6 +160,13 @@ export default Component.extend(I18n, {
   isArrowTooltipVisible: true,
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isMetadataColumn: computed('columnValue.type', function isMetadataColumn() {
+    return this.columnValue.type === 'xattr' || this.columnValue.type === 'json';
+  }),
+
+  /**
    * @virtual
    * @type {ComputedProperty<string>}
    */
@@ -180,19 +187,49 @@ export default Component.extend(I18n, {
   currentProviderName: reads('currentProviderProxy.content.name'),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<SafeString>}
+   */
+  subnameText: computed(
+    'columnValue.type',
+    'translationKey',
+    'columnName',
+    function subnameText() {
+      if (this.columnValue.type === 'xattr') {
+        return this.t(`${this.translationKey}.subname.xattr`);
+      } else if (this.columnValue.type === 'json') {
+        if (this.columnValue.displayedName.length > 9) {
+          return this.t(`${this.translationKey}.subname.jsonShort`);
+        } else {
+          return this.t(`${this.translationKey}.subname.json`);
+        }
+      } else {
+        return this.t(`${this.translationKey}.subname.${this.columnName}`);
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
    */
   tooltipText: computed(
-    'columnValue.{type,xattrKey}',
+    'columnValue.{type,options}',
     'translationKey',
-    'previewMode',
     'columnName',
     'currentProviderName',
+    'previewMode',
     function tooltipText() {
       if (this.columnValue.type === 'xattr') {
         return this.t(`${this.translationKey}.tip.xattr`, {
-          key: this.columnValue.xattrKey,
+          key: this.columnValue.options.xattrKey,
         });
+      } else if (this.columnValue.type === 'json') {
+        if (this.columnValue.options.queryType === 'all') {
+          return this.t(`${this.translationKey}.tip.json.all`);
+        } else {
+          return this.t(`${this.translationKey}.tip.json.key`, {
+            key: this.columnValue.options.jsonKey,
+          });
+        }
       } else if (this.columnName === 'fileId') {
         const mode = this.previewMode ? 'public' : 'priv';
         return this.t(`${this.translationKey}.tip.fileId.${mode}`);
@@ -214,11 +251,11 @@ export default Component.extend(I18n, {
     moveColumnUp(columnName) {
       return this.moveColumnUp(columnName);
     },
-    openXattrModification(columnName) {
-      this.openXattrModification(columnName);
+    openColumnEditor(columnName) {
+      this.openColumnEditor(columnName);
     },
-    removeXattrColumn(columnName) {
-      this.removeXattrColumn(columnName);
+    removeMetadataColumn(columnName) {
+      this.removeMetadataColumn(columnName);
     },
     headingDrag(event) {
       if (this.dragStartAction) {

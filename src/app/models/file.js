@@ -456,6 +456,7 @@ export default Model.extend(
     size: attr('number'),
     posixPermissions: attr('string'),
     hasCustomMetadata: attr('boolean'),
+    hasJsonMetadata: attr('boolean'),
     hardlinkCount: attr('number', { defaultValue: 1 }),
     localReplicationRate: attr('number'),
     isFullyReplicatedLocally: attr('boolean'),
@@ -524,6 +525,11 @@ export default Model.extend(
      * corresponding to xattr keys where periods have been replaced by dashes.
      */
     xattrs: attr('object', { defaultValue: () => {} }),
+
+    /**
+     * @type {ComputedProperty<Object|string|number|boolean|null>}
+     */
+    jsonMetadata: attr(),
 
     /**
      * One of: `posix`, `acl`. Cannot be modified

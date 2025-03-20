@@ -14,9 +14,8 @@ import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
-import { Promise } from 'rsvp';
+import { Promise, resolve } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import { resolve } from 'rsvp';
 import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
 
 const mixins = [
@@ -88,10 +87,26 @@ export default Component.extend(...mixins, {
   modifiedDisplayedName: '',
 
   /**
+   * @type {ColumnType}
+   */
+  modifiedMetadataType: '',
+
+  /**
    * Actual modified xattr key, used to display as the default value in the dropdown.
    * @type {string}
    */
   modifiedXattrKey: '',
+
+  /**
+   * Actual modified JSON query type, used to display as the default value in radio buttons.
+   * @type {JsonQueryType}
+   */
+  modifiedJsonQueryType: '',
+
+  /**
+   * @type {string}
+   */
+  modifiedJsonKey: '',
 
   /**
    * @type {ComputedProperty<string>}
@@ -106,7 +121,7 @@ export default Component.extend(...mixins, {
   }),
 
   /**
-   * @type {'xattr-add'|'xattr-modify'|'column-configuration'}
+   * @type {'column-add'|'column-modify'|'column-configuration'}
    */
   activeSlide: 'column-configuration',
 
@@ -128,14 +143,16 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  hasXattrSettings: reads('columnsConfiguration.hasXattrSettings'),
+  hasMetadataSettings: reads('columnsConfiguration.hasMetadataSettings'),
 
   /**
    * @type {ComputedProperty<string>}
    */
-  popoverStyle: computed('hasXattrSettings', function popoverStyle() {
+  popoverStyle: computed('hasMetadataSettings', function popoverStyle() {
     return 'columns-configuration' +
-      (this.hasXattrSettings ? ' webui-popover-columns-configuration-with-xattrs' : '');
+      (this.hasMetadataSettings ?
+        ' webui-popover-columns-configuration-with-metadata' : ''
+      );
   }),
 
   /**
@@ -222,29 +239,46 @@ export default Component.extend(...mixins, {
         this.applyCurrentColumnsOrder();
       }
     },
-    submitColumn(name, key, isNewColumn) {
+    submitColumn(isNewColumn, type, name, options) {
       if (isNewColumn) {
-        this.columnsConfiguration.addNewColumn(name, key, 'xattr');
+        this.columnsConfiguration.addNewColumn(name, options, type);
       } else {
-        this.columnsConfiguration.modifyColumn(this.modifiedColumn, name, key);
+        this.columnsConfiguration.modifyColumn(this.modifiedColumn, name, options, type);
       }
       this.set('activeSlide', 'column-configuration');
     },
-    removeXattrColumn(removedColumn) {
-      this.columnsConfiguration.removeXattrColumn(removedColumn);
+    removeMetadataColumn(removedColumn) {
+      this.columnsConfiguration.removeMetadataColumn(removedColumn);
     },
     goXattrConfiguration() {
-      this.set('activeSlide', 'xattr-add');
+      this.set('activeSlide', 'column-add');
     },
-    openXattrModification(columnName) {
-      const xattrKey = this.columnsConfiguration.columns[columnName].xattrKey;
+    openColumnEditor(columnName) {
+      const columnInfo = this.columnsConfiguration.columns[columnName];
       this.setProperties({
-        modifiedXattrKey: xattrKey,
-        activeSlide: 'xattr-modify',
+        activeSlide: 'column-modify',
         modifiedColumn: columnName,
-        modifiedDisplayedName: this.columnsConfiguration.columns[columnName]
-          .displayedName,
+        modifiedMetadataType: columnInfo.type,
+        modifiedDisplayedName: columnInfo.displayedName,
       });
+      if (columnInfo.type === 'xattr') {
+        this.set(
+          'modifiedXattrKey',
+          columnInfo.options.xattrKey
+        );
+      } else {
+        const queryType = columnInfo.options.queryType;
+        this.set(
+          'modifiedJsonQueryType',
+          queryType
+        );
+        if (queryType === 'key') {
+          this.set(
+            'modifiedJsonKey',
+            columnInfo.options.jsonKey
+          );
+        }
+      }
     },
     goBack() {
       this.set('activeSlide', 'column-configuration');

@@ -1,10 +1,14 @@
 .filesystem-browser {
+  $info-icon-size: 200%;
   // special adjustments because of jump-control presence
   .filesystem-table-head-row {
     height: 63px;
     th {
       padding-bottom: 10px;
     }
+  }
+  .empty-column {
+    font-size: 80%;
   }
   .fb-table-secondary-col .column-info-icon {
     font-size: 150%;
@@ -162,7 +166,7 @@
     }
   }
 
-  .fb-table-col-xattr {
+  .table-cell-xattr-info {
     position: relative;
     text-align: center;
 
@@ -171,7 +175,7 @@
     }
 
     .info-icon {
-      font-size: 180%;
+      font-size: $info-icon-size;
       visibility: hidden;
       vertical-align: middle;
     }
@@ -194,6 +198,70 @@
     }
   }
 
+  .table-cell-json-info {
+    position: relative;
+    text-align: center;
+    font-size: 80%;
+
+    .file-json-text {
+      @include font-monospace();
+      padding-left: $padding-xs-horizontal;
+      padding-right: $padding-xs-horizontal;
+
+      // colors compatibility with ACE Editor
+      .token.number {
+        color: rgb(0, 0, 205);
+      }
+      .token.boolean {
+        color: rgb(88, 92, 246);
+      }
+      .token.null {
+        color: $main-text-color;
+      }
+      .token.string {
+        color: rgb(3, 106, 7);
+      }
+      .token.property {
+        color: rgb(49, 132, 149);
+      }
+      .token.operator {
+        background: none;
+      }
+    }
+    .file-json {
+      cursor: pointer;
+      position: relative;
+
+      .copy-icon {
+        cursor: pointer;
+        position: absolute;
+        right: -0.94em;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: $disabled-opacity;
+        visibility: hidden;
+        font-size: $info-icon-size;
+      }
+
+      &.single-line-content {
+        display: inline-block;
+
+        .copy-icon {
+          right: -1.2em;
+        }
+      }
+    }
+
+    &:hover .copy-icon {
+      visibility: visible;
+      opacity: 1;
+
+      &:hover {
+        color: $color-one-mint;
+      }
+    }
+  }
+
   .fb-table-col-file-id {
     .clipboard-input {
       position: absolute;
@@ -208,7 +276,7 @@
       top: 0.24em;
       opacity: $disabled-opacity;
       visibility: hidden;
-      font-size: 200%;
+      font-size: $info-icon-size;
 
       .copy-btn-icon {
         line-height: 1;

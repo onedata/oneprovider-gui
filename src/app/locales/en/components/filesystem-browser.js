@@ -5,6 +5,7 @@ import dirLoadError from './filesystem-browser/dir-load-error';
 import tableRowColumns from './filesystem-browser/table-row-columns';
 import fileFeatures from './filesystem-browser/file-features';
 import tagRecalled from './filesystem-browser/tag-recalled';
+import tableCellJsonInfo from './filesystem-browser/table-cell-json-info';
 
 export default {
   tableRowStatusBar,
@@ -14,4 +15,5 @@ export default {
   tableRowColumns,
   fileFeatures,
   tagRecalled,
+  tableCellJsonInfo,
 };
