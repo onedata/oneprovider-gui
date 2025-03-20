@@ -12,7 +12,6 @@ export default {
   columnLabelExistsTooltip: 'Column with this label already exists.',
   xattrKey: {
     label: 'Extended attribute key',
-    customValueOptionTextPrefix: 'Custom xattr key...',
     customValueInputPlaceholder: 'Enter an xattr key...',
   },
   metadataType: {
