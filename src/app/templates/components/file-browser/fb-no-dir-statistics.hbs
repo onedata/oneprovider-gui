@@ -1,14 +1,14 @@
-{{#content-info
+<ContentInfo
   class="scroll-breakpoint-400 fill-flex-using-column content-info-no-dir-statistics"
-  header=(tt this "header")
-  text=(tt this "text")
-}}
+  @header={{tt this "header"}}
+  @text={{tt this "text"}}
+>
   <a 
     class="btn btn-primary open-provider-settings-btn" 
     href={{providersUrl}} 
     target={{navigateProvidersTarget}}
   >
     <span class="text">{{tt this "buttonText"}}</span>
-    {{one-icon icon="link-external"}}
+    <OneIcon @icon="link-external" />
   </a>
-{{/content-info}}
+</ContentInfo>

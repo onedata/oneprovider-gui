@@ -61,7 +61,7 @@
             as |option|
           >
             <div class="option-container">
-              {{#truncated-string}}
+              <TruncatedString>
                 <span class="text">
                   <span
                     class="predefined-label {{unless option.value "predefined-label-default"}}"
@@ -76,7 +76,7 @@
                     <span class="predefined-value">({{option.value}})</span>
                   {{/if}}
                 </span>
-              {{/truncated-string}}
+              </TruncatedString>
             </div>
           </OneDropdown>
         </div>
@@ -171,7 +171,7 @@
               as |option|
             >
               <div class="option-container">
-                {{#truncated-string}}
+                <TruncatedString>
                   <span class="text">
                     <span class="predefined-label">
                       {{#if option.label}}
@@ -189,7 +189,7 @@
                       <span class="predefined-value">({{option.value}})</span>
                     {{/unless}}
                   </span>
-                {{/truncated-string}}
+                </TruncatedString>
               </div>
             </OneDropdown>
           {{/if}}

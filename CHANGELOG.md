@@ -4,6 +4,11 @@
 
 ### Latest changes
 
+* VFS-12259 Added JSON columns in file browser
+* VFS-12622 Refactored OneIcon component to Glimmer
+* VFS-12631 Fixed showing empty file list after deleting many items selected from second to the end
+* VFS-12543 Fixed showing only first 10 items in file browser, after first item on the list has been deleted
+* VFS-12554 Using common code with infinite scroll sidebars
 * VFS-12650 Changed texts when path in data distribution is unavailable
 * VFS-12542 Added custom fingerprint hashes based on file content and current git revision for some assets
 * VFS-12610 Fixed showing times for transfer in transfers table and fixed showing tooltip for File Id in column configuration popover

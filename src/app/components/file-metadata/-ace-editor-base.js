@@ -46,7 +46,7 @@ export default Component.extend({
    * @virtual optional
    * @type {Boolean}
    */
-  readonly: false,
+  isReadOnly: false,
 
   /**
    * @virtual optional

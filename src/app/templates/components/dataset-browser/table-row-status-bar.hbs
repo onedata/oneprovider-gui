@@ -16,19 +16,16 @@
       class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-protected"
     >
       {{#if dataIsEffProtected}}
-        {{one-icon
-          icon="provider"
-          class="file-protected-icon file-data-protected-icon"
-        }}
+        <OneIcon @icon="provider" class="file-protected-icon file-data-protected-icon" />
       {{/if}}
       {{#if metadataIsEffProtected}}
-        {{one-icon
-          icon="browser-attribute"
+        <OneIcon
+          @icon="browser-attribute"
           class="file-protected-icon file-metadata-protected-icon"
-        }}
+        />
       {{/if}}
       {{#if protectionFlagsInfo}}
-        {{one-tooltip title=protectionFlagsInfo}}
+        <OneTooltip @title={{protectionFlagsInfo}} />
       {{/if}}
     </div>
   </div>

@@ -33,7 +33,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Boolean}
    */
-  readonly: false,
+  isReadOnly: false,
 
   /**
    * @virtual

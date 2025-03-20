@@ -48,6 +48,7 @@ const statusGroups = {
 export default EmberObject.extend(OwnerInjector, {
   fileManager: service(),
   providerManager: service(),
+  store: service(),
 
   /**
    * @virtual
@@ -197,7 +198,7 @@ export default EmberObject.extend(OwnerInjector, {
     const {
       transfer,
       transferCollection,
-    } = this.getProperties('transfer', 'transferCollection');
+    } = this;
     this.reloadRecordIfNeeded(transfer);
     if (transferCollection === 'file') {
       this.addObserver('status', null, function statusObserver() {
@@ -209,30 +210,29 @@ export default EmberObject.extend(OwnerInjector, {
     this.filesToProcessSetter();
   },
 
-  reloadRecordIfNeeded(transfer = this.get('transfer')) {
+  reloadRecordIfNeeded(transfer = this.transfer) {
     const {
       id: transferGri,
       isLoaded: transferIsLoaded,
       isLoading: transferIsLoading,
-      transferCollection,
+    } = transfer;
+    const {
       store,
-    } = getProperties(
-      transfer,
-      'id',
-      'isLoaded',
-      'isLoading',
-      'store',
-      'transferCollection'
-    );
-    if (get(transfer, 'state') !== transferCollection) {
+      transferCollection,
+    } = this;
+    if (transfer.state !== transferCollection) {
       if (transferIsLoaded) {
-        this.set('isLoading', true);
-        transfer.reload()
-          .then(() =>
-            get(transfer, 'transferProgressProxy.isPending') ?
-            null : transfer.updateTransferProgressProxy({ replace: true })
-          )
-          .finally(() => safeExec(this, 'set', 'isLoading', false));
+        (async () => {
+          this.set('isLoading', true);
+          try {
+            await transfer.reload();
+            if (!transfer.transferProgressProxy.isPending) {
+              await transfer.updateTransferProgressProxy({ replace: true });
+            }
+          } finally {
+            safeExec(this, 'set', 'isLoading', false);
+          }
+        })();
       } else if (transferIsLoading) {
         // VFS-4487 quick fix for inconsistent transfer ids
         // thus it can show some warnings/errors, but it's a temporary solution

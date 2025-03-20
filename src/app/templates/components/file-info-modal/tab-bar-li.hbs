@@ -14,7 +14,7 @@
       to simple title to implement custom tabs look (eg. indicators)
     --}}
     {{#if item.icon}}
-      {{one-icon class="tab-icon" icon=item.icon}}
+      <OneIcon class="tab-icon" @icon={{item.icon}} />
     {{/if}}
     <span class="tab-name">{{item.name}}</span>
     {{#if item.statusNumber}}
@@ -24,10 +24,10 @@
       <span class="tab-status-tag label">{{item.statusTag}}</span>
     {{/if}}
     {{#if item.statusIcon}}
-      {{#one-icon class="tab-status-icon" icon=item.statusIcon}}
+      <OneIcon class="tab-status-icon" @icon={{item.statusIcon}}>
         {{#if item.statusIconTip}}
-          {{one-tooltip title=item.statusIconTip}}
+          <OneTooltip @title={{item.statusIconTip}} />
         {{/if}}
-      {{/one-icon}}
+      </OneIcon>
     {{/if}}
 </a>

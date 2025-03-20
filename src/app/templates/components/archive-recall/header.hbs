@@ -3,37 +3,37 @@
     {{tt this "headerText"}}
   </span>
   {{#if (media "isMobile")}}
-    {{one-icon
-      icon="sign-question-rounded"
+    <OneIcon
+      @icon="sign-question-rounded"
       class="archive-recall-header-hint-trigger hint-trigger clickable"
-    }}
-    {{#one-switchable-popover-modal
+    />
+    <OneSwitchablePopoverModal
       class="archive-recall-hint"
-      triggersConfiguration=".archive-recall-header-hint-trigger"
-      popoverStyle="archive-recall-hint-info"
-      modalClass="modal-compact-help"
-      layoutType="modal"
+      @triggersConfiguration=".archive-recall-header-hint-trigger"
+      @popoverStyle="archive-recall-hint-info"
+      @modalClass="modal-compact-help"
+      @layoutType="modal"
       as |ospm|
-    }}
-      {{#ospm.modal.header}}
+    >
+      <ospm.modal.header>
         <h1>{{tt this "recallHintTitle"}}</h1>
-      {{/ospm.modal.header}}
-      {{#ospm.modal.body}}
+      </ospm.modal.header>
+      <ospm.modal.body>
         <p>{{tt this "intro"}}</p>
-      {{/ospm.modal.body}}
-      {{#ospm.modal.footer}}
+      </ospm.modal.body>
+      <ospm.modal.footer>
         <div class="btn-toolbar text-right visible-xs-block">
-          {{#one-button class="btn btn-sm" type="info" onClick=ospm.close}}
+          <OneButton class="btn btn-sm" @type="info" @onClick={{ospm.close}}>
             {{tt this "hintClose"}}
-          {{/one-button}}
+          </OneButton>
         </div>
-      {{/ospm.modal.footer}}
-    {{/one-switchable-popover-modal}}
+      </ospm.modal.footer>
+    </OneSwitchablePopoverModal>
   {{/if}}
 </h1>
-{{#modal-archive-subheader archives=(array archive)}}
-  <span class="archive-files-info">({{archive-content-count archive=archive}})</span>
-{{/modal-archive-subheader}}
+<ModalArchiveSubheader @archives={{array archive}}>
+  <span class="archive-files-info">(<ArchiveContentCount @archive={{archive}} />)</span>
+</ModalArchiveSubheader>
 {{#unless (media "isMobile")}}
   <p class="intro-text">
     {{tt this "intro"}}

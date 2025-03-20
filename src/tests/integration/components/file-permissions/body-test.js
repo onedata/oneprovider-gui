@@ -55,7 +55,7 @@ describe('Integration | Component | file-permissions/body', function () {
     async function () {
       this.helper = new Helper(this);
       this.helper.viewModelOptions = {
-        readonly: true,
+        isReadOnly: true,
       };
       await this.helper.givenDifferentPosix();
 
@@ -120,7 +120,7 @@ describe('Integration | Component | file-permissions/body', function () {
     async function () {
       this.helper = new Helper(this);
       this.helper.viewModelOptions = {
-        readonly: true,
+        isReadOnly: true,
       };
       await this.helper.givenDifferentAcl();
 
@@ -202,7 +202,7 @@ describe('Integration | Component | file-permissions/body', function () {
     async function () {
       this.helper = new Helper(this);
       this.helper.viewModelOptions = {
-        readonly: true,
+        isReadOnly: true,
       };
       const acls = await allFulfilled([
         this.helper.createAcl([this.helper.createExampleAce(0)]),

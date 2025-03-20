@@ -10,7 +10,7 @@
         {{action "openArchivesView"}}
       >
         <div class="inline-icon-container bind-right-text">
-          {{one-icon icon="browser-archive"}}
+          <OneIcon @icon="browser-archive" />
         </div>&nbsp;{{tt this "manageArchives"}}
       </a>
       {{tt this "or"}}
@@ -20,7 +20,7 @@
         target={{navigateOnezoneTarget}}
       >
         <div class="inline-icon-container bind-right-text">
-          {{one-icon icon="browser-directory"}}
+          <OneIcon @icon="browser-directory" />
         </div>&nbsp;{{tt this "browse"}}
       </a>
       {{tt this (if rootDirId "rootDirectoryInBrowser" "spaceRootInBrowser")}}
@@ -31,7 +31,7 @@
         target={{navigateOnezoneTarget}}
       >
         <div class="inline-icon-container bind-right-text">
-          {{one-icon icon="browser-directory"}}
+          <OneIcon @icon="browser-directory" />
         </div>&nbsp;{{tt this "browseUpper"}}
       </a>
       {{tt this (if rootDirId "rootDirectoryInBrowser" "spaceRootInBrowser")}}

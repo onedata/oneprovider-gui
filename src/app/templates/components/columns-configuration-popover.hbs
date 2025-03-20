@@ -21,35 +21,35 @@
           >
             <ul class="columns-list">
               {{#each columnsConfiguration.columnsOrder as |columnName index|}}
-                {{columns-configuration-popover/column-item
-                  columnName=columnName
-                  columnValue=(get columnsConfiguration.columns columnName)
-                  translationKey=translationKey
-                  isMoveUpIconDisabled=(eq index 0)
-                  isMoveDownIconDisabled=(eq index lastIndexColumn)
-                  isArrowTooltipVisible=isArrowTooltipVisible
-                  checkboxChanged=(action "checkboxChanged")
-                  moveColumnDown=(action "moveColumnDown")
-                  moveColumnUp=(action "moveColumnUp")
-                  dragStartAction=dragStartAction
-                  dragEndAction=dragEndAction
-                  openXattrModification=(action "openXattrModification")
-                  removeXattrColumn=(action "removeXattrColumn")
-                  isColumnListVisible=(eq activeSlide "column-configuration")
-                  columnIndex=index
-                  onHeadingDrag=(action "headingDrag" columnName)
-                  onHeadingDragEnd=(action "headingDragEnd")
-                  onHeadingDragOver=(action "headingDragOver")
-                  onHeadingDragLeave=(action "headingDragLeave")
-                  onHeadingDrop=(action "headingDrop")
-                  isDropBorderShown=isDropBorderShown
-                  previewMode=browserModel.previewMode
-                }}
+                <ColumnsConfigurationPopover::ColumnItem
+                  @columnName={{columnName}}
+                  @columnValue={{get columnsConfiguration.columns columnName}}
+                  @translationKey={{translationKey}}
+                  @isMoveUpIconDisabled={{eq index 0}}
+                  @isMoveDownIconDisabled={{eq index lastIndexColumn}}
+                  @isArrowTooltipVisible={{isArrowTooltipVisible}}
+                  @checkboxChanged={{action "checkboxChanged"}}
+                  @moveColumnDown={{action "moveColumnDown"}}
+                  @moveColumnUp={{action "moveColumnUp"}}
+                  @dragStartAction={{dragStartAction}}
+                  @dragEndAction={{dragEndAction}}
+                  @openColumnEditor={{action "openColumnEditor"}}
+                  @removeMetadataColumn={{action "removeMetadataColumn"}}
+                  @isColumnListVisible={{eq activeSlide "column-configuration"}}
+                  @columnIndex={{index}}
+                  @onHeadingDrag={{action "headingDrag" columnName}}
+                  @onHeadingDragEnd={{action "headingDragEnd"}}
+                  @onHeadingDragOver={{action "headingDragOver"}}
+                  @onHeadingDragLeave={{action "headingDragLeave"}}
+                  @onHeadingDrop={{action "headingDrop"}}
+                  @isDropBorderShown={{isDropBorderShown}}
+                  @previewMode={{browserModel.previewMode}}
+                />
               {{/each}}
               <div class="space-between-item-area"></div>
             </ul>
           </PerfectScrollbarElement>
-          {{#if columnsConfiguration.hasXattrSettings}}
+          {{#if columnsConfiguration.hasMetadataSettings}}
             <div
               class="add-new-column new-column-item"
               onClick={{action "goXattrConfiguration"}}
@@ -65,8 +65,8 @@
             </div>
           {{/if}}
         </carousel.slide>
-        <carousel.slide @slideId="xattr-add">
-          {{#if (eq activeSlide "xattr-add")}}
+        <carousel.slide @slideId="column-add">
+          {{#if (eq activeSlide "column-add")}}
             <ColumnsConfigurationPopover::ColumnEditor
               @isNewColumn={{true}}
               @xattrOptionsProxy={{xattrOptionsProxy}}
@@ -76,8 +76,8 @@
             />
           {{/if}}
         </carousel.slide>
-        <carousel.slide @slideId="xattr-modify">
-          {{#if (eq activeSlide "xattr-modify")}}
+        <carousel.slide @slideId="column-modify">
+          {{#if (eq activeSlide "column-modify")}}
             <ColumnsConfigurationPopover::ColumnEditor
               @isNewColumn={{false}}
               @xattrOptionsProxy={{xattrOptionsProxy}}
@@ -86,6 +86,9 @@
               @columnsConfiguration={{columnsConfiguration}}
               @initialDisplayedName={{modifiedDisplayedName}}
               @initialXattrKey={{modifiedXattrKey}}
+              @initialJsonQueryType={{modifiedJsonQueryType}}
+              @initialMetadataType={{modifiedMetadataType}}
+              @initialJsonKey={{modifiedJsonKey}}
             />
           {{/if}}
         </carousel.slide>

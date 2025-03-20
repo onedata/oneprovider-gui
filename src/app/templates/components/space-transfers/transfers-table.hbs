@@ -30,7 +30,7 @@
           ></div>
           <span class="column-name">
             {{#if (not-eq i 0)}}
-              <OneIcon @icon="drag" @class="column-move-icon visible-on-hover" />
+              <OneIcon @icon="drag" class="column-move-icon visible-on-hover" />
             {{/if}}
             {{tt this (concat "headers.name." column.id)}}
           </span>
@@ -60,13 +60,13 @@
       {{#if (and transfers.initialLoad.isSettled fetchingPrev)}}
         <tr class="loading-row loading-prev-row">
           <td colspan="9999" class="special-row-cell loading-row-cell loading-prev-cell">
-            <SpinSpinnerBlock @sizeClass="sm" @class="absolute-middle-centered" />
+            <SpinSpinnerBlock @sizeClass="sm" class="absolute-middle-centered" />
           </td>
         </tr>
       {{/if}}
       {{#each transferRecords key="transfer" as |transferRecord|}}
         <SpaceTransfers::TransferRow
-          @class="clickable"
+          class="clickable"
           @record={{transferRecord}}
           @columns={{visibleColumns}}
           @transfersTable={{this}}
@@ -86,7 +86,7 @@
       {{#if (and transfers.initialLoad.isSettled fetchingNext)}}
         <tr class="loading-row loading-next-row">
           <td colspan="9999" class="special-row-cell loading-row-cell loading-next-cell">
-            <SpinSpinnerBlock @sizeClass="sm" @class="absolute-middle-centered" />
+            <SpinSpinnerBlock @sizeClass="sm" class="absolute-middle-centered" />
           </td>
         </tr>
       {{/if}}

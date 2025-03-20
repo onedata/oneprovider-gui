@@ -75,6 +75,11 @@
     }
   }
 
+  .cell-empty-placeholder {
+    // NOTE: should be synchronized with AtmWorkflowExeuctionsTable.rowHeight
+    height: 61px;
+  }
+
   .status-icon {
     &.status-scheduled {
       color: $color-one-default;

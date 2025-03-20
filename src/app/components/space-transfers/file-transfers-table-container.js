@@ -2,12 +2,11 @@
  * Extension of transfers-table-container for file transfers table
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2025 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import TransfersTableContainer from 'oneprovider-gui/components/space-transfers/transfers-table-container';
-import { resolve, reject } from 'rsvp';
 import layout from 'oneprovider-gui/templates/components/space-transfers/transfers-table-container';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -27,29 +26,30 @@ export default TransfersTableContainer.extend(I18n, {
   /**
    * @override
    */
-  fetchTransfers(startIndex, size, offset, array) {
+  async fetchTransfers(startIndex, size, offset, array) {
     const {
       transferManager,
       file,
-    } = this.getProperties('transferManager', 'file');
+    } = this;
     if (startIndex == null) {
       if (size <= 0 || offset < 0) {
-        return resolve([]);
+        return [];
       } else {
-        return transferManager.getTransfersForFile(file, true)
-          .then(({ ongoingTransfers, endedTransfers }) => {
-            return [...ongoingTransfers, ...endedTransfers];
-          });
+        const {
+          ongoingTransfers,
+          endedTransfers,
+        } = await transferManager.getTransfersForFile(file, true);
+        return [...ongoingTransfers, ...endedTransfers];
       }
     } else if (
-      offset >= 0 && startIndex === array.getIndex(get(array, 'sourceArray.lastObject')) ||
-      offset <= 0 && startIndex === array.getIndex(get(array, 'sourceArray.firstObject'))
+      offset >= 0 && startIndex === array.getIndex(array.sourceArray.lastObject) ||
+      offset <= 0 && startIndex === array.getIndex(array.sourceArray.firstObject)
     ) {
       // tried to load more at end or load below start - this is normal behaviour
       // of replacing chunks array, so just return empty array
-      return resolve([]);
+      return [];
     } else {
-      return reject(
+      throw new Error(
         'component:space-transfers/file-transfers-table-container#fetchTransfers: tried to load illegal part of transfers table, this might cause problems in render'
       );
     }

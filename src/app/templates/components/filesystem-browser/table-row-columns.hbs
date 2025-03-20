@@ -20,11 +20,11 @@
                 </span>
               {{/if}}
             {{else}}
-              {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+              <SpinSpinnerBlock @sizeClass="xs" class="absolute-middle-centered" />
             {{/if}}
           {{else if isItemDirStatsFeatureHidden}}
             {{#if isUnknownSizeShown}}
-              —
+              <span class="empty-column">—</span>
             {{else}}
               {{bytes-to-string file.effFile.size}}
             {{/if}}
@@ -34,21 +34,19 @@
                 class="text-icon-container clickable"
                 onclick={{action "invokeFileAction" file "info" "size"}}
               >
-                <span class="dir-size-value">
+                <span class={{concat-classes
+                  "dir-size-value"
+                  (if isUnknownSizeShown "empty-column")
+                }}>
                   {{#if isUnknownSizeShown}}
                     —
                   {{else}}
                     {{bytes-to-string file.effFile.size}}
                   {{/if}}
                 </span>
-                {{one-icon
-                  icon="overview"
-                  class="inline-icon-container"
-                }}
+                <OneIcon @icon="overview" class="inline-icon-container" />
                 {{#if tooltipText}}
-                  {{one-tooltip
-                    title=tooltipText
-                  }}
+                  <OneTooltip @title={{tooltipText}} />
                 {{/if}}
               </span>
             </div>
@@ -61,7 +59,10 @@
         style={{columnsConfiguration.columnsStyle.modification}}
       >
         <div class="file-item-text">
-          <div class="date-text">
+          <div class={{concat-classes
+            "date-text"
+            (if (not file.effFile.mtime) "empty-column")
+          }}>
             {{date-format file.effFile.mtime format="date" blank="—"}}
           </div>
           {{#if file.effFile.mtime}}
@@ -77,10 +78,10 @@
         style={{columnsConfiguration.columnsStyle.owner}}
       >
         <span class="file-item-text">
-          {{filesystem-browser/table-cell-owner-info
-            owner=owner
-            errorReason=errorReasonForOwnerProxy
-          }}
+          <FilesystemBrowser::TableCellOwnerInfo
+            @owner={{owner}}
+            @errorReason={{errorReasonForOwnerProxy}}
+          />
         </span>
       </td>
     {{else if (eq columnName "replication")}}
@@ -90,7 +91,7 @@
           onclick={{action "invokeFileAction" file "info" "distribution"}}
         >
           {{#if (eq percentageReplication null)}}
-            <span class="replication-rate-text empty-replication-rate">—</span>
+            <span class="replication-rate-text empty-replication-rate empty-column">—</span>
           {{else}}
             <span class="replication-rate-text">
               {{#if isSmallReplicationRate}}
@@ -117,7 +118,7 @@
               >
             </span>
           {{/if}}
-          {{one-tooltip title=(tt this "replicationRateTooltip")}}
+          <OneTooltip @title={{tt this "replicationRateTooltip"}} />
         </span>
       </td>
     {{else if (eq columnName "qos")}}
@@ -133,12 +134,17 @@
           onclick={{unless qosViewForbidden (action "invokeFileAction" file "info" "qos")}}
         >
           {{#if (not qosStatus)}}
-            <span class="no-qos-text">—</span>
-            {{one-tooltip title=(tt this "qosStatusHint.noQos" fileType=fileTypeText)}}
+            <span class="empty-column">—</span>
+            <OneTooltip @title={{tt this "qosStatusHint.noQos" fileType=fileTypeText}} />
           {{else}}
             <span class="status-icon">
-              {{one-icon icon=statusIcon class=(concat "qos-status-icon qos-status-" qosStatus)}}
-              {{one-tooltip title=(tt this (concat "qosStatusHint." qosStatus) fileType=fileTypeText)}}
+              <OneIcon
+                @icon={{statusIcon}}
+                class={{concat "qos-status-icon qos-status-" qosStatus}}
+              />
+              <OneTooltip
+                @title={{tt this (concat "qosStatusHint." qosStatus) fileType=fileTypeText}}
+              />
             </span>
           {{/if}}
         </span>
@@ -149,7 +155,10 @@
         style={{columnsConfiguration.columnsStyle.atime}}
       >
         <div class="file-item-text">
-          <div class="date-text">
+          <div class={{concat-classes
+            "date-text"
+            (if (not file.effFile.atime) "empty-column")
+          }}>
             {{date-format file.effFile.atime format="date" blank="—"}}
           </div>
           {{#if file.effFile.atime}}
@@ -165,7 +174,10 @@
         style={{columnsConfiguration.columnsStyle.ctime}}
       >
         <div class="file-item-text">
-          <div class="date-text">
+          <div class={{concat-classes
+            "date-text"
+            (if (not file.effFile.ctime) "empty-column")
+          }}>
             {{date-format file.effFile.ctime format="date" blank="—"}}
           </div>
           {{#if file.effFile.ctime}}
@@ -182,7 +194,10 @@
         style={{columnsConfiguration.columnsStyle.creationTime}}
       >
         <div class="file-item-text">
-          <div class="date-text">
+          <div class={{concat-classes
+            "date-text"
+            (if (not file.effFile.creationTime) "empty-column")
+          }}>
             {{date-format file.effFile.creationTime format="date" blank="—"}}
           </div>
           {{#if file.effFile.creationTime}}
@@ -240,6 +255,13 @@
         @xattrs={{xattrs}}
         @style={{get columnsConfiguration.columnsStyle columnName}}
         @openXattrModal={{action "openXattrModal"}}
+      />
+    {{else if (eq (get (get columnsConfiguration.columns columnName) "type") "json")}}
+      <FilesystemBrowser::TableCellJsonInfo
+        @style={{get columnsConfiguration.columnsStyle columnName}}
+        @file={{file}}
+        @invokeFileAction={{invokeFileAction}}
+        @columnInfo={{get columnsConfiguration.columns columnName}}
       />
     {{/if}}
   {{/if}}

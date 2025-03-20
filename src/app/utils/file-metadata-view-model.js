@@ -125,7 +125,7 @@ export default EmberObject.extend(...mixins, {
    * Set to true to disable metadata edition
    * @virtual optional
    */
-  readonly: false,
+  isReadOnly: false,
 
   //#region state
 
@@ -173,7 +173,7 @@ export default EmberObject.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effectiveReadonly: or('readonly', 'effectiveReadonlyTip'),
+  effectiveReadonly: or('isReadOnly', 'effectiveReadonlyTip'),
 
   /**
    * @type {ComputedProperty<Boolean>}

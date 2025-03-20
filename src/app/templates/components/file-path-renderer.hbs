@@ -12,7 +12,7 @@
       "path-item path-icon-container"
       item.className
     }}>
-      {{one-icon icon=item.icon class="path-icon"}}
+      <OneIcon @icon={{item.icon}} class="path-icon" />
     </div>
   {{/if}}
   <div class={{concat-classes
