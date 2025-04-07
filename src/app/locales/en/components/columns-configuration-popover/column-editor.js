@@ -13,6 +13,7 @@ export default {
   xattrKey: {
     label: 'Extended attribute key',
     customValueInputPlaceholder: 'Enter or choose a key...',
+    noMatchesMessage: 'No xattrs found',
   },
   metadataType: {
     label: 'Metadata type',

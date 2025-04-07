@@ -294,7 +294,7 @@
       align-items: center;
     }
     .ember-power-select-trigger:not([aria-expanded]) {
-      border-color: #d6d6d6;
+      border-color: $input-border;
     }
     .ember-power-select-trigger--active:not([aria-expanded]) {
       border: $ember-power-select-border-width solid $input-border-focus;
