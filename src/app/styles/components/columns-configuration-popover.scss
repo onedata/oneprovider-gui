@@ -294,6 +294,7 @@
       align-items: center;
     }
     .ember-power-select-trigger:not([aria-expanded]) {
+      // disable form validation colors
       border-color: $input-border;
     }
     .ember-power-select-trigger--active:not([aria-expanded]) {
