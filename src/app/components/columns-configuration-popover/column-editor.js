@@ -12,7 +12,7 @@ import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import { reads, bool } from '@ember/object/computed';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
-import CustomValueDropdownField from 'onedata-gui-common/utils/form-component/custom-value-dropdown-field';
+import AutocompleteDropdownField from 'onedata-gui-common/utils/form-component/autocomplete-dropdown-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
 import RadioField from 'onedata-gui-common/utils/form-component/radio-field';
 import {
@@ -96,22 +96,24 @@ export default Component.extend(I18n, {
   /**
    * @type {string}
    */
-  newColumnName: '',
+  xattrKeyFieldName: 'xattrKey',
+
+  xattrOptions: reads('xattrOptionsProxy.content'),
+
+  /**
+   * @type {boolean}
+   */
+  isColumnNameModified: false,
+
+  /**
+   * @type {string}
+   */
+  columnName: '',
 
   /**
    * @type {string}
    */
   newJsonKey: '',
-
-  /**
-   * @type {string}
-   */
-  oldColumnName: undefined,
-
-  /**
-   * @type {string}
-   */
-  xattrKeyFieldName: 'xattrKey',
 
   /**
    * @type {string}
@@ -123,7 +125,33 @@ export default Component.extend(I18n, {
    */
   jsonTypeFieldName: 'jsonType',
 
-  xattrOptions: reads('xattrOptionsProxy.content'),
+  /**
+   * @type {string}
+   */
+  newColumnName: computed(
+    'columnName',
+    'xattrKeyDropdownField.value',
+    'isColumnNameModified',
+    'initialDisplayedName',
+    'metadataTypeValue',
+    'jsonTypeField.value',
+    'newJsonKey',
+    function newColumnName() {
+      if (this.isColumnNameModified) {
+        return this.columnName;
+      }
+      if (this.initialDisplayedName) {
+        return this.initialDisplayedName;
+      }
+      if (this.metadataTypeValue === 'xattr') {
+        return this.xattrKeyDropdownField.value;
+      }
+      if (this.jsonTypeField.value === 'all') {
+        return defaultWholeJsonLabel;
+      }
+      return this.newJsonKey;
+    }
+  ),
 
   fields: destroyableComputed(
     'xattrKeyDropdownField',
@@ -147,28 +175,13 @@ export default Component.extend(I18n, {
 
   xattrKeyDropdownField: computed(
     function xattrKeyDropdownField() {
-      return CustomValueDropdownField
+      return AutocompleteDropdownField
         .extend({
           options: reads('columnEditorComponent.xattrOptions'),
-          valueChanged(option) {
-            this._super(...arguments);
-            if (
-              (
-                this.oldValue === undefined &&
-                !this.columnEditorComponent.newColumnName
-              ) ||
-              this.oldValue === this.columnEditorComponent.newColumnName ||
-              !this.columnEditorComponent.newColumnName
-            ) {
-              this.set('columnEditorComponent.newColumnName', option);
-            }
-            this.set('oldValue', this.value);
-          },
         })
         .create({
           columnEditorComponent: this,
           name: this.xattrKeyFieldName,
-          oldValue: this.initialXattrKey,
           defaultValue: this.initialXattrKey,
           isOptional: true,
         });
@@ -181,22 +194,10 @@ export default Component.extend(I18n, {
   metadataTypeField: computed(function metadataTypeField() {
     return RadioField
       .extend({
-        valueChanged(option) {
+        options: reads('columnEditorComponent.xattrOptions'),
+        valueChanged() {
           this._super(...arguments);
-          const editor = this.columnEditorComponent;
-
-          if (option === 'json') {
-            if (editor.jsonTypeField.value === 'all') {
-              this.set('columnEditorComponent.newColumnName', defaultWholeJsonLabel);
-            } else {
-              this.set('columnEditorComponent.newColumnName', editor.newJsonKey);
-            }
-          } else if (option === 'xattr') {
-            this.set(
-              'columnEditorComponent.newColumnName',
-              editor.xattrKeyDropdownField.value
-            );
-          }
+          this.set('columnEditorComponent.isColumnNameModified', false);
         },
       })
       .create({
@@ -221,28 +222,6 @@ export default Component.extend(I18n, {
    */
   jsonTypeField: computed(function jsonTypeField() {
     return RadioField
-      .extend({
-        valueChanged(option) {
-          this._super(...arguments);
-          const editor = this.columnEditorComponent;
-          if (
-            option === 'all' &&
-            (
-              !editor.newColumnName ||
-              editor.newJsonKey === editor.newColumnName
-            )
-          ) {
-            this.set('columnEditorComponent.newColumnName', defaultWholeJsonLabel);
-          }
-          if (
-            option === 'key' &&
-            editor.newColumnName === defaultWholeJsonLabel
-          ) {
-            this.set('columnEditorComponent.newColumnName', editor.newJsonKey);
-          }
-          this.set('oldValue', this.value);
-        },
-      })
       .create({
         columnEditorComponent: this,
         name: this.jsonTypeFieldName,
@@ -359,8 +338,6 @@ export default Component.extend(I18n, {
     initDestroyableCache(this);
     this._super(...arguments);
     this.setProperties({
-      newColumnName: this.initialDisplayedName,
-      oldColumnName: this.initialJsonKey,
       newJsonKey: this.initialJsonKey,
     });
   },
@@ -380,6 +357,12 @@ export default Component.extend(I18n, {
     goBack() {
       this.onGoBack();
     },
+    changeColumnName(value) {
+      this.setProperties({
+        isColumnNameModified: true,
+        columnName: value,
+      });
+    },
     submitColumn() {
       const type = this.metadataTypeValue;
       const options = type === 'xattr' ? { xattrKey: this.xattrKeyDropdownField.value } : {
@@ -392,19 +375,6 @@ export default Component.extend(I18n, {
         this.newColumnName,
         options,
       );
-    },
-    changeJsonKey(key) {
-      this.set('newJsonKey', key);
-      if (
-        this.oldColumnName === undefined ||
-        this.oldColumnName === this.newColumnName ||
-        !this.newColumnName
-      ) {
-        this.setProperties({
-          newColumnName: key,
-          oldColumnName: key,
-        });
-      }
     },
   },
 });
