@@ -1,9 +1,7 @@
 {{#if (media "isMobile")}}
   <td>
     {{#if sizeStats.error}}
-      {{file-browser/size-stats-per-provider-table/error-cell
-        sizeStats=sizeStats
-      }}
+      <FileBrowser::SizeStatsPerProviderTable::ErrorCell @sizeStats={{sizeStats}} />
     {{else}}
       <div>
         <span class="contains-label">
@@ -43,15 +41,11 @@
   </td>
 {{else}}
   <td class="header">
-    {{record-info-with-icon
-      record=sizeStats.provider
-    }}
+    <RecordInfoWithIcon @record={{sizeStats.provider}} />
   </td>
   {{#if sizeStats.error}}
     <td colspan="3">
-      {{file-browser/size-stats-per-provider-table/error-cell
-        sizeStats=sizeStats
-      }}
+      <FileBrowser::SizeStatsPerProviderTable::ErrorCell @sizeStats={{sizeStats}} />
     </td>
   {{else}}
     <td class="contains-value">

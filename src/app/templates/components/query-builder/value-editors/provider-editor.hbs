@@ -13,9 +13,6 @@
   as |itemValue|
 >
   <div class="option-container">
-    {{query-builder/model-presenters/provider
-      tagName=""
-      itemValue=itemValue
-    }}
+    <QueryBuilder::ModelPresenters::Provider @tagName="" @itemValue={{itemValue}} />
   </div>
 </OneDropdown>

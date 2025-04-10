@@ -1,15 +1,15 @@
-{{#promise-proxy-container
-  proxy=requiredDataProxy
-  spinnerBlockClass="absolute-middle-centered"
-}}
-  {{share-show
-    share=shareProxy.content
-    dirId=dirId
-    initialTabId=tabId
-    space=spaceProxy.content
-    updateDirId=(action "updateDirId")
-    getDataUrl=(action "getDataUrl")
-    onShowShareList=(action "onShowShareList")
-    reloadShareList=(action "reloadShareList")
-  }}
-{{/promise-proxy-container}}
+<PromiseProxyContainer
+  @proxy={{requiredDataProxy}}
+  @spinnerBlockClass="absolute-middle-centered"
+>
+  <ShareShow
+    @share={{shareProxy.content}}
+    @dirId={{dirId}}
+    @initialTabId={{tabId}}
+    @space={{spaceProxy.content}}
+    @updateDirId={{action "updateDirId"}}
+    @getDataUrl={{action "getDataUrl"}}
+    @onShowShareList={{action "onShowShareList"}}
+    @reloadShareList={{action "reloadShareList"}}
+  />
+</PromiseProxyContainer>

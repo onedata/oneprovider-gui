@@ -8,11 +8,7 @@
   (concat "error-dir-image-" (or dirLoadErrorPosix "unknown"))
 }}></div>
 {{#unless dir}}
-  {{#one-button
-    class="dir-box-btn"
-    type="default"
-    onClick=(action "navigateToRoot")
-  }}
+  <OneButton class="dir-box-btn" @type="default" @onClick={{action "navigateToRoot"}}>
     {{navigateToRootButtonLabel}}
-  {{/one-button}}
+  </OneButton>
 {{/unless}}

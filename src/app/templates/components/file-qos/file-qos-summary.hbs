@@ -1,21 +1,21 @@
-{{#promise-proxy-container proxy=qosItemsProxy}}
+<PromiseProxyContainer @proxy={{qosItemsProxy}}>
   {{#if (gt qosItemsProxy.length 0)}}
     <div class="qos-list">
       {{#each sortedQosItems key="entityId" as |qosItem|}}
-        {{file-qos/qos-entry
-          qosItem=qosItem
-          valuesBuilder=valuesBuilder
-          queryProperties=queryProperties
-          providers=providers
-          storages=storages
-          areChartsInitiallyVisible=areChartsInitiallyVisible
-          parentBrowsableArchive=parentBrowsableArchive
-          getDataUrl=getDataUrl
-          viewModel=viewModel
-          evaluateQosExpression=(action "evaluateQosExpression")
-          removeQosRequirement=(action "removeQosRequirement" qosItem)
-          closeModal=(action "closeModal")
-        }}
+        <FileQos::QosEntry
+          @qosItem={{qosItem}}
+          @valuesBuilder={{valuesBuilder}}
+          @queryProperties={{queryProperties}}
+          @providers={{providers}}
+          @storages={{storages}}
+          @areChartsInitiallyVisible={{areChartsInitiallyVisible}}
+          @parentBrowsableArchive={{parentBrowsableArchive}}
+          @getDataUrl={{getDataUrl}}
+          @viewModel={{viewModel}}
+          @evaluateQosExpression={{action "evaluateQosExpression"}}
+          @removeQosRequirement={{action "removeQosRequirement" qosItem}}
+          @closeModal={{action "closeModal"}}
+        />
       {{/each}}
     </div>
   {{else}}
@@ -25,4 +25,4 @@
       </div>
     </div>
   {{/if}}
-{{/promise-proxy-container}}
+</PromiseProxyContainer>

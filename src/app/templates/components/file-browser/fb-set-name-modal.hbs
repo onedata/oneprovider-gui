@@ -1,16 +1,16 @@
-{{#bs-modal
-  open=open
-  backdropClose=false
-  keyboard=false
-  onShow=(action "onShow")
-  onHide=(action "onHide")
-  onHidden=(action "onHidden")
+<BsModal
+  @open={{open}}
+  @backdropClose={{false}}
+  @keyboard={{false}}
+  @onShow={{action "onShow"}}
+  @onHide={{action "onHide"}}
+  @onHidden={{action "onHidden"}}
   as |modal|
-}}
-  {{#modal.header}}
+>
+  <modal.header>
     <h1>{{tt this (concat "header." itemType)}}</h1>
-  {{/modal.header}}
-  {{#modal.body}}
+  </modal.header>
+  <modal.body>
     <p>{{tt this (concat "intro." itemType)}}</p>
     <div class="row">
       <input
@@ -24,19 +24,19 @@
         autofocus=true
       >
     </div>
-  {{/modal.body}}
-  {{#modal.footer class="btn-toolbar"}}
-    {{#one-button disabled=processing onClick=modal.close}}
+  </modal.body>
+  <modal.footer class="btn-toolbar">
+    <OneButton @disabled={{processing}} @onClick={{modal.close}}>
       {{tt this "cancel"}}
-    {{/one-button}}
-    {{#one-button
-      type="primary"
-      buttonType="submit"
-      onClick=(action "submit")
-      isPending=processing
-      disabled=submitDisabled
-    }}
+    </OneButton>
+    <OneButton
+      @type="primary"
+      @buttonType="submit"
+      @onClick={{action "submit"}}
+      @isPending={{processing}}
+      @disabled={{submitDisabled}}
+    >
       {{tt this "submit"}}
-    {{/one-button}}
-  {{/modal.footer}}
-{{/bs-modal}}
+    </OneButton>
+  </modal.footer>
+</BsModal>

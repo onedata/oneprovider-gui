@@ -7,11 +7,11 @@
 <div class="fb-table-first-col-container">
   <div class="table-header-text">{{tt this "headers.name.firstColumnName"}}</div>
   {{#if renderArchiveDipSwitch}}
-    {{archive-dip-switch
-      disabled=(not isArchiveDipAvailable)
-      archiveDipMode=archiveDipMode
-      onArchiveDipModeChange=onArchiveDipModeChange
-    }}
+    <ArchiveDipSwitch
+      @disabled={{not isArchiveDipAvailable}}
+      @archiveDipMode={{archiveDipMode}}
+      @onArchiveDipModeChange={{onArchiveDipModeChange}}
+    />
   {{/if}}
   <div class="spacer"></div>
   <div class="table-header-status-bar">{{yield}}</div>

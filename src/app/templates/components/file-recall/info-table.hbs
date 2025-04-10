@@ -53,7 +53,7 @@
   <tr class="recall-info-row-recalling-provider">
     <td class="property-name">
       {{tt this "recallingProvider"}}
-      {{one-label-tip title=(tt this "labelTips.recallingProvider")}}
+      <OneLabelTip @title={{tt this "labelTips.recallingProvider"}} />
     </td>
     <td class="property-value">
       {{#if recallingProviderInfo.name}}
@@ -75,14 +75,14 @@
   <tr class="recall-info-row-target-path">
     <td class="property-name">
       {{tt this "targetPath"}}
-      {{one-label-tip title=(tt this
+      <OneLabelTip @title={{tt this
         "labelTips.targetPath"
         fileType=(tt this (concat "fileType." recallRootFile.type))
-      )}}
+      }} />
     </td>
     <td class="property-value">
       {{#if recallRootFile}}
-        {{file-path file=recallRootFile click=(action "targetFileLinkClicked")}}
+        <FilePath @file={{recallRootFile}} @click={{action "targetFileLinkClicked"}} />
       {{else}}
         <em>{{tt this "couldNotLoad"}}</em>
       {{/if}}
@@ -95,17 +95,14 @@
         (if renderRelativePathInput "with-input-sm")
       }}>
         {{tt this "relativePath"}}
-        {{one-label-tip title=(tt this
+        <OneLabelTip @title={{tt this
           "labelTips.relativePath"
           fileType=(tt this (concat "fileType." recallRootFile.type))
-        )}}
+        }} />
       </td>
       <td class="property-value">
         {{#if renderRelativePathInput}}
-          {{clipboard-line
-            value=relativePath
-            size="sm"
-          }}
+          <ClipboardLine @value={{relativePath}} @size="sm" />
         {{else if fileIsRecallRoot}}
           <em>{{tt this "rootDirectory"}}</em>
         {{else if (not relativePath)}}
@@ -153,10 +150,10 @@
     <td class="property-value">
       <div class="progress-counter">
         {{#if stateNotAvailable}}
-          {{one-label-tip
+          <OneLabelTip
             class="state-not-available-tip"
-            title=(tt this "statisticNotAvailableTip")
-          }}
+            @title={{tt this "statisticNotAvailableTip"}}
+          />
         {{else}}
           <span class="files-recalled-value">{{filesRecalled}}</span>
         {{/if}}
@@ -175,10 +172,10 @@
     <td class="property-value">
       <div class="progress-counter">
         {{#if stateNotAvailable}}
-          {{one-label-tip
+          <OneLabelTip
             class="state-not-available-tip"
-            title=(tt this "statisticNotAvailableTip")
-          }}
+            @title={{tt this "statisticNotAvailableTip"}}
+          />
         {{else}}
           <span class="bytes-recalled-value">{{bytesRecalledText}}</span>
         {{/if}}
@@ -192,7 +189,7 @@
     <tr class="recall-info-row-files-failed">
       <td class="property-name text-danger">
         {{tt this "filesFailed"}}
-        {{one-label-tip title=(tt this "labelTips.filesFailed")}}
+        <OneLabelTip @title={{tt this "labelTips.filesFailed"}} />
       </td>
       <td class="property-value">
         <span class="files-failed-count text-danger">{{filesFailed}}</span>
@@ -218,13 +215,13 @@
       <td class="property-value">
         {{#if showErrorTextarea}}
           <div class="input-group-clipboard-textarea has-error">
-            {{clipboard-line
-              value=lastErrorParsed.message
-              type="textarea"
-              textareaRows="8"
-              size="sm"
+            <ClipboardLine
+              @value={{lastErrorParsed.message}}
+              @type="textarea"
+              @textareaRows="8"
+              @size="sm"
               class="monospace-font compact"
-            }}
+            />
           </div>
         {{else}}
           {{#if (eq lastErrorParsed.type "unknown")}}

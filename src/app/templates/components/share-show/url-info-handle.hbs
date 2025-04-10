@@ -11,25 +11,25 @@
 <p>
   <label class="control-label">
     <strong>{{tt this "handleId"}}:</strong>
-    {{one-label-tip title=(tt this "handleIdTip")}}
+    <OneLabelTip @title={{tt this "handleIdTip"}} />
   </label>
-  {{one-clipboard-line
+  <OneClipboardLine
     class="handle-id-clipboard-line"
-    size="sm"
-    value=share.handle.entityId
-  }}
+    @size="sm"
+    @value={{share.handle.entityId}}
+  />
 </p>
 {{#if share.handle.handleService.entityId}}
   <p>
     <label class="control-label">
       <strong>{{tt this "handleServiceId"}}:</strong>
-      {{one-label-tip title=(tt this "handleServiceIdTip")}}
+      <OneLabelTip @title={{tt this "handleServiceIdTip"}} />
     </label>
-    {{one-clipboard-line
+    <OneClipboardLine
       class="handle-service-id-clipboard-line"
-      size="sm"
-      value=share.handle.handleService.entityId
-    }}
+      @size="sm"
+      @value={{share.handle.handleService.entityId}}
+    />
   </p>
 {{/if}}
 <hr class="sharp">

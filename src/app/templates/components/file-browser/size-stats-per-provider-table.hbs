@@ -5,16 +5,12 @@
         <thead>
           <tr>
             <td>
-              {{record-info-with-icon
-                record=sizeStats.provider
-              }}
+              <RecordInfoWithIcon @record={{sizeStats.provider}} />
             </td>
           </tr>
         </thead>
         <tbody>
-          {{file-browser/size-stats-per-provider-table/provider-row
-            sizeStats=sizeStats
-          }}
+          <FileBrowser::SizeStatsPerProviderTable::ProviderRow @sizeStats={{sizeStats}} />
         </tbody>
       </table>
     </div>
@@ -27,11 +23,11 @@
           <td class="empty-cell-header"></td>
           <td>
             {{tt this "fileCounters.containsLabel"}}
-            {{one-label-tip title=(tt this "delaySynchronizationTip")}}
+            <OneLabelTip @title={{tt this "delaySynchronizationTip"}} />
           </td>
           <td>
             {{tt this "fileCounters.logicalSizeLabel"}}
-            {{one-label-tip title=(tt this "delaySynchronizationTip")}}
+            <OneLabelTip @title={{tt this "delaySynchronizationTip"}} />
           </td>
           <td>
             {{tt this "fileCounters.physicalSizeLabel"}}
@@ -40,9 +36,7 @@
       </thead>
       <tbody>
         {{#each sortedDirSizeStatsValues key="provider" as |sizeStats|}}
-          {{file-browser/size-stats-per-provider-table/provider-row
-            sizeStats=sizeStats
-          }}
+          <FileBrowser::SizeStatsPerProviderTable::ProviderRow @sizeStats={{sizeStats}} />
         {{/each}}
       </tbody>
     </table>

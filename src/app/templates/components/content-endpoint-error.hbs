@@ -1,12 +1,12 @@
-{{#error-check-view
-  tryErrorCheckProxy=tryErrorCheckProxy
-  errorCheckProxy=errorCheckProxy
-}}
-  {{#content-info
+<ErrorCheckView
+  @tryErrorCheckProxy={{tryErrorCheckProxy}}
+  @errorCheckProxy={{errorCheckProxy}}
+>
+  <ContentInfo
     class="scroll-breakpoint-500"
-    header=(tt this "header")
-    imagePath=(root-url "assets/images/no-connection-oneprovider-compact.svg")
-  }}
+    @header={{tt this "header"}}
+    @imagePath={{root-url "assets/images/no-connection-oneprovider-compact.svg"}}
+  >
     <p class="lead text-left">
       <ul class="info">
         <li>
@@ -16,7 +16,7 @@
           <a {{action "tryAgain"}}>{{tt this "liTryAgainLink"}}</a>
           {{tt this "liTryAgainMinutes"}}
         </li>
-        {{#promise-proxy-container proxy=manageClusterUrlProxy sizeClass="sm"}}
+        <PromiseProxyContainer @proxy={{manageClusterUrlProxy}} @sizeClass="sm">
           {{#if manageClusterUrlProxy.content}}
             <li>
               <a href={{manageClusterUrl}} target="_top">
@@ -24,8 +24,8 @@
               </a>
             </li>
           {{/if}}
-        {{/promise-proxy-container}}
+        </PromiseProxyContainer>
       </ul>
     </p>
-  {{/content-info}}
-{{/error-check-view}}
+  </ContentInfo>
+</ErrorCheckView>

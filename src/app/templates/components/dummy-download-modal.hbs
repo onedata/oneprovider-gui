@@ -1,9 +1,9 @@
-{{#promise-proxy-container proxy=fileProxy}}
+<PromiseProxyContainer @proxy={{fileProxy}}>
   {{#if opened}}
-    {{file-browser/fb-download-modal
-      file=fileProxy.content
-      onHide=(action "closeModal")
-      confirmDownload=(action "download")
-    }}
+    <FileBrowser::FbDownloadModal
+      @file={{fileProxy.content}}
+      @onHide={{action "closeModal"}}
+      @confirmDownload={{action "download"}}
+    />
   {{/if}}
-{{/promise-proxy-container}}
+</PromiseProxyContainer>

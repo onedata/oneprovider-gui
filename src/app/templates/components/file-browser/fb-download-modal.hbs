@@ -1,20 +1,20 @@
-{{#proceed-process-modal
-  opened=open
-  backdropClose=(not processing)
-  keyboard=(not processing)
-  autoDetectProcessing=false
-  processing=processing
-  proceedButtonClass="btn btn-primary"
-  headerText=(tt this (concat "header." effFileType))
-  proceedButtonText=(tt this (concat "confirmDownload." effFileType))
-  cancelButtonText=(tt this "cancel")
-  modalClass="proceed-modal fb-download-modal"
-  shouldCloseOnTransition=shouldCloseOnTransition
-  close=(action "close")
-  proceed=(action "download")
-}}
+<ProceedProcessModal
+  @opened={{open}}
+  @backdropClose={{not processing}}
+  @keyboard={{not processing}}
+  @autoDetectProcessing={{false}}
+  @processing={{processing}}
+  @proceedButtonClass="btn btn-primary"
+  @headerText={{tt this (concat "header." effFileType)}}
+  @proceedButtonText={{tt this (concat "confirmDownload." effFileType)}}
+  @cancelButtonText={{tt this "cancel"}}
+  @modalClass="proceed-modal fb-download-modal"
+  @shouldCloseOnTransition={{shouldCloseOnTransition}}
+  @close={{action "close"}}
+  @proceed={{action "download"}}
+>
   <p class="row-download-question">
     {{tt this (concat "question." effFileType)}}
   </p>
-  {{single-file-info file=file}}
-{{/proceed-process-modal}}
+  <SingleFileInfo @file={{file}} />
+</ProceedProcessModal>

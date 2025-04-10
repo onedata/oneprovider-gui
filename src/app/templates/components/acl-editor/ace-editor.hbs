@@ -1,107 +1,122 @@
-{{#listItem.header class=(concat-classes
-  (concat "type-" aceType)
-  (if hasActivePermissions "has-active-permissions" "has-no-rules-enabled")
-)}}
-  <span class="item-icon-container">
-    {{one-icon-tagged
-      class="item-icon"
-      icon=icon
-      tagIcon=headerTagIcon
-      shadowType=(if hasNoRulesEnabled "none" "circle")
+{{#let
+  (component listItem.header) (component listItem.content)
+  as |listItemHeader listItemContent|
+}}
+  <listItemHeader
+    class={{concat-classes
+      (concat "type-" aceType)
+      (if hasActivePermissions "has-active-permissions" "has-no-rules-enabled")
     }}
-    {{one-tooltip title=tooltipText}}
-  </span>
-  <span class={{concat-classes
-    "subject-name"
-    (if subject.isSystemSubject "system-subject-name")
-    (if (not subject.name) "unknown-subject-name")
-  }}>
-    {{subjectName}}
-    {{#if (not subject.name)}}
-      {{#if identifier}}
-        ({{tt this "id"}}: <code class="subject-identifier">{{identifier}}</code>)
-      {{/if}}
-      <OneLabelTip @title={{tt this "aceNotAccessible"
-        subject=(tt this (concat "aceSubjects." subjectType))
-      }} />
-    {{/if}}
-  </span>
-  {{#if subject.description}}
-    <span class="system-subject-description">
-      ({{subject.description}})
+  >
+    <span class="item-icon-container">
+      <OneIconTagged
+        class="item-icon"
+        @icon={{icon}}
+        @tagIcon={{headerTagIcon}}
+        @shadowType={{if hasNoRulesEnabled "none" "circle"}}
+      />
+      <OneTooltip @title={{tooltipText}} />
     </span>
-  {{/if}}
-  {{#status-toolbar class="hidden-xs" as |toolbar|}}
-    {{#each statusIcons key="icon" as |status|}}
-      {{toolbar.icon icon=status.icon hint=status.tooltipText status=status.stateClass}}
-    {{/each}}
-  {{/status-toolbar}}
-  {{#unless isReadOnly}}
-    {{actions-toolbar
-      isMinimized=true
-      toolbarClasses=""
-      toolbarToggleClasses="btn-menu-toggle"
-      dropdownPlacement="auto"
-      actionsArray=actionsArray
-    }}
-  {{/unless}}
-{{/listItem.header}}
-{{#listItem.content}}
-  <div class="ace-editor-form type-{{aceType}}">
-    <div class="ace-type-presenter">
-      <div class="ace-type-switch-container">
-        <label class="ace-type-label">{{tt this "aceType"}}</label>
-        {{#bs-button-group
-          class=(concat-classes
-            "ace-type-selector"
-            (if isReadOnly "disabled")
-          )
-          value=aceType
-          type="radio"
-          onChange=(if isReadOnly (no-action) (action "aceTypeChanged"))
-        as |bg|}}
-          {{#bg.button
-            type=(if (and (not hasNoRulesEnabled) (eq aceType "allow")) "primary" "default")
-            class=(concat-classes
-              "btn-sm ace-type ace-type-allow"
-              (if isReadOnly "disabled")
-            )
-            value="allow"
-          }}
-            <OneIcon @icon="checkbox-filled" /> {{tt this "aceTypes.allow"}}
-          {{/bg.button}}
-          {{#bg.button
-            type=(if (and (not hasNoRulesEnabled) (eq aceType "deny")) "danger" "default")
-            class=(concat-classes
-              "btn-sm ace-type ace-type-deny"
-              (if isReadOnly "disabled")
-            )
-            value="deny"
-          }}
-            <OneIcon @icon="checkbox-filled-x" /> {{tt this "aceTypes.deny"}}
-          {{/bg.button}}
-        {{/bs-button-group}}
-      </div>
-      {{#if hasNoRulesEnabled}}
-        <div class="no-rules-enabled-warning">
-          <OneIcon @icon="warning" class="no-rules-enabled-warning-icon"/>
-          <div class="text">
-            {{tt this (if isReadOnly "noRulesEnabledReadonly" "noRulesEnabled")}}
-          </div>
-          <OneLabelTip @title={{tt this "noRulesEnabledTip"}} />
-        </div>
+    <span class={{concat-classes
+      "subject-name"
+      (if subject.isSystemSubject "system-subject-name")
+      (if (not subject.name) "unknown-subject-name")
+    }}>
+      {{subjectName}}
+      {{#if (not subject.name)}}
+        {{#if identifier}}
+          ({{tt this "id"}}: <code class="subject-identifier">{{identifier}}</code>)
+        {{/if}}
+        <OneLabelTip @title={{tt this "aceNotAccessible"
+          subject=(tt this (concat "aceSubjects." subjectType))
+        }} />
       {{/if}}
+    </span>
+    {{#if subject.description}}
+      <span class="system-subject-description">
+        ({{subject.description}})
+      </span>
+    {{/if}}
+    <StatusToolbar class="hidden-xs" as |toolbar|>
+      {{#each statusIcons key="icon" as |status|}}
+        <toolbar.icon
+          @icon={{status.icon}}
+          @hint={{status.tooltipText}}
+          @status={{status.stateClass}}
+        />
+      {{/each}}
+    </StatusToolbar>
+    {{#unless isReadOnly}}
+      <ActionsToolbar
+        @isMinimized={{true}}
+        @toolbarClasses=""
+        @toolbarToggleClasses="btn-menu-toggle"
+        @dropdownPlacement="auto"
+        @actionsArray={{actionsArray}}
+      />
+    {{/unless}}
+  </listItemHeader>
+  <listItemContent>
+    <div class="ace-editor-form type-{{aceType}}">
+      <div class="ace-type-presenter">
+        <div class="ace-type-switch-container">
+          <label class="ace-type-label">{{tt this "aceType"}}</label>
+          <BsButtonGroup
+            class={{concat-classes "ace-type-selector" (if isReadOnly "disabled")}}
+            @value={{aceType}}
+            @type="radio"
+            @onChange={{if isReadOnly (no-action ) (action "aceTypeChanged")}}
+            as |bg|
+          >
+            <bg.button
+              @type={{if (and (not hasNoRulesEnabled) (eq aceType "allow"))
+                "primary"
+                "default"
+              }}
+              class={{concat-classes
+                "btn-sm ace-type ace-type-allow"
+                (if isReadOnly "disabled")
+              }}
+              @value="allow"
+            >
+              <OneIcon @icon="checkbox-filled" /> {{tt this "aceTypes.allow"}}
+            </bg.button>
+            <bg.button
+              @type={{if (and (not hasNoRulesEnabled) (eq aceType "deny"))
+                "danger"
+                "default"
+              }}
+              class={{concat-classes
+                "btn-sm ace-type ace-type-deny"
+                (if isReadOnly "disabled")
+              }}
+              @value="deny"
+            >
+              <OneIcon @icon="checkbox-filled-x" /> {{tt this "aceTypes.deny"}}
+            </bg.button>
+          </BsButtonGroup>
+        </div>
+        {{#if hasNoRulesEnabled}}
+          <div class="no-rules-enabled-warning">
+            <OneIcon @icon="warning" class="no-rules-enabled-warning-icon"/>
+            <div class="text">
+              {{tt this (if isReadOnly "noRulesEnabledReadonly" "noRulesEnabled")}}
+            </div>
+            <OneLabelTip @title={{tt this "noRulesEnabledTip"}} />
+          </div>
+        {{/if}}
+      </div>
+      <RenderLater @triggerRender={{listItem.isActive}}>
+        <PrivilegesTreeEditor
+          @privilegesGroups={{permissionsSpecification}}
+          @privilegeGroupsTranslationsPath="components.aclEditor.permissionGroups"
+          @privilegesTranslationsPath="components.aclEditor.permissions"
+          @comparePrivileges={{persistedPermissionsTree}}
+          @overridePrivileges={{initialPermissionsTree}}
+          @editionEnabled={{not isReadOnly}}
+          @onChange={{action "permissionsChanged"}}
+        />
+      </RenderLater>
     </div>
-    {{#render-later triggerRender=listItem.isActive}}
-      {{privileges-tree-editor
-        privilegesGroups=permissionsSpecification
-        privilegeGroupsTranslationsPath="components.aclEditor.permissionGroups"
-        privilegesTranslationsPath="components.aclEditor.permissions"
-        comparePrivileges=persistedPermissionsTree
-        overridePrivileges=initialPermissionsTree
-        editionEnabled=(not isReadOnly)
-        onChange=(action "permissionsChanged")
-      }}
-    {{/render-later}}
-  </div>
-{{/listItem.content}}
+  </listItemContent>
+{{/let}}

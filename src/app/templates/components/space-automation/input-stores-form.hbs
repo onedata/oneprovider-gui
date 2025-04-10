@@ -4,17 +4,17 @@
   </div>
 {{/if}}
 <form class="form form-horizontal form-component">
-  {{form-component/field-renderer field=fields}}
+  <FormComponent::FieldRenderer @field={{fields}} />
 </form>
-{{#items-select-browser-modal
-  open=itemsSelectionProcess
-  selectorModel=itemsSelectionProcess.selectorModel
-  onHide=(action "itemsSelectorClose")
-  onSubmit=(action "itemsSelected")
-  onCancel=(action "itemsSelectorClose")
-}}
+<ItemsSelectBrowserModal
+  @open={{itemsSelectionProcess}}
+  @selectorModel={{itemsSelectionProcess.selectorModel}}
+  @onHide={{action "itemsSelectorClose"}}
+  @onSubmit={{action "itemsSelected"}}
+  @onCancel={{action "itemsSelectorClose"}}
+>
   <h2 class="normal-case">
     {{tt this "itemsSelectorSubheader" storeName=itemsSelectionProcess.atmStore.name}}
   </h2>
-{{/items-select-browser-modal}}
+</ItemsSelectBrowserModal>
 {{yield}}

@@ -12,11 +12,11 @@
   --}}
   <div class="table-header-jump-control">
     {{#unless effIsJumpControlHidden}}
-      {{file-browser/jump-control
-        browserModel=browserModel
-        inputValue=jumpControlValue
-        changeInputValue=(action "changeJumpControlValue")
-      }}
+      <FileBrowser::JumpControl
+        @browserModel={{browserModel}}
+        @inputValue={{jumpControlValue}}
+        @changeInputValue={{action "changeJumpControlValue"}}
+      />
     {{/unless}}
   </div>
   <div class="table-header-status-bar">{{yield}}</div>

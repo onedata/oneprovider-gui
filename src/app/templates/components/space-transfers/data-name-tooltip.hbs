@@ -1,11 +1,7 @@
-{{#one-tooltip
-  class=(concat-classes
-   "transfer-file-tooltip"
-   "string-path-tooltip"
-   customClass
-  )
-  placement=placement
-}}
+<OneTooltip
+  class={{concat-classes "transfer-file-tooltip" "string-path-tooltip" customClass}}
+  @placement={{placement}}
+>
   {{#if (and isFileSource isInArchive)}}
     <div class="tip-row-dataset">
       <span class="tip-label">{{tt this "dataset"}}:</span>
@@ -39,4 +35,4 @@
       <em>{{tt this "unknown"}}</em>
     {{/if}}
   </div>
-{{/one-tooltip}}
+</OneTooltip>

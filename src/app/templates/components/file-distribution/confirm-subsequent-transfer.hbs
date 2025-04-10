@@ -1,16 +1,21 @@
 <p class="confirm-subsequent-transfer-message break-word">{{messageText}}</p>
 <div class="btn-toolbar">
-  {{#one-button onClick=onCancel disabled=(not canCancel) size="sm" class="cancel-subsequent-transfer"}}
+  <OneButton
+    @onClick={{onCancel}}
+    @disabled={{not canCancel}}
+    @size="sm"
+    class="cancel-subsequent-transfer"
+  >
     {{tt this "cancelButton"}}
-  {{/one-button}}
-  {{#one-button
-    type="primary"
-    size="sm"
-    buttonType="submit"
-    onClick=(action "confirm")
+  </OneButton>
+  <OneButton
+    @type="primary"
+    @size="sm"
+    @buttonType="submit"
+    @onClick={{action "confirm"}}
     class="confirm-subsequent-transfer"
-  }}
+  >
     {{confirmButtonText}}
-  {{/one-button}}
+  </OneButton>
 </div>
 {{yield}}

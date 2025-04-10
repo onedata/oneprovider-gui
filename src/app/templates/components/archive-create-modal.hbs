@@ -1,18 +1,18 @@
-{{#one-modal
+<OneModal
   class="archive-create-modal"
-  open=open
-  size="xl"
-  backdropClose=false
-  keyboard=false
-  onHide=(action "hide")
+  @open={{open}}
+  @size="xl"
+  @backdropClose={{false}}
+  @keyboard={{false}}
+  @onHide={{action "hide"}}
   as |modal|
-}}
-  {{archive-create
-    dataset=dataset
-    modal=modal
-    options=options
-    spacePrivileges=space.privileges
-    onClose=(action "hide")
-    onSubmit=(action "submit")
-  }}
-{{/one-modal}}
+>
+  <ArchiveCreate
+    @dataset={{dataset}}
+    @modal={{modal}}
+    @options={{options}}
+    @spacePrivileges={{space.privileges}}
+    @onClose={{action "hide"}}
+    @onSubmit={{action "submit"}}
+  />
+</OneModal>

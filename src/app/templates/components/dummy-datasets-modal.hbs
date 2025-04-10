@@ -1,26 +1,26 @@
 <div class="row">
   <div class="row">
     <label for="dummy-datasets-modal-opened">Opened</label>
-    {{one-way-toggle
-      id="dummy-datasets-modal-opened"
-      checked=opened
-      update=(action (mut opened))
-    }}
+    <OneWayToggle
+      @id="dummy-datasets-modal-opened"
+      @checked={{opened}}
+      @update={{action (mut opened)}}
+    />
   </div>
   <div class="row">
     <label for="dummy-datasets-modal-attached">Attached</label>
-    {{one-way-toggle
-      checked=datasetAttached
-      update=(action "toggleDatasetAttached")
-    }}
+    <OneWayToggle
+      @checked={{datasetAttached}}
+      @update={{action "toggleDatasetAttached"}}
+    />
   </div>
 </div>
-{{datasets-modal
-  open=opened
-  files=files
-  space=space
-  editPrivilege=editPrivilege
-  onHide=(action onHide)
-  getDataUrl=(action getDataUrl)
-  getDatasetsUrl=(action getDatasetsUrl)
-}}
+<DatasetsModal
+  @open={{opened}}
+  @files={{files}}
+  @space={{space}}
+  @editPrivilege={{editPrivilege}}
+  @onHide={{action onHide}}
+  @getDataUrl={{action getDataUrl}}
+  @getDatasetsUrl={{action getDatasetsUrl}}
+/>

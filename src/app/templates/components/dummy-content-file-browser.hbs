@@ -1,13 +1,13 @@
 <div class="content-file-browser content-items-browser one-embedded-component">
-  {{#promise-proxy-container proxy=dirProxy}}
-    {{file-browser browserModel=browserModel}}
+  <PromiseProxyContainer @proxy={{dirProxy}}>
+    <FileBrowser @browserModel={{browserModel}} />
 
     {{#if filesToRemove}}
-      {{file-browser/fb-remove-modal
-        open=true
-        files=filesToRemove
-        onHide=(action "closeRemoveModal")
-      }}
+      <FileBrowser::FbRemoveModal
+        @open={{true}}
+        @files={{filesToRemove}}
+        @onHide={{action "closeRemoveModal"}}
+      />
     {{/if}}
-  {{/promise-proxy-container}}
+  </PromiseProxyContainer>
 </div>

@@ -8,24 +8,24 @@
       <div class="truncate file-name">
         {{fileName}}
       </div>
-      {{#one-tooltip class="string-path-tooltip"}}
-        {{formatted-path-string
-          absolutePath=path
-          browsableArchive=parentBrowsableArchive
-        }}
-      {{/one-tooltip}}
+      <OneTooltip class="string-path-tooltip">
+        <FormattedPathString
+          @absolutePath={{path}}
+          @browsableArchive={{parentBrowsableArchive}}
+        />
+      </OneTooltip>
     </a>
   {{else}}
     <div class="truncate">
       <span class="file-name">
         {{fileName}}
       </span>
-      {{#one-tooltip class="string-path-tooltip"}}
-        {{formatted-path-string
-          absolutePath=path
-          browsableArchive=parentBrowsableArchive
-        }}
-      {{/one-tooltip}}
+      <OneTooltip class="string-path-tooltip">
+        <FormattedPathString
+          @absolutePath={{path}}
+          @browsableArchive={{parentBrowsableArchive}}
+        />
+      </OneTooltip>
     </div>
   {{/if}}
   {{#if fileNameHash}}

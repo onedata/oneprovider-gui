@@ -1,13 +1,13 @@
-{{#audit-log-browser
-  onFetchLogEntries=fetchLogEntriesCallback
-  customColumnHeaders=customColumnHeaders
+<AuditLogBrowser
+  @onFetchLogEntries={{fetchLogEntriesCallback}}
+  @customColumnHeaders={{customColumnHeaders}}
   as |logEntry|
-}}
-  {{file-recall/event-log/cell-file
-    fileCdmiObjectId=logEntry.content.fileId
-    relativePath=logEntry.content.relativePath
-    duplicateNameHashMapper=duplicateNameHashMapper
-    onGenerateSourceFileUrl=(action "generateSourceFileUrl")
-  }}
-  {{file-recall/event-log/cell-error reason=logEntry.content.reason}}
-{{/audit-log-browser}}
+>
+  <FileRecall::EventLog::CellFile
+    @fileCdmiObjectId={{logEntry.content.fileId}}
+    @relativePath={{logEntry.content.relativePath}}
+    @duplicateNameHashMapper={{duplicateNameHashMapper}}
+    @onGenerateSourceFileUrl={{action "generateSourceFileUrl"}}
+  />
+  <FileRecall::EventLog::CellError @reason={{logEntry.content.reason}} />
+</AuditLogBrowser>

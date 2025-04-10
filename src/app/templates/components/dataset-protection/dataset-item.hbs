@@ -10,16 +10,16 @@
         </label>
       {{/if}}
       <div class="toggle-container">
-        {{one-way-toggle
-          inputId=toggleViewModel.flagToggleId
-          class=toggleViewModel.flagToggleClass
-          checked=toggleViewModel.isChecked
-          spinnerSide=(if (media "isMobile") "left" "right")
-          isReadOnly=toggleViewModel.isReadOnly
-          lockHint=toggleViewModel.lockHint
-          icon=toggleViewModel.icon
-          update=toggleViewModel.updateAction
-        }}
+        <OneWayToggle
+          @inputId={{toggleViewModel.flagToggleId}}
+          class={{toggleViewModel.flagToggleClass}}
+          @checked={{toggleViewModel.isChecked}}
+          @spinnerSide={{if (media "isMobile") "left" "right"}}
+          @isReadOnly={{toggleViewModel.isReadOnly}}
+          @lockHint={{toggleViewModel.lockHint}}
+          @icon={{toggleViewModel.icon}}
+          @update={{toggleViewModel.updateAction}}
+        />
       </div>
     </div>
   </td>

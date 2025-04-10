@@ -14,7 +14,7 @@
     }}
   >
     {{tt this "status.failed"}}
-    {{one-tooltip title=(tt this "failedTip")}}
+    <OneTooltip @title={{tt this "failedTip"}} />
   </div>
 {{/if}}
 {{#if showBagitTag}}

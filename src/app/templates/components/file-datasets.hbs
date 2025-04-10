@@ -1,94 +1,101 @@
-{{#modal.header
-  class=(concat-classes
-    "file-datasets-part file-datasets-modal-header"
-    (if (eq activeTab "archives") "hide-before-shadow")
-  )
+{{#let
+  (component this.modal.header)
+  (component this.modal.body)
+  (component this.modal.footer)
+  as |modalHeader modalBody modalFooter|
 }}
-  <FileDatasets::SummaryHeader
-    @file={{file}}
-    @mode="file"
-    @fileDatasetSummaryProxy={{fileDatasetSummaryProxy}}
-    @editPrivilege={{editPrivilege}}
-    @insufficientEditPrivilegesMessage={{insufficientEditPrivilegesMessage}}
-  />
-  <div class="file-datasets-header-lower header-with-tags ">
-    <FileDatasets::TabBar
-      @activeTab={{activeTab}}
-      @tabsSpec={{tabsSpec}}
-      @onActiveTabChange={{action "changeActiveTab"}}
+  <modalHeader
+    class={{concat-classes
+      "file-datasets-part file-datasets-modal-header"
+      (if (eq activeTab "archives") "hide-before-shadow")
+    }}
+  >
+    <FileDatasets::SummaryHeader
+      @file={{file}}
+      @mode="file"
+      @fileDatasetSummaryProxy={{fileDatasetSummaryProxy}}
+      @editPrivilege={{editPrivilege}}
+      @insufficientEditPrivilegesMessage={{insufficientEditPrivilegesMessage}}
     />
-    {{#if (eq activeTab "settings")}}
-      <DatasetProtection::EffectiveInfo
-        class="header-tags-container"
-        @file={{file}}
-        @mode="file"
-        @fileDatasetSummaryProxy={{fileDatasetSummaryProxy}}
+    <div class="file-datasets-header-lower header-with-tags ">
+      <FileDatasets::TabBar
+        @activeTab={{activeTab}}
+        @tabsSpec={{tabsSpec}}
+        @onActiveTabChange={{action "changeActiveTab"}}
       />
-    {{/if}}
-  </div>
-{{/modal.header}}
-
-{{#modal.body
-  id=modalBodyId
-  class="file-datasets-part file-datasets-modal-body full-width-body"
-}}
-  <PromiseProxyContainer @proxy={{belongsToSomeDatasetProxy}}>
-    {{#unless belongsToSomeDataset}}
-      <ContentInfo
-        class="scroll-breakpoint-700 fill-flex-using-column content-info-no-dataset"
-        @header={{tt this "noDataset.header" fileType=fileTypeText}}
-        @text={{tt this "noDataset.text" fileType=fileTypeText}}
-        @buttonAction={{action "establishDataset"}}
-        @buttonLabel={{tt this "noDataset.buttonEstablish"}}
-        @buttonClass="establish-dataset-btn"
-        @buttonDisabled={{establishButtonDisabled}}
-        @buttonTip={{establishButtonDisabledTip}}
-      />
-    {{else}}
       {{#if (eq activeTab "settings")}}
-        <div class="settings-tab full-width-body-content">
-          <FileDatasets::DirectDatasetControl
-            @file={{file}}
-            @spacePrivileges={{space.privileges}}
-            @directDatasetProxy={{directDatasetProxy}}
-            @onOpenCreateArchive={{action "openCreateArchive"}}
-            @onEstablishDirectDataset={{action "establishDataset"}}
-          />
-          <DatasetProtection::Table
-            @fileDatasetSummaryProxy={{fileDatasetSummaryProxy}}
-            @directDatasetProxy={{directDatasetProxy}}
-            @ancestorDatasetsProxy={{ancestorDatasetsProxy}}
-            @file={{file}}
-            @mode="file"
-            @editPrivilege={{editPrivilege}}
-            @insufficientEditPrivilegesMessage={{insufficientEditPrivilegesMessage}}
-            @close={{close}}
-            @getDataUrl={{getDataUrl}}
-            @getDatasetsUrl={{getDatasetsUrl}}
-          />
-        </div>
-      {{else if (eq activeTab "archives")}}
-        <PromiseProxyContainer @proxy={{browsableDatasetProxy}}>
-          <FileDatasets::ArchivesTab
-            class="in-modal-item-browser-container full-width-body-content"
-            @parentModalDialogSelector={{parentModalDialogSelector}}
-            @space={{space}}
-            @modalBodyId={{modalBodyId}}
-            @browsableDataset={{browsableDatasetProxy.content}}
-            @options={{tabOptions.archives}}
-            @onCloseAllModals={{onCloseAllModals}}
-          />
-        </PromiseProxyContainer>
+        <DatasetProtection::EffectiveInfo
+          class="header-tags-container"
+          @file={{file}}
+          @mode="file"
+          @fileDatasetSummaryProxy={{fileDatasetSummaryProxy}}
+        />
       {{/if}}
-    {{/unless}}
-  </PromiseProxyContainer>
-{{/modal.body}}
+    </div>
+  </modalHeader>
 
-{{#if renderFooter}}
-  {{#modal.footer class="file-datasets-part file-datasets-modal-footer"}}
-    <a class="btn btn-default dataset-link" href={{datasetLink}} target={{navigateTarget}}>
-      <span class="text">{{tt this "showInBrowser"}}</span>
-      <OneIcon @icon="link-external" />
-    </a>
-  {{/modal.footer}}
-{{/if}}
+  <modalBody
+    @id={{modalBodyId}}
+    class="file-datasets-part file-datasets-modal-body full-width-body"
+  >
+    <PromiseProxyContainer @proxy={{belongsToSomeDatasetProxy}}>
+      {{#unless belongsToSomeDataset}}
+        <ContentInfo
+          class="scroll-breakpoint-700 fill-flex-using-column content-info-no-dataset"
+          @header={{tt this "noDataset.header" fileType=fileTypeText}}
+          @text={{tt this "noDataset.text" fileType=fileTypeText}}
+          @buttonAction={{action "establishDataset"}}
+          @buttonLabel={{tt this "noDataset.buttonEstablish"}}
+          @buttonClass="establish-dataset-btn"
+          @buttonDisabled={{establishButtonDisabled}}
+          @buttonTip={{establishButtonDisabledTip}}
+        />
+      {{else}}
+        {{#if (eq activeTab "settings")}}
+          <div class="settings-tab full-width-body-content">
+            <FileDatasets::DirectDatasetControl
+              @file={{file}}
+              @spacePrivileges={{space.privileges}}
+              @directDatasetProxy={{directDatasetProxy}}
+              @onOpenCreateArchive={{action "openCreateArchive"}}
+              @onEstablishDirectDataset={{action "establishDataset"}}
+            />
+            <DatasetProtection::Table
+              @fileDatasetSummaryProxy={{fileDatasetSummaryProxy}}
+              @directDatasetProxy={{directDatasetProxy}}
+              @ancestorDatasetsProxy={{ancestorDatasetsProxy}}
+              @file={{file}}
+              @mode="file"
+              @editPrivilege={{editPrivilege}}
+              @insufficientEditPrivilegesMessage={{insufficientEditPrivilegesMessage}}
+              @close={{close}}
+              @getDataUrl={{getDataUrl}}
+              @getDatasetsUrl={{getDatasetsUrl}}
+            />
+          </div>
+        {{else if (eq activeTab "archives")}}
+          <PromiseProxyContainer @proxy={{browsableDatasetProxy}}>
+            <FileDatasets::ArchivesTab
+              class="in-modal-item-browser-container full-width-body-content"
+              @parentModalDialogSelector={{parentModalDialogSelector}}
+              @space={{space}}
+              @modalBodyId={{modalBodyId}}
+              @browsableDataset={{browsableDatasetProxy.content}}
+              @options={{tabOptions.archives}}
+              @onCloseAllModals={{onCloseAllModals}}
+            />
+          </PromiseProxyContainer>
+        {{/if}}
+      {{/unless}}
+    </PromiseProxyContainer>
+  </modalBody>
+
+  {{#if renderFooter}}
+    <modalFooter class="file-datasets-part file-datasets-modal-footer">
+      <a class="btn btn-default dataset-link" href={{datasetLink}} target={{navigateTarget}}>
+        <span class="text">{{tt this "showInBrowser"}}</span>
+        <OneIcon @icon="link-external" />
+      </a>
+    </modalFooter>
+  {{/if}}
+{{/let}}

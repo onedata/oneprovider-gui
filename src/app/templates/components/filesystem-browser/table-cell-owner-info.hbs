@@ -1,5 +1,5 @@
 <span class="user-info-trigger">
-  {{#truncated-string class="file-owner-line"}}
+  <TruncatedString class="file-owner-line">
     {{#if owner.fullName}}
       <span
         class={{concat-classes
@@ -15,9 +15,9 @@
     {{else}}
       <span class="file-owner-fullname empty-column">—</span>
     {{/if}}
-  {{/truncated-string}}
+  </TruncatedString>
   {{#if owner.username}}
-    {{#truncated-string class="file-owner-line"}}
+    <TruncatedString class="file-owner-line">
       <span
         class="file-owner-username clickable"
         {{action "toggleUserInfo" bubbles=false}}
@@ -26,15 +26,12 @@
       >
         ({{owner.username}})
       </span>
-    {{/truncated-string}}
+    </TruncatedString>
   {{/if}}
 </span>
-{{#record-info-popover
-  isOpened=userInfoOpened
-  triggerSelector=(concat "#" elementId " .user-info-trigger")
-}}
-  {{user-info-content
-    record=owner
-    errorReason=errorReason
-  }}
-{{/record-info-popover}}
+<RecordInfoPopover
+  @isOpened={{userInfoOpened}}
+  @triggerSelector={{concat "#" elementId " .user-info-trigger"}}
+>
+  <UserInfoContent @record={{owner}} @errorReason={{errorReason}} />
+</RecordInfoPopover>

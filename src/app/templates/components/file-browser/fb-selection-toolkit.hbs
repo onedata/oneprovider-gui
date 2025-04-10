@@ -1,22 +1,18 @@
 {{#if isPillVisible}}
-  {{#one-pill-button
-    menuItems=menuButtons
-    mobileMode=mobileMode
-    useDots=true
-  }}
+  <OnePillButton @menuItems={{menuButtons}} @mobileMode={{mobileMode}} @useDots={{true}}>
     <div class="selection-count-text">
       {{tt this "itemsSelected"}}
       <span class="selection-count-number">
         (<span class="number">{{lastPositiveItemsCount}}</span>)
-        {{one-tooltip
-          title=itemsTooltipContent.tooltipContent
-          class=(concat-classes
+        <OneTooltip
+          @title={{itemsTooltipContent.tooltipContent}}
+          class={{concat-classes
             itemsTooltipContent.tooltipClass
             "selection-toolkit-tip-content"
-          )
-          onShown=(action "onItemsTooltipShown")
-        }}
+          }}
+          @onShown={{action "onItemsTooltipShown"}}
+        />
       </span>
     </div>
-  {{/one-pill-button}}
+  </OnePillButton>
 {{/if}}

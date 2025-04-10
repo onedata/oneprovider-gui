@@ -1,79 +1,86 @@
-{{#modal.header}}
-  <div class="archives-delete-part archives-delete-header">
-    <h1>{{tt this (concat "header.headerText." (if isSingleItem "single" "multi"))}}</h1>
-  </div>
-{{/modal.header}}
+{{#let
+  (component this.modal.header)
+  (component this.modal.body)
+  (component this.modal.footer)
+  as |modalHeader modalBody modalFooter|
+}}
+  <modalHeader>
+    <div class="archives-delete-part archives-delete-header">
+      <h1>{{tt this (concat "header.headerText." (if isSingleItem "single" "multi"))}}</h1>
+    </div>
+  </modalHeader>
 
-{{#modal.body}}
-  {{#promise-proxy-container proxy=datasetNameProxy}}
-    <div class="archives-delete-part archives-delete-body">
-      <p class="delete-text-intro">
-        {{tt this
-          (concat "body.aboutToDelete." (if showArchivesDetails "detailed" "simpleMulti"))
-          archivesText=(tt this
-            (concat "body.archive." (if isSingleItem "single" "multi"))
-          )
-          datasetName=datasetNameProxy.content
-          count=archives.length
-        }}
-      </p>
-      {{#if showArchivesDetails}}
-        <p>
-          {{archives-delete/items-info items=archives}}
+  <modalBody>
+    <PromiseProxyContainer @proxy={{datasetNameProxy}}>
+      <div class="archives-delete-part archives-delete-body">
+        <p class="delete-text-intro">
+          {{tt this
+            (concat "body.aboutToDelete." (if showArchivesDetails "detailed" "simpleMulti"))
+            archivesText=(tt this
+              (concat "body.archive." (if isSingleItem "single" "multi"))
+            )
+            datasetName=datasetNameProxy.content
+            count=archives.length
+          }}
         </p>
-      {{/if}}
-      <p class="delete-text-irreversible-warning text-danger">
-        {{tt this
-          "body.irreversibleWarning"
-          archivesText=(tt this
-            (concat "body.archive." (if isSingleItem "theArchive" "selected"))
-          )
-        }}&nbsp;{{one-label-tip
-          title=(tt this "body.nestedSharesInfo")
-          icon="sign-info-rounded"
-        }}
-      </p>
-      <p class="delete-text-retype-description">
-        {{tt this "body.toContinueRetype"}}
-      </p>
-      <p class="delete-retype-text">
-        <strong>{{confirmationSourceText}}</strong>
-      </p>
-      <form class="form form-horizontal">
-        <input
-          class="form-control confirmation-input"
-          type="text"
-          placeholder={{tt this "body.confirmationPlaceholder"}}
-          value={{confirmationValue}}
-          disabled={{if processing true}}
-          oninput={{action (mut confirmationValue) value="target.value"}}
-          onkeydown={{ignore-enter}}
-        >
-      </form>
-    </div>
-  {{/promise-proxy-container}}
-{{/modal.body}}
+        {{#if showArchivesDetails}}
+          <p>
+            <ArchivesDelete::ItemsInfo @items={{archives}} />
+          </p>
+        {{/if}}
+        <p class="delete-text-irreversible-warning text-danger">
+          {{tt this
+            "body.irreversibleWarning"
+            archivesText=(tt this
+              (concat "body.archive." (if isSingleItem "theArchive" "selected"))
+            )
+          }}&nbsp;<OneLabelTip
+            @title={{tt this "body.nestedSharesInfo"}}
+            @icon="sign-info-rounded"
+          />
+        </p>
+        <p class="delete-text-retype-description">
+          {{tt this "body.toContinueRetype"}}
+        </p>
+        <p class="delete-retype-text">
+          <strong>{{confirmationSourceText}}</strong>
+        </p>
+        <form class="form form-horizontal">
+          <input
+            class="form-control confirmation-input"
+            type="text"
+            placeholder={{tt this "body.confirmationPlaceholder"}}
+            value={{confirmationValue}}
+            disabled={{if processing true}}
+            oninput={{action (mut confirmationValue) value="target.value"}}
+            onkeydown={{ignore-enter}}
+          >
+        </form>
+      </div>
+    </PromiseProxyContainer>
+  </modalBody>
 
-{{#modal.footer}}
-  <div class="archives-delete-part archives-delete-footer">
-    {{#one-button disabled=processing onClick=(action "close") class="cancel"}}
-      {{tt this "footer.cancel"}}
-    {{/one-button}}
-    <div class="btn-tooltip-container">
-      {{#one-button
-        type="danger"
-        buttonType="button"
-        onClick=(action "delete")
-        class="proceed remove-proceed"
-        disabled=deleteDisabled
-      }}
-        {{tt this (concat "footer.deleteSubmit." (if isSingleItem "single" "multi"))
-          count=archives.length
-        }}
-      {{/one-button}}
-      {{#if deleteTip}}
-        {{one-tooltip title=deleteTip}}
-      {{/if}}
+  <modalFooter>
+    <div class="archives-delete-part archives-delete-footer">
+      <OneButton @disabled={{processing}} @onClick={{action "close"}} class="cancel">
+        {{tt this "footer.cancel"}}
+      </OneButton>
+      <div class="btn-tooltip-container">
+        <OneButton
+          @type="danger"
+          @buttonType="button"
+          @onClick={{action "delete"}}
+          class="proceed remove-proceed"
+          @disabled={{deleteDisabled}}
+        >
+          {{tt this (concat "footer.deleteSubmit." (if isSingleItem "single" "multi"))
+            count=archives.length
+          }}
+        </OneButton>
+        {{#if deleteTip}}
+          <OneTooltip @title={{deleteTip}} />
+        {{/if}}
+      </div>
     </div>
-  </div>
-{{/modal.footer}}
+  </modalFooter>
+{{/let}}

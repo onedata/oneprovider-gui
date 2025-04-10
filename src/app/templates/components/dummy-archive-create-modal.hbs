@@ -1,7 +1,7 @@
-{{archive-create-modal
-  open=open
-  space=space
-  dataset=dataset
-  onHide=(action "hide")
-  onArchiveCreate=(action "createArchive")
-}}
+<ArchiveCreateModal
+  @open={{open}}
+  @space={{space}}
+  @dataset={{dataset}}
+  @onHide={{action "hide"}}
+  @onArchiveCreate={{action "createArchive"}}
+/>

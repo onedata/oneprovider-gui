@@ -1,17 +1,17 @@
-{{#promise-proxy-container proxy=browserRequiredDataProxy}}
-  {{file-browser
-    browserModel=browserModel
-    parentModalDialogSelector=parentModalDialogSelector
-    showSelectionToolkit=false
-    contentScroll=contentScroll
-    ignoreDeselectSelector=ignoreDeselectSelector
-    updateDirEntityId=(action "changeDirId")
-  }}
-{{/promise-proxy-container}}
+<PromiseProxyContainer @proxy={{browserRequiredDataProxy}}>
+  <FileBrowser
+    @browserModel={{browserModel}}
+    @parentModalDialogSelector={{parentModalDialogSelector}}
+    @showSelectionToolkit={{false}}
+    @contentScroll={{contentScroll}}
+    @ignoreDeselectSelector={{ignoreDeselectSelector}}
+    @updateDirEntityId={{action "changeDirId"}}
+  />
+</PromiseProxyContainer>
 
-{{filesystem-select-browser-extension
-  selectorModel=this
-  browserModel=browserModel
-}}
+<FilesystemSelectBrowserExtension
+  @selectorModel={{this}}
+  @browserModel={{browserModel}}
+/>
 
 {{yield}}

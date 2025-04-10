@@ -1,23 +1,23 @@
-{{#one-modal
-  id=modalId
+<OneModal
+  @id={{modalId}}
   class="datasets-modal modal-content-overlay without-footer with-close-button"
-  open=open
-  size="xl"
-  backdropClose=true
-  keyboard=true
-  onHide=(action "hide")
+  @open={{open}}
+  @size="xl"
+  @backdropClose={{true}}
+  @keyboard={{true}}
+  @onHide={{action "hide"}}
   as |modal|
-}}
-  {{file-datasets
-    modal=modal
-    files=files
-    space=space
-    editPrivilege=editPrivilege
-    parentModalDialogSelector=parentModalDialogSelector
-    fileDatasetSummaryLoadError=(if open null)
-    getDataUrl=getDataUrl
-    getDatasetsUrl=getDatasetsUrl
-    onCloseAllModals=onCloseAllModals
-    close=(action "hide")
-  }}
-{{/one-modal}}
+>
+  <FileDatasets
+    @modal={{modal}}
+    @files={{files}}
+    @space={{space}}
+    @editPrivilege={{editPrivilege}}
+    @parentModalDialogSelector={{parentModalDialogSelector}}
+    @fileDatasetSummaryLoadError={{if open null}}
+    @getDataUrl={{getDataUrl}}
+    @getDatasetsUrl={{getDatasetsUrl}}
+    @onCloseAllModals={{onCloseAllModals}}
+    @close={{action "hide"}}
+  />
+</OneModal>

@@ -2,9 +2,12 @@
   {{#if onlyId}}
     #<span class="model-id">{{itemValue}}</span>
   {{else}}
-    {{name-conflict
-      item=(hash name=itemValue.name conflictLabel=(truncate itemValue.entityId 6 false))
-      separator=nameConflictSeparator
-    }}
+    <NameConflict
+      @item={{hash
+        name=itemValue.name
+        conflictLabel=(truncate itemValue.entityId 6 false)
+      }}
+      @separator={{nameConflictSeparator}}
+    />
   {{/if}}
 </span>

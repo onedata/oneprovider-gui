@@ -4,11 +4,11 @@
       <td
         class="fb-table-col-state fb-table-secondary-col hidden-xs multiline"
       >
-        {{archive-state
+        <ArchiveState
           class="file-item-text"
-          archive=fileRowModel.archive
-          stateClassMapping=stateClassMapping
-        }}
+          @archive={{fileRowModel.archive}}
+          @stateClassMapping={{stateClassMapping}}
+        />
       </td>
     {{else if (eq columnName "incremental")}}
       <td class="fb-table-col-incremental fb-table-secondary-col hidden-xs multiline">
@@ -27,30 +27,30 @@
                   onclick={{action "baseArchiveLinkClick"}}
                   onkeydown={{invoke-on-enter (action "baseArchiveLinkClick")}}
                 >
-                  {{#truncated-string class="base-archive-name"}}
+                  <TruncatedString class="base-archive-name">
                     {{fileRowModel.baseArchiveNameProxy.content}}
-                  {{/truncated-string}}
+                  </TruncatedString>
                 </a>
               {{else}}
-                {{#truncated-string class="base-archive-name"}}
+                <TruncatedString class="base-archive-name">
                   {{fileRowModel.baseArchiveNameProxy.content}}
-                {{/truncated-string}}
+                </TruncatedString>
               {{/if}}
               <div class="file-info-secondary">
-                {{archive-browser/secondary-description
-                  archive=baseArchiveProxy.content
+                <ArchiveBrowser::SecondaryDescription
+                  @archive={{baseArchiveProxy.content}}
                   class="file-info-secondary-inner file-info-secondary-left"
-                }}
+                />
               </div>
             {{else if baseArchiveId}}
-              {{#truncated-string
-                tagName="code"
+              <TruncatedString
+                @tagName="code"
                 class="base-archive-id-container"
-                tooltipClass="tooltip-lg tooltip-text-monospace"
-              }}
+                @tooltipClass="tooltip-lg tooltip-text-monospace"
+              >
                 <strong>{{tt this "id"}}:</strong>
                 <span class="base-archive-id">{{baseArchiveId}}</span>
-              {{/truncated-string}}
+              </TruncatedString>
             {{else}}
               –
             {{/if}}
@@ -67,10 +67,10 @@
     {{else if (eq columnName "creator")}}
       <td class="fb-table-col-creator fb-table-secondary-col hidden-xs multiline">
         <span class="file-item-text">
-          {{filesystem-browser/table-cell-owner-info
-            owner=creator
-            errorReason=creatorProxyError
-          }}
+          <FilesystemBrowser::TableCellOwnerInfo
+            @owner={{creator}}
+            @errorReason={{creatorProxyError}}
+          />
         </span>
       </td>
     {{/if}}

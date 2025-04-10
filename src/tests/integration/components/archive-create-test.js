@@ -109,16 +109,16 @@ async function renderComponent(testCase) {
       viewArchives: true,
     });
   }
-  await render(hbs `
-    {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
-      {{archive-create
-        dataset=dataset
-        modal=modal
-        options=options
-        spacePrivileges=spacePrivileges
-        onClose=onClose
-        onSubmit=onSubmit
-      }}
-    {{/one-pseudo-modal}}
+  await render(hbs`
+    <OnePseudoModal @id="pseudo-modal-id" as |modal|>
+      <ArchiveCreate
+        @dataset={{this.dataset}}
+        @modal={{modal}}
+        @options={{this.options}}
+        @spacePrivileges={{this.spacePrivileges}}
+        @onClose={{this.onClose}}
+        @onSubmit={{this.onSubmit}}
+      />
+    </OnePseudoModal>
   `);
 }
