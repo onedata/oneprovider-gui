@@ -171,7 +171,10 @@ class Helper {
       xmlValue: this.xmlValue,
       isReadOnly: this.isReadOnly,
     });
-    await render(hbs`<ShareShow::Edm @xmlValue={{xmlValue}} @isReadOnly={{isReadOnly}} />`);
+    await render(hbs`<ShareShow::Edm
+      @xmlValue={{xmlValue}}
+      @isReadOnly={{isReadOnly}}
+    />`);
   }
 }
 

@@ -99,10 +99,10 @@ class Helper {
       selectionContext: this.selectionContext,
       allButtonsArray: this.allButtonsArray,
     });
-    await render(hbs`{{file-browser/fb-selection-toolkit
-      items=items
-      selectionContext=selectionContext
-      allButtonsArray=allButtonsArray
-    }}`);
+    await render(hbs`<FileBrowser::FbSelectionToolkit
+      @items={{items}}
+      @selectionContext={{selectionContext}}
+      @allButtonsArray={{allButtonsArray}}
+    />`);
   }
 }

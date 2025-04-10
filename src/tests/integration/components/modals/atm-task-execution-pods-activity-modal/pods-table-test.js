@@ -98,11 +98,11 @@ describe('Integration | Component | modals/atm-task-execution-pods-activity-moda
 });
 
 async function renderComponent() {
-  await render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table
-    statusRegistry=statusRegistry
-    selectedPodId=selectedPodId
-    onPodSelect=onPodSelect
-  }}`);
+  await render(hbs `<Modals::AtmTaskExecutionPodsActivityModal::PodsTable
+    @statusRegistry={{statusRegistry}}
+    @selectedPodId={{selectedPodId}}
+    @onPodSelect={{onPodSelect}}
+  />`);
 }
 
 function generateStatusRegistry(statuses = ['Terminated', 'Pending', 'Running']) {

@@ -264,13 +264,9 @@ function testEffectiveProtectionInfo(flags) {
 
 async function renderComponent(testCase) {
   testCase.set('files', [testCase.get('file')]);
-  await render(hbs `{{#one-pseudo-modal as |modal|}}
-    {{file-datasets
-      modal=modal
-      files=files
-      space=space
-    }}
-  {{/one-pseudo-modal}}`);
+  await render(hbs `<OnePseudoModal as |modal|>
+    <FileDatasets @modal={{modal}} @files={{files}} @space={{space}} />
+  </OnePseudoModal>`);
 }
 
 function createFile(override = {}, ownerGri = userGri) {

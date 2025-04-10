@@ -47,14 +47,14 @@ describe('Integration | Component | space-transfers/throughput-distribution', fu
       undefined,
     ).resolves({});
 
-    await render(hbs`{{space-transfers/throughput-distribution
-      space=space
-      providers=providers
-      providersColors=providersColors
-      transferType=transferType
-      timeUnit=timeUnit
-      updaterEnabled=false
-    }}`);
+    await render(hbs`<SpaceTransfers::ThroughputDistribution
+      @space={{space}}
+      @providers={{providers}}
+      @providersColors={{providersColors}}
+      @transferType={{transferType}}
+      @timeUnit={{timeUnit}}
+      @updaterEnabled={{false}}
+    />`);
 
     expect(find('.ember-power-select-selected-item')).to.contain.text(
       'All Oneproviders'
@@ -89,14 +89,14 @@ describe('Integration | Component | space-transfers/throughput-distribution', fu
       undefined,
     ).resolves({});
 
-    await render(hbs`{{space-transfers/throughput-distribution
-      space=space
-      providers=providers
-      providersColors=providersColors
-      transferType=transferType
-      timeUnit=timeUnit
-      updaterEnabled=false
-    }}`);
+    await render(hbs`<SpaceTransfers::ThroughputDistribution
+      @space={{space}}
+      @providers={{providers}}
+      @providersColors={{providersColors}}
+      @transferType={{transferType}}
+      @timeUnit={{timeUnit}}
+      @updaterEnabled={{false}}
+    />`);
 
     expect(find('.ember-power-select-selected-item')).to.contain.text(
       'All Oneproviders'

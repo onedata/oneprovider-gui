@@ -61,12 +61,13 @@ describe('Integration | Component | acl-editor', function () {
   it('renders empty ACL', async function () {
     this.set('acl', []);
     await render(hbs `
-      {{acl-editor
-        context="file"
-        users=users
-        groups=groups
-        systemSubjects=systemSubjects
-        acl=acl}}
+      <AclEditor
+        @context="file"
+        @users={{users}}
+        @groups={{groups}}
+        @systemSubjects={{systemSubjects}}
+        @acl={{acl}}
+      />
     `);
 
     expect(find('.ace')).to.not.exist;
@@ -75,12 +76,13 @@ describe('Integration | Component | acl-editor', function () {
 
   it('renders passed ACL', async function () {
     await render(hbs `
-      {{acl-editor
-        context="file"
-        users=users
-        groups=groups
-        systemSubjects=systemSubjects
-        acl=acl}}
+      <AclEditor
+        @context="file"
+        @users={{users}}
+        @groups={{groups}}
+        @systemSubjects={{systemSubjects}}
+        @acl={{acl}}
+      />
     `);
 
     const toCheck = [{
@@ -119,13 +121,14 @@ describe('Integration | Component | acl-editor', function () {
     const changeSpy = sinon.spy();
     this.set('change', changeSpy);
     await render(hbs `
-      {{acl-editor
-        onChange=(action change)
-        context="file"
-        users=users
-        groups=groups
-        systemSubjects=systemSubjects
-        acl=acl}}
+      <AclEditor
+        @onChange={{action change}}
+        @context="file"
+        @users={{users}}
+        @groups={{groups}}
+        @systemSubjects={{systemSubjects}}
+        @acl={{acl}}
+      />
     `);
 
     const acl = this.get('acl');
@@ -148,13 +151,14 @@ describe('Integration | Component | acl-editor', function () {
     const changeSpy = sinon.spy();
     this.set('change', changeSpy);
     await render(hbs `
-      {{acl-editor
-        onChange=(action change)
-        context="file"
-        users=users
-        groups=groups
-        systemSubjects=systemSubjects
-        acl=acl}}
+      <AclEditor
+        @onChange={{action change}}
+        @context="file"
+        @users={{users}}
+        @groups={{groups}}
+        @systemSubjects={{systemSubjects}}
+        @acl={{acl}}
+      />
     `);
 
     const acl = this.get('acl');
@@ -172,13 +176,14 @@ describe('Integration | Component | acl-editor', function () {
     const changeSpy = sinon.spy();
     this.set('change', changeSpy);
     await render(hbs `
-      {{acl-editor
-        onChange=(action change)
-        context="file"
-        users=users
-        groups=groups
-        systemSubjects=systemSubjects
-        acl=acl}}
+      <AclEditor
+        @onChange={{action change}}
+        @context="file"
+        @users={{users}}
+        @groups={{groups}}
+        @systemSubjects={{systemSubjects}}
+        @acl={{acl}}
+      />
     `);
 
     const acl = this.get('acl');
@@ -196,13 +201,14 @@ describe('Integration | Component | acl-editor', function () {
     const changeSpy = sinon.spy();
     this.set('change', changeSpy);
     await render(hbs `
-      {{acl-editor
-        onChange=(action change)
-        context="file"
-        users=users
-        groups=groups
-        systemSubjects=systemSubjects
-        acl=acl}}
+      <AclEditor
+        @onChange={{action change}}
+        @context="file"
+        @users={{users}}
+        @groups={{groups}}
+        @systemSubjects={{systemSubjects}}
+        @acl={{acl}}
+      />
     `);
 
     const acl = this.get('acl');
@@ -220,13 +226,14 @@ describe('Integration | Component | acl-editor', function () {
     const changeSpy = sinon.spy();
     this.set('change', changeSpy);
     await render(hbs `
-      {{acl-editor
-        onChange=(action change)
-        context="file"
-        users=users
-        groups=groups
-        systemSubjects=systemSubjects
-        acl=acl}}
+      <AclEditor
+        @onChange={{action change}}
+        @context="file"
+        @users={{users}}
+        @groups={{groups}}
+        @systemSubjects={{systemSubjects}}
+        @acl={{acl}}
+      />
     `);
 
     const acl = this.get('acl');
@@ -242,13 +249,14 @@ describe('Integration | Component | acl-editor', function () {
     const changeSpy = sinon.spy();
     this.set('change', changeSpy);
     await render(hbs `
-      {{acl-editor
-        onChange=(action change)
-        context="file"
-        users=users
-        groups=groups
-        systemSubjects=systemSubjects
-        acl=acl}}
+      <AclEditor
+        @onChange={{action change}}
+        @context="file"
+        @users={{users}}
+        @groups={{groups}}
+        @systemSubjects={{systemSubjects}}
+        @acl={{acl}}
+      />
     `);
 
     const acl = this.get('acl');
@@ -264,13 +272,14 @@ describe('Integration | Component | acl-editor', function () {
     const changeSpy = sinon.spy();
     this.set('change', changeSpy);
     await render(hbs `
-      {{acl-editor
-        onChange=(action change)
-        context="file"
-        users=users
-        groups=groups
-        systemSubjects=systemSubjects
-        acl=acl}}
+      <AclEditor
+        @onChange={{action change}}
+        @context="file"
+        @users={{users}}
+        @groups={{groups}}
+        @systemSubjects={{systemSubjects}}
+        @acl={{acl}}
+      />
     `);
 
     const acl = this.get('acl');

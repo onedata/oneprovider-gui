@@ -4,10 +4,11 @@
   @onScroll={{action "scrollOccurred"}}
   as |scrollbarElement|
 >
-  {{component
-    model.componentId
-    externalData=model.data
-    externalActions=model.actions
-    containerScrollTop=scrollbarElement.scrollTop
-  }}
+  {{#let (component model.componentId) as |theComponent|}}
+    <theComponent
+      @externalData={{model.data}}
+      @externalActions={{model.actions}}
+      @containerScrollTop={{scrollbarElement.scrollTop}}
+    />
+  {{/let}}
 </PerfectScrollbarElement>

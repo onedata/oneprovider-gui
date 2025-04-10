@@ -59,9 +59,7 @@ export default class FileSharesHelper {
   async renderBody() {
     await this.beforeRender();
     await this.context.render(hbs`
-      {{file-shares/body
-        viewModel=viewModel
-      }}
+      <FileShares::Body @viewModel={{viewModel}} />
     `);
   }
   get bodySelector() {

@@ -30,7 +30,7 @@ describe('Integration | Mixin | in-modal-item-browser-container-base', function 
 
       await render(hbs `<div id="dummy-scroll">
         {{#dummy-component contentScrollSelector="#dummy-scroll" as |contentScroll|}}
-          {{test-callback callback=spyCallback contentScroll=contentScroll}}
+          <TestCallback @callback={{spyCallback}} @contentScroll={{contentScroll}} />
         {{/dummy-component}}
       </div>`);
 
@@ -49,7 +49,7 @@ describe('Integration | Mixin | in-modal-item-browser-container-base', function 
 
       await render(hbs `<div id="dummy-scroll">
         {{#dummy-component as |contentScroll|}}
-          {{test-callback callback=spyCallback contentScroll=contentScroll}}
+          <TestCallback @callback={{spyCallback}} @contentScroll={{contentScroll}} />
         {{/dummy-component}}
       </div>`);
 
@@ -69,7 +69,7 @@ describe('Integration | Mixin | in-modal-item-browser-container-base', function 
       await render(hbs `<div id="dummy-modal-body">
         <div div class = "bs-modal-body-scroll" >
           {{#dummy-component modalBodyId="dummy-modal-body" as |contentScroll|}}
-            {{test-callback callback=spyCallback contentScroll=contentScroll}}
+            <TestCallback @callback={{spyCallback}} @contentScroll={{contentScroll}} />
           {{/dummy-component}}
         </div>
       </div>`);

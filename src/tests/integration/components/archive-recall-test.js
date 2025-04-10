@@ -191,17 +191,17 @@ describe('Integration | Component | archive-recall (internal)', function () {
 
 async function renderComponent() {
   await render(hbs `
-    {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
-      {{archive-recall
-        modal=modal
-        modalId="pseudo-modal-id"
-        space=space
-        archive=archive
-        options=options
-        onCancel=(action onCancel)
-        onArchiveRecallStarted=(action onArchiveRecallStarted)
-      }}
-    {{/one-pseudo-modal}}
+    <OnePseudoModal @id="pseudo-modal-id" as |modal|>
+      <ArchiveRecall
+        @modal={{modal}}
+        @modalId="pseudo-modal-id"
+        @space={{space}}
+        @archive={{archive}}
+        @options={{options}}
+        @onCancel={{action onCancel}}
+        @onArchiveRecallStarted={{action onArchiveRecallStarted}}
+      />
+    </OnePseudoModal>
   `);
 }
 

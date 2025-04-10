@@ -219,12 +219,12 @@ function generateTestData(testCase) {
 }
 
 async function renderComponent() {
-  await render(hbs `{{space-transfers/transfer-row
-    record=record
-    columns=columns
-    transfersTable=transfersTable
-    forbiddenOperations=forbiddenOperations
-    transferActions=transferActions
-    openDbViewModal=openDbViewModal
-  }}`);
+  await render(hbs `<SpaceTransfers::TransferRow
+    @record={{record}}
+    @columns={{columns}}
+    @transfersTable={{transfersTable}}
+    @forbiddenOperations={{forbiddenOperations}}
+    @transferActions={{transferActions}}
+    @openDbViewModal={{openDbViewModal}}
+  />`);
 }

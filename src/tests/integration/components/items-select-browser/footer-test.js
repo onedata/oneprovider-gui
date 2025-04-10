@@ -30,13 +30,13 @@ describe('Integration | Component | items-select-browser/footer', function () {
 });
 
 async function renderComponent() {
-  await render(hbs `{{items-select-browser/footer
-    validationError=validationError
-    selectedItems=selectedItems
-    submitDisabled=submitDisabled
-    submitLabel=submitLabel
-    onCancel=onCancel
-    onSubmit=onSubmit
-  }}`);
+  await render(hbs `<ItemsSelectBrowser::Footer
+    @validationError={{validationError}}
+    @selectedItems={{selectedItems}}
+    @submitDisabled={{submitDisabled}}
+    @submitLabel={{submitLabel}}
+    @onCancel={{onCancel}}
+    @onSubmit={{onSubmit}}
+  />`);
   return find('.items-select-browser-footer');
 }

@@ -56,10 +56,10 @@ describe('Integration | Component | filesystem-browser/file-features', function 
           recallingInheritancePathProxy: promiseObject(resolve(membership)),
         });
 
-        await render(hbs `{{filesystem-browser/file-features
-          item=item
-          initiallyExpanded=false
-        }}`);
+        await render(hbs `<FilesystemBrowser::FileFeatures
+          @item={{item}}
+          @initiallyExpanded={{false}}
+        />`);
 
         expect(find('.file-status-inherited-collapsed')).to.not.exist;
       });
@@ -83,11 +83,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
             [feature]: membership,
           });
 
-          await render(hbs `{{filesystem-browser/file-features
-            item=item
-            browserModel=browserModel
-            initiallyExpanded=false
-          }}`);
+          await render(hbs `<FilesystemBrowser::FileFeatures
+            @item={{item}}
+            @browserModel={{browserModel}}
+            @initiallyExpanded={{false}}
+          />`);
 
           expect(find('.file-status-inherited-collapsed')).to.exist;
         }
@@ -102,11 +102,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       recallingInheritancePathProxy: promiseObject(resolve('direct')),
     });
 
-    await render(hbs `{{filesystem-browser/file-features
-      item=item
-      browserModel=browserModel
-      initiallyExpanded=true
-    }}`);
+    await render(hbs `<FilesystemBrowser::FileFeatures
+      @item={{item}}
+      @browserModel={{browserModel}}
+      @initiallyExpanded={{true}}
+    />`);
 
     expect(find('.file-status-dataset'), 'dataset').to.exist;
     expect(find('.file-status-qos'), 'qos').to.exist;
@@ -121,11 +121,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         recallingInheritancePathProxy: promiseObject(resolve(membership)),
       });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=false
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{false}}
+      />`);
 
       expect(find('.file-status-dataset'), 'dataset').to.exist;
       expect(find('.file-status-qos'), 'qos').to.exist;
@@ -141,11 +141,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         effQosInheritancePath: 'directAndAncestor',
       });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=false
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{false}}
+      />`);
 
       const datasetTag = find('.file-status-dataset');
       const qosTag = find('.file-status-qos');
@@ -166,11 +166,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         effQosInheritancePath: 'directAndAncestor',
       });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=true
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{true}}
+      />`);
 
       expect(find('.file-status-inherited-collapsed'), 'inherited collapsed')
         .to.not.exist;
@@ -194,11 +194,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         recallingInheritancePathProxy: promiseObject(resolve('ancestor')),
       });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=true
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{true}}
+      />`);
 
       expect(find('.file-status-inherited-collapsed'), 'inherited collapsed')
         .to.not.exist;
@@ -235,12 +235,12 @@ describe('Integration | Component | filesystem-browser/file-features', function 
           spacePrivileges,
         });
 
-        await render(hbs `{{filesystem-browser/file-features
-          item=item
-          browserModel=browserModel
-          initiallyExpanded=false
-          onInvokeItemAction=onInvokeItemAction
-        }}`);
+        await render(hbs `<FilesystemBrowser::FileFeatures
+          @item={{item}}
+          @browserModel={{browserModel}}
+          @initiallyExpanded={{false}}
+          @onInvokeItemAction={{onInvokeItemAction}}
+        />`);
         const tagGroups = findAll(`.${tag}-file-status-tag-group`);
         expect(tagGroups).to.have.lengthOf(1);
         await click(tagGroups[0]);
@@ -271,12 +271,12 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         onInvokeItemAction,
       });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=false
-        onInvokeItemAction=onInvokeItemAction
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{false}}
+        @onInvokeItemAction={{onInvokeItemAction}}
+      />`);
       const tagElement = find(`.file-status-${tag}`);
 
       expect(tagElement).to.exist;
@@ -291,11 +291,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       effQosInheritancePath: 'directAndAncestor',
     });
 
-    await render(hbs `{{filesystem-browser/file-features
-      item=item
-      browserModel=browserModel
-      initiallyExpanded=false
-    }}`);
+    await render(hbs `<FilesystemBrowser::FileFeatures
+      @item={{item}}
+      @browserModel={{browserModel}}
+      @initiallyExpanded={{false}}
+    />`);
     const inheritanceTags = findAll('.file-status-inherited-collapsed');
     expect(inheritanceTags).to.have.length(1);
     await click(inheritanceTags[0]);
@@ -315,11 +315,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         effDatasetInheritancePath: 'ancestor',
       });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=false
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{false}}
+      />`);
 
       const collapsedElementClasses = [
         ...find('.file-status-inherited-collapsed').classList,
@@ -345,12 +345,12 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       onInvokeItemAction,
     });
 
-    await render(hbs `{{filesystem-browser/file-features
-      item=item
-      browserModel=browserModel
-      initiallyExpanded=false
-      onInvokeItemAction=onInvokeItemAction
-    }}`);
+    await render(hbs `<FilesystemBrowser::FileFeatures
+      @item={{item}}
+      @browserModel={{browserModel}}
+      @initiallyExpanded={{false}}
+      @onInvokeItemAction={{onInvokeItemAction}}
+    />`);
 
     const tagElement = find('.file-status-recalling');
     expect(tagElement).to.exist;
@@ -372,12 +372,12 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       onInvokeItemAction,
     });
 
-    await render(hbs `{{filesystem-browser/file-features
-      item=item
-      browserModel=browserModel
-      initiallyExpanded=false
-      onInvokeItemAction=onInvokeItemAction
-    }}`);
+    await render(hbs `<FilesystemBrowser::FileFeatures
+      @item={{item}}
+      @browserModel={{browserModel}}
+      @initiallyExpanded={{false}}
+      @onInvokeItemAction={{onInvokeItemAction}}
+    />`);
 
     const tagProgress = find('.file-status-recalling .tag-progress');
     expect(tagProgress.style.width).to.equal('50%');
@@ -397,11 +397,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         await this.createItem();
         await whenUsedInArchiveFilesystemBrowser(this, { archiveState: spec.state });
 
-        await render(hbs `{{filesystem-browser/file-features
-          item=item
-          browserModel=browserModel
-          initiallyExpanded=true
-        }}`);
+        await render(hbs `<FilesystemBrowser::FileFeatures
+          @item={{item}}
+          @browserModel={{browserModel}}
+          @initiallyExpanded={{true}}
+        />`);
 
         /** @type {HTMLElement} */
         const tag = find('.file-status-archive-creating');
@@ -417,11 +417,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
       await this.createItem();
       await whenUsedInArchiveFilesystemBrowser(this, { archiveState: 'preserved' });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=true
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{true}}
+      />`);
 
       expect(find('.file-status-archive-creating')).to.not.exist;
       expect(find('.file-status-archive-failed')).to.not.exist;
@@ -437,11 +437,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         await this.createItem();
         await whenUsedInArchiveFilesystemBrowser(this, { archiveState: spec.state });
 
-        await render(hbs `{{filesystem-browser/file-features
-          item=item
-          browserModel=browserModel
-          initiallyExpanded=true
-        }}`);
+        await render(hbs `<FilesystemBrowser::FileFeatures
+          @item={{item}}
+          @browserModel={{browserModel}}
+          @initiallyExpanded={{true}}
+        />`);
 
         const failedTag = find('.file-status-archive-failed');
         expect(failedTag).to.exist;
@@ -459,11 +459,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         archiveRootDir: null,
       });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=true
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{true}}
+      />`);
 
       /** @type {HTMLElement} */
       const tag = find('.file-status-archive-creating');
@@ -480,11 +480,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         archiveRootDir: null,
       });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=true
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{true}}
+      />`);
 
       /** @type {HTMLElement} */
       const tag = find('.file-status-archive-failed');
@@ -503,11 +503,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         archiveRootDir: null,
       });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=false
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{false}}
+      />`);
 
       const collapsedElementClasses = [
         ...find('.file-status-inherited-collapsed').classList,
@@ -527,11 +527,11 @@ describe('Integration | Component | filesystem-browser/file-features', function 
         archiveRootDir: null,
       });
 
-      await render(hbs `{{filesystem-browser/file-features
-        item=item
-        browserModel=browserModel
-        initiallyExpanded=false
-      }}`);
+      await render(hbs `<FilesystemBrowser::FileFeatures
+        @item={{item}}
+        @browserModel={{browserModel}}
+        @initiallyExpanded={{false}}
+      />`);
 
       const collapsedElementClasses = [
         ...find('.file-status-inherited-collapsed').classList,

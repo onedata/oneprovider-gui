@@ -72,10 +72,10 @@ describe('Integration | Component | modals/atm-task-execution-pods-activity-moda
 });
 
 async function renderComponent() {
-  await render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table/header-row
-    allPodsCount=allPodsCount
-    currentPodsCount=currentPodsCount
-    podsFilter=podsFilter
-    onPodsFilterChange=onPodsFilterChange
-  }}`);
+  await render(hbs `<Modals::AtmTaskExecutionPodsActivityModal::PodsTable::HeaderRow
+    @allPodsCount={{allPodsCount}}
+    @currentPodsCount={{currentPodsCount}}
+    @podsFilter={{podsFilter}}
+    @onPodsFilterChange={{onPodsFilterChange}}
+  />`);
 }

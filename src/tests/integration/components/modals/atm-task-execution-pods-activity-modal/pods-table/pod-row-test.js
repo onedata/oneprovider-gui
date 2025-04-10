@@ -75,10 +75,10 @@ describe('Integration | Component | modals/atm-task-execution-pods-activity-moda
 });
 
 async function renderComponent() {
-  await render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table/pod-row
-    podId=podId
-    podActivity=podActivity
-    isSelected=isSelected
-    onSelect=onSelect
-  }}`);
+  await render(hbs `<Modals::AtmTaskExecutionPodsActivityModal::PodsTable::PodRow
+    @podId={{podId}}
+    @podActivity={{podActivity}}
+    @isSelected={{isSelected}}
+    @onSelect={{onSelect}}
+  />`);
 }

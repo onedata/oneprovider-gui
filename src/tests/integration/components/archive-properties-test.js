@@ -91,9 +91,9 @@ async function renderComponent(testCase) {
   });
   testCase.set('viewModel', viewModel);
   await render(hbs `
-    {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
-      {{archive-properties viewModel=viewModel}}
-    {{/one-pseudo-modal}}
+    <OnePseudoModal @id="pseudo-modal-id" as |modal|>
+      <ArchiveProperties @viewModel={{viewModel}} />
+    </OnePseudoModal>
   `);
 }
 

@@ -161,12 +161,12 @@ class DirectDatsetControlHelper {
   async renderComponent() {
     await this.testCase.get('directDatasetProxy');
     await render(hbs `
-      {{file-datasets/direct-dataset-control
-        file=file
-        directDatasetProxy=directDatasetProxy
-        spacePrivileges=spacePrivileges
-        onEstablishDirectDataset=onEstablishDirectDataset
-      }}
+      <FileDatasets::DirectDatasetControl
+        @file={{file}}
+        @directDatasetProxy={{directDatasetProxy}}
+        @spacePrivileges={{spacePrivileges}}
+        @onEstablishDirectDataset={{onEstablishDirectDataset}}
+      />
     `);
   }
   getActionsTrigger() {

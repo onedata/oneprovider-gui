@@ -376,14 +376,14 @@ function testShowsUrlTypeInformationInPopover(type, informationOptions = {}) {
 }
 
 async function renderComponent() {
-  await render(hbs `{{share-show/public-url-viewer
-    share=share
-    compact=compact
-    showHandle=showHandle
-    selectedUrlType=selectedUrlType
-    changeSelectedUrlType=(action (mut selectedUrlType))
-    testMode=true
-  }}`);
+  await render(hbs `<ShareShow::PublicUrlViewer
+    @share={{share}}
+    @compact={{compact}}
+    @showHandle={{showHandle}}
+    @selectedUrlType={{selectedUrlType}}
+    @changeSelectedUrlType={{action (mut selectedUrlType)}}
+    @testMode={{true}}
+  />`);
 }
 
 function getComponent() {

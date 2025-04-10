@@ -9,7 +9,7 @@ describe('Integration | Component | posix-permissions-editor', function () {
   setupRenderingTest();
 
   it('show initial posix value', async function () {
-    await render(hbs `{{posix-permissions-editor initialPermissions="432"}}`);
+    await render(hbs `<PosixPermissionsEditor @initialPermissions="432" />`);
 
     expect(find('.permissions-octal').value).to.equal('432');
     expect(find('.permissions-string-container')).to.contain.text('r-- -wx -w-');
@@ -32,9 +32,7 @@ describe('Integration | Component | posix-permissions-editor', function () {
     const changeSpy = sinon.spy();
     this.set('change', changeSpy);
     await render(hbs `
-      {{posix-permissions-editor
-        initialPermissions="000"
-        onChange=(action change)}}
+      <PosixPermissionsEditor @initialPermissions="000" @onChange={{action change}} />
     `);
 
     return fillIn('.permissions-octal', '040')
@@ -50,9 +48,7 @@ describe('Integration | Component | posix-permissions-editor', function () {
     const changeSpy = sinon.spy();
     this.set('change', changeSpy);
     await render(hbs `
-      {{posix-permissions-editor
-        initialPermissions="000"
-        onChange=(action change)}}
+      <PosixPermissionsEditor @initialPermissions="000" @onChange={{action change}} />
     `);
 
     return click('.user-read-checkbox')
@@ -67,9 +63,7 @@ describe('Integration | Component | posix-permissions-editor', function () {
     const saveSpy = sinon.spy();
     this.set('save', saveSpy);
     await render(hbs `
-      {{posix-permissions-editor
-        initialPermissions="000"
-        onSave=(action save)}}
+      <PosixPermissionsEditor @initialPermissions="000" @onSave={{action save}} />
     `);
 
     // 13 is Enter
@@ -81,9 +75,7 @@ describe('Integration | Component | posix-permissions-editor', function () {
     const changeSpy = sinon.spy();
     this.set('change', changeSpy);
     await render(hbs `
-      {{posix-permissions-editor
-        initialPermissions="000"
-        onChange=(action change)}}
+      <PosixPermissionsEditor @initialPermissions="000" @onChange={{action change}} />
     `);
 
     return fillIn('.permissions-octal', '778')
