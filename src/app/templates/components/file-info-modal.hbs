@@ -288,12 +288,12 @@
           {{!-- <tr class="file-info-row-creation-time">
             <td class="property-name">
               {{tt this "creationTime"}}
-              {{one-label-tip title=(tt this "tip.creationTime")}}
+              <OneLabelTip @title={{tt this "tip.creationTime"}} />
             </td>
             <td class="property-value">
-              {{#truncated-string}}
+              <TruncatedString>
                 {{date-format creationTime format="dateWithSeconds" blank="—"}}
-              {{/truncated-string}}
+              </TruncatedString>
             </td>
           </tr> --}}
           {{#if isOwnerVisible}}
