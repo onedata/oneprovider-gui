@@ -105,7 +105,7 @@ async function showModal(testCase) {
     modalOptions,
   } = testCase.getProperties('modalManager', 'modalOptions');
 
-  await render(hbs `{{global-modal-mounter}}`);
+  await render(hbs `<GlobalModalMounter />`);
 
   await modalManager
     .show('atm-task-execution-pods-activity-modal', modalOptions)

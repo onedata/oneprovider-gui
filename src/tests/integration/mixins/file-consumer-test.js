@@ -45,7 +45,7 @@ describe('Integration | Mixin | file-consumer', function () {
       const fileRequirementRegistry = lookupService(this, 'fileRequirementRegistry');
       await render(hbs`
         {{#if isVisible}}
-          {{dummy-component}}
+          <DummyComponent />
         {{/if}}
       `);
 
@@ -85,7 +85,7 @@ describe('Integration | Mixin | file-consumer', function () {
       this.set('fileRequirements', [requirement1]);
       const fileRequirementRegistry = lookupService(this, 'fileRequirementRegistry');
       await render(hbs`
-        {{base-dummy-component fileRequirements=fileRequirements}}
+        <BaseDummyComponent @fileRequirements={{fileRequirements}} />
       `);
 
       // original requirement
@@ -121,7 +121,7 @@ describe('Integration | Mixin | file-consumer', function () {
       const fileRecordRegistry = lookupService(this, 'file-record-registry');
       await render(hbs`
         {{#if isVisible}}
-          {{dummy-component}}
+          <DummyComponent />
         {{/if}}
       `);
 
@@ -152,7 +152,7 @@ describe('Integration | Mixin | file-consumer', function () {
       this.set('usedFileGris', files.slice(0, 2).map(file => file.get('id')));
       const fileRecordRegistry = lookupService(this, 'file-record-registry');
       await render(hbs`
-        {{base-dummy-component usedFileGris=usedFileGris}}
+        <BaseDummyComponent @usedFileGris={{usedFileGris}} />
       `);
 
       // original files
@@ -184,7 +184,7 @@ describe('Integration | Mixin | file-consumer', function () {
       });
       this.owner.register('component:dummy-component', DummyComponentClass);
       const fileRequirementRegistry = lookupService(this, 'fileRequirementRegistry');
-      await render(hbs`{{dummy-component}}`);
+      await render(hbs`<DummyComponent />`);
       await waitForRender();
 
       expect(fileRequirementRegistry.getRequirements())
@@ -212,7 +212,7 @@ describe('Integration | Mixin | file-consumer', function () {
       });
       this.set('fileRequirements', [richRequirement]);
       const fileRequirementRegistry = lookupService(this, 'fileRequirementRegistry');
-      await render(hbs`{{base-dummy-component fileRequirements=fileRequirements}}`);
+      await render(hbs`<BaseDummyComponent @fileRequirements={{fileRequirements}} />`);
       await waitForRender();
 
       expect(fileRequirementRegistry.getRequirements()).to.contain(richRequirement);
@@ -242,7 +242,7 @@ describe('Integration | Mixin | file-consumer', function () {
       });
       this.set('fileRequirements', [richRequirement, frugalRequirement]);
       const fileRequirementRegistry = lookupService(this, 'fileRequirementRegistry');
-      await render(hbs`{{base-dummy-component fileRequirements=fileRequirements}}`);
+      await render(hbs`<BaseDummyComponent @fileRequirements={{fileRequirements}} />`);
       await waitForRender();
 
       const resultRequirements = fileRequirementRegistry.getRequirements();

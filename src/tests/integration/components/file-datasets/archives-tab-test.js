@@ -158,11 +158,11 @@ async function renderComponent(testCase, waitForListLoad = true) {
   setTestPropertyDefault(testCase, 'browsableDataset', defaultBrowsableDataset);
   setTestPropertyDefault(
     testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
-  await render(hbs `{{file-datasets/archives-tab
-    space=space
-    browsableDataset=browsableDataset
-    archiveBrowserModelOptions=(hash refreshInterval=0)
-  }}`);
+  await render(hbs `<FileDatasets::ArchivesTab
+    @space={{this.space}}
+    @browsableDataset={{this.browsableDataset}}
+    @archiveBrowserModelOptions={{hash refreshInterval=0}}
+  />`);
 
   if (waitForListLoad) {
     await waitUntil(() => {

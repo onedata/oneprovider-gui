@@ -119,7 +119,7 @@ describe('Integration | Component | content-space-transfers', function () {
       guiContext.clusterId = provider1.entityId;
       await render(hbs `
         <div id="content-scroll">
-          {{content-space-transfers}}
+          <ContentSpaceTransfers />
         </div>
       `);
 
@@ -169,7 +169,7 @@ describe('Integration | Component | content-space-transfers', function () {
       guiContext.clusterId = provider1.entityId;
       await render(hbs `
         <div id="content-scroll">
-          {{content-space-transfers}}
+          <ContentSpaceTransfers />
         </div>
       `);
 

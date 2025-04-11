@@ -699,18 +699,18 @@ describe('Integration | Component | file-info-modal', function () {
 });
 
 async function renderComponent() {
-  await render(hbs `{{file-info-modal
-    open=true
-    files=(or files (array file))
-    initialTab=initialTab
-    share=share
-    space=space
-    selectedRestUrlType=selectedRestUrlType
-    getDataUrl=getDataUrl
-    storageLocationsProxy=storageLocationsProxy
-    tabOptions=tabOptions
-    browserModel=browserModel
-  }}`);
+  await render(hbs`<FileInfoModal
+    @open={{true}}
+    @files={{or files (array file)}}
+    @initialTab={{initialTab}}
+    @share={{share}}
+    @space={{space}}
+    @selectedRestUrlType={{selectedRestUrlType}}
+    @getDataUrl={{getDataUrl}}
+    @storageLocationsProxy={{storageLocationsProxy}}
+    @tabOptions={{tabOptions}}
+    @browserModel={{browserModel}}
+  />`);
 }
 
 async function givenDummySpace(testCase, data) {
