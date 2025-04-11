@@ -5,6 +5,7 @@
 ### Latest changes
 
 * VFS-12674 Added support for batch requests
+* VFS-12606 Added autocomplete dropdown for xattr key in column editor popover
 * VFS-12259 Added JSON columns in file browser
 * VFS-12622 Refactored OneIcon component to Glimmer
 * VFS-12631 Fixed showing empty file list after deleting many items selected from second to the end

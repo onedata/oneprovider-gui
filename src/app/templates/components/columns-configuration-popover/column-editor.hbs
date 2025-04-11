@@ -19,7 +19,7 @@
         type="text"
         class="form-control new-json-key input-sm"
         value={{newJsonKey}}
-        oninput={{action "changeJsonKey" value="target.value"}}
+        oninput={{action (mut newJsonKey) value="target.value"}}
         disabled={{isSaving}}
         autofocus={{false}}
       >
@@ -31,7 +31,7 @@
     type="text"
     class="form-control new-item-name input-sm"
     value={{newColumnName}}
-    oninput={{action (mut newColumnName) value="target.value"}}
+    oninput={{action "changeColumnName" value="target.value"}}
     disabled={{isSaving}}
     autofocus={{false}}
   >
