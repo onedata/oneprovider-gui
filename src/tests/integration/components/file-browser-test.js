@@ -877,13 +877,13 @@ async function renderComponent(testCase) {
     once(this, 'changeSelectedItemsImmediately', selectedItems);
     await sleep(0);
   });
-  await render(hbs`<div id="content-scroll">{{file-browser
-    browserModel=browserModel
-    fileClipboardMode=fileClipboardMode
-    fileClipboardFiles=fileClipboardFiles
-    handleFileDownloadUrl=handleFileDownloadUrl
-    updateDirEntityId=(action updateDirEntityId)
-  }}</div>`);
+  await render(hbs`<div id="content-scroll"><FileBrowser
+    @browserModel={{browserModel}}
+    @fileClipboardMode={{fileClipboardMode}}
+    @fileClipboardFiles={{fileClipboardFiles}}
+    @handleFileDownloadUrl={{handleFileDownloadUrl}}
+    @updateDirEntityId={{action updateDirEntityId}}
+  /></div>`);
 }
 
 function setDefaultTestProperty(testCase, propertyName, defaultValue) {
