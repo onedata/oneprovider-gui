@@ -377,11 +377,11 @@ function testShowsUrlTypeInformationInPopover(type, informationOptions = {}) {
 
 async function renderComponent() {
   await render(hbs `<ShareShow::PublicUrlViewer
-    @share={{share}}
-    @compact={{compact}}
-    @showHandle={{showHandle}}
-    @selectedUrlType={{selectedUrlType}}
-    @changeSelectedUrlType={{action (mut selectedUrlType)}}
+    @share={{this.share}}
+    @compact={{this.compact}}
+    @showHandle={{this.showHandle}}
+    @selectedUrlType={{this.selectedUrlType}}
+    @changeSelectedUrlType={{action (mut this.selectedUrlType)}}
     @testMode={{true}}
   />`);
 }

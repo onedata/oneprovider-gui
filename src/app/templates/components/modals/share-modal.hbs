@@ -1,14 +1,14 @@
 <GlobalModal
   @classNames="share-modal"
-  @modalId={{modalId}}
+  @modalId={{this.modalId}}
   @allowClose={{false}}
   @onHide={{action "onHide"}}
   as |modal|
 >
   <modal.header>
-    <h1>{{tt this "header" fileType=(tt this (concat "fileType." file.type))}}</h1>
-    <ModalFileSubheader @files={{array file}} />
-    <FileShares::OtherViewForbiddenWarning @file={{file}} @aboutTimeType="future" />
+    <h1>{{tt this "header" fileType=(tt this (concat "fileType." this.file.type))}}</h1>
+    <ModalFileSubheader @files={{array this.file}} />
+    <FileShares::OtherViewForbiddenWarning @file={{this.file}} @aboutTimeType="future" />
   </modal.header>
   <modal.body>
     <div class="share-modal-loadable-row loadable-row">
@@ -17,25 +17,25 @@
       <div class="row">
         <BsForm class="form-horizontal without-labels" as |form|>
           <form.group
-            @validation={{if validationError "error"}}
+            @validation={{if this.validationError "error"}}
             class={{concat-classes
               "new-share-name-form-group"
               (if validationError "has-message")
             }}
           >
             <input
-              id={{inputId}}
+              id={{this.inputId}}
               type="text"
               class="form-control new-share-name"
-              value={{newShareName}}
-              oninput={{action (mut newShareName) value="target.value"}}
+              value={{this.newShareName}}
+              oninput={{action (mut this.newShareName) value="target.value"}}
               onkeydown={{invoke-on-enter (action "submitNew")}}
-              disabled={{isSaving}}
+              disabled={{this.isSaving}}
               autofocus=true
             >
-            <div class="form-message form-message-name {{unless validationError "transparent"}}">
-              {{validationErrorMessage}}
-              {{#if (eq validationError "regexp")}}
+            <div class="form-message form-message-name {{unless this.validationError "transparent"}}">
+              {{this.validationErrorMessage}}
+              {{#if (eq this.validationError "regexp")}}
                 <div class="inline-icon-container hint-trigger clickable">
                   <OneLabelTip
                     @title={{tt this "regexpHint"}}
@@ -48,25 +48,25 @@
         </BsForm>
       </div>
       <div class="row publish-row">
-        <div class="publish-checkbox-group {{if isPublishDisabled "disabled"}}">
+        <div class="publish-checkbox-group {{if this.isPublishDisabled "disabled"}}">
           <OneCheckbox
             class="one-checkbox-understand"
-            @checked={{isPublishCheckboxChecked}}
-            @isReadOnly={{isPublishDisabled}}
+            @checked={{this.isPublishCheckboxChecked}}
+            @isReadOnly={{this.isPublishDisabled}}
             @update={{action "togglePublishCheckbox"}}
           />
           <div
-            class="text-publish {{unless isPublishDisabled "clickable"}}"
-            onclick={{unless isPublishDisabled (action "togglePublishCheckbox")}}
+            class="text-publish {{unless this.isPublishDisabled "clickable"}}"
+            onclick={{unless this.isPublishDisabled (action "togglePublishCheckbox")}}
           >
             {{tt this "publishText"}}
           </div>
         </div>
-        {{#if publishTip}}
+        {{#if this.publishTip}}
           <OneLabelTip
             class="publish-label-tip"
             @tooltipClass="tooltip-lg"
-            @title={{publishTip}}
+            @title={{this.publishTip}}
           />
         {{/if}}
       </div>
@@ -80,8 +80,8 @@
       @type="primary"
       @buttonType="submit"
       @onClick={{action "submitNew"}}
-      @isPending={{isSaving}}
-      @disabled={{submitNewDisabled}}
+      @isPending={{this.isSaving}}
+      @disabled={{this.submitNewDisabled}}
     >
       {{tt this "createNew"}}
     </OneButton>

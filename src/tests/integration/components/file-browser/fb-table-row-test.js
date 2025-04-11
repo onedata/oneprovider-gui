@@ -418,7 +418,7 @@ async function renderComponent(testCase) {
     currentUserIsOwner: testCase.get('isSpaceOwned') ?? false,
     privileges: testCase.get('spacePrivileges') ?? {},
   });
-  await render(hbs `<FileBrowserFbTableRow
+  await render(hbs `<FileBrowser::FbTableRow
     @file={{file}}
     @browserModel={{browserModel}}
   />`);
