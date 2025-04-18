@@ -5,30 +5,32 @@
   }}
   onclick={{action "invokeFileAction" file "metadata" "json"}}
 >
-  {{#if (not selectedJsonString)}}
-    —
-  {{else}}
-    {{#if (get htmlContentLines 1)}}
-      <div class="file-json-text">
-        <div class="json-first-line">
-          {{htmlContentLines.[0]}}
-        </div>
-        <div class="json-second-line">
-          {{htmlContentLines.[1]}}{{#if isTextTruncated}}&#8230;{{/if}}
-        </div>
-        {{#if isTextTruncated}}
-          <OneTooltip class="json-tooltip tooltip-lg tooltip-text-left">
-            <pre>{{tooltipJsonText}}{{#if isTooltipTextTruncated}}&#8230;{{/if}}</pre>
-            {{#if isTooltipTextTruncated}}
-              <hr>
-              <span class="view-more-text">{{tt this "viewMore"}}</span>
-            {{/if}}
-          </OneTooltip>
-        {{/if}}
-      </div>
+  {{#promise-proxy-container proxy=selectedJsonStringProxy}}
+    {{#if (not selectedJsonString)}}
+      —
     {{else}}
-      <span class="file-json-text">{{htmlContentLines.[0]}}</span>
+      {{#if (get htmlContentLines 1)}}
+        <div class="file-json-text">
+          <div class="json-first-line">
+            {{htmlContentLines.[0]}}
+          </div>
+          <div class="json-second-line">
+            {{htmlContentLines.[1]}}{{#if isTextTruncated}}&#8230;{{/if}}
+          </div>
+          {{#if isTextTruncated}}
+            <OneTooltip class="json-tooltip tooltip-lg tooltip-text-left">
+              <pre>{{tooltipJsonText}}{{#if isTooltipTextTruncated}}&#8230;{{/if}}</pre>
+              {{#if isTooltipTextTruncated}}
+                <hr>
+                <span class="view-more-text">{{tt this "viewMore"}}</span>
+              {{/if}}
+            </OneTooltip>
+          {{/if}}
+        </div>
+      {{else}}
+        <span class="file-json-text">{{htmlContentLines.[0]}}</span>
+      {{/if}}
+      <OneIcon @icon="browser-copy" class="copy-icon" onclick={{action "copyJson"}} />
     {{/if}}
-    <OneIcon @icon="browser-copy" class="copy-icon" onclick={{action "copyJson"}} />
-  {{/if}}
+  {{/promise-proxy-container}}
 </div>

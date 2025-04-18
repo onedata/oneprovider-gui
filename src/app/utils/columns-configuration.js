@@ -43,7 +43,7 @@ import { reads } from '@ember/object/computed';
  * Determines how JSON data should be queried.
  * - all: Returns the entire JSON object.
  * - key: Returns the value of the top-level key in the JSON hierarchy.
- * @typedef {'all'|'key'} JsonQueryType
+ * @typedef {'all'|'key'|'query'} JsonQueryType
  */
 
 /**
@@ -62,6 +62,7 @@ import { reads } from '@ember/object/computed';
  * @property {JsonQueryType} queryType Determines how JSON data should be queried.
  * @property {string} [jsonKey] Name of the top-level key in the JSON hierarchy.
  *   This applies only if the queryType is 'key'.
+ * @property {string} [jsonQuery]
  */
 
 const mixins = [
@@ -255,7 +256,8 @@ export default EmberObject.extend(...mixins, {
         type === 'json' &&
         columnName === this.columns[columnNameVariable].displayedName &&
         options.queryType === this.columns[columnNameVariable].options.queryType &&
-        options.jsonKey === this.columns[columnNameVariable].options.jsonKey
+        options.jsonKey === this.columns[columnNameVariable].options.jsonKey &&
+        options.jsonQuery === this.columns[columnNameVariable].options.jsonQuery
       ) {
         // return if a column with the same name and query type already exists
         return { exists: true };
@@ -303,6 +305,7 @@ export default EmberObject.extend(...mixins, {
         options: {
           queryType: options.queryType,
           jsonKey: options.jsonKey,
+          jsonQuery: options.jsonQuery,
         },
         fileProperty: 'jsonMetadata',
       };
@@ -314,6 +317,12 @@ export default EmberObject.extend(...mixins, {
         globals.localStorage.setItem(
           `${this.persistedCustomColumnConfigKey(columnNameVariable)}.jsonKey`,
           options.jsonKey
+        );
+      }
+      if (options.queryType === 'query') {
+        globals.localStorage.setItem(
+          `${this.persistedCustomColumnConfigKey(columnNameVariable)}.jsonQuery`,
+          options.jsonQuery
         );
       }
     }
@@ -354,6 +363,11 @@ export default EmberObject.extend(...mixins, {
       if (queryType === 'key') {
         globals.localStorage.removeItem(
           `${this.persistedCustomColumnConfigKey(columnName)}.jsonKey`
+        );
+      }
+      if (queryType === 'query') {
+        globals.localStorage.removeItem(
+          `${this.persistedCustomColumnConfigKey(columnName)}.jsonQuery`
         );
       }
     }
@@ -458,9 +472,15 @@ export default EmberObject.extend(...mixins, {
       `${this.persistedCustomColumnConfigKey(columnName)}.queryType`
     );
     let jsonKey = '';
+    let jsonQuery = '';
     if (queryType === 'key') {
       jsonKey = globals.localStorage.getItem(
         `${this.persistedCustomColumnConfigKey(columnName)}.jsonKey`
+      );
+    }
+    if (queryType === 'query') {
+      jsonQuery = globals.localStorage.getItem(
+        `${this.persistedCustomColumnConfigKey(columnName)}.jsonQuery`
       );
     }
     const displayedName = globals.localStorage.getItem(
@@ -479,6 +499,7 @@ export default EmberObject.extend(...mixins, {
       options: {
         queryType,
         jsonKey,
+        jsonQuery,
       },
       displayedName,
       fileProperty: 'jsonMetadata',
@@ -555,6 +576,7 @@ export default EmberObject.extend(...mixins, {
     }
     columnsOrder.splice(index, 0, element);
   },
+
   listFilesProperties() {
     const filesProperties = new Set();
     const columnRequirementsEnableProperty = this.isMounted ?

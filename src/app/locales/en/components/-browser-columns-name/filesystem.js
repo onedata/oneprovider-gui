@@ -25,6 +25,7 @@ export default {
     json: {
       all: 'Custom JSON metadata assigned to the file (mode: whole document).',
       key: 'Custom JSON metadata assigned to the file (mode: extract key <strong>"{{key}}"</strong>).',
+      query: 'Custom JSON metadata assigned to the file (mode: extract query <strong>"{{query}}"</strong>).',
     },
     fileId: {
       priv: 'File ID is a unique, global identifier associated with a file/directory. It can be used to access and interact with the file/directory using different interfaces (e.g. REST API), but only by authorized users that have permission to do so.',

@@ -22,6 +22,7 @@ import {
 } from 'onedata-gui-common/utils/destroyable-computed';
 
 const defaultWholeJsonLabel = 'JSON';
+const defaultQueryJsonLabel = 'JSON query';
 
 export default Component.extend(I18n, {
   classNames: ['column-editor'],
@@ -77,6 +78,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
+   * @type {string}
+   */
+  initialJsonQuery: '',
+
+  /**
+   * @virtual optional
    * @type {ColumnType}
    */
   initialMetadataType: 'xattr',
@@ -118,6 +125,11 @@ export default Component.extend(I18n, {
   /**
    * @type {string}
    */
+  newJsonQuery: '',
+
+  /**
+   * @type {string}
+   */
   metadataTypeFieldName: 'metadataType',
 
   /**
@@ -148,6 +160,9 @@ export default Component.extend(I18n, {
       }
       if (this.jsonTypeField.value === 'all') {
         return defaultWholeJsonLabel;
+      }
+      if (this.jsonTypeField.value === 'query') {
+        return defaultQueryJsonLabel;
       }
       return this.newJsonKey;
     }
@@ -228,6 +243,7 @@ export default Component.extend(I18n, {
         options: [
           { value: 'all' },
           { value: 'key' },
+          { value: 'query' },
         ],
         defaultValue: this.initialJsonQueryType,
         tooltipClass: 'tooltip-lg tooltip-text-left',
@@ -271,6 +287,7 @@ export default Component.extend(I18n, {
     'metadataTypeValue',
     'jsonTypeField.value',
     'newJsonKey',
+    'newJsonQuery',
     function disabledEditButtonTooltip() {
       if (
         !this.newColumnName ||
@@ -278,6 +295,10 @@ export default Component.extend(I18n, {
         (
           !this.newJsonKey && this.metadataTypeValue === 'json' &&
           this.jsonTypeField.value === 'key'
+        ) ||
+        (
+          !this.newJsonQuery && this.metadataTypeValue === 'json' &&
+          this.jsonTypeField.value === 'query'
         )
       ) {
         return this.t('emptyValueTooltip');
@@ -315,6 +336,7 @@ export default Component.extend(I18n, {
     'jsonTypeField.value',
     'metadataTypeValue',
     'newJsonKey',
+    'newJsonQuery',
     function isColumnAlreadyExisting() {
       let properties = {};
       if (this.metadataTypeValue === 'xattr') {
@@ -323,6 +345,7 @@ export default Component.extend(I18n, {
         properties = {
           queryType: this.jsonTypeField.value,
           jsonKey: this.newJsonKey,
+          jsonQuery: this.newJsonQuery,
         };
       }
       return this.columnsConfiguration
@@ -339,6 +362,7 @@ export default Component.extend(I18n, {
     this._super(...arguments);
     this.setProperties({
       newJsonKey: this.initialJsonKey,
+      newJsonQuery: this.initialJsonQuery,
     });
   },
 
@@ -368,6 +392,7 @@ export default Component.extend(I18n, {
       const options = type === 'xattr' ? { xattrKey: this.xattrKeyDropdownField.value } : {
         queryType: this.jsonTypeField.value,
         jsonKey: this.newJsonKey,
+        jsonQuery: this.newJsonQuery,
       };
       this.onSubmitColumn(
         this.isNewColumn,

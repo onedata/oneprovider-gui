@@ -23,6 +23,17 @@
         disabled={{isSaving}}
         autofocus={{false}}
       >
+    {{else if (eq jsonTypeField.value "query")}}
+      <p>{{tt this "jsonQueryLabel"}}</p>
+      <input
+        id={{inputId}}
+        type="text"
+        class="form-control new-json-query input-sm"
+        value={{newJsonQuery}}
+        oninput={{action (mut newJsonQuery) value="target.value"}}
+        disabled={{isSaving}}
+        autofocus={{false}}
+      >
     {{/if}}
   {{/if}}
   <p>{{tt this "columnNameLabel"}}</p>

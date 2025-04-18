@@ -2,6 +2,7 @@ export default {
   addNewColumnHeader: 'New metadata column',
   columnNameLabel: 'Column label:',
   jsonKeyLabel: 'Top-level key:',
+  jsonQueryLabel: 'Query:',
   addBtn: 'Create',
   cancelBtn: 'Cancel',
   modifyColumnHeader: 'Modify metadata column',
@@ -34,6 +35,9 @@ export default {
       },
       key: {
         label: 'Extract key',
+      },
+      query: {
+        label: 'Query',
       },
     },
   },

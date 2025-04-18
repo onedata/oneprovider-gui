@@ -15,6 +15,9 @@ import Prism from 'prismjs';
 import 'prismjs/components/prism-json';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/i18n';
+import jsonata from 'jsonata';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { resolve } from 'rsvp';
 
 export default Component.extend(I18n, {
   tagName: 'td',
@@ -78,6 +81,11 @@ export default Component.extend(I18n, {
   jsonKey: reads('columnInfo.options.jsonKey'),
 
   /**
+   * @type {ComputedProperty<string>}
+   */
+  jsonQuery: reads('columnInfo.options.jsonQuery'),
+
+  /**
    * @type {ComputedProperty<Object>}
    */
   json: reads('file.effFile.jsonMetadata'),
@@ -92,27 +100,42 @@ export default Component.extend(I18n, {
    * contains the value of the top-level key as a string.
    * @type {ComputedProperty<string>}
    */
-  selectedJsonString: computed(
+  selectedJsonStringProxy: computed(
     'queryType',
     'jsonKey',
+    'jsonQuery',
     'json',
     'hasJsonMetadata',
-    function selectedJsonString() {
+    function selectedJsonStringProxy() {
       const jsonObj = this.json;
       if (!this.hasJsonMetadata || jsonObj === undefined) {
-        return '';
+        return promiseObject(resolve(''));
       }
       if (this.queryType === 'all') {
-        return JSON.stringify(jsonObj, null, 2);
+        return promiseObject(resolve(JSON.stringify(jsonObj, null, 2)));
       }
-      if (!this.jsonKey || !jsonObj) {
-        return '';
+      if (this.queryType === 'key') {
+        if (!this.jsonKey || !jsonObj) {
+          return promiseObject(resolve(''));
+        }
+        const selectedData = jsonObj[this.jsonKey];
+        return JSON.stringify(selectedData, null, 2);
       }
-
-      const selectedData = jsonObj[this.jsonKey];
-      return JSON.stringify(selectedData, null, 2);
+      if (this.queryType === 'query') {
+        if (!this.jsonQuery || !jsonObj) {
+          return promiseObject(resolve(''));
+        }
+        const promise = (async () => {
+          const expr = jsonata(this.jsonQuery);
+          const result = await expr.evaluate(jsonObj);
+          return JSON.stringify(result, null, 2);
+        })();
+        return promiseObject(promise);
+      }
     }
   ),
+
+  selectedJsonString: reads('selectedJsonStringProxy.content'),
 
   /**
    * @type {ComputedProperty<{ text: string, isTruncated: boolean }>}

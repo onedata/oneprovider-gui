@@ -225,9 +225,13 @@ export default Component.extend(I18n, {
       } else if (this.columnValue.type === 'json') {
         if (this.columnValue.options.queryType === 'all') {
           return this.t(`${this.translationKey}.tip.json.all`);
-        } else {
+        } else if (this.columnValue.options.queryType === 'key') {
           return this.t(`${this.translationKey}.tip.json.key`, {
             key: this.columnValue.options.jsonKey,
+          });
+        } else {
+          return this.t(`${this.translationKey}.tip.json.query`, {
+            query: this.columnValue.options.jsonQuery,
           });
         }
       } else if (this.columnName === 'fileId') {

@@ -1,3 +1,5 @@
+@import './columns-configuration-popover/column-editor';
+
 .webui-popover-columns-configuration {
   width: 300px;
   min-height: var(--min-height-popover, 0);
@@ -253,53 +255,6 @@
   }
   .after-drop-area {
     top: var(--drop-area-height);
-  }
-
-  .column-editor {
-    position: relative;
-    min-height: var(--min-height-popover, 0);
-    padding: 12px;
-
-    h1 {
-      display: flex;
-      position: relative;
-
-      .back-icon {
-        cursor: pointer;
-        font-size: 120%;
-        font-weight: bold;
-        margin-left: -0.3em;
-      }
-
-      .edit-column-header {
-        padding-left: 0.3em;
-      }
-    }
-
-    .new-json-key, .new-item-name {
-      margin-bottom: 20px;
-    }
-
-    .back-column-btn {
-      margin-right: $padding-xs-horizontal;
-    }
-
-    .xattr-footer {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-    }
-    .radio-inline {
-      display: inline-flex;
-      align-items: center;
-    }
-    .ember-power-select-trigger:not([aria-expanded]) {
-      // disable form validation colors
-      border-color: $input-border;
-    }
-    .ember-power-select-trigger--active:not([aria-expanded]) {
-      border: $ember-power-select-border-width solid $input-border-focus;
-    }
   }
 }
 

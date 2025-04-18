@@ -87,8 +87,12 @@ export default Component.extend(...mixins, {
       } else if (this.columnInfo.type === 'json') {
         if (this.columnInfo.options.queryType === 'all') {
           return this.t('headers.tip.json.all');
-        } else {
+        } else if (this.columnInfo.options.queryType === 'key') {
           return this.t('headers.tip.json.key', { key: this.columnInfo.options.jsonKey });
+        } else {
+          return this.t(
+            'headers.tip.json.query', { query: this.columnInfo.options.jsonQuery }
+          );
         }
       } else if (this.columnName === 'fileId') {
         const scope = this.previewMode ? 'public' : 'priv';

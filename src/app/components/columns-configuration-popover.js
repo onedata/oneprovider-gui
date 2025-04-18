@@ -109,6 +109,11 @@ export default Component.extend(...mixins, {
   modifiedJsonKey: '',
 
   /**
+   * @type {string}
+   */
+  modifiedJsonQuery: '',
+
+  /**
    * @type {ComputedProperty<string>}
    */
   columnsCount: reads('columnsConfiguration.columnsOrder.length'),
@@ -276,6 +281,12 @@ export default Component.extend(...mixins, {
           this.set(
             'modifiedJsonKey',
             columnInfo.options.jsonKey
+          );
+        }
+        if (queryType === 'query') {
+          this.set(
+            'modifiedJsonQuery',
+            columnInfo.options.jsonQuery
           );
         }
       }
