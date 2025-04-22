@@ -10,7 +10,13 @@
 
   <modalBody
     @id={{modalBodyId}}
-    class={{concat-classes "archive-recall-part archive-recall-modal-body upload-drop-zone-container full-width-body" (if (or disabled isSubmitting) "disabled")}}
+    class={{concat-classes
+      "archive-recall-part"
+      "archive-recall-modal-body"
+      "upload-drop-zone-container"
+      "full-width-body"
+      (if (or disabled isSubmitting) "disabled")
+    }}
   >
     <ArchiveRecall::Browser
       class="full-width-body-content"
