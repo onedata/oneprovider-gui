@@ -90,14 +90,14 @@ describe('Integration | Component | space-transfers', function () {
       timestamp: 0,
     });
 
-    await render(hbs `<div id="content-scroll">{{space-transfers
-      space=space
-      fileId=undefined
-      defaultTab=defaultTab
-      resetQueryParams=(action resetQueryParams)
-      changeListTab=(action changeListTab)
-      closeFileTab=(action closeFileTab)
-    }}</div>`);
+    await render(hbs `<div id="content-scroll"><SpaceTransfers
+      @space={{space}}
+      @fileId={{undefined}}
+      @defaultTab={{defaultTab}}
+      @resetQueryParams={{action resetQueryParams}}
+      @changeListTab={{action changeListTab}}
+      @closeFileTab={{action closeFileTab}}
+    /></div>`);
 
     expect(getTransfersForFile).to.have.not.been.called;
   });
@@ -128,14 +128,14 @@ describe('Integration | Component | space-transfers', function () {
     findRecord.withArgs('file', expectedFileGri).resolves(file);
     this.set('tab', 'file');
 
-    await render(hbs `<div id="content-scroll">{{space-transfers
-      space=space
-      fileId=fileId
-      tab=tab
-      resetQueryParams=(action resetQueryParams)
-      changeListTab=(action changeListTab)
-      closeFileTab=(action closeFileTab)
-    }}</div>`);
+    await render(hbs `<div id="content-scroll"><SpaceTransfers
+      @space={{space}}
+      @fileId={{fileId}}
+      @tab={{tab}}
+      @resetQueryParams={{action resetQueryParams}}
+      @changeListTab={{action changeListTab}}
+      @closeFileTab={{action closeFileTab}}
+    /></div>`);
 
     expect(find('.tables-container'), '.tables-container').to
       .exist;
@@ -165,13 +165,13 @@ describe('Integration | Component | space-transfers', function () {
       findRecord.withArgs('file', `file.${fileId}.instance:private`)
         .resolves(file);
 
-      await render(hbs `<div id="content-scroll">{{space-transfers
-        space=space
-        defaultTab=defaultTab
-        resetQueryParams=(action resetQueryParams)
-        changeListTab=(action changeListTab)
-        closeFileTab=(action closeFileTab)
-      }}</div>`);
+      await render(hbs `<div id="content-scroll"><SpaceTransfers
+        @space={{space}}
+        @defaultTab={{defaultTab}}
+        @resetQueryParams={{action resetQueryParams}}
+        @changeListTab={{action changeListTab}}
+        @closeFileTab={{action closeFileTab}}
+      /></div>`);
 
       expect(find('.nav-link-file'), '.nav-link-file').to.not.exist;
     }
@@ -198,14 +198,14 @@ describe('Integration | Component | space-transfers', function () {
       findRecord.withArgs('file', `file.${fileId}.instance:private`)
         .resolves(file);
 
-      await render(hbs `<div id="content-scroll">{{space-transfers
-        space=space
-        defaultTab=defaultTab
-        fileId=fileId
-        resetQueryParams=(action resetQueryParams)
-        changeListTab=(action changeListTab)
-        closeFileTab=(action closeFileTab)
-      }}</div>`);
+      await render(hbs `<div id="content-scroll"><SpaceTransfers
+        @space={{space}}
+        @defaultTab={{defaultTab}}
+        @fileId={{fileId}}
+        @resetQueryParams={{action resetQueryParams}}
+        @changeListTab={{action changeListTab}}
+        @closeFileTab={{action closeFileTab}}
+      /></div>`);
 
       const navLinkFile = find('.nav-link-file');
       expect(navLinkFile, '.nav-link-file').to.exist;

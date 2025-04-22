@@ -1,37 +1,31 @@
-{{#one-modal
-  id=modalId
+<OneModal
+  @id={{modalId}}
   class="archive-details-modal modal-content-overlay without-footer with-close-button"
-  open=open
-  size="xl"
-  backdropClose=true
-  keyboard=true
-  onHide=(action "close")
-  onShown=(action "onShown")
+  @open={{open}}
+  @size="xl"
+  @backdropClose={{true}}
+  @keyboard={{true}}
+  @onHide={{action "close"}}
+  @onShown={{action "onShown"}}
   as |modal|
-}}
+>
 
-  {{#modal.header class="archive-details-modal-header"}}
+  <modal.header class="archive-details-modal-header">
     <h1 class="archive-details-header">
       <span class="header-text">
         {{tt this "archiveDetailsHeader"}}
       </span>
     </h1>
-    {{modal-archive-subheader archives=(array browsableArchive)}}
-    {{#bs-tab
+    <ModalArchiveSubheader @archives={{array browsableArchive}} />
+    <BsTab
       class="bs-tab-onedata bs-tab-modern archive-details-tabbar"
-      activeId=activeTab
-      customTabs=true
+      @activeId={{activeTab}}
+      @customTabs={{true}}
       as |tab|
-    }}
-      {{#bs-nav
-        type="tabs"
-        class="nav-tabs-archive-details"
-        as |nav|
-      }}
+    >
+      <BsNav @type="tabs" class="nav-tabs-archive-details" as |nav|>
         {{#each availableTabs as |tabId|}}
-          {{#nav.item
-            active=(eq tab.activeId tabId)
-          }}
+          <nav.item @active={{eq tab.activeId tabId}}>
             <a
               class={{concat-classes
                 "nav-link"
@@ -43,22 +37,22 @@
             >
               {{tt this (concat "tabNames." tabId)}}
             </a>
-          {{/nav.item}}
+          </nav.item>
         {{/each}}
-      {{/bs-nav}}
-    {{/bs-tab}}
-  {{/modal.header}}
+      </BsNav>
+    </BsTab>
+  </modal.header>
 
-  {{#modal.body class="archive-details-modal-body"}}
+  <modal.body class="archive-details-modal-body">
     {{#if (eq activeTab "properties")}}
-      {{archive-properties viewModel=archivePropertiesViewModel}}
+      <ArchiveProperties @viewModel={{archivePropertiesViewModel}} />
     {{else if (eq activeTab "logs")}}
-      {{archive-audit-log
+      <ArchiveAuditLog
         class="fill-flex-using-column"
-        browsableArchive=browsableArchive
-        space=space
-      }}
+        @browsableArchive={{browsableArchive}}
+        @space={{space}}
+      />
     {{/if}}
-  {{/modal.body}}
+  </modal.body>
 
-{{/one-modal}}
+</OneModal>

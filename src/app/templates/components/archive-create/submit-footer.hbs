@@ -1,18 +1,18 @@
-{{#one-button
+<OneButton
   class="cancel-archive-creation-btn"
-  type="default"
-  disabled=isSubmitting
-  onClick=(action "close")
-}}
+  @type="default"
+  @disabled={{isSubmitting}}
+  @onClick={{action "close"}}
+>
   {{tt this "cancel"}}
-{{/one-button}}
-{{#one-button
-  type="primary"
-  buttonType="submit"
+</OneButton>
+<OneButton
+  @type="primary"
+  @buttonType="submit"
   class="submit-archive-creation-btn"
-  disabled=disabled
-  isPending=isSubmitting
-  onClick=(action "submit")
-}}
+  @disabled={{disabled}}
+  @isPending={{isSubmitting}}
+  @onClick={{action "submit"}}
+>
   {{tt this "create"}}
-{{/one-button}}
+</OneButton>

@@ -57,11 +57,8 @@ async function renderComponent(testCase) {
     testCase.set('selectorModel', selectorModel);
   }
   await render(hbs `
-    {{#one-pseudo-modal as |modal|}}
-      {{items-select-browser
-        modal=modal
-        selectorModel=selectorModel
-      }}
-    {{/one-pseudo-modal}}
+    <OnePseudoModal as |modal|>
+      <ItemsSelectBrowser @modal={{modal}} @selectorModel={{selectorModel}} />
+    </OnePseudoModal>
   `);
 }

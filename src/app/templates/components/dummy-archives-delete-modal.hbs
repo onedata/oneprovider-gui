@@ -1,5 +1,5 @@
-{{archives-delete-modal
-  archives=browsableArchives
-  open=open
-  onHide=(action (mut open) false)
-}}
+<ArchivesDeleteModal
+  @archives={{browsableArchives}}
+  @open={{open}}
+  @onHide={{action (mut open) false}}
+/>

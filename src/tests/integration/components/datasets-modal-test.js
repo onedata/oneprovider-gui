@@ -33,7 +33,11 @@ describe('Integration | Component | datasets-modal', function () {
       }],
       onHide: sinon.spy(),
     });
-    await render(hbs `{{datasets-modal open=open files=files onHide=onHide}}`);
+    await render(hbs `<DatasetsModal
+      @open={{open}}
+      @files={{files}}
+      @onHide={{onHide}}
+    />`);
 
     const modal = globals.document.querySelector('.datasets-modal.in');
     expect(modal).to.exist;

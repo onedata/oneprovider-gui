@@ -140,16 +140,16 @@ class Helper {
   }
   async render() {
     this.applyTemplateArgs();
-    return render(hbs`{{file-common/submit-buttons
-      isDiscardDisabled=isDiscardDisabled
-      isSaveDisabled=isSaveDisabled
-      saveTip=saveTip
-      onSave=onSave
-      onDiscard=onDiscard
-    }}`);
+    return render(hbs`<FileCommon::SubmitButtons
+      @isDiscardDisabled={{isDiscardDisabled}}
+      @isSaveDisabled={{isSaveDisabled}}
+      @saveTip={{saveTip}}
+      @onSave={{onSave}}
+      @onDiscard={{onDiscard}}
+    />`);
   }
   async renderWithoutParams() {
     this.applyTemplateArgs();
-    return render(hbs`{{file-common/submit-buttons}}`);
+    return render(hbs`<FileCommon::SubmitButtons />`);
   }
 }

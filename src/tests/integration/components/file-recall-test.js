@@ -295,13 +295,9 @@ describe('Integration | Component | file-recall', function () {
  */
 async function renderComponent() {
   await render(hbs `
-  {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
-    {{file-recall
-      modal=modal
-      file=file
-      onClose=modal.close
-    }}
-  {{/one-pseudo-modal}}
+  <OnePseudoModal @id="pseudo-modal-id" as |modal|>
+    <FileRecall @modal={{modal}} @file={{file}} @onClose={{modal.close}} />
+  </OnePseudoModal>
   `);
 }
 

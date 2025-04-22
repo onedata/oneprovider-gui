@@ -25,12 +25,12 @@ describe('Integration | Component | one-embedded-component', function () {
       },
     });
 
-    await render(hbs `{{#one-embedded-component
-      iframeInjectedProperties=(array "iprop")
+    await render(hbs `<OneEmbeddedComponent
+      @iframeInjectedProperties={{array "iprop"}}
       as |component|
-    }}
+    >
       value: <div id="iprop-val">{{component.iprop}}</div>
-    {{/one-embedded-component}}`);
+    </OneEmbeddedComponent>`);
 
     next(() => {
       globals.window.frameElement.appProxy.data.iprop = 'world';

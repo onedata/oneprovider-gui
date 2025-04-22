@@ -1,9 +1,5 @@
 {{#if viewModel.isSizeStatsDisabled}}
-  {{file-browser/fb-no-dir-statistics
-    getProvidersUrl=viewModel.getProvidersUrl
-  }}
+  <FileBrowser::FbNoDirStatistics @getProvidersUrl={{viewModel.getProvidersUrl}} />
 {{else}}
-  {{file-browser/file-entry-charts
-    viewModel=viewModel
-  }}
+  <FileBrowser::FileEntryCharts @viewModel={{viewModel}} />
 {{/if}}

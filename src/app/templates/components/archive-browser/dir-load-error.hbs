@@ -11,9 +11,9 @@
     </h2>
   </div>
 {{else}}
-  {{file-browser/fb-dir-load-error
-    dir=dir
-    dirLoadError=dirLoadError
-    browserModel=browserModel
-  }}
+  <FileBrowser::FbDirLoadError
+    @dir={{dir}}
+    @dirLoadError={{dirLoadError}}
+    @browserModel={{browserModel}}
+  />
 {{/if}}

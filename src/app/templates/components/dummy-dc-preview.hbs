@@ -2,41 +2,41 @@
   <div class="url-viewers">
     <h1>URL viewers</h1>
     <div class="row" style="margin: 30px;">
-      {{share-show/public-url-viewer
+      <ShareShow::PublicUrlViewer
         class="row share-header-row share-header-public-url share-header-public-url-mobile"
-        share=share
-        selectedUrlType="share"
-      }}
+        @share={{share}}
+        @selectedUrlType="share"
+      />
     </div>
 
     <div class="row" style="margin: 30px;">
-      {{share-show/public-url-viewer
+      <ShareShow::PublicUrlViewer
         class="row share-header-row share-header-public-url share-header-public-url-mobile"
-        share=share
-        selectedUrlType="handle"
-        showHandle=true
-      }}
+        @share={{share}}
+        @selectedUrlType="handle"
+        @showHandle={{true}}
+      />
     </div>
 
     <div class="row" style="margin: 30px;">
-      {{share-show/public-url-viewer
+      <ShareShow::PublicUrlViewer
         class="row share-header-row share-header-public-url share-header-public-url-mobile"
-        share=share
-        compact=true
-        showHandle=true
-        selectedUrlType="handle"
-      }}
+        @share={{share}}
+        @compact={{true}}
+        @showHandle={{true}}
+        @selectedUrlType="handle"
+      />
     </div>
   </div>
 
   <div class="public-data-preview-container">
     <h1>Open data preview</h1>
     <div class="row" style="margin: 30px;">
-      {{share-show/dc-preview
-        xml=xmlSource
-        handleServiceName="Onedata Inc."
-        handleUrl="http://example.com/share/1"
-      }}
+      <ShareShow::DcPreview
+        @xml={{xmlSource}}
+        @handleServiceName="Onedata Inc."
+        @handleUrl="http://example.com/share/1"
+      />
     </div>
   </div>
 </div>

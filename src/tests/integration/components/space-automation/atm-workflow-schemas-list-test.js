@@ -102,8 +102,8 @@ describe('Integration | Component | space-automation/atm-workflow-schemas-list',
 
 async function renderComponent() {
   await render(hbs `
-    {{space-automation/atm-workflow-schemas-list
-      onAtmWorkflowSchemaRevisionSelect=onAtmWorkflowSchemaRevisionSelect
-    }}
+    <SpaceAutomation::AtmWorkflowSchemasList
+      @onAtmWorkflowSchemaRevisionSelect={{onAtmWorkflowSchemaRevisionSelect}}
+    />
   `);
 }

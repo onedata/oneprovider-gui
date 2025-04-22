@@ -264,9 +264,9 @@ describe('Integration | Component | space-automation/atm-workflow-executions-tab
 
 async function renderComponent() {
   await render(hbs `
-  {{space-automation/atm-workflow-executions-table/workflow-row
-    atmWorkflowExecutionSummary=atmWorkflowExecutionSummary
-    columns=columnNames
-    onSelect=selectSpy
-  }}`);
+  <SpaceAutomation::AtmWorkflowExecutionsTable::WorkflowRow
+    @atmWorkflowExecutionSummary={{atmWorkflowExecutionSummary}}
+    @columns={{columnNames}}
+    @onSelect={{selectSpy}}
+  />`);
 }

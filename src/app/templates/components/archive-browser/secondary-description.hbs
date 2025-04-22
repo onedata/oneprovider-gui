@@ -1,10 +1,7 @@
-{{#truncated-string
-  class=(concat-classes
-    "secondary-description"
-    class
-  )
-  tooltipClass="tooltip-lg tooltip-text-left"
-}}
+<TruncatedString
+  class={{concat-classes "secondary-description" class}}
+  @tooltipClass="tooltip-lg tooltip-text-left"
+>
   {{#if archive.description}}
     <span 
       class="secondary-description-internal"
@@ -23,4 +20,4 @@
     </span>
   {{/if}}
   {{yield}}
-{{/truncated-string}}
+</TruncatedString>

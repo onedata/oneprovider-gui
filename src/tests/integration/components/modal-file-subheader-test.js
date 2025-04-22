@@ -13,7 +13,7 @@ describe('Integration | Component | modal-file-subheader', function () {
       index: 'hello.txt',
       name: 'hello.txt',
     }]);
-    await render(hbs `{{modal-file-subheader files=files}}`);
+    await render(hbs `<ModalFileSubheader @files={{files}} />`);
     expect(this.element).to.contain.text('hello.txt');
   });
 
@@ -23,7 +23,7 @@ describe('Integration | Component | modal-file-subheader', function () {
       index: 'hello.txt',
       name: 'hello.txt',
     }]);
-    await render(hbs `{{modal-file-subheader files=files}}`);
+    await render(hbs `<ModalFileSubheader @files={{files}} />`);
     expect(find('.file-item-icon')).to.have.class('oneicon-browser-file');
   });
 
@@ -33,7 +33,7 @@ describe('Integration | Component | modal-file-subheader', function () {
       index: 'hello',
       name: 'hello',
     }]);
-    await render(hbs `{{modal-file-subheader files=files}}`);
+    await render(hbs `<ModalFileSubheader @files={{files}} />`);
     expect(find('.file-item-icon')).to.have.class('oneicon-browser-directory');
   });
 
@@ -47,7 +47,7 @@ describe('Integration | Component | modal-file-subheader', function () {
       name: 'hello2.txt',
       index: 'hello2.txt',
     }]);
-    await render(hbs`{{modal-file-subheader files=files}}`);
+    await render(hbs`<ModalFileSubheader @files={{files}} />`);
     const fileItemIcon = find('.file-item-icon');
     expect(fileItemIcon).to.exist;
     expect(fileItemIcon).to.have.class('oneicon-items-grid');
@@ -63,7 +63,7 @@ describe('Integration | Component | modal-file-subheader', function () {
       name: 'hello2.txt',
       index: 'hello2.txt',
     }]);
-    await render(hbs `{{modal-file-subheader files=files}}`);
+    await render(hbs `<ModalFileSubheader @files={{files}} />`);
     expect(this.element)
       .to.contain.text('hello1.txt')
       .and
@@ -81,7 +81,7 @@ describe('Integration | Component | modal-file-subheader', function () {
       conflictingName: 'hello',
     }]);
 
-    await render(hbs`{{modal-file-subheader files=files}}`);
+    await render(hbs`<ModalFileSubheader @files={{files}} />`);
 
     const baseNames = [...findAll('.file-base-name')];
     expect(baseNames[0]).to.have.trimmed.text('hello');
@@ -102,7 +102,7 @@ describe('Integration | Component | modal-file-subheader', function () {
       name: 'hello2.txt',
       index: 'hello2.txt',
     }]);
-    await render(hbs `{{modal-file-subheader files=files}}`);
+    await render(hbs `<ModalFileSubheader @files={{files}} />`);
     expect(this.element).to.contain.text('2');
   });
 
@@ -112,7 +112,7 @@ describe('Integration | Component | modal-file-subheader', function () {
       name: 'hello@1234',
       conflictingName: 'hello',
     }]);
-    await render(hbs `{{modal-file-subheader files=files}}`);
+    await render(hbs `<ModalFileSubheader @files={{files}} />`);
     expect(find('.file-base-name').textContent).to.match(/^\S*hello\S*$/);
     expect(find('.file-suffix').textContent).to.match(/^\S*@1234\S*$/);
   });

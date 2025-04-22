@@ -5,33 +5,35 @@
   </linearGradient>
 </defs>
 
-{{#map.position
-  useContainerElement=false
-  latitude=(get providerA "latitude")
-  longitude=(get providerA "longitude")
-  as |pax pay|
-}}
-  {{#map.position
-    useContainerElement=false
-    latitude=(get providerB "latitude")
-    longitude=(get providerB "longitude")
-    as |pbx pby|
-  }}
-    {{bezier-curve
-      class="transfer animated fadeIn active-channel-background"
-      style=backgroundStrokeStyle
-      x1=pax
-      y1=pay
-      x2=pbx
-      y2=pby
-    }}
-    {{bezier-curve
-      class="transfer animated fadeIn"
-      style=strokeStyle
-      x1=pax
-      y1=pay
-      x2=pbx
-      y2=pby
-    }}
-  {{/map.position}}
-{{/map.position}}
+{{#let (component this.map) as |map|}}
+  <map.position
+    @useContainerElement={{false}}
+    @latitude={{get providerA "latitude"}}
+    @longitude={{get providerA "longitude"}}
+    as |pax pay|
+  >
+    <map.position
+      @useContainerElement={{false}}
+      @latitude={{get providerB "latitude"}}
+      @longitude={{get providerB "longitude"}}
+      as |pbx pby|
+    >
+      <BezierCurve
+        class="transfer animated fadeIn active-channel-background"
+        @style={{backgroundStrokeStyle}}
+        @x1={{pax}}
+        @y1={{pay}}
+        @x2={{pbx}}
+        @y2={{pby}}
+      />
+      <BezierCurve
+        class="transfer animated fadeIn"
+        @style={{strokeStyle}}
+        @x1={{pax}}
+        @y1={{pay}}
+        @x2={{pbx}}
+        @y2={{pby}}
+      />
+    </map.position>
+  </map.position>
+{{/let}}

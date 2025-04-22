@@ -1,22 +1,22 @@
-{{#one-button
-  type="warning"
-  onClick=(action "discard")
-  disabled=isDiscardDisabled
+<OneButton
+  @type="warning"
+  @onClick={{action "discard"}}
+  @disabled={{isDiscardDisabled}}
   class="btn-discard"
-}}
+>
   {{tt this "discard"}}
-{{/one-button}}
+</OneButton>
 <div class="btn-tooltip-container">
-  {{#one-button
-    type="primary"
-    buttonType="submit"
-    onClick=(action "save")
-    disabled=isSaveDisabled
+  <OneButton
+    @type="primary"
+    @buttonType="submit"
+    @onClick={{action "save"}}
+    @disabled={{isSaveDisabled}}
     class="btn-save"
-  }}
+  >
     {{tt this "save"}}
-  {{/one-button}}
+  </OneButton>
   {{#if saveTip}}
-    {{one-tooltip title=saveTip}}
+    <OneTooltip @title={{saveTip}} />
   {{/if}}
 </div>

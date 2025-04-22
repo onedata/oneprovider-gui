@@ -1,31 +1,31 @@
-{{#modal.header class="dataset-protection-part dataset-protection-modal-header"}}
-  {{dataset-protection/summary-header
-    dataset=browsableDataset
-    file=file
-  }}
-{{/modal.header}}
+{{#let
+  (component this.modal.header)
+  (component this.modal.body)
+  (component this.modal.footer)
+  as |modalHeader modalBody modalFooter|
+}}
+  <modalHeader class="dataset-protection-part dataset-protection-modal-header">
+    <DatasetProtection::SummaryHeader @dataset={{browsableDataset}} @file={{file}} />
+  </modalHeader>
 
-{{#modal.body class="dataset-protection-part dataset-protection-modal-body"}}
-  {{dataset-protection/table
-    fileDatasetSummaryProxy=fileDatasetSummaryProxy
-    directDatasetProxy=directDatasetProxy
-    ancestorDatasetsProxy=ancestorDatasetsProxy
-    mode=mode
-    file=file
-    editPrivilege=editPrivilege
-    insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-    close=close
-    getDataUrl=getDataUrl
-    getDatasetsUrl=getDatasetsUrl
-  }}
-{{/modal.body}}
+  <modalBody class="dataset-protection-part dataset-protection-modal-body">
+    <DatasetProtection::Table
+      @fileDatasetSummaryProxy={{fileDatasetSummaryProxy}}
+      @directDatasetProxy={{directDatasetProxy}}
+      @ancestorDatasetsProxy={{ancestorDatasetsProxy}}
+      @mode={{mode}}
+      @file={{file}}
+      @editPrivilege={{editPrivilege}}
+      @insufficientEditPrivilegesMessage={{insufficientEditPrivilegesMessage}}
+      @close={{close}}
+      @getDataUrl={{getDataUrl}}
+      @getDatasetsUrl={{getDatasetsUrl}}
+    />
+  </modalBody>
 
-{{#modal.footer class="dataset-protection-part dataset-protection-modal-footer"}}
-  {{#one-button
-    onClick=(action close)
-    type="default"
-    class="close-btn"
-  }}
-    {{tt this "close"}}
-  {{/one-button}}
-{{/modal.footer}}
+  <modalFooter class="dataset-protection-part dataset-protection-modal-footer">
+    <OneButton @onClick={{action close}} @type="default" class="close-btn">
+      {{tt this "close"}}
+    </OneButton>
+  </modalFooter>
+{{/let}}

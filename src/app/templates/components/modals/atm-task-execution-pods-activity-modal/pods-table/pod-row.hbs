@@ -1,5 +1,5 @@
 <td class="pod-id pods-table-data-cell">
-  {{#truncated-string}}{{or podId "—"}}{{/truncated-string}}
+  <TruncatedString>{{or podId "—"}}</TruncatedString>
 </td>
 <td class="pod-readiness pods-table-data-cell">
   {{or podActivity.currentContainersReadiness "—"}}
