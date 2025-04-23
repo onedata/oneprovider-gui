@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12769 Added autocomplete dropdown for json key in column editor popover
 * VFS-12694 Refactored all templates to use angle brackets components
 * VFS-12674 Added support for batch requests
 * VFS-12606 Added autocomplete dropdown for xattr key in column editor popover

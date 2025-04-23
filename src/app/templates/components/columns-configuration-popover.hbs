@@ -70,6 +70,7 @@
             <ColumnsConfigurationPopover::ColumnEditor
               @isNewColumn={{true}}
               @xattrOptionsProxy={{xattrOptionsProxy}}
+              @jsonKeyOptionsProxy={{jsonKeyOptionsProxy}}
               @onSubmitColumn={{action "submitColumn"}}
               @onGoBack={{action "goBack"}}
               @columnsConfiguration={{columnsConfiguration}}
@@ -81,6 +82,7 @@
             <ColumnsConfigurationPopover::ColumnEditor
               @isNewColumn={{false}}
               @xattrOptionsProxy={{xattrOptionsProxy}}
+              @jsonKeyOptionsProxy={{jsonKeyOptionsProxy}}
               @onSubmitColumn={{action "submitColumn"}}
               @onGoBack={{action "goBack"}}
               @columnsConfiguration={{columnsConfiguration}}

@@ -195,6 +195,46 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {PromiseObject<Array<{value: string, label: string}>>}
+   */
+  jsonKeyOptionsProxy: computed(
+    'browserModel.itemsArray',
+    'activeSlide',
+    'isOpened',
+    function jsonKeyOptionsProxy() {
+      if (!this.browserModel.itemsArray || !this.isOpened) {
+        return promiseObject(resolve([]));
+      }
+
+      const files = get(this.browserModel.itemsArray, 'sourceArray').toArray();
+      const filesWithMetadata = files.filter(file => file && get(file, 'hasCustomMetadata'));
+      const scope = this.browserModel.previewMode ? 'public' : 'private';
+
+      const promise = (async () => {
+        const jsonListPerFileProxy = await Promise.all(
+          filesWithMetadata.map(file =>
+            this.metadataManager.getMetadata(file, 'json', scope))
+        );
+        const jsonKeys = new Set();
+        const jsonKeysList = [];
+        if (jsonListPerFileProxy) {
+          for (const jsonFromSingleFile of jsonListPerFileProxy) {
+            for (const key of Object.keys(JSON.parse(jsonFromSingleFile))) {
+              jsonKeys.add(key);
+            }
+          }
+          for (const key of Array.from(jsonKeys)) {
+            jsonKeysList.push({ value: key, label: key });
+          }
+        }
+        return jsonKeysList.sortBy('label');
+      })();
+
+      return promiseObject(promise);
+    }
+  ),
+
   applyCurrentColumnsOrder() {
     this.columnsConfiguration.saveColumnsOrder();
     this.columnsConfiguration.checkColumnsVisibility();
