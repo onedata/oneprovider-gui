@@ -17,6 +17,7 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { Promise, resolve } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
+import _ from 'lodash';
 
 const mixins = [
   I18n,
@@ -207,19 +208,20 @@ export default Component.extend(...mixins, {
         return promiseObject(resolve([]));
       }
 
-      const files = get(this.browserModel.itemsArray, 'sourceArray').toArray();
-      const filesWithMetadata = files.filter(file => file && get(file, 'hasCustomMetadata'));
+      const files = this.browserModel.itemsArray.sourceArray.toArray();
+      const filesWithMetadata = files.filter(file => file?.hasJsonMetadata);
       const scope = this.browserModel.previewMode ? 'public' : 'private';
 
       const promise = (async () => {
-        const jsonListPerFileProxy = await Promise.all(
+        const filesJsons = await Promise.all(
           filesWithMetadata.map(file =>
-            this.metadataManager.getMetadata(file, 'json', scope))
+            this.metadataManager.getMetadata(file, 'json', scope)
+          )
         );
         const jsonKeys = new Set();
         const jsonKeysList = [];
-        if (jsonListPerFileProxy) {
-          for (const jsonFromSingleFile of jsonListPerFileProxy) {
+        if (filesJsons) {
+          for (const jsonFromSingleFile of filesJsons) {
             for (const key of Object.keys(JSON.parse(jsonFromSingleFile))) {
               jsonKeys.add(key);
             }
@@ -228,7 +230,7 @@ export default Component.extend(...mixins, {
             jsonKeysList.push({ value: key, label: key });
           }
         }
-        return jsonKeysList.sortBy('label');
+        return _.sortBy(jsonKeysList, 'label');
       })();
 
       return promiseObject(promise);
