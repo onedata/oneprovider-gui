@@ -119,7 +119,7 @@ export default Component.extend(I18n, {
           return promiseObject(resolve(''));
         }
         const selectedData = jsonObj[this.jsonKey];
-        return JSON.stringify(selectedData, null, 2);
+        return promiseObject(resolve(JSON.stringify(selectedData, null, 2)));
       }
       if (this.queryType === 'query') {
         if (!this.jsonQuery || !jsonObj) {
