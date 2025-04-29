@@ -44,12 +44,11 @@
               </div>
             {{else if baseArchiveId}}
               <TruncatedString
-                @tagName="code"
-                class="base-archive-id-container"
+                class="base-archive-id-container inline-code-like"
                 @tooltipClass="tooltip-lg tooltip-text-monospace"
               >
                 <strong>{{tt this "id"}}:</strong>
-                <span class="base-archive-id">{{baseArchiveId}}</span>
+                <span class="base-archive-id monospace">{{baseArchiveId}}</span>
               </TruncatedString>
             {{else}}
               –
