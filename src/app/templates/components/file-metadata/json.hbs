@@ -5,22 +5,22 @@
 <div
   class="form-group form-group-ace-editor {{if isValid "has-success" "has-error"}}"
 >
-  {{ember-ace
+  <EmberAce
     class="ember-ace ember-ace-json-metadata full-height"
-    editorClass="full-height"
-    value=metadataForEditor
-    ready=(action "aceEditorReady")
-    update=(action "metadataChanged")
-    worker="ace/mode/json_worker"
-    mode="ace/mode/json"
-    theme="ace/theme/textmate"
-    tabSize=2
-    useWrapMode=true
-    highlightActiveLine=true
-    showLineNumbers=true
-    showPrintMargin=false
-    readOnly=isReadOnly
-  }}
+    @editorClass="full-height"
+    @value={{metadataForEditor}}
+    @ready={{action "aceEditorReady"}}
+    @update={{action "metadataChanged"}}
+    @worker="ace/mode/json_worker"
+    @mode="ace/mode/json"
+    @theme="ace/theme/textmate"
+    @tabSize={{2}}
+    @useWrapMode={{true}}
+    @highlightActiveLine={{true}}
+    @showLineNumbers={{true}}
+    @showPrintMargin={{false}}
+    @readOnly={{isReadOnly}}
+  />
   {{#unless isValid}}
     <div class="form-message text-right">{{tt this "invalidJson"}}</div>
   {{/unless}}

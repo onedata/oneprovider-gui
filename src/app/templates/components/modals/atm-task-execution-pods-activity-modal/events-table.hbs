@@ -1,20 +1,20 @@
-{{#audit-log-browser
-  onFetchLogEntries=fetchLogEntriesCallback
-  customColumnHeaders=customColumnHeaders
-  isTimestampRoundedToSeconds=true
-  noLogEntriesText=(tt this "noEvents")
+<AuditLogBrowser
+  @onFetchLogEntries={{fetchLogEntriesCallback}}
+  @customColumnHeaders={{customColumnHeaders}}
+  @isTimestampRoundedToSeconds={{true}}
+  @noLogEntriesText={{tt this "noEvents"}}
   as |logEntry|
-}}
+>
   <td class="event-type">{{or logEntry.content.type "—"}}</td>
   <td class="event-reason">
-    {{#truncated-string}}
+    <TruncatedString>
       {{or logEntry.content.reason "—"}}
-    {{/truncated-string}}
+    </TruncatedString>
   </td>
   <td class="event-message">
-    {{#truncated-string}}
+    <TruncatedString>
       {{or logEntry.content.message "—"}}
-    {{/truncated-string}}
+    </TruncatedString>
   </td>
-{{/audit-log-browser}}
+</AuditLogBrowser>
 

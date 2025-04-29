@@ -105,7 +105,7 @@ describe('Integration | Component | archive-content-count', function () {
 });
 
 async function renderComponent() {
-  await render(hbs `{{archive-content-count archive=archive}}`);
+  await render(hbs `<ArchiveContentCount @archive={{archive}} />`);
 }
 
 function createArchive(testCase, data) {

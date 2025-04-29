@@ -1,11 +1,11 @@
 {{#unless browserModel.previewMode}}
-  {{filesystem-browser/file-features
-    browserModel=browserModel
-    item=file.effFile
-    initiallyExpanded=true
-    disabled=isEffDisabled
-    isFileConsumerDisabled=true
-    onInvokeItemAction=(action invokeFileAction)
-    onTagHoverChange=(action "changeTagHover")
-  }}
+  <FilesystemBrowser::FileFeatures
+    @browserModel={{browserModel}}
+    @item={{file.effFile}}
+    @initiallyExpanded={{true}}
+    @disabled={{isEffDisabled}}
+    @isFileConsumerDisabled={{true}}
+    @onInvokeItemAction={{action invokeFileAction}}
+    @onTagHoverChange={{action "changeTagHover"}}
+  />
 {{/unless}}

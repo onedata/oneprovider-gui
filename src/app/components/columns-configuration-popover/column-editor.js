@@ -48,6 +48,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {PromiseObject<Array<{value: string, label: string}>>}
+   */
+  jsonKeyOptionsProxy: undefined,
+
+  /**
+   * @virtual
    * @type {Utils.ColumnsConfiguration}
    */
   columnsConfiguration: undefined,
@@ -74,7 +80,7 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {string}
    */
-  initialJsonKey: '',
+  initialJsonKey: undefined,
 
   /**
    * @virtual optional
@@ -107,6 +113,8 @@ export default Component.extend(I18n, {
 
   xattrOptions: reads('xattrOptionsProxy.content'),
 
+  jsonKeyOptions: reads('jsonKeyOptionsProxy.content'),
+
   /**
    * @type {boolean}
    */
@@ -120,7 +128,7 @@ export default Component.extend(I18n, {
   /**
    * @type {string}
    */
-  newJsonKey: '',
+  jsonKeyFieldName: 'jsonKey',
 
   /**
    * @type {string}
@@ -147,7 +155,7 @@ export default Component.extend(I18n, {
     'initialDisplayedName',
     'metadataTypeValue',
     'jsonTypeField.value',
-    'newJsonKey',
+    'jsonKeyDropdownField.value',
     function newColumnName() {
       if (this.isColumnNameModified) {
         return this.columnName;
@@ -164,7 +172,7 @@ export default Component.extend(I18n, {
       if (this.jsonTypeField.value === 'query') {
         return defaultQueryJsonLabel;
       }
-      return this.newJsonKey;
+      return this.jsonKeyDropdownField.value;
     }
   ),
 
@@ -172,6 +180,7 @@ export default Component.extend(I18n, {
     'xattrKeyDropdownField',
     'metadataTypeField',
     'jsonTypeField',
+    'jsonKeyDropdownField',
     function fields() {
       return FormFieldsRootGroup
         .create({
@@ -183,6 +192,7 @@ export default Component.extend(I18n, {
             this.xattrKeyDropdownField,
             this.metadataTypeField,
             this.jsonTypeField,
+            this.jsonKeyDropdownField,
           ],
         });
     }
@@ -209,7 +219,6 @@ export default Component.extend(I18n, {
   metadataTypeField: computed(function metadataTypeField() {
     return RadioField
       .extend({
-        options: reads('columnEditorComponent.xattrOptions'),
         valueChanged() {
           this._super(...arguments);
           this.set('columnEditorComponent.isColumnNameModified', false);
@@ -250,6 +259,21 @@ export default Component.extend(I18n, {
       });
   }),
 
+  jsonKeyDropdownField: computed(
+    function jsonKeyDropdownField() {
+      return AutocompleteDropdownField
+        .extend({
+          options: reads('columnEditorComponent.jsonKeyOptions'),
+        })
+        .create({
+          columnEditorComponent: this,
+          name: this.jsonKeyFieldName,
+          defaultValue: this.initialJsonKey,
+          isOptional: true,
+        });
+    }
+  ),
+
   /**
    * @type {ComputedProperty<Utils.FormComponent.FormElement>}
    */
@@ -272,6 +296,13 @@ export default Component.extend(I18n, {
   }),
 
   /**
+   * @type {ComputedProperty<Utils.FormComponent.FormElement>}
+   */
+  jsonKeyDropdown: computed('fields', 'jsonKeyFieldName', function jsonKeyDropdown() {
+    return this.fields.getFieldByPath(this.jsonKeyFieldName);
+  }),
+
+  /**
    * @type {ComputedProperty<Boolean>}
    */
   isDisabledEditButton: bool('disabledEditButtonTooltip'),
@@ -286,14 +317,14 @@ export default Component.extend(I18n, {
     'xattrKeyDropdownField.value',
     'metadataTypeValue',
     'jsonTypeField.value',
-    'newJsonKey',
+    'jsonKeyDropdownField.value',
     'newJsonQuery',
     function disabledEditButtonTooltip() {
       if (
         !this.newColumnName ||
         (!this.xattrKeyDropdownField.value && this.metadataTypeValue === 'xattr') ||
         (
-          !this.newJsonKey && this.metadataTypeValue === 'json' &&
+          !this.jsonKeyDropdownField.value && this.metadataTypeValue === 'json' &&
           this.jsonTypeField.value === 'key'
         ) ||
         (
@@ -335,7 +366,7 @@ export default Component.extend(I18n, {
     'xattrKeyDropdownField.value',
     'jsonTypeField.value',
     'metadataTypeValue',
-    'newJsonKey',
+    'jsonKeyDropdownField.value',
     'newJsonQuery',
     function isColumnAlreadyExisting() {
       let properties = {};
@@ -344,7 +375,7 @@ export default Component.extend(I18n, {
       } else {
         properties = {
           queryType: this.jsonTypeField.value,
-          jsonKey: this.newJsonKey,
+          jsonKey: this.jsonKeyDropdownField.value,
           jsonQuery: this.newJsonQuery,
         };
       }
@@ -360,10 +391,7 @@ export default Component.extend(I18n, {
   init() {
     initDestroyableCache(this);
     this._super(...arguments);
-    this.setProperties({
-      newJsonKey: this.initialJsonKey,
-      newJsonQuery: this.initialJsonQuery,
-    });
+    this.set('newJsonQuery', this.initialJsonQuery);
   },
 
   /**
@@ -391,7 +419,7 @@ export default Component.extend(I18n, {
       const type = this.metadataTypeValue;
       const options = type === 'xattr' ? { xattrKey: this.xattrKeyDropdownField.value } : {
         queryType: this.jsonTypeField.value,
-        jsonKey: this.newJsonKey,
+        jsonKey: this.jsonKeyDropdownField.value,
         jsonQuery: this.newJsonQuery,
       };
       this.onSubmitColumn(

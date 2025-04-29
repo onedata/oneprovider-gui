@@ -1,13 +1,14 @@
-{{#perfect-scrollbar-element
-  id="content-scroll"
+<PerfectScrollbarElement
+  @id="content-scroll"
   class="embedded-content scroll-on-top"
-  onScroll=(action "scrollOccurred")
+  @onScroll={{action "scrollOccurred"}}
   as |scrollbarElement|
-}}
-  {{component
-    model.componentId
-    externalData=model.data
-    externalActions=model.actions
-    containerScrollTop=scrollbarElement.scrollTop
-  }}
-{{/perfect-scrollbar-element}}
+>
+  {{#let (component model.componentId) as |theComponent|}}
+    <theComponent
+      @externalData={{model.data}}
+      @externalActions={{model.actions}}
+      @containerScrollTop={{scrollbarElement.scrollTop}}
+    />
+  {{/let}}
+</PerfectScrollbarElement>

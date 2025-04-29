@@ -20,6 +20,11 @@ export default {
     customValueInputPlaceholder: 'Enter or choose a key...',
     noMatchesMessage: 'No existing xattrs found',
   },
+  jsonKey: {
+    label: 'Top-level key',
+    customValueInputPlaceholder: 'Enter or choose a key...',
+    noMatchesMessage: 'No existing key found',
+  },
   metadataType: {
     label: 'Metadata type',
     options: {

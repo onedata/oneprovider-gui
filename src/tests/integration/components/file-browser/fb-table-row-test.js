@@ -418,10 +418,10 @@ async function renderComponent(testCase) {
     currentUserIsOwner: testCase.get('isSpaceOwned') ?? false,
     privileges: testCase.get('spacePrivileges') ?? {},
   });
-  await render(hbs `{{file-browser/fb-table-row
-    file=file
-    browserModel=browserModel
-  }}`);
+  await render(hbs `<FileBrowser::FbTableRow
+    @file={{file}}
+    @browserModel={{browserModel}}
+  />`);
 }
 
 async function expandInheritanceTag() {

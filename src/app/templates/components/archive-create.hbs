@@ -1,25 +1,29 @@
-{{#modal.header class="archive-create-part archive-create-modal-header"}}
-  {{archive-create/header dataset=dataset}}
-{{/modal.header}}
+{{#let
+  (component this.modal.header)
+  (component this.modal.body)
+  (component this.modal.footer)
+  as |modalHeader modalBody modalFooter|
+}}
+  <modalHeader class="archive-create-part archive-create-modal-header">
+    <ArchiveCreate::Header @dataset={{dataset}} />
+  </modalHeader>
 
-{{#modal.body class="archive-create-part archive-create-modal-body"}}
-  {{#if noViewArchivesPrivilege}}
-    <div class="alert alert-warning no-archives-view-alert">
-      {{tt this "noArchivesViewPrivilege" privilegeExpression=viewPrivilegeExpression}}
-    </div>
-  {{/if}}
-  {{archive-form
-    formModel=formModel
-    isSubmitting=isSubmitting
-  }}
-  {{yield}}
-{{/modal.body}}
+  <modalBody class="archive-create-part archive-create-modal-body">
+    {{#if noViewArchivesPrivilege}}
+      <div class="alert alert-warning no-archives-view-alert">
+        {{tt this "noArchivesViewPrivilege" privilegeExpression=viewPrivilegeExpression}}
+      </div>
+    {{/if}}
+    <ArchiveForm @formModel={{formModel}} @isSubmitting={{isSubmitting}} />
+    {{yield}}
+  </modalBody>
 
-{{#modal.footer class="archive-create-part archive-create-modal-footer"}}
-  {{archive-create/submit-footer
-    disabled=(not canSubmit)
-    isSubmitting=isSubmitting
-    onSubmit=(action "submit")
-    onClose=(action "close")
-  }}
-{{/modal.footer}}
+  <modalFooter class="archive-create-part archive-create-modal-footer">
+    <ArchiveCreate::SubmitFooter
+      @disabled={{not canSubmit}}
+      @isSubmitting={{isSubmitting}}
+      @onSubmit={{action "submit"}}
+      @onClose={{action "close"}}
+    />
+  </modalFooter>
+{{/let}}

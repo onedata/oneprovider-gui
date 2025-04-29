@@ -2,14 +2,14 @@
   <div class="header">
     <div class="primary-header">{{headerText}}</div>
     <div class="secondary-header">
-      {{one-file-icon class="entry-details-file-icon" fileType=archivedFileType}}
-      {{#truncated-string tagName="span" class="entry-details-file-name"}}
+      <OneFileIcon class="entry-details-file-icon" @fileType={{archivedFileType}} />
+      <TruncatedString @tagName="span" class="entry-details-file-name">
         {{fileName}}
-      {{/truncated-string}}
+      </TruncatedString>
     </div>
   </div>
   <div class="content">
-    {{#promise-proxy-container proxy=fileInfoProxy}}
+    <PromiseProxyContainer @proxy={{fileInfoProxy}}>
         <table
           class="table table-info table-info-large table-info-collapsible table-entry-file-info"
         >
@@ -29,11 +29,11 @@
                 {{tt this "labels.relativeLocation"}}
               </td>
               <td class="property-value">
-                {{clipboard-line
-                  value=relativePath
-                  size="sm"
+                <ClipboardLine
+                  @value={{relativePath}}
+                  @size="sm"
                   class="monospace-font compact"
-                }}
+                />
               </td>
             </tr>
             {{#if startTimeText}}
@@ -78,7 +78,7 @@
                     {{archivedFileTypeText}}
                   </td>
                   <td class="property-value">
-                    {{file-path file=fileInfo.archivedFile}}
+                    <FilePath @file={{fileInfo.archivedFile}} />
                   </td>
                 </tr>
                 <tr class="entry-info-row-archived-item-absolute-location">
@@ -86,11 +86,11 @@
                     {{tt this "labels.absoluteLocation"}}
                   </td>
                   <td class="property-value">
-                    {{clipboard-line
-                      value=archivedFileAbsolutePath
-                      size="sm"
+                    <ClipboardLine
+                      @value={{archivedFileAbsolutePath}}
+                      @size="sm"
                       class="monospace-font compact"
-                    }}
+                    />
                   </td>
                 </tr>
                 <tr class="entry-info-row-archived-item-file-id">
@@ -98,13 +98,13 @@
                     {{tt this "labels.fileId"}}
                   </td>
                   <td class="property-value">
-                    {{clipboard-line
-                      value=fileInfo.archivedFile.cdmiObjectId
-                      type="textarea"
-                      textareaRows="3"
-                      size="sm"
+                    <ClipboardLine
+                      @value={{fileInfo.archivedFile.cdmiObjectId}}
+                      @type="textarea"
+                      @textareaRows="3"
+                      @size="sm"
                       class="monospace-font compact"
-                    }}
+                    />
                   </td>
                 </tr>
               {{else if archivedFileErrorMessage}}
@@ -127,11 +127,11 @@
                     {{tt this "labels.absoluteLocation"}}
                   </td>
                   <td class="property-value">
-                    {{clipboard-line
-                      value=sourceFileAbsolutePath
-                      size="sm"
+                    <ClipboardLine
+                      @value={{sourceFileAbsolutePath}}
+                      @size="sm"
                       class="monospace-font compact"
-                    }}
+                    />
                   </td>
                 </tr>
               {{/unless}}
@@ -168,7 +168,7 @@
             {{/if}}
           </tbody>
         </table>
-    {{/promise-proxy-container}}
+    </PromiseProxyContainer>
   </div>
   {{yield}}
 {{/if}}

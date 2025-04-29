@@ -302,14 +302,14 @@ async function renderComponent(testCase) {
       fetchDirChildren: testCase.get('fetchDirChildren') || notStubbed('fetchDirChildren'),
     }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
-  await render(hbs `<div id="content-scroll">{{file-browser
-    browserModel=browserModel
-    resolveFileParentFun=resolveFileParentFun
-    selectedItemsForJump=selectedItemsForJump
-    fileClipboardMode=fileClipboardMode
-    fileClipboardFiles=fileClipboardFiles
-    updateDirEntityId=(action updateDirEntityId)
-  }}</div>`);
+  await render(hbs `<div id="content-scroll"><FileBrowser
+    @browserModel={{browserModel}}
+    @resolveFileParentFun={{resolveFileParentFun}}
+    @selectedItemsForJump={{selectedItemsForJump}}
+    @fileClipboardMode={{fileClipboardMode}}
+    @fileClipboardFiles={{fileClipboardFiles}}
+    @updateDirEntityId={{action updateDirEntityId}}
+  /></div>`);
 }
 
 function createDefaultDataset(mochaContext) {

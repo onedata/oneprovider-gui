@@ -214,12 +214,12 @@ describe('Integration | Component | space-automation/input-stores-form', functio
 
 async function renderComponent() {
   await render(hbs `
-    {{space-automation/input-stores-form
-      atmWorkflowSchema=atmWorkflowSchema
-      atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumber
-      isDisabled=isDisabled
-      onChange=changeSpy
-    }}
+    <SpaceAutomation::InputStoresForm
+      @atmWorkflowSchema={{atmWorkflowSchema}}
+      @atmWorkflowSchemaRevisionNumber={{atmWorkflowSchemaRevisionNumber}}
+      @isDisabled={{isDisabled}}
+      @onChange={{changeSpy}}
+    />
   `);
 }
 

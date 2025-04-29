@@ -81,11 +81,11 @@ describe('Integration | Component | file-path', function () {
       onLinkClicked,
     });
 
-    await render(hbs `{{file-path
-      file=file
-      onLinkClicked=onLinkClicked
-      onLinkKeydown=onLinkKeydown
-    }}`);
+    await render(hbs `<FilePath
+      @file={{file}}
+      @onLinkClicked={{onLinkClicked}}
+      @onLinkKeydown={{onLinkKeydown}}
+    />`);
 
     const anchorPath = find('a.path');
     await click(anchorPath);
@@ -107,10 +107,7 @@ describe('Integration | Component | file-path', function () {
 
     // not using internalTagName in generic render, because it would override default
     // internalTagName
-    await render(hbs `{{file-path
-      file=file
-      internalTagName=internalTagName
-    }}`);
+    await render(hbs `<FilePath @file={{file}} @internalTagName={{internalTagName}} />`);
 
     expect(find('a.path')).to.not.exist;
     const spanPath = findAll('span.path');
@@ -154,7 +151,7 @@ describe('Integration | Component | file-path', function () {
       file,
     });
 
-    await render(hbs `{{file-path file=file}}`);
+    await render(hbs `<FilePath @file={{file}} />`);
     expect(findAll('.path-icon-container .oneicon-space'), 'space icon')
       .to.have.length(1);
     expect(find('.path-icon-container + .path-item.path-label').textContent)
@@ -445,7 +442,7 @@ describe('Integration | Component | file-path', function () {
  *   render.
  */
 async function renderComponent(waitForPromises = true) {
-  await render(hbs`{{file-path file=file customTip=customTip}}`);
+  await render(hbs`<FilePath @file={{file}} @customTip={{customTip}} />`);
   if (waitForPromises) {
     await settled();
   }
@@ -456,6 +453,6 @@ async function renderInSmallContainer() {
     class="test-path-container"
     style="width: 200px;"
   >
-    {{file-path file=file customTip=customTip}}
+    <FilePath @file={{file}} @customTip={{customTip}} />
   </div>`);
 }

@@ -142,11 +142,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(findByText('krakow', '.record-name-general')).to.exist;
@@ -158,11 +158,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
@@ -178,11 +178,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
@@ -201,11 +201,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerkrk .progress-bar-visualizer')).to
@@ -221,11 +221,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
@@ -248,11 +248,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
@@ -271,11 +271,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
@@ -305,11 +305,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
@@ -335,11 +335,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
       ];
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
@@ -369,11 +369,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerpar .replication-status-icon'))
@@ -398,11 +398,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerpar .replication-status-icon'))
@@ -429,11 +429,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-        {{file-distribution/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
       `);
 
       expect(find('.oneprovider-providerkrk .replication-status-icon'))
@@ -530,12 +530,12 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
           this.set('fileDistributionData', fileDistributionData);
           await render(hbs `
-            {{file-distribution/oneproviders-distribution
-              oneproviders=oneproviders
-              fileDistributionData=fileDistributionData
-              space=space
-              getTransfersUrl=(action getTransfersUrl)
-            }}
+            <FileDistribution::OneprovidersDistribution
+              @oneproviders={{oneproviders}}
+              @fileDistributionData={{fileDistributionData}}
+              @space={{space}}
+              @getTransfersUrl={{action getTransfersUrl}}
+            />
           `);
 
           expect(find('.link-to-transfers'), 'link').to.exist;
@@ -569,12 +569,12 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
         await render(hbs `
-          {{file-distribution/oneproviders-distribution
-            oneproviders=oneproviders
-            fileDistributionData=fileDistributionData
-            space=space
-            onReplicate=(action startAction)
-          }}
+          <FileDistribution::OneprovidersDistribution
+            @oneproviders={{oneproviders}}
+            @fileDistributionData={{fileDistributionData}}
+            @space={{space}}
+            @onReplicate={{action startAction}}
+          />
         `);
 
         return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
@@ -601,12 +601,12 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
         await render(hbs `
-          {{file-distribution/oneproviders-distribution
-            oneproviders=oneproviders
-            fileDistributionData=fileDistributionData
-            space=space
-            onMigrate=(action startAction)
-          }}
+          <FileDistribution::OneprovidersDistribution
+            @oneproviders={{oneproviders}}
+            @fileDistributionData={{fileDistributionData}}
+            @space={{space}}
+            @onMigrate={{action startAction}}
+          />
         `);
 
         return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
@@ -637,12 +637,12 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
         ]);
 
         await render(hbs `
-          {{file-distribution/oneproviders-distribution
-            oneproviders=oneproviders
-            fileDistributionData=fileDistributionData
-            space=space
-            onEvict=(action startAction)
-          }}
+          <FileDistribution::OneprovidersDistribution
+            @oneproviders={{oneproviders}}
+            @fileDistributionData={{fileDistributionData}}
+            @space={{space}}
+            @onEvict={{action startAction}}
+          />
         `);
 
         return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
@@ -668,12 +668,12 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
           this.set('space.privileges.scheduleReplication', false);
 
           await render(hbs `
-            {{file-distribution/oneproviders-distribution
-              oneproviders=oneproviders
-              fileDistributionData=fileDistributionData
-              space=space
-              onReplicate=(action startAction)
-            }}
+            <FileDistribution::OneprovidersDistribution
+              @oneproviders={{oneproviders}}
+              @fileDistributionData={{fileDistributionData}}
+              @space={{space}}
+              @onReplicate={{action startAction}}
+            />
           `);
 
           return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
@@ -696,12 +696,12 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
           ]);
 
           await render(hbs `
-            {{file-distribution/oneproviders-distribution
-              oneproviders=oneproviders
-              fileDistributionData=fileDistributionData
-              space=space
-              onEvict=(action startAction)
-            }}
+            <FileDistribution::OneprovidersDistribution
+              @oneproviders={{oneproviders}}
+              @fileDistributionData={{fileDistributionData}}
+              @space={{space}}
+              @onEvict={{action startAction}}
+            />
           `);
 
           return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
@@ -724,12 +724,12 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
             ]);
 
             await render(hbs `
-              {{file-distribution/oneproviders-distribution
-                oneproviders=oneproviders
-                fileDistributionData=fileDistributionData
-                space=space
-                onMigrate=(action startAction)
-              }}
+              <FileDistribution::OneprovidersDistribution
+                @oneproviders={{oneproviders}}
+                @fileDistributionData={{fileDistributionData}}
+                @space={{space}}
+                @onMigrate={{action startAction}}
+              />
             `);
 
             return click('.oneprovider-providerpar .one-pill-button-actions-trigger')

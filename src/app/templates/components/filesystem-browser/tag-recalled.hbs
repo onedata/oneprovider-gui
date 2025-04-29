@@ -11,9 +11,9 @@
       {{tt this labelKey}}
     </div>
     {{#if errorOccurred}}
-      {{one-tooltip
-        title=(tt this (if disabled "errorsDuringRecallDisabled" "errorsDuringRecall"))
-      }}
+      <OneTooltip
+        @title={{tt this (if disabled "errorsDuringRecallDisabled" "errorsDuringRecall")}}
+      />
     {{/if}}
   </div>
 {{/if}}

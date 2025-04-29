@@ -17,6 +17,7 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { Promise, resolve } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import DragAndDropColumnOrderMixin from 'oneprovider-gui/mixins/drag-and-drop-column-order';
+import _ from 'lodash';
 
 const mixins = [
   I18n,
@@ -194,6 +195,47 @@ export default Component.extend(...mixins, {
           }
         }
         return xattrsList.sortBy('label');
+      })();
+
+      return promiseObject(promise);
+    }
+  ),
+
+  /**
+   * @type {PromiseObject<Array<{value: string, label: string}>>}
+   */
+  jsonKeyOptionsProxy: computed(
+    'browserModel.itemsArray',
+    'activeSlide',
+    'isOpened',
+    function jsonKeyOptionsProxy() {
+      if (!this.browserModel.itemsArray || !this.isOpened) {
+        return promiseObject(resolve([]));
+      }
+
+      const files = this.browserModel.itemsArray.sourceArray.toArray();
+      const filesWithMetadata = files.filter(file => file?.hasJsonMetadata);
+      const scope = this.browserModel.previewMode ? 'public' : 'private';
+
+      const promise = (async () => {
+        const filesJsons = await Promise.all(
+          filesWithMetadata.map(file =>
+            this.metadataManager.getMetadata(file, 'json', scope)
+          )
+        );
+        const jsonKeys = new Set();
+        const jsonKeysList = [];
+        if (filesJsons) {
+          for (const jsonFromSingleFile of filesJsons) {
+            for (const key of Object.keys(JSON.parse(jsonFromSingleFile))) {
+              jsonKeys.add(key);
+            }
+          }
+          for (const key of Array.from(jsonKeys)) {
+            jsonKeysList.push({ value: key, label: key });
+          }
+        }
+        return _.sortBy(jsonKeysList, 'label');
       })();
 
       return promiseObject(promise);

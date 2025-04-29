@@ -128,12 +128,12 @@ describe('Integration | Component | archive-recall-modal', function () {
 
 async function renderComponent() {
   await render(hbs `
-    {{archive-recall-modal
-      open=open
-      space=space
-      archive=archive
-      onHide=(action onHide)
-      onArchiveRecallStarted=(action onArchiveRecallStarted)
-    }}
+    <ArchiveRecallModal
+      @open={{open}}
+      @space={{space}}
+      @archive={{archive}}
+      @onHide={{action onHide}}
+      @onArchiveRecallStarted={{action onArchiveRecallStarted}}
+    />
   `);
 }

@@ -10,22 +10,19 @@
       {{allPathItemsProxy.reason}}, {{filesViewContextProxy.reason}}
     </span>
   {{else}}
-    {{#file-path/internal-container
-      tagName=internalTagName
-      class=(concat-classes "path" anchorClassName)
-      linkHref=href
-      linkTarget=target
-      onLinkClicked=onLinkClicked
-      onLinkKeydown=onLinkKeydown
-    }}
-      {{file-path-renderer pathItems=displayedPathItems}}
+    <FilePath::InternalContainer
+      @tagName={{internalTagName}}
+      class={{concat-classes "path" anchorClassName}}
+      @linkHref={{href}}
+      @linkTarget={{target}}
+      @onLinkClicked={{onLinkClicked}}
+      @onLinkKeydown={{onLinkKeydown}}
+    >
+      <FilePathRenderer @pathItems={{displayedPathItems}} />
       {{yield}}
       {{#if renderTooltip}}
-        {{one-tooltip
-          class="string-path-tooltip"
-          title=tooltipText
-        }}
+        <OneTooltip class="string-path-tooltip" @title={{tooltipText}} />
       {{/if}}
-    {{/file-path/internal-container}}
+    </FilePath::InternalContainer>
   {{/if}}
 </div>

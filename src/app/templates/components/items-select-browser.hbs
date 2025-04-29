@@ -1,46 +1,51 @@
-{{#modal.header class="items-select-browser-part hide-before-shadow"}}
-  {{#items-select-browser/header
-    selectorModel=selectorModel
-  }}
-    {{yield}}
-  {{/items-select-browser/header}}
-{{/modal.header}}
-
-{{#modal.body
-  id=modalBodyId
-  class="items-select-browser-part upload-drop-zone-container full-width-body"
+{{#let
+  (component this.modal.header)
+  (component this.modal.body)
+  (component this.modal.footer)
+  as |modalHeader modalBody modalFooter|
 }}
-  <div
-    class="items-select-browser-body in-modal-item-browser-container full-width-body-content"
+  <modalHeader class="items-select-browser-part hide-before-shadow">
+    <ItemsSelectBrowser::Header @selectorModel={{selectorModel}}>
+      {{yield}}
+    </ItemsSelectBrowser::Header>
+  </modalHeader>
+
+  <modalBody
+    @id={{modalBodyId}}
+    class="items-select-browser-part upload-drop-zone-container full-width-body"
   >
-    {{#promise-proxy-container proxy=initialRequiredDataProxy}}
-      {{file-browser
-        browserModel=browserModel
-        parentModalDialogSelector=parentModalDialogSelector
-        showSelectionToolkit=false
-        contentScroll=contentScroll
-        dirStatsServiceState=selectorModel.dirStatsServiceStateProxy.content
-        resolveFileParentFun=(action "resolveItemParent")
-        updateDirEntityId=(action "updateDirEntityId")
-      }}
+    <div
+      class="items-select-browser-body in-modal-item-browser-container full-width-body-content"
+    >
+      <PromiseProxyContainer @proxy={{initialRequiredDataProxy}}>
+        <FileBrowser
+          @browserModel={{browserModel}}
+          @parentModalDialogSelector={{parentModalDialogSelector}}
+          @showSelectionToolkit={{false}}
+          @contentScroll={{contentScroll}}
+          @dirStatsServiceState={{selectorModel.dirStatsServiceStateProxy.content}}
+          @resolveFileParentFun={{action "resolveItemParent"}}
+          @updateDirEntityId={{action "updateDirEntityId"}}
+        />
 
-      {{#if selectorModel.browserExtensionComponentName}}
-        {{component selectorModel.browserExtensionComponentName
-          selectorModel=selectorModel
-          browserModel=browserModel
-        }}
-      {{/if}}
-    {{/promise-proxy-container}}
-  </div>
-{{/modal.body}}
+        {{#if selectorModel.browserExtensionComponentName}}
+          {{component selectorModel.browserExtensionComponentName
+            selectorModel=selectorModel
+            browserModel=browserModel
+          }}
+        {{/if}}
+      </PromiseProxyContainer>
+    </div>
+  </modalBody>
 
-{{#modal.footer class="items-select-browser-part"}}
-  {{items-select-browser/footer
-    validationError=validationError
-    selectedItems=selectorSelectedItems
-    submitDisabled=submitDisabled
-    submitLabel=submitLabel
-    onCancel=(action "cancel")
-    onSubmit=(action "submit")
-  }}
-{{/modal.footer}}
+  <modalFooter class="items-select-browser-part">
+    <ItemsSelectBrowser::Footer
+      @validationError={{validationError}}
+      @selectedItems={{selectorSelectedItems}}
+      @submitDisabled={{submitDisabled}}
+      @submitLabel={{submitLabel}}
+      @onCancel={{action "cancel"}}
+      @onSubmit={{action "submit"}}
+    />
+  </modalFooter>
+{{/let}}

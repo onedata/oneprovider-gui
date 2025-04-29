@@ -31,40 +31,40 @@
     </div>
     {{#if parentDir}}
       <div class="path-summary-path">
-        {{#file-path
-          internalTagName="span"
-          file=parentDir
-          customTip=targetPathString
-          anchorClassName=""
-        }}
+        <FilePath
+          @internalTagName="span"
+          @file={{parentDir}}
+          @customTip={{targetPathString}}
+          @anchorClassName=""
+        >
           <div class="path-item path-separator">/</div>
           <div class="path-item path-label target-path-item">{{targetName}}</div>
-        {{/file-path}}
+        </FilePath>
       </div>
     {{/if}}
   </div>
   <div class="submit-buttons">
-    {{#one-button
+    <OneButton
       class="cancel-btn"
-      type="default"
-      disabled=isSubmitting
-      onClick=(action onCancel)
-    }}
+      @type="default"
+      @disabled={{isSubmitting}}
+      @onClick={{action onCancel}}
+    >
       {{tt this "cancel"}}
-    {{/one-button}}
+    </OneButton>
     <div class="btn-tooltip-container">
-      {{#one-button
+      <OneButton
         class="submit-btn"
-        type="primary"
-        buttonType="submit"
-        disabled=effSubmitDisabled
-        isPending=isSubmitting
-        onClick=(action "submit")
-      }}
+        @type="primary"
+        @buttonType="submit"
+        @disabled={{effSubmitDisabled}}
+        @isPending={{isSubmitting}}
+        @onClick={{action "submit"}}
+      >
         {{tt this "proceed"}}
-      {{/one-button}}
+      </OneButton>
       {{#if proceedTip}}
-        {{one-tooltip title=proceedTip}}
+        <OneTooltip @title={{proceedTip}} />
       {{/if}}
     </div>
   </div>

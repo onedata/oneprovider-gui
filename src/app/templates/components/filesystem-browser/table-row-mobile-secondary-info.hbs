@@ -5,7 +5,7 @@
         {{bytes-to-string file.effFile.size}}
       </span>
     {{else}}
-      {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+      <SpinSpinnerBlock @sizeClass="xs" class="absolute-middle-centered" />
     {{/if}}
   {{else if (not-eq file.effFile.size null)}}
     {{bytes-to-string file.effFile.size}}

@@ -1,16 +1,16 @@
-{{#one-modal
-  open=open
-  backdropClose=(not processing)
-  keyboard=(not processing)
-  onHide=(action "hide")
+<OneModal
+  @open={{open}}
+  @backdropClose={{not processing}}
+  @keyboard={{not processing}}
+  @onHide={{action "hide"}}
   class="proceed-modal archives-delete-modal"
   as |modal|
-}}
-  {{archives-delete
-    archives=archives
-    modal=modal
-    processing=processing
-    onClose=(action "hide")
-    onProcessingUpdate=(action (mut processing))
-  }}
-{{/one-modal}}
+>
+  <ArchivesDelete
+    @archives={{archives}}
+    @modal={{modal}}
+    @processing={{processing}}
+    @onClose={{action "hide"}}
+    @onProcessingUpdate={{action (mut processing)}}
+  />
+</OneModal>

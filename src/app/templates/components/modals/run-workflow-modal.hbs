@@ -1,34 +1,30 @@
-{{#global-modal
-  classNames="modal-content-overlay"
-  modalId=modalId
-  size="xl"
+<GlobalModal
+  @classNames="modal-content-overlay"
+  @modalId={{modalId}}
+  @size="xl"
   as |modal|
-}}
+>
 
-  {{#modal.header}}
+  <modal.header>
     <h1>
       <span class="one-label">{{tt this "header"}}</span>
     </h1>
     {{#if (and (eq atmWorkflowInputDataSource "filesSelection") atmWorkflowInputData)}}
-      {{modal-file-subheader files=atmWorkflowInputData}}
+      <ModalFileSubheader @files={{atmWorkflowInputData}} />
     {{/if}}
-  {{/modal.header}}
+  </modal.header>
 
-  {{#modal.body}}
-    {{space-automation/atm-workflow-schemas-list
-      requiredInputStoreSpec=requiredInputStoreSpec
-      onAtmWorkflowSchemaRevisionSelect=(action "atmWorkflowSchemaRevisionSelected")
-    }}
-  {{/modal.body}}
+  <modal.body>
+    <SpaceAutomation::AtmWorkflowSchemasList
+      @requiredInputStoreSpec={{requiredInputStoreSpec}}
+      @onAtmWorkflowSchemaRevisionSelect={{action "atmWorkflowSchemaRevisionSelected"}}
+    />
+  </modal.body>
 
-  {{#modal.footer class="btn-toolbar"}}
-    {{#one-button
-      type="default"
-      class="btn-cancel"
-      onClick=modal.close
-    }}
+  <modal.footer class="btn-toolbar">
+    <OneButton @type="default" class="btn-cancel" @onClick={{modal.close}}>
       {{tt this "cancelBtn"}}
-    {{/one-button}}
-  {{/modal.footer}}
+    </OneButton>
+  </modal.footer>
 
-{{/global-modal}}
+</GlobalModal>

@@ -14,9 +14,6 @@
   as |itemValue|
 >
   <div class="option-container">
-    {{query-builder/model-presenters/storage
-      tagName=""
-      itemValue=itemValue
-    }}
+    <QueryBuilder::ModelPresenters::Storage @tagName="" @itemValue={{itemValue}} />
   </div>
 </OneDropdown>

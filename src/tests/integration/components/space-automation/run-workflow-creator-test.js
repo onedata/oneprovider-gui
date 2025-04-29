@@ -247,11 +247,11 @@ describe('Integration | Component | space-automation/run-workflow-creator', func
 });
 
 async function renderComponent() {
-  await render(hbs `{{space-automation/run-workflow-creator
-    space=space
-    onWorkflowStarted=workflowStartedSpy
-    chooseWorkflowSchemaToRun=chooseWorkflowSchemaToRun
-    atmWorkflowSchemaId=atmWorkflowSchemaId
-    atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumber
-  }}`);
+  await render(hbs `<SpaceAutomation::RunWorkflowCreator
+    @space={{space}}
+    @onWorkflowStarted={{workflowStartedSpy}}
+    @chooseWorkflowSchemaToRun={{chooseWorkflowSchemaToRun}}
+    @atmWorkflowSchemaId={{atmWorkflowSchemaId}}
+    @atmWorkflowSchemaRevisionNumber={{atmWorkflowSchemaRevisionNumber}}
+  />`);
 }

@@ -13,16 +13,7 @@
   {{else}}
     <FormComponent::FieldRenderer @field={{jsonType}} />
     {{#if (eq jsonTypeField.value "key")}}
-      <p>{{tt this "jsonKeyLabel"}}</p>
-      <input
-        id={{inputId}}
-        type="text"
-        class="form-control new-json-key input-sm"
-        value={{newJsonKey}}
-        oninput={{action (mut newJsonKey) value="target.value"}}
-        disabled={{isSaving}}
-        autofocus={{false}}
-      >
+      <FormComponent::FieldRenderer @field={{jsonKeyDropdown}} />
     {{else if (eq jsonTypeField.value "query")}}
       <p>{{tt this "jsonQueryLabel"}}</p>
       <p class="json-query-description">

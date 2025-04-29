@@ -17,10 +17,10 @@ describe('Integration | Component | share-show/markdown-editor', function () {
   it('renders HTML generated from Markdown source in "visual" mode', async function () {
     this.set('markdown', '# hello world');
 
-    await render(hbs `{{share-show/markdown-editor
-      markdown=markdown
-      mode="visual"
-    }}`);
+    await render(hbs `<ShareShow::MarkdownEditor
+      @markdown={{markdown}}
+      @mode="visual"
+    />`);
 
     const markdownToHtml = findAll('.one-markdown-to-html');
     expect(markdownToHtml).to.have.length(1);
@@ -32,10 +32,10 @@ describe('Integration | Component | share-show/markdown-editor', function () {
   it('renders textarea that render Markdown source in "markdown" mode', async function () {
     this.set('markdown', '# hello world');
 
-    await render(hbs `{{share-show/markdown-editor
-      markdown=markdown
-      mode="markdown"
-    }}`);
+    await render(hbs `<ShareShow::MarkdownEditor
+      @markdown={{markdown}}
+      @mode="markdown"
+    />`);
 
     const textarea = findAll('textarea.textarea-source-editor');
     expect(textarea).to.have.length(1);
@@ -45,11 +45,11 @@ describe('Integration | Component | share-show/markdown-editor', function () {
   it('renders textarea that emits edited code in "markdown" mode on change', async function () {
     const onMarkdownChangeSpy = sinon.spy();
     this.set('onMarkdownChange', onMarkdownChangeSpy);
-    await render(hbs `{{share-show/markdown-editor
-      markdown=""
-      onMarkdownChange=(action onMarkdownChange)
-      mode="markdown"
-    }}`);
+    await render(hbs `<ShareShow::MarkdownEditor
+      @markdown=""
+      @onMarkdownChange={{action onMarkdownChange}}
+      @mode="markdown"
+    />`);
 
     await fillIn('textarea.textarea-source-editor', 'hello');
     expect(onMarkdownChangeSpy).to.be.calledOnce;

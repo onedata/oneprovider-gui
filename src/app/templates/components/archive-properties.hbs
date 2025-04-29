@@ -1,28 +1,28 @@
-{{archive-form
-  formModel=viewModel.formModel
-  options=viewModel.options
-  isSubmitting=viewModel.isSubmitting
-}}
+<ArchiveForm
+  @formModel={{viewModel.formModel}}
+  @options={{viewModel.options}}
+  @isSubmitting={{viewModel.isSubmitting}}
+/>
 {{yield}}
 {{#if viewModel.areSubmitButtonsVisible}}
   <div class="submit-buttons-container">
-    {{#one-button
+    <OneButton
       class="close-btn"
-      type="default"
-      disabled=(or (not viewModel.isModified) viewModel.isSubmitting viewModel.disabled)
-      onClick=(action "discard")
-    }}
+      @type="default"
+      @disabled={{or (not viewModel.isModified) viewModel.isSubmitting viewModel.disabled}}
+      @onClick={{action "discard"}}
+    >
       {{tt this "discard"}}
-    {{/one-button}}
-    {{#one-button
-      type="primary"
-      buttonType="submit"
+    </OneButton>
+    <OneButton
+      @type="primary"
+      @buttonType="submit"
       class="submit-archive-modification-btn"
-      disabled=(or (not viewModel.isModified) viewModel.disabled)
-      isPending=viewModel.isSubmitting
-      onClick=(action "submit")
-    }}
+      @disabled={{or (not viewModel.isModified) viewModel.disabled}}
+      @isPending={{viewModel.isSubmitting}}
+      @onClick={{action "submit"}}
+    >
       {{tt this "submit"}}
-    {{/one-button}}
+    </OneButton>
   </div>
 {{/if}}

@@ -1,5 +1,8 @@
 {{#if functionString}}
-  {{#code-block language="javascript" class="function-source"}}{{formattedSource}}{{/code-block}}
+  <CodeBlock
+    @language="javascript"
+    class="function-source"
+  >{{formattedSource}}</CodeBlock>
 {{else}}
   <p>{{tt this (concat "empty." functionType)}}</p>
 {{/if}}

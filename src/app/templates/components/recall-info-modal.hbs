@@ -1,15 +1,11 @@
-{{#one-modal
+<OneModal
   class="recall-info-modal modal-content-overlay without-footer with-close-button"
-  open=open
-  size="sm"
-  backdropClose=true
-  keyboard=true
-  onHide=(action "hide")
+  @open={{open}}
+  @size="sm"
+  @backdropClose={{true}}
+  @keyboard={{true}}
+  @onHide={{action "hide"}}
   as |modal|
-}}
-  {{file-recall
-    modal=modal
-    file=file
-    onClose=(action "hide")
-  }}
-{{/one-modal}}
+>
+  <FileRecall @modal={{modal}} @file={{file}} @onClose={{action "hide"}} />
+</OneModal>
