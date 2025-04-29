@@ -21,7 +21,7 @@
 
   .json-query-description {
     font-size: 80%;
-    opacity: 0.6;
+    opacity: $disabled-opacity;
   }
 
   .new-json-key, .new-item-name, .new-json-query {
