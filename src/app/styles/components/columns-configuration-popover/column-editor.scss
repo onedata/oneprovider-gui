@@ -19,17 +19,17 @@
     }
   }
 
+  .json-query-description {
+    font-size: 80%;
+    opacity: 0.6;
+  }
+
   .new-json-key, .new-item-name, .new-json-query {
     margin-bottom: 20px;
   }
 
   .back-column-btn {
     margin-right: $padding-xs-horizontal;
-  }
-
-  .jsonType-field .one-way-radio-group {
-    display: flex;
-    flex-direction: column;
   }
 
   .xattr-footer {
