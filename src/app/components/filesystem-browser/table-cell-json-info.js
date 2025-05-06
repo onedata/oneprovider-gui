@@ -17,7 +17,6 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import I18n from 'onedata-gui-common/mixins/i18n';
 import jsonata from 'jsonata';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import { resolve } from 'rsvp';
 
 export default Component.extend(I18n, {
   tagName: 'td',
