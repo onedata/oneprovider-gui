@@ -5,7 +5,7 @@
   }}
   onclick={{action "invokeFileAction" file "metadata" "json"}}
 >
-  {{#promise-proxy-container proxy=selectedJsonStringProxy}}
+  <PromiseProxyContainer @proxy={{selectedJsonStringProxy}}>
     {{#if (not selectedJsonString)}}
       —
     {{else}}
@@ -32,5 +32,5 @@
       {{/if}}
       <OneIcon @icon="browser-copy" class="copy-icon" onclick={{action "copyJson"}} />
     {{/if}}
-  {{/promise-proxy-container}}
+  </PromiseProxyContainer>
 </div>

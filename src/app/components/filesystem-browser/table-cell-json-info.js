@@ -98,7 +98,7 @@ export default Component.extend(I18n, {
   /**
    * Depending on the query type, contains the entire JSON object as a string or
    * contains the value of the top-level key as a string.
-   * @type {ComputedProperty<string>}
+   * @type {PromiseObject<string>}
    */
   selectedJsonStringProxy: computed(
     'queryType',
@@ -107,33 +107,34 @@ export default Component.extend(I18n, {
     'json',
     'hasJsonMetadata',
     function selectedJsonStringProxy() {
-      const jsonObj = this.json;
-      if (!this.hasJsonMetadata || jsonObj === undefined) {
-        return promiseObject(resolve(''));
-      }
-      if (this.queryType === 'all') {
-        return promiseObject(resolve(JSON.stringify(jsonObj, null, 2)));
-      }
-      if (this.queryType === 'key') {
-        if (!this.jsonKey || !jsonObj) {
-          return promiseObject(resolve(''));
-        }
-        const selectedData = jsonObj[this.jsonKey];
-        return promiseObject(resolve(JSON.stringify(selectedData, null, 2)));
-      }
-      if (this.queryType === 'query') {
-        if (!this.jsonQuery || !jsonObj) {
-          return promiseObject(resolve(''));
-        }
-        const promise = (async () => {
-          const expr = jsonata(this.jsonQuery);
-          const result = await expr.evaluate(jsonObj);
-          return JSON.stringify(result, null, 2);
-        })();
-        return promiseObject(promise);
-      }
+      return promiseObject(this.resolveSelectedJsonString());
     }
   ),
+
+  async resolveSelectedJsonString() {
+    const jsonObj = this.json;
+    if (!this.hasJsonMetadata || jsonObj === undefined) {
+      return '';
+    }
+    if (this.queryType === 'all') {
+      return this.stringifyJson(jsonObj);
+    }
+    if (this.queryType === 'key') {
+      if (!this.jsonKey || !jsonObj) {
+        return '';
+      }
+      const selectedData = jsonObj[this.jsonKey];
+      return this.stringifyJson(selectedData);
+    }
+    if (this.queryType === 'query') {
+      if (!this.jsonQuery || !jsonObj) {
+        return '';
+      }
+      const expr = jsonata(this.jsonQuery);
+      const result = await expr.evaluate(jsonObj);
+      return this.stringifyJson(result);
+    }
+  },
 
   selectedJsonString: reads('selectedJsonStringProxy.content'),
 
@@ -331,6 +332,10 @@ export default Component.extend(I18n, {
       }
     }
     return texts;
+  },
+
+  stringifyJson(json) {
+    return JSON.stringify(json, null, 2);
   },
 
   actions: {

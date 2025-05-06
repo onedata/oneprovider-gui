@@ -62,7 +62,8 @@ import { reads } from '@ember/object/computed';
  * @property {JsonQueryType} queryType Determines how JSON data should be queried.
  * @property {string} [jsonKey] Name of the top-level key in the JSON hierarchy.
  *   This applies only if the queryType is 'key'.
- * @property {string} [jsonQuery]
+ * @property { string } [jsonQuery] stores a string written in JSONata syntax,
+ *   used to extract specific data from a JSON object.
  */
 
 const mixins = [
@@ -245,19 +246,20 @@ export default EmberObject.extend(...mixins, {
     // try to create name variable that does not exist or return
     // if column with the same key and displayed name exists
     while (columnNameVariable in this.columns) {
+      const column = this.columns[columnNameVariable];
       if (
         type === 'xattr' &&
-        columnName === this.columns[columnNameVariable].displayedName &&
-        options.xattrKey === this.columns[columnNameVariable].options.xattrKey
+        columnName === column.displayedName &&
+        options.xattrKey === column.options.xattrKey
       ) {
         // return if a column with the same name and key already exists
         return { exists: true };
       } else if (
         type === 'json' &&
-        columnName === this.columns[columnNameVariable].displayedName &&
-        options.queryType === this.columns[columnNameVariable].options.queryType &&
-        options.jsonKey === this.columns[columnNameVariable].options.jsonKey &&
-        options.jsonQuery === this.columns[columnNameVariable].options.jsonQuery
+        columnName === column.displayedName &&
+        options.queryType === column.options.queryType &&
+        options.jsonKey === column.options.jsonKey &&
+        options.jsonQuery === column.options.jsonQuery
       ) {
         // return if a column with the same name and query type already exists
         return { exists: true };

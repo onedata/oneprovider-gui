@@ -1,6 +1,6 @@
 .column-editor {
   position: relative;
-  min-height: var(--min-height-popover, 0);
+  min-height: var(--min-height-columns-configuration-popover, 0);
   padding: 12px;
 
   h1 {
@@ -21,7 +21,11 @@
 
   .json-query-description {
     font-size: 80%;
-    opacity: $disabled-opacity;
+    margin-top: -6px;
+  }
+
+  .form-message-name.no-error {
+    display: none;
   }
 
   .new-json-key, .new-item-name, .new-json-query {

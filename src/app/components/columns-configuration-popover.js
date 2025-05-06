@@ -324,8 +324,7 @@ export default Component.extend(...mixins, {
             'modifiedJsonKey',
             columnInfo.options.jsonKey
           );
-        }
-        if (queryType === 'query') {
+        } else if (queryType === 'query') {
           this.set(
             'modifiedJsonQuery',
             columnInfo.options.jsonQuery

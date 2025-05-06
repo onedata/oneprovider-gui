@@ -20,9 +20,7 @@ import {
   destroyableComputed,
   initDestroyableCache,
 } from 'onedata-gui-common/utils/destroyable-computed';
-
-const defaultWholeJsonLabel = 'JSON';
-const defaultQueryJsonLabel = 'JSON query';
+import jsonata from 'jsonata';
 
 export default Component.extend(I18n, {
   classNames: ['column-editor'],
@@ -165,14 +163,13 @@ export default Component.extend(I18n, {
       }
       if (this.metadataTypeValue === 'xattr') {
         return this.xattrKeyDropdownField.value;
+      } else if (this.jsonTypeField.value === 'all') {
+        return this.t('json').string;
+      } else if (this.jsonTypeField.value === 'query') {
+        return this.t('jsonQuery').string;
+      } else {
+        return this.jsonKeyDropdownField.value;
       }
-      if (this.jsonTypeField.value === 'all') {
-        return defaultWholeJsonLabel;
-      }
-      if (this.jsonTypeField.value === 'query') {
-        return defaultQueryJsonLabel;
-      }
-      return this.jsonKeyDropdownField.value;
     }
   ),
 
@@ -319,6 +316,8 @@ export default Component.extend(I18n, {
     'jsonTypeField.value',
     'jsonKeyDropdownField.value',
     'newJsonQuery',
+    'validationError',
+    'validationErrorMessage',
     function disabledEditButtonTooltip() {
       if (
         !this.newColumnName ||
@@ -339,6 +338,9 @@ export default Component.extend(I18n, {
       }
       if (this.isColumnLabelAlreadyExisting) {
         return this.t('columnLabelExistsTooltip');
+      }
+      if (!this.validationError) {
+        return this.validationErrorMessage;
       }
       return '';
     }
@@ -387,6 +389,27 @@ export default Component.extend(I18n, {
         ).exists === true;
     }
   ),
+
+  validationError: computed('newJsonQuery', function validationError() {
+    return this.isValidJSONataExpression(this.newJsonQuery).isValid;
+  }),
+
+  validationErrorMessage: computed(
+    'validationError',
+    function validationErrorMessage() {
+      const validationInfo = this.isValidJSONataExpression(this.newJsonQuery);
+      return validationInfo.isValid ? '' : validationInfo.error.message;
+    }
+  ),
+
+  isValidJSONataExpression(expression) {
+    try {
+      jsonata(expression);
+      return { isValid: true };
+    } catch (error) {
+      return { isValid: false, error };
+    }
+  },
 
   init() {
     initDestroyableCache(this);

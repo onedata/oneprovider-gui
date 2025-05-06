@@ -3,8 +3,8 @@ export default {
   columnNameLabel: 'Column label:',
   jsonKeyLabel: 'Top-level key:',
   jsonQueryLabel: 'Query:',
-  jsonQueryDescription: 'Enter a query using ',
-  jsonQueryDescription2: ' syntax to extract specific information from the JSON data.',
+  jsonQueryDescription: 'Enter a query using',
+  jsonQueryDescription2: 'syntax to extract specific information from the JSON data.',
   jsonataLink: 'https://docs.jsonata.org/overview.html',
   jsonataLinkText: 'JSONata',
   addBtn: 'Create',
@@ -50,4 +50,6 @@ export default {
       },
     },
   },
+  json: 'JSON',
+  jsonQuery: 'JSON query',
 };
