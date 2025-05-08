@@ -15,6 +15,8 @@ import Prism from 'prismjs';
 import 'prismjs/components/prism-json';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/i18n';
+import jsonata from 'jsonata';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export default Component.extend(I18n, {
   tagName: 'td',
@@ -78,6 +80,11 @@ export default Component.extend(I18n, {
   jsonKey: reads('columnInfo.options.jsonKey'),
 
   /**
+   * @type {ComputedProperty<string>}
+   */
+  jsonQuery: reads('columnInfo.options.jsonQuery'),
+
+  /**
    * @type {ComputedProperty<Object>}
    */
   json: reads('file.effFile.jsonMetadata'),
@@ -90,29 +97,58 @@ export default Component.extend(I18n, {
   /**
    * Depending on the query type, contains the entire JSON object as a string or
    * contains the value of the top-level key as a string.
-   * @type {ComputedProperty<string>}
+   * @type {PromiseObject<string>}
    */
-  selectedJsonString: computed(
+  selectedJsonStringProxy: computed(
     'queryType',
     'jsonKey',
+    'jsonQuery',
     'json',
     'hasJsonMetadata',
-    function selectedJsonString() {
-      const jsonObj = this.json;
-      if (!this.hasJsonMetadata || jsonObj === undefined) {
-        return '';
-      }
-      if (this.queryType === 'all') {
-        return JSON.stringify(jsonObj, null, 2);
-      }
-      if (!this.jsonKey || !jsonObj) {
-        return '';
-      }
-
-      const selectedData = jsonObj[this.jsonKey];
-      return JSON.stringify(selectedData, null, 2);
+    function selectedJsonStringProxy() {
+      return promiseObject(this.resolveSelectedJsonString());
     }
   ),
+
+  async resolveSelectedJsonString() {
+    const jsonObj = this.json;
+    const result = {
+      isValid: true,
+      content: '',
+    };
+    if (!this.hasJsonMetadata || jsonObj === undefined) {
+      return result;
+    }
+    if (this.queryType === 'all') {
+      result.content = this.stringifyJson(jsonObj);
+      return result;
+    }
+    if (this.queryType === 'key') {
+      if (!this.jsonKey || !jsonObj) {
+        return result;
+      }
+      const selectedData = jsonObj[this.jsonKey];
+      result.content = this.stringifyJson(selectedData);
+      return result;
+    }
+    if (this.queryType === 'query') {
+      if (!this.jsonQuery || !jsonObj) {
+        return result;
+      }
+      try {
+        const expr = jsonata(this.jsonQuery);
+        const selectedData = await expr.evaluate(jsonObj);
+        result.content = this.stringifyJson(selectedData);
+        return result;
+      } catch (error) {
+        result.isValid = false;
+        result.content = error.message;
+        return result;
+      }
+    }
+  },
+
+  selectedJsonString: reads('selectedJsonStringProxy.content'),
 
   /**
    * @type {ComputedProperty<{ text: string, isTruncated: boolean }>}
@@ -122,7 +158,7 @@ export default Component.extend(I18n, {
     'tooltipMaxLines',
     'maxTooltipLineLength',
     function tooltipSpec() {
-      const lines = this.selectedJsonString.split('\n');
+      const lines = this.selectedJsonString.content.split('\n');
 
       let jsonText = '';
       let currentLineNumber = 0;
@@ -175,13 +211,13 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<{ lines: Array<string>, isTruncated: boolean }>}
    */
   htmlContentSpec: computed('selectedJsonString', function htmlContentSpec() {
-    if (!this.selectedJsonString) {
+    if (!this.selectedJsonString?.isValid || !this.selectedJsonString?.content) {
       return {
         lines: [],
         isTruncated: false,
       };
     }
-    const preFormattedText = this.selectedJsonString
+    const preFormattedText = this.selectedJsonString.content
       .replace(/(\r\n|\n|\r)/gm, '')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
@@ -310,13 +346,17 @@ export default Component.extend(I18n, {
     return texts;
   },
 
+  stringifyJson(json) {
+    return JSON.stringify(json, null, 2);
+  },
+
   actions: {
     invokeFileAction(file, btnId, ...args) {
       this.invokeFileAction(file, btnId, ...args);
     },
     copyJson(event) {
       event.stopPropagation();
-      this.globalClipboard.copy(this.selectedJsonString);
+      this.globalClipboard.copy(this.selectedJsonString?.content);
     },
   },
 });
