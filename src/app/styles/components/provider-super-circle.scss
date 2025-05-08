@@ -1,0 +1,32 @@
+.provider-super-circle {
+  $super-circle-animation-duration: 2s;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  z-index: -1;
+
+  border-radius: 50%;
+
+  animation-delay: 0s;
+  animation-iteration-count: infinite;
+
+  &.destination {
+    animation-name: gather-circle;
+    animation-timing-function: ease-out;
+    animation-duration: $super-circle-animation-duration;
+  }
+
+  &.source {
+    animation-name: broadcast-circle;
+    animation-timing-function: ease-in;
+    animation-duration: $super-circle-animation-duration;
+  }
+
+  &.destination.source {
+    animation-name: full-duplex-circle;
+    animation-timing-function: ease;
+    animation-duration: $super-circle-animation-duration * 2;
+  }
+}
