@@ -166,7 +166,7 @@ export default Component.extend(I18n, {
       } else if (this.jsonTypeField.value === 'all') {
         return String(this.t('json'));
       } else if (this.jsonTypeField.value === 'query') {
-        return this.t('jsonQuery').string;
+        return String(this.t('jsonQuery'));
       } else {
         return this.jsonKeyDropdownField.value;
       }
@@ -344,7 +344,9 @@ export default Component.extend(I18n, {
         this.jsonTypeField.value === 'query' &&
         !this.validationError
       ) {
-        return this.validationErrorMessage;
+        return this.t(
+          'invalidJsonataExpressionTooltip', { error: this.validationErrorMessage }
+        );
       }
       return '';
     }

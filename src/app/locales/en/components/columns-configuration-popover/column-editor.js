@@ -15,6 +15,7 @@ export default {
   columnExistsTooltip: 'This column already exists.',
   emptyValueTooltip: 'Requires non-empty inputs.',
   columnLabelExistsTooltip: 'Column with this label already exists.',
+  invalidJsonataExpressionTooltip: 'Invalid JSONata expression: {{error}}',
   xattrKey: {
     label: 'Extended attribute key',
     customValueInputPlaceholder: 'Enter or choose a key...',
