@@ -164,7 +164,7 @@ export default Component.extend(I18n, {
       if (this.metadataTypeValue === 'xattr') {
         return this.xattrKeyDropdownField.value;
       } else if (this.jsonTypeField.value === 'all') {
-        return this.t('json').string;
+        return String(this.t('json'));
       } else if (this.jsonTypeField.value === 'query') {
         return this.t('jsonQuery').string;
       } else {
@@ -339,7 +339,11 @@ export default Component.extend(I18n, {
       if (this.isColumnLabelAlreadyExisting) {
         return this.t('columnLabelExistsTooltip');
       }
-      if (!this.validationError) {
+      if (
+        this.metadataTypeValue === 'json' &&
+        this.jsonTypeField.value === 'query' &&
+        !this.validationError
+      ) {
         return this.validationErrorMessage;
       }
       return '';

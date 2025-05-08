@@ -6,7 +6,10 @@
   onclick={{action "invokeFileAction" file "metadata" "json"}}
 >
   <PromiseProxyContainer @proxy={{selectedJsonStringProxy}}>
-    {{#if (not selectedJsonString)}}
+    {{#if (not selectedJsonString.isValid)}}
+      {{tt this "error"}}
+      <OneTooltip @title={{selectedJsonString.content}} />
+    {{else if (not selectedJsonString.content)}}
       —
     {{else}}
       {{#if (get htmlContentLines 1)}}
