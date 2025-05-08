@@ -14,6 +14,10 @@ import oneproviderPlaceSizes from 'onedata-gui-common/utils/oneprovider-place-si
 export default Component.extend({
   tagName: '',
 
+  /**
+   * Object yielded from <OneMap> template.
+   * @type {Object}
+   */
   map: undefined,
 
   /**
@@ -22,8 +26,14 @@ export default Component.extend({
    */
   idToProviderMapping: undefined,
 
+  /**
+   * @type {ComputedProperty<Model.Provider>}
+   */
   providerA: oneproviderFromChannel(0),
 
+  /**
+   * @type {ComputedProperty<Model.Provider>}
+   */
   providerB: oneproviderFromChannel(1),
 
   /**
@@ -96,11 +106,7 @@ export default Component.extend({
 });
 
 function oneproviderFromChannel(index) {
-  return computed('idToProviderMapping', 'channel', function oneproviderX() {
-    const {
-      idToProviderMapping,
-      channel,
-    } = this.getProperties('idToProviderMapping', 'channel');
-    return get(idToProviderMapping, channel[index]);
+  return computed('idToProviderMapping', 'channel', function oneproviderFromChannel() {
+    return this.idToProviderMapping[this.channel[index]];
   });
 }

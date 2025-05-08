@@ -4,15 +4,15 @@
     <stop offset="100%" stop-color={{gradientColors.[1]}} />
   </linearGradient>
 </defs>
-
-{{#let (component this.map) as |map|}}
-  <map.position
+{{#let (component this.map.position) as |position|}}
+  <position
     @useContainerElement={{false}}
     @latitude={{get providerA "latitude"}}
     @longitude={{get providerA "longitude"}}
     as |pax pay|
   >
-    <map.position
+    {{log "active-channel int" pax pay pbx pby}}
+    <position
       @useContainerElement={{false}}
       @latitude={{get providerB "latitude"}}
       @longitude={{get providerB "longitude"}}
@@ -34,6 +34,6 @@
         @x2={{pbx}}
         @y2={{pby}}
       />
-    </map.position>
-  </map.position>
+    </position>
+  </position>
 {{/let}}

@@ -10,10 +10,10 @@
         {{#each transfersActiveChannels as |channel|}}
           <SpaceTransfers::ActiveChannel
             @map={{map}}
-            @idToProviderMapping={{idToProviderMapping}}
-            @providersColors={{providersColors}}
+            @idToProviderMapping={{this.idToProviderMapping}}
+            @providersColors={{this.providersColors}}
             @channel={{channel}}
-            @scale={{oneproviderCircleScale}}
+            @scale={{this.oneproviderCircleScale}}
             @mapSize={{max map.width map.height 1200}}
           />
         {{/each}}
