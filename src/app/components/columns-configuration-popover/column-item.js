@@ -223,12 +223,17 @@ export default Component.extend(I18n, {
           key: this.columnValue.options.xattrKey,
         });
       } else if (this.columnValue.type === 'json') {
-        if (this.columnValue.options.queryType === 'all') {
-          return this.t(`${this.translationKey}.tip.json.all`);
-        } else {
-          return this.t(`${this.translationKey}.tip.json.key`, {
-            key: this.columnValue.options.jsonKey,
-          });
+        switch (this.columnValue.options.queryType) {
+          case 'all':
+            return this.t(`${this.translationKey}.tip.json.all`);
+          case 'key':
+            return this.t(`${this.translationKey}.tip.json.key`, {
+              key: this.columnValue.options.jsonKey,
+            });
+          case 'query':
+            return this.t(`${this.translationKey}.tip.json.query`, {
+              query: this.columnValue.options.jsonQuery,
+            });
         }
       } else if (this.columnName === 'fileId') {
         const mode = this.previewMode ? 'public' : 'priv';

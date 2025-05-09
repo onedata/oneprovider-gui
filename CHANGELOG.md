@@ -5,6 +5,8 @@
 ### Latest changes
 
 * VFS-12765 Fixed showing channels between transferring providers on the transfers map
+* VFS-12695 Using updated onedata-gui-common with more Glimmer components
+* VFS-12645 Added JSON query option to column editor popover
 * VFS-12769 Added autocomplete dropdown for JSON key in column editor popover
 * VFS-12694 Refactored all templates to use angle brackets components
 * VFS-12674 Added support for batch requests
