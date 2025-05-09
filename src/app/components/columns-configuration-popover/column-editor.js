@@ -20,8 +20,7 @@ import {
   destroyableComputed,
   initDestroyableCache,
 } from 'onedata-gui-common/utils/destroyable-computed';
-
-const defaultWholeJsonLabel = 'JSON';
+import jsonata from 'jsonata';
 
 export default Component.extend(I18n, {
   classNames: ['column-editor'],
@@ -83,6 +82,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
+   * @type {string}
+   */
+  initialJsonQuery: '',
+
+  /**
+   * @virtual optional
    * @type {ColumnType}
    */
   initialMetadataType: 'xattr',
@@ -126,6 +131,11 @@ export default Component.extend(I18n, {
   /**
    * @type {string}
    */
+  newJsonQuery: '',
+
+  /**
+   * @type {string}
+   */
   metadataTypeFieldName: 'metadataType',
 
   /**
@@ -153,11 +163,13 @@ export default Component.extend(I18n, {
       }
       if (this.metadataTypeValue === 'xattr') {
         return this.xattrKeyDropdownField.value;
+      } else if (this.jsonTypeField.value === 'all') {
+        return String(this.t('json'));
+      } else if (this.jsonTypeField.value === 'query') {
+        return String(this.t('jsonQuery'));
+      } else {
+        return this.jsonKeyDropdownField.value;
       }
-      if (this.jsonTypeField.value === 'all') {
-        return defaultWholeJsonLabel;
-      }
-      return this.jsonKeyDropdownField.value;
     }
   ),
 
@@ -237,6 +249,7 @@ export default Component.extend(I18n, {
         options: [
           { value: 'all' },
           { value: 'key' },
+          { value: 'query' },
         ],
         defaultValue: this.initialJsonQueryType,
         tooltipClass: 'tooltip-lg tooltip-text-left',
@@ -302,6 +315,9 @@ export default Component.extend(I18n, {
     'metadataTypeValue',
     'jsonTypeField.value',
     'jsonKeyDropdownField.value',
+    'newJsonQuery',
+    'validationError',
+    'validationErrorMessage',
     function disabledEditButtonTooltip() {
       if (
         !this.newColumnName ||
@@ -309,6 +325,10 @@ export default Component.extend(I18n, {
         (
           !this.jsonKeyDropdownField.value && this.metadataTypeValue === 'json' &&
           this.jsonTypeField.value === 'key'
+        ) ||
+        (
+          !this.newJsonQuery && this.metadataTypeValue === 'json' &&
+          this.jsonTypeField.value === 'query'
         )
       ) {
         return this.t('emptyValueTooltip');
@@ -318,6 +338,15 @@ export default Component.extend(I18n, {
       }
       if (this.isColumnLabelAlreadyExisting) {
         return this.t('columnLabelExistsTooltip');
+      }
+      if (
+        this.metadataTypeValue === 'json' &&
+        this.jsonTypeField.value === 'query' &&
+        !this.validationError
+      ) {
+        return this.t(
+          'invalidJsonataExpressionTooltip', { error: this.validationErrorMessage }
+        );
       }
       return '';
     }
@@ -346,6 +375,7 @@ export default Component.extend(I18n, {
     'jsonTypeField.value',
     'metadataTypeValue',
     'jsonKeyDropdownField.value',
+    'newJsonQuery',
     function isColumnAlreadyExisting() {
       let properties = {};
       if (this.metadataTypeValue === 'xattr') {
@@ -354,6 +384,7 @@ export default Component.extend(I18n, {
         properties = {
           queryType: this.jsonTypeField.value,
           jsonKey: this.jsonKeyDropdownField.value,
+          jsonQuery: this.newJsonQuery,
         };
       }
       return this.columnsConfiguration
@@ -365,9 +396,31 @@ export default Component.extend(I18n, {
     }
   ),
 
+  validationError: computed('newJsonQuery', function validationError() {
+    return this.isValidJSONataExpression(this.newJsonQuery).isValid;
+  }),
+
+  validationErrorMessage: computed(
+    'validationError',
+    function validationErrorMessage() {
+      const validationInfo = this.isValidJSONataExpression(this.newJsonQuery);
+      return validationInfo.isValid ? '' : validationInfo.error.message;
+    }
+  ),
+
+  isValidJSONataExpression(expression) {
+    try {
+      jsonata(expression);
+      return { isValid: true };
+    } catch (error) {
+      return { isValid: false, error };
+    }
+  },
+
   init() {
     initDestroyableCache(this);
     this._super(...arguments);
+    this.set('newJsonQuery', this.initialJsonQuery);
   },
 
   /**
@@ -396,6 +449,7 @@ export default Component.extend(I18n, {
       const options = type === 'xattr' ? { xattrKey: this.xattrKeyDropdownField.value } : {
         queryType: this.jsonTypeField.value,
         jsonKey: this.jsonKeyDropdownField.value,
+        jsonQuery: this.newJsonQuery,
       };
       this.onSubmitColumn(
         this.isNewColumn,

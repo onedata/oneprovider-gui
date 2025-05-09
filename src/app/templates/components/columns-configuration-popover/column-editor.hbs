@@ -14,11 +14,27 @@
     <FormComponent::FieldRenderer @field={{jsonType}} />
     {{#if (eq jsonTypeField.value "key")}}
       <FormComponent::FieldRenderer @field={{jsonKeyDropdown}} />
+    {{else if (eq jsonTypeField.value "query")}}
+      <p>{{tt this "jsonQueryLabel"}}</p>
+      <p class="json-query-description">
+        {{tt this "jsonQueryDescription"}}
+        <a href={{tt this "jsonataLink"}} target="_blank">
+          {{tt this "jsonataLinkText"}}
+        </a>
+        {{tt this "jsonQueryDescription2"}}
+      </p>
+      <input
+        type="text"
+        class="form-control new-json-query input-sm"
+        value={{newJsonQuery}}
+        oninput={{action (mut newJsonQuery) value="target.value"}}
+        disabled={{isSaving}}
+        autofocus={{false}}
+      >
     {{/if}}
   {{/if}}
   <p>{{tt this "columnNameLabel"}}</p>
   <input
-    id={{inputId}}
     type="text"
     class="form-control new-item-name input-sm"
     value={{newColumnName}}
