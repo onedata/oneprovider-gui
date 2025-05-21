@@ -459,6 +459,7 @@ export default BaseBrowserModel.extend(...mixins, {
         'activePermissionsType',
         'posixPermissions',
         'hasCustomMetadata',
+        'hasJsonMetadata',
       ]);
       if (!this.previewMode) {
         listedFilesPropertySet
