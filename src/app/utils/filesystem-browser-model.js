@@ -459,6 +459,8 @@ export default BaseBrowserModel.extend(...mixins, {
         'activePermissionsType',
         'posixPermissions',
         'hasCustomMetadata',
+        // TODO: VFS-12859 change method of getting json metadata for column editor
+        // columns-configuration-popover component
         'hasJsonMetadata',
       ]);
       if (!this.previewMode) {
