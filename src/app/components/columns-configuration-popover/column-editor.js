@@ -247,7 +247,6 @@ export default Component.extend(I18n, {
           columnEditorComponent: this,
           name: this.xattrKeyFieldName,
           defaultValue: this.initialXattrKey,
-          isOptional: true,
         });
     }
   ),
