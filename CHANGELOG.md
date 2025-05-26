@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12846 Fixed dropdown options for JSON keys in the column editor popover
 * VFS-12765 Fixed showing channels between transferring providers on the transfers map
 * VFS-12695 Using updated onedata-gui-common with more Glimmer components
 * VFS-12645 Added JSON query option to column editor popover
