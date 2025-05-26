@@ -1,6 +1,5 @@
 export default {
   addNewColumnHeader: 'New metadata column',
-  columnNameLabel: 'Column label:',
   jsonKeyLabel: 'Top-level key:',
   jsonQueryLabel: 'Query:',
   jsonQueryDescription: 'Enter a query using',
@@ -52,5 +51,11 @@ export default {
     },
   },
   json: 'JSON',
-  jsonQuery: 'JSON query',
+  jsonQueryColumnLabel: 'JSON query',
+  jsonQuery: {
+    label: 'Query:<br /><p class="json-query-description">Enter a query using <a href="https://docs.jsonata.org/overview.html" target="_blank">JSONata</a> syntax to extract specific information from the JSON data.</p>',
+  },
+  columnLabel: {
+    label: 'Column label',
+  },
 };

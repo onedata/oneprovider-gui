@@ -115,11 +115,6 @@ export default Component.extend(...mixins, {
   modifiedJsonQuery: '',
 
   /**
-   * @type {number}
-   */
-  fileCountForXattr: 1000,
-
-  /**
    * @type {ComputedProperty<string>}
    */
   columnsCount: reads('columnsConfiguration.columnsOrder.length'),
@@ -178,14 +173,11 @@ export default Component.extend(...mixins, {
         return promiseObject(resolve([]));
       }
 
-      const promise = (async () => {
-        await this.browserModel.itemsArray.scheduleReload({
-          minSize: this.fileCountForXattr,
-        });
-        const files = get(this.browserModel.itemsArray, 'sourceArray').toArray();
-        const filesWithXattrs = files.filter(file => file && get(file, 'hasCustomMetadata'));
-        const scope = this.browserModel.previewMode ? 'public' : 'private';
+      const files = get(this.browserModel.itemsArray, 'sourceArray').toArray();
+      const filesWithXattrs = files.filter(file => file && get(file, 'hasCustomMetadata'));
+      const scope = this.browserModel.previewMode ? 'public' : 'private';
 
+      const promise = (async () => {
         const xattrsListPerFileProxy = await Promise.all(
           filesWithXattrs.map(file =>
             this.metadataManager.getMetadata(file, 'xattrs', scope))
