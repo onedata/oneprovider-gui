@@ -22,6 +22,7 @@ import {
 } from 'onedata-gui-common/utils/destroyable-computed';
 import jsonata from 'jsonata';
 import TextField from 'onedata-gui-common/utils/form-component/text-field';
+import { htmlSafe } from '@ember/string';
 
 export default Component.extend(I18n, {
   classNames: ['column-editor'],
@@ -314,6 +315,8 @@ export default Component.extend(I18n, {
           columnEditorComponent: this,
           name: this.jsonQueryFieldName,
           defaultValue: this.initialJsonQuery,
+          addColonToLabel: false,
+          label: this.jsonQueryLabel,
         });
     }
   ),
@@ -334,6 +337,14 @@ export default Component.extend(I18n, {
         });
     }
   ),
+
+  jsonQueryLabel: computed(function jsonQueryLabel() {
+    return htmlSafe(this.t('jsonQuery.label') +
+      '<br /><p class="json-query-description">' +
+      this.t('jsonQueryDescription') + ' <a href="' + this.t('jsonataLink') +
+      '" target="_blank">' + this.t('jsonataLinkText') + '</a> ' +
+      this.t('jsonQueryDescription2') + '</p>');
+  }),
 
   /**
    * @type {ComputedProperty<Boolean>}

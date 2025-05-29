@@ -53,7 +53,7 @@ export default {
   json: 'JSON',
   jsonQueryColumnLabel: 'JSON query',
   jsonQuery: {
-    label: 'Query:<br /><p class="json-query-description">Enter a query using <a href="https://docs.jsonata.org/overview.html" target="_blank">JSONata</a> syntax to extract specific information from the JSON data.</p>',
+    label: 'Query:',
   },
   columnLabel: {
     label: 'Column label',
