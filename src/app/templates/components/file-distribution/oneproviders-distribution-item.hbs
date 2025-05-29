@@ -10,7 +10,7 @@
       <RecordInfoWithIcon @record={{oneprovider}} class="oneprovider-name" />
     </div>
     <div class="distribution-row-name path-container">
-      {{#if storageFileLocation}}
+      {{#if isStorageFileLocationAvailable}}
         <ClipboardLine
           @value={{storageFileLocation}}
           @size="sm"

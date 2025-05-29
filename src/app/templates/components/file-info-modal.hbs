@@ -64,7 +64,7 @@
               </PromiseProxyContainer>
             </td>
           </tr>
-          {{#if (and (eq itemType "file") (not previewMode))}}
+          {{#if (and (or (eq itemType "file") (eq itemType "dir")) (not previewMode))}}
             <tr class="file-info-row-storage-location">
               <td class="property-name with-input{{if smallContent "-sm"}}">
                 {{tt this "storageLocations"}}

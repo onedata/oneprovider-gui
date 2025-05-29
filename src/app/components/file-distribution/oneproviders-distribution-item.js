@@ -762,11 +762,27 @@ export default Component.extend(I18n, {
         storageId,
       } = this.getProperties('locationsPerProvider', 'storageId');
       const oneproviderId = this.get('oneprovider.entityId');
-      if (locationsPerProvider && locationsPerProvider[oneproviderId].success) {
-        return locationsPerProvider[oneproviderId].locationsPerStorage[storageId];
+
+      if (locationsPerProvider) {
+        if (locationsPerProvider[oneproviderId].success) {
+          return locationsPerProvider[oneproviderId].locationsPerStorage[storageId];
+        } else {
+          return locationsPerProvider[oneproviderId].error.id;
+        }
       } else {
         return undefined;
       }
+    }
+  ),
+
+  isStorageFileLocationAvailable: computed(
+    'locationsPerProvider',
+    'storageFileLocation',
+    function isStorageFileLocationAvailable() {
+      const oneproviderId = this.get('oneprovider.entityId');
+      return this.locationsPerProvider &&
+        this.locationsPerProvider[oneproviderId].success &&
+        this.storageFileLocation;
     }
   ),
 
@@ -775,12 +791,13 @@ export default Component.extend(I18n, {
    */
   naLocationTextSpec: computed(
     'storageFileLocation',
+    'isStorageFileLocationAvailable',
     'hasSingleRegFile',
     'percentage',
     'filesSizeOnStorage',
     'hasSingleDir',
     function naLocationTextSpec() {
-      if (this.storageFileLocation) {
+      if (this.isStorageFileLocationAvailable) {
         return '';
       }
       let details = this.t('na');
@@ -791,6 +808,8 @@ export default Component.extend(I18n, {
         details = this.t('empty', { type: typeText });
       } else if (this.percentage === 0) {
         details = this.t('noReplica');
+      } else if (this.storageFileLocation === 'requiresPosixCompatibleStorage') {
+        details = this.t('nonPosix');
       } else if (this.hasSingleDir) {
         details = this.t('dirNotSupported');
         isPrefixShown = false;

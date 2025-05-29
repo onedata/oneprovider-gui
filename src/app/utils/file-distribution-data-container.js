@@ -130,11 +130,7 @@ export default EmberObject.extend(
     /**
      * @type {ComputedProperty<LocationsPerProvider>}
      */
-    storageLocationsPerProvider: conditional(
-      eq('fileType', raw('dir')),
-      null,
-      'storageLocations.locationsPerProvider'
-    ),
+    storageLocationsPerProvider: reads('storageLocations.locationsPerProvider'),
 
     /**
      * @type {Ember.ComputedProperty<Array<Models.Transfer>>}
