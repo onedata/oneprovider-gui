@@ -30,8 +30,10 @@
       </td>
     {{else}}
       <td colspan="2" class="error-cell">
-        <OneIcon @icon="sign-warning-rounded" class="inline-icon-container" />
-        {{errorMessage}}
+        <TruncatedString>
+          <OneIcon @icon="sign-warning-rounded" class="inline-icon-container" />
+          {{errorMessage}}
+        </TruncatedString>
       </td>
     {{/if}}
   </tr>
