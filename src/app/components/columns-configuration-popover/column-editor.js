@@ -339,11 +339,17 @@ export default Component.extend(I18n, {
   ),
 
   jsonQueryLabel: computed(function jsonQueryLabel() {
-    return htmlSafe(this.t('jsonQuery.label') +
+    return htmlSafe(
+      this.t('jsonQuery.label') +
       '<br /><p class="json-query-description">' +
-      this.t('jsonQueryDescription') + ' <a href="' + this.t('jsonataLink') +
-      '" target="_blank">' + this.t('jsonataLinkText') + '</a> ' +
-      this.t('jsonQueryDescription2') + '</p>');
+      this.t('jsonQueryDescription') +
+      ' <a href="' +
+      this.t('jsonataLink') +
+      '" target="_blank">' +
+      this.t('jsonataLinkText') + '</a> ' +
+      this.t('jsonQueryDescription2') +
+      '</p>'
+    );
   }),
 
   /**
