@@ -767,7 +767,7 @@ export default Component.extend(I18n, {
         if (locationsPerProvider[oneproviderId].success) {
           return locationsPerProvider[oneproviderId].locationsPerStorage[storageId];
         } else {
-          return locationsPerProvider[oneproviderId].error.id;
+          return locationsPerProvider[oneproviderId]?.error?.id;
         }
       } else {
         return undefined;
