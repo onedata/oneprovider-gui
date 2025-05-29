@@ -11,7 +11,7 @@ import EmberObject, { get, set, setProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { all as allFulfilled, reject } from 'rsvp';
-import { conditional, raw, gt, and, not, notEmpty, eq } from 'ember-awesome-macros';
+import { conditional, raw, gt, and, not, notEmpty } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
 import { computed } from '@ember/object';
