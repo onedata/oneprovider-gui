@@ -795,7 +795,6 @@ export default Component.extend(I18n, {
     'hasSingleRegFile',
     'percentage',
     'filesSizeOnStorage',
-    'hasSingleDir',
     function naLocationTextSpec() {
       if (this.isStorageFileLocationAvailable) {
         return '';
@@ -810,7 +809,7 @@ export default Component.extend(I18n, {
         details = this.t('noReplica');
       } else if (this.storageFileLocation === 'requiresPosixCompatibleStorage') {
         details = this.t('nonPosix');
-      } else if (this.hasSingleDir) {
+      } else if (this.storageFileLocation === 'notSupported') {
         details = this.t('dirNotSupported');
         isPrefixShown = false;
       }

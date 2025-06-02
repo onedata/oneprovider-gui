@@ -27,7 +27,7 @@ export default {
   na: 'not applicable',
   naTooltip: 'No replica has been created on this storage system yet.',
   emptyDirTooltip: 'This directory is empty.',
-  dirNotSupported: 'Storage location info for directories is not yet supported',
+  dirNotSupported: 'Storage location info for directories not supported in provider versions < 21.02.9',
   nonPosix: 'directories are not represented on object storage',
   unavailableDetails: unavailable + ': {{details}}',
   empty: 'this {{type}} is empty',
