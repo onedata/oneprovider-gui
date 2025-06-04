@@ -751,12 +751,12 @@ export default Component.extend(...mixins, {
 
   // TODO: VFS-9628 will contain all tab models after refactor
   allTabModels: collect(
-    'tabModels.size',
-    'tabModels.metadata',
     'tabModels.permissions',
+    'tabModels.metadata',
     'tabModels.shares',
-    'tabModels.qos',
+    'tabModels.size',
     'tabModels.distribution',
+    'tabModels.qos',
   ),
 
   // TODO: VFS-9628 will contain all tab models after refactor
@@ -781,7 +781,6 @@ export default Component.extend(...mixins, {
       const tabItems = [];
       const nonModelTabIds = [
         'general',
-        'apiSamples',
         'hardlinks',
       ];
       for (const tabId of nonModelTabIds) {
@@ -796,6 +795,11 @@ export default Component.extend(...mixins, {
         });
       });
       tabItems.push(...modelBasedTabItems);
+
+      if (this.visibleTabs.includes('apiSamples')) {
+        tabItems.push(this.builtInTabItems['apiSamples']);
+      }
+
       for (const item of tabItems) {
         const itemId = item.id;
         set(item, 'icon', this.tabItemsIcons[itemId] || null);

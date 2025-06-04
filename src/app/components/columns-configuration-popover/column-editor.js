@@ -346,7 +346,8 @@ export default Component.extend(I18n, {
       ' <a href="' +
       this.t('jsonataLink') +
       '" target="_blank">' +
-      this.t('jsonataLinkText') + '</a> ' +
+      this.t('jsonataLinkText') +
+      '</a> ' +
       this.t('jsonQueryDescription2') +
       '</p>'
     );
