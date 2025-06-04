@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12764 Improved autocomplete dropdown: better validation error display and bold highlighting of matching input fragments in the dropdown list
 * VFS-12873 Changed order of tabs in file info panel
 * VFS-12846 Fixed dropdown options for JSON keys in the column editor popover
 * VFS-12765 Fixed showing channels between transferring providers on the transfers map

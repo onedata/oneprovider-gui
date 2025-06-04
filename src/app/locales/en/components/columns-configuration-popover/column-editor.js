@@ -1,6 +1,5 @@
 export default {
   addNewColumnHeader: 'New metadata column',
-  columnNameLabel: 'Column label:',
   jsonKeyLabel: 'Top-level key:',
   jsonQueryLabel: 'Query:',
   jsonQueryDescription: 'Enter a query using',
@@ -52,5 +51,11 @@ export default {
     },
   },
   json: 'JSON',
-  jsonQuery: 'JSON query',
+  jsonQueryColumnLabel: 'JSON query',
+  jsonQuery: {
+    label: 'Query:',
+  },
+  columnLabel: {
+    label: 'Column label',
+  },
 };

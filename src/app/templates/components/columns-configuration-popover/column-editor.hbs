@@ -7,61 +7,29 @@
   </div>
 </h1>
 <PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
-  <FormComponent::FieldRenderer @field={{metadataType}} />
-  {{#if (eq metadataTypeValue "xattr")}}
-    <FormComponent::FieldRenderer @field={{xattrKeyDropdown}} />
-  {{else}}
-    <FormComponent::FieldRenderer @field={{jsonType}} />
-    {{#if (eq jsonTypeField.value "key")}}
-      <FormComponent::FieldRenderer @field={{jsonKeyDropdown}} />
-    {{else if (eq jsonTypeField.value "query")}}
-      <p>{{tt this "jsonQueryLabel"}}</p>
-      <p class="json-query-description">
-        {{tt this "jsonQueryDescription"}}
-        <a href={{tt this "jsonataLink"}} target="_blank">
-          {{tt this "jsonataLinkText"}}
-        </a>
-        {{tt this "jsonQueryDescription2"}}
-      </p>
-      <input
-        type="text"
-        class="form-control new-json-query input-sm"
-        value={{newJsonQuery}}
-        oninput={{action (mut newJsonQuery) value="target.value"}}
-        disabled={{isSaving}}
-        autofocus={{false}}
+  <form class="form form-component">
+    <FormComponent::FieldRenderer @field={{fields}} />
+    <div class="xattr-footer">
+      <OneButton
+        @type="default"
+        class="back-column-btn"
+        @size="sm"
+        @onClick={{action "goBack"}}
       >
-    {{/if}}
-  {{/if}}
-  <p>{{tt this "columnNameLabel"}}</p>
-  <input
-    type="text"
-    class="form-control new-item-name input-sm"
-    value={{newColumnName}}
-    oninput={{action "changeColumnName" value="target.value"}}
-    disabled={{isSaving}}
-    autofocus={{false}}
-  >
-  <div class="xattr-footer">
-    <OneButton
-      @type="default"
-      class="back-column-btn"
-      @size="sm"
-      @onClick={{action "goBack"}}
-    >
-      {{tt this "cancelBtn"}}
-    </OneButton>
-    <OneButton
-      @type="primary"
-      class="edit-column-btn"
-      @size="sm"
-      @onClick={{action "submitColumn"}}
-      @disabled={{isDisabledEditButton}}
-    >
-      {{tt this (if isNewColumn "addBtn" "modifyBtn")}}
-      {{#if isDisabledEditButton}}
-        <OneTooltip @title={{disabledEditButtonTooltip}} />
-      {{/if}}
-    </OneButton>
-  </div>
+        {{tt this "cancelBtn"}}
+      </OneButton>
+      <OneButton
+        @type="primary"
+        class="edit-column-btn"
+        @size="sm"
+        @onClick={{action "submitColumn"}}
+        @disabled={{isDisabledEditButton}}
+      >
+        {{tt this (if isNewColumn "addBtn" "modifyBtn")}}
+        {{#if isDisabledEditButton}}
+          <OneTooltip @title={{disabledEditButtonTooltip}} />
+        {{/if}}
+      </OneButton>
+    </div>
+  </form>
 </PromiseProxyContainer>
