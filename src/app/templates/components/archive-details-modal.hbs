@@ -17,7 +17,7 @@
       </span>
     </h1>
     <ModalArchiveSubheader @archives={{array browsableArchive}} />
-    <BsTab
+    <OneBsTab
       class="bs-tab-onedata bs-tab-modern archive-details-tabbar"
       @activeId={{activeTab}}
       @customTabs={{true}}
@@ -40,7 +40,7 @@
           </nav.item>
         {{/each}}
       </BsNav>
-    </BsTab>
+    </OneBsTab>
   </modal.header>
 
   <modal.body class="archive-details-modal-body">
