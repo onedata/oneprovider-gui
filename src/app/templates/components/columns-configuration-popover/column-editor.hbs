@@ -7,7 +7,7 @@
   </div>
 </h1>
 <PromiseProxyContainer @proxy={{xattrOptionsProxy}}>
-  <form class="form form-component">
+  <form onsubmit={{prevent-default}} class="form form-component">
     <FormComponent::FieldRenderer @field={{fields}} />
     <div class="xattr-footer">
       <OneButton
