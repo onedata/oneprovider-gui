@@ -127,11 +127,13 @@ describe('Integration | Component | share-show/edm', function () {
       // when
       await helper.render();
       const img = helper.element.querySelector('.representative-image-container img');
-      await new Promise((resolve) => {
-        img.addEventListener('error', () => {
-          resolve();
+      if (img) {
+        await new Promise((resolve) => {
+          img.addEventListener('error', () => {
+            resolve();
+          });
         });
-      });
+      }
 
       // then
       expect(
