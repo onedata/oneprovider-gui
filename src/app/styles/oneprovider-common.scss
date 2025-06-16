@@ -165,7 +165,7 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
   }
 }
 
-.modal-dialog {
+.modal {
   .modal-header .btn-group-tabs {
     // make tabs to be in the middle of the header bottom line
     position: relative;
@@ -185,6 +185,7 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
       margin-right: 0;
     }
   }
+
   // turn on special decoration, because shadow of header is off when on top
   &.scroll-on-top {
     .modal-header .btn-group-tabs {
