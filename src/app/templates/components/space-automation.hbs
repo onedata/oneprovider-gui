@@ -77,8 +77,8 @@
         </bsTab.pane>
       {{/each}}
       <bsTab.pane
-        @id="preview" class="preview-run-tab"
-        class="fill-flex-using-column"
+        @id="preview"
+        class="fill-flex-using-column preview-run-tab"
       >
         {{#if (and (eq bsTab.activeId "preview") atmWorkflowExecutionIdInPreview)}}
           <SpaceAutomation::AtmWorkflowExecutionPreview
