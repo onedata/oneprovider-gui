@@ -1,4 +1,4 @@
-<BsTab
+<OneBsTab
   @fade={{false}}
   class="bs-tab bs-tab-onedata bs-tab-modern throughput-chart-tab"
   @customTabs={{true}}
@@ -45,7 +45,7 @@
     </OneSwitchablePopoverModal>
   </BsNav>
   <div class="tab-content no-vertical-padding">
-    <tab.pane @elementId="throughput-chart-tab-pane">
+    <tab.pane @id="throughput-chart-tab-pane">
       <SpaceTransfers::ThroughputDistribution
         @space={{space}}
         @providers={{providers}}
@@ -54,4 +54,4 @@
       />
     </tab.pane>
   </div>
-</BsTab>
+</OneBsTab>

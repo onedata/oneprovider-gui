@@ -1,5 +1,5 @@
 <PromiseProxyContainer @proxy={{initialTabProxy}} @sizeClass="lg">
-  <BsTab
+  <OneBsTab
     class="bs-tab bs-tab-onedata bs-tab-modern space-automation-tabs fill-flex-using-column"
     @fade={{false}}
     @customTabs={{true}}
@@ -63,7 +63,7 @@
     </BsNav>
     <div class="tab-content no-vertical-padding fill-flex-using-column">
       {{#each atmWorkflowExecutionPhases as |tabId|}}
-        <bsTab.pane @elementId={{tabId}}>
+        <bsTab.pane @id={{tabId}} class={{concat tabId "-runs-tab"}}>
           {{#if (eq bsTab.activeId tabId)}}
             <div class="row loadable-row">
               <SpaceAutomation::AtmWorkflowExecutionsTable
@@ -77,8 +77,8 @@
         </bsTab.pane>
       {{/each}}
       <bsTab.pane
-        @elementId="preview"
-        class="fill-flex-using-column"
+        @id="preview"
+        class="fill-flex-using-column preview-run-tab"
       >
         {{#if (and (eq bsTab.activeId "preview") atmWorkflowExecutionIdInPreview)}}
           <SpaceAutomation::AtmWorkflowExecutionPreview
@@ -89,7 +89,7 @@
           />
         {{/if}}
       </bsTab.pane>
-      <bsTab.pane @elementId="create">
+      <bsTab.pane @id="create" class="create-run-tab">
         {{#if (eq bsTab.activeId "create")}}
           <div class="row">
             <div class="col-xs-12">
@@ -106,5 +106,5 @@
         {{/if}}
       </bsTab.pane>
     </div>
-  </BsTab>
+  </OneBsTab>
 </PromiseProxyContainer>

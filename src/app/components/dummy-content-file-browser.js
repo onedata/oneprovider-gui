@@ -69,7 +69,8 @@ export default Component.extend({
       .create({
         ownerSource: this,
         previewMode: false,
-        openRemove: this.immediatelyRemove.bind(this),
+        openRemove: this.openRemoveModal.bind(this),
+        openRename: this.openRenameModal.bind(this),
       }));
     // list of tests
     // this.testJumpToVisible(null, 3, 6);
@@ -140,24 +141,23 @@ export default Component.extend({
     this.set('selectedItemsForJump', [otherFile]);
   },
 
-  immediatelyRemove(files, parentDir) {
-    const {
-      onedataGraph,
-      fileManager,
-    } = this.getProperties('onedataGraph', 'fileManager');
-    const parentEntityId = get(parentDir, 'entityId');
-    files.forEach(f => {
-      onedataGraph.removeMockChild(
-        parentEntityId,
-        get(f, 'entityId')
-      );
-    });
-    fileManager.dirChildrenRefresh(parentEntityId);
+  openRemoveModal(files) {
+    this.set('filesToRemove', files);
+  },
+
+  openRenameModal(file) {
+    this.set('fileToRename', file);
   },
 
   actions: {
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
+    },
+    closeRemoveModal() {
+      this.set('filesToRemove', null);
+    },
+    closeRenameModal() {
+      this.set('fileToRename', null);
     },
   },
 });

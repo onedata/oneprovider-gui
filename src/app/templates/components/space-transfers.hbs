@@ -2,7 +2,7 @@
   <PromiseProxyContainer @proxy={{providersProxy}}>
     {{#if isSupportedByOngoingProvider}}
       {{#if (or (lt windowWidth 1320) (lt windowHeight 800))}}
-        <BsTab
+        <OneBsTab
           @fade={{false}}
           class="bs-tab bs-tab-onedata bs-tab-modern transfers-tab"
           @customTabs={{true}}
@@ -46,7 +46,7 @@
               (if (eq transfersTabType "map") "full-width-map")
             }}
           >
-            <bsTab.pane @elementId="transfers-tab-pane">
+            <bsTab.pane @id="transfers-tab-pane">
               {{#if (eq transfersTabType "list")}}
                 <div
                   class="providers-table providers-container-border"
@@ -82,7 +82,7 @@
               {{/if}}
             </bsTab.pane>
           </div>
-        </BsTab>
+        </OneBsTab>
       {{else}}
         <SpaceTransfers::TransfersOverview
           @space={{space}}
