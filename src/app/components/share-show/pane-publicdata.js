@@ -21,9 +21,21 @@ import { allSettled } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import _ from 'lodash';
 
 /**
  * @typedef {'show'|'edit'|'create'} MetadataEditorEditMode
+ */
+
+/**
+ * Data for generating default XML metadata. It can be intepreted in various ways
+ * by the specific metadata editor (eg. Dublin Core, EDM)
+ * @typedef {Object} PublicDataInitialMetadata
+ * @property {string} title
+ * @property {string} creator
+ * @property {string} description
+ * @property {string} date
+ * @property {string} shareUrl
  */
 
 export default Component.extend(I18n, {
@@ -94,9 +106,30 @@ export default Component.extend(I18n, {
    * @type {Array<HandleModel.MetadataType>}
    */
   metadataTypes: Object.freeze([
-    MetadataType.Dc,
+    MetadataType.DublinCore,
     MetadataType.Edm,
+    MetadataType.DataCite,
   ]),
+
+  metadataTypeOptions: computed('metadataTypes', function metadataTypeOptions() {
+    const options = this.metadataTypes.map(metadataType => {
+      return {
+        id: metadataType,
+        label: this.t(`publishWelcome.metadataTypes.${metadataType}`),
+      };
+    });
+    return _.sortBy(options, 'label');
+  }),
+
+  selectedMetadataTypeOption: computed(
+    'metadataTypeOptions',
+    'selectedMetadataType',
+    function selectedMetadataTypeOption() {
+      return this.metadataTypeOptions.find(option =>
+        option.id === this.selectedMetadataType
+      );
+    }
+  ),
 
   isEdmMetadataType: eq('selectedMetadataType', raw(MetadataType.Edm)),
 
@@ -135,10 +168,8 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * Data for generating default XML metadata. It can be intepreted in various ways
-   * by the specific metadata editor (eg. Dublin Core, EDM)
    * No dependent keys, because it should be computed once.
-   * @type {ComputedProperty<Object>}
+   * @type {ComputedProperty<PublicDataInitialMetadata}>}
    */
   initialData: computed(function initialData() {
     return {
@@ -247,6 +278,9 @@ export default Component.extend(I18n, {
           metadataString: xml,
           handleServiceId: get(this.selectedHandleService, 'entityId'),
         });
+      } catch (handleCreationError) {
+        this.globalNotify.backendError(this.t('exposingMetadata'), handleCreationError);
+        throw handleCreationError;
       } finally {
         try {
           this.appProxy.callParent('reloadShareList');
@@ -278,6 +312,9 @@ export default Component.extend(I18n, {
     },
     changeDcViewMode(mode) {
       this.set('dcViewMode', mode);
+    },
+    selectMetadataTypeOption({ id }) {
+      this.set('selectedMetadataType', id);
     },
   },
 });

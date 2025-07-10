@@ -361,12 +361,14 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
         <dc:subject>a</dc:subject>
         <dc:type>some type</dc:type>
         <dcterms:created>2024-08-13</dcterms:created>
-        <dcterms:medium>Wood</dcterms:medium>
+        <dcterms:isPartOf>EUreka3D</dcterms:isPartOf>
+        <dcterms:medium rdf:resource="http://vocab.getty.edu/aat/300011914"/>
         <edm:type>VIDEO</edm:type>
     </edm:ProvidedCHO>
     <edm:WebResource>
         <dc:description xml:lang="en">Short description of a web resource.</dc:description>
         <dc:type>Photogrammetric mesh model</dc:type>
+        <dcterms:extent>9.5 KB</dcterms:extent>
     </edm:WebResource>
     <ore:Aggregation>
         <edm:dataProvider>Some data provider</edm:dataProvider>
@@ -375,3 +377,99 @@ export const exampleEdmValidXml = `<?xml version="1.0" encoding="UTF-8"?>
         <edm:rights rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/"/>
     </ore:Aggregation>
 </rdf:RDF>`;
+
+export const exampleDataCiteMetadata = `<resource
+  xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd"
+>
+  <identifier identifierType="DOI">10.5072/example-full</identifier>
+  <creators>
+  </creators>
+  <titles>
+  </titles>
+  <publisher>DataCite</publisher>
+  <publicationYear>2014</publicationYear>
+  <subjects>
+  </subjects>
+  <contributors>
+  </contributors>
+  <dates>
+  </dates>
+  <language>en-US</language>
+  <resourceType resourceTypeGeneral="Software">XML</resourceType>
+  <alternateIdentifiers>
+    <alternateIdentifier alternateIdentifierType="URL">
+      https://schema.datacite.org/meta/kernel-4.1/example/datacite-example-full-v4.1.xml
+    </alternateIdentifier>
+  </alternateIdentifiers>
+  <relatedIdentifiers>
+    <relatedIdentifier relatedIdentifierType="URL" relationType="HasMetadata"
+      relatedMetadataScheme="citeproc+json"
+      schemeURI="https://github.com/citation-style-language/schema/raw/master/csl-data.json">
+      https://data.datacite.org/application/citeproc+json/10.5072/example-full
+    </relatedIdentifier>
+    <relatedIdentifier relatedIdentifierType="arXiv" relationType="IsReviewedBy"
+      resourceTypeGeneral="Text">arXiv:0706.0001</relatedIdentifier>
+    </relatedIdentifiers>
+  <sizes>
+    <size>4 kB</size>
+  </sizes>
+  <formats>
+    <format>application/xml</format>
+  </formats>
+  <version>4.1</version>
+  <rightsList>
+    <rights xml:lang="en-US" rightsURI="http://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0
+      Universal</rights>
+  </rightsList>
+  <descriptions>
+    <description xml:lang="en-US" descriptionType="Abstract">
+      XML example of all DataCite Metadata Schema v4.1 properties.
+    </description>
+  </descriptions>
+  <geoLocations>
+    <geoLocation>
+      <geoLocationPlace>Atlantic Ocean</geoLocationPlace>
+      <geoLocationPoint>
+        <pointLongitude>-67.302</pointLongitude>
+        <pointLatitude>31.233</pointLatitude>
+      </geoLocationPoint>
+      <geoLocationBox>
+        <westBoundLongitude>-71.032</westBoundLongitude>
+        <eastBoundLongitude>-68.211</eastBoundLongitude>
+        <southBoundLatitude>41.090</southBoundLatitude>
+        <northBoundLatitude>42.893</northBoundLatitude>
+      </geoLocationBox>
+      <geoLocationPolygon>
+        <polygonPoint>
+          <pointLatitude>41.991</pointLatitude>
+          <pointLongitude>-71.032</pointLongitude>
+        </polygonPoint>
+        <polygonPoint>
+          <pointLatitude>42.893</pointLatitude>
+          <pointLongitude>-69.622</pointLongitude>
+        </polygonPoint>
+        <polygonPoint>
+          <pointLatitude>41.991</pointLatitude>
+          <pointLongitude>-68.211</pointLongitude>
+        </polygonPoint>
+        <polygonPoint>
+          <pointLatitude>41.090</pointLatitude>
+          <pointLongitude>-69.622</pointLongitude>
+        </polygonPoint>
+        <polygonPoint>
+          <pointLatitude>41.991</pointLatitude>
+          <pointLongitude>-71.032</pointLongitude>
+        </polygonPoint>
+      </geoLocationPolygon>
+    </geoLocation>
+  </geoLocations>
+  <fundingReferences>
+    <fundingReference>
+      <funderName>National Science Foundation</funderName>
+      <funderIdentifier funderIdentifierType="Crossref Funder ID">https://doi.org/10.13039/100000001</funderIdentifier>
+      <awardNumber>CBET-106</awardNumber>
+      <awardTitle>Full DataCite XML Example</awardTitle>
+    </fundingReference>
+  </fundingReferences>
+</resource>
+`;

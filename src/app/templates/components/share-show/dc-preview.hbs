@@ -2,7 +2,7 @@
   <div class="metadata-header-section-content">
     <h1 class="section-name">
       {{tt this (if (media "isMobile") "common.metadataMobile" "common.metadata")}}
-      <OneLabelTip @title={{tt this "common.metadataPublicHeaderTip.dc"}} />
+      <OneLabelTip @title={{tt this "common.metadataPublicHeaderTip"}} />
     </h1>
     <ShareShow::PublicDataModeSwitch @mode={{mode}} @onModeChange={{action changeMode}} />
     {{#unless isPublicView}}
@@ -14,7 +14,7 @@
           @disabled={{isModifyDisabled}}
         >
           <OneIcon @icon="browser-rename" />
-          {{t "components.shareShow.modifyButton"}}
+          {{tt this "common.modify"}}
         </OneButton>
         {{#if modifyDisabledTip}}
           <OneTooltip @title={{modifyDisabledTip}} />

@@ -17,13 +17,15 @@ export default {
     metadataTypeText: 'Choose the metadata type for the record',
     metadataTypeMore: {
       intro: 'Metadata provides detailed information about the Public Data record for its consumers and is used for indexing in Public Data search engines. Onedata supports the following metadata formats:',
-      dublinCore: '<strong>Dublin Core (DC)</strong> – an open, interchangeable metadata standard for describing online resources; it is developed by the Dublin Core Metadata Initiative,',
+      dublinCore: '<strong>Dublin Core (DC)</strong> – an open, interchangeable metadata standard for describing online resources; it is developed by the Dublin Core Metadata Initiative.',
       edm: '<strong>Europeana Data Model (EDM)</strong> – a standardized data model developed by Europeana, the European digital library; provides a comprehensive and semantically rich framework for describing cultural heritage resources.',
+      dataCite: '<strong>DataCite</strong> – a metadata standard maintained by The Metadata Working Group in consultation with DataCite members and under the guidance of the DataCite Board; consists of core metadata properties chosen for an accurate and consistent identification of a resource citation and retrieval purposes.',
       outro: 'The metadata will be registered alongside the persistent identifier and visible in Public Data indexing services.',
     },
     metadataTypes: {
-      [MetadataType.Dc]: 'Dublin Core',
+      [MetadataType.DublinCore]: 'Dublin Core',
       [MetadataType.Edm]: 'Europeana Data Model',
+      [MetadataType.DataCite]: 'DataCite',
     },
     publishButton: 'Proceed',
     selectHandleAndTypeFirst: 'Select handle service and metadata type first',
@@ -32,5 +34,6 @@ export default {
     title: 'No handle services available',
     content: noHandleServicesText,
   },
-  modifyingMetadata: 'modifying metadata',
+  modifyingMetadata: 'modifying the metadata',
+  exposingMetadata: 'exposing the metadata',
 };

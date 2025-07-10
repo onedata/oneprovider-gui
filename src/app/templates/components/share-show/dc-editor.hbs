@@ -8,7 +8,7 @@
     <h1 class="section-name">
       {{tt this (if (media "isMobile") "common.metadataMobile" "common.metadata")}}
       {{#if (media "isMobile")}}
-        <OneLabelTip @title={{tt this "common.metadataPublicHeaderTip.dc"}} />
+        <OneLabelTip @title={{tt this "common.metadataPublicHeaderTip"}} />
       {{/if}}
     </h1>
     <ShareShow::PublicDataModeSwitch @mode={{mode}} @onModeChange={{action changeMode}} />
@@ -20,9 +20,9 @@
           @disabled={{true}}
         >
           <OneIcon @icon="browser-rename" />
-          {{t "components.shareShow.modifyButton"}}
+          {{tt this "common.modify"}}
         </OneButton>
-        <OneTooltip @title={{t "components.shareShow.modifyingButtonTip"}} />
+        <OneTooltip @title={{tt this "editor.modifyingButtonTip"}} />
       </div>
     {{/if}}
   </div>
@@ -31,10 +31,10 @@
 {{#unless (media "isMobile")}}
   <div class={{concat-classes colClassname "col-public-data-editor-additional"}}>
     <p class="metadata-text">
-      {{tt this "common.metadataEditorIntro"}}
+      {{tt this "editor.metadataEditorIntro"}}
     </p>
     <p class="metadata-text">
-      {{tt this "common.metadataEditorIntroExtra.dc"}}
+      {{tt this "editor.metadataEditorIntroExtra"}}
       <OneLabelTip @title={{tt this "editor.metadataTextMore"}} />
     </p>
   </div>
@@ -139,7 +139,7 @@
           oninput={{action "updateXml" value="target.value"}}
           placeholder={{tt this "editor.xmlTextareaPlaceholder"}}
           disabled={{formDisabled}}
-          class="no-resize code-textarea public-data-xml-textarea form-control"
+          class="no-resize code-textarea public-data-xml-textarea form-control metadata-xml-source-textarea"
         ></textarea>
         <div class="form-message text-right">
           {{#if parserError}}

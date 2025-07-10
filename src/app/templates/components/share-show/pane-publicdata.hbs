@@ -14,7 +14,20 @@
           @shareRootFile={{rootFileProxy.content}}
           @onChangeEditMode={{action "changeEditMode"}}
         />
+      {{else if (eq selectedMetadataType MetadataType.DataCite)}}
+        <ShareShow::DataCite
+          class="fill-flex-using-column"
+          @xmlValue={{this.xml}}
+          @isPublished={{true}}
+          @isReadOnly={{not this.isModifyingExistingMetadata}}
+          @isPublicView={{this.publicMode}}
+          @space={{this.space}}
+          @onModify={{action "modifyMetadata"}}
+          @onBack={{action "back"}}
+          @onChangeEditMode={{action "changeEditMode"}}
+        />
       {{else}}
+        {{!-- Dublin Core is treated also as a fallback --}}
         {{#if (and (not publicMode) isModifyingExistingMetadata)}}
           <ShareShow::DcEditor
             @xmlValue={{xml}}
@@ -107,6 +120,7 @@
                   <p>{{tt this "publishWelcome.metadataTypeMore.intro"}}</p>
                   <p>{{tt this "publishWelcome.metadataTypeMore.dublinCore"}}</p>
                   <p>{{tt this "publishWelcome.metadataTypeMore.edm"}}</p>
+                  <p>{{tt this "publishWelcome.metadataTypeMore.dataCite"}}</p>
                   <p>{{tt this "publishWelcome.metadataTypeMore.outro"}}</p>
                 </OneLabelTip>
               </p>
@@ -115,15 +129,15 @@
                   @triggerClass="select-metadata-type"
                   @dropdownClass="select-metadata-type"
                   @placeholder={{tt this "publishWelcome.selectMetadataTypePlaceholder"}}
-                  @selected={{selectedMetadataType}}
-                  @options={{metadataTypes}}
+                  @selected={{this.selectedMetadataTypeOption}}
+                  @options={{this.metadataTypeOptions}}
                   @searchEnabled={{false}}
-                  @onChange={{action (mut selectedMetadataType)}}
-                  as |metadataType|
+                  @onChange={{action "selectMetadataTypeOption"}}
+                  as |option|
                 >
                   <div class="option-container">
                     <TruncatedString>
-                      {{tt this (concat "publishWelcome.metadataTypes." metadataType)}}
+                      {{option.label}}
                     </TruncatedString>
                   </div>
                 </AdaptiveDropdown>
@@ -146,7 +160,20 @@
                   @onSubmit={{action "submit"}}
                   @onBack={{action "back"}}
                 />
-              {{else if (eq selectedMetadataType MetadataType.Dc)}}
+              {{else if (eq selectedMetadataType MetadataType.DataCite)}}
+                <ShareShow::DataCite
+                  class="full-height"
+                  @handleService={{this.selectedHandleService}}
+                  @isReadOnly={{false}}
+                  @isPublished={{false}}
+                  @isPublicView={{false}}
+                  @initialData={{this.initialData}}
+                  @onUpdateXml={{action "updateXml"}}
+                  @onSubmit={{action "submit"}}
+                  @onBack={{action "back"}}
+                />
+              {{else}}
+                {{!-- Dublin Core is treated also as a fallback --}}
                 <ShareShow::DcEditor
                   @xmlValue={{xml}}
                   @initialData={{initialData}}

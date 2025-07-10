@@ -39,6 +39,7 @@ import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
   exampleEdmMetadata,
+  exampleDataCiteMetadata,
 } from 'oneprovider-gui/utils/mock-data';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
@@ -56,18 +57,22 @@ const fullName = 'Stub user';
 const username = 'admin';
 
 const metadataMixinMap = {
-  dc: {
+  [MetadataType.DublinCore]: {
     metadataString: exampleDublinCore,
-    metadataPrefix: MetadataType.Dc,
+    metadataPrefix: MetadataType.DublinCore,
   },
-  edm: {
+  [MetadataType.Edm]: {
     metadataString: exampleEdmMetadata,
     metadataPrefix: MetadataType.Edm,
+  },
+  [MetadataType.DataCite]: {
+    metadataString: exampleDataCiteMetadata,
+    metadataPrefix: MetadataType.DataCite,
   },
 };
 
 // Set dc or edm from metatadataMixins for share with Public Data
-const metadataMixin = metadataMixinMap.edm;
+const metadataMixin = metadataMixinMap[MetadataType.DublinCore];
 
 const modelTypes = [
   'provider',

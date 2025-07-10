@@ -1,0 +1,84 @@
+<div
+  class={{concat-classes
+    "share-show-data-cite"
+    "public-data-metadata-editor"
+    "form-group"
+    (if this.isReadOnly "readonly")
+  }}
+  ...attributes
+>
+  <div class={{concat-classes "col-data-cite-editor full-height" this.colClassname}}>
+    <div class="metadata-header-section-content">
+      <h1 class="section-name main-header">
+        {{tt this "header"}}
+        {{#unless this.isIntroVisible}}
+          <OneLabelTip @title={{tt this "readonlyHeaderTip"}} />
+        {{/unless}}
+      </h1>
+      <ShareShow::PublicDataModeSwitch
+        @mode="xml"
+        @isVisualModeDisabled={{true}}
+        @visualModeTip={{tt this (concat "visualNotAvailable." this.editMode)}}
+      />
+      {{#if this.isModifyButtonShown}}
+        <div class="btn-tooltip-container">
+          <OneButton
+            class="modify-metadata-btn"
+            @onClick={{this.startModify}}
+            @size="sm"
+            @disabled={{this.isModifyDisabled}}
+          >
+            <OneIcon @icon="browser-rename" />
+            {{tt this "modify"}}
+          </OneButton>
+          {{#if this.modifyDisabledTip}}
+            <OneTooltip @title={{this.modifyDisabledTip}} />
+          {{/if}}
+        </div>
+      {{/if}}
+    </div>
+    {{#if this.isIntroVisible}}
+      <p class="metadata-text">
+        {{tt this "metadataEditorIntro"}}
+      </p>
+      <p class="metadata-text">
+        {{tt this "introExtra"}}
+        <OneLabelTip @title={{tt this "introTip"}} />
+      </p>
+    {{/if}}
+
+    <EmberAce
+      class="ember-ace ember-ace-data-cite-source"
+      @editorClass="full-height"
+      @value={{this.currentXmlValue}}
+      @worker="ace/mode/xml_worker"
+      @mode="ace/mode/xml"
+      @theme="ace/theme/textmate"
+      @tabSize={{4}}
+      @useWrapMode={{true}}
+      @highlightActiveLine={{true}}
+      @showLineNumbers={{true}}
+      @showPrintMargin={{false}}
+      @readOnly={{or this.isReadOnly this.isEffDisabled}}
+      @ready={{this.aceEditorReady}}
+      @update={{this.sourceChanged}}
+    />
+
+    {{#unless this.isReadOnly}}
+      <ShareShow::MetadataEditorFooter
+        @isSubmitDisabled={{this.isSubmitDisabled}}
+        @submitButtonTip={{this.submitDisabledReason}}
+        @handleService={{this.handleService}}
+        @editMode={{this.editMode}}
+        @isEditorModified={{this.isModified}}
+        @onCancel={{this.back}}
+        @onSubmit={{this.submit}}
+      />
+    {{/unless}}
+  </div>
+  {{#if this.isPublicDataLogoShown}}
+    <div class="col-md-4 col-lg-5 col-public-data-logo">
+      <div class="public-data-logo"></div>
+    </div>
+  {{/if}}
+</div>

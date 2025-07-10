@@ -41,7 +41,7 @@ export default Service.extend({
     share,
     handleServiceId,
     metadataString,
-    metadataPrefix = MetadataType.Dc,
+    metadataPrefix = MetadataType.DublinCore,
   } = {}) {
     const handle = this.store.createRecord('handle', {
       metadataPrefix,

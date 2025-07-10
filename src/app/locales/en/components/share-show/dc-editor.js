@@ -1,9 +1,7 @@
-import { editorHeaderTipCommon } from './dc-common';
+import common from './-common';
 
 // NOTE: This is a mixin to extend dc-common translations
 export default {
-  publishingData: 'publishing',
-  publish: 'Publish',
   xmlTextareaPlaceholder: 'Type Dublin Core XML metadata here...',
   add: 'Add another',
   inputPlaceholder: 'Enter {{type}}...',
@@ -11,5 +9,8 @@ export default {
   moreElements: 'Add more elements...',
   back: 'Back',
   xmlParserError: 'XML is not valid',
-  metadataTextMore: `${editorHeaderTipCommon} You may use the visual editor that will generate the DC XML metadata for you.`,
+  metadataTextMore: `${common.editorHeaderTipCommon} You may use the visual editor that will generate the DC XML metadata for you.`,
+  metadataEditorIntro: common.metadataEditorIntro,
+  metadataEditorIntroExtra: common.metadataEditorIntroExtra.dc,
+  modifyingButtonTip: common.modifyingButtonTip,
 };
