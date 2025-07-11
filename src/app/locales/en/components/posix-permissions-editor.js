@@ -12,7 +12,7 @@ export default {
   entitiesTip: {
     user: 'Permissions for the owner of the file. For new files, the creator becomes the owner.',
     group: 'Permissions for all space members, applied for users other than the owner.',
-    other: 'Permissions for anonymous guests accessing the file via a Share (imposes read-only mode; the write permission is always ignored).',
+    other: 'Permissions for anonymous guests accessing the file via a share (imposes read-only mode; the write permission is always ignored).',
   },
   permissions: {
     read: 'Read',

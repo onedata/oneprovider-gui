@@ -8,7 +8,7 @@ export default {
     item: 'item',
   },
   rootFileTip: {
-    [ShareFileErrorType.NotFound]: 'This Share points to a deleted {{fileType}}',
+    [ShareFileErrorType.NotFound]: 'This share points to a deleted {{fileType}}',
     [ShareFileErrorType.NoAccess]: 'You don\'t have access to the space path where the shared data resides',
     [ShareFileErrorType.OtherError]: 'Cannot resolve the space path where the shared data resides',
   },

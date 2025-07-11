@@ -21,7 +21,7 @@ export default {
       simpleMulti: 'You are about to delete <strong>{{count}}</strong> archives created from <strong>{{datasetName}}</strong> dataset.',
     },
     irreversibleWarning: 'This operation is irreversible. All the data in {{archivesText}} will be lost.',
-    nestedSharesInfo: 'In case any nested file or directory is shared, this operation will make the Share detached.',
+    nestedSharesInfo: 'In case any nested file or directory is shared, this operation will make the share detached.',
     toContinueRetype: 'To continue, retype following text into confirmation box:',
     confirmationPlaceholder: 'Type the confirmation text...',
     confirmation: {

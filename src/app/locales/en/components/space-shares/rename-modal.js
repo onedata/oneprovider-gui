@@ -1,7 +1,7 @@
 export default {
-  renaming: 'renaming the Share',
+  renaming: 'renaming the share',
   proceed: 'Rename',
   cancel: 'Cancel',
-  headerText: 'Rename Share',
-  intro: 'Enter new Share name',
+  headerText: 'Rename share',
+  intro: 'Enter new share name',
 };
