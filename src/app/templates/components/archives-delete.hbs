@@ -45,7 +45,7 @@
         <p class="delete-retype-text">
           <strong>{{confirmationSourceText}}</strong>
         </p>
-        <form class="form form-horizontal">
+        <form onsubmit={{prevent-default}} class="form form-horizontal">
           <input
             class="form-control confirmation-input"
             type="text"

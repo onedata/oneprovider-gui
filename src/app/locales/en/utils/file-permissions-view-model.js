@@ -6,7 +6,7 @@ export default {
   systemSubjectDescription: {
     group: 'space members',
     everyone: 'including anonymous',
-    anonymous: 'public Share access',
+    anonymous: 'public share access',
   },
   readonlyDueToMetadataIsProtected: 'At least one selected element metadata is write protected.',
   readonlyDueToAclRules: 'Current ACL rules do not allow you to edit ACL.',

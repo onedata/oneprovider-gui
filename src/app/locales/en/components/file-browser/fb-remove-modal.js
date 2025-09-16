@@ -16,7 +16,7 @@ export default {
     multi: 'these {{count}} items?',
     multiMany: '{{count}} selected items?',
   },
-  questionNestedSharesInfo: 'In case any nested file or directory is shared, this operation will make the Share detached.',
+  questionNestedSharesInfo: 'In case any nested file or directory is shared, this operation will make the share detached.',
   sharesCountInfo: {
     forOneSelected: {
       andOneShared: {
@@ -33,8 +33,8 @@ export default {
       },
       andManyShared: {
         prefix: 'The selection contains {{filesCount}} elements that are shared at least once – ',
-        suffixOneShare: '1 Share in total.',
-        suffixManyShares: '{{sharesCount}} Shares in total.',
+        suffixOneShare: '1 share in total.',
+        suffixManyShares: '{{sharesCount}} shares in total.',
       },
     },
   },
@@ -43,12 +43,12 @@ export default {
     forManySharedPrefix: 'Removing the elements will ',
     suffix: {
       forOneShare: {
-        withPrivileges: 'remove that Share.',
-        withoutPrivileges: 'make that Share detached, as you do not have privileges to delete Shares in this space.',
+        withPrivileges: 'remove that share.',
+        withoutPrivileges: 'make that share detached, as you do not have privileges to delete shares in this space.',
       },
       forManyShares: {
-        withPrivileges: 'remove these Shares.',
-        withoutPrivileges: 'make the Shares detached, as you do not have privileges to delete Shares in this space.',
+        withPrivileges: 'remove these shares.',
+        withoutPrivileges: 'make the shares detached, as you do not have privileges to delete shares in this space.',
       },
     },
   },

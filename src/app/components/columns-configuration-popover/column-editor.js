@@ -21,6 +21,8 @@ import {
   initDestroyableCache,
 } from 'onedata-gui-common/utils/destroyable-computed';
 import jsonata from 'jsonata';
+import TextField from 'onedata-gui-common/utils/form-component/text-field';
+import { htmlSafe } from '@ember/string';
 
 export default Component.extend(I18n, {
   classNames: ['column-editor'],
@@ -131,7 +133,12 @@ export default Component.extend(I18n, {
   /**
    * @type {string}
    */
-  newJsonQuery: '',
+  columnLabelFieldName: 'columnLabel',
+
+  /**
+   * @type {string}
+   */
+  jsonQueryFieldName: 'jsonQuery',
 
   /**
    * @type {string}
@@ -166,7 +173,7 @@ export default Component.extend(I18n, {
       } else if (this.jsonTypeField.value === 'all') {
         return String(this.t('json'));
       } else if (this.jsonTypeField.value === 'query') {
-        return String(this.t('jsonQuery'));
+        return String(this.t('jsonQueryColumnLabel'));
       } else {
         return this.jsonKeyDropdownField.value;
       }
@@ -186,26 +193,13 @@ export default Component.extend(I18n, {
           i18nPrefix: this.i18nPrefix,
           size: 'sm',
           fields: [
-            this.xattrKeyDropdownField,
             this.metadataTypeField,
+            this.xattrKeyDropdownField,
             this.jsonTypeField,
             this.jsonKeyDropdownField,
+            this.jsonQueryField,
+            this.columnLabelField,
           ],
-        });
-    }
-  ),
-
-  xattrKeyDropdownField: computed(
-    function xattrKeyDropdownField() {
-      return AutocompleteDropdownField
-        .extend({
-          options: reads('columnEditorComponent.xattrOptions'),
-        })
-        .create({
-          columnEditorComponent: this,
-          name: this.xattrKeyFieldName,
-          defaultValue: this.initialXattrKey,
-          isOptional: true,
         });
     }
   ),
@@ -238,11 +232,39 @@ export default Component.extend(I18n, {
    */
   metadataTypeValue: reads('metadataTypeField.value'),
 
+  xattrKeyDropdownField: computed(
+    function xattrKeyDropdownField() {
+      return AutocompleteDropdownField
+        .extend({
+          options: reads('columnEditorComponent.xattrOptions'),
+          isVisible: computed(
+            'columnEditorComponent.metadataTypeValue',
+            function isVisible() {
+              return this.columnEditorComponent.metadataTypeValue === 'xattr';
+            }
+          ),
+        })
+        .create({
+          columnEditorComponent: this,
+          name: this.xattrKeyFieldName,
+          defaultValue: this.initialXattrKey,
+        });
+    }
+  ),
+
   /**
    * @type {ComputedProperty<Utils.FormComponent.RadioField>}
    */
   jsonTypeField: computed(function jsonTypeField() {
     return RadioField
+      .extend({
+        isVisible: computed(
+          'columnEditorComponent.metadataTypeValue',
+          function isVisible() {
+            return this.columnEditorComponent.metadataTypeValue === 'json';
+          }
+        ),
+      })
       .create({
         columnEditorComponent: this,
         name: this.jsonTypeFieldName,
@@ -261,42 +283,74 @@ export default Component.extend(I18n, {
       return AutocompleteDropdownField
         .extend({
           options: reads('columnEditorComponent.jsonKeyOptions'),
+          isVisible: computed(
+            'columnEditorComponent.{metadataTypeValue,jsonTypeField.value}',
+            function isVisible() {
+              return this.columnEditorComponent.metadataTypeValue === 'json' &&
+                this.columnEditorComponent.jsonTypeField.value === 'key';
+            }
+          ),
         })
         .create({
           columnEditorComponent: this,
           name: this.jsonKeyFieldName,
           defaultValue: this.initialJsonKey,
-          isOptional: true,
         });
     }
   ),
 
-  /**
-   * @type {ComputedProperty<Utils.FormComponent.FormElement>}
-   */
-  xattrKeyDropdown: computed('fields', 'xattrKeyFieldName', function xattrKeyDropdown() {
-    return this.fields.getFieldByPath(this.xattrKeyFieldName);
-  }),
+  jsonQueryField: computed(
+    function jsonQueryField() {
+      return TextField
+        .extend({
+          isVisible: computed(
+            'columnEditorComponent.{metadataTypeValue,jsonTypeField.value}',
+            function isVisible() {
+              return this.columnEditorComponent.metadataTypeValue === 'json' &&
+                this.columnEditorComponent.jsonTypeField.value === 'query';
+            }
+          ),
+        })
+        .create({
+          columnEditorComponent: this,
+          name: this.jsonQueryFieldName,
+          defaultValue: this.initialJsonQuery,
+          addColonToLabel: false,
+          label: this.jsonQueryLabel,
+        });
+    }
+  ),
 
-  /**
-   * @type {ComputedProperty<Utils.FormComponent.FormElement>}
-   */
-  metadataType: computed('fields', 'metadataTypeFieldName', function metadataType() {
-    return this.fields.getFieldByPath(this.metadataTypeFieldName);
-  }),
+  columnLabelField: computed(
+    function columnLabelField() {
+      return TextField
+        .extend({
+          valueChanged(value) {
+            this._super(...arguments);
+            this.columnEditorComponent.changeColumnName(value);
+          },
+          value: reads('columnEditorComponent.newColumnName'),
+        })
+        .create({
+          columnEditorComponent: this,
+          name: this.columnLabelFieldName,
+        });
+    }
+  ),
 
-  /**
-   * @type {ComputedProperty<Utils.FormComponent.FormElement>}
-   */
-  jsonType: computed('fields', 'jsonTypeFieldName', function jsonType() {
-    return this.fields.getFieldByPath(this.jsonTypeFieldName);
-  }),
-
-  /**
-   * @type {ComputedProperty<Utils.FormComponent.FormElement>}
-   */
-  jsonKeyDropdown: computed('fields', 'jsonKeyFieldName', function jsonKeyDropdown() {
-    return this.fields.getFieldByPath(this.jsonKeyFieldName);
+  jsonQueryLabel: computed(function jsonQueryLabel() {
+    return htmlSafe(
+      this.t('jsonQuery.label') +
+      '<br /><p class="json-query-description">' +
+      this.t('jsonQueryDescription') +
+      ' <a href="' +
+      this.t('jsonataLink') +
+      '" target="_blank">' +
+      this.t('jsonataLinkText') +
+      '</a> ' +
+      this.t('jsonQueryDescription2') +
+      '</p>'
+    );
   }),
 
   /**
@@ -315,7 +369,7 @@ export default Component.extend(I18n, {
     'metadataTypeValue',
     'jsonTypeField.value',
     'jsonKeyDropdownField.value',
-    'newJsonQuery',
+    'jsonQueryField.value',
     'validationError',
     'validationErrorMessage',
     function disabledEditButtonTooltip() {
@@ -327,7 +381,7 @@ export default Component.extend(I18n, {
           this.jsonTypeField.value === 'key'
         ) ||
         (
-          !this.newJsonQuery && this.metadataTypeValue === 'json' &&
+          !this.jsonQueryField.value && this.metadataTypeValue === 'json' &&
           this.jsonTypeField.value === 'query'
         )
       ) {
@@ -375,7 +429,7 @@ export default Component.extend(I18n, {
     'jsonTypeField.value',
     'metadataTypeValue',
     'jsonKeyDropdownField.value',
-    'newJsonQuery',
+    'jsonQueryField.value',
     function isColumnAlreadyExisting() {
       let properties = {};
       if (this.metadataTypeValue === 'xattr') {
@@ -384,7 +438,7 @@ export default Component.extend(I18n, {
         properties = {
           queryType: this.jsonTypeField.value,
           jsonKey: this.jsonKeyDropdownField.value,
-          jsonQuery: this.newJsonQuery,
+          jsonQuery: this.jsonQueryField.value,
         };
       }
       return this.columnsConfiguration
@@ -396,14 +450,14 @@ export default Component.extend(I18n, {
     }
   ),
 
-  validationError: computed('newJsonQuery', function validationError() {
-    return this.isValidJSONataExpression(this.newJsonQuery).isValid;
+  validationError: computed('jsonQueryField.value', function validationError() {
+    return this.isValidJSONataExpression(this.jsonQueryField.value).isValid;
   }),
 
   validationErrorMessage: computed(
     'validationError',
     function validationErrorMessage() {
-      const validationInfo = this.isValidJSONataExpression(this.newJsonQuery);
+      const validationInfo = this.isValidJSONataExpression(this.jsonQueryField.value);
       return validationInfo.isValid ? '' : validationInfo.error.message;
     }
   ),
@@ -420,7 +474,6 @@ export default Component.extend(I18n, {
   init() {
     initDestroyableCache(this);
     this._super(...arguments);
-    this.set('newJsonQuery', this.initialJsonQuery);
   },
 
   /**
@@ -434,22 +487,24 @@ export default Component.extend(I18n, {
     }
   },
 
+  changeColumnName(value) {
+    this.setProperties({
+      isColumnNameModified: true,
+      columnName: value,
+    });
+  },
+
   actions: {
     goBack() {
       this.onGoBack();
     },
-    changeColumnName(value) {
-      this.setProperties({
-        isColumnNameModified: true,
-        columnName: value,
-      });
-    },
+
     submitColumn() {
       const type = this.metadataTypeValue;
       const options = type === 'xattr' ? { xattrKey: this.xattrKeyDropdownField.value } : {
         queryType: this.jsonTypeField.value,
         jsonKey: this.jsonKeyDropdownField.value,
-        jsonQuery: this.newJsonQuery,
+        jsonQuery: this.jsonQueryField.value,
       };
       this.onSubmitColumn(
         this.isNewColumn,

@@ -1,10 +1,10 @@
 import { FileType } from 'onedata-gui-common/utils/file';
 
 export default {
-  headerText: 'Remove Share',
-  messageText: 'Are you sure you want to remove Share <strong>{{shareName}}</strong>? The shared {{fileType}} will no longer be accessible via the associated Share link.',
-  messageTextOtherShares: 'However, the other Shares ({{otherSharesCount}}) will still work.',
-  deletingShare: 'deleting Share',
+  headerText: 'Remove share',
+  messageText: 'Are you sure you want to remove share <strong>{{shareName}}</strong>? The shared {{fileType}} will no longer be accessible via the associated share link.',
+  messageTextOtherShares: 'However, the other shares ({{otherSharesCount}}) will still work.',
+  deletingShare: 'deleting share',
   proceed: 'Remove',
   cancel: 'Cancel',
   fileType: {

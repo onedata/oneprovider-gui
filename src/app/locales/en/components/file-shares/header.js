@@ -1,3 +1,3 @@
 export default {
-  listOfShares: 'List of Shares',
+  listOfShares: 'List of shares',
 };

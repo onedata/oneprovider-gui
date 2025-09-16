@@ -1,4 +1,4 @@
-<BsTab
+<OneBsTab
   class="bs-tab bs-tab-onedata bs-tab-modern full-height"
   @fade={{false}}
   @customTabs={{true}}
@@ -15,7 +15,7 @@
         as |originalProxy tabState current isValid|
       }}
         <bsTab.pane
-          @elementId={{concat elementId "-" type}}
+          @id={{concat elementId "-" type}}
           class={{concat "full-height tab-pane-metadata-" type}}
         >
           <RenderLater @triggerRender={{eq activeTab type}}>
@@ -44,4 +44,4 @@
       {{/let}}
     {{/each}}
   </div>
-</BsTab>
+</OneBsTab>

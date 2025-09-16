@@ -1,5 +1,5 @@
 <OneModal
-  class="db-view-modal"
+  @modalClass="db-view-modal"
   @open={{open}}
   @onHide={{action "close"}}
   @onHidden={{action "onHidden"}}
@@ -11,7 +11,7 @@
   </modal.header>
   <modal.body>
     <PromiseProxyContainer @proxy={{dbViewProxy}}>
-      <BsTab class="bs-tab-onedata bs-tab-modern" as |tab|>
+      <OneBsTab class="bs-tab-onedata bs-tab-modern" as |tab|>
         <tab.pane @title={{tt this "tabs.general"}}>
           <DbViewModal::TabGeneral
             @viewName={{dbViewName}}
@@ -33,7 +33,7 @@
             @functionString={{dbView.reduceFunction}}
           />
         </tab.pane>
-      </BsTab>
+      </OneBsTab>
     </PromiseProxyContainer>
   </modal.body>
   <modal.footer class="btn-toolbar">

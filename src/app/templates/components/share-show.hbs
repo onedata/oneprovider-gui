@@ -19,7 +19,7 @@
         @onReloadShareList={{action "reloadShareList"}}
       />
     {{/if}}
-    <BsTab
+    <OneBsTab
       class="bs-tab bs-tab-onedata bs-tab-modern tab-share-show-mode"
       @customTabs={{true}}
       @activeId={{activeTab}}
@@ -76,7 +76,7 @@
           ></a>
         </div>
       {{/if}}
-    </BsTab>
+    </OneBsTab>
   </div>
 
   {{#each tabIds as |tabId|}}

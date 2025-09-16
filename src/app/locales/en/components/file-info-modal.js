@@ -1,7 +1,7 @@
 import browserColumns from './-browser-columns-name/filesystem';
 
 const fileLinkAuthentication =
-  'It only works for logged-in users that have access to this {{type}}. To obtain a public link, use the Share function.';
+  'It only works for logged-in users that have access to this {{type}}. To obtain a public link, use the share function.';
 
 export default {
   header: '{{type}} details',
@@ -15,7 +15,7 @@ export default {
   unknownSpaceInSymlink: 'unknown space',
   spaceId: 'Space ID',
   shareId: 'Share ID',
-  shareIdTooltip: 'The identifier of the Share containing this {{type}}. It\'s the same for all files and directories in this shared data collection. It can be used to interact with the Share using different interfaces (e.g. REST API) and is used to build the Share URL.',
+  shareIdTooltip: 'The identifier of the share containing this {{type}}. It\'s the same for all files and directories in this shared data collection. It can be used to interact with the share using different interfaces (e.g. REST API) and is used to build the share URL.',
   cdmiObjectId: 'File ID',
   cdmiObjectIdSubname: 'public',
   cdmiObjectIdTooltip: {

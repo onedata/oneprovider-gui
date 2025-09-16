@@ -1,4 +1,4 @@
-<BsTab
+<OneBsTab
   class="bs-tab bs-tab-onedata bs-tab-modern s-tab-transfer-list-types"
   @fade={{false}}
   @customTabs={{true}}
@@ -42,7 +42,7 @@
   </BsNav>
   <div class="tab-content tab-content-transfers-list no-vertical-padding">
     {{#each tabIds as |type|}}
-      <bsTab.pane @elementId={{type}}>
+      <bsTab.pane @id={{type}}>
         {{#if (eq bsTab.activeId type)}}
           <div class={{concat "row row-" type "-transfers"}}>
             <div class={{concat "col-xs-12 col-" type "-transfers"}}>
@@ -64,7 +64,7 @@
       </bsTab.pane>
     {{/each}}
   </div>
-</BsTab>
+</OneBsTab>
 
 <DbViewModal
   @open={{dbViewModalOpened}}

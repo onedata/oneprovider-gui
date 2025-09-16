@@ -1,11 +1,11 @@
 <OneModal
-  class={{concat-classes
+  @modalClass={{concat-classes
     "file-info-modal modal-content-overlay with-close-button"
     effModalClass
   }}
   @open={{open}}
   @size="xl"
-  @id={{modalId}}
+  @modalId={{modalId}}
   @backdropClose={{true}}
   @keyboard={{true}}
   @onHide={{action "close"}}

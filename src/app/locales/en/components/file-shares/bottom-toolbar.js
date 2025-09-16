@@ -1,3 +1,3 @@
 export default {
-  createShare: 'Create another Share',
+  createShare: 'Create another share',
 };
