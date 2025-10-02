@@ -48,26 +48,43 @@
         </BsForm>
       </div>
       <div class="row publish-row">
-        <div class="publish-checkbox-group {{if this.isPublishDisabled "disabled"}}">
-          <OneCheckbox
-            class="one-checkbox-understand"
-            @checked={{this.isPublishCheckboxChecked}}
-            @isReadOnly={{this.isPublishDisabled}}
-            @update={{action "togglePublishCheckbox"}}
+        {{#if handleServiceCountProxy.isRejected}}
+          <OneIcon
+            @icon="checkbox-filled-x"
+            class="error-message-icon"
           />
-          <div
-            class="text-publish {{unless this.isPublishDisabled "clickable"}}"
-            onclick={{unless this.isPublishDisabled (action "togglePublishCheckbox")}}
-          >
-            {{tt this "publishText"}}
+        {{/if}}
+        <PromiseProxyContainer
+          @proxy={{this.handleServiceCountProxy}}
+          @sizeClass="xs"
+          @centered={{false}}
+          @inlineError={{true}}
+          @customErrorMessage={{tt this "errorMessage"}}
+        >
+          <div class="publish-checkbox-group {{if this.isPublishDisabled "disabled"}}">
+            <OneCheckbox
+              class="one-checkbox-understand"
+              @checked={{this.isPublishCheckboxChecked}}
+              @isReadOnly={{this.isPublishDisabled}}
+              @update={{action "togglePublishCheckbox"}}
+            />
+            <div
+              class="text-publish {{unless this.isPublishDisabled "clickable"}}"
+              onclick={{unless this.isPublishDisabled (action "togglePublishCheckbox")}}
+            >
+              {{tt this "publishText"}}
+            </div>
           </div>
-        </div>
-        {{#if this.publishTip}}
-          <OneLabelTip
-            class="publish-label-tip"
-            @tooltipClass="tooltip-lg"
-            @title={{this.publishTip}}
-          />
+          {{#if this.publishTip}}
+            <OneLabelTip
+              class="publish-label-tip"
+              @tooltipClass="tooltip-lg"
+              @title={{this.publishTip}}
+            />
+          {{/if}}
+        </PromiseProxyContainer>
+        {{#if handleServiceCountProxy.isPending}}
+          <div class="loading-message">{{tt this "loadingMessage"}}</div>
         {{/if}}
       </div>
     </div>

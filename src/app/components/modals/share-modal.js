@@ -26,6 +26,7 @@ import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mi
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import { isValidFilename } from 'onedata-gui-common/utils/file';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 /**
  * @typedef {Object} ShareModalOptions
@@ -195,9 +196,13 @@ export default Component.extend(...mixins, {
     },
   ),
 
+  handleServiceCountProxy: computed(function handleServiceCountProxy() {
+    return promiseObject(this.handleManager.getHandleServiceCount());
+  }),
+
   init() {
     this._super(...arguments);
-    this.handleManager.getHandleServiceCount().then(handleServiceCount => {
+    this.handleServiceCountProxy.then(handleServiceCount => {
       if (this.isDestroyed || this.isDestroying) {
         return;
       }

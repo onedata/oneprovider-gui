@@ -36,7 +36,11 @@
       cursor: not-allowed;
     }
   }
-  .text-publish {
+  .error-message-icon {
+    font-size: 150%;
+    color: $color-one-danger;
+  }
+  .text-publish, .loading-message {
     margin-left: 0.8em;
   }
   .publish-label-tip {

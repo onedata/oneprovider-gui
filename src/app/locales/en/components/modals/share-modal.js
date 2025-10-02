@@ -20,4 +20,6 @@ export default {
     dir: 'directory',
   },
   regexpHint: 'Name cannot contain slashes (/) and null characters. It cannot be also a single dot (".") or two dots ("..").',
+  loadingMessage: 'Checking handle service capabilities...',
+  errorMessage: 'Error while checking handle service capabilities. Please try again later.',
 };
