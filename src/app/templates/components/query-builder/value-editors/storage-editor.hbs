@@ -1,4 +1,5 @@
-<OneDropdown
+{{!-- Note: not using AdaptiveDropdown, because we often need multiline options --}}
+<AdaptiveDropdown
   id={{guid}}
   @triggerClass={{concat-classes "small comparator-value storage-editor-trigger truncate dropdown-editor-trigger" guid}}
   @dropdownClass="small ember-basic-dropdown-content-comparator-value over-popover-over-modals dropdown-editor-options storage-editor-options"
@@ -16,4 +17,4 @@
   <div class="option-container">
     <QueryBuilder::ModelPresenters::Storage @tagName="" @itemValue={{itemValue}} />
   </div>
-</OneDropdown>
+</AdaptiveDropdown>

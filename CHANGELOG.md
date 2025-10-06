@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12932 Added infinite-scrollable dropdowns
 * VFS-12874 Fixed animation on ongoing transfers map
 * VFS-12874 Changed "Share" to "share" naming in GUI texts
 * VFS-12811 Upgraded Ember Bootstrap to 4.9.0
