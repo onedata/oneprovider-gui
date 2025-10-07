@@ -582,7 +582,8 @@ export default EmberObject.extend(...mixins, {
       ignoreForbiddenError(error);
     }
     if (effUserList) {
-      return get(effUserList, 'list').toArray();
+      const list = await effUserList.list;
+      return list.toArray();
     } else {
       if (this.isDestroyed) {
         return [];

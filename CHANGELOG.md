@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-12731 Fixed showing name of other user on ACL view
 * VFS-12874 Fixed animation on ongoing transfers map
 * VFS-12874 Changed "Share" to "share" naming in GUI texts
 * VFS-12811 Upgraded Ember Bootstrap to 4.9.0
