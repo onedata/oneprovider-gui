@@ -19,7 +19,7 @@
       </div>
     </div>
   </OneArrow>
-  <OneDropdown
+  <AdaptiveDropdown
     @triggerClass="small target-oneprovider-selector"
     @dropdownClass="small target-oneprovider-dropdown"
     @placeholder={{tt this "selectTargetDropdownPlaceholder"}}
@@ -37,7 +37,7 @@
       </div>
       <span class="oneprovider-name">{{item.text}}</span>
     </TruncatedString>
-  </OneDropdown>
+  </AdaptiveDropdown>
 </div>
 <div class="btn-toolbar">
   <OneButton @onClick={{onCancel}} @disabled={{not canCancel}} @size="sm">
