@@ -1,44 +1,46 @@
 {{#let
-  (component listItem.header) (component listItem.content)
+  (component this.listItem.header) (component this.listItem.content)
   as |listItemHeader listItemContent|
 }}
   <listItemHeader
     class={{concat-classes
-      (concat "type-" aceType)
-      (if hasActivePermissions "has-active-permissions" "has-no-rules-enabled")
+      (concat "type-" this.aceType)
+      (if this.hasActivePermissions "has-active-permissions" "has-no-rules-enabled")
     }}
   >
     <span class="item-icon-container">
       <OneIconTagged
         class="item-icon"
-        @icon={{icon}}
-        @tagIcon={{headerTagIcon}}
-        @shadowType={{if hasNoRulesEnabled "none" "circle"}}
+        @icon={{this.icon}}
+        @tagIcon={{this.headerTagIcon}}
+        @shadowType={{if this.hasNoRulesEnabled "none" "circle"}}
       />
-      <OneTooltip @title={{tooltipText}} />
+      <OneTooltip @title={{this.tooltipText}} />
     </span>
     <span class={{concat-classes
       "subject-name"
-      (if subject.isSystemSubject "system-subject-name")
-      (if (not subject.name) "unknown-subject-name")
+      (if this.subject.isSystemSubject "system-subject-name")
+      (if (not this.subject.name) "unknown-subject-name")
     }}>
-      {{subjectName}}
-      {{#if (not subject.name)}}
-        {{#if identifier}}
-          ({{tt this "id"}}: <code class="subject-identifier">{{identifier}}</code>)
+      {{this.subjectName}}
+      {{#if (not this.subject.name)}}
+        {{#if this.identifier}}
+          ({{tt this "id"}}: <code class="subject-identifier">{{this.identifier}}</code>)
         {{/if}}
-        <OneLabelTip @title={{tt this "aceNotAccessible"
-          subject=(tt this (concat "aceSubjects." subjectType))
-        }} />
+        <OneLabelTip
+          @title={{tt this "aceNotAccessible"
+            subject=(tt this (concat "aceSubjects." this.subjectType))
+          }}
+        />
       {{/if}}
     </span>
-    {{#if subject.description}}
+    {{#if this.subject.description}}
       <span class="system-subject-description">
-        ({{subject.description}})
+        ({{this.subject.description}})
       </span>
     {{/if}}
     <StatusToolbar class="hidden-xs" as |toolbar|>
-      {{#each statusIcons key="icon" as |status|}}
+      {{#each this.statusIcons key="icon" as |status|}}
         <toolbar.icon
           @icon={{status.icon}}
           @hint={{status.tooltipText}}
@@ -46,49 +48,49 @@
         />
       {{/each}}
     </StatusToolbar>
-    {{#unless isReadOnly}}
+    {{#unless this.isReadOnly}}
       <ActionsToolbar
         @isMinimized={{true}}
         @toolbarClasses=""
         @toolbarToggleClasses="btn-menu-toggle"
         @dropdownPlacement="auto"
-        @actionsArray={{actionsArray}}
+        @actionsArray={{this.actionsArray}}
       />
     {{/unless}}
   </listItemHeader>
   <listItemContent>
-    <div class="ace-editor-form type-{{aceType}}">
+    <div class="ace-editor-form type-{{this.aceType}}">
       <div class="ace-type-presenter">
         <div class="ace-type-switch-container">
           <label class="ace-type-label">{{tt this "aceType"}}</label>
           <BsButtonGroup
-            class={{concat-classes "ace-type-selector" (if isReadOnly "disabled")}}
-            @value={{aceType}}
+            class={{concat-classes "ace-type-selector" (if this.isReadOnly "disabled")}}
+            @value={{this.aceType}}
             @type="radio"
-            @onChange={{if isReadOnly (no-action ) (action "aceTypeChanged")}}
+            @onChange={{if this.isReadOnly (no-action ) (action "aceTypeChanged")}}
             as |bg|
           >
             <bg.button
-              @type={{if (and (not hasNoRulesEnabled) (eq aceType "allow"))
+              @type={{if (and (not this.hasNoRulesEnabled) (eq this.aceType "allow"))
                 "primary"
                 "default"
               }}
               class={{concat-classes
                 "btn-sm ace-type ace-type-allow"
-                (if isReadOnly "disabled")
+                (if this.isReadOnly "disabled")
               }}
               @value="allow"
             >
               <OneIcon @icon="checkbox-filled" /> {{tt this "aceTypes.allow"}}
             </bg.button>
             <bg.button
-              @type={{if (and (not hasNoRulesEnabled) (eq aceType "deny"))
+              @type={{if (and (not this.hasNoRulesEnabled) (eq this.aceType "deny"))
                 "danger"
                 "default"
               }}
               class={{concat-classes
                 "btn-sm ace-type ace-type-deny"
-                (if isReadOnly "disabled")
+                (if this.isReadOnly "disabled")
               }}
               @value="deny"
             >
@@ -96,24 +98,24 @@
             </bg.button>
           </BsButtonGroup>
         </div>
-        {{#if hasNoRulesEnabled}}
+        {{#if this.hasNoRulesEnabled}}
           <div class="no-rules-enabled-warning">
             <OneIcon @icon="warning" class="no-rules-enabled-warning-icon"/>
             <div class="text">
-              {{tt this (if isReadOnly "noRulesEnabledReadonly" "noRulesEnabled")}}
+              {{tt this (if this.isReadOnly "noRulesEnabledReadonly" "noRulesEnabled")}}
             </div>
             <OneLabelTip @title={{tt this "noRulesEnabledTip"}} />
           </div>
         {{/if}}
       </div>
-      <RenderLater @triggerRender={{listItem.isActive}}>
+      <RenderLater @triggerRender={{this.listItem.isActive}}>
         <PrivilegesTreeEditor
-          @privilegesGroups={{permissionsSpecification}}
+          @privilegesGroups={{this.permissionsSpecification}}
           @privilegeGroupsTranslationsPath="components.aclEditor.permissionGroups"
           @privilegesTranslationsPath="components.aclEditor.permissions"
-          @comparePrivileges={{persistedPermissionsTree}}
-          @overridePrivileges={{initialPermissionsTree}}
-          @editionEnabled={{not isReadOnly}}
+          @comparePrivileges={{this.persistedPermissionsTree}}
+          @overridePrivileges={{this.initialPermissionsTree}}
+          @editionEnabled={{not this.isReadOnly}}
           @onChange={{action "permissionsChanged"}}
         />
       </RenderLater>

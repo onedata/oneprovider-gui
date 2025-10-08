@@ -29,7 +29,7 @@
         <span class="item-icon-container">
           <OneIcon @icon="group-invite" class="item-icon" />
         </span>
-        <OneDropdown
+        <AdaptiveDropdown
           @triggerClass="add-user-group-ace-trigger"
           @dropdownClass="add-user-group-ace-dropdown"
           @options={{subjectsList}}
@@ -52,7 +52,7 @@
               {{/if}}
             </TruncatedString>
           </div>
-        </OneDropdown>
+        </AdaptiveDropdown>
         {{#if hasInferredSubjectList}}
           <div class="subjects-inferred-warning">
             <OneIcon
