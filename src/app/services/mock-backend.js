@@ -17,7 +17,7 @@ import {
   generateShareEntityId,
   getCoordinates,
 } from 'onedata-gui-websocket-client/utils/development-model-common';
-import { mockGuiContext } from 'onedata-gui-common/initializers/fetch-gui-context';
+import { getMockGuiContext } from 'onedata-gui-common/initializers/fetch-gui-context';
 import { entityType as fileEntityType, datasetSummaryAspect } from 'oneprovider-gui/models/file';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
@@ -1005,7 +1005,7 @@ export default Service.extend(...mixins, {
     return allFulfilled(_.range(numberOfProviders).map((i) => {
       const [latitude, longitude] = getCoordinates(i, numberOfProviders);
       const entityId = (i === 0 ?
-        mockGuiContext.clusterId :
+        getMockGuiContext().clusterId :
         `${i}ab98a7ba6b7a6ba8b6a7b5a8b6a78b5a78ba578ba587`
       );
       return allFulfilled(['private', 'protected'].map(scope =>
