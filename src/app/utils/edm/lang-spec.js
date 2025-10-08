@@ -9,6 +9,7 @@
  */
 
 import { t, isI18nAvailable } from 'onedata-gui-common/utils/i18n/t';
+import _ from 'lodash';
 
 class PropertyLangOption {
   constructor(langSpec) {
@@ -17,7 +18,9 @@ class PropertyLangOption {
     this.labelLower = String(this.label).toLocaleLowerCase();
   }
   matchesSearchString(searchString) {
-    return this.labelLower.includes(searchString) || this.value.includes(searchString);
+    const normalizedSearchString = searchString.toLocaleLowerCase?.();
+    return this.labelLower.includes(normalizedSearchString) ||
+      this.value.includes(normalizedSearchString);
   }
 }
 
@@ -168,7 +171,7 @@ function createLangSelectorSpec(langCodes) {
  * @returns {Array<PropertyLangOption>}
  */
 function generateLangOptions(specs) {
-  return specs.map(spec => new PropertyLangOption(spec));
+  return _.sortBy(specs.map(spec => new PropertyLangOption(spec)), 'label');
 }
 
 let langSelectorOptions;

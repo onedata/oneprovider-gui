@@ -299,6 +299,7 @@ describe('Integration | Component | visual-edm', function () {
       // when
       await helper.render();
       const langDropdown = new OneDropdownHelper('.edm-lang-dropdown-trigger');
+      await langDropdown.fillInSearchInput('Polish');
       await langDropdown.selectOptionByText('Polish');
 
       // then
