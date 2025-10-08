@@ -98,8 +98,6 @@ export default Component.extend(...mixins, {
 
   newShareName: '',
 
-  hasAnyHandleService: undefined,
-
   isPublishCheckboxChecked: false,
 
   //#endregion
@@ -192,7 +190,11 @@ export default Component.extend(...mixins, {
   publishTip: computed(
     'hasAnyHandleService',
     function publishTip() {
-      return this.t(this.hasAnyHandleService ? 'publishTip' : 'publishImpossibleTip');
+      return this.t(
+        this.handleServiceCountProxy.isPending || this.hasAnyHandleService ?
+        'publishTip' :
+        'publishImpossibleTip'
+      );
     },
   ),
 
@@ -200,14 +202,15 @@ export default Component.extend(...mixins, {
     return promiseObject(this.handleManager.getHandleServiceCount());
   }),
 
+  hasAnyHandleService: computed(
+    'handleServiceCountProxy.content',
+    function hasAnyHandleService() {
+      return this.handleServiceCountProxy?.content > 0;
+    }
+  ),
+
   init() {
     this._super(...arguments);
-    this.handleServiceCountProxy.then(handleServiceCount => {
-      if (this.isDestroyed || this.isDestroying) {
-        return;
-      }
-      this.set('hasAnyHandleService', Boolean(handleServiceCount));
-    });
     waitForRender().then(() => {
       this.setInitialShareName();
       this.focusInput();

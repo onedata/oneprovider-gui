@@ -8,7 +8,7 @@ export default {
   creatingShare: 'creating share',
   createNew: 'Create',
   publishText: 'Expose as a Public Data record',
-  publishTip: 'Choose this option to create a share and sebsequently expose it as a Public Data record. The shared data collection will be registered in a handle service — assigned a persistent identifier (e.g. PID or DOI) and exposed for discovery by Public Data indexes via OAI PMH protocol. This process will make your data collection publicly available (without an account in Onedata) and anyone will be able to look it up in the Public Data indexes.',
+  publishTip: 'Choose this option to create a share and subsequently expose it as a Public Data record. The shared data collection will be registered in a handle service — assigned a persistent identifier (e.g. PID or DOI) and exposed for discovery by Public Data indexes via OAI PMH protocol. This process will make your data collection publicly available (without an account in Onedata) and anyone will be able to look it up in the Public Data indexes.',
   publishImpossibleTip: noHandleServicesText,
   validations: {
     empty: 'Name cannot be empty',
@@ -20,6 +20,6 @@ export default {
     dir: 'directory',
   },
   regexpHint: 'Name cannot contain slashes (/) and null characters. It cannot be also a single dot (".") or two dots ("..").',
-  loadingMessage: 'Checking handle service capabilities...',
-  errorMessage: 'Error while checking handle service capabilities. Please try again later.',
+  loadingMessage: 'Checking publishing capabilities...',
+  errorMessage: 'Error while checking publishing capabilities. Please try again later.',
 };

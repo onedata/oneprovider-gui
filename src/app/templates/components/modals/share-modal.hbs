@@ -48,18 +48,10 @@
         </BsForm>
       </div>
       <div class="row publish-row">
-        {{#if handleServiceCountProxy.isRejected}}
-          <OneIcon
-            @icon="checkbox-filled-x"
-            class="error-message-icon"
-          />
-        {{/if}}
-        <PromiseProxyContainer
-          @proxy={{this.handleServiceCountProxy}}
+        <LoadingContainer
+          @isLoading={{handleServiceCountProxy.isPending}}
           @sizeClass="xs"
           @centered={{false}}
-          @inlineError={{true}}
-          @customErrorMessage={{tt this "errorMessage"}}
         >
           <div class="publish-checkbox-group {{if this.isPublishDisabled "disabled"}}">
             <OneCheckbox
@@ -75,16 +67,24 @@
               {{tt this "publishText"}}
             </div>
           </div>
-          {{#if this.publishTip}}
-            <OneLabelTip
-              class="publish-label-tip"
-              @tooltipClass="tooltip-lg"
-              @title={{this.publishTip}}
-            />
-          {{/if}}
-        </PromiseProxyContainer>
+        </LoadingContainer>
         {{#if handleServiceCountProxy.isPending}}
           <div class="loading-message">{{tt this "loadingMessage"}}</div>
+        {{/if}}
+        {{#if this.publishTip}}
+          <OneLabelTip
+            class="publish-label-tip"
+            @tooltipClass="tooltip-lg"
+            @title={{this.publishTip}}
+          />
+        {{/if}}
+        {{#if handleServiceCountProxy.isRejected}}
+          <OneLabelTip
+            class="publish-error-tip"
+            @tooltipClass="tooltip-lg"
+            @title={{tt this "errorMessage"}}
+            @icon="sign-warning-rounded"
+          />
         {{/if}}
       </div>
     </div>
