@@ -1,5 +1,5 @@
 <div class="row chart-selectors">
-  <OneDropdown
+  <AdaptiveDropdown
     @triggerClass="provider-select-trigger small"
     @dropdownClass="provider-select-dropdown small"
     @options={{_providersOptions}}
@@ -20,7 +20,7 @@
         </span>
       </TruncatedString>
     </div>
-  </OneDropdown>
+  </AdaptiveDropdown>
 
   {{#if (and (not statsError) _statsLoaded)}}
     <BsButtonGroup

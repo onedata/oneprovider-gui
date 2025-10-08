@@ -74,7 +74,7 @@
                 <OneLabelTip @title={{tt this "publishWelcome.handleServiceTextMore"}} />
               </p>
               <div class="row row-handle-service-select">
-                <OneDropdown
+                <AdaptiveDropdown
                   @triggerClass="select-handle-service"
                   @dropdownClass="select-handle-service-dropdown"
                   @placeholder={{tt this "publishWelcome.selectHandleServicePlaceholder"}}
@@ -99,7 +99,7 @@
                       />
                     </TruncatedString>
                   </div>
-                </OneDropdown>
+                </AdaptiveDropdown>
               </div>
               <p class="metadata-type-text">
                 {{tt this "publishWelcome.metadataTypeText"}}
@@ -111,7 +111,7 @@
                 </OneLabelTip>
               </p>
               <div class="row row-metadata-type-select">
-                <OneDropdown
+                <AdaptiveDropdown
                   @triggerClass="select-metadata-type"
                   @dropdownClass="select-metadata-type"
                   @placeholder={{tt this "publishWelcome.selectMetadataTypePlaceholder"}}
@@ -126,7 +126,7 @@
                       {{tt this (concat "publishWelcome.metadataTypes." metadataType)}}
                     </TruncatedString>
                   </div>
-                </OneDropdown>
+                </AdaptiveDropdown>
               </div>
             </ContentInfo>
           </carousel.slide>

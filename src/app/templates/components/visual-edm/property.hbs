@@ -49,7 +49,7 @@
           <div class="edm-property-lang-label">
             {{tt this "language"}}:
           </div>
-          <OneDropdown
+          <AdaptiveDropdown
             @triggerClass="small edm-lang-dropdown-trigger edm-dropdown-trigger"
             @dropdownClass="small edm-lang-dropdown edm-dropdown"
             @options={{langOptions}}
@@ -78,7 +78,7 @@
                 </span>
               </TruncatedString>
             </div>
-          </OneDropdown>
+          </AdaptiveDropdown>
         </div>
       {{/if}}
       <div class="header-quantity-section">
@@ -158,7 +158,7 @@
               onblur={{action "handleInputBlur"}}
             />
           {{else if (eq inputType "dropdown")}}
-            <OneDropdown
+            <AdaptiveDropdown
               @triggerClass="small edm-property-value-dropdown-trigger"
               @dropdownClass="small edm-property-value-dropdown"
               @options={{viewModel.predefinedValueOptions}}
@@ -191,7 +191,7 @@
                   </span>
                 </TruncatedString>
               </div>
-            </OneDropdown>
+            </AdaptiveDropdown>
           {{/if}}
         </div>
       {{/if}}
