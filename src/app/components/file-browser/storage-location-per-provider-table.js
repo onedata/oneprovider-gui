@@ -27,7 +27,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Ember.Array<Object>}
    */
-  locations: undefined,
+  locationsInfo: undefined,
 
   /**
    * @virtual
@@ -38,13 +38,13 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Models.Provider>}
    */
-  oneprovider: reads('locations.firstObject.provider'),
+  oneprovider: reads('locationsInfo.firstObject.provider'),
 
   /**
    * @type {ComputedProperty<string>}
    */
-  errorMessage: computed('locations.firstObject.error', function errorMessage() {
-    return this.errorExtractor.getMessage(this.locations.firstObject.error)?.message ||
-      this.locations.firstObject.error.description;
+  errorMessage: computed('locationsInfo.firstObject.error', function errorMessage() {
+    const error = this.locationsInfo.firstObject.error;
+    return this.errorExtractor.getMessage(error)?.message || error.description;
   }),
 });

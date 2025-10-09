@@ -80,22 +80,25 @@
                   <table class="storage-locations-table">
                     <FileBrowser::StorageLocationPerProviderTable
                       @spaceId={{spaceId}}
-                      @locations={{get storageLocationsPerProviderProxy firstProviderDisplayedId}}
+                      @locationsInfo={{get
+                        storageLocationsPerProviderProxy
+                        firstProviderDisplayedId
+                      }}
                       @currentProviderId={{currentProviderId}}
                     />
                     {{#if (and
                       (gt storageLocationsPerProviderLength 1)
                       areStorageLocationsExpanded
                     )}}
-                      {{#each storageLocationsPerProviderOrder as |locations|}}
+                      {{#each storageLocationsPerProviderOrder as |locationsInfo|}}
                         {{#if (not-eq
-                          locations.firstObject.provider.entityId
+                          locationsInfo.firstObject.provider.entityId
                           firstProviderDisplayedId
                         )}}
                           <tbody class="space-between-providers"><tr><td></td></tr></tbody>
                           <FileBrowser::StorageLocationPerProviderTable
                             @spaceId={{spaceId}}
-                            @locations={{locations}}
+                            @locationsInfo={{locationsInfo}}
                             @currentProviderId={{currentProviderId}}
                           />
                         {{/if}}
