@@ -11,7 +11,7 @@
 </tr>
 {{#each locationsInfo as |locationInfo|}}
   <tr class="oneprovider-storage-location-row">
-    {{#if locationInfo.storageName}}
+    {{#if locationInfo.path.success}}
       <td class="storage-name-cell">
         <TruncatedString>
           {{locationInfo.storageName}}
