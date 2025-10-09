@@ -770,13 +770,10 @@ export default Component.extend(I18n, {
       } = this;
       if (
         locationsPerProvider &&
-        locationsPerProvider[oneproviderId].success
+        locationsPerProvider[oneproviderId]?.success
       ) {
-        const locationsPerStorageBackend = locationsPerProvider[
-          oneproviderId
-        ].locationsPerStorageBackend[
-          storageId
-        ];
+        const locationsPerStorageBackend =
+          locationsPerProvider[oneproviderId].locationsPerStorageBackend[storageId];
         if (locationsPerStorageBackend.success) {
           return locationsPerStorageBackend.location;
         }
@@ -802,14 +799,11 @@ export default Component.extend(I18n, {
           storageId,
           oneproviderId,
         } = this;
-        if (!locationsPerProvider[oneproviderId].success) {
-          return locationsPerProvider[oneproviderId]?.error?.id;
+        if (!locationsPerProvider[oneproviderId]?.success) {
+          return locationsPerProvider[oneproviderId].error?.id;
         } else {
-          const locationsPerStorageBackend = locationsPerProvider[
-            oneproviderId
-          ].locationsPerStorageBackend[
-            storageId
-          ];
+          const locationsPerStorageBackend =
+            locationsPerProvider[oneproviderId].locationsPerStorageBackend[storageId];
           if (!locationsPerStorageBackend.success) {
             return locationsPerStorageBackend.error?.id;
           }
