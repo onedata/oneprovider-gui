@@ -5,6 +5,7 @@
 ### Latest changes
 
 * VFS-12444 Added dir location in distribution and in info tab in file details
+* VFS-13057 Added loading and error handling to "Expose as Public Data..." toggle
 * VFS-12932 Added infinite-scrollable dropdowns
 * VFS-12731 Fixed showing name of other user on ACL view
 * VFS-12874 Fixed animation on ongoing transfers map

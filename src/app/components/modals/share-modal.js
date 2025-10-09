@@ -26,6 +26,7 @@ import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mi
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import { isValidFilename } from 'onedata-gui-common/utils/file';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 /**
  * @typedef {Object} ShareModalOptions
@@ -51,6 +52,7 @@ export default Component.extend(...mixins, {
   modalManager: service(),
   handleManager: service(),
   appProxy: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -96,8 +98,6 @@ export default Component.extend(...mixins, {
   isSaving: false,
 
   newShareName: '',
-
-  hasAnyHandleService: undefined,
 
   isPublishCheckboxChecked: false,
 
@@ -191,18 +191,34 @@ export default Component.extend(...mixins, {
   publishTip: computed(
     'hasAnyHandleService',
     function publishTip() {
-      return this.t(this.hasAnyHandleService ? 'publishTip' : 'publishImpossibleTip');
+      return this.t(
+        this.handleServiceCountProxy.isPending || this.hasAnyHandleService ?
+        'publishTip' :
+        'publishImpossibleTip'
+      );
     },
+  ),
+
+  errorMessage: computed('handleServiceCountProxy', function errorMessage() {
+    if (this.handleServiceCountProxy.isFulfilled) {
+      return null;
+    }
+    return this.errorExtractor.getMessage(this.handleServiceCountProxy.reason).message;
+  }),
+
+  handleServiceCountProxy: computed(function handleServiceCountProxy() {
+    return promiseObject(this.handleManager.getHandleServiceCount());
+  }),
+
+  hasAnyHandleService: computed(
+    'handleServiceCountProxy.content',
+    function hasAnyHandleService() {
+      return this.handleServiceCountProxy.content > 0;
+    }
   ),
 
   init() {
     this._super(...arguments);
-    this.handleManager.getHandleServiceCount().then(handleServiceCount => {
-      if (this.isDestroyed || this.isDestroying) {
-        return;
-      }
-      this.set('hasAnyHandleService', Boolean(handleServiceCount));
-    });
     waitForRender().then(() => {
       this.setInitialShareName();
       this.focusInput();

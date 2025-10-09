@@ -27,6 +27,11 @@
     display: flex;
     align-items: center;
     margin-top: 0.8em;
+
+    .spinner-container.publish-capabilities-spinner {
+      width: 1.4em;
+      height: 1.4em;
+    }
   }
   .publish-checkbox-group {
     display: flex;
@@ -39,8 +44,14 @@
   .text-publish {
     margin-left: 0.8em;
   }
-  .publish-label-tip {
+  .loading-message {
+    margin-left: 0.55em;
+  }
+  .publish-label-tip, .publish-error-tip {
     margin-left: 0.5em;
     line-height: 0;
+  }
+  .publish-error-tip .oneicon {
+    color: $color-one-warning;
   }
 }
