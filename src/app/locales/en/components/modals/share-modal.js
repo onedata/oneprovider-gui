@@ -21,5 +21,5 @@ export default {
   },
   regexpHint: 'Name cannot contain slashes (/) and null characters. It cannot be also a single dot (".") or two dots ("..").',
   loadingMessage: 'Checking publishing capabilities...',
-  errorMessage: 'Error while checking publishing capabilities. Please try again later.',
+  errorMessage: 'Error while checking publishing capabilities: {{error}}.<br /> Please try again later.',
 };

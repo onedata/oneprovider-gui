@@ -52,6 +52,7 @@ export default Component.extend(...mixins, {
   modalManager: service(),
   handleManager: service(),
   appProxy: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -198,6 +199,13 @@ export default Component.extend(...mixins, {
     },
   ),
 
+  errorMessage: computed('handleServiceCountProxy', function errorMessage() {
+    if (this.handleServiceCountProxy.isFulfilled) {
+      return null;
+    }
+    return this.errorExtractor.getMessage(this.handleServiceCountProxy.reason).message;
+  }),
+
   handleServiceCountProxy: computed(function handleServiceCountProxy() {
     return promiseObject(this.handleManager.getHandleServiceCount());
   }),
@@ -205,7 +213,7 @@ export default Component.extend(...mixins, {
   hasAnyHandleService: computed(
     'handleServiceCountProxy.content',
     function hasAnyHandleService() {
-      return this.handleServiceCountProxy?.content > 0;
+      return this.handleServiceCountProxy.content > 0;
     }
   ),
 
