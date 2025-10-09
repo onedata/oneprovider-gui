@@ -794,7 +794,7 @@ export default Component.extend(I18n, {
     'storageId',
     'oneproviderId',
     function storageFileLocationError() {
-      if (this.storageFileLocation) {
+      if (this.storageFileLocation || this.locationsPerProvider === undefined) {
         return null;
       } else {
         const {
