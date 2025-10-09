@@ -469,7 +469,9 @@ export default Component.extend(...mixins, {
       const locationsPerProvider = get(storageLocations, 'locationsPerProvider');
 
       for (const providerId in locationsPerProvider) {
-        const locationsPerStorage = locationsPerProvider[providerId].locationsPerStorage;
+        const locationsPerStorage = locationsPerProvider[
+          providerId
+        ].locationsPerStorageBackend;
 
         for (const storageId in locationsPerStorage) {
           const storage = await storageManager.getStorageById(storageId, {

@@ -23,7 +23,7 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 const storageLocations = {
   locationsPerProvider: {
     provider: {
-      locationsPerStorage: {
+      locationsPerStorageBackend: {
         storage: 'path',
       },
     },

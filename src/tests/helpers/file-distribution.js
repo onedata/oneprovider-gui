@@ -168,14 +168,14 @@ export default class FileDistributionHelper {
         krakow_id: {
           virtualSize: 100,
           success: true,
-          distributionPerStorage: {
+          distributionPerStorageBackend: {
             krakow_storage_id: { ...fullStorageDistribution },
           },
         },
         paris_id: {
           virtualSize: 100,
           success: true,
-          distributionPerStorage: {
+          distributionPerStorageBackend: {
             paris_storage_id: { ...emptyStorageDistribution },
           },
         },

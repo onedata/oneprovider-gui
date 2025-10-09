@@ -33,7 +33,7 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
  * @property {number} virtualSize Virtual size of file/dir as seen by this provider.
  * @property {boolean} success Indicates whether fetching file distribution for this
  *   provider was successful.
- * @property {Object} distributionPerStorage Maps storageId -> StorageDistribution
+ * @property {Object} distributionPerStorageBackend Maps storageId - > StorageDistribution
  * When success == true contains map storageId -> StorageDistribution.
  * When success == false contains map storageId -> error
  */

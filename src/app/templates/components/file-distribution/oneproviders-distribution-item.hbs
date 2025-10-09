@@ -10,7 +10,7 @@
       <RecordInfoWithIcon @record={{oneprovider}} class="oneprovider-name" />
     </div>
     <div class="distribution-row-name path-container">
-      {{#if isStorageFileLocationAvailable}}
+      {{#if storageFileLocation}}
         <ClipboardLine
           @value={{storageFileLocation}}
           @size="sm"
@@ -94,7 +94,7 @@
       @size={{filesSizeOnStorage}}
       @percentage={{percentage}}
       @getProvidersUrl={{action "getProvidersUrl"}}
-      @providerId={{oneprovider.entityId}}
+      @providerId={{providerId}}
       @errorOnStorage={{errorOnStorage}}
     />
   {{/if}}

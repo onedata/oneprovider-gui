@@ -155,6 +155,11 @@ export default Component.extend(I18n, {
   spaceId: reads('space.entityId'),
 
   /**
+   * @type {ComputedProperty<String>}
+   */
+  oneproviderId: reads('oneprovider.entityId'),
+
+  /**
    * @type {String}
    */
   statusIconActiveClasses: 'in-progress animated infinite semi-hinge',
@@ -352,7 +357,7 @@ export default Component.extend(I18n, {
       this.fileDistributionData.forEach(fileDistDataContainer => {
         const fileDistribution =
           fileDistDataContainer.getDistributionForOneprovider(this.oneprovider)
-          .distributionPerStorage[this.storageId];
+          .distributionPerStorageBackend[this.storageId];
         error = fileDistribution?.error;
       });
       return error;
@@ -733,7 +738,7 @@ export default Component.extend(I18n, {
           for (let j = 0; j < get(otherOneproviderIds, 'length'); j++) {
             const distributionPerStorage = get(
               singleFileDistribution,
-              `${otherOneproviderIds.objectAt(j)}.distributionPerStorage`
+              `${otherOneproviderIds.objectAt(j)}.distributionPerStorageBackend`
             );
             for (const storageId in distributionPerStorage) {
               if (
@@ -751,38 +756,65 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<String|null>}
    */
   storageFileLocation: computed(
     'storageId',
     'locationsPerProvider',
+    'oneproviderId',
     function storageFileLocation() {
       const {
         locationsPerProvider,
         storageId,
-      } = this.getProperties('locationsPerProvider', 'storageId');
-      const oneproviderId = this.get('oneprovider.entityId');
-
-      if (locationsPerProvider) {
-        if (locationsPerProvider[oneproviderId].success) {
-          return locationsPerProvider[oneproviderId].locationsPerStorage[storageId];
-        } else {
-          return locationsPerProvider[oneproviderId]?.error?.id;
+        oneproviderId,
+      } = this;
+      if (
+        locationsPerProvider &&
+        locationsPerProvider[oneproviderId].success
+      ) {
+        const locationsPerStorageBackend = locationsPerProvider[
+          oneproviderId
+        ].locationsPerStorageBackend[
+          storageId
+        ];
+        if (locationsPerStorageBackend.success) {
+          return locationsPerStorageBackend.location;
         }
-      } else {
-        return undefined;
       }
+      return null;
     }
   ),
 
-  isStorageFileLocationAvailable: computed(
+  /**
+   * @type {ComputedProperty<String|null>}
+   */
+  storageFileLocationError: computed(
     'locationsPerProvider',
     'storageFileLocation',
-    function isStorageFileLocationAvailable() {
-      const oneproviderId = this.get('oneprovider.entityId');
-      return this.locationsPerProvider &&
-        this.locationsPerProvider[oneproviderId].success &&
-        this.storageFileLocation;
+    'storageId',
+    'oneproviderId',
+    function storageFileLocationError() {
+      if (this.storageFileLocation) {
+        return null;
+      } else {
+        const {
+          locationsPerProvider,
+          storageId,
+          oneproviderId,
+        } = this;
+        if (!locationsPerProvider[oneproviderId].success) {
+          return locationsPerProvider[oneproviderId]?.error?.id;
+        } else {
+          const locationsPerStorageBackend = locationsPerProvider[
+            oneproviderId
+          ].locationsPerStorageBackend[
+            storageId
+          ];
+          if (!locationsPerStorageBackend.success) {
+            return locationsPerStorageBackend.error?.id;
+          }
+        }
+      }
     }
   ),
 
@@ -791,12 +823,12 @@ export default Component.extend(I18n, {
    */
   naLocationTextSpec: computed(
     'storageFileLocation',
-    'isStorageFileLocationAvailable',
+    'storageFileLocationError',
     'hasSingleRegFile',
     'percentage',
     'filesSizeOnStorage',
     function naLocationTextSpec() {
-      if (this.isStorageFileLocationAvailable) {
+      if (this.storageFileLocation) {
         return '';
       }
       let details = this.t('na');
@@ -807,9 +839,9 @@ export default Component.extend(I18n, {
         details = this.t('empty', { type: typeText });
       } else if (this.percentage === 0) {
         details = this.t('noReplica');
-      } else if (this.storageFileLocation === 'requiresPosixCompatibleStorage') {
+      } else if (this.storageFileLocationError === 'requiresPosixCompatibleStorage') {
         details = this.t('nonPosix');
-      } else if (this.storageFileLocation === 'notSupported') {
+      } else if (this.storageFileLocationError === 'notSupported') {
         details = this.t('dirNotSupported');
         isPrefixShown = false;
       }

@@ -1412,7 +1412,7 @@ export default Service.extend(...mixins, {
       const providerId = get(providers[i], 'entityId');
       const storageId = get(storages[i], 'entityId');
       const providerLocationInfo = {
-        locationsPerStorage: {
+        locationsPerStorageBackend: {
           [storageId]: `/${storageId}/path/foo/bar`,
         },
       };

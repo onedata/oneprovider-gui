@@ -62,6 +62,7 @@ export default Component.extend(I18n, {
   isDataIncomplete: or(
     eq('percentage', undefined),
     eq('size', undefined),
+    'errorOnStorage',
   ),
 
   /**

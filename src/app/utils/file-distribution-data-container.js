@@ -192,9 +192,9 @@ export default EmberObject.extend(
         if (fileDistributionCache) {
           for (const providerId in fileDistribution) {
             const distributionPerStorages =
-              fileDistribution[providerId].distributionPerStorage;
+              fileDistribution[providerId].distributionPerStorageBackend;
             const distributionPerStoragesPast =
-              fileDistributionCache[providerId].distributionPerStorage;
+              fileDistributionCache[providerId].distributionPerStorageBackend;
             for (const storageId in distributionPerStorages) {
               if (
                 distributionPerStoragesPast[storageId].blocksPercentage === 0 &&
@@ -209,9 +209,9 @@ export default EmberObject.extend(
         if (!isStorageLocationsUpdatedChanged && storageLocationsPerProviderCache) {
           for (const providerId in storageLocationsPerProvider) {
             const locationsPerStorage =
-              storageLocationsPerProvider[providerId].locationsPerStorage;
+              storageLocationsPerProvider[providerId].locationsPerStorageBackend;
             const locationsPerStoragePast =
-              storageLocationsPerProviderCache[providerId].locationsPerStorage;
+              storageLocationsPerProviderCache[providerId].locationsPerStorageBackend;
             for (const storageId in locationsPerStorage) {
               if (
                 locationsPerStorage[storageId] !==
@@ -356,7 +356,9 @@ export default EmberObject.extend(
      */
     getStorageIdsForOneprovider(oneprovider) {
       const oneproviderData = this.getDistributionForOneprovider(oneprovider);
-      return Object.keys(get(oneproviderData ?? {}, 'distributionPerStorage') ?? {});
+      return Object.keys(
+        get(oneproviderData ?? {}, 'distributionPerStorageBackend') ?? {}
+      );
     },
 
     /**
@@ -369,7 +371,7 @@ export default EmberObject.extend(
       const distributionForProvider = this.getDistributionForOneprovider(oneprovider);
       if (get(distributionForProvider, 'success')) {
         const storageIdsForProvider = get(
-          distributionForProvider, 'distributionPerStorage'
+          distributionForProvider, 'distributionPerStorageBackend'
         );
         return get(storageIdsForProvider, storageId);
       } else {
