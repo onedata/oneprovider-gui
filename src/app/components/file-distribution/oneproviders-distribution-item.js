@@ -818,6 +818,7 @@ export default Component.extend(I18n, {
     'hasSingleRegFile',
     'percentage',
     'filesSizeOnStorage',
+    'hasSingleDir',
     function naLocationTextSpec() {
       if (this.storageFileLocation) {
         return '';
