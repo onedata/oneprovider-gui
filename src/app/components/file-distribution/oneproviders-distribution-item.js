@@ -768,10 +768,7 @@ export default Component.extend(I18n, {
         storageId,
         oneproviderId,
       } = this;
-      if (
-        locationsPerProvider &&
-        locationsPerProvider[oneproviderId]?.success
-      ) {
+      if (locationsPerProvider?.[oneproviderId]?.success) {
         const locationsPerStorageBackend =
           locationsPerProvider[oneproviderId].locationsPerStorageBackend[storageId];
         if (locationsPerStorageBackend.success) {
