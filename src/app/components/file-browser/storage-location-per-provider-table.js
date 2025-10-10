@@ -44,7 +44,10 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<string>}
    */
   errorMessage: computed('locationsInfo.firstObject.error', function errorMessage() {
-    const error = this.locationsInfo.firstObject.path.error;
+    let error = this.locationsInfo.firstObject.error;
+    if (!error) {
+      error = this.locationsInfo.firstObject.path?.error;
+    }
     return this.errorExtractor.getMessage(error)?.message || error.description;
   }),
 });
