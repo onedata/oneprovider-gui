@@ -1214,6 +1214,7 @@ export default Service.extend(...mixins, {
               emptyDatasetSummary,
               provider,
               distribution,
+              storageLocationInfo,
             }).save();
           })).then(chainDirs => {
             this.set('entityRecords.chainDir', chainDirs);
