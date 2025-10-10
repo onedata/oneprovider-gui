@@ -833,7 +833,11 @@ export default Component.extend(I18n, {
       } else if (this.storageFileLocationError === 'requiresPosixCompatibleStorage') {
         details = this.t('nonPosix');
       } else if (this.storageFileLocationError === 'notSupported') {
-        details = this.t('dirNotSupported');
+        if (this.hasSingleDir) {
+          details = this.t('dirNotSupported');
+        } else {
+          details = this.t('notSupported');
+        }
         isPrefixShown = false;
       }
       return {
