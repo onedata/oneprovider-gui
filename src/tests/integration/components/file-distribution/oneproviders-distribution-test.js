@@ -34,7 +34,7 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
       providerkrk: {
         success: successOnKrakow,
         virtualSize: 1024,
-        distributionPerStorage: {
+        distributionPerStorageBackend: {
           storage: successOnKrakow ?
             type === 'dir' ? { physicalSize: normalizedOnKrakowDir } : {
               blocksPercentage: normalizedOnKrakow,
@@ -54,7 +54,7 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
       providerpar: {
         success: successOnParis,
         virtualSize: 1024,
-        distributionPerStorage: {
+        distributionPerStorageBackend: {
           storage: successOnParis ?
             type === 'dir' ? { physicalSize: normalizedOnParis } : {
               blocksPercentage: normalizedOnParis,
@@ -76,15 +76,15 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
       return this.get(`fileDistribution.${oneprovider.entityId}`);
     },
     getStorageIdsForOneprovider(oneprovider) {
-      if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
-        return Object.keys(this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`));
+      if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorageBackend`)) {
+        return Object.keys(this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorageBackend`));
       } else {
         return {};
       }
     },
     getDistributionForStorageId(oneprovider, storage) {
-      if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
-        return this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage.${storage}`);
+      if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorageBackend`)) {
+        return this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorageBackend.${storage}`);
       } else {
         return {};
       }
@@ -481,12 +481,12 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
           const storageLocations = {
             locationsPerProvider: {
               providerkrk: {
-                locationsPerStorage: {
+                locationsPerStorageBackend: {
                   storage: null,
                 },
               },
               providerpar: {
-                locationsPerStorage: {
+                locationsPerStorageBackend: {
                   storage: null,
                 },
               },
@@ -507,16 +507,16 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
               return this.get(`fileDistribution.${oneprovider.entityId}`);
             },
             getStorageIdsForOneprovider(oneprovider) {
-              if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
+              if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorageBackend`)) {
                 return Object.keys(this.get(
-                  `fileDistribution.${oneprovider.entityId}.distributionPerStorage`));
+                  `fileDistribution.${oneprovider.entityId}.distributionPerStorageBackend`));
               } else {
                 return {};
               }
             },
             getDistributionForStorageId(oneprovider, storage) {
               return this.get(
-                `fileDistribution.${oneprovider.entityId}.distributionPerStorage.${storage}`);
+                `fileDistribution.${oneprovider.entityId}.distributionPerStorageBackend.${storage}`);
             },
           })];
           const generatedHref = 'generatedHref';

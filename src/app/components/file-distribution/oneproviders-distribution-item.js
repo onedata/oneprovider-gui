@@ -155,6 +155,11 @@ export default Component.extend(I18n, {
   spaceId: reads('space.entityId'),
 
   /**
+   * @type {ComputedProperty<String>}
+   */
+  oneproviderId: reads('oneprovider.entityId'),
+
+  /**
    * @type {String}
    */
   statusIconActiveClasses: 'in-progress animated infinite semi-hinge',
@@ -352,7 +357,7 @@ export default Component.extend(I18n, {
       this.fileDistributionData.forEach(fileDistDataContainer => {
         const fileDistribution =
           fileDistDataContainer.getDistributionForOneprovider(this.oneprovider)
-          .distributionPerStorage[this.storageId];
+          .distributionPerStorageBackend[this.storageId];
         error = fileDistribution?.error;
       });
       return error;
@@ -733,7 +738,7 @@ export default Component.extend(I18n, {
           for (let j = 0; j < get(otherOneproviderIds, 'length'); j++) {
             const distributionPerStorage = get(
               singleFileDistribution,
-              `${otherOneproviderIds.objectAt(j)}.distributionPerStorage`
+              `${otherOneproviderIds.objectAt(j)}.distributionPerStorageBackend`
             );
             for (const storageId in distributionPerStorage) {
               if (
@@ -751,21 +756,55 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<String|null>}
    */
   storageFileLocation: computed(
     'storageId',
     'locationsPerProvider',
+    'oneproviderId',
     function storageFileLocation() {
       const {
         locationsPerProvider,
         storageId,
-      } = this.getProperties('locationsPerProvider', 'storageId');
-      const oneproviderId = this.get('oneprovider.entityId');
-      if (locationsPerProvider && locationsPerProvider[oneproviderId].success) {
-        return locationsPerProvider[oneproviderId].locationsPerStorage[storageId];
+        oneproviderId,
+      } = this;
+      if (locationsPerProvider?.[oneproviderId]?.success) {
+        const locationsPerStorageBackend =
+          locationsPerProvider[oneproviderId].locationsPerStorageBackend[storageId];
+        if (locationsPerStorageBackend.success) {
+          return locationsPerStorageBackend.location;
+        }
+      }
+      return null;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<String|null>}
+   */
+  storageFileLocationError: computed(
+    'locationsPerProvider',
+    'storageFileLocation',
+    'storageId',
+    'oneproviderId',
+    function storageFileLocationError() {
+      if (this.storageFileLocation || this.locationsPerProvider === undefined) {
+        return null;
       } else {
-        return undefined;
+        const {
+          locationsPerProvider,
+          storageId,
+          oneproviderId,
+        } = this;
+        if (!locationsPerProvider[oneproviderId]?.success) {
+          return locationsPerProvider[oneproviderId].error?.id;
+        } else {
+          const locationsPerStorageBackend =
+            locationsPerProvider[oneproviderId].locationsPerStorageBackend[storageId];
+          if (!locationsPerStorageBackend.success) {
+            return locationsPerStorageBackend.error?.id;
+          }
+        }
       }
     }
   ),
@@ -775,6 +814,7 @@ export default Component.extend(I18n, {
    */
   naLocationTextSpec: computed(
     'storageFileLocation',
+    'storageFileLocationError',
     'hasSingleRegFile',
     'percentage',
     'filesSizeOnStorage',
@@ -791,8 +831,14 @@ export default Component.extend(I18n, {
         details = this.t('empty', { type: typeText });
       } else if (this.percentage === 0) {
         details = this.t('noReplica');
-      } else if (this.hasSingleDir) {
-        details = this.t('dirNotSupported');
+      } else if (this.storageFileLocationError === 'requiresPosixCompatibleStorage') {
+        details = this.t('nonPosix');
+      } else if (this.storageFileLocationError === 'notSupported') {
+        if (this.hasSingleDir) {
+          details = this.t('dirNotSupported');
+        } else {
+          details = this.t('notSupported');
+        }
         isPrefixShown = false;
       }
       return {

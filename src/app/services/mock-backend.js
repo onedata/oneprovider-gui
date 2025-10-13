@@ -1214,6 +1214,7 @@ export default Service.extend(...mixins, {
               emptyDatasetSummary,
               provider,
               distribution,
+              storageLocationInfo,
             }).save();
           })).then(chainDirs => {
             this.set('entityRecords.chainDir', chainDirs);
@@ -1412,8 +1413,11 @@ export default Service.extend(...mixins, {
       const providerId = get(providers[i], 'entityId');
       const storageId = get(storages[i], 'entityId');
       const providerLocationInfo = {
-        locationsPerStorage: {
-          [storageId]: `/${storageId}/path/foo/bar`,
+        locationsPerStorageBackend: {
+          [storageId]: {
+            success: true,
+            location: `/${storageId}/path/foo/bar`,
+          },
         },
       };
       locationsPerProvider[providerId] = providerLocationInfo;

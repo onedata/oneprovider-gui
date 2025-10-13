@@ -9,18 +9,18 @@
     </TruncatedString>
   </td>
 </tr>
-{{#each locations as |location|}}
+{{#each locationsInfo as |locationInfo|}}
   <tr class="oneprovider-storage-location-row">
-    {{#if location.storageName}}
+    {{#if locationInfo.path.success}}
       <td class="storage-name-cell">
         <TruncatedString>
-          {{location.storageName}}
+          {{locationInfo.storageName}}
         </TruncatedString>
       </td>
       <td class="location-cell">
-        {{#if location.path}}
+        {{#if locationInfo.path.location}}
           <ClipboardLine
-            @value={{location.path}}
+            @value={{locationInfo.path.location}}
             @size="sm"
             class="location-cell-clipboard"
           />
@@ -30,8 +30,10 @@
       </td>
     {{else}}
       <td colspan="2" class="error-cell">
-        <OneIcon @icon="sign-warning-rounded" class="inline-icon-container" />
-        {{errorMessage}}
+        <TruncatedString>
+          <OneIcon @icon="sign-warning-rounded" class="inline-icon-container" />
+          {{errorMessage}}
+        </TruncatedString>
       </td>
     {{/if}}
   </tr>

@@ -36,6 +36,8 @@
   }
 
   .oneprovider-storage-location-row td {
+    $cell-padding-left: 14px;
+
     &.storage-name-cell, &.error-cell {
       display: table-cell;
       padding-top: 6px;
@@ -59,12 +61,16 @@
       }
     }
 
+    &.error-cell {
+      padding-left: $cell-padding-left;
+    }
+
     &.location-cell {
       padding: 0;
       margin-top: 0;
 
       .empty-location-cell {
-        padding-left: 14px;
+        padding-left: $cell-padding-left;
       }
 
       @media (max-width: $screen-xs-max) {
@@ -91,7 +97,6 @@
       color: $color-one-yellow;
       vertical-align: middle;
       width: 1.2em;
-      margin-left: -2px;
       margin-right: 1px;
     }
   }

@@ -11,7 +11,7 @@ import EmberObject, { get, set, setProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { all as allFulfilled, reject } from 'rsvp';
-import { conditional, raw, gt, and, not, notEmpty, eq } from 'ember-awesome-macros';
+import { conditional, raw, gt, and, not, notEmpty } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
 import { computed } from '@ember/object';
@@ -130,11 +130,7 @@ export default EmberObject.extend(
     /**
      * @type {ComputedProperty<LocationsPerProvider>}
      */
-    storageLocationsPerProvider: conditional(
-      eq('fileType', raw('dir')),
-      null,
-      'storageLocations.locationsPerProvider'
-    ),
+    storageLocationsPerProvider: reads('storageLocations.locationsPerProvider'),
 
     /**
      * @type {Ember.ComputedProperty<Array<Models.Transfer>>}
@@ -186,9 +182,8 @@ export default EmberObject.extend(
           fileDistributionCache,
           storageLocationsPerProviderCache,
           storageLocationsPerProvider,
-          fileType,
         } = this;
-        if (fileType === 'dir' || fileDistribution?.length === 1) {
+        if (fileDistribution?.length === 1) {
           this.set('isStorageLocationsUpdated', false);
           return;
         }
@@ -197,9 +192,9 @@ export default EmberObject.extend(
         if (fileDistributionCache) {
           for (const providerId in fileDistribution) {
             const distributionPerStorages =
-              fileDistribution[providerId].distributionPerStorage;
+              fileDistribution[providerId].distributionPerStorageBackend;
             const distributionPerStoragesPast =
-              fileDistributionCache[providerId].distributionPerStorage;
+              fileDistributionCache[providerId].distributionPerStorageBackend;
             for (const storageId in distributionPerStorages) {
               if (
                 distributionPerStoragesPast[storageId].blocksPercentage === 0 &&
@@ -214,9 +209,9 @@ export default EmberObject.extend(
         if (!isStorageLocationsUpdatedChanged && storageLocationsPerProviderCache) {
           for (const providerId in storageLocationsPerProvider) {
             const locationsPerStorage =
-              storageLocationsPerProvider[providerId].locationsPerStorage;
+              storageLocationsPerProvider[providerId].locationsPerStorageBackend;
             const locationsPerStoragePast =
-              storageLocationsPerProviderCache[providerId].locationsPerStorage;
+              storageLocationsPerProviderCache[providerId].locationsPerStorageBackend;
             for (const storageId in locationsPerStorage) {
               if (
                 locationsPerStorage[storageId] !==
@@ -361,7 +356,9 @@ export default EmberObject.extend(
      */
     getStorageIdsForOneprovider(oneprovider) {
       const oneproviderData = this.getDistributionForOneprovider(oneprovider);
-      return Object.keys(get(oneproviderData ?? {}, 'distributionPerStorage') ?? {});
+      return Object.keys(
+        get(oneproviderData ?? {}, 'distributionPerStorageBackend') ?? {}
+      );
     },
 
     /**
@@ -374,7 +371,7 @@ export default EmberObject.extend(
       const distributionForProvider = this.getDistributionForOneprovider(oneprovider);
       if (get(distributionForProvider, 'success')) {
         const storageIdsForProvider = get(
-          distributionForProvider, 'distributionPerStorage'
+          distributionForProvider, 'distributionPerStorageBackend'
         );
         return get(storageIdsForProvider, storageId);
       } else {

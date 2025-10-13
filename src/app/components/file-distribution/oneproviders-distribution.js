@@ -93,8 +93,7 @@ export default Component.extend(I18n, {
     function locationsPerProvider() {
       const filesDistributionData = this.fileDistributionData;
       const fileDistributionData = get(filesDistributionData, 'firstObject');
-      const fileType = get(fileDistributionData, 'fileType');
-      if (filesDistributionData.length > 1 || fileType === 'dir') {
+      if (filesDistributionData.length > 1) {
         return undefined;
       } else {
         return get(fileDistributionData, 'storageLocationsPerProvider');
