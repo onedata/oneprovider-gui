@@ -10,6 +10,7 @@ export default {
     present: '{{typeCapitalized}} metadata is present.',
     saved: '{{typeCapitalized}} metadata is present and saved.',
     validating: '{{typeCapitalized}} metadata validation in progress...',
+    loading: '{{typeCapitalized}} metadata is loading...',
   },
   editorDisabled: 'Editor disabled',
   selectorHint: {

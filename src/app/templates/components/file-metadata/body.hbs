@@ -43,5 +43,11 @@
         </bsTab.pane>
       {{/let}}
     {{/each}}
+    {{#if (eq activeTab null)}}
+      <SpinSpinnerBlock
+        class="no-metadata-types absolute-middle-centered"
+        @sizeClass="md"
+      />
+    {{/if}}
   </div>
 </OneBsTab>

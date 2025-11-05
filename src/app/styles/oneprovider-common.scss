@@ -73,10 +73,15 @@ p.last {
     danger: $color-one-danger,
     warning: $color-one-warning,
     success: $color-one-success,
+    loading: $color-one-semiwhite,
   );
   @mixin stateAfter($type) {
     &.tab-state-#{$type}::after {
       background-color: map-get($stateColors, $type);
+    }
+    &.tab-state-loading::after {
+      animation: blink 1.5s infinite ease-in-out;
+      opacity: 0.5;
     }
   }
   display: inline-block;
@@ -95,6 +100,18 @@ p.last {
   }
   @each $state, $color in $stateColors {
     @include stateAfter($state)
+  }
+}
+
+@keyframes blink {
+  0% {
+    background-color: $color-one-semiwhite;
+  }
+  50% {
+    background-color: $color-one-success;
+  }
+  100% {
+    background-color: $color-one-semiwhite;
   }
 }
 

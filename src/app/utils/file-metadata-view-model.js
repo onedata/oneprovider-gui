@@ -49,6 +49,7 @@ const tabStateClassTypes = {
   modified: 'warning',
   saved: 'success',
   present: 'success',
+  loading: 'loading',
 };
 
 const mixins = [
@@ -131,10 +132,39 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * One of `metadataTypes` value. By default it is the first known metadata type, but
-   * it is overriden with regular value in `changeTab`.
+   * it is overridden with regular value in `changeTab`.
    * @type {string}
    */
-  activeTab: reads('metadataTypes.firstObject'),
+  activeTab: reads('defaultActiveTab'),
+
+  defaultActiveTab: computed(
+    'xattrsOriginalProxy.{isFulfilled,isPending}',
+    'jsonOriginalProxy.{isFulfilled,isPending}',
+    'rdfOriginalProxy.{isFulfilled,isPending}',
+    'isActiveTabModified',
+    'xattrsTabState',
+    'jsonTabState',
+    'rdfTabState',
+    function defaultActiveTab() {
+      if (this.isActiveTabModified) {
+        return null;
+      }
+      for (const type of this.metadataTypes) {
+        const proxyName = metadataOriginalProxyName(type);
+        const originalProxy = this.get(proxyName);
+        if (get(originalProxy, 'isPending')) {
+          return null;
+        } else if (get(originalProxy, 'isFulfilled')) {
+          const tabState = metadataTabStateName(type);
+          if (this.get(tabState) !== 'blank') {
+            return type;
+          }
+        }
+      }
+      return this.metadataTypes[0];
+    }),
+
+  isActiveTabModified: false,
 
   //#endregion
 
@@ -310,6 +340,7 @@ export default EmberObject.extend(...mixins, {
         isValidName,
         isValidatingName,
         `${proxyName}.isRejected`,
+        `${proxyName}.isPending`,
       ];
       // eg. `xattrsTabState`
       const computedState = computed(...tabStateDeps, 'previewMode', function () {
@@ -321,6 +352,8 @@ export default EmberObject.extend(...mixins, {
         const isValidating = this.get(isValidatingName);
         if (get(originalProxy, 'isRejected')) {
           return 'error';
+        } else if (get(originalProxy, 'isPending')) {
+          return 'loading';
         } else if (isValid === false && isValidating === false) {
           return 'invalid';
         } else if (currentValue === emptyValue && !isModified) {
@@ -489,6 +522,7 @@ export default EmberObject.extend(...mixins, {
     if (tabId === this.activeTab) {
       return;
     }
+    this.set('isActiveTabModified', true);
     if (await this.checkCurrentTabClose()) {
       this.set('activeTab', tabId);
     }

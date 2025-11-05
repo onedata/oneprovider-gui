@@ -913,7 +913,7 @@ export default Component.extend(...mixins, {
     // enter directly "size" tab. We need to kick changes detection manually.
     this.activeTabModel?.notifyPropertyChange('isActive');
     if (initialChildTab) {
-      this.set('activeTabModel.viewModel.activeTab', initialChildTab);
+      this.activeTabModel.viewModel.changeTab(initialChildTab);
     }
 
     // check just the first file, because all files should have the same scope
