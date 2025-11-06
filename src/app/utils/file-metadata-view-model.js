@@ -137,6 +137,8 @@ export default EmberObject.extend(...mixins, {
    */
   activeTab: reads('defaultActiveTab'),
 
+  isActiveTabModified: false,
+
   defaultActiveTab: computed(
     'xattrsOriginalProxy.{isFulfilled,isPending}',
     'jsonOriginalProxy.{isFulfilled,isPending}',
@@ -163,8 +165,6 @@ export default EmberObject.extend(...mixins, {
       }
       return this.metadataTypes[0];
     }),
-
-  isActiveTabModified: false,
 
   //#endregion
 
