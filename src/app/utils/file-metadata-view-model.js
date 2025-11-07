@@ -4,6 +4,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2025 Onedata(onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -135,9 +136,11 @@ export default EmberObject.extend(...mixins, {
    * it is overridden with regular value in `changeTab`.
    * @type {string}
    */
-  activeTab: reads('defaultActiveTab'),
+  activeTab: or('userSelectedTab', 'defaultActiveTab'),
 
-  isActiveTabModified: false,
+  userSelectedTab: null,
+
+  isActiveTabModified: bool('userSelectedTab'),
 
   defaultActiveTab: computed(
     'xattrsOriginalProxy.{isFulfilled,isPending}',
@@ -153,10 +156,10 @@ export default EmberObject.extend(...mixins, {
       }
       for (const type of this.metadataTypes) {
         const proxyName = metadataOriginalProxyName(type);
-        const originalProxy = this.get(proxyName);
-        if (get(originalProxy, 'isPending')) {
+        const originalProxy = this[proxyName];
+        if (originalProxy.isPending) {
           return null;
-        } else if (get(originalProxy, 'isFulfilled')) {
+        } else if (originalProxy.isFulfilled) {
           const tabState = metadataTabStateName(type);
           if (this.get(tabState) !== 'blank') {
             return type;
@@ -350,9 +353,9 @@ export default EmberObject.extend(...mixins, {
         const isModified = this.get(isModifiedName);
         const isValid = this.get(isValidName);
         const isValidating = this.get(isValidatingName);
-        if (get(originalProxy, 'isRejected')) {
+        if (originalProxy.isRejected) {
           return 'error';
-        } else if (get(originalProxy, 'isPending')) {
+        } else if (originalProxy.isPending) {
           return 'loading';
         } else if (isValid === false && isValidating === false) {
           return 'invalid';
@@ -519,12 +522,11 @@ export default EmberObject.extend(...mixins, {
   },
 
   async changeTab(tabId) {
-    if (tabId === this.activeTab) {
+    if (tabId === this.userSelectedTab) {
       return;
     }
-    this.set('isActiveTabModified', true);
     if (await this.checkCurrentTabClose()) {
-      this.set('activeTab', tabId);
+      this.set('userSelectedTab', tabId);
     }
   },
 

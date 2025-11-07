@@ -1,4 +1,6 @@
 .file-metadata-body {
+  min-height: 8em;
+
   &.full-height {
     @include fill-flex-using-column;
   }
