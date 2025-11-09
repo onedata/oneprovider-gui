@@ -96,6 +96,22 @@ p.last {
   @each $state, $color in $stateColors {
     @include stateAfter($state)
   }
+  &.tab-state-loading::after {
+    animation: tab-state-loading 1.5s infinite ease-in-out;
+    opacity: 0.5;
+  }
+}
+
+@keyframes tab-state-loading {
+  0% {
+    background-color: $color-one-semiwhite;
+  }
+  50% {
+    background-color: $color-one-success;
+  }
+  100% {
+    background-color: $color-one-semiwhite;
+  }
 }
 
 // btn-group-tabs: A tab bar created using a btn-group inside that acts as a nav

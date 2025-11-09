@@ -4,6 +4,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
+ * @copyright (C) 2025 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -49,6 +50,7 @@ const tabStateClassTypes = {
   modified: 'warning',
   saved: 'success',
   present: 'success',
+  loading: 'loading',
 };
 
 const mixins = [
@@ -131,10 +133,41 @@ export default EmberObject.extend(...mixins, {
 
   /**
    * One of `metadataTypes` value. By default it is the first known metadata type, but
-   * it is overriden with regular value in `changeTab`.
+   * it is overridden with regular value in `changeTab`.
    * @type {string}
    */
-  activeTab: reads('metadataTypes.firstObject'),
+  activeTab: or('userSelectedTab', 'defaultActiveTab'),
+
+  userSelectedTab: null,
+
+  isActiveTabModified: bool('userSelectedTab'),
+
+  defaultActiveTab: computed(
+    'xattrsOriginalProxy.{isFulfilled,isPending}',
+    'jsonOriginalProxy.{isFulfilled,isPending}',
+    'rdfOriginalProxy.{isFulfilled,isPending}',
+    'isActiveTabModified',
+    'xattrsTabState',
+    'jsonTabState',
+    'rdfTabState',
+    function defaultActiveTab() {
+      if (this.isActiveTabModified) {
+        return null;
+      }
+      for (const type of this.metadataTypes) {
+        const proxyName = metadataOriginalProxyName(type);
+        const originalProxy = this[proxyName];
+        if (originalProxy.isPending) {
+          return null;
+        } else if (originalProxy.isFulfilled) {
+          const tabState = metadataTabStateName(type);
+          if (this.get(tabState) !== 'blank') {
+            return type;
+          }
+        }
+      }
+      return this.metadataTypes[0];
+    }),
 
   //#endregion
 
@@ -310,6 +343,7 @@ export default EmberObject.extend(...mixins, {
         isValidName,
         isValidatingName,
         `${proxyName}.isRejected`,
+        `${proxyName}.isPending`,
       ];
       // eg. `xattrsTabState`
       const computedState = computed(...tabStateDeps, 'previewMode', function () {
@@ -319,8 +353,10 @@ export default EmberObject.extend(...mixins, {
         const isModified = this.get(isModifiedName);
         const isValid = this.get(isValidName);
         const isValidating = this.get(isValidatingName);
-        if (get(originalProxy, 'isRejected')) {
+        if (originalProxy.isRejected) {
           return 'error';
+        } else if (originalProxy.isPending) {
+          return 'loading';
         } else if (isValid === false && isValidating === false) {
           return 'invalid';
         } else if (currentValue === emptyValue && !isModified) {
@@ -486,11 +522,11 @@ export default EmberObject.extend(...mixins, {
   },
 
   async changeTab(tabId) {
-    if (tabId === this.activeTab) {
+    if (tabId === this.userSelectedTab) {
       return;
     }
     if (await this.checkCurrentTabClose()) {
-      this.set('activeTab', tabId);
+      this.set('userSelectedTab', tabId);
     }
   },
 

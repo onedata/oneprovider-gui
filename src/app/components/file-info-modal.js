@@ -3,6 +3,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2019-2024 ACK CYFRONET AGH
+ * @copyright (C) 2025 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -913,7 +914,7 @@ export default Component.extend(...mixins, {
     // enter directly "size" tab. We need to kick changes detection manually.
     this.activeTabModel?.notifyPropertyChange('isActive');
     if (initialChildTab) {
-      this.set('activeTabModel.viewModel.activeTab', initialChildTab);
+      this.activeTabModel.viewModel.changeTab(initialChildTab);
     }
 
     // check just the first file, because all files should have the same scope

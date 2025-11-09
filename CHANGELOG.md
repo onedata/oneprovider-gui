@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13138 Added opening first non-empty metadata tab by default
 * VFS-12444 Added dir location in distribution and in info tab in file details
 * VFS-13057 Added loading and error handling to "Expose as Public Data..." toggle
 * VFS-12932 Added infinite-scrollable dropdowns
