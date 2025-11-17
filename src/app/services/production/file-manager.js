@@ -903,7 +903,7 @@ export default Service.extend({
     const neededTimeSeriesNameGenerators = [
       dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount,
       dirSizeStatsTimeSeriesNameGenerators.dirCount,
-      dirSizeStatsTimeSeriesNameGenerators.totalSize,
+      dirSizeStatsTimeSeriesNameGenerators.logicalSize,
       dirSizeStatsTimeSeriesNameGenerators.physicalSize,
     ];
 
@@ -985,7 +985,9 @@ export default Service.extend({
             dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount
           ],
           dirCount: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.dirCount],
-          logicalSize: staticStatsValues[dirSizeStatsTimeSeriesNameGenerators.totalSize],
+          logicalSize: staticStatsValues[
+            dirSizeStatsTimeSeriesNameGenerators.logicalSize
+          ],
           totalPhysicalSize,
           physicalSizePerStorage,
         };

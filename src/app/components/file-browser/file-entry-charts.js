@@ -402,10 +402,10 @@ export default Component.extend(...mixins, {
                         externalSourceName: 'chartData',
                         externalSourceParameters: {
                           collectionRef: this.currentProviderId,
-                          timeSeriesNameGenerator: timeSeriesNameGenerators.totalSize,
-                          timeSeriesName: timeSeriesNameGenerators.totalSize,
+                          timeSeriesNameGenerator: timeSeriesNameGenerators.logicalSize,
+                          timeSeriesName: timeSeriesNameGenerators.logicalSize,
                           metricNames: this.metricNamesForTimeSeries
-                            ?.[timeSeriesNameGenerators.totalSize] ?? [],
+                            ?.[timeSeriesNameGenerators.logicalSize] ?? [],
                         },
                       },
                     },
