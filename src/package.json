@@ -39,7 +39,7 @@
     "perfect-scrollbar": "1.5.5",
     "prismjs": "1.29.0",
     "pupa": "2.1.1",
-    "resumablejs": "git+https://github.com/23/resumable.js.git#2d5e06b3ed3c4ead0550a0d5a52536016b02b04b",
+    "resumablejs": "git+https://github.com/kliput/resumable.js-debug.git#f6a8701",
     "round10": "1.0.3",
     "showdown": "1.9.1",
     "smoothscroll-polyfill": "git+https://github.com/michalborzecki/smoothscroll.git#71c605f7345165c4d1f6d9d1de7c2bcc8bca0a78",
