@@ -237,11 +237,11 @@ export default Component.extend(I18n, {
     safeExec(this, () => {
       if (handle) {
         const metadataString = get(handle, 'metadataString');
-        const metadataPrefix = get(handle, 'metadataPrefix');
+        const metadataSchema = get(handle, 'metadataSchema');
         if (metadataString) {
           this.setProperties({
             xml: metadataString,
-            selectedMetadataType: metadataPrefix,
+            selectedMetadataType: metadataSchema,
           });
         }
       }
@@ -274,7 +274,7 @@ export default Component.extend(I18n, {
       try {
         await this.handleManager.createHandle({
           share: this.share,
-          metadataPrefix: this.selectedMetadataType,
+          metadataSchema: this.selectedMetadataType,
           metadataString: xml,
           handleServiceId: get(this.selectedHandleService, 'entityId'),
         });

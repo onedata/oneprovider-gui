@@ -33,5 +33,5 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {MetadataType}
    */
-  metadataPrefix: attr('string'),
+  metadataSchema: attr('string'),
 }).reopenClass(StaticGraphModelMixin);

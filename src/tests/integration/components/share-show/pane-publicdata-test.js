@@ -149,7 +149,7 @@ describe('Integration | Component | share-show/pane-publicdata', function () {
       await helper.createShare();
       await helper.createHandle({
         metadataString: exampleDataCiteMetadata,
-        metadataPrefix: MetadataType.DataCite,
+        metadataSchema: MetadataType.DataCite,
       });
       await helper.createRootFile();
       await helper.createSpace();
@@ -200,7 +200,7 @@ describe('Integration | Component | share-show/pane-publicdata', function () {
       await helper.createShare();
       await helper.createHandle({
         metadataString: exampleDataCiteMetadata,
-        metadataPrefix: MetadataType.DataCite,
+        metadataSchema: MetadataType.DataCite,
       });
       await helper.createRootFile();
       await helper.createSpace();
@@ -267,7 +267,7 @@ describe('Integration | Component | share-show/pane-publicdata', function () {
         const newMetadata = initialMetadata + '<!-- hello -->';
         await helper.createHandle({
           metadataString: initialMetadata,
-          metadataPrefix: metadataType,
+          metadataSchema: metadataType,
         });
         await helper.createRootFile();
         await helper.createSpace();
@@ -305,7 +305,7 @@ describe('Integration | Component | share-show/pane-publicdata', function () {
         const newMetadata = initialMetadata + '\n<!-- hello -->';
         await helper.createHandle({
           metadataString: initialMetadata,
-          metadataPrefix: metadataType,
+          metadataSchema: metadataType,
         });
         await helper.createRootFile();
         await helper.createSpace();
@@ -435,7 +435,7 @@ class Helper {
     }
     this.handle = await this.saveRecord('handle', {
       url: 'https://example.com/share1',
-      metadataPrefix: MetadataType.DublinCore,
+      metadataSchema: MetadataType.DublinCore,
       handleService,
       ...data,
     });

@@ -303,7 +303,7 @@ class Helper {
     }
     this.handle = await this.saveRecord('handle', {
       url: 'https://example.com/share1',
-      metadataPrefix: MetadataType.DublinCore,
+      metadataSchema: MetadataType.DublinCore,
       handleService,
       ...data,
     });

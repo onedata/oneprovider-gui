@@ -59,15 +59,15 @@ const username = 'admin';
 const metadataMixinMap = {
   [MetadataType.DublinCore]: {
     metadataString: exampleDublinCore,
-    metadataPrefix: MetadataType.DublinCore,
+    metadataSchema: MetadataType.DublinCore,
   },
   [MetadataType.Edm]: {
     metadataString: exampleEdmMetadata,
-    metadataPrefix: MetadataType.Edm,
+    metadataSchema: MetadataType.Edm,
   },
   [MetadataType.DataCite]: {
     metadataString: exampleDataCiteMetadata,
-    metadataPrefix: MetadataType.DataCite,
+    metadataSchema: MetadataType.DataCite,
   },
 };
 
