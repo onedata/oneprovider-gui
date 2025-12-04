@@ -495,15 +495,19 @@ export default Service.extend(...mixins, {
   /**
    * Initializes upload of given file.
    * @param {ResumableFile} resumableFile
-   * @returns {Promise}
+   * @param {boolean} [overwrite]
+   * @returns {Promise<void>}
    */
-  initializeFileUpload(resumableFile) {
+  // FIXME: overwrite false by default
+  async initializeFileUpload(resumableFile, overwrite = true) {
     if (!resumableFile.isUploadInitialized) {
-      return this.get('fileManager')
-        .initializeFileUpload(get(resumableFile, 'fileModel'))
-        .then(() => resumableFile.isUploadInitialized = true);
+      await this.fileManager.initializeFileUpload(
+        resumableFile.fileModel.entityId,
+        overwrite
+      );
+      resumableFile.isUploadInitialized = true;
     } else {
-      return resolve();
+      return;
     }
   },
 
@@ -682,11 +686,12 @@ export default Service.extend(...mixins, {
    * reused by the same batch upload - all files have the same
    * `createdDirectories` map to remember state of directories creation.
    * @param {ResumableFile} resumableFile
+   * @param
    * @returns {Promise<Models.File>}
    */
   createCorrespondingFile(resumableFile) {
-    const fileManager = this.get('fileManager');
-    const pathSections = get(resumableFile, 'relativePath').split('/');
+    const fileManager = this.fileManager;
+    const pathSections = resumableFile.relativePath.split('/');
 
     // Root upload directory is already created, so just resolve
     let createPromise = resolve(resumableFile.targetRootDirectory);
@@ -703,8 +708,11 @@ export default Service.extend(...mixins, {
           // or create a new one and remember Promise to reuse it later for
           // another files.
           if (!nextLevelDirPromise) {
-            nextLevelDirPromise = fileManager.createDirectory(pathSections[i],
-              parent, 50);
+            nextLevelDirPromise = fileManager.createDirectory(
+              pathSections[i],
+              parent,
+              50
+            );
             createdDirectories[directoryPath] = nextLevelDirPromise;
             nextLevelDirPromise.then(() => this.refreshDirectoryChildren(parent));
           }
@@ -715,8 +723,10 @@ export default Service.extend(...mixins, {
 
     return createPromise.then(parent => {
       // When all directories needed to upload file are created, create file itself.
+      // FIXME: przykładowy kod jak można podmienić plik
       const createFileModelPromise =
-        fileManager.createFile(get(pathSections, 'lastObject'), parent, 50);
+        // fileManager.createFile(get(pathSections, 'lastObject'), parent, 50);
+        fileManager.getFileByName(parent.entityId, get(pathSections, 'lastObject'));
       createFileModelPromise.then((fileModel) => {
         this.refreshDirectoryChildren(parent);
         resumableFile.createFileModelPromise = null;

@@ -276,13 +276,18 @@ export default Service.extend({
   },
 
   /**
-   * Sends an RPC call that initializes upload of given file.
-   * @param {Models.File} file
+   * Sends an RPC call that initializes data upload to given file.
+   * @param {string} fileEntityId
+   * @param {boolean} overwriteTargetFile If true, the target file will be fully
+   *   overwritten by the newly uploaded data if it is present. If false, if file has any
+   *   data (size > 0) then request will fail. In both cases, when file has no data (size
+   *   = 0) then upload will start.
    * @returns {Promise}
    */
-  initializeFileUpload(file) {
-    return this.get('onedataRpc').request('initializeFileUpload', {
-      guid: get(file, 'entityId'),
+  initializeFileUpload(fileEntityId, overwriteTargetFile = false) {
+    return this.onedataRpc.request('initializeFileUpload', {
+      guid: fileEntityId,
+      truncateToZero: Boolean(overwriteTargetFile),
     });
   },
 
