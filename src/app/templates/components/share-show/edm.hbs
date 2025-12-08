@@ -24,7 +24,7 @@
           @disabled={{isModifyDisabled}}
         >
           <OneIcon @icon="browser-rename" />
-          {{t "components.shareShow.modifyButton"}}
+          {{tt this "modify"}}
         </OneButton>
         {{#if modifyDisabledTip}}
           <OneTooltip @title={{modifyDisabledTip}} />

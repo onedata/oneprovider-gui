@@ -1,0 +1,25 @@
+.share-show-data-cite {
+  .col-data-cite-editor {
+    display: flex;
+    flex-direction: column;
+  }
+  .ember-ace-data-cite-source {
+    flex-grow: 1;
+    flex-basis: 180px;
+  }
+  .metadata-header-section-content {
+    .main-header {
+      flex-grow: 1;
+    }
+  }
+  .ember-ace + .metadata-editor-footer {
+    margin-top: 1em;
+  }
+}
+
+.share-show {
+  .share-show-data-cite {
+    // a fill-flex-using column is added in share-show, because of layout we need this
+    flex-direction: row;
+  }
+}

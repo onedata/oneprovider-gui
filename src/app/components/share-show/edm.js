@@ -258,7 +258,7 @@ export default Component.extend(I18n, {
     'hasManageSharesPrivilege',
     function modifyDisabledTip() {
       if (this.isModifyingExistingMetadata) {
-        return this.i18n.t('components.shareShow.modifyingButtonTip');
+        return this.t('modifyingButtonTip');
       }
       if (!this.hasManageSharesPrivilege) {
         return insufficientPrivilegesMessage({

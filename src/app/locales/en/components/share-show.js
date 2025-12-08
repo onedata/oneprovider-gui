@@ -14,6 +14,7 @@ import urlInfoShare from './share-show/url-info-share';
 import urlInfoRest from './share-show/url-info-rest';
 import edm from './share-show/edm';
 import metadataEditorFooter from './share-show/metadata-editor-footer';
+import dataCite from './share-show/data-cite';
 
 export default {
   tabs: {
@@ -23,9 +24,6 @@ export default {
     filesDeleted: 'Files <span class="text-danger">(deleted)</span>',
     exposePublicData: 'Expose as Public Data',
   },
-  // used accross misc components
-  modifyButton: 'Modify',
-  modifyingButtonTip: 'Modify the metadata in the editor below and use the buttons at the bottom to save changes or cancel',
   // sub-components
   headerManagemenet,
   headerPublic,
@@ -45,4 +43,5 @@ export default {
   urlInfoRest,
   edm,
   metadataEditorFooter,
+  dataCite,
 };

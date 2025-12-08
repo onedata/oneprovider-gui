@@ -277,7 +277,7 @@ export default Component.extend(...mixins, {
     if (!handle) {
       return false;
     }
-    return get(handle, 'metadataPrefix') === MetadataType.Edm;
+    return get(handle, 'metadataSchema') === MetadataType.Edm;
   }),
 
   tabScrollObserver: asyncObserver('activeTab', function tabScrollObserver() {

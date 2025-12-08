@@ -34,17 +34,17 @@ export default Service.extend({
    * @param {Models.Share} options.share
    * @param {string} options.handleServiceId
    * @param {string} options.metadataString
-   * @param {HandleModel.MetadataType} options.metadataPrefix
+   * @param {HandleModel.MetadataType} options.metadataSchema
    * @returns {Models.Handle}
    */
   async createHandle({
     share,
     handleServiceId,
     metadataString,
-    metadataPrefix = MetadataType.Dc,
+    metadataSchema = MetadataType.DublinCore,
   } = {}) {
     const handle = this.store.createRecord('handle', {
-      metadataPrefix,
+      metadataSchema,
       metadataString,
       _meta: {
         additionalData: {
