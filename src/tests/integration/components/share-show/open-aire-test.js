@@ -5,12 +5,12 @@ import { click, fillIn } from '@ember/test-helpers';
 import { Promise } from 'rsvp';
 import { clearStoreAfterEach } from '../../../helpers/clear-store';
 import sleep from 'onedata-gui-common/utils/sleep';
-import { exampleDataCiteMetadata } from 'oneprovider-gui/utils/mock-data';
+import { exampleOpenAireMetadata } from 'oneprovider-gui/utils/mock-data';
 import { replaceEmberAceWithTextarea } from '../../../helpers/ember-ace';
 import sinon from 'sinon';
 import ShareShowXmlOnlyMetadataHelper from '../../../helpers/share-show-xml-only-metadata';
 
-describe('Integration | Component | share-show/data-cite', function () {
+describe('Integration | Component | share-show/open-aire', function () {
   const { afterEach } = setupRenderingTest();
 
   beforeEach(async function () {
@@ -30,7 +30,7 @@ describe('Integration | Component | share-show/data-cite', function () {
       await helper.createShare();
       await helper.createRootFile();
       await helper.createHandle({
-        metadataString: exampleDataCiteMetadata,
+        metadataString: exampleOpenAireMetadata,
       });
 
       // when
@@ -42,9 +42,9 @@ describe('Integration | Component | share-show/data-cite', function () {
       // then
       expect(helper.element, 'main element').to.exist;
       expect(helper.element.querySelector('h1')?.textContent)
-        .to.contain('DataCite metadata');
+        .to.contain('OpenAIRE metadata');
       expect(helper.element.textContent)
-        .to.contain('Carefully compose the DataCite metadata below');
+        .to.contain('Carefully compose the OpenAIRE metadata below');
     }
   );
 
@@ -57,7 +57,7 @@ describe('Integration | Component | share-show/data-cite', function () {
       await helper.createShare();
       await helper.createRootFile();
       await helper.createHandle({
-        metadataString: exampleDataCiteMetadata,
+        metadataString: exampleOpenAireMetadata,
       });
 
       // when
@@ -67,7 +67,7 @@ describe('Integration | Component | share-show/data-cite', function () {
       });
 
       // then
-      expect(helper.editor.value?.trim()).to.equal(exampleDataCiteMetadata.trim());
+      expect(helper.editor.value?.trim()).to.equal(exampleOpenAireMetadata.trim());
     }
   );
 
@@ -80,7 +80,7 @@ describe('Integration | Component | share-show/data-cite', function () {
       await helper.createShare();
       await helper.createRootFile();
       await helper.createHandle({
-        metadataString: exampleDataCiteMetadata,
+        metadataString: exampleOpenAireMetadata,
       });
 
       // when
@@ -195,29 +195,50 @@ describe('Integration | Component | share-show/data-cite', function () {
 
       // then
       expect(helper.editor.value)
-        .to.contain(`<creatorName>${helper.user.name}</creatorName>`);
+        .to.contain(`<datacite:creatorName>${helper.user.name}</datacite:creatorName>`);
+      expect(helper.editor.value)
+        .to.contain('>2025-01-02</datacite:date>');
     }
   );
 });
 
 function generateSimpleXml() {
-  return `<resource
-    xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd"
-  >
-    <identifier identifierType="DOI">10.5072/example-full</identifier>
-  </resource>
-`;
-
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!-- OpenAIRE XML metadata; refer to: https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/application_profile.html -->
+<oaire:resource
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:dcterms="http://purl.org/dc/terms/"
+ xmlns:datacite="http://datacite.org/schema/kernel-4"
+ xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+ xmlns:oaire="http://namespace.openaire.eu/schema/oaire/"
+ xsi:schemaLocation="http://namespace.openaire.eu/schema/oaire/ https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd">
+    <datacite:titles>
+        <datacite:title>Hello</datacite:title>
+    </datacite:titles>
+    <datacite:creators>
+        <datacite:creator>
+            <datacite:creatorName>John</datacite:creatorName>
+        </datacite:creator>
+    </datacite:creators>
+    <dc:language>eng</dc:language>
+    <datacite:dates>
+        <datacite:date dateType="Issued">2021-02-03</datacite:date>
+    </datacite:dates>
+    <oaire:resourceType resourceTypeGeneral="literature" uri="http://purl.org/coar/resource_type/c_93fc">report</oaire:resourceType>
+    <datacite:rights rightsURI="http://purl.org/coar/access_right/c_abf2">open access</datacite:rights>
+</oaire:resource>`;
 }
 
 class Helper extends ShareShowXmlOnlyMetadataHelper {
   /** @override */
   get componentPath() {
-    return 'share-show/data-cite';
+    return 'share-show/open-aire';
   }
 
   /** @override */
   get componentSelector() {
-    return '.share-show-data-cite';
+    return '.share-show-open-aire';
   }
 }

@@ -26,6 +26,18 @@
           @onBack={{action "back"}}
           @onChangeEditMode={{action "changeEditMode"}}
         />
+      {{else if (eq selectedMetadataType MetadataType.OpenAire)}}
+        <ShareShow::OpenAire
+          class="fill-flex-using-column"
+          @xmlValue={{this.xml}}
+          @isPublished={{true}}
+          @isReadOnly={{not this.isModifyingExistingMetadata}}
+          @isPublicView={{this.publicMode}}
+          @space={{this.space}}
+          @onModify={{action "modifyMetadata"}}
+          @onBack={{action "back"}}
+          @onChangeEditMode={{action "changeEditMode"}}
+        />
       {{else}}
         {{!-- Dublin Core is treated also as a fallback --}}
         {{#if (and (not publicMode) isModifyingExistingMetadata)}}
@@ -121,6 +133,7 @@
                   <p>{{tt this "publishWelcome.metadataTypeMore.dublinCore"}}</p>
                   <p>{{tt this "publishWelcome.metadataTypeMore.edm"}}</p>
                   <p>{{tt this "publishWelcome.metadataTypeMore.dataCite"}}</p>
+                  <p>{{tt this "publishWelcome.metadataTypeMore.openAire"}}</p>
                   <p>{{tt this "publishWelcome.metadataTypeMore.outro"}}</p>
                 </OneLabelTip>
               </p>
@@ -162,6 +175,18 @@
                 />
               {{else if (eq selectedMetadataType MetadataType.DataCite)}}
                 <ShareShow::DataCite
+                  class="full-height"
+                  @handleService={{this.selectedHandleService}}
+                  @isReadOnly={{false}}
+                  @isPublished={{false}}
+                  @isPublicView={{false}}
+                  @initialData={{this.initialData}}
+                  @onUpdateXml={{action "updateXml"}}
+                  @onSubmit={{action "submit"}}
+                  @onBack={{action "back"}}
+                />
+              {{else if (eq selectedMetadataType MetadataType.OpenAire)}}
+                <ShareShow::OpenAire
                   class="full-height"
                   @handleService={{this.selectedHandleService}}
                   @isReadOnly={{false}}

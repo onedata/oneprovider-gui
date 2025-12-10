@@ -1,9 +1,9 @@
-.share-show-data-cite {
-  .col-data-cite-editor {
+.share-show-xml-only-metadata {
+  .col-xml-only-metadata-editor {
     display: flex;
     flex-direction: column;
   }
-  .ember-ace-data-cite-source {
+  .ember-ace-xml-only-metadata-source {
     flex-grow: 1;
     flex-basis: 180px;
   }
@@ -18,7 +18,7 @@
 }
 
 .share-show {
-  .share-show-data-cite {
+  .share-show-xml-only-metadata {
     // a fill-flex-using column is added in share-show, because of layout we need this
     flex-direction: row;
   }

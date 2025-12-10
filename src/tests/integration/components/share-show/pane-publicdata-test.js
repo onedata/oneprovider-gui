@@ -16,6 +16,7 @@ import {
   exampleDataCiteMetadata,
   exampleDublinCoreShort,
   exampleEdmValidXml,
+  exampleOpenAireMetadata,
 } from 'oneprovider-gui/utils/mock-data';
 import { replaceEmberAceWithTextarea } from '../../../helpers/ember-ace';
 import sinon from 'sinon';
@@ -26,6 +27,7 @@ const metadataNameMap = {
   [MetadataType.DataCite]: 'DataCite',
   [MetadataType.DublinCore]: 'Dublin Core',
   [MetadataType.Edm]: 'Europeana Data Model',
+  [MetadataType.OpenAire]: 'OpenAIRE',
 };
 
 const metadataNames = Object.values(metadataNameMap);
@@ -34,6 +36,7 @@ const validXmls = {
   [MetadataType.DublinCore]: exampleDublinCoreShort,
   [MetadataType.Edm]: exampleEdmValidXml,
   [MetadataType.DataCite]: exampleDataCiteMetadata,
+  [MetadataType.OpenAire]: exampleOpenAireMetadata,
 };
 
 describe('Integration | Component | share-show/pane-publicdata', function () {
@@ -116,106 +119,120 @@ describe('Integration | Component | share-show/pane-publicdata', function () {
     }
   );
 
-  it('renders DataCite editor after selecting DataCite metadata type and proceeding',
-    async function () {
-      // given
-      /** @type {Helper} */
-      const helper = this.helper;
-      await helper.createSingleHandleService();
-      await helper.createShare();
-      await helper.createRootFile();
-      await helper.createSpace();
+  const onlyXmlSpecs = [{
+      metadataType: MetadataType.DataCite,
+      componentSelector: '.share-show-data-cite',
+    },
+    {
+      metadataType: MetadataType.OpenAire,
+      componentSelector: '.share-show-open-aire',
+    },
+  ];
 
-      // when
-      await helper.render();
-      expect(helper.element.querySelector('.share-show-data-cite')).to.not.exist;
-      await helper
-        .getHandleServiceDropdown()
-        .selectOptionByText(helper.getHandleServices()[0].name);
-      await helper.getMedatataTypeDropdown().selectOptionByText('DataCite');
-      await click(helper.proceedButton);
+  for (const { metadataType, componentSelector } of onlyXmlSpecs) {
+    const metadataTypeName = metadataNameMap[metadataType];
 
-      // then
-      expect(helper.element.querySelector('.share-show-data-cite')).to.exist;
-    }
-  );
+    it(`renders ${metadataTypeName} editor after selecting ${metadataTypeName} metadata type and proceeding`,
+      async function () {
+        // given
+        /** @type {Helper} */
+        const helper = this.helper;
+        await helper.createSingleHandleService();
+        await helper.createShare();
+        await helper.createRootFile();
+        await helper.createSpace();
 
-  it('renders DataCite component when there is share with handle of datacite type',
-    async function () {
-      // given
-      /** @type {Helper} */
-      const helper = this.helper;
-      await helper.createSingleHandleService();
-      await helper.createShare();
-      await helper.createHandle({
-        metadataString: exampleDataCiteMetadata,
-        metadataSchema: MetadataType.DataCite,
-      });
-      await helper.createRootFile();
-      await helper.createSpace();
+        // when
+        await helper.render();
+        expect(helper.element.querySelector(componentSelector)).to.not.exist;
+        await helper
+          .getHandleServiceDropdown()
+          .selectOptionByText(helper.getHandleServices()[0].name);
+        await helper.getMedatataTypeDropdown().selectOptionByText(metadataTypeName);
+        await click(helper.proceedButton);
 
-      // when
-      await helper.render();
+        // then
+        expect(helper.element.querySelector(componentSelector)).to.exist;
+      }
+    );
 
-      // then
-      expect(helper.element.querySelector('.share-show-data-cite')).to.exist;
-    }
-  );
+    it(`renders ${metadataTypeName} component when there is share with handle of ${metadataType} type`,
+      async function () {
+        // given
+        /** @type {Helper} */
+        const helper = this.helper;
+        await helper.createSingleHandleService();
+        await helper.createShare();
+        await helper.createHandle({
+          metadataString: validXmls[metadataType],
+          metadataSchema: metadataType,
+        });
+        await helper.createRootFile();
+        await helper.createSpace();
 
-  it('changes view back to welcome screen when using back button on DataCite create view',
-    async function () {
-      // given
-      /** @type {Helper} */
-      const helper = this.helper;
-      await helper.createSingleHandleService();
-      await helper.createShare();
-      await helper.createRootFile();
-      await helper.createSpace();
-      await helper.render();
-      await helper
-        .getHandleServiceDropdown()
-        .selectOptionByText(helper.getHandleServices()[0].name);
-      await helper.getMedatataTypeDropdown().selectOptionByText('DataCite');
-      await click(helper.proceedButton);
-      expect(
-        helper.element.querySelector('[data-one-carousel-slide-id="createMetadata"]')
-      ).to.have.class('active-from-right');
+        // when
+        await helper.render();
 
-      // when
-      await click(helper.element.querySelector('.metadata-editor-footer .btn-back'));
+        // then
+        expect(helper.element.querySelector(componentSelector)).to.exist;
+      }
+    );
 
-      // then
-      expect(
-        helper.element.querySelector('[data-one-carousel-slide-id="welcome"]')
-      ).to.have.class('active-from-left');
-    }
-  );
+    it(`changes view back to welcome screen when using back button on ${metadataTypeName} create view`,
+      async function () {
+        // given
+        /** @type {Helper} */
+        const helper = this.helper;
+        await helper.createSingleHandleService();
+        await helper.createShare();
+        await helper.createRootFile();
+        await helper.createSpace();
+        await helper.render();
+        await helper
+          .getHandleServiceDropdown()
+          .selectOptionByText(helper.getHandleServices()[0].name);
+        await helper.getMedatataTypeDropdown().selectOptionByText(metadataTypeName);
+        await click(helper.proceedButton);
+        expect(
+          helper.element.querySelector('[data-one-carousel-slide-id="createMetadata"]')
+        ).to.have.class('active-from-right');
 
-  it('changes mode of DataCite component from viewer to editor when using modify button',
-    async function () {
-      // given
-      /** @type {Helper} */
-      const helper = this.helper;
-      await helper.createSingleHandleService();
-      await helper.createShare();
-      await helper.createHandle({
-        metadataString: exampleDataCiteMetadata,
-        metadataSchema: MetadataType.DataCite,
-      });
-      await helper.createRootFile();
-      await helper.createSpace();
-      await helper.render();
-      const textarea =
-        helper.element.querySelector('.ember-ace-data-cite-source textarea');
+        // when
+        await click(helper.element.querySelector('.metadata-editor-footer .btn-back'));
 
-      // when
-      expect(textarea).to.have.attribute('disabled');
-      await click(helper.element.querySelector('.modify-metadata-btn'));
+        // then
+        expect(
+          helper.element.querySelector('[data-one-carousel-slide-id="welcome"]')
+        ).to.have.class('active-from-left');
+      }
+    );
 
-      // then
-      expect(textarea).to.not.have.attribute('disabled');
-    }
-  );
+    it(`changes mode of ${metadataTypeName} component from viewer to editor when using modify button`,
+      async function () {
+        // given
+        /** @type {Helper} */
+        const helper = this.helper;
+        await helper.createSingleHandleService();
+        await helper.createShare();
+        await helper.createHandle({
+          metadataString: validXmls[metadataType],
+          metadataSchema: metadataType,
+        });
+        await helper.createRootFile();
+        await helper.createSpace();
+        await helper.render();
+        const textarea =
+          helper.element.querySelector('.ember-ace-xml-only-metadata-source textarea');
+
+        // when
+        expect(textarea).to.have.attribute('disabled');
+        await click(helper.element.querySelector('.modify-metadata-btn'));
+
+        // then
+        expect(textarea).to.not.have.attribute('disabled');
+      }
+    );
+  }
 
   for (const metadataType of metadataTypes) {
     const metadataTypeName = metadataNameMap[metadataType];

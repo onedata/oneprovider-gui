@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13198 Added support and XML editor for OpenAIRE metadata
 * VFS-12892 Added support and XML editor for DataCite metadata
 * VFS-13096 Added debug logging of upload process (enabled only with browserDebugLogs flag in gui-context)
 * VFS-13138 Added opening first non-empty metadata tab by default

@@ -109,6 +109,7 @@ export default Component.extend(I18n, {
     MetadataType.DublinCore,
     MetadataType.Edm,
     MetadataType.DataCite,
+    MetadataType.OpenAire,
   ]),
 
   metadataTypeOptions: computed('metadataTypes', function metadataTypeOptions() {
