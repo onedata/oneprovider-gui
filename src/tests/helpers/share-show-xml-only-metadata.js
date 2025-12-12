@@ -187,8 +187,6 @@ export default class ShareShowXmlOnlyMetadataHelper {
       ...options,
     };
     this.mochaContext.set('componentPath', this.componentPath);
-    // FIXME: czy to onBack nie jest czasami jakimś starym kodem debug?
-    this.mochaContext.set('onBack', 'test1');
     await render(hbs`
     <div class="share-show">
       {{#let (component this.componentPath) as |metadataComponent|}}

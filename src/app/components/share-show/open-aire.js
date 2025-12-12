@@ -11,7 +11,7 @@ import moment from 'moment';
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 
-export default class DataCiteComponent extends Component {
+export default class ShareShowOpenAireComponent extends Component {
   constructor() {
     super(...arguments);
     this.locale = new Locale('components.shareShow.openAire');
