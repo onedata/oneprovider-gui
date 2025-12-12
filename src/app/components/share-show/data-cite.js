@@ -28,12 +28,12 @@ export default class DataCiteComponent extends Component {
     const year = moment(date).format('YYYY');
 
     return `<?xml version="1.0" encoding="utf-8"?>
+
 <!-- DataCite XML metadata; refer to: https://datacite-metadata-schema.readthedocs.io -->
 <resource
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://datacite.org/schema/kernel-4"
-  xsi:schemaLocation="http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4/metadata.xsd"
->
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://datacite.org/schema/kernel-4"
+    xsi:schemaLocation="http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4/metadata.xsd">
     <creators>
         <creator>
             <creatorName>${creator}</creatorName>

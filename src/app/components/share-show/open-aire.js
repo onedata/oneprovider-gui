@@ -29,16 +29,17 @@ export default class ShareShowOpenAireComponent extends Component {
     const formattedDate = moment(date).format('YYYY-MM-DD');
 
     return `<?xml version="1.0" encoding="UTF-8"?>
+
 <!-- OpenAIRE XML metadata; refer to: https://openaire-guidelines-for-literature-repository-managers.readthedocs.io/en/v4.0.0/application_profile.html -->
 <oaire:resource
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
- xmlns:dc="http://purl.org/dc/elements/1.1/"
- xmlns:dcterms="http://purl.org/dc/terms/"
- xmlns:datacite="http://datacite.org/schema/kernel-4"
- xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
- xmlns:oaire="http://namespace.openaire.eu/schema/oaire/"
- xsi:schemaLocation="http://namespace.openaire.eu/schema/oaire/ https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:datacite="http://datacite.org/schema/kernel-4"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    xmlns:oaire="http://namespace.openaire.eu/schema/oaire/"
+    xsi:schemaLocation="http://namespace.openaire.eu/schema/oaire/ https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd">
     <datacite:titles>
         <datacite:title>${title}</datacite:title>
     </datacite:titles>
