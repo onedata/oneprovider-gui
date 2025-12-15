@@ -15,6 +15,7 @@ import urlInfoRest from './share-show/url-info-rest';
 import edm from './share-show/edm';
 import metadataEditorFooter from './share-show/metadata-editor-footer';
 import dataCite from './share-show/data-cite';
+import openAire from './share-show/open-aire';
 
 export default {
   tabs: {
@@ -44,4 +45,5 @@ export default {
   edm,
   metadataEditorFooter,
   dataCite,
+  openAire,
 };
