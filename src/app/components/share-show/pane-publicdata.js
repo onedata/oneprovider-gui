@@ -28,7 +28,7 @@ import _ from 'lodash';
  */
 
 /**
- * Data for generating default XML metadata. It can be intepreted in various ways
+ * Data for generating default XML metadata. It can be interpreted in various ways
  * by the specific metadata editor (eg. Dublin Core, EDM)
  * @typedef {Object} PublicDataInitialMetadata
  * @property {string} title
