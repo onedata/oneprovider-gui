@@ -344,7 +344,7 @@ describe('Integration | Component | share-show/pane-publicdata', function () {
 
         // --- then ---
         // The XML generator adds spaces after some lines, but our example metadata
-        // srings does not have them, because IDE automatically trims them. Normalize
+        // strings does not have them, because IDE automatically trims them. Normalize
         // persisted string for comparation.
         const expectedPersistedMetadata = helper.handle.metadataString
           .replaceAll(/ +\n/g, '\n').trim();

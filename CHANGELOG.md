@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13221 Added support for new Calendar Versioning scheme in Onedata (e.g. version 25.0)
 * VFS-13198 Added support and XML editor for OpenAIRE metadata
 * VFS-12892 Added support and XML editor for DataCite metadata
 * VFS-13096 Added debug logging of upload process (enabled only with browserDebugLogs flag in gui-context)
