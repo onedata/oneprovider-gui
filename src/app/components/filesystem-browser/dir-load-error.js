@@ -10,6 +10,7 @@
 
 import FbDirLoadError from 'oneprovider-gui/components/file-browser/fb-dir-load-error';
 import layout from 'oneprovider-gui/templates/components/file-browser/fb-dir-load-error';
+import { computed } from '@ember/object';
 
 export default FbDirLoadError.extend({
   layout,
@@ -18,4 +19,15 @@ export default FbDirLoadError.extend({
    * @override
    */
   i18nPrefix: 'components.filesystemBrowser.dirLoadError',
+
+  /**
+   * @override
+   */
+  dirLoadErrorDescription: computed('dirLoadError', function dirLoadErrorDescription() {
+    if (this.dirLoadError?.details?.errno === 'eagain') {
+      return this.t('description');
+    } else {
+      return undefined;
+    }
+  }),
 });

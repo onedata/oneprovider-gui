@@ -33,6 +33,8 @@ export default Component.extend(I18n, {
    */
   browserModel: undefined,
 
+  dirLoadErrorDescription: undefined,
+
   /**
    * @type {ComputedProperty<object>} message object from error extractor
    */
