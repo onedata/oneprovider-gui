@@ -4,7 +4,7 @@
 
 ### Latest changes
 
-* VFS-13250 Fixed opening archive DIP and infinite scroll in archives browser in file datasets panel
+* VFS-13250 Fixed infinite scroll in archives browser, archive recall target browser and items selector; fixed opening archive DIP in file datasets panel
 * VFS-13221 Added support for new Calendar Versioning scheme in Onedata (e.g. version 25.0)
 * VFS-13198 Added support and XML editor for OpenAIRE metadata
 * VFS-12892 Added support and XML editor for DataCite metadata
