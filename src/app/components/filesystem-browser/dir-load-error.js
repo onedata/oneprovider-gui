@@ -25,7 +25,7 @@ export default FbDirLoadError.extend({
    */
   dirLoadErrorDescription: computed('dirLoadError', function dirLoadErrorDescription() {
     if (this.dirLoadError?.details?.errno === 'eagain') {
-      return this.t('description');
+      return this.t('eagainErrorDescription');
     } else {
       return undefined;
     }
