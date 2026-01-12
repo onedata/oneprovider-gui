@@ -3,6 +3,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2021-2024 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -15,7 +16,7 @@ import { inject as service } from '@ember/service';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
-import { promise, conditional, raw } from 'ember-awesome-macros';
+import { promise } from 'ember-awesome-macros';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -317,11 +318,15 @@ export default Component.extend(...mixins, {
    * One of: archives, files.
    * @type {ComputedProperty<String>}
    */
-  viewMode: conditional(
-    'archiveId',
-    raw('files'),
-    raw('archives'),
-  ),
+  viewMode: computed('archiveProxy.content', function viewMode() {
+    // A little bit hacky, because when archiveId gets changed then is stays in 'archives'
+    // mode until proxy is loaded, but it is for simplicity (and hot fix before release).
+    if (this.archiveProxy.content) {
+      return 'files';
+    } else {
+      return 'archives';
+    }
+  }),
 
   /**
    * One of: aip, dip.

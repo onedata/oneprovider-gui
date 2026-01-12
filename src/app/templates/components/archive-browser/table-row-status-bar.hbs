@@ -4,6 +4,7 @@
       "file-status-tag archive-failed-tag"
       "file-status-tag-danger"
       (if isEffDisabled "file-status-tag-disabled")
+      (unless isEffDisabled "clickable")
     }}
     {{action
       (if isEffDisabled
@@ -30,6 +31,7 @@
     class={{concat-classes
       "file-status-tag archive-dip-tag"
       (if isEffDisabled "file-status-tag-disabled")
+      (unless isEffDisabled "clickable")
     }}
     {{action
       (if isEffDisabled
