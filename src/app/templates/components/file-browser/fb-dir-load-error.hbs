@@ -7,6 +7,11 @@
   "dir-box-image"
   (concat "error-dir-image-" (or dirLoadErrorPosix "unknown"))
 }}></div>
+{{#if dirLoadErrorDescription}}
+  <div class="error-dir-description dir-box-text">
+    {{dirLoadErrorDescription}}
+  </div>
+{{/if}}
 {{#unless dir}}
   <OneButton class="dir-box-btn" @type="default" @onClick={{action "navigateToRoot"}}>
     {{navigateToRootButtonLabel}}
