@@ -1,19 +1,17 @@
-import dcCommon, { editorHeaderTipCommon } from './dc-common';
+import common from './-common';
 import shareValidation from './edm/share-validation';
-
-const metadataEditorIntro = dcCommon.metadataEditorIntro;
-const edmReadonlyTip = dcCommon.metadataPublicHeaderTip.edm;
-const edmIntroExtra = dcCommon.metadataEditorIntroExtra.edm;
 export const imageNotFound = 'Cannot load representative image';
 
 export default {
   shareValidation,
   header: 'Europeana Data Model (EDM) metadata',
   headerMobile: 'Metadata',
-  metadataEditorIntro,
-  introTip: `${editorHeaderTipCommon} You may use the visual editor that will generate the EDM XML metadata for you.`,
-  readonlyHeaderTip: edmReadonlyTip,
-  introExtra: edmIntroExtra,
+  metadataEditorIntro: common.metadataEditorIntro,
+  introTip: `${common.editorHeaderTipCommon} You may use the visual editor that will generate the EDM XML metadata for you.`,
+  readonlyHeaderTip: common.metadataPublicHeaderTip.edm,
+  introExtra: common.metadataEditorIntroExtra.edm,
+  modify: common.modify,
+  modifyingButtonTip: common.modifyingButtonTip,
   invalidXml: 'The XML source cannot be parsed to EDM metadata. Review your XML.',
   applyAndFormatXml: 'Apply and format XML',
   discardXmlChanges: 'Discard changes',

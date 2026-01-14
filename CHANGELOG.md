@@ -4,6 +4,12 @@
 
 ### Latest changes
 
+* VFS-13235 Added description for EAGAIN error
+* VFS-13250 Fixed infinite scroll in archives browser, archive recall target browser and items selector; fixed opening archive DIP in file datasets panel
+* VFS-13221 Added support for new Calendar Versioning scheme in Onedata (e.g. version 25.0)
+* VFS-13198 Added support and XML editor for OpenAIRE metadata
+* VFS-12892 Added support and XML editor for DataCite metadata
+* VFS-13096 Added debug logging of upload process (enabled only with browserDebugLogs flag in gui-context)
 * VFS-13138 Added opening first non-empty metadata tab by default
 * VFS-12444 Added dir location in distribution and in info tab in file details
 * VFS-13057 Added loading and error handling to "Expose as Public Data..." toggle

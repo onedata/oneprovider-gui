@@ -5,6 +5,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2017 ACK CYFRONET AGH
+ * @copyright (C) 2025 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -18,26 +19,28 @@ export default Component.extend({
   attributeBindings: ['style'],
 
   /**
-   * @type {boolean}
-   */
-  isSource: false,
-
-  /**
-   * @type {boolean}
-   */
-  isDestination: false,
-
-  /**
    * @virtual
    * @type {string}
    */
   circleColor: '',
 
   /**
+   * @virtual optional
+   * @type {boolean}
+   */
+  isSource: false,
+
+  /**
+   * @virtual optional
+   * @type {boolean}
+   */
+  isDestination: false,
+
+  /**
    * Computed provider-specific style
    * @type {ComputedProperty<String>}
    */
   style: computed('circleColor', function style() {
-    return htmlSafe(`background-color: ${this.get('circleColor')};`);
+    return htmlSafe(`background-color: ${this.circleColor};`);
   }),
 });

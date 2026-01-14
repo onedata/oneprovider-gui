@@ -116,6 +116,10 @@
     .dir-box-text {
       text-align: center;
     }
+    .error-dir-description {
+      margin-bottom: 4em;
+      font-size: 1.25em;
+    }
     h1 {
       @include font-semibold();
       text-transform: uppercase;

@@ -13,15 +13,17 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 export const entityType = 'op_handle';
 
 /**
- * @typedef {'oai_dc'|'edm'} HandleModel.MetadataType
+ * @typedef {'oai_dc'|'edm'|'oai_datacite'|'oai_openaire'} HandleModel.MetadataType
  */
 
 /**
  * @type {Object<string, HandleModel.MetadataType>}
  */
 export const MetadataType = Object.freeze({
-  Dc: 'oai_dc',
+  DublinCore: 'oai_dc',
   Edm: 'edm',
+  DataCite: 'oai_datacite',
+  OpenAire: 'oai_openaire',
 });
 
 export default Model.extend(GraphSingleModelMixin, {
@@ -32,5 +34,5 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {MetadataType}
    */
-  metadataPrefix: attr('string'),
+  metadataSchema: attr('string'),
 }).reopenClass(StaticGraphModelMixin);

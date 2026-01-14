@@ -34,6 +34,14 @@ export default Component.extend(I18n, {
   browserModel: undefined,
 
   /**
+   * Additional optional text for error, providing extra information
+   * and displayed below image
+   * @virtual
+   * @type {ComputedProperty<SafeString|undefined>}
+   */
+  dirLoadErrorDescription: undefined,
+
+  /**
    * @type {ComputedProperty<object>} message object from error extractor
    */
   dirLoadErrorMessage: computed(

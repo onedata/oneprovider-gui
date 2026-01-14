@@ -42,7 +42,7 @@ export default Dc.extend(I18n, {
 
   /**
    * @virtual
-   * @type {(xml: String, handleServiceId: String) => Promise}
+   * @type {(xml: string) => Promise}
    */
   onSubmit: undefined,
 
@@ -201,12 +201,7 @@ export default Dc.extend(I18n, {
     if (this.mode === 'visual') {
       this.updateXmlValueFromModel();
     }
-    try {
-      await this.onSubmit(this.currentXmlValue);
-    } catch (error) {
-      this.globalNotify.backendError(this.t('editor.publishingData'), error);
-      throw error;
-    }
+    await this.onSubmit(this.currentXmlValue);
   },
 
   async submitMetadataUpdate() {
