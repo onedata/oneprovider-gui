@@ -17,9 +17,10 @@
            <OneLabelTip @title={{tt this "showDetailsTooltip"}} />
         </label>
         <OneWayToggle
+          class="show-details-toggle"
           @inputId={{concat "show-details-" elementId}}
           @checked={{showVirtualSize}}
-          @update={{action (mut showVirtualSize)}}
+          @update={{action "changeShowingVirtualSize"}}
         />
       </div>
       <h2 class="current-size-header">
@@ -85,17 +86,25 @@
                 {{tt this "currentSize.fileCounters.virtualSizeLabel"}}:
               </span>
               <span class="property-value">
-                {{bytes-to-string latestDirSizeStatsValueRanges.minVirtualSize}}
-                {{#if (not-eq
-                  latestDirSizeStatsValueRanges.minVirtualSize
-                  latestDirSizeStatsValueRanges.maxVirtualSize
-                )}}
-                   – {{bytes-to-string latestDirSizeStatsValueRanges.maxVirtualSize}}
-                {{/if}}
-                {{#if virtualSizeExtraInfo}}
-                  <span class="extra-info">
-                    ({{virtualSizeExtraInfo}}&nbsp;B)
-                  </span>
+                {{#if isVirtualSizeAvailable}}
+                  {{bytes-to-string latestDirSizeStatsValueRanges.minVirtualSize}}
+                  {{#if (not-eq
+                    latestDirSizeStatsValueRanges.minVirtualSize
+                    latestDirSizeStatsValueRanges.maxVirtualSize
+                  )}}
+                     – {{bytes-to-string latestDirSizeStatsValueRanges.maxVirtualSize}}
+                  {{/if}}
+                  {{#if virtualSizeExtraInfo}}
+                    <span class="extra-info">
+                      ({{virtualSizeExtraInfo}}&nbsp;B)
+                    </span>
+                  {{/if}}
+                {{else}}
+                  <SpinSpinnerBlock
+                    class="virtual-size-spinner"
+                    @tagName="span"
+                    @sizeClass="xs"
+                  />
                 {{/if}}
                 <OneLabelTip @title={{tt this "currentSize.virtualSizeTip"}} />
               </span>

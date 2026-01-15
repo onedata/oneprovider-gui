@@ -43,11 +43,19 @@
             {{tt this "fileCounters.virtualSizeLabel"}}:
           </span>
           <span class="virtual-size-value">
-            {{bytes-to-string sizeStats.virtualSize}}
-            {{#if (gte sizeStats.virtualSize 1024)}}
-              <span class="extra-info">
-                ({{format-number sizeStats.virtualSize}}&nbsp;B)
-              </span>
+            {{#if (eq sizeStats.virtualSize undefined)}}
+              <SpinSpinnerBlock
+                class="virtual-size-spinner"
+                @tagName="span"
+                @sizeClass="xs"
+              />
+            {{else}}
+              {{bytes-to-string sizeStats.virtualSize}}
+              {{#if (gte sizeStats.virtualSize 1024)}}
+                <span class="extra-info">
+                  ({{format-number sizeStats.virtualSize}}&nbsp;B)
+                </span>
+              {{/if}}
             {{/if}}
           </span>
         </div>
@@ -84,11 +92,19 @@
     </td>
     {{#if this.showVirtualSizeColumn}}
       <td class="virtual-size-value">
-        {{bytes-to-string sizeStats.virtualSize}}
-        {{#if (gte sizeStats.virtualSize 1024)}}
-          <span class="extra-info">
-            ({{format-number sizeStats.virtualSize}}&nbsp;B)
-          </span>
+        {{#if (eq sizeStats.virtualSize undefined)}}
+          <SpinSpinnerBlock
+            class="virtual-size-spinner"
+            @tagName="span"
+            @sizeClass="xs"
+          />
+        {{else}}
+          {{bytes-to-string sizeStats.virtualSize}}
+          {{#if (gte sizeStats.virtualSize 1024)}}
+            <span class="extra-info">
+              ({{format-number sizeStats.virtualSize}}&nbsp;B)
+            </span>
+          {{/if}}
         {{/if}}
       </td>
     {{/if}}

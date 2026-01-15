@@ -11,8 +11,18 @@
   }
 
   .show-details {
-    float: right;
+    @media (min-width: $screen-sm-min) {
+      float: right;
+    }
     margin-right: 0.5em;
+  }
+
+  .virtual-size-spinner {
+    margin: 0 1em;
+  }
+
+  .show-details-toggle {
+    margin-top: -0.3em
   }
 
   .current-size-section {

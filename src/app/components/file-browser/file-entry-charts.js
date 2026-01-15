@@ -138,6 +138,18 @@ export default Component.extend(...mixins, {
   )),
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isVirtualSizeAvailable: computed(
+    'showVirtualSize',
+    'latestDirSizeStatsValueRanges.minVirtualSize',
+    function isVirtualSizeAvailable() {
+      return this.showVirtualSize &&
+        !isNaN(this.latestDirSizeStatsValueRanges.minVirtualSize);
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<PromiseObject>}
    */
   loadingProxy: promise.object(promise.all(
@@ -617,7 +629,7 @@ export default Component.extend(...mixins, {
 
   latestDirSizeStatsValueRanges: computed(
     'availableDirSizeStatsValues',
-    'virtualSize',
+    'showVirtualSize',
     function latestDirSizeStatsValueRanges() {
       const logicalSizeArray = this.availableDirSizeStatsValues.map(
         dirStats => dirStats.logicalSize
@@ -628,9 +640,8 @@ export default Component.extend(...mixins, {
       const dirsCountArray = this.availableDirSizeStatsValues.map(
         dirStats => dirStats.dirCount
       );
-      const virtualSizeArray = this.virtualSize ? this.availableDirSizeStatsValues.map(
-        dirStats => dirStats.virtualSize
-      ) : [];
+      const virtualSizeArray = this.showVirtualSize ?
+        this.availableDirSizeStatsValues.map(dirStats => dirStats.virtualSize) : [];
 
       return {
         minLogicalSize: Math.min(...logicalSizeArray),
@@ -944,6 +955,10 @@ export default Component.extend(...mixins, {
     },
     toggleSizeStats() {
       this.toggleProperty('areSizeStatsExpanded');
+    },
+    changeShowingVirtualSize() {
+      this.toggleProperty('showVirtualSize');
+      this.viewModel.set('showVirtualSize', this.showVirtualSize);
     },
   },
 });
