@@ -37,6 +37,21 @@
           {{/if}}
         </span>
       </div>
+      {{#if this.showVirtualSizeColumn}}
+        <div>
+          <span class="virtual-size-label">
+            {{tt this "fileCounters.virtualSizeLabel"}}:
+          </span>
+          <span class="virtual-size-value">
+            {{bytes-to-string sizeStats.virtualSize}}
+            {{#if (gte sizeStats.virtualSize 1024)}}
+              <span class="extra-info">
+                ({{format-number sizeStats.virtualSize}}&nbsp;B)
+              </span>
+            {{/if}}
+          </span>
+        </div>
+      {{/if}}
     {{/if}}
   </td>
 {{else}}
@@ -44,7 +59,7 @@
     <RecordInfoWithIcon @record={{sizeStats.provider}} />
   </td>
   {{#if sizeStats.error}}
-    <td colspan="3">
+    <td colspan={{if this.showVirtualSizeColumn "4" "3"}}>
       <FileBrowser::SizeStatsPerProviderTable::ErrorCell @sizeStats={{sizeStats}} />
     </td>
   {{else}}
@@ -67,5 +82,15 @@
         </span>
       {{/if}}
     </td>
+    {{#if this.showVirtualSizeColumn}}
+      <td class="virtual-size-value">
+        {{bytes-to-string sizeStats.virtualSize}}
+        {{#if (gte sizeStats.virtualSize 1024)}}
+          <span class="extra-info">
+            ({{format-number sizeStats.virtualSize}}&nbsp;B)
+          </span>
+        {{/if}}
+      </td>
+    {{/if}}
   {{/if}}
 {{/if}}

@@ -10,7 +10,10 @@
           </tr>
         </thead>
         <tbody>
-          <FileBrowser::SizeStatsPerProviderTable::ProviderRow @sizeStats={{sizeStats}} />
+          <FileBrowser::SizeStatsPerProviderTable::ProviderRow
+            @sizeStats={{sizeStats}}
+            @showVirtualSizeColumn={{this.showVirtualSizeColumn}}
+          />
         </tbody>
       </table>
     </div>
@@ -32,11 +35,19 @@
           <td>
             {{tt this "fileCounters.physicalSizeLabel"}}
           </td>
+          {{#if this.showVirtualSizeColumn}}
+            <td>
+              {{tt this "fileCounters.virtualSizeLabel"}}
+            </td>
+          {{/if}}
         </tr>
       </thead>
       <tbody>
         {{#each sortedDirSizeStatsValues key="provider" as |sizeStats|}}
-          <FileBrowser::SizeStatsPerProviderTable::ProviderRow @sizeStats={{sizeStats}} />
+          <FileBrowser::SizeStatsPerProviderTable::ProviderRow
+            @sizeStats={{sizeStats}}
+            @showVirtualSizeColumn={{this.showVirtualSizeColumn}}
+          />
         {{/each}}
       </tbody>
     </table>

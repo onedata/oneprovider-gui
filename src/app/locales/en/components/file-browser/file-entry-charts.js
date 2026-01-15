@@ -3,6 +3,8 @@ import sizeStatsPerProviderTable from './size-stats-per-provider-table';
 export default {
   noStatisticsTitle: 'Directory statistics not ready yet',
   noStatisticsContent: 'The requested directory statistics are still being calculated, please come back in a while.',
+  showDetails: 'Show details',
+  showDetailsTooltip: 'Show additional size details including virtual size in summary and in size statistics per provider table.',
   currentSize: {
     header: 'Current size',
     fileCounters: {
@@ -13,6 +15,8 @@ export default {
     currentSizeTip: 'Presented information is partial since it was collected only from online providers with enabled directory size statistics. From the global point of view, the actual size of the space may differ.',
     logicalSizeTip: 'Logical byte size is the total size of file data contained in this directory, i.e. the sum of logical byte sizes of all regular files.',
     totalPhysicalSizeTip: 'Summarized storage size used to store the data. Includes only the sizes reported by online providers with enabled directory size statistics.',
+    virtualSizeTip: 'Virtual size tooltip...',
+    // todo przerobic
   },
   showMoreStats: 'Show size statistics per provider',
   hideMoreStats: 'Hide size statistics per provider',

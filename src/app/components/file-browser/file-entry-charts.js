@@ -72,6 +72,11 @@ export default Component.extend(...mixins, {
   areChartsRendered: true,
 
   /**
+   * @type {boolean}
+   */
+  showVirtualSize: false,
+
+  /**
    * @type {ComputedProperty<Models.File>}
    */
   file: reads('viewModel.file'),
@@ -612,8 +617,8 @@ export default Component.extend(...mixins, {
 
   latestDirSizeStatsValueRanges: computed(
     'availableDirSizeStatsValues',
+    'virtualSize',
     function latestDirSizeStatsValueRanges() {
-
       const logicalSizeArray = this.availableDirSizeStatsValues.map(
         dirStats => dirStats.logicalSize
       );
@@ -623,6 +628,9 @@ export default Component.extend(...mixins, {
       const dirsCountArray = this.availableDirSizeStatsValues.map(
         dirStats => dirStats.dirCount
       );
+      const virtualSizeArray = this.virtualSize ? this.availableDirSizeStatsValues.map(
+        dirStats => dirStats.virtualSize
+      ) : [];
 
       return {
         minLogicalSize: Math.min(...logicalSizeArray),
@@ -631,6 +639,8 @@ export default Component.extend(...mixins, {
         maxFilesCount: Math.max(...filesCountArray),
         minDirsCount: Math.min(...dirsCountArray),
         maxDirsCount: Math.max(...dirsCountArray),
+        minVirtualSize: Math.min(...virtualSizeArray),
+        maxVirtualSize: Math.max(...virtualSizeArray),
       };
     }
   ),
@@ -708,6 +718,31 @@ export default Component.extend(...mixins, {
           logicalSize += ' – ' + formatNumber(maxLogicalSize);
         }
         return htmlSafe(logicalSize);
+      } else {
+        return '';
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  virtualSizeExtraInfo: computed(
+    'latestDirSizeStatsValueRanges',
+    'virtualSize',
+    function virtualSizeExtraInfo() {
+      if (!this.virtualSize) {
+        return '';
+      }
+      const minVirtualSize = this.latestDirSizeStatsValueRanges.minVirtualSize;
+      const maxVirtualSize = this.latestDirSizeStatsValueRanges.maxVirtualSize;
+
+      if (maxVirtualSize >= 1024) {
+        let virtualSize = formatNumber(minVirtualSize);
+        if (minVirtualSize !== maxVirtualSize) {
+          virtualSize += ' – ' + formatNumber(maxVirtualSize);
+        }
+        return htmlSafe(virtualSize);
       } else {
         return '';
       }

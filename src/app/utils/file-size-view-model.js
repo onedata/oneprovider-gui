@@ -202,7 +202,8 @@ export default EmberObject.extend(...mixins, {
         result = await this.fileManager.getSpaceCurrentSizeStats(this.spaceId);
       } else {
         result = {
-          all: await this.fileManager.getDirCurrentSizeStats(this.fileId),
+          // todo if
+          all: await this.fileManager.getDirCurrentSizeStats(this.fileId, true),
         };
       }
       safeExec(this, () => this.set('dirStatsNotReady', false));

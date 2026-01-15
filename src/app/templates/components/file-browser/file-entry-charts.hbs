@@ -11,7 +11,18 @@
 {{else}}
   <PromiseProxyContainer @proxy={{loadingProxy}}>
     <div class="current-size-section">
-       <h2 class="current-size-header">
+      <div class="show-details">
+        <label for={{concat "show-details-" elementId}} class="inline-label">
+          {{tt this "showDetails"}}
+           <OneLabelTip @title={{tt this "showDetailsTooltip"}} />
+        </label>
+        <OneWayToggle
+          @inputId={{concat "show-details-" elementId}}
+          @checked={{showVirtualSize}}
+          @update={{action (mut showVirtualSize)}}
+        />
+      </div>
+      <h2 class="current-size-header">
         {{tt this "currentSize.header"}}
         <span class={{concat-classes
           "extra-info"
@@ -68,6 +79,28 @@
               <OneLabelTip @title={{tt this "currentSize.totalPhysicalSizeTip"}} />
             </span>
           </li>
+          {{#if showVirtualSize}}
+            <li class="property-row property-virtual-size">
+              <span class="property-label">
+                {{tt this "currentSize.fileCounters.virtualSizeLabel"}}:
+              </span>
+              <span class="property-value">
+                {{bytes-to-string latestDirSizeStatsValueRanges.minVirtualSize}}
+                {{#if (not-eq
+                  latestDirSizeStatsValueRanges.minVirtualSize
+                  latestDirSizeStatsValueRanges.maxVirtualSize
+                )}}
+                   – {{bytes-to-string latestDirSizeStatsValueRanges.maxVirtualSize}}
+                {{/if}}
+                {{#if virtualSizeExtraInfo}}
+                  <span class="extra-info">
+                    ({{virtualSizeExtraInfo}}&nbsp;B)
+                  </span>
+                {{/if}}
+                <OneLabelTip @title={{tt this "currentSize.virtualSizeTip"}} />
+              </span>
+            </li>
+          {{/if}}
         </ul>
       </p>
     </div>
@@ -89,6 +122,7 @@
       {{#if areSizeStatsExpanded}}
         <FileBrowser::SizeStatsPerProviderTable
           @dirSizeStatsValues={{latestDirSizeStatsValues}}
+          @showVirtualSizeColumn={{showVirtualSize}}
         />
       {{/if}}
     {{/if}}

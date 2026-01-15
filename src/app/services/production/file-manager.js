@@ -877,9 +877,10 @@ export default Service.extend({
 
   /**
    * @param {string} fileId
+   * @param {boolean} [withVirtualSize=false]
    * @returns {DirCurrentSizeStats|null}
    */
-  async getDirCurrentSizeStats(fileId) {
+  async getDirCurrentSizeStats(fileId, withVirtualSize = false) {
     const spaceId = getSpaceIdFromGuid(fileId);
     if (
       (await this.spaceManager.getDirStatsServiceState(spaceId))?.status !== 'enabled'
@@ -904,8 +905,16 @@ export default Service.extend({
       dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount,
       dirSizeStatsTimeSeriesNameGenerators.dirCount,
       dirSizeStatsTimeSeriesNameGenerators.logicalSize,
-      dirSizeStatsTimeSeriesNameGenerators.physicalSize,
     ];
+
+    if (withVirtualSize) {
+      neededTimeSeriesNameGenerators.push(
+        dirSizeStatsTimeSeriesNameGenerators.virtualSize
+      );
+    }
+    neededTimeSeriesNameGenerators.push(
+      dirSizeStatsTimeSeriesNameGenerators.physicalSize
+    );
 
     const neededMetrics = neededTimeSeriesNameGenerators
       .reduce((acc, tsNameGenerator) => {
@@ -925,7 +934,10 @@ export default Service.extend({
           throw perProviderCollectionLayout[providerId].reason;
         }
         const collectionLayout = perProviderCollectionLayout[providerId].value;
-        const staticTimeSeries = neededTimeSeriesNameGenerators.slice(0, 3);
+        const staticTimeSeries = neededTimeSeriesNameGenerators.slice(
+          0,
+          withVirtualSize ? 4 : 3
+        );
         const perStorageTimeSeriesCandidates = Object.keys(collectionLayout)
           .filter((tsName) =>
             tsName.startsWith(dirSizeStatsTimeSeriesNameGenerators.physicalSize)
@@ -980,7 +992,7 @@ export default Service.extend({
           physicalSizePerStorage[storageId] = normalizedSizeOnStorage;
         });
 
-        return {
+        const dirCurrentSizeStats = {
           regFileAndLinkCount: staticStatsValues[
             dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount
           ],
@@ -991,6 +1003,13 @@ export default Service.extend({
           totalPhysicalSize,
           physicalSizePerStorage,
         };
+        if (withVirtualSize) {
+          dirCurrentSizeStats.virtualSize = staticStatsValues[
+            dirSizeStatsTimeSeriesNameGenerators.virtualSize
+          ];
+        }
+
+        return dirCurrentSizeStats;
       })();
 
       perProviderStatsPromises[providerId] = (async () => {
