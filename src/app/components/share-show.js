@@ -7,6 +7,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2019-2024 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -21,7 +22,6 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 import { promise } from 'ember-awesome-macros';
 import { resolve } from 'rsvp';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
-import { asyncObserver } from 'onedata-gui-common/utils/observer';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import ShareRootErrorInfo, { ShareFileErrorType } from 'oneprovider-gui/utils/share-root-error-info';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
@@ -39,6 +39,7 @@ export default Component.extend(...mixins, {
   classNameBindings: ['scopeClass'],
 
   shareManager: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -280,32 +281,38 @@ export default Component.extend(...mixins, {
     return get(handle, 'metadataSchema') === MetadataType.Edm;
   }),
 
-  tabScrollObserver: asyncObserver('activeTab', function tabScrollObserver() {
-    if (this.element) {
-      scrollTopClosest(this.element);
-    }
-  }),
-
   init() {
     this._super(...arguments);
     (async () => {
       if (this.initialTabId) {
         const tabIds = await this.tabIdsProxy;
         if (tabIds.includes(this.initialTabId)) {
-          this.set('activeTab', this.initialTabId);
+          this.setActiveTab(this.initialTabId);
         }
       }
       if (!this.activeTab) {
         const handleState = await this.handleStateProxy;
         if (handleState === 'available') {
-          this.set('activeTab', 'publicdata');
+          this.setActiveTab('publicdata');
         } else if (this.get('share.description')) {
-          this.set('activeTab', 'description');
+          this.setActiveTab('description');
         } else {
-          this.set('activeTab', 'files');
+          this.setActiveTab('files');
         }
       }
     })();
+  },
+
+  /**
+   * @param {ShareShowTabId} tabId
+   * @returns {void}
+   */
+  setActiveTab(tabId) {
+    this.set('activeTab', tabId);
+    this.appProxy.callParent('updateTabId', tabId);
+    if (this.element) {
+      scrollTopClosest(this.element);
+    }
   },
 
   actions: {
@@ -324,6 +331,13 @@ export default Component.extend(...mixins, {
     },
     reloadShareList() {
       this.reloadShareList();
+    },
+    /**
+     * @param {ShareShowTabId} tabId
+     * @returns {void}
+     */
+    changeActiveTab(tabId) {
+      this.setActiveTab(tabId);
     },
   },
 });
