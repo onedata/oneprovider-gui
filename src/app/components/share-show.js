@@ -291,14 +291,15 @@ export default Component.extend(...mixins, {
         }
       }
       if (!this.activeTab) {
-        const handleState = await this.handleStateProxy;
-        if (handleState === 'available') {
-          this.setActiveTab('publicdata');
-        } else if (this.get('share.description')) {
-          this.setActiveTab('description');
-        } else {
-          this.setActiveTab('files');
+        if (!this.dirId) {
+          const handleState = await this.handleStateProxy;
+          if (handleState === 'available') {
+            this.setActiveTab('publicdata');
+          } else if (this.get('share.description')) {
+            this.setActiveTab('description');
+          }
         }
+        this.setActiveTab('files');
       }
     })();
   },
