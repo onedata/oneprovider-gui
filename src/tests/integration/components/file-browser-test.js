@@ -629,6 +629,13 @@ describe('Integration | Component | file-browser (main component)', function () 
           this.set('spacePrivileges', { view: true });
         });
 
+        it('has no "replace" item in the context menu', async function () {
+          await renderComponent(this);
+          const menu = await openFileContextMenu({ entityId: 'i1' });
+          const item = menu.querySelector('.file-action-replace');
+          expect(item, 'replace action').to.not.exist;
+        });
+
         testDownloadFromContextMenu();
       });
     });
