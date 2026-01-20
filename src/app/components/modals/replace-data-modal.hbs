@@ -6,10 +6,11 @@
   as |modal|
 >
   <modal.header>
-
+    <h1>{{tt this "header"}}</h1>
   </modal.header>
   <modal.body>
-    <SingleFileInfo @file={{this.file}} />
+    <p>{{tt this "intro"}}</p>
+    <SingleFileInfo @file={{this.file}} class="existing-file-info" />
   </modal.body>
   <modal.footer>
 

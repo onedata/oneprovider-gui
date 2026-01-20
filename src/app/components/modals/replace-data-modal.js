@@ -8,6 +8,7 @@
  */
 
 import Component from '@glimmer/component';
+import Locale from 'onedata-gui-common/utils/locale';
 
 /**
  * @typedef {Object} ReplaceDataModalOptions
@@ -30,6 +31,8 @@ import Component from '@glimmer/component';
  * @extends {Component<ReplaceDataModalSignature>}
  */
 export default class ReplaceDataModalComponent extends Component {
+  locale = new Locale('components.modals.replaceDataModal');
+
   get file() {
     return this.args.modalOptions.file;
   }
