@@ -1,0 +1,17 @@
+<GlobalModal
+  @classNames="replace-data-modal"
+  @modalId={{this.modalId}}
+  @allowClose={{false}}
+  @onHide={{this.onHide}}
+  as |modal|
+>
+  <modal.header>
+
+  </modal.header>
+  <modal.body>
+    <SingleFileInfo @file={{this.file}} />
+  </modal.body>
+  <modal.footer>
+
+  </modal.footer>
+</GlobalModal>

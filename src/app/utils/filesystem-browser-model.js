@@ -975,7 +975,9 @@ export default BaseBrowserModel.extend(...mixins, {
       id: 'replace',
       icon: commonActionIcons.replace,
       action: (files) => {
-        // FIXME: implement
+        this.modalManager.show('replace-data-modal', {
+          file: files[0],
+        });
       },
       showIn: [
         actionContext.singleFile,

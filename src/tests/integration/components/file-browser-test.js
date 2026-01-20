@@ -591,6 +591,20 @@ describe('Integration | Component | file-browser (main component)', function () 
           expect(item.textContent.trim()).to.equal('Replace...');
         });
 
+        it('opens the Replace data modal after clicking replace item in the context menu',
+          async function () {
+            this.set('globalModalRendered', true);
+            await renderComponent(this);
+            const menu = await openFileContextMenu({ entityId: 'i1' });
+            const item = menu.querySelector('.file-action-replace');
+            await click(item);
+            await settled();
+            const replaceDataModal = find('.replace-data-modal');
+            expect(replaceDataModal, 'replace data modal').to.exist;
+            expect(replaceDataModal.textContent).to.contain(this.item1.name);
+          }
+        );
+
         testOpenDatasetsModal('dataset tag is clicked', async function () {
           const row = getFileRow({ entityId: 'i1' });
           const datasetTag = row.querySelectorAll('.file-status-dataset');
@@ -892,13 +906,20 @@ async function renderComponent(testCase) {
     once(this, 'changeSelectedItemsImmediately', selectedItems);
     await sleep(0);
   });
-  await render(hbs`<div id="content-scroll"><FileBrowser
-    @browserModel={{browserModel}}
-    @fileClipboardMode={{fileClipboardMode}}
-    @fileClipboardFiles={{fileClipboardFiles}}
-    @handleFileDownloadUrl={{handleFileDownloadUrl}}
-    @updateDirEntityId={{action updateDirEntityId}}
-  /></div>`);
+  await render(hbs`
+  <div id="content-scroll">
+    <FileBrowser
+      @browserModel={{this.browserModel}}
+      @fileClipboardMode={{this.fileClipboardMode}}
+      @fileClipboardFiles={{this.fileClipboardFiles}}
+      @handleFileDownloadUrl={{this.handleFileDownloadUrl}}
+      @updateDirEntityId={{action this.updateDirEntityId}}
+    />
+  </div>
+  {{#if this.globalModalRendered}}
+    <GlobalModalMounter />
+  {{/if}}
+  `);
 }
 
 function setDefaultTestProperty(testCase, propertyName, defaultValue) {
