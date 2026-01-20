@@ -49,6 +49,7 @@ export const commonActionIcons = Object.freeze({
   shares: 'browser-share',
   qos: 'qos',
   distribution: 'provider',
+  replace: 'browser-replace-data',
 });
 
 const availableButtonNames = Object.freeze([
@@ -72,6 +73,7 @@ const availableButtonNames = Object.freeze([
   'btnCreateHardlink',
   'btnPlaceSymlink',
   'btnPlaceHardlink',
+  'btnReplace',
   'btnCopy',
   'btnCut',
   'btnPaste',
@@ -967,6 +969,19 @@ export default BaseBrowserModel.extend(...mixins, {
       });
     }
   ),
+
+  btnReplace: computed(function btnReplace() {
+    return this.createItemBrowserAction({
+      id: 'replace',
+      icon: commonActionIcons.replace,
+      action: (files) => {
+        // FIXME: implement
+      },
+      showIn: [
+        actionContext.singleFile,
+      ],
+    });
+  }),
 
   btnCopy: computed('selectedItemsContainsOnlySymlinks', function btnCopy() {
     const disabledTip = this.generateDisabledTip({

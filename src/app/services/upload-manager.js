@@ -498,8 +498,7 @@ export default Service.extend(...mixins, {
    * @param {boolean} [overwrite]
    * @returns {Promise<void>}
    */
-  // FIXME: overwrite false by default
-  async initializeFileUpload(resumableFile, overwrite = true) {
+  async initializeFileUpload(resumableFile, overwrite = false) {
     if (!resumableFile.isUploadInitialized) {
       await this.fileManager.initializeFileUpload(
         resumableFile.fileModel.entityId,
@@ -686,7 +685,6 @@ export default Service.extend(...mixins, {
    * reused by the same batch upload - all files have the same
    * `createdDirectories` map to remember state of directories creation.
    * @param {ResumableFile} resumableFile
-   * @param
    * @returns {Promise<Models.File>}
    */
   createCorrespondingFile(resumableFile) {

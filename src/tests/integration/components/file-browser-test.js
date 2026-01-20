@@ -583,6 +583,14 @@ describe('Integration | Component | file-browser (main component)', function () 
           ).to.exist;
         });
 
+        it('has enabled replace item in context menu', async function () {
+          await renderComponent(this);
+          const menu = await openFileContextMenu({ entityId: 'i1' });
+          const item = menu.querySelector('li:not(.disabled) .file-action-replace');
+          expect(item, 'non-disabled replace action').to.exist;
+          expect(item.textContent.trim()).to.equal('Replace...');
+        });
+
         testOpenDatasetsModal('dataset tag is clicked', async function () {
           const row = getFileRow({ entityId: 'i1' });
           const datasetTag = row.querySelectorAll('.file-status-dataset');
