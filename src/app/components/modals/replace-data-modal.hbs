@@ -10,9 +10,55 @@
   </modal.header>
   <modal.body>
     <p>{{tt this "intro"}}</p>
-    <SingleFileInfo @file={{this.file}} class="existing-file-info" />
+    <div class="current-file-container file-container">
+      <SingleFileInfo @file={{this.file}} class="existing-file-info" />
+      <div class="current-file-download-container">
+        <OneButton @size="sm">
+          <OneIcon @icon="browser-download" />
+          {{tt this "download"}}
+        </OneButton>
+      </div>
+    </div>
+    <div class="btn-group-tabs files-separator">
+      <div class="box-item">
+        <strong>{{tt this "replaceContentWith"}}</strong>
+      </div>
+    </div>
+    <div class="current-file-container file-container">
+      <BrowsableFileInfo
+        @placeholder={{tt this "selectFilePlaceholder"}}
+        class="new-file-info"
+      />
+      <div class="current-file-download-container">
+        <OneButton @size="sm">
+          {{tt this "browse"}}
+        </OneButton>
+      </div>
+    </div>
+    <div class="acknowledge-checkbox-group">
+      <OneCheckbox
+        class="one-checkbox-understand"
+        @checked={{this.acknowledgeChecked}}
+        @update={{this.toggleAcknowledge}}
+      />
+      <div
+        class="text-acknowledge"
+        onclick={{this.toggleAcknowledge}}
+      >
+        {{tt this "acknowledgeText"}}
+      </div>
+    </div>
   </modal.body>
   <modal.footer>
-
+    <OneButton>
+      {{tt this "cancel"}}
+    </OneButton>
+    <OneButton
+      @type="primary"
+      @disabled={{this.proceedDisabled}}
+    >
+      <OneIcon @icon="browser-upload" />
+      {{tt this "proceed"}}
+    </OneButton>
   </modal.footer>
 </GlobalModal>

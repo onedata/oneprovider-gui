@@ -7,8 +7,10 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
+import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import Locale from 'onedata-gui-common/utils/locale';
+import { tracked } from '@glimmer/tracking';
 
 /**
  * @typedef {Object} ReplaceDataModalOptions
@@ -33,11 +35,26 @@ import Locale from 'onedata-gui-common/utils/locale';
 export default class ReplaceDataModalComponent extends Component {
   locale = new Locale('components.modals.replaceDataModal');
 
+  @tracked
+  acknowledgeChecked = false;
+
+  @tracked
+  newFile = null;
+
+  get proceedDisabled() {
+    return !this.newFile || !this.acknowledgeChecked;
+  }
+
   get file() {
     return this.args.modalOptions.file;
   }
 
   get modalId() {
     return this.args.modalId;
+  }
+
+  @action
+  toggleAcknowledge() {
+    this.acknowledgeChecked = !this.acknowledgeChecked;
   }
 }

@@ -63,6 +63,12 @@ export default Component.extend(...mixins, {
   onLinkClicked: notImplementedIgnore,
 
   /**
+   * @virtual optional
+   * @type {boolean}
+   */
+  emptySizeShown: false,
+
+  /**
    * @override
    * @implements {Mixins.FileConsumer}
    */

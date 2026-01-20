@@ -1,0 +1,35 @@
+.replace-data-modal {
+  .file-container {
+    margin-top: 1.5em;
+    display: flex;
+    align-items: center;
+    .single-file-info {
+      margin-top: 0;
+    }
+  }
+  .current-file-download-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .files-separator {
+    margin-top: 1.5em;
+    &.btn-group-tabs {
+      &::before, &::after {
+        border-bottom-color: $btn-group-tabs-line-border-color;
+      }
+    }
+  }
+  .acknowledge-checkbox-group {
+    display: flex;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 1em;
+    margin-top: 3em;
+    .one-checkbox-understand {
+      margin-top: 0.1em;
+      min-width: $one-checkbox-size;
+    }
+  }
+}
