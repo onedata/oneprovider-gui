@@ -977,6 +977,7 @@ export default BaseBrowserModel.extend(...mixins, {
       action: (files) => {
         this.modalManager.show('replace-data-modal', {
           file: files[0],
+          browserModel: this,
         });
       },
       showIn: [

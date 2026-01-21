@@ -2,7 +2,7 @@
   @classNames="replace-data-modal"
   @modalId={{this.modalId}}
   @allowClose={{false}}
-  @onHide={{this.onHide}}
+  @onHide={{this.hide}}
   as |modal|
 >
   <modal.header>
@@ -13,7 +13,10 @@
     <div class="current-file-container file-container">
       <SingleFileInfo @file={{this.file}} class="existing-file-info" />
       <div class="current-file-download-container">
-        <OneButton @size="sm">
+        <OneButton
+          @onClick={{this.download}}
+          @size="sm"
+        >
           <OneIcon @icon="browser-download" />
           {{tt this "download"}}
         </OneButton>
@@ -60,7 +63,9 @@
       class="new-file-input"
       onchange={{this.changeFile}}
     >
-    <OneButton>
+    <OneButton
+      @onClick={{modal.close}}
+    >
       {{tt this "cancel"}}
     </OneButton>
     <OneButton

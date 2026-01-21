@@ -45,6 +45,7 @@ export default class DummyReplaceDataModalComponent extends Component {
   showModal() {
     this.modalManager.show('replace-data-modal', {
       file: this.file,
+      browserModel: null,
     });
   }
 

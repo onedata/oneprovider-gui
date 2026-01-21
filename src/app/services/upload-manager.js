@@ -723,8 +723,8 @@ export default Service.extend(...mixins, {
       // When all directories needed to upload file are created, create file itself.
       // FIXME: przykładowy kod jak można podmienić plik
       const createFileModelPromise =
-        // fileManager.createFile(get(pathSections, 'lastObject'), parent, 50);
-        fileManager.getFileByName(parent.entityId, get(pathSections, 'lastObject'));
+        fileManager.createFile(get(pathSections, 'lastObject'), parent, 50);
+      // fileManager.getFileByName(parent.entityId, get(pathSections, 'lastObject'));
       createFileModelPromise.then((fileModel) => {
         this.refreshDirectoryChildren(parent);
         resumableFile.createFileModelPromise = null;

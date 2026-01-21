@@ -15,6 +15,7 @@ import { tracked } from '@glimmer/tracking';
 /**
  * @typedef {Object} ReplaceDataModalOptions
  * @property {Models.File} file
+ * @property {FilesystemBrowserModel} browserModel
  */
 
 /**
@@ -35,16 +36,22 @@ import { tracked } from '@glimmer/tracking';
 export default class ReplaceDataModalComponent extends Component {
   locale = new Locale('components.modals.replaceDataModal');
 
+  /** @type {boolean} */
   @tracked
-  acknowledgeChecked = false;
+  acknowledgeChecked;
 
   /** @type {File} */
   @tracked
-  newFile = null;
+  newFile;
 
   /** @type {HTMLInputElement} */
   @tracked
-  fileInputElement = null;
+  fileInputElement;
+
+  constructor() {
+    super(...arguments);
+    this.reset();
+  }
 
   get proceedDisabled() {
     return !this.newFile || !this.acknowledgeChecked;
@@ -56,6 +63,16 @@ export default class ReplaceDataModalComponent extends Component {
 
   get modalId() {
     return this.args.modalId;
+  }
+
+  get browserModel() {
+    return this.args.modalOptions.browserModel;
+  }
+
+  reset() {
+    this.acknowledgeChecked = false;
+    this.newFile = false;
+    this.fileInputElement = null;
   }
 
   /**
@@ -82,5 +99,15 @@ export default class ReplaceDataModalComponent extends Component {
   @action
   changeFile() {
     this.newFile = this.fileInputElement.files[0];
+  }
+
+  @action
+  hide() {
+    this.reset();
+  }
+
+  @action
+  download() {
+    this.browserModel.downloadFiles([this.file]);
   }
 }
