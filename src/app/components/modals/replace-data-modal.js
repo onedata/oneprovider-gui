@@ -38,8 +38,13 @@ export default class ReplaceDataModalComponent extends Component {
   @tracked
   acknowledgeChecked = false;
 
+  /** @type {File} */
   @tracked
   newFile = null;
+
+  /** @type {HTMLInputElement} */
+  @tracked
+  fileInputElement = null;
 
   get proceedDisabled() {
     return !this.newFile || !this.acknowledgeChecked;
@@ -53,8 +58,29 @@ export default class ReplaceDataModalComponent extends Component {
     return this.args.modalId;
   }
 
+  /**
+   * @param {HTMLInputElement} element
+   */
+  @action
+  registerFileInput(element) {
+    this.fileInputElement = element;
+  }
+
   @action
   toggleAcknowledge() {
     this.acknowledgeChecked = !this.acknowledgeChecked;
+  }
+
+  @action
+  browse() {
+    this.fileInputElement.click();
+  }
+
+  /**
+   * @param {InputEvent} event
+   */
+  @action
+  changeFile() {
+    this.newFile = this.fileInputElement.files[0];
   }
 }

@@ -27,10 +27,14 @@
     <div class="current-file-container file-container">
       <BrowsableFileInfo
         @placeholder={{tt this "selectFilePlaceholder"}}
+        @file={{this.newFile}}
         class="new-file-info"
       />
       <div class="current-file-download-container">
-        <OneButton @size="sm">
+        <OneButton
+          @size="sm"
+          @onClick={{this.browse}}
+        >
           {{tt this "browse"}}
         </OneButton>
       </div>
@@ -42,7 +46,7 @@
         @update={{this.toggleAcknowledge}}
       />
       <div
-        class="text-acknowledge"
+        class="text-acknowledge clickable"
         onclick={{this.toggleAcknowledge}}
       >
         {{tt this "acknowledgeText"}}
@@ -50,6 +54,12 @@
     </div>
   </modal.body>
   <modal.footer>
+    <input
+      {{did-insert this.registerFileInput}}
+      type="file"
+      class="new-file-input"
+      onchange={{this.changeFile}}
+    >
     <OneButton>
       {{tt this "cancel"}}
     </OneButton>

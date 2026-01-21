@@ -7,6 +7,7 @@
  */
 
 import Component from '@glimmer/component';
+import { LegacyFileType } from 'onedata-gui-common/utils/file';
 
 /**
  * @typedef {Object} BrowsableFileInfoSignature
@@ -18,6 +19,7 @@ import Component from '@glimmer/component';
  * @typedef {Object} BrowsableFileInfoArgs
  * @property {string} placeholder Text displayed instead of a file name, if file is not
  *   yet chosen.
+ * @property {File} [file] A chosen file.
  */
 
 /**
@@ -28,11 +30,41 @@ export default class BrowsableFileInfoComponent extends Component {
     return this.args.placeholder;
   }
 
-  get fileInfo() {
-    return this.file ?? {
-      name: this.placeholder,
-      size: null,
-      mtime: null,
-    };
+  get file() {
+    return this.args.file;
   }
+
+  get fileIsChosen() {
+    return Boolean(this.file);
+  }
+
+  get fileInfo() {
+    if (this.file) {
+      return inputFileToFileData(this.file);
+    } else {
+      return {
+        name: this.placeholder,
+        mtime: null,
+        effFile: {
+          size: null,
+          type: LegacyFileType.Regular,
+        },
+      };
+    }
+  }
+}
+
+/**
+ * @param {File} inputFile
+ * @returns {Object}
+ */
+function inputFileToFileData(inputFile) {
+  return {
+    name: inputFile.name,
+    mtime: inputFile.lastModified / 1000,
+    effFile: {
+      size: inputFile.size,
+      type: LegacyFileType.Regular,
+    },
+  };
 }
