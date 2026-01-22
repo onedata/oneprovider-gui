@@ -2,7 +2,7 @@
   @classNames="replace-data-modal"
   @modalId={{this.modalId}}
   @allowClose={{false}}
-  @onHide={{this.hide}}
+  @onHide={{this.onHide}}
   as |modal|
 >
   <modal.header>
@@ -71,6 +71,7 @@
     <OneButton
       @type="primary"
       @disabled={{this.proceedDisabled}}
+      @onClick={{this.proceed}}
     >
       <OneIcon @icon="browser-upload" />
       {{tt this "proceed"}}

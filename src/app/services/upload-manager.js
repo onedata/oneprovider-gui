@@ -2,8 +2,9 @@
  * Manages uploading files using resumable.js and external state of upload
  * received from Onezone.
  *
- * @author Michał Borzęcki
+ * @author Michał Borzęcki, Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -495,11 +496,11 @@ export default Service.extend(...mixins, {
   /**
    * Initializes upload of given file.
    * @param {ResumableFile} resumableFile
-   * @param {boolean} [overwrite]
    * @returns {Promise<void>}
    */
-  async initializeFileUpload(resumableFile, overwrite = false) {
+  async initializeFileUpload(resumableFile) {
     if (!resumableFile.isUploadInitialized) {
+      const overwrite = Boolean(resumableFile.file.onedataReplacedFile);
       await this.fileManager.initializeFileUpload(
         resumableFile.fileModel.entityId,
         overwrite
@@ -680,10 +681,19 @@ export default Service.extend(...mixins, {
   },
 
   /**
-   * Creates directories which are needed to upload file. After that, an empty
+   * Prepares the file to be a target of uploaded data.
+   *
+   * In normal mode, when user uploads a new file to the directory (or a directory tree),
+   * it creates directories which are needed to upload file. After that, an empty
    * file is created, that will be a target for upload. Created directories are
    * reused by the same batch upload - all files have the same
    * `createdDirectories` map to remember state of directories creation.
+   *
+   * In replacing mode (e.g., when using `ReplaceDataModal`), it takes the custom File's
+   * `onedataReplacedFile` property, which is a reference to an existing file model, and
+   * uploads the data into it. Search for `onedataReplacedFile` property in the project
+   * to find out how it is added and used.
+   *
    * @param {ResumableFile} resumableFile
    * @returns {Promise<Models.File>}
    */
@@ -719,17 +729,16 @@ export default Service.extend(...mixins, {
       }
     }
 
-    return createPromise.then(parent => {
+    return createPromise.then(async (parent) => {
       // When all directories needed to upload file are created, create file itself.
-      // FIXME: przykładowy kod jak można podmienić plik
-      const createFileModelPromise =
-        fileManager.createFile(get(pathSections, 'lastObject'), parent, 50);
-      // fileManager.getFileByName(parent.entityId, get(pathSections, 'lastObject'));
-      createFileModelPromise.then((fileModel) => {
+      const filename = get(pathSections, 'lastObject');
+      const createFileModelPromise = (async () => {
+        const targetFile = resumableFile.file.onedataReplacedFile ??
+          await fileManager.createFile(filename, parent, 50);
         this.refreshDirectoryChildren(parent);
         resumableFile.createFileModelPromise = null;
-        resumableFile.fileModel = fileModel;
-      });
+        resumableFile.fileModel = targetFile;
+      })();
       resumableFile.createFileModelPromise = createFileModelPromise;
       return createFileModelPromise;
     });
