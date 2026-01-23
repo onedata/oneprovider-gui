@@ -396,11 +396,13 @@ export default Service.extend(...mixins, {
 
     const notifyObject = {
       uploadId,
-      files: resumableFiles.map(file => ({
-        path: file.relativePath,
-        size: file.size,
+      files: resumableFiles.map(resumableFile => ({
+        path: resumableFile.relativePath,
+        size: resumableFile.size,
+        onedataReplacedFile: resumableFile.file.onedataReplacedFile,
       })),
     };
+
     this.notifyParent(notifyObject, 'addNewUpload');
 
     resumable.upload();
