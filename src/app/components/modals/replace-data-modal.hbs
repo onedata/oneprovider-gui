@@ -42,12 +42,8 @@
         </OneButton>
       </div>
     </div>
-    <div class="acknowledge-checkbox-group">
-      <OneCheckbox
-        class="one-checkbox-understand"
-        @checked={{this.acknowledgeChecked}}
-        @update={{this.toggleAcknowledge}}
-      />
+    <div class="acknowledge-warning-container">
+      <OneIcon @icon="sign-warning-rounded" class="acknowledge-warning-icon" />
       <div
         class="text-acknowledge clickable"
         onclick={{this.toggleAcknowledge}}

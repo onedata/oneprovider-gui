@@ -21,16 +21,17 @@
       }
     }
   }
-  .acknowledge-checkbox-group {
+  .acknowledge-warning-container {
     display: flex;
-    justify-content: flex-start;
+    justify-content: baseline;
     text-align: left;
-    gap: 1em;
+    gap: 0.8em;
     margin-top: 3em;
-    .one-checkbox-understand {
-      margin-top: 0.1em;
-      min-width: $one-checkbox-size;
-    }
+  }
+  .acknowledge-warning-icon {
+    padding-top: 0.1em;
+    font-size: 1.2em;
+    color: $color-one-warning;
   }
   .new-file-input {
     opacity: 0;

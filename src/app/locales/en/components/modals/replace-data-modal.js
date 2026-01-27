@@ -5,7 +5,7 @@ export default {
   browse: 'Browse',
   replaceContentWith: 'Replace the content with...',
   selectFilePlaceholder: 'Select a file from your device',
-  acknowledgeText: 'I acknowledge that the current content of the file <strong>will be completely overwritten</strong> with the new content.',
+  acknowledgeText: 'Current content of the file <strong>will be completely overwritten</strong> with the new content.',
   cancel: 'Cancel',
   proceed: 'Proceed',
 };

@@ -46,10 +46,6 @@ export default class ReplaceDataModalComponent extends Component {
 
   locale = new Locale('components.modals.replaceDataModal');
 
-  /** @type {boolean} */
-  @tracked
-  acknowledgeChecked;
-
   /** @type {File} */
   @tracked
   newFile;
@@ -64,7 +60,7 @@ export default class ReplaceDataModalComponent extends Component {
   }
 
   get proceedDisabled() {
-    return !this.newFile || !this.acknowledgeChecked;
+    return !this.newFile;
   }
 
   get file() {
@@ -80,7 +76,6 @@ export default class ReplaceDataModalComponent extends Component {
   }
 
   reset() {
-    this.acknowledgeChecked = false;
     this.newFile = false;
     this.fileInputElement = null;
   }
@@ -91,11 +86,6 @@ export default class ReplaceDataModalComponent extends Component {
   @action
   registerFileInput(element) {
     this.fileInputElement = element;
-  }
-
-  @action
-  toggleAcknowledge() {
-    this.acknowledgeChecked = !this.acknowledgeChecked;
   }
 
   @action
@@ -126,7 +116,8 @@ export default class ReplaceDataModalComponent extends Component {
     this.browserModel.downloadFiles([this.file]);
   }
 
-  @action proceed() {
+  @action
+  proceed() {
     if (this.proceedDisabled) {
       return;
     }
