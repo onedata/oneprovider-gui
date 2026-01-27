@@ -26,18 +26,20 @@
           <td class="empty-cell-header"></td>
           <td>
             {{tt this "fileCounters.containsLabel"}}
-            <OneLabelTip @title={{tt this "delaySynchronizationTip"}} />
+            <OneLabelTip @title={{tt this "containsTip"}} />
           </td>
           <td>
             {{tt this "fileCounters.logicalSizeLabel"}}
-            <OneLabelTip @title={{tt this "delaySynchronizationTip"}} />
+            <OneLabelTip @title={{tt this "logicalSizeTip"}} />
           </td>
           <td>
             {{tt this "fileCounters.physicalSizeLabel"}}
+            <OneLabelTip @title={{tt this "physicalSizeTip"}} />
           </td>
           {{#if this.showVirtualSizeColumn}}
             <td>
               {{tt this "fileCounters.virtualSizeLabel"}}
+              <OneLabelTip @title={{tt this "virtualSizeTip"}} />
             </td>
           {{/if}}
         </tr>

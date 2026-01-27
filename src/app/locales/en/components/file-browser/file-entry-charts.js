@@ -3,20 +3,20 @@ import sizeStatsPerProviderTable from './size-stats-per-provider-table';
 export default {
   noStatisticsTitle: 'Directory statistics not ready yet',
   noStatisticsContent: 'The requested directory statistics are still being calculated, please come back in a while.',
-  showDetails: 'Show details',
-  showDetailsTooltip: 'Show additional size details including virtual size in summary and in size statistics per provider table.',
+  includeVirtualSize: 'Include virtual size',
+  includeVirtualSizeTooltip: 'Virtual size – logical size with hardlinks counted only once, i.e. the size of unique file data in the subtree. Represents the storage space required for a complete replica of the directory.',
   currentSize: {
     header: 'Current size',
     fileCounters: {
       ...sizeStatsPerProviderTable.fileCounters,
       totalPhysicalSizeLabel: 'Total physical size',
     },
+    logicalSizeTip: sizeStatsPerProviderTable.logicalSizeTip,
+    virtualSizeTip: sizeStatsPerProviderTable.virtualSizeTip,
+    containsTip: sizeStatsPerProviderTable.containsTip,
     currentSizeOnProvidersCount: 'collected from <span>{{providersWithStatsCount}} out of {{providersCount}}</span> providers',
     currentSizeTip: 'Presented information is partial since it was collected only from online providers with enabled directory size statistics. From the global point of view, the actual size of the space may differ.',
-    logicalSizeTip: 'Logical byte size is the total size of file data contained in this directory, i.e. the sum of logical byte sizes of all regular files.',
-    totalPhysicalSizeTip: 'Summarized storage size used to store the data. Includes only the sizes reported by online providers with enabled directory size statistics.',
-    virtualSizeTip: 'Virtual size tooltip...',
-    // todo przerobic
+    totalPhysicalSizeTip: 'Total physical size – summarized storage size used to store the data – a sum of physical sizes reported by providers. Includes only the online providers with enabled directory size statistics, hence the actual value may be larger.',
   },
   showMoreStats: 'Show size statistics per provider',
   hideMoreStats: 'Hide size statistics per provider',
