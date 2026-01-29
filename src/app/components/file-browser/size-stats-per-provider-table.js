@@ -35,7 +35,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {boolean}
    */
-  showVirtualSizeColumn: false,
+  isVirtualSizeColumnShown: false,
 
   /**
    * @type {PromiseObject<Array<DirCurrentSizeStatsForProvider & { provider: Models.Provider }>>}

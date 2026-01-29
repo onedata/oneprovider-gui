@@ -60,7 +60,7 @@ export default EmberObject.extend(...mixins, {
    * @virtual
    * @type {boolean}
    */
-  showVirtualSize: false,
+  isVirtualSizeShown: false,
 
   /**
    * Tells which type of stats should be rendered. Applicable only when
@@ -210,7 +210,7 @@ export default EmberObject.extend(...mixins, {
         result = {
           all: await this.fileManager.getDirCurrentSizeStats(
             this.fileId,
-            this.showVirtualSize
+            this.isVirtualSizeShown
           ),
         };
       }

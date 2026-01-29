@@ -11,15 +11,15 @@
 {{else}}
   <PromiseProxyContainer @proxy={{loadingProxy}}>
     <div class="current-size-section">
-      <div class="show-details">
-        <label for={{concat "show-details-" elementId}} class="inline-label">
+      <div class="include-virtual-size-container">
+        <label for={{concat "include-virtual-size-" elementId}} class="inline-label">
           {{tt this "includeVirtualSize"}}
            <OneLabelTip @title={{tt this "includeVirtualSizeTooltip"}} />
         </label>
         <OneWayToggle
-          class="show-details-toggle"
-          @inputId={{concat "show-details-" elementId}}
-          @checked={{showVirtualSize}}
+          class="include-virtual-size-toggle"
+          @inputId={{concat "include-virtual-size-" elementId}}
+          @checked={{isVirtualSizeShown}}
           @update={{action "changeShowingVirtualSize"}}
         />
       </div>
@@ -81,7 +81,7 @@
               <OneLabelTip @title={{tt this "currentSize.totalPhysicalSizeTip"}} />
             </span>
           </li>
-          {{#if showVirtualSize}}
+          {{#if isVirtualSizeShown}}
             <li class="property-row property-virtual-size">
               <span class="property-label">
                 {{tt this "currentSize.fileCounters.virtualSizeLabel"}}:
@@ -132,7 +132,7 @@
       {{#if areSizeStatsExpanded}}
         <FileBrowser::SizeStatsPerProviderTable
           @dirSizeStatsValues={{latestDirSizeStatsValues}}
-          @showVirtualSizeColumn={{showVirtualSize}}
+          @isVirtualSizeColumnShown={{isVirtualSizeShown}}
         />
       {{/if}}
     {{/if}}

@@ -912,6 +912,7 @@ export default Service.extend({
         dirSizeStatsTimeSeriesNameGenerators.virtualSize
       );
     }
+    // this must be below the if statement to ensure the correct order
     neededTimeSeriesNameGenerators.push(
       dirSizeStatsTimeSeriesNameGenerators.physicalSize
     );

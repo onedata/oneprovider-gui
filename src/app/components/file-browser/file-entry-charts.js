@@ -74,7 +74,7 @@ export default Component.extend(...mixins, {
   /**
    * @type {boolean}
    */
-  showVirtualSize: false,
+  isVirtualSizeShown: false,
 
   /**
    * @type {ComputedProperty<Models.File>}
@@ -141,10 +141,10 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<boolean>}
    */
   isVirtualSizeAvailable: computed(
-    'showVirtualSize',
+    'isVirtualSizeShown',
     'latestDirSizeStatsValueRanges.minVirtualSize',
     function isVirtualSizeAvailable() {
-      return this.showVirtualSize &&
+      return this.isVirtualSizeShown &&
         !isNaN(this.latestDirSizeStatsValueRanges.minVirtualSize);
     }
   ),
@@ -629,7 +629,7 @@ export default Component.extend(...mixins, {
 
   latestDirSizeStatsValueRanges: computed(
     'availableDirSizeStatsValues',
-    'showVirtualSize',
+    'isVirtualSizeShown',
     function latestDirSizeStatsValueRanges() {
       const logicalSizeArray = this.availableDirSizeStatsValues.map(
         dirStats => dirStats.logicalSize
@@ -640,7 +640,7 @@ export default Component.extend(...mixins, {
       const dirsCountArray = this.availableDirSizeStatsValues.map(
         dirStats => dirStats.dirCount
       );
-      const virtualSizeArray = this.showVirtualSize ?
+      const virtualSizeArray = this.isVirtualSizeShown ?
         this.availableDirSizeStatsValues.map(dirStats => dirStats.virtualSize) : [];
 
       return {
@@ -740,9 +740,9 @@ export default Component.extend(...mixins, {
    */
   virtualSizeExtraInfo: computed(
     'latestDirSizeStatsValueRanges',
-    'virtualSize',
+    'isVirtualSizeShown',
     function virtualSizeExtraInfo() {
-      if (!this.virtualSize) {
+      if (!this.isVirtualSizeShown) {
         return '';
       }
       const minVirtualSize = this.latestDirSizeStatsValueRanges.minVirtualSize;
@@ -957,8 +957,8 @@ export default Component.extend(...mixins, {
       this.toggleProperty('areSizeStatsExpanded');
     },
     changeShowingVirtualSize() {
-      this.toggleProperty('showVirtualSize');
-      this.viewModel.set('showVirtualSize', this.showVirtualSize);
+      this.toggleProperty('isVirtualSizeShown');
+      this.viewModel.set('isVirtualSizeShown', this.isVirtualSizeShown);
     },
   },
 });

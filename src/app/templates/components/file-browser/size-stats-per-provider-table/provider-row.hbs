@@ -37,8 +37,8 @@
           {{/if}}
         </span>
       </div>
-      {{#if this.showVirtualSizeColumn}}
-        <div>
+      {{#if this.isVirtualSizeColumnShown}}
+        <div class="virtual-size-container">
           <span class="virtual-size-label">
             {{tt this "fileCounters.virtualSizeLabel"}}:
           </span>
@@ -67,7 +67,7 @@
     <RecordInfoWithIcon @record={{sizeStats.provider}} />
   </td>
   {{#if sizeStats.error}}
-    <td colspan={{if this.showVirtualSizeColumn "4" "3"}}>
+    <td colspan={{if this.isVirtualSizeColumnShown "4" "3"}}>
       <FileBrowser::SizeStatsPerProviderTable::ErrorCell @sizeStats={{sizeStats}} />
     </td>
   {{else}}
@@ -90,7 +90,7 @@
         </span>
       {{/if}}
     </td>
-    {{#if this.showVirtualSizeColumn}}
+    {{#if this.isVirtualSizeColumnShown}}
       <td class="virtual-size-value">
         {{#if (eq sizeStats.virtualSize undefined)}}
           <SpinSpinnerBlock

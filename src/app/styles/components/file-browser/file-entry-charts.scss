@@ -10,18 +10,21 @@
     }
   }
 
-  .show-details {
+  .include-virtual-size-container {
+    margin-right: 0.5em;
+    margin-bottom: $padding-base-vertical;
+
     @media (min-width: $screen-sm-min) {
       float: right;
+      margin-bottom: 0;
     }
-    margin-right: 0.5em;
   }
 
   .virtual-size-spinner {
     margin: 0 1em;
   }
 
-  .show-details-toggle {
+  .include-virtual-size-toggle {
     margin-top: -0.3em
   }
 
