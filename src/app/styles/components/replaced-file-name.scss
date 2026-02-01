@@ -1,0 +1,17 @@
+.replaced-file-name {
+  display: flex;
+  align-items: center;
+  gap: $details-with-icon-spacing;
+  margin-bottom: $details-with-icon-spacing;
+  .single-replaced-file-name {
+    flex-basis: 45%;
+    flex-grow: 1;
+  }
+  .selected-file-name {
+    @include font-semibold;
+    text-decoration: line-through;
+  }
+  .target-file-name {
+    @include font-semibold;
+  }
+}

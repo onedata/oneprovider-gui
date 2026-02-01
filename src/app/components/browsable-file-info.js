@@ -20,6 +20,8 @@ import { LegacyFileType } from 'onedata-gui-common/utils/file';
  * @property {string} placeholder Text displayed instead of a file name, if file is not
  *   yet chosen.
  * @property {File} [file] A chosen file.
+ * @property {string} [nameComponent] The same as in SingleFileInfo.
+ * @property {Object} [nameComponentContext] The same as in SingleFileInfo.
  */
 
 /**

@@ -3,6 +3,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2020-2023 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -18,6 +19,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import FileConsumerMixin, { computedSingleUsedFileGri } from 'oneprovider-gui/mixins/file-consumer';
 import FileRequirement from 'oneprovider-gui/utils/file-requirement';
+import FileModel from 'oneprovider-gui/models/file';
 
 const mixins = [
   I18n,
@@ -51,10 +53,31 @@ export default Component.extend(...mixins, {
    * What to show in primary description line:
    * - name: just a name of the file
    * - link: render anchor with path to file
-   * @virtual
+   *
+   * The mode is ignored if the `nameComponent` is used, because we render a custom
+   * component in place of the name.
+   *
+   * @virtual optional
    * @type {'name'|'link'}
    */
   nameDisplayMode: 'name',
+
+  /**
+   * A component path that will be rendered in place where the name will be displayed.
+   * The component will be rendere with the following arguments:
+   * - `file` - this.file
+   * - `context` - this.nameComponentContext
+   * @virtual optional
+   * @type {string}
+   */
+  nameComponent: null,
+
+  /**
+   * Data passed to the `nameComponent` (if provided) using the `context` argument.
+   * @virtual optional
+   * @type {Object}
+   */
+  nameComponentContext: null,
 
   /**
    * @virtual optional
@@ -73,7 +96,7 @@ export default Component.extend(...mixins, {
    * @implements {Mixins.FileConsumer}
    */
   fileRequirements: computed('file', function fileRequirements() {
-    if (!this.file) {
+    if (!(this.file instanceof FileModel)) {
       return [];
     }
     return [

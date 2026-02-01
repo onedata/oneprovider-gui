@@ -1,6 +1,13 @@
 <OneIcon @icon={{fileIcon}} class="details-icon" />
 <div class="details-content">
-  {{#if (eq nameDisplayMode "name")}}
+  {{#if this.nameComponent}}
+    {{#let (component this.nameComponent) as |nameComponentInstance|}}
+      <nameComponentInstance
+        @file={{this.file}}
+        @context={{this.nameComponentContext}}
+      />
+    {{/let}}
+  {{else if (eq nameDisplayMode "name")}}
     <div class="details-title">
       <TruncatedString class="single-file-info-file-name">
         <FileNameConflict @file={{file}} />

@@ -32,6 +32,7 @@ export default class DummyReplaceDataModalComponent extends Component {
     const modificationMoment = moment();
     this.file = await this.store.createRecord('file', {
       type: LegacyFileType.Regular,
+      // name: 'Test-File-Test-File-Test-File-Test-File-Test-File-Test-File-Test-File-Test-File-Test-File-Test-File-Test-File-Test-File.txt',
       name: 'Test-File.txt',
       size: 2048,
       mtime: modificationMoment.unix(),
