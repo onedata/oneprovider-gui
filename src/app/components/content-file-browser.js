@@ -192,7 +192,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effUploadDisabled: reads('dir.dataIsProtected'),
+  effUploadDisabled: reads('dirProxy.content.dataIsProtected'),
 
   /**
    * @override
