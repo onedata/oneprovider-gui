@@ -38,7 +38,7 @@
             <a href={{concat "#" tabId}}
               class={{concat "nav-link nav-link-" tabId}}
               role="tab"
-              {{action (mut activeTab) tabId}}
+              {{action "changeActiveTab" tabId}}
             >
               <span class="tab-label {{get tabClasses tabId}}">
                 <OneIcon
