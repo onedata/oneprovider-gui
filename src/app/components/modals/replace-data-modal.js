@@ -35,6 +35,7 @@ import { inject as service } from '@ember/service';
  * @typedef {Object} ReplaceDataModalArgs
  * @property {ReplaceDataModalOptions} modalOptions
  * @property {string} modalId
+ * @property {Object} modalApi
  */
 
 /**
@@ -47,16 +48,34 @@ export default class ReplaceDataModalComponent extends Component {
   locale = new Locale('components.modals.replaceDataModal');
 
   /** @type {File} */
-  @tracked
-  newFile;
+  @tracked newFile;
 
   /** @type {HTMLInputElement} */
-  @tracked
-  fileInputElement;
+  @tracked fileInputElement;
+
+  /** @type {HTMLDivElement|null} */
+  @tracked modalContentElement;
+
+  /** @type {(event: DragEvent) => void} */
+  @tracked onFileDragEnter;
+
+  /** @type {(event: DragEvent) => void} */
+  @tracked onFileDragLeave;
+
+  /** @type {(event: DragEvent) => void} */
+  @tracked onFileDrop;
+
+  /** @type {(event: DragEvent) => void} */
+  @tracked onFileDragOver;
 
   constructor() {
     super(...arguments);
     this.reset();
+  }
+
+  /** @override */
+  willDestroy() {
+    this.destroyDrop();
   }
 
   get proceedDisabled() {
@@ -76,8 +95,109 @@ export default class ReplaceDataModalComponent extends Component {
   }
 
   reset() {
-    this.newFile = false;
+    this.newFile = null;
     this.fileInputElement = null;
+  }
+
+  getDropElement() {
+    return this.modalContentElement;
+  }
+
+  /**
+   * @param {boolean} shown
+   */
+  toggleDropZone(shown) {
+    this.getDropElement().classList[shown ? 'add' : 'remove']('file-drag');
+  }
+
+  /**
+   * @param {DragEvent} event
+   * @returns {File|null}
+   */
+  getDraggedFile(event) {
+    const droppedItem = event.dataTransfer.items[0];
+    if (droppedItem.kind !== 'file') {
+      return null;
+    }
+    /** @type {FileSystemEntry} */
+    const entry = droppedItem.webkitGetAsEntry?.() ?? droppedItem.getAsEntry?.();
+    if (entry?.isDirectory) {
+      return null;
+    }
+    return entry ? droppedItem.getAsFile() : event.dataTransfer.files[0];
+  }
+
+  /**
+   * @param {DragEvent} event
+   */
+  handleDroppedItem(event) {
+    const file = this.getDraggedFile(event);
+    if (file) {
+      this.newFile = file;
+    }
+  }
+
+  // FIXME: zapakować to w obiekt ze stanem
+  initDrop() {
+    const dropElement = this.getDropElement();
+    if (!dropElement) {
+      console.error('ReplaceDataModal.initDrop: drag element not available');
+      return;
+    }
+
+    /** @type {HTMLElement|null} */
+    let lastElement;
+    this.onFileDragEnter = (event) => {
+      lastElement = event.target;
+      this.toggleDropZone(true, !this.getDraggedFile(event));
+    };
+    this.onFileDragLeave = (event) => {
+      if (event.target == lastElement) {
+        this.toggleDropZone(false);
+      }
+    };
+    this.onFileDrop = (event) => {
+      try {
+        event.preventDefault();
+        this.handleDroppedItem(event);
+      } finally {
+        this.toggleDropZone(false);
+      }
+    };
+    this.onFileDragOver = (event) => {
+      event.preventDefault();
+    };
+
+    dropElement.addEventListener('dragenter', this.onFileDragEnter);
+    dropElement.addEventListener('dragleave', this.onFileDragLeave);
+    // dropElement.addEventListener('dragend', this.onFileEndDrag);
+    dropElement.addEventListener('dragover', this.onFileDragOver);
+    dropElement.addEventListener('drop', this.onFileDrop);
+  }
+
+  destroyDrop() {
+    const dropElement = this.getDropElement();
+    if (!dropElement) {
+      console.warn('ReplaceDataModal.destroyDrop: drag element not available');
+      return;
+    }
+    dropElement.removeEventListener('dragenter', this.onFileDragEnter);
+    dropElement.removeEventListener('dragleave', this.onFileDragLeave);
+    // dropElement.removeEventListener('dragend', this.onFileEndDrag);
+    dropElement.removeEventListener('dragover', this.onFileDragOver);
+    dropElement.removeEventListener('drop', this.onFileDrop);
+
+    this.onFileStartDrag = null;
+    this.onFileDragLeave = null;
+    this.onFileDrop = null;
+  }
+
+  @action
+  registerModalBody(element) {
+    this.modalContentElement = element.closest('.modal-content');
+    // FIXME: czy jest wspierane pokazywanie i chowanie jeśli nie nieszczymy komponentu?
+    // jeśli tak, to initDrop/destroyDrop powinny być robione za każdym razem jak otwieramy/zamykami
+    this.initDrop();
   }
 
   /**
@@ -108,7 +228,7 @@ export default class ReplaceDataModalComponent extends Component {
 
   @action
   close() {
-    this.modalManager.hide(this.modalId);
+    this.args.modalApi.close();
   }
 
   @action

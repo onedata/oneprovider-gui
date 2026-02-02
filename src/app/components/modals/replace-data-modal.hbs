@@ -3,12 +3,13 @@
   @modalId={{this.modalId}}
   @allowClose={{false}}
   @onHide={{this.onHide}}
+  @onShown={{this.onShown}}
   as |modal|
 >
   <modal.header>
     <h1>{{tt this "header"}}</h1>
   </modal.header>
-  <modal.body>
+  <modal.body {{did-insert this.registerModalBody}}>
     <p>{{tt this "intro"}}</p>
     <div class="current-file-container file-container">
       <SingleFileInfo @file={{this.file}} class="existing-file-info" />
@@ -27,7 +28,7 @@
         <strong>{{tt this "replaceContentWith"}}</strong>
       </div>
     </div>
-    <div class="current-file-container file-container">
+    <div class="selected-file-container file-container">
       <ReplaceableFileInfo
         @placeholder={{tt this "selectFilePlaceholder"}}
         @selectedFile={{this.newFile}}
@@ -41,6 +42,14 @@
         >
           {{tt this "browse"}}
         </OneButton>
+      </div>
+      <div class="upload-drop-zone">
+        <div class="upload-info">
+          <OneIcon
+            @icon="browser-upload"
+            class="upload-watermark-icon"
+          />
+        </div>
       </div>
     </div>
     <div class="acknowledge-warning-container">

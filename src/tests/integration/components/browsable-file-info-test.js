@@ -11,7 +11,7 @@ describe('Integration | Component | browsable-file-info', function () {
 
   it('renders a provided placeholder when the file is not provided', async function () {
     const helper = new Helper(this);
-    const placeholder = 'Select a file from your device';
+    const placeholder = 'Select or drop a file from your device';
     helper.renderContext.placeholder = placeholder;
 
     await helper.render();

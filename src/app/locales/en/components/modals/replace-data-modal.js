@@ -4,7 +4,7 @@ export default {
   download: 'Download',
   browse: 'Browse',
   replaceContentWith: 'Replace the content with...',
-  selectFilePlaceholder: 'Select a file from your device',
+  selectFilePlaceholder: 'Select or drop a file from your device',
   acknowledgeText: 'Current content of the file <strong>will be completely overwritten</strong> with the new content.',
   cancel: 'Cancel',
   proceed: 'Proceed',

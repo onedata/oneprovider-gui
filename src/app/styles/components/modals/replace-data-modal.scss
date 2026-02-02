@@ -1,4 +1,43 @@
 .replace-data-modal {
+  .upload-drop-zone {
+    display: none;
+    position: absolute;
+    // we cannot render more because of modal overflow
+    left: 0;
+    right: 0;
+    // we need larger rectangle, because file info is small
+    top: -1em;
+    bottom: -1em;
+    .upload-info {
+      // the drop zone here is smaller than a full-screen zone
+      font-size: 6px;
+    }
+  }
+  .modal-content {
+    .upload-valid-icon {
+      display: block;
+    }
+    .upload-invalid-icon {
+      display: none;
+    }
+    &.file-drag {
+      .upload-drop-zone {
+        display: block;
+      }
+    }
+    &.file-drag-invalid {
+      .upload-valid-icon {
+        display: none;
+      }
+      .upload-invalid-icon {
+        display: block;
+      }
+    }
+  }
+  .selected-file-container {
+    // it is a render area for the drop-zone which is absolute
+    position: relative;
+  }
   .file-container {
     margin-top: 1.5em;
     display: flex;
