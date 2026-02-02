@@ -74,7 +74,7 @@ export default Component.extend(...mixins, {
   /**
    * @type {boolean}
    */
-  isVirtualSizeShown: false,
+  isVirtualSizeShown: reads('viewModel.isVirtualSizeShown'),
 
   /**
    * @type {ComputedProperty<Models.File>}
@@ -957,8 +957,7 @@ export default Component.extend(...mixins, {
       this.toggleProperty('areSizeStatsExpanded');
     },
     changeShowingVirtualSize() {
-      this.toggleProperty('isVirtualSizeShown');
-      this.viewModel.set('isVirtualSizeShown', this.isVirtualSizeShown);
+      this.viewModel.set('isVirtualSizeShown', !this.isVirtualSizeShown);
     },
   },
 });

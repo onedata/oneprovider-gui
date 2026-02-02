@@ -912,7 +912,8 @@ export default Service.extend({
         dirSizeStatsTimeSeriesNameGenerators.virtualSize
       );
     }
-    // this must be below the if statement to ensure the correct order
+    // This must be below the if statement to ensure that physical size is processed last,
+    // because it requires gathering stats per storage.
     neededTimeSeriesNameGenerators.push(
       dirSizeStatsTimeSeriesNameGenerators.physicalSize
     );
