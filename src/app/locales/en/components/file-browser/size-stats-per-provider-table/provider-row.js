@@ -3,6 +3,7 @@ export default {
     containsLabel: 'Contains',
     logicalSizeLabel: 'Logical size',
     physicalSizeLabel: 'Physical size',
+    virtualSizeLabel: 'Virtual size',
     elementsCount: {
       template: '{{fileCount}} {{fileNoun}}, {{dirCount}} {{dirNoun}}',
       templateExtraInfo: ' ({{totalCount}} {{elementNoun}} in total)',

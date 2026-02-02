@@ -87,6 +87,11 @@ export default BaseTabModel.extend({
   /**
    * @override
    */
+  modalClass: 'without-footer',
+
+  /**
+   * @override
+   */
   statusIcon: computed(
     'areSomeProvidersOffline',
     'isSizeStatsDisabled',

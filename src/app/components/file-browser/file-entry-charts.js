@@ -72,6 +72,11 @@ export default Component.extend(...mixins, {
   areChartsRendered: true,
 
   /**
+   * @type {boolean}
+   */
+  isVirtualSizeShown: reads('viewModel.isVirtualSizeShown'),
+
+  /**
    * @type {ComputedProperty<Models.File>}
    */
   file: reads('viewModel.file'),
@@ -131,6 +136,18 @@ export default Component.extend(...mixins, {
       return this.fileManager.getDirSizeStatsTimeSeriesCollectionSchema();
     }
   )),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isVirtualSizeAvailable: computed(
+    'isVirtualSizeShown',
+    'latestDirSizeStatsValueRanges.minVirtualSize',
+    function isVirtualSizeAvailable() {
+      return this.isVirtualSizeShown &&
+        !isNaN(this.latestDirSizeStatsValueRanges.minVirtualSize);
+    }
+  ),
 
   /**
    * @type {ComputedProperty<PromiseObject>}
@@ -402,10 +419,10 @@ export default Component.extend(...mixins, {
                         externalSourceName: 'chartData',
                         externalSourceParameters: {
                           collectionRef: this.currentProviderId,
-                          timeSeriesNameGenerator: timeSeriesNameGenerators.totalSize,
-                          timeSeriesName: timeSeriesNameGenerators.totalSize,
+                          timeSeriesNameGenerator: timeSeriesNameGenerators.logicalSize,
+                          timeSeriesName: timeSeriesNameGenerators.logicalSize,
                           metricNames: this.metricNamesForTimeSeries
-                            ?.[timeSeriesNameGenerators.totalSize] ?? [],
+                            ?.[timeSeriesNameGenerators.logicalSize] ?? [],
                         },
                       },
                     },
@@ -612,8 +629,8 @@ export default Component.extend(...mixins, {
 
   latestDirSizeStatsValueRanges: computed(
     'availableDirSizeStatsValues',
+    'isVirtualSizeShown',
     function latestDirSizeStatsValueRanges() {
-
       const logicalSizeArray = this.availableDirSizeStatsValues.map(
         dirStats => dirStats.logicalSize
       );
@@ -623,6 +640,8 @@ export default Component.extend(...mixins, {
       const dirsCountArray = this.availableDirSizeStatsValues.map(
         dirStats => dirStats.dirCount
       );
+      const virtualSizeArray = this.isVirtualSizeShown ?
+        this.availableDirSizeStatsValues.map(dirStats => dirStats.virtualSize) : [];
 
       return {
         minLogicalSize: Math.min(...logicalSizeArray),
@@ -631,6 +650,8 @@ export default Component.extend(...mixins, {
         maxFilesCount: Math.max(...filesCountArray),
         minDirsCount: Math.min(...dirsCountArray),
         maxDirsCount: Math.max(...dirsCountArray),
+        minVirtualSize: Math.min(...virtualSizeArray),
+        maxVirtualSize: Math.max(...virtualSizeArray),
       };
     }
   ),
@@ -708,6 +729,31 @@ export default Component.extend(...mixins, {
           logicalSize += ' – ' + formatNumber(maxLogicalSize);
         }
         return htmlSafe(logicalSize);
+      } else {
+        return '';
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  virtualSizeExtraInfo: computed(
+    'latestDirSizeStatsValueRanges',
+    'isVirtualSizeShown',
+    function virtualSizeExtraInfo() {
+      if (!this.isVirtualSizeShown) {
+        return '';
+      }
+      const minVirtualSize = this.latestDirSizeStatsValueRanges.minVirtualSize;
+      const maxVirtualSize = this.latestDirSizeStatsValueRanges.maxVirtualSize;
+
+      if (maxVirtualSize >= 1024) {
+        let virtualSize = formatNumber(minVirtualSize);
+        if (minVirtualSize !== maxVirtualSize) {
+          virtualSize += ' – ' + formatNumber(maxVirtualSize);
+        }
+        return htmlSafe(virtualSize);
       } else {
         return '';
       }
@@ -909,6 +955,9 @@ export default Component.extend(...mixins, {
     },
     toggleSizeStats() {
       this.toggleProperty('areSizeStatsExpanded');
+    },
+    changeShowingVirtualSize() {
+      this.viewModel.set('isVirtualSizeShown', !this.isVirtualSizeShown);
     },
   },
 });

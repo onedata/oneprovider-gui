@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13031 Added virtual size to dir stats and properly display the logical size
 * VFS-13143 Added remembering the last visited tab and directory in share's URL
 * VFS-13235 Added description for EAGAIN error
 * VFS-13250 Fixed infinite scroll in archives browser, archive recall target browser and items selector; fixed opening archive DIP in file datasets panel

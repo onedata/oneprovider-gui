@@ -30,6 +30,12 @@ export default Component.extend(I18n, {
   sizeStats: undefined,
 
   /**
+   * @virtual
+   * @type {boolean}
+   */
+  isVirtualSizeColumnShown: false,
+
+  /**
    * @type {ComputedProperty<string>}
    */
   stringifiedLatestElementsCount: computed(
