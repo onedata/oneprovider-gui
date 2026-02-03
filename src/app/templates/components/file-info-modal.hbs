@@ -321,6 +321,23 @@
               </td>
             </tr>
           {{/if}}
+          {{#if this.isFileContentRowVisible}}
+            <tr class="file-info-row-file-content">
+              <td class="property-name with-input-sm">{{tt this "fileContent"}}</td>
+              <td class="property-value">
+                <div class="file-content-button-container">
+                  <OneButton @size="sm" @onClick={{action "downloadFile"}}>
+                    <OneIcon @icon="browser-download" />
+                    {{tt this "fileContentRow.download"}}
+                  </OneButton>
+                  <OneButton @size="sm" @onClick={{action "replaceFile"}}>
+                    <OneIcon @icon="browser-replace-data" />
+                    {{tt this "fileContentRow.replace"}}
+                  </OneButton>
+                </div>
+              </td>
+            </tr>
+          {{/if}}
         </tbody>
       </table>
     {{else if (eq activeTab "hardlinks")}}

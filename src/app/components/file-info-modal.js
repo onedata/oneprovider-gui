@@ -275,6 +275,10 @@ export default Component.extend(...mixins, {
 
   isOwnerVisible: not(or('previewMode', 'fileIsSpaceRoot')),
 
+  isFileContentRowVisible: computed('itemType', function isFileContentRowVisible() {
+    return this.itemType === LegacyFileType.Regular;
+  }),
+
   fileIsSpaceRoot: computed('file.entityId', 'space', function fileIsSpaceRoot() {
     if (!this.space) {
       return false;
@@ -1011,6 +1015,16 @@ export default Component.extend(...mixins, {
     },
     toggleStorageLocations() {
       this.toggleProperty('areStorageLocationsExpanded');
+    },
+    downloadFile() {
+      if (this.isFileContentRowVisible) {
+        this.browserModel.downloadFiles?.([this.file]);
+      }
+    },
+    replaceFile() {
+      if (this.isFileContentRowVisible) {
+        this.browserModel.openReplaceModal?.(this.file);
+      }
     },
   },
 });

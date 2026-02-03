@@ -975,10 +975,7 @@ export default BaseBrowserModel.extend(...mixins, {
       id: 'replace',
       icon: commonActionIcons.replace,
       action: (files) => {
-        this.modalManager.show('replace-data-modal', {
-          file: files[0],
-          browserModel: this,
-        });
+        this.openReplaceModal(files[0]);
       },
       showIn: [
         actionContext.singleFile,
@@ -1700,6 +1697,13 @@ export default BaseBrowserModel.extend(...mixins, {
   downloadFiles(files) {
     const fileIds = files.mapBy('entityId');
     return this.downloadFilesById(fileIds);
+  },
+
+  openReplaceModal(file) {
+    this.modalManager.show('replace-data-modal', {
+      file,
+      browserModel: this,
+    });
   },
 
   /**
