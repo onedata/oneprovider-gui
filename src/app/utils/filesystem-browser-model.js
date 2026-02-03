@@ -978,6 +978,7 @@ export default BaseBrowserModel.extend(...mixins, {
     'dir.{dataIsProtected,isRecalling}',
     'space.privileges.writeData',
     'selectedItems.@each.dataIsProtectedByDataset',
+    'selectedItemsContainsOnlySymlinks',
     function btnReplace() {
       const tip = this.generateDisabledTip({
         protectionType: 'data',
@@ -985,6 +986,7 @@ export default BaseBrowserModel.extend(...mixins, {
         checkProtectionForSelected: true,
         blockCurrentDirRecalling: true,
         blockNoSpaceWrite: true,
+        blockWhenSymlinksOnly: true,
       });
       return this.createItemBrowserAction({
         id: 'replace',

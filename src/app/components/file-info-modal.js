@@ -275,9 +275,13 @@ export default Component.extend(...mixins, {
 
   isOwnerVisible: not(or('previewMode', 'fileIsSpaceRoot')),
 
-  isFileContentRowVisible: computed('itemType', function isFileContentRowVisible() {
-    return this.itemType === LegacyFileType.Regular;
-  }),
+  isFileContentRowVisible: computed(
+    'downloadButton',
+    'replaceButton',
+    function isFileContentRowVisible() {
+      return this.downloadButton || this.replaceButton;
+    }
+  ),
 
   fileIsSpaceRoot: computed('file.entityId', 'space', function fileIsSpaceRoot() {
     if (!this.space) {
@@ -889,6 +893,30 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  downloadButton: computed(
+    'browserModel.{btnDownload,btnDownloadTar,selectionContext}',
+    function downloadButton() {
+      const context = this.browserModel.selectionContext;
+      if (this.browserModel.btnDownload?.showIn.includes(context)) {
+        return this.browserModel.btnDownload;
+      } else if (this.browserModel.btnDownloadTar?.showIn.includes(context)) {
+        return this.browserModel.btnDownloadTar;
+      }
+      return null;
+    }
+  ),
+
+  replaceButton: computed(
+    'browserModel.{btnReplace,selectionContext}',
+    function downloadButton() {
+      const context = this.browserModel.selectionContext;
+      if (this.browserModel.btnReplace?.showIn.includes(context)) {
+        return this.browserModel.btnReplace;
+      }
+      return null;
+    }
+  ),
+
   hardlinksAutoUpdater: asyncObserver(
     'file.hardlinkCount',
     function hardlinksAutoUpdater() {
@@ -1017,14 +1045,10 @@ export default Component.extend(...mixins, {
       this.toggleProperty('areStorageLocationsExpanded');
     },
     downloadFile() {
-      if (this.isFileContentRowVisible) {
-        this.browserModel.downloadFiles?.([this.file]);
-      }
+      this.downloadButton?.action([this.file]);
     },
     replaceFile() {
-      if (this.isFileContentRowVisible) {
-        this.browserModel.openReplaceModal?.(this.file);
-      }
+      this.replaceButton?.action([this.file]);
     },
   },
 });
