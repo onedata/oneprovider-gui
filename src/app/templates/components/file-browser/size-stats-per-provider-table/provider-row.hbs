@@ -37,6 +37,29 @@
           {{/if}}
         </span>
       </div>
+      {{#if this.isVirtualSizeColumnShown}}
+        <div class="virtual-size-container">
+          <span class="virtual-size-label">
+            {{tt this "fileCounters.virtualSizeLabel"}}:
+          </span>
+          <span class="virtual-size-value">
+            {{#if (eq sizeStats.virtualSize undefined)}}
+              <SpinSpinnerBlock
+                class="virtual-size-spinner"
+                @tagName="span"
+                @sizeClass="xs"
+              />
+            {{else}}
+              {{bytes-to-string sizeStats.virtualSize}}
+              {{#if (gte sizeStats.virtualSize 1024)}}
+                <span class="extra-info">
+                  ({{format-number sizeStats.virtualSize}}&nbsp;B)
+                </span>
+              {{/if}}
+            {{/if}}
+          </span>
+        </div>
+      {{/if}}
     {{/if}}
   </td>
 {{else}}
@@ -44,7 +67,7 @@
     <RecordInfoWithIcon @record={{sizeStats.provider}} />
   </td>
   {{#if sizeStats.error}}
-    <td colspan="3">
+    <td colspan={{if this.isVirtualSizeColumnShown "4" "3"}}>
       <FileBrowser::SizeStatsPerProviderTable::ErrorCell @sizeStats={{sizeStats}} />
     </td>
   {{else}}
@@ -67,5 +90,23 @@
         </span>
       {{/if}}
     </td>
+    {{#if this.isVirtualSizeColumnShown}}
+      <td class="virtual-size-value">
+        {{#if (eq sizeStats.virtualSize undefined)}}
+          <SpinSpinnerBlock
+            class="virtual-size-spinner"
+            @tagName="span"
+            @sizeClass="xs"
+          />
+        {{else}}
+          {{bytes-to-string sizeStats.virtualSize}}
+          {{#if (gte sizeStats.virtualSize 1024)}}
+            <span class="extra-info">
+              ({{format-number sizeStats.virtualSize}}&nbsp;B)
+            </span>
+          {{/if}}
+        {{/if}}
+      </td>
+    {{/if}}
   {{/if}}
 {{/if}}

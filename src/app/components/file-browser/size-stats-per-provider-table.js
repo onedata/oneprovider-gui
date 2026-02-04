@@ -32,6 +32,12 @@ export default Component.extend(I18n, {
   dirSizeStatsValues: undefined,
 
   /**
+   * @virtual
+   * @type {boolean}
+   */
+  isVirtualSizeColumnShown: false,
+
+  /**
    * @type {PromiseObject<Array<DirCurrentSizeStatsForProvider & { provider: Models.Provider }>>}
    */
   dirSizeStatsValuesWithProviderProxy: promise.object(computed(

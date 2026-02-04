@@ -11,7 +11,19 @@
 {{else}}
   <PromiseProxyContainer @proxy={{loadingProxy}}>
     <div class="current-size-section">
-       <h2 class="current-size-header">
+      <div class="include-virtual-size-container">
+        <label for={{concat "include-virtual-size-" elementId}} class="inline-label">
+          {{tt this "includeVirtualSize"}}
+           <OneLabelTip @title={{tt this "includeVirtualSizeTooltip"}} />
+        </label>
+        <OneWayToggle
+          class="include-virtual-size-toggle"
+          @inputId={{concat "include-virtual-size-" elementId}}
+          @checked={{isVirtualSizeShown}}
+          @update={{action "changeShowingVirtualSize"}}
+        />
+      </div>
+      <h2 class="current-size-header">
         {{tt this "currentSize.header"}}
         <span class={{concat-classes
           "extra-info"
@@ -34,6 +46,7 @@
               <span class="extra-info">
                 {{stringifiedLatestElementsCountExtraInfo}}
               </span>
+              <OneLabelTip @title={{tt this "currentSize.containsTip"}} />
             </span>
           </li>
           <li class="property-row property-logical-size">
@@ -68,6 +81,36 @@
               <OneLabelTip @title={{tt this "currentSize.totalPhysicalSizeTip"}} />
             </span>
           </li>
+          {{#if isVirtualSizeShown}}
+            <li class="property-row property-virtual-size">
+              <span class="property-label">
+                {{tt this "currentSize.fileCounters.virtualSizeLabel"}}:
+              </span>
+              <span class="property-value">
+                {{#if isVirtualSizeAvailable}}
+                  {{bytes-to-string latestDirSizeStatsValueRanges.minVirtualSize}}
+                  {{#if (not-eq
+                    latestDirSizeStatsValueRanges.minVirtualSize
+                    latestDirSizeStatsValueRanges.maxVirtualSize
+                  )}}
+                     – {{bytes-to-string latestDirSizeStatsValueRanges.maxVirtualSize}}
+                  {{/if}}
+                  {{#if virtualSizeExtraInfo}}
+                    <span class="extra-info">
+                      ({{virtualSizeExtraInfo}}&nbsp;B)
+                    </span>
+                  {{/if}}
+                {{else}}
+                  <SpinSpinnerBlock
+                    class="virtual-size-spinner"
+                    @tagName="span"
+                    @sizeClass="xs"
+                  />
+                {{/if}}
+                <OneLabelTip @title={{tt this "currentSize.virtualSizeTip"}} />
+              </span>
+            </li>
+          {{/if}}
         </ul>
       </p>
     </div>
@@ -89,6 +132,7 @@
       {{#if areSizeStatsExpanded}}
         <FileBrowser::SizeStatsPerProviderTable
           @dirSizeStatsValues={{latestDirSizeStatsValues}}
+          @isVirtualSizeColumnShown={{isVirtualSizeShown}}
         />
       {{/if}}
     {{/if}}

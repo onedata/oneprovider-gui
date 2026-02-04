@@ -57,6 +57,12 @@ export default EmberObject.extend(...mixins, {
   getProvidersUrl: undefined,
 
   /**
+   * @virtual
+   * @type {boolean}
+   */
+  isVirtualSizeShown: false,
+
+  /**
    * Tells which type of stats should be rendered. Applicable only when
    * browsing space root directory stats.
    * @type {SpaceSizeStatsType}
@@ -202,7 +208,10 @@ export default EmberObject.extend(...mixins, {
         result = await this.fileManager.getSpaceCurrentSizeStats(this.spaceId);
       } else {
         result = {
-          all: await this.fileManager.getDirCurrentSizeStats(this.fileId),
+          all: await this.fileManager.getDirCurrentSizeStats(
+            this.fileId,
+            this.isVirtualSizeShown
+          ),
         };
       }
       safeExec(this, () => this.set('dirStatsNotReady', false));

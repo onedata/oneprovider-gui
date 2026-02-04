@@ -75,7 +75,8 @@ export function getFileGri(fileId, scope) {
 export const dirSizeStatsTimeSeriesNameGenerators = {
   regFileAndLinkCount: 'reg_file_and_link_count',
   dirCount: 'dir_count',
-  totalSize: 'virtual_size',
+  logicalSize: 'logical_size',
+  virtualSize: 'virtual_size',
   physicalSize: 'physical_size_',
 };
 
