@@ -561,7 +561,7 @@ export default BaseBrowserModel.extend(...mixins, {
       const uploadManager = this.get('uploadManager');
       const actionId = 'upload';
       const tip = this.generateDisabledTip({
-        // protectionType: 'data',
+        protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
         blockCurrentDirRecalling: true,
@@ -589,7 +589,7 @@ export default BaseBrowserModel.extend(...mixins, {
     function btnNewDirectory() {
       const actionId = 'newDirectory';
       const tip = this.generateDisabledTip({
-        // protectionType: 'data',
+        protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
         blockCurrentDirRecalling: true,
@@ -1818,7 +1818,7 @@ export default BaseBrowserModel.extend(...mixins, {
     if (!tip && blockSelectedRecalling && selectedItemsContainsRecalling) {
       tip = this.t('disabledActionReason.recalling');
     }
-    if (!tip && blockNoSpaceWrite && !space.privileges.writeData) {
+    if (!tip && blockNoSpaceWrite && !space?.privileges.writeData) {
       tip = insufficientPrivilegesMessage({
         i18n,
         modelName: 'space',

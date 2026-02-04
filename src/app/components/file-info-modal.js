@@ -894,12 +894,18 @@ export default Component.extend(...mixins, {
   ),
 
   downloadButton: computed(
-    'browserModel.{btnDownload,btnDownloadTar,selectionContext}',
+    'browserModel.{btnDownload,btnDownloadTar,selectionContext,buttonNames}',
     function downloadButton() {
       const context = this.browserModel.selectionContext;
-      if (this.browserModel.btnDownload?.showIn.includes(context)) {
+      if (
+        this.browserModel.buttonNames.includes('btnDownload') &&
+        this.browserModel.btnDownload?.showIn.includes(context)
+      ) {
         return this.browserModel.btnDownload;
-      } else if (this.browserModel.btnDownloadTar?.showIn.includes(context)) {
+      } else if (
+        this.browserModel.buttonNames.includes('btnDownloadTar') &&
+        this.browserModel.btnDownloadTar?.showIn.includes(context)
+      ) {
         return this.browserModel.btnDownloadTar;
       }
       return null;
@@ -907,10 +913,13 @@ export default Component.extend(...mixins, {
   ),
 
   replaceButton: computed(
-    'browserModel.{btnReplace,selectionContext}',
+    'browserModel.{btnReplace,selectionContext,buttonNames}',
     function downloadButton() {
       const context = this.browserModel.selectionContext;
-      if (this.browserModel.btnReplace?.showIn.includes(context)) {
+      if (
+        this.browserModel.buttonNames.includes('btnReplace') &&
+        this.browserModel.btnReplace?.showIn.includes(context)
+      ) {
         return this.browserModel.btnReplace;
       }
       return null;
