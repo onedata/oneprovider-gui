@@ -584,6 +584,7 @@ describe('Integration | Component | file-browser (main component)', function () 
         });
 
         it('has enabled replace item in context menu', async function () {
+          this.set('spacePrivileges', { view: true, writeData: true });
           await renderComponent(this);
           const menu = await openFileContextMenu({ entityId: 'i1' });
           const item = menu.querySelector('li:not(.disabled) .file-action-replace');
@@ -593,6 +594,7 @@ describe('Integration | Component | file-browser (main component)', function () 
 
         it('opens the Replace data modal after clicking replace item in the context menu',
           async function () {
+            this.set('spacePrivileges', { view: true, writeData: true });
             this.set('globalModalRendered', true);
             await renderComponent(this);
             const menu = await openFileContextMenu({ entityId: 'i1' });
