@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13277 Fixed using the "Files" tab as default when opening share's URL
 * VFS-13031 Added virtual size to dir stats and properly display the logical size
 * VFS-13143 Added remembering the last visited tab and directory in share's URL
 * VFS-13235 Added description for EAGAIN error
