@@ -2,8 +2,9 @@
  * Manages uploading files using resumable.js and external state of upload
  * received from Onezone.
  *
- * @author Michał Borzęcki
+ * @author Michał Borzęcki, Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -395,11 +396,13 @@ export default Service.extend(...mixins, {
 
     const notifyObject = {
       uploadId,
-      files: resumableFiles.map(file => ({
-        path: file.relativePath,
-        size: file.size,
+      files: resumableFiles.map(resumableFile => ({
+        path: resumableFile.relativePath,
+        size: resumableFile.size,
+        onedataReplacedFile: resumableFile.file.onedataReplacedFile,
       })),
     };
+
     this.notifyParent(notifyObject, 'addNewUpload');
 
     resumable.upload();
@@ -495,15 +498,18 @@ export default Service.extend(...mixins, {
   /**
    * Initializes upload of given file.
    * @param {ResumableFile} resumableFile
-   * @returns {Promise}
+   * @returns {Promise<void>}
    */
-  initializeFileUpload(resumableFile) {
+  async initializeFileUpload(resumableFile) {
     if (!resumableFile.isUploadInitialized) {
-      return this.get('fileManager')
-        .initializeFileUpload(get(resumableFile, 'fileModel'))
-        .then(() => resumableFile.isUploadInitialized = true);
+      const overwrite = Boolean(resumableFile.file.onedataReplacedFile);
+      await this.fileManager.initializeFileUpload(
+        resumableFile.fileModel.entityId,
+        overwrite
+      );
+      resumableFile.isUploadInitialized = true;
     } else {
-      return resolve();
+      return;
     }
   },
 
@@ -677,16 +683,25 @@ export default Service.extend(...mixins, {
   },
 
   /**
-   * Creates directories which are needed to upload file. After that, an empty
+   * Prepares the file to be a target of uploaded data.
+   *
+   * In normal mode, when user uploads a new file to the directory (or a directory tree),
+   * it creates directories which are needed to upload file. After that, an empty
    * file is created, that will be a target for upload. Created directories are
    * reused by the same batch upload - all files have the same
    * `createdDirectories` map to remember state of directories creation.
+   *
+   * In replacing mode (e.g., when using `ReplaceDataModal`), it takes the custom File's
+   * `onedataReplacedFile` property, which is a reference to an existing file model, and
+   * uploads the data into it. Search for `onedataReplacedFile` property in the project
+   * to find out how it is added and used.
+   *
    * @param {ResumableFile} resumableFile
    * @returns {Promise<Models.File>}
    */
   createCorrespondingFile(resumableFile) {
-    const fileManager = this.get('fileManager');
-    const pathSections = get(resumableFile, 'relativePath').split('/');
+    const fileManager = this.fileManager;
+    const pathSections = resumableFile.relativePath.split('/');
 
     // Root upload directory is already created, so just resolve
     let createPromise = resolve(resumableFile.targetRootDirectory);
@@ -703,8 +718,11 @@ export default Service.extend(...mixins, {
           // or create a new one and remember Promise to reuse it later for
           // another files.
           if (!nextLevelDirPromise) {
-            nextLevelDirPromise = fileManager.createDirectory(pathSections[i],
-              parent, 50);
+            nextLevelDirPromise = fileManager.createDirectory(
+              pathSections[i],
+              parent,
+              50
+            );
             createdDirectories[directoryPath] = nextLevelDirPromise;
             nextLevelDirPromise.then(() => this.refreshDirectoryChildren(parent));
           }
@@ -713,15 +731,16 @@ export default Service.extend(...mixins, {
       }
     }
 
-    return createPromise.then(parent => {
+    return createPromise.then(async (parent) => {
       // When all directories needed to upload file are created, create file itself.
-      const createFileModelPromise =
-        fileManager.createFile(get(pathSections, 'lastObject'), parent, 50);
-      createFileModelPromise.then((fileModel) => {
+      const filename = get(pathSections, 'lastObject');
+      const createFileModelPromise = (async () => {
+        const targetFile = resumableFile.file.onedataReplacedFile ??
+          await fileManager.createFile(filename, parent, 50);
         this.refreshDirectoryChildren(parent);
         resumableFile.createFileModelPromise = null;
-        resumableFile.fileModel = fileModel;
-      });
+        resumableFile.fileModel = targetFile;
+      })();
       resumableFile.createFileModelPromise = createFileModelPromise;
       return createFileModelPromise;
     });

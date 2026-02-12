@@ -9,7 +9,7 @@
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
 import { computed, get, getProperties } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, bool } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/i18n';
@@ -190,9 +190,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
   }),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  effUploadDisabled: reads('dir.dataIsProtected'),
+  effUploadDisabled: bool('dirProxy.content.dataIsProtected'),
 
   /**
    * @override

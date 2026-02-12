@@ -1,0 +1,11 @@
+<div class="replaced-file-name" ...attributes>
+  {{#if this.replacementShown}}
+    <TruncatedString class="selected-file-name single-replaced-file-name">
+      {{this.selectedFileName}}
+    </TruncatedString>
+    <OneIcon @icon="arrow-right-full" class="replacement-arrow" />
+  {{/if}}
+  <TruncatedString class="target-file-name single-replaced-file-name">
+    {{if this.replacementShown this.targetFileName this.selectedFileName}}
+  </TruncatedString>
+</div>

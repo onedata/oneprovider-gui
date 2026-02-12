@@ -1,0 +1,86 @@
+<GlobalModal
+  @classNames="replace-data-modal"
+  @modalId={{this.modalId}}
+  @allowClose={{false}}
+  @onHide={{this.onHide}}
+  @onShown={{this.onShown}}
+  as |modal|
+>
+  <modal.header>
+    <h1>{{tt this "header"}}</h1>
+  </modal.header>
+  <modal.body {{did-insert this.registerModalBody}}>
+    <p>{{tt this "intro"}}</p>
+    <div class="current-file-container file-container">
+      <SingleFileInfo @file={{this.file}} class="existing-file-info" />
+      <div class="current-file-download-container file-info-button-container">
+        <OneButton
+          @onClick={{this.download}}
+          @size="sm"
+        >
+          <OneIcon @icon="browser-download" />
+          {{tt this "download"}}
+        </OneButton>
+      </div>
+    </div>
+    <div class="btn-group-tabs files-separator">
+      <div class="box-item">
+        <strong>{{tt this "replaceContentWith"}}</strong>
+      </div>
+    </div>
+    <div class="selected-file-container file-container">
+      <ReplaceableFileInfo
+        @placeholder={{tt this "selectFilePlaceholder"}}
+        @selectedFile={{this.newFile}}
+        @targetFile={{this.file}}
+        class="new-file-info"
+      />
+      <div class="browse-container file-info-button-container">
+        <OneButton
+          @size="sm"
+          @onClick={{this.browse}}
+        >
+          {{tt this "browse"}}
+        </OneButton>
+      </div>
+      <div class="upload-drop-zone">
+        <div class="upload-info">
+          <OneIcon
+            @icon="browser-upload"
+            class="upload-watermark-icon"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="acknowledge-warning-container">
+      <OneIcon @icon="sign-warning-rounded" class="acknowledge-warning-icon" />
+      <div
+        class="text-acknowledge"
+        onclick={{this.toggleAcknowledge}}
+      >
+        {{tt this "acknowledgeText"}}
+      </div>
+    </div>
+  </modal.body>
+  <modal.footer>
+    <input
+      {{did-insert this.registerFileInput}}
+      type="file"
+      class="new-file-input"
+      onchange={{this.changeFileUsingInput}}
+    >
+    <OneButton
+      @onClick={{modal.close}}
+    >
+      {{tt this "cancel"}}
+    </OneButton>
+    <OneButton
+      @type="primary"
+      @disabled={{this.proceedDisabled}}
+      @onClick={{this.proceed}}
+    >
+      <OneIcon @icon="browser-upload" />
+      {{tt this "proceed"}}
+    </OneButton>
+  </modal.footer>
+</GlobalModal>

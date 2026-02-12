@@ -26,6 +26,7 @@ export default _.merge({}, BaseBrowserModel, {
     createHardlinkPlural: 'Create hard links',
     placeSymlink: 'Place symbolic link',
     placeHardlink: 'Place hard link',
+    replace: 'Replace...',
     copy: 'Copy',
     cut: 'Cut',
     delete: 'Delete',

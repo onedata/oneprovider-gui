@@ -49,6 +49,7 @@ export const commonActionIcons = Object.freeze({
   shares: 'browser-share',
   qos: 'qos',
   distribution: 'provider',
+  replace: 'browser-replace-data',
 });
 
 const availableButtonNames = Object.freeze([
@@ -72,6 +73,7 @@ const availableButtonNames = Object.freeze([
   'btnCreateHardlink',
   'btnPlaceSymlink',
   'btnPlaceHardlink',
+  'btnReplace',
   'btnCopy',
   'btnCut',
   'btnPaste',
@@ -554,6 +556,7 @@ export default BaseBrowserModel.extend(...mixins, {
 
   btnUpload: computed(
     'dir.{dataIsProtected,isRecalling}',
+    'space.privileges.writeData',
     function btnUpload() {
       const uploadManager = this.get('uploadManager');
       const actionId = 'upload';
@@ -562,6 +565,7 @@ export default BaseBrowserModel.extend(...mixins, {
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
         blockCurrentDirRecalling: true,
+        blockNoSpaceWrite: true,
       });
       const disabled = Boolean(tip);
       return this.createItemBrowserAction({
@@ -581,6 +585,7 @@ export default BaseBrowserModel.extend(...mixins, {
 
   btnNewDirectory: computed(
     'dir.{dataIsProtected,isRecalling}',
+    'space.privileges.writeData',
     function btnNewDirectory() {
       const actionId = 'newDirectory';
       const tip = this.generateDisabledTip({
@@ -588,6 +593,7 @@ export default BaseBrowserModel.extend(...mixins, {
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
         blockCurrentDirRecalling: true,
+        blockNoSpaceWrite: true,
       });
       const disabled = Boolean(tip);
       return this.createItemBrowserAction({
@@ -968,6 +974,35 @@ export default BaseBrowserModel.extend(...mixins, {
     }
   ),
 
+  btnReplace: computed(
+    'dir.{dataIsProtected,isRecalling}',
+    'space.privileges.writeData',
+    'selectedItems.@each.dataIsProtectedByDataset',
+    'selectedItemsContainsOnlySymlinks',
+    function btnReplace() {
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        checkProtectionForCurrentDir: true,
+        checkProtectionForSelected: true,
+        blockCurrentDirRecalling: true,
+        blockNoSpaceWrite: true,
+        blockWhenSymlinksOnly: true,
+      });
+      return this.createItemBrowserAction({
+        id: 'replace',
+        icon: commonActionIcons.replace,
+        tip,
+        disabled: Boolean(tip),
+        action: (files) => {
+          this.openReplaceModal(files[0]);
+        },
+        showIn: [
+          actionContext.singleFile,
+        ],
+      });
+    }
+  ),
+
   btnCopy: computed('selectedItemsContainsOnlySymlinks', function btnCopy() {
     const disabledTip = this.generateDisabledTip({
       blockWhenSymlinksOnly: true,
@@ -1063,6 +1098,8 @@ export default BaseBrowserModel.extend(...mixins, {
     'isOnlyRootDirSelected',
     'selectedItems.@each.dataIsProtectedByDataset',
     'selectedItemsContainsRecalling',
+    'dir.{dataIsProtected,isRecalling}',
+    'space.privileges.writeData',
     function btnDelete() {
       const actionId = 'delete';
       const tip = this.generateDisabledTip({
@@ -1070,6 +1107,10 @@ export default BaseBrowserModel.extend(...mixins, {
         protectionType: 'data',
         protectionScope: 'dataset',
         blockSelectedRecalling: true,
+        checkProtectionForCurrentDir: true,
+        checkProtectionForSelected: true,
+        blockCurrentDirRecalling: true,
+        blockNoSpaceWrite: true,
       });
       const disabled = Boolean(tip);
       return this.createItemBrowserAction({
@@ -1684,6 +1725,13 @@ export default BaseBrowserModel.extend(...mixins, {
     return this.downloadFilesById(fileIds);
   },
 
+  openReplaceModal(file) {
+    this.modalManager.show('replace-data-modal', {
+      file,
+      browserModel: this,
+    });
+  },
+
   /**
    *
    * @param {Object} options
@@ -1698,6 +1746,7 @@ export default BaseBrowserModel.extend(...mixins, {
    * @param {boolean} blockWhenSymlinksOnly
    * @param {boolean} blockSelectedRecalling
    * @param {boolean} blockCurrentDirRecalling
+   * @param {boolean} blockNoSpaceWrite
    * @returns
    */
   generateDisabledTip({
@@ -1710,18 +1759,16 @@ export default BaseBrowserModel.extend(...mixins, {
     blockWhenSymlinksOnly = false,
     blockSelectedRecalling = false,
     blockCurrentDirRecalling = false,
+    blockNoSpaceWrite = false,
   }) {
     const {
+      i18n,
+      space,
       dir,
       selectedItems,
       selectedItemsContainsOnlySymlinks,
       selectedItemsContainsRecalling,
-    } = this.getProperties(
-      'dir',
-      'selectedItems',
-      'selectedItemsContainsOnlySymlinks',
-      'selectedItemsContainsRecalling'
-    );
+    } = this;
     if (!dir) {
       return;
     }
@@ -1770,6 +1817,13 @@ export default BaseBrowserModel.extend(...mixins, {
     }
     if (!tip && blockSelectedRecalling && selectedItemsContainsRecalling) {
       tip = this.t('disabledActionReason.recalling');
+    }
+    if (!tip && blockNoSpaceWrite && !space?.privileges.writeData) {
+      tip = insufficientPrivilegesMessage({
+        i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_write_data',
+      });
     }
     return tip;
   },

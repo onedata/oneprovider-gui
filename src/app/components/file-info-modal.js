@@ -275,6 +275,14 @@ export default Component.extend(...mixins, {
 
   isOwnerVisible: not(or('previewMode', 'fileIsSpaceRoot')),
 
+  isFileContentRowVisible: computed(
+    'downloadButton',
+    'replaceButton',
+    function isFileContentRowVisible() {
+      return this.downloadButton || this.replaceButton;
+    }
+  ),
+
   fileIsSpaceRoot: computed('file.entityId', 'space', function fileIsSpaceRoot() {
     if (!this.space) {
       return false;
@@ -885,6 +893,39 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  downloadButton: computed(
+    'browserModel.{btnDownload,btnDownloadTar,selectionContext,buttonNames}',
+    function downloadButton() {
+      const context = this.browserModel.selectionContext;
+      if (
+        this.browserModel.buttonNames.includes('btnDownload') &&
+        this.browserModel.btnDownload?.showIn.includes(context)
+      ) {
+        return this.browserModel.btnDownload;
+      } else if (
+        this.browserModel.buttonNames.includes('btnDownloadTar') &&
+        this.browserModel.btnDownloadTar?.showIn.includes(context)
+      ) {
+        return this.browserModel.btnDownloadTar;
+      }
+      return null;
+    }
+  ),
+
+  replaceButton: computed(
+    'browserModel.{btnReplace,selectionContext,buttonNames}',
+    function replaceButton() {
+      const context = this.browserModel.selectionContext;
+      if (
+        this.browserModel.buttonNames.includes('btnReplace') &&
+        this.browserModel.btnReplace?.showIn.includes(context)
+      ) {
+        return this.browserModel.btnReplace;
+      }
+      return null;
+    }
+  ),
+
   hardlinksAutoUpdater: asyncObserver(
     'file.hardlinkCount',
     function hardlinksAutoUpdater() {
@@ -1011,6 +1052,12 @@ export default Component.extend(...mixins, {
     },
     toggleStorageLocations() {
       this.toggleProperty('areStorageLocationsExpanded');
+    },
+    downloadFile() {
+      this.downloadButton?.action([this.file]);
+    },
+    replaceFile() {
+      this.replaceButton?.action([this.file]);
     },
   },
 });

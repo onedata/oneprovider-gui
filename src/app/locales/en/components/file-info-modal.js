@@ -31,6 +31,11 @@ export default {
   // creationTime: 'Created',
   tip: browserColumns.tip,
   owner: 'Owner',
+  fileContent: 'Content',
+  fileContentRow: {
+    download: 'Download',
+    replace: 'Replace...',
+  },
   size: 'Size',
   fileLink: {
     browser: 'Browser link',

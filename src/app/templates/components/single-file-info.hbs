@@ -1,6 +1,13 @@
 <OneIcon @icon={{fileIcon}} class="details-icon" />
 <div class="details-content">
-  {{#if (eq nameDisplayMode "name")}}
+  {{#if this.nameComponent}}
+    {{#let (component this.nameComponent) as |nameComponentInstance|}}
+      <nameComponentInstance
+        @file={{this.file}}
+        @context={{this.nameComponentContext}}
+      />
+    {{/let}}
+  {{else if (eq nameDisplayMode "name")}}
     <div class="details-title">
       <TruncatedString class="single-file-info-file-name">
         <FileNameConflict @file={{file}} />
@@ -41,11 +48,11 @@
         </a>
       </li>
     {{/if}}
-    {{#if isSizeShown}}
+    {{#if (or isSizeShown emptySizeShown)}}
       <li class="property-row">
         <span class="property-label">{{tt this "size"}}:</span>
         <span class="download-file-size property-value">
-          {{bytes-to-string effFileSize}}
+          {{or (bytes-to-string effFileSize) "—"}}
         </span>
       </li>
     {{/if}}

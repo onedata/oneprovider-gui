@@ -1,0 +1,91 @@
+.replace-data-modal {
+  .upload-drop-zone {
+    display: none;
+    position: absolute;
+    // we cannot render more because of modal overflow
+    left: 0;
+    right: 0;
+    // we need larger rectangle, because file info is small
+    top: -1em;
+    bottom: -1em;
+    .upload-info {
+      // the drop zone here is smaller than a full-screen zone
+      font-size: 6px;
+    }
+  }
+  .modal-content {
+    .upload-valid-icon {
+      display: block;
+    }
+    .upload-invalid-icon {
+      display: none;
+    }
+    &.file-drag {
+      .upload-drop-zone {
+        display: block;
+      }
+    }
+    &.file-drag-invalid {
+      .upload-valid-icon {
+        display: none;
+      }
+      .upload-invalid-icon {
+        display: block;
+      }
+    }
+  }
+  .selected-file-container {
+    // it is a render area for the drop-zone which is absolute
+    position: relative;
+  }
+  .file-container {
+    margin-top: 1.5em;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    .single-file-info {
+      margin-top: 0;
+    }
+  }
+  .file-info-button-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .files-separator {
+    margin-top: 1.5em;
+    &.btn-group-tabs {
+      &::before, &::after {
+        border-bottom-color: $btn-group-tabs-line-border-color;
+      }
+    }
+  }
+  .acknowledge-warning-container {
+    display: flex;
+    justify-content: baseline;
+    text-align: left;
+    gap: 0.8em;
+    margin-top: 3em;
+  }
+  .acknowledge-warning-icon {
+    padding-top: 0.1em;
+    font-size: 1.2em;
+    color: $color-one-warning;
+  }
+  .new-file-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  @media (max-width: 476px) {
+    .file-container {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .file-info-button-container {
+      align-self: flex-end;
+    }
+  }
+}

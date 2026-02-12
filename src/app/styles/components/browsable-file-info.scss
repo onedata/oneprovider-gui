@@ -1,0 +1,6 @@
+.browsable-file-info {
+  opacity: $disabled-opacity;
+  &.file-is-chosen {
+    opacity: 1;
+  }
+}

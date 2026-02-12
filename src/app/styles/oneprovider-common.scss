@@ -123,7 +123,7 @@ p.last {
 $btn-group-tabs-vertical-offset: 14px;
 
 $btn-group-tabs-horizontal-spacing-large: 3em;
-$btn-group-tabs-horizontal-spacing-small: 0.5em;
+$btn-group-tabs-horizontal-spacing-small: 1.5em;
 $btn-group-tabs-line-border-color: $color-one-gray-sand;
 
 .btn-group-tabs {
@@ -131,6 +131,9 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
   display: flex;
   align-items: center;
   justify-content: center;
+  @media (max-width: $screen-xs-max) {
+    font-size: $font-size-small;
+  }
   &::before, &::after {
     flex-grow: 1;
     content: ' ';
@@ -140,9 +143,15 @@ $btn-group-tabs-line-border-color: $color-one-gray-sand;
   }
   &::before {
     margin-right: $btn-group-tabs-horizontal-spacing-large;
+    @media (max-width: $screen-xs-max) {
+      margin-right: $btn-group-tabs-horizontal-spacing-small;
+    }
   }
   &::after {
     margin-left: $btn-group-tabs-horizontal-spacing-large;
+    @media (max-width: $screen-xs-max) {
+      margin-left: $btn-group-tabs-horizontal-spacing-small;
+    }
   }
   .btn-group {
     flex-grow: 0;
