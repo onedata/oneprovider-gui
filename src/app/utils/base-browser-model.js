@@ -7,6 +7,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2021-2024 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -526,7 +527,7 @@ export default EmberObject.extend(...mixins, {
       // itemsArray at this point, so use it only if something else created the itemsArray
       // before
       const dirProxy = this.dirProxy;
-      const initialLoad = this.cacheFor('itemsArray')?.initialLoad;
+      const initialLoad = this.getInitialLoad();
 
       if (this.listLoadError) {
         return {
@@ -774,6 +775,11 @@ export default EmberObject.extend(...mixins, {
     } finally {
       this._super(...arguments);
     }
+  },
+
+  /** @returns {PromiseObject<ReplacingChunksArray>|null} */
+  getInitialLoad() {
+    return this.cacheFor('itemsArray')?.initialLoad ?? null;
   },
 
   previewizeContext(context) {

@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13176 Fixed randomly not working file download using the download URL
 * VFS-13176 Added replacing file data feature
 * VFS-13277 Fixed using the "Files" tab as default when opening share's URL
 * VFS-13031 Added virtual size to dir stats and properly display the logical size
