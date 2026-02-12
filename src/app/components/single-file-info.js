@@ -64,7 +64,7 @@ export default Component.extend(...mixins, {
 
   /**
    * A component path that will be rendered in place where the name will be displayed.
-   * The component will be rendere with the following arguments:
+   * The component will be rendered with the following arguments:
    * - `file` - this.file
    * - `context` - this.nameComponentContext
    * @virtual optional

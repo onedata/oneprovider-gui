@@ -914,7 +914,7 @@ export default Component.extend(...mixins, {
 
   replaceButton: computed(
     'browserModel.{btnReplace,selectionContext,buttonNames}',
-    function downloadButton() {
+    function replaceButton() {
       const context = this.browserModel.selectionContext;
       if (
         this.browserModel.buttonNames.includes('btnReplace') &&
