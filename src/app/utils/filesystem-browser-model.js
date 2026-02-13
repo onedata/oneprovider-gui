@@ -4,6 +4,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2021-2024 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -1547,9 +1548,12 @@ export default BaseBrowserModel.extend(...mixins, {
   },
 
   async handleDownloadCommand() {
-    await this.initialLoad;
+    await this.getInitialLoad();
     await waitForRender();
     if (!this.selectedItems?.length) {
+      console.error(
+        'FilesystemBrowserModel: tried to handle download command, but there are no selected items'
+      );
       return;
     }
     if (this.selectedItems.length === 1) {
