@@ -205,7 +205,10 @@ export default EmberObject.extend(...mixins, {
     try {
       let result;
       if (this.isSpaceRootDir) {
-        result = await this.fileManager.getSpaceCurrentSizeStats(this.spaceId);
+        result = await this.fileManager.getSpaceCurrentSizeStats(
+          this.spaceId,
+          this.isVirtualSizeShown
+        );
       } else {
         result = {
           all: await this.fileManager.getDirCurrentSizeStats(
