@@ -1045,18 +1045,25 @@ export default Service.extend({
 
   /**
    * @param {string} spaceId
+   * @param {boolean} [withVirtualSize=false]
    * @returns {Promise<SpaceCurrentSizeStats | null>}
    */
-  async getSpaceCurrentSizeStats(spaceId) {
+  async getSpaceCurrentSizeStats(spaceId, withVirtualSize = false) {
     const space = await this.spaceManager.getSpace(spaceId);
     const rootDirId = space.relationEntityId('rootDir');
     const archivesDirId = get(space, 'archivesDirId');
     const trashDirId = get(space, 'trashDirId');
 
     const resultStats = await hashFulfilled({
-      [SpaceSizeStatsType.All]: this.getDirCurrentSizeStats(rootDirId),
-      [SpaceSizeStatsType.Archives]: this.getDirCurrentSizeStats(archivesDirId),
-      [SpaceSizeStatsType.Trash]: this.getDirCurrentSizeStats(trashDirId),
+      [SpaceSizeStatsType.All]: this.getDirCurrentSizeStats(rootDirId, withVirtualSize),
+      [SpaceSizeStatsType.Archives]: this.getDirCurrentSizeStats(
+        archivesDirId,
+        withVirtualSize,
+      ),
+      [SpaceSizeStatsType.Trash]: this.getDirCurrentSizeStats(
+        trashDirId,
+        withVirtualSize,
+      ),
     });
     const availableStatTypes = Object.keys(resultStats);
     resultStats[SpaceSizeStatsType.RegularData] =
