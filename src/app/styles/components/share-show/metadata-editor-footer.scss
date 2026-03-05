@@ -2,6 +2,7 @@
   .col-submit-center {
     display: flex;
     justify-content: center;
+    align-items: center;
   }
   .row-submit {
     margin-top: 2em;
@@ -10,5 +11,12 @@
         display: none;
       }
     }
+  }
+  .btn-tooltip-container + .submit-warning-icon {
+    margin-left: 0.5em;
+  }
+  .submit-warning-icon {
+    color: $color-one-warning;
+    font-size: 1.2em;
   }
 }

@@ -39,9 +39,16 @@ export default Component.extend(I18n, {
   onCancel: undefined,
 
   /**
+   * @virtual
    * @type {MetadataEditorEditMode}
    */
   editMode: undefined,
+
+  /**
+   * @virtual optional
+   * @type {string|SafeString|undefined}
+   */
+  submitWarningIconTip: undefined,
 
   //#endregion
 

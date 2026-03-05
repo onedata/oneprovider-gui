@@ -3,6 +3,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2024 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -166,6 +167,12 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   isSaving: false,
+
+  /**
+   * If set to true, user can submit the metadata withou valid state.
+   * @type {boolean}
+   */
+  isValidationIgnored: false,
 
   //#endregion
 
@@ -340,6 +347,7 @@ export default Component.extend(I18n, {
     'isValid',
     'editMode',
     'visualEdmViewModel.isModified',
+    'isValidationIgnored',
     function submitDisabledReason() {
       if (this.modelXmlSyncState === EdmModelXmlSyncState.Waiting) {
         return this.t('submitDisabledReason.validatingSync');
@@ -350,13 +358,24 @@ export default Component.extend(I18n, {
       if (this.modelXmlSyncState !== EdmModelXmlSyncState.Synced) {
         return this.t('submitDisabledReason.xmlNotAccepted');
       }
-      if (!this.isValid) {
+      if (!this.isValid && !this.isValidationIgnored) {
         return this.t('submitDisabledReason.invalid');
       }
       if (this.editMode === 'edit' && !this.visualEdmViewModel.isModified) {
         return this.t('submitDisabledReason.noChanges');
       }
       return null;
+    }
+  ),
+
+  submitWarningIconTip: computed(
+    'submitDisabledReason',
+    'isValidationIgnored',
+    'isValid',
+    function submitWarningIconTip() {
+      if (!this.submitDisabledReason && !this.isValid && this.isValidationIgnored) {
+        return this.t('submitWarningIconReason.invalid');
+      }
     }
   ),
 
@@ -714,6 +733,14 @@ export default Component.extend(I18n, {
           this.visualEdmViewModel.markAsModified();
         }
       }
+    },
+
+    /**
+     * @param {boolean} value
+     * @returns {void}
+     */
+    changeValidationIgnored(value) {
+      this.set('isValidationIgnored', value);
     },
   },
 });

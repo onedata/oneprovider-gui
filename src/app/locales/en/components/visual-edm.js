@@ -3,6 +3,7 @@ import object from './visual-edm/object';
 import addPropertySelector from './visual-edm/add-property-selector';
 import imageReference from './visual-edm/image-reference';
 import extraDataInfo from './visual-edm/extra-data-info';
+import validationError from './visual-edm/validation-error';
 
 export default {
   notValid: 'Metadata definition is not valid',
@@ -11,4 +12,5 @@ export default {
   property,
   imageReference,
   extraDataInfo,
+  validationError,
 };

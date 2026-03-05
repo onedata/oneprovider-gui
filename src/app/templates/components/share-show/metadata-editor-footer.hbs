@@ -42,5 +42,10 @@
         <OneTooltip @title={{submitButtonTip}} />
       {{/if}}
     </div>
+    {{#if this.submitWarningIconTip}}
+      <OneIcon @icon="sign-warning-rounded" class="submit-warning-icon">
+        <OneTooltip @title={{this.submitWarningIconTip}} />
+      </OneIcon>
+    {{/if}}
   </div>
 </div>

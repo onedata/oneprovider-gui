@@ -5,5 +5,34 @@
     @text={{text}}
     @validator={{validator}}
     @viewType={{viewType}}
-  />
+  >
+    {{#if this.isShowingIgnoreOption}}
+      <a id={{this.advancedOptionsButtonId}}>{{tt this "advancedOptions"}}</a>
+      <OneWebuiPopover
+        class="edm-validation-advanced-options"
+        @triggerSelector={{concat "#" this.advancedOptionsButtonId}}
+        as |popover|
+      >
+        <p>{{tt this "optionsPopover.validationInfo"}}</p>
+        <p>{{tt this "optionsPopover.canIgnoreInfo"}}</p>
+        <div class="ignore-validation-toggle-row">
+          <OneWayToggle
+            class="danger ignore-validation-toggle"
+            @checked={{this.isValidationIgnored}}
+            @update={{action "changeValidationIgnored"}}
+          />
+          <div
+            class={{concat-classes
+              "ignore-validation-toggle-text"
+              "clickable"
+              (if this.isValidationIgnored "text-danger")
+            }}
+            onclick={{action "changeValidationIgnored" (not this.isValidationIgnored)}}
+          >
+            {{tt this "optionsPopover.ignoreValidation"}}
+          </div>
+        </div>
+      </OneWebuiPopover>
+    {{/if}}
+  </VisualEdm::ValidationErrorText>
 </div>

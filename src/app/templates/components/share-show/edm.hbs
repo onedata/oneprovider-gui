@@ -94,6 +94,9 @@
             @validator={{validator}}
             @customMessage={{if isXmlNotParseable (tt this "xmlParseError")}}
             @viewType="xml"
+            @isValidationIgnored={{this.isValidationIgnored}}
+            @isShowingIgnoreOption={{true}}
+            @onValidationIgnoredChange={{action "changeValidationIgnored"}}
           />
         {{else}}
           <div class="edm-info-row success">
@@ -140,13 +143,14 @@
       </div>
     {{/if}}
     <ShareShow::MetadataEditorFooter
-      @isSubmitDisabled={{isSubmitDisabled}}
-      @isCancelDisabled={{isCancelDisabled}}
-      @submitButtonTip={{submitDisabledReason}}
-      @cancelButtonTip={{cancelDisabledReason}}
-      @handleService={{handleService}}
-      @editMode={{editMode}}
-      @isEditorModified={{visualEdmViewModel.isModified}}
+      @isSubmitDisabled={{this.isSubmitDisabled}}
+      @isCancelDisabled={{this.isCancelDisabled}}
+      @submitButtonTip={{this.submitDisabledReason}}
+      @cancelButtonTip={{this.cancelDisabledReason}}
+      @submitWarningIconTip={{this.submitWarningIconTip}}
+      @handleService={{this.handleService}}
+      @editMode={{this.editMode}}
+      @isEditorModified={{this.visualEdmViewModel.isModified}}
       @onCancel={{action "back"}}
       @onSubmit={{action "submit"}}
     />
