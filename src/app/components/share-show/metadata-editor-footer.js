@@ -3,6 +3,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2023 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 

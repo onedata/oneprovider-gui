@@ -25,7 +25,6 @@ import EdmObjectType from '../../utils/edm/object-type';
 import EdmPropertyFactory from '../../utils/edm/property-factory';
 import { asyncObserver } from 'onedata-gui-common/utils/observer';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import { htmlSafe } from '@ember/string';
 import { guidFor } from '@ember/object/internals';
 
 const defaultMode = 'visual';
@@ -171,15 +170,10 @@ export default Component.extend(I18n, {
   isSaving: false,
 
   /**
-   * If set to true, user can submit the metadata withou valid state.
+   * If set to true, user can submit the metadata without valid state.
    * @type {boolean}
    */
   isValidationIgnored: false,
-
-  /**
-   * @type {number} Client height in px.
-   */
-  validationTextHeight: undefined,
 
   //#endregion
 
@@ -752,14 +746,6 @@ export default Component.extend(I18n, {
      */
     changeValidationIgnored(value) {
       this.set('isValidationIgnored', value);
-    },
-
-    /**
-     * @param {HTMLElement} element `ValidationErrorText` component main element.
-     */
-    handleValidationTextSizeChanged(element) {
-      this.set('validationTextHeight', element.clientHeight);
-      console.log('validationTextHeight', this.validationTextHeight);
     },
   },
 });
