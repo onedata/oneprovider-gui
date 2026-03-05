@@ -105,6 +105,9 @@ describe('Integration | Component | share-show/edm', function () {
 
       // when
       await helper.render();
+      await click(helper.xmlEditorButton);
+      await click(helper.validationOptionsButton);
+      await click(helper.ignoreValidationToggle);
 
       // then
       expect(helper.submitButton).to.not.have.attr('disabled');
@@ -219,6 +222,12 @@ class Helper {
   /** @type {HTMLDivElement} */
   get submitWarningIcon() {
     return this.element.querySelector('.submit-warning-icon');
+  }
+  get validationOptionsButton() {
+    return this.element.querySelector('.validation-options-button');
+  }
+  get ignoreValidationToggle() {
+    return find('.ignore-validation-toggle');
   }
   async render() {
     this.mochaContext.setProperties({
