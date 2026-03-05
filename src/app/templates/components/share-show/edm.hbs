@@ -88,16 +88,50 @@
             </div>
           </div>
         {{else if (or validator.isError isXmlNotParseable)}}
-          <VisualEdm::ValidationError
-            class="edm-metadata-invalid"
-            @text={{tt this "notValid"}}
-            @validator={{validator}}
-            @customMessage={{if isXmlNotParseable (tt this "xmlParseError")}}
-            @viewType="xml"
-            @isValidationIgnored={{this.isValidationIgnored}}
-            @isShowingIgnoreOption={{true}}
-            @onValidationIgnoredChange={{action "changeValidationIgnored"}}
-          />
+          <div class="validation-message-container">
+            <VisualEdm::ValidationError
+              class="edm-metadata-invalid"
+              @text={{tt this "notValid"}}
+              @validator={{validator}}
+              @customMessage={{if isXmlNotParseable (tt this "xmlParseError")}}
+              @viewType="xml"
+              @isValidationIgnored={{this.isValidationIgnored}}
+            />
+            <a
+              id={{this.validationOptionsButtonId}}
+              class="validation-advanced-options-button"
+            >
+              {{tt this "validationOptions"}}
+            </a>
+            <OneWebuiPopover
+              class="edm-validation-advanced-options"
+              @triggerSelector={{concat "#" this.validationOptionsButtonId}}
+              as |popover|
+            >
+              <p>{{tt this "validationOptionsPopover.validationInfo"}}</p>
+              <p>{{tt this "validationOptionsPopover.canIgnoreInfo"}}</p>
+              <div class="ignore-validation-toggle-row">
+                <OneWayToggle
+                  class="danger ignore-validation-toggle"
+                  @checked={{this.isValidationIgnored}}
+                  @update={{action "changeValidationIgnored"}}
+                />
+                <div
+                  class={{concat-classes
+                    "ignore-validation-toggle-text"
+                    "clickable"
+                    (if this.isValidationIgnored "text-danger")
+                  }}
+                  onclick={{action
+                    "changeValidationIgnored"
+                    (not this.isValidationIgnored)
+                  }}
+                >
+                  {{tt this "validationOptionsPopover.ignoreValidation"}}
+                </div>
+              </div>
+            </OneWebuiPopover>
+          </div>
         {{else}}
           <div class="edm-info-row success">
             <div class="edm-info-row-inner">
