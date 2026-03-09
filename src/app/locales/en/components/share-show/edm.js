@@ -2,6 +2,8 @@ import common from './-common';
 import shareValidation from './edm/share-validation';
 export const imageNotFound = 'Cannot load representative image';
 
+const metadataNotValid = 'Metadata is not valid';
+
 export default {
   shareValidation,
   header: 'Europeana Data Model (EDM) metadata',
@@ -20,13 +22,22 @@ export default {
   definitionValidating: 'Validating...',
   submitDisabledReason: {
     empty: 'Metadata must not be empty',
-    invalid: 'Metadata is not valid',
+    invalid: metadataNotValid,
     xmlNotValid: 'XML is not valid',
     validatingSync: 'XML validation is pending',
     xmlNotAccepted: 'You must first apply or discard changes to the XML source',
     noChanges: 'There are no changes in the metadata',
   },
+  submitWarningIconReason: {
+    invalid: metadataNotValid,
+  },
   imageNotFound,
   xmlInvalid: 'XML data is invalid',
   xmlParseError: 'XML syntax error or invalid EDM XML structure',
+  validationOptions: 'Custom validation options...',
+  validationOptionsPopover: {
+    validationInfo: 'The Europeana metadata in Onedata is validated using the rules established with the EUreka3D partners, which makes the metadata compatible with external consumer services.',
+    canIgnoreInfo: 'You can ignore validation errors to force submitting the non-compliant metadata, <strong>but it is strongly discouraged</strong>. Note, that the metadata still needs to be a syntactically valid XML.',
+    ignoreValidation: 'Ignore validation errors',
+  },
 };

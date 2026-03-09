@@ -5,6 +5,7 @@ import { render, find, click, blur, focus, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { replaceEmberAceWithTextarea } from '../../../helpers/ember-ace';
 import { Promise } from 'rsvp';
+import { exampleEdmValidXml } from 'oneprovider-gui/utils/mock-data';
 
 describe('Integration | Component | share-show/edm', function () {
   setupRenderingTest();
@@ -81,6 +82,52 @@ describe('Integration | Component | share-show/edm', function () {
       expect(getValueFormGroup()).to.have.class('has-error');
     }
   );
+
+  it('has disabled submit button if XML is not valid', async function () {
+    // given
+    const helper = new Helper(this);
+    helper.xmlValue = generateExampleXmls().emptyTitle;
+    helper.isReadOnly = false;
+
+    // when
+    await helper.render();
+
+    // then
+    expect(helper.submitButton).to.have.attr('disabled');
+  });
+
+  it('has enabled submit button and a warning sign if XML is not valid but validation is ignored',
+    async function () {
+      // given
+      const helper = new Helper(this);
+      helper.xmlValue = generateExampleXmls().emptyTitle;
+      helper.isReadOnly = false;
+
+      // when
+      await helper.render();
+      await click(helper.xmlEditorButton);
+      await click(helper.validationOptionsButton);
+      await click(helper.ignoreValidationToggle);
+
+      // then
+      expect(helper.submitButton).to.not.have.attr('disabled');
+      expect(helper.submitWarningIcon).to.exist;
+    }
+  );
+
+  it('has enabled submit button and no warning icon beside if XML is valid', async function () {
+    // given
+    const helper = new Helper(this);
+    helper.xmlValue = generateExampleXmls().valid;
+    helper.isReadOnly = false;
+
+    // when
+    await helper.render();
+
+    // then
+    expect(helper.submitButton).to.not.have.attr('disabled');
+    expect(helper.submitWarningIcon).to.not.exist;
+  });
 
   it('renders public data logo in isReadOnly mode if representative image is not provided',
     async function () {
@@ -168,6 +215,20 @@ class Helper {
   get xmlSourceText() {
     return this.element.querySelector('.ember-ace-edm-source textarea').value;
   }
+  /** @type {HTMLButtonElement} */
+  get submitButton() {
+    return this.element.querySelector('.row-submit .btn-submit');
+  }
+  /** @type {HTMLDivElement} */
+  get submitWarningIcon() {
+    return this.element.querySelector('.submit-warning-icon');
+  }
+  get validationOptionsButton() {
+    return this.element.querySelector('.validation-options-button');
+  }
+  get ignoreValidationToggle() {
+    return find('.ignore-validation-toggle');
+  }
   async render() {
     this.mochaContext.setProperties({
       xmlValue: this.xmlValue,
@@ -212,5 +273,6 @@ function generateExampleXmls() {
         <edm:object rdf:resource="not-existing.svg"/>
     </ore:Aggregation>
 </rdf:RDF>`,
+    valid: exampleEdmValidXml,
   };
 }

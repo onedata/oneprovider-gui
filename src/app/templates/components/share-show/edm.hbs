@@ -88,13 +88,50 @@
             </div>
           </div>
         {{else if (or validator.isError isXmlNotParseable)}}
-          <VisualEdm::ValidationError
-            class="edm-metadata-invalid"
-            @text={{tt this "notValid"}}
-            @validator={{validator}}
-            @customMessage={{if isXmlNotParseable (tt this "xmlParseError")}}
-            @viewType="xml"
-          />
+          <div class="validation-message-container">
+            <VisualEdm::ValidationError
+              class="edm-metadata-invalid"
+              @text={{tt this "notValid"}}
+              @validator={{validator}}
+              @customMessage={{if isXmlNotParseable (tt this "xmlParseError")}}
+              @viewType="xml"
+              @isValidationIgnored={{this.isValidationIgnored}}
+            />
+            <a
+              id={{this.validationOptionsButtonId}}
+              class="validation-options-button"
+            >
+              {{tt this "validationOptions"}}
+            </a>
+            <OneWebuiPopover
+              class="edm-validation-advanced-options"
+              @triggerSelector={{concat "#" this.validationOptionsButtonId}}
+              as |popover|
+            >
+              <p>{{tt this "validationOptionsPopover.validationInfo"}}</p>
+              <p>{{tt this "validationOptionsPopover.canIgnoreInfo"}}</p>
+              <div class="ignore-validation-toggle-row">
+                <OneWayToggle
+                  class="danger ignore-validation-toggle"
+                  @checked={{this.isValidationIgnored}}
+                  @update={{action "changeValidationIgnored"}}
+                />
+                <div
+                  class={{concat-classes
+                    "ignore-validation-toggle-text"
+                    "clickable"
+                    (if this.isValidationIgnored "text-danger")
+                  }}
+                  onclick={{action
+                    "changeValidationIgnored"
+                    (not this.isValidationIgnored)
+                  }}
+                >
+                  {{tt this "validationOptionsPopover.ignoreValidation"}}
+                </div>
+              </div>
+            </OneWebuiPopover>
+          </div>
         {{else}}
           <div class="edm-info-row success">
             <div class="edm-info-row-inner">
@@ -140,13 +177,14 @@
       </div>
     {{/if}}
     <ShareShow::MetadataEditorFooter
-      @isSubmitDisabled={{isSubmitDisabled}}
-      @isCancelDisabled={{isCancelDisabled}}
-      @submitButtonTip={{submitDisabledReason}}
-      @cancelButtonTip={{cancelDisabledReason}}
-      @handleService={{handleService}}
-      @editMode={{editMode}}
-      @isEditorModified={{visualEdmViewModel.isModified}}
+      @isSubmitDisabled={{this.isSubmitDisabled}}
+      @isCancelDisabled={{this.isCancelDisabled}}
+      @submitButtonTip={{this.submitDisabledReason}}
+      @cancelButtonTip={{this.cancelDisabledReason}}
+      @submitWarningIconTip={{this.submitWarningIconTip}}
+      @handleService={{this.handleService}}
+      @editMode={{this.editMode}}
+      @isEditorModified={{this.visualEdmViewModel.isModified}}
       @onCancel={{action "back"}}
       @onSubmit={{action "submit"}}
     />

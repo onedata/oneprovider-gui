@@ -3,6 +3,7 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2023 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -39,9 +40,16 @@ export default Component.extend(I18n, {
   onCancel: undefined,
 
   /**
+   * @virtual
    * @type {MetadataEditorEditMode}
    */
   editMode: undefined,
+
+  /**
+   * @virtual optional
+   * @type {string|SafeString|undefined}
+   */
+  submitWarningIconTip: undefined,
 
   //#endregion
 

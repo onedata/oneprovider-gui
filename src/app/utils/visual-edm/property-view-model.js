@@ -50,14 +50,29 @@ const PropertyViewModel = EmberObject.extend({
   wasInputUsed: false,
 
   /**
-   * @type {VisualEdmPropertyValueType}
-   */
-  valueType: undefined,
-
-  /**
    * @type {boolean}
    */
   isAnimateAttentionQueued: false,
+
+  /**
+   * @type {ComputedProperty<VisualEdmPropertyValueType>}
+   */
+  valueType: computed(
+    'visualEdmViewModel.isReadOnly',
+    'model.supportedValueType',
+    'isUsingReference',
+    function valueType() {
+      if (
+        this.visualEdmViewModel.isReadOnly ||
+        this.model.supportedValueType === EdmPropertyValueType.Any
+      ) {
+        return this.isUsingReference ?
+          EdmPropertyValueType.Reference : EdmPropertyValueType.Literal;
+      } else {
+        return this.model.supportedValueType;
+      }
+    }
+  ),
 
   /**
    * Cannot use `reads` here, because Ember internals crash on "magic" Proxy constructor
@@ -193,18 +208,6 @@ const PropertyViewModel = EmberObject.extend({
 
   init() {
     this._super(...arguments);
-    if (
-      this.visualEdmViewModel.isReadOnly ||
-      this.model.supportedValueType === EdmPropertyValueType.Any
-    ) {
-      this.set(
-        'valueType',
-        this.isUsingReference ?
-        EdmPropertyValueType.Reference : EdmPropertyValueType.Literal
-      );
-    } else {
-      this.set('valueType', this.model.supportedValueType);
-    }
     if (this.value) {
       this.set('wasInputUsed', true);
     }

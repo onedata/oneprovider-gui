@@ -151,6 +151,7 @@ export default Service.extend(I18n, {
     );
     if (bothValueProperties.length) {
       messages.push(this.createBothValueMessage(
+        validationContext,
         bothValueProperties,
         viewType,
         edmObjectType
@@ -213,13 +214,13 @@ export default Service.extend(I18n, {
     );
   },
 
-  createBothValueMessage(edmProperties, viewType, edmObjectType) {
+  createBothValueMessage(validationContext, edmProperties, viewType, edmObjectType) {
     if (!edmProperties?.length) {
       return;
     }
     const quantity = edmProperties.length === 1 ? 'singular' : 'plural';
     return this.t(
-      `valueBoth.${quantity}`, {
+      `valueBoth.${validationContext}.${quantity}`, {
         propertyString: this.createPropertiesString(
           edmProperties,
           viewType,

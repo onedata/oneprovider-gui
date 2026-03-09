@@ -7,11 +7,10 @@
  */
 
 import Component from '@ember/component';
-import I18n from 'onedata-gui-common/mixins/i18n';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 
-export default Component.extend(I18n, {
+export default Component.extend({
   classNames: ['visual-edm-validation-error', 'edm-info-row', 'warning'],
 
   visualEdmValidation: service(),

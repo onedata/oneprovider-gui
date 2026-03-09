@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13374 Added option to ignore Europeana metadata validation errors before submit
 * VFS-13382 Fixed virtual size for space root directory
 * VFS-13310 Added validation to pages control
 * VFS-12441 Added new grouped entries to the Material list in the EDM visual editor
