@@ -7,9 +7,12 @@ export default {
     transferJobsInfo: 'Throughput of all data transfers that were manually triggered by users. Manual transfer jobs have lower priority than on-the-fly transfers.',
     onTheFly: 'On-the-fly',
     onTheFlyInfo: 'Throughput of all data transfers that were triggered by remote data access. On-the-fly transfers are performed in the background by Oneproviders when they are requested to serve file fragments that reside in a remote location. On-the-fly transfers do not show up on the transfer jobs list, only summarized statistics are available.',
+    qos: 'Quality of Service',
+
   },
   all: 'Total',
   jobs: 'Transfer jobs',
   onTheFly: 'On-the-fly',
+  qos: 'Quality of Service',
   close: 'Close',
 };

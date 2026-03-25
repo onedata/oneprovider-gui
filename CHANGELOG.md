@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13424 Added Quality of Service type stats to transfers chart
 * VFS-13374 Added option to ignore Europeana metadata validation errors before submit
 * VFS-13382 Fixed virtual size for space root directory
 * VFS-13310 Added validation to pages control

@@ -21,6 +21,11 @@
         {{tt this "onTheFly"}}
       </a>
     </nav.item>
+    <nav.item @active={{eq throughputTransferType "qos"}}>
+      <a class="nav-link" role="tab" {{action (mut throughputTransferType) "qos"}}>
+        {{tt this "qos"}}
+      </a>
+    </nav.item>
     <OneIcon
       @icon="sign-question-rounded"
       class="throughput-tabs-hint-trigger vertical-align-middle clickable"

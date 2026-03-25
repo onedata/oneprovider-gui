@@ -1,9 +1,10 @@
 .transfers-throughput-chart {
   .throughput-tabs {
     position: relative;
+    margin-right: 3em;
     .throughput-tabs-hint-trigger {
       font-size: 1.2em;
-      right: $padding-large-horizontal;
+      right: -1.5em;
     }
   }
 }
