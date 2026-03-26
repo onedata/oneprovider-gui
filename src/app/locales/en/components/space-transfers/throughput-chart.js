@@ -1,18 +1,19 @@
 export default {
   throughputTabsHint: {
-    intro: 'Below chart shows the throughput of data transfers between Oneproviders. <strong>Inbound throughput</strong> is a summary of data transfers incoming to given Oneprovider. <strong>Outbound throughput</strong> is a summary of data transfers outgoing from given Oneprovider. Measurements can be viewed per Oneprovider, or on a combined chart.',
+    intro: 'This chart shows data transfer throughput between Oneproviders. Inbound throughput represents data transferred to the selected Oneprovider, while outbound throughput represents data transferred from it. Statistics can be viewed per Oneprovider or as a combined overview.',
     total: 'Total',
-    totalInfo: 'Sum of transfer jobs and on-the-fly throughput.',
+    totalInfo: 'Combined throughput of all three transfer types.',
     transferJobs: 'Transfer jobs',
-    transferJobsInfo: 'Throughput of all data transfers that were manually triggered by users. Manual transfer jobs have lower priority than on-the-fly transfers.',
-    onTheFly: 'On-the-fly',
-    onTheFlyInfo: 'Throughput of all data transfers that were triggered by remote data access. On-the-fly transfers are performed in the background by Oneproviders when they are requested to serve file fragments that reside in a remote location. On-the-fly transfers do not show up on the transfer jobs list, only summarized statistics are available.',
+    transferJobsInfo: 'Throughput of data transfers explicitly initiated by users. These transfers share the same priority as QoS transfers and are the only ones listed in the transfers list below.',
     qos: 'Quality of Service',
-
+    qosInfo: 'Throughput of transfers triggered automatically by QoS replica reconciliation, for example when creating new replicas or updating local copies after changes in remote data. These transfers share the same priority as transfer jobs.',
+    onTheFly: 'On-the-fly',
+    onTheFlyInfo: 'Throughput of transfers triggered automatically during remote data access, when a Oneprovider fetches file fragments from another provider to serve a request. These transfers have the highest priority.',
   },
   all: 'Total',
   jobs: 'Transfer jobs',
   onTheFly: 'On-the-fly',
   qos: 'Quality of Service',
+  qosShort: 'QoS',
   close: 'Close',
 };

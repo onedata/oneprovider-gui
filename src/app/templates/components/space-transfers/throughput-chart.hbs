@@ -16,14 +16,18 @@
         {{tt this "jobs"}}
       </a>
     </nav.item>
+    <nav.item @active={{eq throughputTransferType "qos"}}>
+      <a class="nav-link" role="tab" {{action (mut throughputTransferType) "qos"}}>
+        {{#if this.areTabLabelsShort}}
+          {{tt this "qosShort"}}
+        {{else}}
+          {{tt this "qos"}}
+        {{/if}}
+      </a>
+    </nav.item>
     <nav.item @active={{eq throughputTransferType "onTheFly"}}>
       <a class="nav-link" role="tab" {{action (mut throughputTransferType) "onTheFly"}}>
         {{tt this "onTheFly"}}
-      </a>
-    </nav.item>
-    <nav.item @active={{eq throughputTransferType "qos"}}>
-      <a class="nav-link" role="tab" {{action (mut throughputTransferType) "qos"}}>
-        {{tt this "qos"}}
       </a>
     </nav.item>
     <OneIcon
@@ -40,6 +44,8 @@
       <p>{{tt this "throughputTabsHint.totalInfo"}}</p>
       <h1>{{tt this "throughputTabsHint.transferJobs"}}</h1>
       <p>{{tt this "throughputTabsHint.transferJobsInfo"}}</p>
+      <h1>{{tt this "throughputTabsHint.qos"}}</h1>
+      <p>{{tt this "throughputTabsHint.qosInfo"}}</p>
       <h1>{{tt this "throughputTabsHint.onTheFly"}}</h1>
       <p>{{tt this "throughputTabsHint.onTheFlyInfo"}}</p>
       <div class="btn-toolbar text-right visible-xs-block">
