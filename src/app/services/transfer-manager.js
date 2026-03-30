@@ -145,7 +145,7 @@ export default Service.extend({
 
   /**
    * @param {Models.Space} space
-   * @param {string} transferType one of: job, onTheFly, all
+   * @param {string} transferType one of: job, onTheFly, all, qos
    * @param {string} timePeriod one of: minute, hour, day, month
    * @param {string|undefined} providerId provider entityId
    * @returns {Promise<TransferThroughputCharts>}

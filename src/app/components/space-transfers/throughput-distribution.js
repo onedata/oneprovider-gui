@@ -85,7 +85,7 @@ export default Component.extend(
     transferStatProviderId: null,
 
     /**
-     * Possible values: onTheFly, job, all.
+     * Possible values: onTheFly, job, all, qos.
      * @type {string}
      */
     transferType: 'all',

@@ -40,6 +40,12 @@ export default Component.extend(I18n, {
   providersColors: undefined,
 
   /**
+   * @virtual
+   * @type {boolean}
+   */
+  areTabLabelsShort: false,
+
+  /**
    * @type {string}
    */
   throughputTransferType: 'all',
