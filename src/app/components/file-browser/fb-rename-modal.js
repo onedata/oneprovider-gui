@@ -36,7 +36,8 @@ export default FbSetNameModal.extend(I18n, {
     this._super(...arguments);
     const input = this.getInputElement();
     input.value = this.get('file.originalName');
-    input.select();
+    const selectedText = input.value.replace(/\.[^/.]+$/, '').replace(/\.tar$/, '');
+    input.setSelectionRange(0, selectedText.length);
   },
 
   actions: {
