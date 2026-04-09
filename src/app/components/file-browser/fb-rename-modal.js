@@ -36,7 +36,14 @@ export default FbSetNameModal.extend(I18n, {
     this._super(...arguments);
     const input = this.getInputElement();
     input.value = this.get('file.originalName');
-    input.select();
+    const compressionSuffixes = ['gz', 'Z', 'bz2', 'lz', 'lzma', 'lzo', 'xz', 'zst'];
+    let selectedText;
+    if (compressionSuffixes.some(suffix => input.value.endsWith(`tar.${suffix}`))) {
+      selectedText = input.value.replace(/\.tar\.[^/.]+$/, '');
+    } else {
+      selectedText = input.value.replace(/\.[^/.]+$/, '');
+    }
+    input.setSelectionRange(0, selectedText.length);
   },
 
   actions: {

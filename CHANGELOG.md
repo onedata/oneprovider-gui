@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13422 Added selection only file name without extension in rename modal
 * VFS-13456 Changed EDM materials URLs scheme to "http" as requested by EUreka3D
 * VFS-13424 Added Quality of Service type stats to transfers chart
 * VFS-13448 Fixed styles for oneprovider map
