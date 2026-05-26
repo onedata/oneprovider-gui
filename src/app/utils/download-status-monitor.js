@@ -22,6 +22,7 @@ import isNotFoundError from './is-not-found-error';
  * notify download failure and stop the monitor.
  * @type {number}
  */
+// FIXME: 60s
 const timeout = 60 * 1000;
 
 /**
@@ -41,13 +42,17 @@ export default class DownloadStatusMonitor {
   #error = null;
   #state = FileDownloadState.Init;
   #listeners = [];
+  #looper = null;
   #fileManager;
   #downloadCode;
+  #downloadScope;
 
   /**
+   * @param {Service} fileManager
    * @param {string} downloadCode
+   * @param {string} [downloadScope]
    */
-  constructor(fileManager, downloadCode) {
+  constructor(fileManager, downloadCode, downloadScope = 'private') {
     if (!fileManager || !downloadCode) {
       throw new Error(
         'DownloadStatusMonitor: fileManager and downloadCode must be provided in constructor'
@@ -55,14 +60,23 @@ export default class DownloadStatusMonitor {
     }
     this.#fileManager = fileManager;
     this.#downloadCode = downloadCode;
+    this.#downloadScope = downloadScope;
+  }
+
+  start() {
+    if (this.state !== FileDownloadState.Init && !this.#looper && !this.#timeoutTimer) {
+      throw new Error(
+        'DownloadStatusMonitor: monitor can be started only once, when the state is "init"'
+      );
+    }
     this.#timeoutTimer = setTimeout(() => {
       this.setState(FileDownloadState.Failed, { id: 'timeout' });
     }, timeout);
-    this.looper = Looper.create({
+    this.#looper = Looper.create({
       interval,
     });
-    this.looper.on('tick', () => this.fetchState());
-    this.looper.notify();
+    this.#looper.on('tick', () => this.fetchState());
+    this.#looper.notify();
   }
 
   get state() {
@@ -97,7 +111,7 @@ export default class DownloadStatusMonitor {
    * @public
    */
   destroy() {
-    this.looper?.destroy();
+    this.#looper?.destroy();
   }
 
   /**
@@ -108,7 +122,10 @@ export default class DownloadStatusMonitor {
       const {
         status,
         error,
-      } = await this.#fileManager.getDownloadStatus(this.#downloadCode);
+      } = await this.#fileManager.getDownloadStatus(
+        this.#downloadCode,
+        this.#downloadScope
+      );
       this.setState(status, error);
     } catch (error) {
       if (isNotFoundError(error)) {
@@ -157,9 +174,9 @@ export default class DownloadStatusMonitor {
    * @private
    */
   terminateStatusPolling() {
-    if (this.looper) {
-      this.looper.destroy();
-      this.looper = null;
+    if (this.#looper) {
+      this.#looper.destroy();
+      this.#looper = null;
     }
   }
 

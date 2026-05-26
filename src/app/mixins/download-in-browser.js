@@ -47,12 +47,17 @@ export default Mixin.create({
       );
       const url = urlData.fileUrl;
       const downloadCode = getDownloadCode(url);
-      const monitor = new DownloadStatusMonitor(this.fileManager, downloadCode);
+      const monitor = new DownloadStatusMonitor(
+        this.fileManager,
+        downloadCode,
+        downloadScope
+      );
       monitor.addListener((state, error) => {
         if (state === RawFileDownloadState.Failed) {
-          globalNotify.backendError(this.t('startingDownload'), error);
+          globalNotify.backendError(this.t('downloading'), error);
         }
       });
+      monitor.start();
       this.handleFileDownloadUrl(urlData);
       return monitor;
     } catch (error) {
