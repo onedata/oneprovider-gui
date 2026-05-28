@@ -45,8 +45,7 @@ export default Mixin.create({
         fileIds,
         downloadScope
       );
-      const url = urlData.fileUrl;
-      const downloadCode = getDownloadCode(url);
+      const { code: downloadCode } = urlData;
       const monitor = new DownloadStatusMonitor(
         this.fileManager,
         downloadCode,
@@ -78,12 +77,3 @@ export default Mixin.create({
     }
   },
 });
-
-/**
- * FIXME: w backendzie powinno się pojawić pole z code i to nie będzie potrzebne
- * @param {string} url
- * @returns {string|undefined}
- */
-function getDownloadCode(url) {
-  return url.match(/.*\/(.*$)/)?.[1];
-}
