@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13350 Added support for showing error for additional download start failures
 * VFS-13511 Fixed docs and API links for new homepage
 * VFS-13422 Added selection only file name without extension in rename modal
 * VFS-13456 Changed EDM materials URLs scheme to "http" as requested by EUreka3D
