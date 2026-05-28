@@ -22,7 +22,6 @@ import isNotFoundError from './is-not-found-error';
  * notify download failure and stop the monitor.
  * @type {number}
  */
-// FIXME: 60s
 const timeout = 60 * 1000;
 
 /**
@@ -36,6 +35,17 @@ export const FileDownloadState = Object.freeze({
   Init: 'init',
   Completed: 'completed',
 });
+
+/**
+ * When these states are set, we should stop polling.
+ * @type {Array<FileDownloadState>}
+ */
+const terminalStates = Object.freeze([
+  FileDownloadState.Started,
+  FileDownloadState.Unknown,
+  FileDownloadState.Failed,
+  FileDownloadState.Completed,
+]);
 
 export default class DownloadStatusMonitor {
   #timeoutTimer = null;
@@ -142,14 +152,7 @@ export default class DownloadStatusMonitor {
    * @param {any} error
    */
   setState(newState, error) {
-    if (newState === FileDownloadState.Started) {
-      this.cancelTimeoutTimer();
-    }
-    if (
-      newState === FileDownloadState.Unknown ||
-      newState === FileDownloadState.Failed ||
-      newState === FileDownloadState.Completed
-    ) {
+    if (terminalStates.includes(newState)) {
       this.cancelTimeoutTimer();
       this.terminateStatusPolling();
     }
