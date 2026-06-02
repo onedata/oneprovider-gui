@@ -96,6 +96,16 @@ const symlinkTargetAttrsAspect = 'symlink_target';
 const recallLogAspect = 'archive_recall_log';
 const fileModelName = 'file';
 
+/**
+ * @enum {'unknown'|'pending'|'started'|'failed'}
+ */
+export const RawFileDownloadState = Object.freeze({
+  Unknown: 'unknown',
+  Pending: 'pending',
+  Started: 'started',
+  Failed: 'failed',
+});
+
 export default Service.extend({
   store: service(),
   onedataRpc: service(),
@@ -1222,6 +1232,32 @@ export default Service.extend({
       );
     }
     await allSettled(promises);
+  },
+
+  /**
+   * @typedef {Object} FileDownloadStatusData
+   * @property {RawFileDownloadState} status
+   * @property {any} error
+   */
+
+  /**
+   * @param {string} downloadCode
+   * @param {'private'|'public'} [scope='private']
+   * @returns {Promise<FileDownloadStatusData>}
+   */
+  async getDownloadStatus(downloadCode, scope = 'private') {
+    return await this.onedataGraph.request({
+      operation: 'get',
+      gri: gri({
+        entityType: fileEntityType,
+        aspect: 'download_status',
+        scope,
+      }),
+      subscribe: false,
+      data: {
+        code: downloadCode,
+      },
+    });
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service

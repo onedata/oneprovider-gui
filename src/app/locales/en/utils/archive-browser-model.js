@@ -5,6 +5,7 @@ export const createIncrementalArchive = 'Create incremental archive';
 
 export default _.merge({}, BaseBrowserModel, {
   startingDownload: 'starting archive download',
+  downloading: 'archive downloading',
   archiveList: 'Archives list',
   alreadyDeleting: 'Not available for archives that are being deleted.',
   alreadyCancelling: 'Not available for archives that are being cancelled.',
