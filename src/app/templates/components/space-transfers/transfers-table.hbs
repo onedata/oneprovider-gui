@@ -9,7 +9,7 @@
             "draggable-area"
             (if (and isDropBorderShown (not-eq i 0)) "border-dashed")
           }}
-          style={{get columnsConfiguration.columnsStyle column.id}}
+          style={{column.style}}
           draggable={{not-eq i 0}}
           ondragstart={{action "headingDrag" column.id}}
           ondragend={{action "headingDragEnd"}}

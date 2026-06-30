@@ -38,9 +38,8 @@ const mixins = [
 
 const allColumnNames = [
   'path',
-  'typeDestination',
   'type',
-  'destination',
+  'typeDestination',
   'processed',
   'replicated',
   'evicted',
@@ -54,7 +53,6 @@ const allColumnNames = [
 const allColumnWidth = {
   path: 190,
   userName: 200,
-  destination: 200,
   scheduledAt: 150,
   startedAt: 130,
   finishedAt: 130,
@@ -440,13 +438,6 @@ export default Component.extend(...mixins, {
     });
   }),
 
-  destinationColumn: computed(function destinationColumn() {
-    return this.createColumn('destination', {
-      component: 'cell-truncated',
-      className: 'hidden-xs',
-    });
-  }),
-
   typeDestinationColumn: computed(function typeDestinationColumn() {
     return this.createColumn('typeDestination', {
       component: 'cell-truncated-icon',
@@ -500,7 +491,7 @@ export default Component.extend(...mixins, {
 
   typeColumn: computed(function typeColumn() {
     return this.createColumn('type', {
-      className: 'col-icon',
+      className: 'col-icon hidden-sm hidden-md hidden-lg',
       component: 'cell-type',
     });
   }),
@@ -553,6 +544,7 @@ export default Component.extend(...mixins, {
     const columns = {};
     const visibleColumnNames = [...this.visibleColumnNames];
     visibleColumnNames.shift();
+    visibleColumnNames.shift();
     for (const columnName of visibleColumnNames) {
       columns[columnName] = EmberObject.create({
         isVisible: true,
@@ -570,7 +562,10 @@ export default Component.extend(...mixins, {
   },
 
   createColumn(id, customData) {
-    const style = this.columnsConfiguration.columnsStyle[id];
+    let style = this.columnsConfiguration.columnsStyle[id];
+    if (id === 'type') {
+      style = htmlSafe(`--column-width: ${allColumnWidth.type}px;`);
+    }
     return Object.assign({
       id,
       propertyName: id,
