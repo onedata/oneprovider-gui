@@ -158,8 +158,8 @@ export default EmberObject.extend(...mixins, {
    */
   columnsStyle: computed('columns', function columnsStyle() {
     const styles = {};
-    for (const columName in this.columns) {
-      styles[columName] = htmlSafe(`--column-width: ${this.columns[columName].width}px;`);
+    for (const columnName in this.columns) {
+      styles[columnName] = htmlSafe(`--column-width: ${this.columns[columnName].width}px;`);
     }
     return styles;
   }),
