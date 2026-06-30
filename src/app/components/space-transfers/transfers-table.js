@@ -38,15 +38,15 @@ const mixins = [
 
 const allColumnNames = [
   'path',
-  'userName',
+  'type',
   'destination',
-  'scheduledAt',
-  'startedAt',
-  'finishedAt',
   'processed',
   'replicated',
   'evicted',
-  'type',
+  'startedAt',
+  'scheduledAt',
+  'finishedAt',
+  'userName',
   'status',
 ];
 
