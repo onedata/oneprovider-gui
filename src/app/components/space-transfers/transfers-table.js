@@ -234,6 +234,7 @@ export default Component.extend(...mixins, {
             columnsConfigurationWithFirstCol.push(columnName);
           }
         }
+        columnsConfigurationWithFirstCol.push('status');
       }
       return Object.values(
         this.getProperties(...columnsConfigurationWithFirstCol.map(name =>
@@ -545,6 +546,7 @@ export default Component.extend(...mixins, {
     const visibleColumnNames = [...this.visibleColumnNames];
     visibleColumnNames.shift();
     visibleColumnNames.shift();
+    visibleColumnNames.pop();
     for (const columnName of visibleColumnNames) {
       columns[columnName] = EmberObject.create({
         isVisible: true,
@@ -563,8 +565,8 @@ export default Component.extend(...mixins, {
 
   createColumn(id, customData) {
     let style = this.columnsConfiguration.columnsStyle[id];
-    if (id === 'type') {
-      style = htmlSafe(`--column-width: ${allColumnWidth.type}px;`);
+    if (id === 'type' || id === 'status') {
+      style = htmlSafe(`--column-width: ${allColumnWidth[id]}px;`);
     }
     return Object.assign({
       id,
@@ -647,7 +649,10 @@ export default Component.extend(...mixins, {
       return this.get('openDbViewModal')(...arguments);
     },
     headingDropWithColumnName(column, number, event) {
-      const index = this.columnsConfiguration.columnsOrder.indexOf(column.id);
+      let index = this.columnsConfiguration.columnsOrder.indexOf(column.id);
+      if (column.id === 'status') {
+        index = this.columnsConfiguration.columnsOrder.length;
+      }
       this.actions.headingDrop.bind(this)(index + number, event);
     },
   },
