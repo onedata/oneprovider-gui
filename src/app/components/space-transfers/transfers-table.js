@@ -38,6 +38,7 @@ const mixins = [
 
 const allColumnNames = [
   'path',
+  'typeDestination',
   'type',
   'destination',
   'processed',
@@ -62,6 +63,7 @@ const allColumnWidth = {
   evicted: 95,
   type: 80,
   status: 85,
+  typeDestination: 280,
 };
 
 const tableExcludedColumnNames = {
@@ -445,6 +447,13 @@ export default Component.extend(...mixins, {
     });
   }),
 
+  typeDestinationColumn: computed(function typeDestinationColumn() {
+    return this.createColumn('typeDestination', {
+      component: 'cell-truncated-icon',
+      className: 'hidden-xs',
+    });
+  }),
+
   scheduledAtColumn: computed(function scheduledAtColumn() {
     return this.createColumn('scheduledAt', {
       propertyName: 'scheduledAtReadable',
@@ -561,10 +570,12 @@ export default Component.extend(...mixins, {
   },
 
   createColumn(id, customData) {
+    const style = this.columnsConfiguration.columnsStyle[id];
     return Object.assign({
       id,
       propertyName: id,
       component: 'cell-generic',
+      style,
     }, customData);
   },
 

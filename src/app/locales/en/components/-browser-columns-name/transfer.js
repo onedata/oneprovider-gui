@@ -11,5 +11,6 @@ export default {
     type: 'Type',
     status: 'Status',
     scheduledAt: 'Scheduled at',
+    typeDestination: 'Type & Destination',
   },
 };

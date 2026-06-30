@@ -21,6 +21,13 @@ $space-transfers-gray: #B6BAC0;
     }
   }
 
+  .transfer-row td {
+    max-width: var(--column-width, 500px);
+  }
+  .transfer-row .transfers-table-cell-path {
+    max-width: 0;
+  }
+
   .transfer-item-header .cell-data-name {
     margin-top: 8px;
   }
@@ -396,9 +403,6 @@ $space-transfers-gray: #B6BAC0;
 .cell-icon {
   display: block;
   position: relative;
-  .one-icon {
-    font-size: 2em;
-  }
   &.completed {
     color: $color-one-success;
   }
@@ -422,6 +426,17 @@ $space-transfers-gray: #B6BAC0;
     @extend .hinge;
     @extend .pulse-red-transparent;
   }
+}
+.cell-icon, .cell-type-destination {
+  .one-icon {
+    font-size: 2em;
+  }
+}
+.cell-type-destination {
+  display: flex;
+  justify-content: center;
+  gap: $padding-xs-horizontal;
+  align-items: center;
 }
 .table-empty-message {
   padding-left: $space-transfers-table-padding;

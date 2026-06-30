@@ -1,5 +1,8 @@
 {{#each columns as |column|}}
-  <td class={{concat-classes (concat "transfers-table-cell-" column.id) column.className}}>
+  <td
+    class={{concat-classes (concat "transfers-table-cell-" column.id) column.className}}
+    style={{column.style}}
+  >
     {{component
       (concat "space-transfers/" column.component)
       class=column.className
