@@ -441,7 +441,7 @@ export default Component.extend(...mixins, {
 
   typeDestinationColumn: computed(function typeDestinationColumn() {
     return this.createColumn('typeDestination', {
-      component: 'cell-truncated-icon',
+      component: 'cell-type-destination',
       className: 'hidden-xs',
     });
   }),
@@ -544,9 +544,13 @@ export default Component.extend(...mixins, {
   createColumnsConfiguration() {
     const columns = {};
     const visibleColumnNames = [...this.visibleColumnNames];
-    visibleColumnNames.shift();
-    visibleColumnNames.shift();
-    visibleColumnNames.pop();
+    const elementsToRemove = ['path', 'type', 'status'];
+    for (const columnName of elementsToRemove) {
+      const index = visibleColumnNames.indexOf(columnName);
+      if (index !== -1) {
+        visibleColumnNames.splice(index, 1);
+      }
+    }
     for (const columnName of visibleColumnNames) {
       columns[columnName] = EmberObject.create({
         isVisible: true,
