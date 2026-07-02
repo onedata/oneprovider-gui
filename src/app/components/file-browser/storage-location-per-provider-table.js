@@ -48,6 +48,9 @@ export default Component.extend(I18n, {
     if (!error) {
       error = this.locationsInfo.firstObject?.path?.error;
     }
+    if (error?.id === 'requiresPosixCompatibleStorage') {
+      return this.t('nonPosix');
+    }
     return this.errorExtractor.getMessage(error)?.message || error.description;
   }),
 });
