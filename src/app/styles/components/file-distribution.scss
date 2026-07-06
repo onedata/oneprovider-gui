@@ -179,7 +179,7 @@
 
     .status-toolbar-icon {
       font-size: 1.15em;
-      font-size: $one-pill-button-line-height;
+      font-size: var(--one-pill-button-line-height);
 
       .one-icon {
         vertical-align: middle;
@@ -413,7 +413,7 @@
   .chunks-background, .progress-bar-background {
     flex-grow: 1;
     min-width: 0;
-    height: $one-pill-button-height;
+    height: var(--one-pill-button-height);
     background-color: $color-one-light-blue;
     background-size: 50px 50px;
   }
@@ -430,7 +430,7 @@
     display: flex;
     flex: 0 0 0;
     min-width: 0;
-    height: $one-pill-button-height;
+    height: var(--one-pill-button-height);
     width: 0px;
     background-color: $color-one-azure;
     $gradient-size: 8px;
@@ -467,7 +467,7 @@
   .chunks-canvas {
     flex-grow: 1;
     min-width: 0;
-    height: $one-pill-button-height;
+    height: var(--one-pill-button-height);
     background-color: $color-one-light-blue;
   }
 
