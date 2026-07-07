@@ -38,22 +38,21 @@ const mixins = [
 
 const allColumnNames = [
   'path',
-  'userName',
-  'destination',
-  'scheduledAt',
-  'startedAt',
-  'finishedAt',
+  'type',
+  'typeDestination',
   'processed',
   'replicated',
   'evicted',
-  'type',
+  'startedAt',
+  'scheduledAt',
+  'finishedAt',
+  'userName',
   'status',
 ];
 
 const allColumnWidth = {
   path: 190,
   userName: 200,
-  destination: 200,
   scheduledAt: 150,
   startedAt: 130,
   finishedAt: 130,
@@ -62,6 +61,7 @@ const allColumnWidth = {
   evicted: 95,
   type: 80,
   status: 85,
+  typeDestination: 280,
 };
 
 const tableExcludedColumnNames = {
@@ -234,6 +234,7 @@ export default Component.extend(...mixins, {
             columnsConfigurationWithFirstCol.push(columnName);
           }
         }
+        columnsConfigurationWithFirstCol.push('status');
       }
       return Object.values(
         this.getProperties(...columnsConfigurationWithFirstCol.map(name =>
@@ -438,9 +439,9 @@ export default Component.extend(...mixins, {
     });
   }),
 
-  destinationColumn: computed(function destinationColumn() {
-    return this.createColumn('destination', {
-      component: 'cell-truncated',
+  typeDestinationColumn: computed(function typeDestinationColumn() {
+    return this.createColumn('typeDestination', {
+      component: 'cell-type-destination',
       className: 'hidden-xs',
     });
   }),
@@ -491,7 +492,7 @@ export default Component.extend(...mixins, {
 
   typeColumn: computed(function typeColumn() {
     return this.createColumn('type', {
-      className: 'col-icon',
+      className: 'col-icon hidden-sm hidden-md hidden-lg',
       component: 'cell-type',
     });
   }),
@@ -543,7 +544,13 @@ export default Component.extend(...mixins, {
   createColumnsConfiguration() {
     const columns = {};
     const visibleColumnNames = [...this.visibleColumnNames];
-    visibleColumnNames.shift();
+    const elementsToRemove = ['path', 'type', 'status'];
+    for (const columnName of elementsToRemove) {
+      const index = visibleColumnNames.indexOf(columnName);
+      if (index !== -1) {
+        visibleColumnNames.splice(index, 1);
+      }
+    }
     for (const columnName of visibleColumnNames) {
       columns[columnName] = EmberObject.create({
         isVisible: true,
@@ -561,10 +568,15 @@ export default Component.extend(...mixins, {
   },
 
   createColumn(id, customData) {
+    let style = this.columnsConfiguration.columnsStyle[id];
+    if (id === 'type' || id === 'status') {
+      style = htmlSafe(`--column-width: ${allColumnWidth[id]}px;`);
+    }
     return Object.assign({
       id,
       propertyName: id,
       component: 'cell-generic',
+      style,
     }, customData);
   },
 
@@ -641,7 +653,10 @@ export default Component.extend(...mixins, {
       return this.get('openDbViewModal')(...arguments);
     },
     headingDropWithColumnName(column, number, event) {
-      const index = this.columnsConfiguration.columnsOrder.indexOf(column.id);
+      let index = this.columnsConfiguration.columnsOrder.indexOf(column.id);
+      if (column.id === 'status') {
+        index = this.columnsConfiguration.columnsOrder.length;
+      }
       this.actions.headingDrop.bind(this)(index + number, event);
     },
   },
