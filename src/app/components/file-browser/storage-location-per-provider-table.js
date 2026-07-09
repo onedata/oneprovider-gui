@@ -8,15 +8,11 @@
 
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
-import { computed } from '@ember/object';
-import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
 
 export default Component.extend(I18n, {
   tagName: 'tbody',
   classNames: ['storage-location-per-provider-table'],
-
-  errorExtractor: service(),
 
   /**
    * @override
@@ -39,18 +35,4 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.Provider>}
    */
   oneprovider: reads('locationsInfo.firstObject.provider'),
-
-  /**
-   * @type {ComputedProperty<string>}
-   */
-  errorMessage: computed('locationsInfo.firstObject.error', function errorMessage() {
-    let error = this.locationsInfo.firstObject?.error;
-    if (!error) {
-      error = this.locationsInfo.firstObject?.path?.error;
-    }
-    if (error?.id === 'requiresPosixCompatibleStorage') {
-      return this.t('nonPosix');
-    }
-    return this.errorExtractor.getMessage(error)?.message || error.description;
-  }),
 });
