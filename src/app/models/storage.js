@@ -15,5 +15,4 @@ export const entityType = 'op_storage';
 export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),
   provider: belongsTo('provider'),
-  type: attr('string'),
 }).reopenClass(StaticGraphModelMixin);

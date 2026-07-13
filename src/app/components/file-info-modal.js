@@ -490,12 +490,10 @@ export default Component.extend(...mixins, {
 
           const provider = await get(storage, 'provider');
           const storageName = get(storage, 'name');
-          const type = get(storage, 'type');
 
           const storageNameWithPath = {
             storageName,
             provider,
-            type,
             path: locationsPerStorage[storageId],
           };
 

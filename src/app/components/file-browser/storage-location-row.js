@@ -37,7 +37,7 @@ export default Component.extend(I18n, {
       error = this.locationInfo?.path?.error;
     }
     if (error?.id === 'requiresPosixCompatibleStorage') {
-      return this.t('nonPosix', { type: this.locationInfo?.type });
+      return this.t('nonPosix');
     }
     return this.errorExtractor.getMessage(error)?.message || error.description;
   }),
