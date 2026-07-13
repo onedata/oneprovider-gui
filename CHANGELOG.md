@@ -5,6 +5,7 @@
 ### Latest changes
 
 * VFS-13497 Changed storage error text for physical location and improved styles for table
+* VFS-13637 Changed order of columns in transfers table
 * VFS-13350 Added support for showing error for additional download start failures
 * VFS-13511 Fixed docs and API links for new homepage
 * VFS-13422 Added selection only file name without extension in rename modal

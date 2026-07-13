@@ -2,7 +2,6 @@ export default {
   name: {
     path: 'File/directory',
     userName: 'User',
-    destination: 'Destination',
     startedAt: 'Started at',
     finishedAt: 'Finished at',
     processed: 'Processed',
@@ -11,5 +10,6 @@ export default {
     type: 'Type',
     status: 'Status',
     scheduledAt: 'Scheduled at',
+    typeDestination: 'Type & Destination',
   },
 };
