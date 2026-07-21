@@ -11,6 +11,20 @@ import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
 
+/**
+ * @typedef {Object} LocationInfo
+ * @property {PathLocation} path Path to file on storage.
+ * @property {Provider} provider
+ * @property {string} storageName Name of storage.
+ */
+
+/**
+ * @typedef {Object} PathLocation
+ * @property {string} [location] Path to file on storage.
+ * @property {boolean} success
+ * @property {Object} [error] Error object if there was an error while fetching path.
+ */
+
 export default Component.extend(I18n, {
   tagName: 'tr',
   classNames: ['oneprovider-storage-location-row'],
@@ -20,11 +34,11 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.storageLocationPerProviderTable',
+  i18nPrefix: 'components.storageLocationRow',
 
   /**
    * @virtual
-   * @type {Object}
+   * @type {LocationInfo}
    */
   locationInfo: undefined,
 
