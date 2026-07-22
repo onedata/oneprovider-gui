@@ -12,7 +12,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/i18n';
 
 /**
- * @typedef { Object } StorageLocationDisplayInfo
+ * @typedef {Object} StorageLocationDisplayInfo
  * @property {StorageFilePathFetchResult} path Path to file on storage.
  * @property {Provider} provider
  * @property {string} storageName Name of storage.
