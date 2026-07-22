@@ -21,7 +21,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Ember.Array<LocationInfo>}
+   * @type {Ember.Array<StorageLocationDisplayInfo>}
    */
   locationsInfo: undefined,
 
