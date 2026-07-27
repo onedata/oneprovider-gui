@@ -1,0 +1,10 @@
+{{#if record.transferProgressError}}
+  <ErrorInline @error={{record.transferProgressError}} />
+{{else}}
+  <OneIcon @icon={{icon}} class="transfer-type-icon">
+    <BsTooltip @placement="top" @title={{hint}} />
+  </OneIcon>
+{{/if}}
+<TruncatedString>
+  {{record.destination}}
+</TruncatedString>

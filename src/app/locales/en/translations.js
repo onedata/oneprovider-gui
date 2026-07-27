@@ -49,6 +49,7 @@ import columnsConfigurationPopover from './components/columns-configuration-popo
 import columnsConfigurationCell from './components/columns-configuration-cell';
 import visualEdm from './components/visual-edm';
 import storageLocationPerProviderTable from './components/storage-location-per-provider-table';
+import storageLocationRow from './components/storage-location-row';
 
 import uploadManager from './services/upload-manager';
 import visualEdmValidation from './services/visual-edm-validation';
@@ -131,6 +132,7 @@ const translations = {
     columnsConfigurationCell,
     visualEdm,
     storageLocationPerProviderTable,
+    storageLocationRow,
     errors: {
       serviceTemporarilyUnavailable,
     },

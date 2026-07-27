@@ -1,0 +1,26 @@
+{{#if locationInfo.path.success}}
+  <td class="storage-name-cell">
+    <TruncatedString>
+      {{locationInfo.storageName}}
+    </TruncatedString>
+  </td>
+  <td class="location-cell">
+    {{#if locationInfo.path.location}}
+      <ClipboardLine
+        @value={{locationInfo.path.location}}
+        @size="sm"
+        class="location-cell-clipboard"
+        @enableValueTip={{true}}
+      />
+    {{else}}
+      <span class="empty-location-cell">–</span>
+    {{/if}}
+  </td>
+{{else}}
+  <td colspan="2" class="error-cell">
+    <TruncatedString>
+      <OneIcon @icon="sign-warning-rounded" class="inline-icon-container" />
+      {{errorMessage}}
+    </TruncatedString>
+  </td>
+{{/if}}
