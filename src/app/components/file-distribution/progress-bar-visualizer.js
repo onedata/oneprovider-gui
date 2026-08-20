@@ -36,6 +36,12 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {number}
    */
+  roundedPercentage: undefined,
+
+  /**
+   * @virtual
+   * @type {number}
+   */
   size: undefined,
 
   /**
@@ -60,7 +66,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<boolean>}
    */
   isDataIncomplete: or(
-    eq('percentage', undefined),
+    eq('roundedPercentage', undefined),
     eq('size', undefined),
     'errorOnStorage',
   ),
@@ -105,9 +111,9 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<number|undefined>}
    */
   percentageNormalized: computed(
-    'percentage',
+    'roundedPercentage',
     function percentageNormalized() {
-      const percentage = this.get('percentage');
+      const percentage = this.get('roundedPercentage');
       return percentage === undefined ? undefined : Math.min(percentage, 100);
     }
   ),

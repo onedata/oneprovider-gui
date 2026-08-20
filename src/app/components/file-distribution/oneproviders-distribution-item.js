@@ -335,10 +335,8 @@ export default Component.extend(I18n, {
 
       if (allFilesDistributionsLoaded && !isDistributionDataIncomplete) {
         if (filesSize) {
-          const percentage = Math.floor(
-            (filesSizeOnStorage / filesSize) * 100
-          );
-          return filesSizeOnStorage ? Math.max(percentage, 1) : 0;
+          const percentage = (filesSizeOnStorage / filesSize) * 100;
+          return filesSizeOnStorage ? percentage : 0;
         } else if (filesSize === 0) {
           return 100;
         }

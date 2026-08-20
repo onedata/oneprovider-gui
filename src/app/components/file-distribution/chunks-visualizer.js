@@ -53,6 +53,12 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {number}
    */
+  roundedPercentage: undefined,
+
+  /**
+   * @virtual
+   * @type {number}
+   */
   fileSize: undefined,
 
   /**
@@ -82,8 +88,8 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  percentageText: computed('percentage', function percentageText() {
-    const percentage = this.get('percentage');
+  percentageText: computed('roundedPercentage', function percentageText() {
+    const percentage = this.roundedPercentage;
     return percentage !== undefined ? `${Math.floor(percentage)}%` : '';
   }),
 

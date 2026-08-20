@@ -84,7 +84,8 @@
       @fileSize={{filesSize}}
       @fileSizeOnStorage={{filesSizeOnStorage}}
       @chunks={{chunksBarData}}
-      @percentage={{roundedPercentage}}
+      @roundedPercentage={{roundedPercentage}}
+      @percentage={{percentage}}
       @chunksRange={{chunksRange}}
       @chunkCount={{blockCount}}
       @errorOnStorage={{errorOnStorage}}
@@ -92,7 +93,8 @@
   {{else}}
     <FileDistribution::ProgressBarVisualizer
       @size={{filesSizeOnStorage}}
-      @percentage={{roundedPercentage}}
+      @roundedPercentage={{roundedPercentage}}
+      @percentage={{percentage}}
       @getProvidersUrl={{action "getProvidersUrl"}}
       @providerId={{providerId}}
       @errorOnStorage={{errorOnStorage}}
