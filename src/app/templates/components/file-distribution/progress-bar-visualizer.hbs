@@ -36,11 +36,7 @@
     {{#if isDataIncomplete}}
       <span>{{tt this "na"}}</span>
     {{else}}
-      {{#if (and (lt percentage 1) (not (eq percentage 0)))}}
-        &lt;{{percentageText}}
-      {{else}}
-        {{percentageText}}
-      {{/if}}
+      {{#if (and (lt percentage 1) (not (eq percentage 0)))}}&lt;{{/if}}{{percentageText}}
     {{/if}}
   </div>
 {{yield}}
