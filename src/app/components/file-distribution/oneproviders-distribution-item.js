@@ -351,7 +351,6 @@ export default Component.extend(I18n, {
   roundedPercentage: computed(
     'calculateDistributionPercentages.roundedPercentagePerStorageBackend',
     function roundedPercentage() {
-      // console.log(this.calculateDistributionPercentages.roundedPercentagePerStorageBackend);
       return this.calculateDistributionPercentages.roundedPercentagePerStorageBackend?.[
         this.oneproviderId
       ]?.[this

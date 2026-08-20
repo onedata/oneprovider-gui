@@ -75,7 +75,6 @@ export default EmberObject.extend({
           }
         }
       }
-      console.log(result);
       return result;
     }
   ),
@@ -94,8 +93,9 @@ export default EmberObject.extend({
             if (percentage === -1) {
               result[providerId][storageId] = -1; // Indicate failure for this storage backend
             } else {
-              let roundedPercentage = Math.floor(percentage);
-              roundedPercentage = percentage ? Math.max(roundedPercentage, 1) : 0;
+              const roundedPercentage = percentage ?
+                Math.max(Math.floor(percentage), 1) :
+                0;
               result[providerId][storageId] = roundedPercentage;
               totalPercentage += roundedPercentage;
             }
@@ -128,11 +128,12 @@ export default EmberObject.extend({
             }
           }
         }
-        if (maxProviderId !== null && maxStorageId !== null && maxPercentage > 0) {
-          result[maxProviderId][maxStorageId] += 1;
-          totalPercentage += 1;
-          adjustment -= 1;
+        if (maxProviderId === null || maxStorageId === null || maxPercentage <= 0) {
+          break;
         }
+        result[maxProviderId][maxStorageId] += 1;
+        totalPercentage += 1;
+        adjustment -= 1;
       }
       return result;
     }

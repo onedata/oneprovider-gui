@@ -31,18 +31,20 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
       type,
     },
     fileDistribution: {
+      fileSize: 1024,
       providerkrk: {
         success: successOnKrakow,
         virtualSize: 1024,
         distributionPerStorageBackend: {
           storage: successOnKrakow ?
-            type === 'dir' ? { physicalSize: normalizedOnKrakowDir } : {
+            type === 'dir' ? { physicalSize: normalizedOnKrakowDir, success: true } : {
               blocksPercentage: normalizedOnKrakow,
               chunksBarData: {
                 0: normalizedOnKrakow,
               },
               blockCount: 1,
               physicalSize: 1024 * normalizedOnKrakow / 100,
+              success: true,
             } : {
               error: {
                 id: 'dirStatsDisabledForSpace',
@@ -56,13 +58,14 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
         virtualSize: 1024,
         distributionPerStorageBackend: {
           storage: successOnParis ?
-            type === 'dir' ? { physicalSize: normalizedOnParis } : {
+            type === 'dir' ? { physicalSize: normalizedOnParis, success: true } : {
               blocksPercentage: normalizedOnParis,
               chunksBarData: {
                 0: normalizedOnParis,
               },
               blockCount: 1,
               physicalSize: 1024 * normalizedOnParis / 100,
+              success: true,
             } : {
               error: {
                 id: 'dirStatsDisabledForSpace',
@@ -746,5 +749,4 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
         );
       });
     });
-  }
-);
+  });
