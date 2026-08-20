@@ -22,6 +22,7 @@ export default EmberObject.extend({
 
   physicalSizePerStorageBackend: computed(
     'fileDistributionData',
+    'filesSize',
     function physicalSizePerStorageBackend() {
       const result = {};
       for (const distributionItem of this.fileDistributionData) {
