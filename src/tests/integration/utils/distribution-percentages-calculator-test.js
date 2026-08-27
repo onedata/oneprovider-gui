@@ -188,7 +188,7 @@ describe('Integration | Utility | distribution-percentages-calculator', function
       });
   });
 
-  it('returns 100 percent when files size is zero', function () {
+  it('returns empty object when files size is zero', function () {
     this.storageDistributionInfo = DistributionPercentagesCalculator.create({
       distributionContainer: [{
         fileSize: 0,
@@ -207,11 +207,7 @@ describe('Integration | Utility | distribution-percentages-calculator', function
     });
 
     expect(this.storageDistributionInfo.percentagePerStorageBackend)
-      .to.deep.equal({
-        provider1: {
-          storage1: 100,
-        },
-      });
+      .to.deep.equal({});
   });
 
   it('rounds percentages down and ensures non-zero values are at least one', function () {
