@@ -31,7 +31,6 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
       type,
     },
     fileDistribution: {
-      fileSize: 1024,
       providerkrk: {
         success: successOnKrakow,
         virtualSize: 1024,
@@ -749,4 +748,5 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
         );
       });
     });
-  });
+  }
+);

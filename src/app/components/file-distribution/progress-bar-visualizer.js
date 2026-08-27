@@ -66,7 +66,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<boolean>}
    */
   isDataIncomplete: or(
-    eq('roundedPercentage', undefined),
+    eq('percentage', undefined),
     eq('size', undefined),
     'errorOnStorage',
   ),
@@ -114,7 +114,10 @@ export default Component.extend(I18n, {
     'roundedPercentage',
     function percentageNormalized() {
       const percentage = this.get('roundedPercentage');
-      return percentage === undefined ? undefined : Math.min(percentage, 100);
+      if (percentage === undefined) {
+        return this.percentage === undefined ? undefined : Math.min(this.percentage, 100);
+      }
+      return Math.min(percentage, 100);
     }
   ),
 

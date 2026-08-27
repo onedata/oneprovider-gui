@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import CalculateDistributionPercentages from 'oneprovider-gui/utils/calculate-distribution-percentages';
+import DistributionPercentagesCalculator, { providerDistributionFailure } from 'oneprovider-gui/utils/distribution-percentages-calculator';
 
-describe('Integration | Utility | calculate-distribution-percentages', function () {
+describe('Integration | Utility | distribution-percentages-calculator', function () {
   const { afterEach } = setupRenderingTest();
 
   afterEach(function () {
@@ -11,8 +11,8 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
   });
 
   it('calculates total files size', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [
         { fileSize: 100 },
         { fileSize: 200 },
         { fileSize: 50 },
@@ -23,8 +23,8 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
   });
 
   it('calculates physical size per storage backend', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [{
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [{
           fileSize: 100,
           fileDistribution: {
             provider1: {
@@ -72,8 +72,8 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
   });
 
   it('calculates physical size separately for each provider', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [{
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [{
         fileSize: 100,
         fileDistribution: {
           provider1: {
@@ -110,8 +110,8 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
   });
 
   it('marks provider as failed when distribution fails', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [{
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [{
         fileSize: 100,
         fileDistribution: {
           provider1: {
@@ -123,13 +123,13 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
 
     expect(this.storageDistributionInfo.physicalSizePerStorageBackend)
       .to.deep.equal({
-        provider1: -1,
+        provider1: providerDistributionFailure,
       });
   });
 
   it('marks storage backend as failed when its distribution fails', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [{
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [{
         fileSize: 100,
         fileDistribution: {
           provider1: {
@@ -151,15 +151,15 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
     expect(this.storageDistributionInfo.physicalSizePerStorageBackend)
       .to.deep.equal({
         provider1: {
-          storage1: -1,
+          storage1: providerDistributionFailure,
           storage2: 100,
         },
       });
   });
 
   it('calculates percentage per storage backend', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [{
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [{
         fileSize: 100,
         fileDistribution: {
           provider1: {
@@ -189,8 +189,8 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
   });
 
   it('returns 100 percent when files size is zero', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [{
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [{
         fileSize: 0,
         fileDistribution: {
           provider1: {
@@ -215,8 +215,8 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
   });
 
   it('rounds percentages down and ensures non-zero values are at least one', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [{
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [{
         fileSize: 100,
         fileDistribution: {
           provider1: {
@@ -251,8 +251,8 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
   });
 
   it('adjusts rounded percentages so that they sum up to 100', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [{
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [{
         fileSize: 100,
         fileDistribution: {
           provider1: {
@@ -287,8 +287,8 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
   });
 
   it('adjusts rounded percentages so that they sum up to 100 with one percentage', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [{
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [{
         fileSize: 100,
         fileDistribution: {
           provider1: {
@@ -322,9 +322,9 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
       });
   });
 
-  it('adjusts rounded percentages so that they sum up to 100 with rounded up bigger value', function () {
-    this.storageDistributionInfo = CalculateDistributionPercentages.create({
-      fileDistributionData: [{
+  it('adjusts rounded percentages so that they sum up to 100 with more percentage', function () {
+    this.storageDistributionInfo = DistributionPercentagesCalculator.create({
+      distributionContainer: [{
         fileSize: 100,
         fileDistribution: {
           provider1: {
@@ -332,25 +332,33 @@ describe('Integration | Utility | calculate-distribution-percentages', function 
             distributionPerStorageBackend: {
               storage1: {
                 success: true,
-                physicalSize: 96.7,
+                physicalSize: 95.3,
               },
               storage2: {
                 success: true,
-                physicalSize: 3.3,
+                physicalSize: 1.4,
+              },
+              storage3: {
+                success: true,
+                physicalSize: 1.4,
+              },
+              storage4: {
+                success: true,
+                physicalSize: 1.2,
               },
             },
           },
         },
       }],
     });
-
     expect(this.storageDistributionInfo.roundedPercentagePerStorageBackend)
       .to.deep.equal({
         provider1: {
-          storage1: 97,
-          storage2: 3,
+          storage1: 95,
+          storage2: 2,
+          storage3: 2,
+          storage4: 1,
         },
       });
   });
-
 });

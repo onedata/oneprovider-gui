@@ -20,6 +20,7 @@ import { inject as service } from '@ember/service';
 import _ from 'lodash';
 import sortByProperties from 'onedata-gui-common/utils/ember/sort-by-properties';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
+import DistributionPercentagesCalculator from 'oneprovider-gui/utils/distribution-percentages-calculator';
 
 export default Component.extend(I18n, {
   classNames: ['oneproviders-distribution'],
@@ -365,6 +366,15 @@ export default Component.extend(I18n, {
     function hasSingleRegFile() {
       return this.fileDistributionData?.length === 1 &&
         this.fileDistributionData[0].fileType === LegacyFileType.Regular;
+    }
+  ),
+
+  distributionPercentagesCalculator: computed(
+    'fileDistributionData',
+    function distributionPercentagesCalculator() {
+      return DistributionPercentagesCalculator.create({
+        distributionContainer: this.fileDistributionData,
+      });
     }
   ),
 

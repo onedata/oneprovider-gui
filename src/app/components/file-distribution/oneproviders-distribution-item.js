@@ -23,7 +23,6 @@ import { reads } from '@ember/object/computed';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
 import computedSumBy from 'onedata-gui-common/utils/computed-sum-by';
 import computedIsEvery from 'onedata-gui-common/utils/computed-is-every';
-import CalculateDistributionPercentages from 'oneprovider-gui/utils/calculate-distribution-percentages';
 
 const emptyChunksBarData = { 0: 0 };
 
@@ -86,6 +85,11 @@ export default Component.extend(I18n, {
    * @type {LocationsPerProvider}
    */
   locationsPerProvider: undefined,
+
+  /**
+   * @virtual
+   */
+  distributionPercentagesCalculator: undefined,
 
   /**
    * @virtual
@@ -347,22 +351,10 @@ export default Component.extend(I18n, {
   ),
 
   roundedPercentage: computed(
-    'calculateDistributionPercentages.roundedPercentagePerStorageBackend',
+    'distributionPercentagesCalculator.roundedPercentagePerStorageBackend',
     function roundedPercentage() {
-      return this.calculateDistributionPercentages.roundedPercentagePerStorageBackend?.[
-        this.oneproviderId
-      ]?.[this
-        .storageId
-      ];
-    }
-  ),
-
-  calculateDistributionPercentages: computed(
-    'fileDistributionData',
-    function calculateDistributionPercentages() {
-      return CalculateDistributionPercentages.create({
-        fileDistributionData: this.fileDistributionData,
-      });
+      return this.distributionPercentagesCalculator
+        .roundedPercentagePerStorageBackend?.[this.oneproviderId]?.[this.storageId];
     }
   ),
 
