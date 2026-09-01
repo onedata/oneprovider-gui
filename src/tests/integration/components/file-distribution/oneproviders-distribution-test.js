@@ -16,12 +16,20 @@ import globals from 'onedata-gui-common/utils/globals';
  *   { type: file|dir, onKrakow: percentage, onParis: percentage}
  * @returns {EmberObject}
  */
-function createFileDistributionContainerStub({ type, onKrakow, onParis, success } = {}) {
+function createFileDistributionContainerStub({
+  type,
+  onKrakow,
+  onParis,
+  providerSuccess,
+  storageSuccess,
+} = {}) {
   const normalizedOnKrakow = onKrakow || 50;
   const normalizedOnKrakowDir = onKrakow / 100 * 1024 || 512;
   const normalizedOnParis = onParis || 0;
-  const successOnKrakow = success ? success.onKrakow : true;
-  const successOnParis = success ? success.onParis : true;
+  const providerSuccessOnKrakow = providerSuccess ? providerSuccess.onKrakow : true;
+  const providerSuccessOnParis = providerSuccess ? providerSuccess.onParis : true;
+  const storageSuccessOnKrakow = storageSuccess ? storageSuccess.onKrakow : true;
+  const storageSuccessOnParis = storageSuccess ? storageSuccess.onParis : true;
 
   return EmberObject.create({
     fileType: type || 'file',
@@ -32,18 +40,21 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
     },
     fileDistribution: {
       providerkrk: {
-        success: successOnKrakow,
+        success: providerSuccessOnKrakow,
         virtualSize: 1024,
         distributionPerStorageBackend: {
-          storage: successOnKrakow ?
-            type === 'dir' ? { physicalSize: normalizedOnKrakowDir, success: true } : {
+          storage: providerSuccessOnKrakow ?
+            type === 'dir' ? {
+              physicalSize: normalizedOnKrakowDir,
+              success: storageSuccessOnKrakow,
+            } : {
               blocksPercentage: normalizedOnKrakow,
               chunksBarData: {
                 0: normalizedOnKrakow,
               },
               blockCount: 1,
               physicalSize: 1024 * normalizedOnKrakow / 100,
-              success: true,
+              success: storageSuccessOnKrakow,
             } : {
               error: {
                 id: 'dirStatsDisabledForSpace',
@@ -53,18 +64,21 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis, success 
         },
       },
       providerpar: {
-        success: successOnParis,
+        success: providerSuccessOnParis,
         virtualSize: 1024,
         distributionPerStorageBackend: {
-          storage: successOnParis ?
-            type === 'dir' ? { physicalSize: normalizedOnParis, success: true } : {
+          storage: providerSuccessOnParis ?
+            type === 'dir' ? {
+              physicalSize: normalizedOnParis,
+              success: storageSuccessOnParis,
+            } : {
               blocksPercentage: normalizedOnParis,
               chunksBarData: {
                 0: normalizedOnParis,
               },
               blockCount: 1,
               physicalSize: 1024 * normalizedOnParis / 100,
-              success: true,
+              success: storageSuccessOnParis,
             } : {
               error: {
                 id: 'dirStatsDisabledForSpace',
@@ -195,9 +209,9 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
         .to.not.exist;
     });
 
-    it('renders n/a info', async function () {
+    it('renders n/a info for dir, error for provider', async function () {
       const fileDistributionData = [createFileDistributionContainerStub({
-        success: { onKrakow: false, onParis: false },
+        providerSuccess: { onKrakow: false, onParis: false },
         type: 'dir',
       })];
 
@@ -216,6 +230,93 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
       expect(find('.oneprovider-providerkrk .progress-bar-text')).to.contain.text(
         'Directory statistics are disabled'
       );
+    });
+
+    it('renders n/a info for file, error for provider', async function () {
+      const fileDistributionData = [createFileDistributionContainerStub({
+        providerSuccess: { onKrakow: false, onParis: true },
+      })];
+
+      this.set('fileDistributionData', fileDistributionData);
+      await render(hbs `
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
+      `);
+
+      expect(find('.oneprovider-providerkrk .chunks-visualizer')).to
+        .exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.exist;
+
+      expect(find('.oneprovider-providerkrk .error-text')).to.exist;
+      expect(find('.oneprovider-providerkrk .error-text')).to.contain.text(
+        'Error fetching statistics'
+      );
+      expect(find('.oneprovider-providerkrk .size-label')).to.not.exist;
+
+      expect(find('.oneprovider-providerpar .chunks-visualizer.synchronized')).to
+        .exist;
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('0%');
+      expect(find('.oneprovider-providerpar .size-label')).to.contain.text('0 B');
+    });
+
+    it('renders n/a info for dir, error for storage', async function () {
+      const fileDistributionData = [createFileDistributionContainerStub({
+        storageSuccess: { onKrakow: false, onParis: false },
+        type: 'dir',
+      })];
+
+      this.set('fileDistributionData', fileDistributionData);
+      await render(hbs `
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
+      `);
+
+      expect(find('.oneprovider-providerkrk .progress-bar-visualizer')).to
+        .exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerkrk .progress-bar-text')).to.contain.text(
+        'Error fetching statistics'
+      );
+    });
+
+    it('renders n/a info for file, error for storage', async function () {
+      const fileDistributionData = [createFileDistributionContainerStub({
+        storageSuccess: { onKrakow: false, onParis: true },
+      })];
+
+      this.set('fileDistributionData', fileDistributionData);
+      await render(hbs `
+        <FileDistribution::OneprovidersDistribution
+          @oneproviders={{oneproviders}}
+          @fileDistributionData={{fileDistributionData}}
+          @space={{space}}
+        />
+      `);
+
+      expect(find('.oneprovider-providerkrk .chunks-visualizer')).to
+        .exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.exist;
+
+      expect(find('.oneprovider-providerkrk .error-text')).to.exist;
+      expect(find('.oneprovider-providerkrk .error-text')).to.contain.text(
+        'Error fetching statistics'
+      );
+      expect(find('.oneprovider-providerkrk .size-label')).to.not.exist;
+
+      expect(find('.oneprovider-providerpar .chunks-visualizer.synchronized')).to
+        .exist;
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('0%');
+      expect(find('.oneprovider-providerpar .size-label')).to.contain.text('0 B');
     });
 
     it('renders distribution for single file', async function () {
@@ -267,7 +368,7 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
 
     it('renders distribution for single dir with one provider dir stats off', async function () {
       const fileDistributionData = [createFileDistributionContainerStub({
-        success: { onKrakow: true, onParis: false },
+        providerSuccess: { onKrakow: true, onParis: false },
         type: 'dir',
       })];
 
@@ -296,11 +397,11 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
     it('renders distribution for two dir with one provider dir stats off', async function () {
       const fileDistributionData = [
         createFileDistributionContainerStub({
-          success: { onKrakow: true, onParis: false },
+          providerSuccess: { onKrakow: true, onParis: false },
           type: 'dir',
         }),
         createFileDistributionContainerStub({
-          success: { onKrakow: true, onParis: false },
+          providerSuccess: { onKrakow: true, onParis: false },
           type: 'dir',
         }),
       ];
@@ -331,7 +432,7 @@ describe('Integration | Component | file-distribution/oneproviders-distribution'
       const fileDistributionData = [
         createFileDistributionContainerStub(),
         createFileDistributionContainerStub({
-          success: { onKrakow: true, onParis: false },
+          providerSuccess: { onKrakow: true, onParis: false },
           type: 'dir',
         }),
       ];

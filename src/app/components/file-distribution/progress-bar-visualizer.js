@@ -113,11 +113,11 @@ export default Component.extend(I18n, {
   percentageNormalized: computed(
     'roundedPercentage',
     function percentageNormalized() {
-      const percentage = this.get('roundedPercentage');
-      if (percentage === undefined) {
+      const roundedPercentage = this.get('roundedPercentage');
+      if (roundedPercentage === undefined) {
         return this.percentage === undefined ? undefined : Math.min(this.percentage, 100);
       }
-      return Math.min(percentage, 100);
+      return Math.min(roundedPercentage, 100);
     }
   ),
 

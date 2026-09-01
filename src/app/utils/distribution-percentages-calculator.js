@@ -110,6 +110,7 @@ export default EmberObject.extend({
       }
       const result = {};
       let totalPercentage = 0;
+      let isAnyProviderFailed = false;
       const percentagePerStorageBackendEntries = Object.entries(
         this.percentagePerStorageBackend
       );
@@ -117,12 +118,14 @@ export default EmberObject.extend({
         if (percentages === providerDistributionFailure) {
           // Indicate failure for this provider
           result[providerId] = providerDistributionFailure;
+          isAnyProviderFailed = true;
         } else {
           result[providerId] = {};
           for (const [storageId, percentage] of Object.entries(percentages)) {
             if (percentage === providerDistributionFailure) {
               // Indicate failure for this storage backend
               result[providerId][storageId] = providerDistributionFailure;
+              isAnyProviderFailed = true;
             } else {
               const roundedPercentage = percentage ?
                 Math.max(Math.floor(percentage), 1) :
@@ -133,7 +136,7 @@ export default EmberObject.extend({
           }
         }
       }
-      if (totalPercentage > 100 || totalPercentage === 0) {
+      if (totalPercentage > 100 || isAnyProviderFailed) {
         return result;
       }
 

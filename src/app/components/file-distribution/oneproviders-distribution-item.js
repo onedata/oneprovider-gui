@@ -88,6 +88,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Utils.DistributionPercentagesCalculator}
    */
   distributionPercentagesCalculator: undefined,
 
@@ -369,7 +370,7 @@ export default Component.extend(I18n, {
         const fileDistribution =
           fileDistDataContainer.getDistributionForOneprovider(this.oneprovider)
           .distributionPerStorageBackend[this.storageId];
-        error = fileDistribution?.error;
+        error = fileDistribution?.error || fileDistribution?.success === false;
       });
       return error;
     }
