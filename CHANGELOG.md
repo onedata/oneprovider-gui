@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-6934 Fixed rounding percentage values in data distribution
 * VFS-13773 Removed enter when copy from clipboard line
 * VFS-13560 Added new development scripts
 * VFS-13497 Changed storage error text for physical location and improved styles for table

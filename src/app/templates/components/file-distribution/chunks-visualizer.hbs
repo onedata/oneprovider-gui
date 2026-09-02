@@ -29,7 +29,7 @@
   {{#if (or errorOnStorage neverSynchronized)}}
     <span>{{tt this "na"}}</span>
   {{else}}
-    {{percentageText}}
+    {{#if (and (lt percentage 1) (not (eq percentage 0)))}}&lt;{{/if}}{{percentageText}}
   {{/if}}
 </div>
 {{yield}}
