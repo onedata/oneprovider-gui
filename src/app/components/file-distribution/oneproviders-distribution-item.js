@@ -88,6 +88,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Utils.DistributionPercentagesCalculator}
+   */
+  distributionPercentagesCalculator: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    * @returns {undefined}
    */
@@ -334,16 +340,22 @@ export default Component.extend(I18n, {
 
       if (allFilesDistributionsLoaded && !isDistributionDataIncomplete) {
         if (filesSize) {
-          const percentage = Math.floor(
-            (filesSizeOnStorage / filesSize) * 100
-          );
-          return filesSizeOnStorage ? Math.max(percentage, 1) : 0;
+          const percentage = (filesSizeOnStorage / filesSize) * 100;
+          return filesSizeOnStorage ? percentage : 0;
         } else if (filesSize === 0) {
           return 100;
         }
       } else {
         return undefined;
       }
+    }
+  ),
+
+  roundedPercentage: computed(
+    'distributionPercentagesCalculator.roundedPercentagePerStorageBackend',
+    function roundedPercentage() {
+      return this.distributionPercentagesCalculator
+        .roundedPercentagePerStorageBackend?.[this.oneproviderId]?.[this.storageId];
     }
   ),
 
@@ -358,7 +370,7 @@ export default Component.extend(I18n, {
         const fileDistribution =
           fileDistDataContainer.getDistributionForOneprovider(this.oneprovider)
           .distributionPerStorageBackend[this.storageId];
-        error = fileDistribution?.error;
+        error = fileDistribution?.error || fileDistribution?.success === false;
       });
       return error;
     }
