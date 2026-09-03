@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13628 Added basic button whitelabeling
 * VFS-6934 Fixed rounding percentage values in data distribution
 * VFS-13773 Removed enter when copy from clipboard line
 * VFS-13560 Added new development scripts
