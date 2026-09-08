@@ -95,8 +95,11 @@ export default BaseTabModel.extend({
   statusIcon: computed(
     'areSomeProvidersOffline',
     'isSizeStatsDisabled',
+    'isSizeStatsInitializing',
     function statusIcon() {
-      if (this.areSomeProvidersOffline) {
+      if (this.isSizeStatsInitializing) {
+        return 'checkbox-pending';
+      } else if (this.areSomeProvidersOffline) {
         return 'sign-warning-rounded';
       } else if (!this.isSizeStatsDisabled) {
         return 'checkbox-filled';
@@ -110,8 +113,9 @@ export default BaseTabModel.extend({
   tabClass: computed(
     'areSomeProvidersOffline',
     'isSizeStatsDisabled',
+    'isSizeStatsInitializing',
     function tabClass() {
-      if (this.areSomeProvidersOffline) {
+      if (this.isSizeStatsInitializing || this.areSomeProvidersOffline) {
         return 'tab-status-warning';
       } else if (!this.isSizeStatsDisabled) {
         return 'tab-status-success';
@@ -142,6 +146,16 @@ export default BaseTabModel.extend({
   isSizeStatsDisabled: computed('dirStatsServiceStatus', function isSizeStatsDisabled() {
     return ['disabled', 'stopping'].includes(this.dirStatsServiceStatus);
   }),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSizeStatsInitializing: computed(
+    'dirStatsServiceStatus',
+    function isSizeStatsInitializing() {
+      return ['initializing'].includes(this.dirStatsServiceStatus);
+    }
+  ),
 
   /**
    * @type {ComputedProperty<boolean>}
