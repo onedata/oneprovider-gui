@@ -20,5 +20,6 @@ export default {
         plural: 'elements',
       },
     },
+    providerOccursErrorsTip: 'The provider has some files or directories in error state, i.e. they are not accessible due to some problems with the storage backend. The actual number of errors may be larger since it includes only the online providers with enabled directory size statistics.',
   },
 };

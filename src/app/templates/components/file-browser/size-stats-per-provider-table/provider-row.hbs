@@ -65,16 +65,24 @@
 {{else}}
   <td class="header">
     <RecordInfoWithIcon @record={{sizeStats.provider}} />
+    {{#if this.isErrorIconShown}}
+      <OneIcon @icon="checkbox-filled-warning" class="error-occurs-icon">
+        <OneTooltip @title={{tt this "fileCounters.providerOccursErrorsTip"}} />
+      </OneIcon>
+    {{else if (and sizeStats.error (not-eq sizeStats.error.id "dirStatsDisabledForSpace"))}}
+      <OneIcon @icon="sign-warning-rounded" class="inline-icon-container warning-icon" />
+    {{/if}}
   </td>
   {{#if sizeStats.error}}
     <td colspan={{if this.isVirtualSizeColumnShown "4" "3"}}>
       <FileBrowser::SizeStatsPerProviderTable::ErrorCell @sizeStats={{sizeStats}} />
     </td>
   {{else}}
-    <td class="contains-value">
+    <td class={{concat-classes "contains-value" (if this.isErrorIconShown "danger-text")}}>
+      {{tt this "fileCounters.containsLabel"}}:
       {{stringifiedLatestElementsCount}}
     </td>
-    <td class="logical-size-value">
+    <td class={{concat-classes "logical-size-value" (if this.isErrorIconShown "danger-text")}}>
       {{bytes-to-string sizeStats.logicalSize}}
       {{#if (gte sizeStats.logicalSize 1024)}}
         <span class="extra-info">
@@ -82,7 +90,7 @@
         </span>
       {{/if}}
     </td>
-    <td class="physical-size-value">
+    <td class={{concat-classes "physical-size-value" (if this.isErrorIconShown "danger-text")}}>
       {{bytes-to-string sizeStats.totalPhysicalSize}}
       {{#if (gte sizeStats.totalPhysicalSize 1024)}}
         <span class="extra-info">
@@ -91,7 +99,7 @@
       {{/if}}
     </td>
     {{#if this.isVirtualSizeColumnShown}}
-      <td class="virtual-size-value">
+      <td class={{concat-classes "virtual-size-value" (if this.isErrorIconShown "danger-text")}}>
         {{#if (eq sizeStats.virtualSize undefined)}}
           <SpinSpinnerBlock
             class="virtual-size-spinner"
