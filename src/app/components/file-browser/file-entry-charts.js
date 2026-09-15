@@ -618,12 +618,49 @@ export default Component.extend(...mixins, {
     'latestDirSizeStatsValues',
     'providersCount',
     'providersWithStatsCount',
+    'isOnlyRemoteProviderOccursErrors',
     function isHeaderWarningIconVisible() {
       if (!this.latestDirSizeStatsValues) {
         return false;
       } else {
-        return this.providersWithStatsCount !== this.providersCount;
+        return this.isOnlyRemoteProviderOccursErrors ||
+          this.providersWithStatsCount !== this.providersCount;
       }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isHeaderDangerousIconVisible: computed(
+    'latestDirSizeStatsValues',
+    'isLocalProviderOccursErrors',
+    function isHeaderDangerousIconVisible() {
+      if (!this.latestDirSizeStatsValues) {
+        return false;
+      } else {
+        return this.isLocalProviderOccursErrors;
+      }
+    }
+  ),
+
+  isLocalProviderOccursErrors: computed(
+    'latestDirSizeStatsValues',
+    'currentProviderId',
+    function isLocalProviderOccursErrors() {
+      const currentProviderId = this.currentProviderId;
+      const currentProviderStats = this.latestDirSizeStatsValues?.[currentProviderId];
+      return currentProviderStats?.type === 'result' &&
+        (currentProviderStats.fileErrorCount > 0 ||
+          currentProviderStats.dirErrorCount > 0);
+    }
+  ),
+
+  isOnlyRemoteProviderOccursErrors: computed(
+    'isLocalProviderOccursErrors',
+    'isErrorOccurrencesShown',
+    function isRemoteProviderOccursErrors() {
+      return !this.isLocalProviderOccursErrors && this.isErrorOccurrencesShown;
     }
   ),
 
@@ -771,6 +808,58 @@ export default Component.extend(...mixins, {
       } else {
         return '';
       }
+    }
+  ),
+
+  fileErrorCount: computed(
+    'availableDirSizeStatsValues',
+    function fileErrorCount() {
+      const initialFileErrorsCount = 0;
+      return this.availableDirSizeStatsValues.reduce(
+        (acc, dirStats) => acc + dirStats.fileErrorCount,
+        initialFileErrorsCount,
+      );
+    }
+  ),
+
+  dirErrorCount: computed(
+    'availableDirSizeStatsValues',
+    function dirErrorCount() {
+      const initialDirErrorsCount = 0;
+      return this.availableDirSizeStatsValues.reduce(
+        (acc, dirStats) => acc + dirStats.dirErrorCount,
+        initialDirErrorsCount,
+      );
+    }
+  ),
+
+  isErrorOccurrencesShown: computed(
+    'fileErrorCount',
+    'dirErrorCount',
+    function isErrorOccurrencesShown() {
+      return this.fileErrorCount > 0 || this.dirErrorCount > 0;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  stringifiedErrorElementsCount: computed(
+    'fileErrorCount',
+    'dirErrorCount',
+    function stringifiedErrorElementsCount() {
+      const fileErrorCount = this.fileErrorCount;
+      const dirErrorCount = this.dirErrorCount;
+
+      const filesNounVer = fileErrorCount === 1 ? 'singular' : 'plural';
+      const dirNounVer = dirErrorCount === 1 ? 'singular' : 'plural';
+
+      return this.t('currentSize.fileCounters.elementsCount.template', {
+        fileCount: formatNumber(fileErrorCount),
+        dirCount: formatNumber(dirErrorCount),
+        fileNoun: this.t(`currentSize.fileCounters.elementsCount.file.${filesNounVer}`),
+        dirNoun: this.t(`currentSize.fileCounters.elementsCount.dir.${dirNounVer}`),
+      });
     }
   ),
 

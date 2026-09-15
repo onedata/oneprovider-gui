@@ -29,9 +29,17 @@
           "extra-info"
           classProvidersCount
         }}>({{currentSizeExtraInfo}})</span>
-        {{#if isHeaderWarningIconVisible}}
+        {{#if isLocalProviderOccursErrors}}
+          <OneIcon @icon="checkbox-filled-warning" class="header-info-danger">
+            <OneTooltip @title={{tt this "currentSize.currentSizeWarningLocalProviderTip"}} />
+          </OneIcon>
+        {{else if isHeaderWarningIconVisible}}
           <OneIcon @icon="sign-warning-rounded" class="header-info-warning">
-            <OneTooltip @title={{tt this "currentSize.currentSizeTip"}} />
+            {{#if isOnlyRemoteProviderOccursErrors}}
+              <OneTooltip @title={{tt this "currentSize.currentSizeWarningRemoteProviderTip"}} />
+            {{else}}
+              <OneTooltip @title={{tt this "currentSize.currentSizeTip"}} />
+            {{/if}}
           </OneIcon>
         {{/if}}
       </h2>
@@ -108,6 +116,17 @@
                   />
                 {{/if}}
                 <OneLabelTip @title={{tt this "currentSize.virtualSizeTip"}} />
+              </span>
+            </li>
+          {{/if}}
+          {{#if isErrorOccurrencesShown}}
+            <li class="property-row property-errors-occurs">
+              <span class="property-label">
+                {{tt this "currentSize.errorOccurrences"}}:
+              </span>
+              <span class="property-value">
+                {{stringifiedErrorElementsCount}}
+                <OneLabelTip @title={{tt this "currentSize.errorOccurrencesTip"}} />
               </span>
             </li>
           {{/if}}
