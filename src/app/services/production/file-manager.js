@@ -920,6 +920,8 @@ export default Service.extend({
       dirSizeStatsTimeSeriesNameGenerators.regFileAndLinkCount,
       dirSizeStatsTimeSeriesNameGenerators.dirCount,
       dirSizeStatsTimeSeriesNameGenerators.logicalSize,
+      dirSizeStatsTimeSeriesNameGenerators.fileErrorCount,
+      dirSizeStatsTimeSeriesNameGenerators.dirErrorCount,
     ];
 
     if (withVirtualSize) {
@@ -953,7 +955,7 @@ export default Service.extend({
         const collectionLayout = perProviderCollectionLayout[providerId].value;
         const staticTimeSeries = neededTimeSeriesNameGenerators.slice(
           0,
-          withVirtualSize ? 4 : 3
+          withVirtualSize ? 6 : 5
         );
         const perStorageTimeSeriesCandidates = Object.keys(collectionLayout)
           .filter((tsName) =>
@@ -1019,6 +1021,12 @@ export default Service.extend({
           ],
           totalPhysicalSize,
           physicalSizePerStorage,
+          fileErrorCount: staticStatsValues[
+            dirSizeStatsTimeSeriesNameGenerators.fileErrorCount
+          ],
+          dirErrorCount: staticStatsValues[
+            dirSizeStatsTimeSeriesNameGenerators.dirErrorCount
+          ],
         };
         if (withVirtualSize) {
           dirCurrentSizeStats.virtualSize = staticStatsValues[
