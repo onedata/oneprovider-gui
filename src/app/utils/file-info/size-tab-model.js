@@ -18,6 +18,7 @@ import {
   destroyableComputed,
   initDestroyableCache,
 } from 'onedata-gui-common/utils/destroyable-computed';
+import { inject as service } from '@ember/service';
 
 const FileSizeViewModelInTab = FileSizeViewModel.extend({
   /**
@@ -30,6 +31,8 @@ const FileSizeViewModelInTab = FileSizeViewModel.extend({
 });
 
 export default BaseTabModel.extend({
+  providerManager: service(),
+
   /**
    * @override
    */
@@ -96,10 +99,16 @@ export default BaseTabModel.extend({
     'areSomeProvidersOffline',
     'isSizeStatsDisabled',
     'isSizeStatsInitializing',
+    'isErrorsForItemsLocalProvider',
+    'isErrorsForItemsRemoteProvider',
     function statusIcon() {
       if (this.isSizeStatsInitializing) {
         return 'checkbox-pending';
+      } else if (this.isErrorsForItemsLocalProvider) {
+        return 'checkbox-filled-warning';
       } else if (this.areSomeProvidersOffline) {
+        return 'sign-warning-rounded';
+      } else if (this.isErrorsForItemsRemoteProvider) {
         return 'sign-warning-rounded';
       } else if (!this.isSizeStatsDisabled) {
         return 'checkbox-filled';
@@ -114,8 +123,15 @@ export default BaseTabModel.extend({
     'areSomeProvidersOffline',
     'isSizeStatsDisabled',
     'isSizeStatsInitializing',
+    'isErrorsForItemsLocalProvider',
+    'isErrorsForItemsRemoteProvider',
     function tabClass() {
-      if (this.isSizeStatsInitializing || this.areSomeProvidersOffline) {
+      if (this.isSizeStatsInitializing) {
+        return 'tab-status-warning';
+      } else if (this.isErrorsForItemsLocalProvider) {
+        return 'tab-status-danger';
+      } else if (this.areSomeProvidersOffline ||
+        this.isErrorsForItemsRemoteProvider) {
         return 'tab-status-warning';
       } else if (!this.isSizeStatsDisabled) {
         return 'tab-status-success';
@@ -154,6 +170,66 @@ export default BaseTabModel.extend({
     'dirStatsServiceStatus',
     function isSizeStatsInitializing() {
       return ['initializing'].includes(this.dirStatsServiceStatus);
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  currentProviderId: computed(function currentProviderId() {
+    return this.providerManager.getCurrentProviderId();
+  }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  isErrorsForItemsLocalProvider: computed(
+    'currentProviderId',
+    'viewModel.{completeLatestDirSizeStatsValues,dirStatsNotReady,dirStatsServiceState}',
+    function isErrorsForItemsLocalProvider() {
+      const sizeStats = this.viewModel.completeLatestDirSizeStatsValues?.['all']?.[
+        this.currentProviderId
+      ];
+      if (
+        this.viewModel.dirStatsServiceState.status !== 'enabled' ||
+        this.viewModel.dirStatsNotReady ||
+        !this.currentProviderId ||
+        sizeStats?.type !== 'result'
+      ) {
+        return false;
+      }
+      return sizeStats?.dirErrorCount > 0 || sizeStats?.fileErrorCount > 0;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isErrorsForItemsRemoteProvider: computed(
+    'isErrorsForItemsLocalProvider',
+    'viewModel.{completeLatestDirSizeStatsValues,dirStatsNotReady,dirStatsServiceState}',
+    function isErrorsForItemsRemoteProvider() {
+      const sizeStats = this.viewModel.completeLatestDirSizeStatsValues?.['all'];
+      if (
+        this.viewModel.dirStatsServiceState.status !== 'enabled' ||
+        this.viewModel.dirStatsNotReady ||
+        this.isErrorsForItemsLocalProvider ||
+        !sizeStats
+      ) {
+        return false;
+      }
+
+      for (const sizeStatsPerProvider of Object.values(sizeStats)) {
+        if (sizeStatsPerProvider?.type === 'result') {
+          if (
+            sizeStatsPerProvider?.dirErrorCount > 0 ||
+            sizeStatsPerProvider?.fileErrorCount >= 0
+          ) {
+            return true;
+          }
+        }
+      }
+      return false;
     }
   ),
 
