@@ -63,7 +63,7 @@
     {{/if}}
   </td>
 {{else}}
-  <td class="header">
+  <td class={{concat-classes "header" (if isCurrentProvider "current-provider")}}>
     <RecordInfoWithIcon @record={{sizeStats.provider}} />
     {{#if this.isErrorIconShown}}
       <OneIcon @icon="checkbox-filled-warning" class="error-occurs-icon">

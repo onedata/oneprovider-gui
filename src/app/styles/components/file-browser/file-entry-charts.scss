@@ -144,6 +144,14 @@
       .header {
         text-align: left;
         display: flex;
+
+        .item-name {
+          @include font-regular;
+        }
+
+        &.current-provider .item-name {
+          @include font-semibold;
+        }
       }
     }
   }

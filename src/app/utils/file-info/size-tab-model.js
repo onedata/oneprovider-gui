@@ -223,7 +223,7 @@ export default BaseTabModel.extend({
         if (sizeStatsPerProvider?.type === 'result') {
           if (
             sizeStatsPerProvider?.dirErrorCount > 0 ||
-            sizeStatsPerProvider?.fileErrorCount >= 0
+            sizeStatsPerProvider?.fileErrorCount > 0
           ) {
             return true;
           }

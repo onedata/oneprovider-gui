@@ -36,12 +36,29 @@ export default Component.extend(I18n, {
   isVirtualSizeColumnShown: false,
 
   /**
+   * @virtual
+   * @type {string}
+   */
+  currentProviderId: undefined,
+
+  /**
    * @type {ComputedProperty<boolean>}
    */
   isErrorIconShown: computed(
     'sizeStats.{fileErrorCount,dirErrorCount}',
     function isErrorIconShown() {
       return this.sizeStats.fileErrorCount > 0 || this.sizeStats.dirErrorCount > 0;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isCurrentProvider: computed(
+    'currentProviderId',
+    'sizeStats.provider.entityId',
+    function isCurrentProvider() {
+      return this.currentProviderId === this.sizeStats.provider.entityId;
     }
   ),
 
