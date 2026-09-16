@@ -191,7 +191,7 @@ export default BaseTabModel.extend({
         this.currentProviderId
       ];
       if (
-        this.viewModel.dirStatsServiceState.status !== 'enabled' ||
+        this.viewModel.dirStatsServiceState?.status !== 'enabled' ||
         this.viewModel.dirStatsNotReady ||
         !this.currentProviderId ||
         sizeStats?.type !== 'result'
@@ -211,7 +211,7 @@ export default BaseTabModel.extend({
     function isErrorsForItemsRemoteProvider() {
       const sizeStats = this.viewModel.completeLatestDirSizeStatsValues?.['all'];
       if (
-        this.viewModel.dirStatsServiceState.status !== 'enabled' ||
+        this.viewModel.dirStatsServiceState?.status !== 'enabled' ||
         this.viewModel.dirStatsNotReady ||
         this.isErrorsForItemsLocalProvider ||
         !sizeStats
