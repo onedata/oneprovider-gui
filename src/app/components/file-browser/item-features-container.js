@@ -124,7 +124,7 @@ export default Component.extend(I18n, {
     }
   ),
 
-  showInhertedTag: and(
+  showInheritedTag: and(
     not('expanded'),
     'hasInheritance',
   ),
@@ -274,6 +274,8 @@ export default Component.extend(I18n, {
         'hasInheritance',
         computedHasInheritance
       );
+      // force trigger of dependent computed properties
+      this.notifyPropertyChange('hasInheritance');
     }
   ),
 

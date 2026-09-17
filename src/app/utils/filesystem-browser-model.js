@@ -198,7 +198,14 @@ export default BaseBrowserModel.extend(...mixins, {
    * @virtual optional
    * @type {Array<ItemFeatureSpec>}
    */
-  fileFeatures: defaultFilesystemFeatures,
+  fileFeatures: computed(
+    'columnsConfiguration.columns.qos.isVisible',
+    function fileFeatures() {
+      return this.columnsConfiguration.columns.qos?.isVisible ?
+        _.without(defaultFilesystemFeatures, 'effQosInheritancePath') :
+        defaultFilesystemFeatures;
+    }
+  ),
 
   /**
    * If provided, the additional component will be injected inside file-features.
