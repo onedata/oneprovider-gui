@@ -4,12 +4,12 @@
  *
  * @author Jakub Liput
  * @copyright (C) 2021-2024 ACK CYFRONET AGH
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import { bool, array, raw, conditional, and } from 'ember-awesome-macros';
-import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import { get, set, computed } from '@ember/object';
@@ -148,12 +148,17 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  fileFeatures: Object.freeze([
-    ..._.without(defaultFilesystemFeatures, 'effDatasetInheritancePath'),
-    Object.freeze({ key: 'archiveCreating', noticeLevel: 'warning' }),
-    Object.freeze({ key: 'archiveCancelled', noticeLevel: 'warning' }),
-    Object.freeze({ key: 'archiveFailed', noticeLevel: 'danger' }),
-  ]),
+  fileFeatures: computed(
+    'columnsConfiguration.columns.qos.isVisible',
+    function fileFeatures() {
+      const baseFileFeatures = this._super(...arguments);
+      return Object.freeze([
+        ..._.without(baseFileFeatures, 'effDatasetInheritancePath'),
+        Object.freeze({ key: 'archiveCreating', noticeLevel: 'warning' }),
+        Object.freeze({ key: 'archiveCancelled', noticeLevel: 'warning' }),
+        Object.freeze({ key: 'archiveFailed', noticeLevel: 'danger' }),
+      ]);
+    }),
 
   /**
    * @override
