@@ -193,14 +193,6 @@ export default BaseBrowserModel.extend(...mixins, {
   closeAllModals: notImplementedIgnore,
 
   /**
-   * File features displayed in status bar - see `component:file-browser/file-features`
-   * `features` property.
-   * @virtual optional
-   * @type {Array<ItemFeatureSpec>}
-   */
-  fileFeatures: defaultFilesystemFeatures,
-
-  /**
    * If provided, the additional component will be injected inside file-features.
    * Interface of extension component:
    * - `browserModel: Utils.FilesystemBrowserModel` (or child classes)
@@ -298,6 +290,11 @@ export default BaseBrowserModel.extend(...mixins, {
   isUsingUploadArea: true,
 
   /**
+   * @type {boolean}
+   */
+  hasMetadataColumnsSupport: true,
+
+  /**
    * @override
    */
   browserClass: array.join(
@@ -370,9 +367,18 @@ export default BaseBrowserModel.extend(...mixins, {
   ),
 
   /**
-   * @type {boolean}
+   * File features displayed in status bar - see `component:file-browser/file-features`
+   * `features` property.
+   * @type {Array<ItemFeatureSpec>}
    */
-  hasMetadataColumnsSupport: true,
+  fileFeatures: computed(
+    'columnsConfiguration.columns.qos.isVisible',
+    function fileFeatures() {
+      return this.columnsConfiguration.columns.qos?.isVisible ?
+        _.without(defaultFilesystemFeatures, 'effQosInheritancePath') :
+        defaultFilesystemFeatures;
+    }
+  ),
 
   parentDirRequirement: computed(
     'dir',
