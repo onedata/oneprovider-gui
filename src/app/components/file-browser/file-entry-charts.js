@@ -842,7 +842,7 @@ export default Component.extend(...mixins, {
   ),
 
   /**
-   * @type {ComputedProperty<string>}
+   * @type {ComputedProperty<SafeString>}
    */
   stringifiedErrorElementsCount: computed(
     'fileErrorCount',
@@ -860,6 +860,20 @@ export default Component.extend(...mixins, {
         fileNoun: this.t(`currentSize.fileCounters.elementsCount.file.${filesNounVer}`),
         dirNoun: this.t(`currentSize.fileCounters.elementsCount.dir.${dirNounVer}`),
       });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  errorOccurrencesTooltip: computed(
+    'isHeaderWarningIconVisible',
+    function errorOccurrencesTooltip() {
+      let tooltip = this.t('currentSize.errorOccurrencesTip');
+      if (this.isHeaderWarningIconVisible) {
+        tooltip += ' ' + this.t('currentSize.errorOccurrencesPartialDataTip');
+      }
+      return tooltip;
     }
   ),
 

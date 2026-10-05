@@ -20,6 +20,8 @@ export default {
         plural: 'elements',
       },
     },
-    providerOccursErrorsTip: 'The provider has some files or directories in error state, i.e. they are not accessible due to some problems with the storage backend. The actual number of errors may be larger since it includes only the online providers with enabled directory size statistics.',
+    providerOccursErrorsTip: 'Errors occurred while calculating statistics for some files or directories on this provider, e.g. because they were not accessible due to problems with the storage backend.',
+    providerOfflineTip: 'Statistics from this provider could not be retrieved, so its values are not included in the totals.',
+    dirStatsDisabledTip: 'Directory size statistics are disabled on this provider, so its values are not included in the totals.',
   },
 };

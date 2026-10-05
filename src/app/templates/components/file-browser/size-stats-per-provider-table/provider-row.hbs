@@ -70,7 +70,15 @@
         <OneTooltip @title={{tt this "fileCounters.providerOccursErrorsTip"}} />
       </OneIcon>
     {{else if (and sizeStats.error (not-eq sizeStats.error.id "dirStatsDisabledForSpace"))}}
-      <OneIcon @icon="sign-warning-rounded" class="inline-icon-container warning-icon" />
+      <OneIcon @icon="sign-warning-rounded" class="inline-icon-container warning-icon">
+        {{#if (eq this.sizeStats.error.id "noConnectionToPeerOneprovider")}}
+          <OneTooltip @title={{tt this "fileCounters.providerOfflineTip"}} />
+        {{/if}}
+      </OneIcon>
+    {{else if (and sizeStats.error (eq sizeStats.error.id "dirStatsDisabledForSpace"))}}
+      <OneIcon @icon="browser-info" class="info-icon">
+        <OneTooltip @title={{tt this "fileCounters.dirStatsDisabledTip"}} />
+      </OneIcon>
     {{/if}}
   </td>
   {{#if sizeStats.error}}
