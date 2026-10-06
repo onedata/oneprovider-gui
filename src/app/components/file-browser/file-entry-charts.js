@@ -644,6 +644,58 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  currentSizeIconTooltip: computed(
+    'isHeaderWarningIconVisible',
+    'isHeaderDangerousIconVisible',
+    'providersWithStatsCount',
+    'providersCount',
+    'isLocalProviderOccursErrors',
+    'isRemoteProviderOccursErrors',
+    'isErrorOccurrencesShown',
+    function currentSizeIconTooltip() {
+      let tooltip = '';
+      if (!this.isHeaderWarningIconVisible && !this.isHeaderDangerousIconVisible) {
+        return tooltip;
+      }
+      const isPartialStats = this.providersWithStatsCount !== this.providersCount;
+      const translationPrefix = 'currentSize.tooltips.';
+
+      if (isPartialStats) {
+        tooltip += this.t(`${translationPrefix}headerDataPartial`) + ' ';
+        if (this.isErrorOccurrencesShown) {
+          tooltip += this.t(`${translationPrefix}additionally`);
+        }
+      } else {
+        tooltip += this.t(`${translationPrefix}headerDataIncomplete`);
+      }
+
+      if (this.isErrorOccurrencesShown) {
+        let who = '';
+        if (this.isLocalProviderOccursErrors && this.isRemoteProviderOccursErrors) {
+          who = this.t(`${translationPrefix}currentProvider`) +
+            this.t(`${translationPrefix}and`) +
+            this.t(`${translationPrefix}remoteProviders`);
+        } else if (this.isLocalProviderOccursErrors) {
+          who = this.t(`${translationPrefix}currentProvider`);
+        } else {
+          who = this.t(`${translationPrefix}remoteProviders`);
+        }
+        tooltip += this.t(`${translationPrefix}errorInfo`, { who }) + ' ';
+      }
+
+      if (isPartialStats) {
+        tooltip += this.t(`${translationPrefix}actualSizeInfo`);
+      }
+      return tooltip;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
   isLocalProviderOccursErrors: computed(
     'latestDirSizeStatsValues',
     'currentProviderId',
@@ -656,11 +708,37 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
   isOnlyRemoteProviderOccursErrors: computed(
     'isLocalProviderOccursErrors',
     'isErrorOccurrencesShown',
-    function isRemoteProviderOccursErrors() {
+    function isOnlyRemoteProviderOccursErrors() {
       return !this.isLocalProviderOccursErrors && this.isErrorOccurrencesShown;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isRemoteProviderOccursErrors: computed(
+    'latestDirSizeStatsValues',
+    'currentProviderId',
+    function isRemoteProviderOccursErrors() {
+      for (
+        const [
+          providerId,
+          providerStats,
+        ] of Object.entries(this.latestDirSizeStatsValues ?? {})
+      ) {
+        if (providerId !== this.currentProviderId &&
+          providerStats?.type === 'result' &&
+          (providerStats.fileErrorCount > 0 || providerStats.dirErrorCount > 0)) {
+          return true;
+        }
+      }
+      return false;
     }
   ),
 

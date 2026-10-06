@@ -29,17 +29,13 @@
           "extra-info"
           classProvidersCount
         }}>({{currentSizeExtraInfo}})</span>
-        {{#if isLocalProviderOccursErrors}}
+        {{#if this.isHeaderDangerousIconVisible}}
           <OneIcon @icon="checkbox-filled-warning" class="header-info-danger">
-            <OneTooltip @title={{tt this "currentSize.currentSizeWarningLocalProviderTip"}} />
+            <OneTooltip @title={{this.currentSizeIconTooltip}} />
           </OneIcon>
-        {{else if isHeaderWarningIconVisible}}
+        {{else if this.isHeaderWarningIconVisible}}
           <OneIcon @icon="sign-warning-rounded" class="header-info-warning">
-            {{#if isOnlyRemoteProviderOccursErrors}}
-              <OneTooltip @title={{tt this "currentSize.currentSizeWarningRemoteProviderTip"}} />
-            {{else}}
-              <OneTooltip @title={{tt this "currentSize.currentSizeTip"}} />
-            {{/if}}
+            <OneTooltip @title={{this.currentSizeIconTooltip}} />
           </OneIcon>
         {{/if}}
       </h2>
