@@ -16,13 +16,10 @@ export default {
     virtualSizeTip: sizeStatsPerProviderTable.virtualSizeTip,
     containsTip: sizeStatsPerProviderTable.containsTip,
     currentSizeOnProvidersCount: 'collected from <span>{{providersWithStatsCount}} out of {{providersCount}}</span> providers',
-    currentSizeTip: 'Presented information is partial since it was collected only from online providers with enabled directory size statistics. From the global point of view, the actual size of the space may differ.',
-    currentSizeWarningRemoteProviderTip: 'The presented information is partial since it occurred error for file and directory statistics from remote providers. From the global point of view, the actual size of the space may differ.',
-    currentSizeWarningLocalProviderTip: 'The presented information is partial since it occurred error for file and directory statistics from local providers. From the global point of view, the actual size of the space may differ.',
     totalPhysicalSizeTip: 'Total physical size – summarized storage size used to store the data – a sum of physical sizes reported by providers. Includes only the online providers with enabled directory size statistics, hence the actual value may be larger.',
     errorOccurrencesTip: 'Error occurrences – the number of files and directories that are currently in error state, i.e. they are not accessible due to some problems with the storage backend.',
     errorOccurrencesPartialDataTip: 'The actual number of errors may be larger since it includes only the online providers with enabled directory size statistics.',
-    tooltips: {
+    headerTooltips: {
       headerDataIncomplete: 'The presented values may be incomplete: ',
       headerDataPartial: 'The presented values are partial: statistics were retrieved only from providers that are online and have directory size statistics enabled.',
       errorInfo: 'some file and directory statistics could not be calculated correctly by {{who}} due to errors.',

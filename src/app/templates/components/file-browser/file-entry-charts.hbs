@@ -115,14 +115,14 @@
               </span>
             </li>
           {{/if}}
-          {{#if isErrorOccurrencesShown}}
+          {{#if this.isErrorOccurrencesShown}}
             <li class="property-row property-errors-occurs">
               <span class="property-label">
                 {{tt this "currentSize.errorOccurrences"}}:
               </span>
               <span class="property-value">
-                {{stringifiedErrorElementsCount}}
-                <OneLabelTip @title={{errorOccurrencesTooltip}} />
+                {{this.stringifiedErrorElementsCount}}
+                <OneLabelTip @title={{this.errorOccurrencesTooltip}} />
               </span>
             </li>
           {{/if}}
@@ -144,15 +144,15 @@
           {{/if}}
         </a>
       </div>
-      {{#if areSizeStatsExpanded}}
+      {{#if this.areSizeStatsExpanded}}
         <FileBrowser::SizeStatsPerProviderTable
-          @dirSizeStatsValues={{latestDirSizeStatsValues}}
-          @isVirtualSizeColumnShown={{isVirtualSizeShown}}
-          @currentProviderId={{currentProviderId}}
+          @dirSizeStatsValues={{this.latestDirSizeStatsValues}}
+          @isVirtualSizeColumnShown={{this.isVirtualSizeShown}}
+          @currentProviderId={{this.currentProviderId}}
         />
       {{/if}}
     {{/if}}
-    {{#if areChartsRendered}}
+    {{#if this.areChartsRendered}}
       <OneTimeSeriesChartsSection
         class="historical-size-section"
         @sectionSpec={{dashboardSpec.rootSection}}

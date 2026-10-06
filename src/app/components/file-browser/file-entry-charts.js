@@ -600,10 +600,9 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<string>}
    */
   classProvidersCount: computed(
-    'providersCount',
-    'providersWithStatsCount',
+    'isPartialStats',
     function classProvidersCount() {
-      if (this.providersWithStatsCount !== this.providersCount) {
+      if (this.isPartialStats) {
         return 'providers-count-warning';
       } else {
         return 'providers-count';
@@ -616,15 +615,13 @@ export default Component.extend(...mixins, {
    */
   isHeaderWarningIconVisible: computed(
     'latestDirSizeStatsValues',
-    'providersCount',
-    'providersWithStatsCount',
+    'isPartialStats',
     'isOnlyRemoteProviderOccursErrors',
     function isHeaderWarningIconVisible() {
       if (!this.latestDirSizeStatsValues) {
         return false;
       } else {
-        return this.isOnlyRemoteProviderOccursErrors ||
-          this.providersWithStatsCount !== this.providersCount;
+        return this.isOnlyRemoteProviderOccursErrors || this.isPartialStats;
       }
     }
   ),
@@ -645,13 +642,23 @@ export default Component.extend(...mixins, {
   ),
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isPartialStats: computed(
+    'providersWithStatsCount',
+    'providersCount',
+    function isPartialStats() {
+      return this.providersWithStatsCount !== this.providersCount;
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<SafeString>}
    */
   currentSizeIconTooltip: computed(
     'isHeaderWarningIconVisible',
     'isHeaderDangerousIconVisible',
-    'providersWithStatsCount',
-    'providersCount',
+    'isPartialStats',
     'isLocalProviderOccursErrors',
     'isRemoteProviderOccursErrors',
     'isErrorOccurrencesShown',
@@ -660,10 +667,9 @@ export default Component.extend(...mixins, {
       if (!this.isHeaderWarningIconVisible && !this.isHeaderDangerousIconVisible) {
         return tooltip;
       }
-      const isPartialStats = this.providersWithStatsCount !== this.providersCount;
-      const translationPrefix = 'currentSize.tooltips.';
+      const translationPrefix = 'currentSize.headerTooltips.';
 
-      if (isPartialStats) {
+      if (this.isPartialStats) {
         tooltip += this.t(`${translationPrefix}headerDataPartial`) + ' ';
         if (this.isErrorOccurrencesShown) {
           tooltip += this.t(`${translationPrefix}additionally`);
@@ -686,7 +692,7 @@ export default Component.extend(...mixins, {
         tooltip += this.t(`${translationPrefix}errorInfo`, { who }) + ' ';
       }
 
-      if (isPartialStats) {
+      if (this.isPartialStats) {
         tooltip += this.t(`${translationPrefix}actualSizeInfo`);
       }
       return tooltip;
@@ -889,6 +895,9 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<number>}
+   */
   fileErrorCount: computed(
     'availableDirSizeStatsValues',
     function fileErrorCount() {
@@ -900,6 +909,9 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<number>}
+   */
   dirErrorCount: computed(
     'availableDirSizeStatsValues',
     function dirErrorCount() {
@@ -911,6 +923,9 @@ export default Component.extend(...mixins, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
   isErrorOccurrencesShown: computed(
     'fileErrorCount',
     'dirErrorCount',
@@ -945,10 +960,10 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<SafeString>}
    */
   errorOccurrencesTooltip: computed(
-    'isHeaderWarningIconVisible',
+    'isPartialStats',
     function errorOccurrencesTooltip() {
       let tooltip = this.t('currentSize.errorOccurrencesTip');
-      if (this.isHeaderWarningIconVisible) {
+      if (this.isPartialStats) {
         tooltip += ' ' + this.t('currentSize.errorOccurrencesPartialDataTip');
       }
       return tooltip;
