@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13835 Added badge local/remote to provider info popover
 * VFS-13750 Removed btn-info class from styles
 * VFS-13726 Fixed wrongly displayed and disappearing inherited file badge for QoS when QoS column is enabled
 * VFS-13823 Fixed shared file API docs links
