@@ -600,9 +600,9 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<string>}
    */
   classProvidersCount: computed(
-    'isPartialStats',
+    'hasIncompleteStats',
     function classProvidersCount() {
-      if (this.isPartialStats) {
+      if (this.hasIncompleteStats) {
         return 'providers-count-warning';
       } else {
         return 'providers-count';
@@ -615,13 +615,13 @@ export default Component.extend(...mixins, {
    */
   isHeaderWarningIconVisible: computed(
     'latestDirSizeStatsValues',
-    'isPartialStats',
-    'isOnlyRemoteProviderOccursErrors',
+    'hasIncompleteStats',
+    'hasOnlyRemoteProvidersError',
     function isHeaderWarningIconVisible() {
       if (!this.latestDirSizeStatsValues) {
         return false;
       } else {
-        return this.isOnlyRemoteProviderOccursErrors || this.isPartialStats;
+        return this.hasOnlyRemoteProvidersError || this.hasIncompleteStats;
       }
     }
   ),
@@ -631,12 +631,12 @@ export default Component.extend(...mixins, {
    */
   isHeaderDangerousIconVisible: computed(
     'latestDirSizeStatsValues',
-    'isLocalProviderOccursErrors',
+    'hasLocalProviderErrors',
     function isHeaderDangerousIconVisible() {
       if (!this.latestDirSizeStatsValues) {
         return false;
       } else {
-        return this.isLocalProviderOccursErrors;
+        return this.hasLocalProviderErrors;
       }
     }
   ),
@@ -644,10 +644,10 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isPartialStats: computed(
+  hasIncompleteStats: computed(
     'providersWithStatsCount',
     'providersCount',
-    function isPartialStats() {
+    function hasIncompleteStats() {
       return this.providersWithStatsCount !== this.providersCount;
     }
   ),
@@ -658,8 +658,8 @@ export default Component.extend(...mixins, {
   currentSizeIconTooltip: computed(
     'isHeaderWarningIconVisible',
     'isHeaderDangerousIconVisible',
-    'isPartialStats',
-    'isLocalProviderOccursErrors',
+    'hasIncompleteStats',
+    'hasLocalProviderErrors',
     'isRemoteProviderOccursErrors',
     'isErrorOccurrencesShown',
     function currentSizeIconTooltip() {
@@ -668,32 +668,35 @@ export default Component.extend(...mixins, {
         return tooltip;
       }
       const translationPrefix = 'currentSize.headerTooltips.';
+      const getText = (key, interpolations) => this.t(
+        `${translationPrefix}${key}`, interpolations
+      );
 
-      if (this.isPartialStats) {
-        tooltip += this.t(`${translationPrefix}headerDataPartial`) + ' ';
+      if (this.hasIncompleteStats) {
+        tooltip += getText('headerDataPartial') + ' ';
         if (this.isErrorOccurrencesShown) {
-          tooltip += this.t(`${translationPrefix}additionally`);
+          tooltip += getText('additionally');
         }
       } else {
-        tooltip += this.t(`${translationPrefix}headerDataIncomplete`);
+        tooltip += getText('headerDataIncomplete');
       }
 
       if (this.isErrorOccurrencesShown) {
         let who = '';
-        if (this.isLocalProviderOccursErrors && this.isRemoteProviderOccursErrors) {
-          who = this.t(`${translationPrefix}currentProvider`) +
-            this.t(`${translationPrefix}and`) +
-            this.t(`${translationPrefix}remoteProviders`);
-        } else if (this.isLocalProviderOccursErrors) {
-          who = this.t(`${translationPrefix}currentProvider`);
+        if (this.hasLocalProviderErrors && this.isRemoteProviderOccursErrors) {
+          who = getText('currentProvider') +
+            getText('and') +
+            getText('remoteProviders');
+        } else if (this.hasLocalProviderErrors) {
+          who = getText('currentProvider');
         } else {
-          who = this.t(`${translationPrefix}remoteProviders`);
+          who = getText('remoteProviders');
         }
-        tooltip += this.t(`${translationPrefix}errorInfo`, { who }) + ' ';
+        tooltip += getText(`${translationPrefix}errorInfo`, { who }) + ' ';
       }
 
-      if (this.isPartialStats) {
-        tooltip += this.t(`${translationPrefix}actualSizeInfo`);
+      if (this.hasIncompleteStats) {
+        tooltip += getText('actualSizeInfo');
       }
       return tooltip;
     }
@@ -702,26 +705,27 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isLocalProviderOccursErrors: computed(
+  hasLocalProviderErrors: computed(
     'latestDirSizeStatsValues',
     'currentProviderId',
-    function isLocalProviderOccursErrors() {
+    function hasLocalProviderErrors() {
       const currentProviderId = this.currentProviderId;
       const currentProviderStats = this.latestDirSizeStatsValues?.[currentProviderId];
-      return currentProviderStats?.type === 'result' &&
-        (currentProviderStats.fileErrorCount > 0 ||
-          currentProviderStats.dirErrorCount > 0);
+      return currentProviderStats?.type === 'result' && (
+        currentProviderStats.fileErrorCount > 0 ||
+        currentProviderStats.dirErrorCount > 0
+      );
     }
   ),
 
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isOnlyRemoteProviderOccursErrors: computed(
-    'isLocalProviderOccursErrors',
+  hasOnlyRemoteProvidersError: computed(
+    'hasLocalProviderErrors',
     'isErrorOccurrencesShown',
-    function isOnlyRemoteProviderOccursErrors() {
-      return !this.isLocalProviderOccursErrors && this.isErrorOccurrencesShown;
+    function hasOnlyRemoteProvidersError() {
+      return !this.hasLocalProviderErrors && this.isErrorOccurrencesShown;
     }
   ),
 
@@ -738,9 +742,11 @@ export default Component.extend(...mixins, {
           providerStats,
         ] of Object.entries(this.latestDirSizeStatsValues ?? {})
       ) {
-        if (providerId !== this.currentProviderId &&
+        if (
+          providerId !== this.currentProviderId &&
           providerStats?.type === 'result' &&
-          (providerStats.fileErrorCount > 0 || providerStats.dirErrorCount > 0)) {
+          (providerStats.fileErrorCount > 0 || providerStats.dirErrorCount > 0)
+        ) {
           return true;
         }
       }
@@ -901,10 +907,9 @@ export default Component.extend(...mixins, {
   fileErrorCount: computed(
     'availableDirSizeStatsValues',
     function fileErrorCount() {
-      const initialFileErrorsCount = 0;
       return this.availableDirSizeStatsValues.reduce(
         (acc, dirStats) => acc + dirStats.fileErrorCount,
-        initialFileErrorsCount,
+        0,
       );
     }
   ),
@@ -915,10 +920,9 @@ export default Component.extend(...mixins, {
   dirErrorCount: computed(
     'availableDirSizeStatsValues',
     function dirErrorCount() {
-      const initialDirErrorsCount = 0;
       return this.availableDirSizeStatsValues.reduce(
         (acc, dirStats) => acc + dirStats.dirErrorCount,
-        initialDirErrorsCount,
+        0,
       );
     }
   ),
@@ -941,8 +945,7 @@ export default Component.extend(...mixins, {
     'fileErrorCount',
     'dirErrorCount',
     function stringifiedErrorElementsCount() {
-      const fileErrorCount = this.fileErrorCount;
-      const dirErrorCount = this.dirErrorCount;
+      const { fileErrorCount, dirErrorCount } = this;
 
       const filesNounVer = fileErrorCount === 1 ? 'singular' : 'plural';
       const dirNounVer = dirErrorCount === 1 ? 'singular' : 'plural';
@@ -960,10 +963,10 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<SafeString>}
    */
   errorOccurrencesTooltip: computed(
-    'isPartialStats',
+    'hasIncompleteStats',
     function errorOccurrencesTooltip() {
       let tooltip = this.t('currentSize.errorOccurrencesTip');
-      if (this.isPartialStats) {
+      if (this.hasIncompleteStats) {
         tooltip += ' ' + this.t('currentSize.errorOccurrencesPartialDataTip');
       }
       return tooltip;

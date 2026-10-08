@@ -9,7 +9,7 @@
 import BaseTabModel from './base-tab-model';
 import { promise, eq, conditional, raw, and, not } from 'ember-awesome-macros';
 import { computed, get } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, equal } from '@ember/object/computed';
 import { resolve } from 'rsvp';
 import FileSizeViewModel from 'oneprovider-gui/utils/file-size-view-model';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
@@ -99,16 +99,16 @@ export default BaseTabModel.extend({
     'areSomeProvidersOffline',
     'isSizeStatsDisabled',
     'isSizeStatsInitializing',
-    'isErrorsForItemsLocalProvider',
-    'isErrorsForItemsRemoteProvider',
+    'hasLocalProviderErrors',
+    'hasOnlyRemoteProvidersError',
     function statusIcon() {
       if (this.isSizeStatsInitializing) {
         return 'checkbox-pending';
-      } else if (this.isErrorsForItemsLocalProvider) {
+      } else if (this.hasLocalProviderErrors) {
         return 'checkbox-filled-warning';
       } else if (this.areSomeProvidersOffline) {
         return 'sign-warning-rounded';
-      } else if (this.isErrorsForItemsRemoteProvider) {
+      } else if (this.hasOnlyRemoteProvidersError) {
         return 'sign-warning-rounded';
       } else if (!this.isSizeStatsDisabled) {
         return 'checkbox-filled';
@@ -123,15 +123,17 @@ export default BaseTabModel.extend({
     'areSomeProvidersOffline',
     'isSizeStatsDisabled',
     'isSizeStatsInitializing',
-    'isErrorsForItemsLocalProvider',
-    'isErrorsForItemsRemoteProvider',
+    'hasLocalProviderErrors',
+    'hasOnlyRemoteProvidersError',
     function tabClass() {
       if (this.isSizeStatsInitializing) {
         return 'tab-status-warning';
-      } else if (this.isErrorsForItemsLocalProvider) {
+      } else if (this.hasLocalProviderErrors) {
         return 'tab-status-danger';
-      } else if (this.areSomeProvidersOffline ||
-        this.isErrorsForItemsRemoteProvider) {
+      } else if (
+        this.areSomeProvidersOffline ||
+        this.hasOnlyRemoteProvidersError
+      ) {
         return 'tab-status-warning';
       } else if (!this.isSizeStatsDisabled) {
         return 'tab-status-success';
@@ -166,12 +168,7 @@ export default BaseTabModel.extend({
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isSizeStatsInitializing: computed(
-    'dirStatsServiceStatus',
-    function isSizeStatsInitializing() {
-      return ['initializing'].includes(this.dirStatsServiceStatus);
-    }
-  ),
+  isSizeStatsInitializing: equal('dirStatsServiceStatus', 'initializing'),
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -183,11 +180,11 @@ export default BaseTabModel.extend({
   /**
    * @type {ComputedProperty<string>}
    */
-  isErrorsForItemsLocalProvider: computed(
+  hasLocalProviderErrors: computed(
     'currentProviderId',
     'viewModel.{completeLatestDirSizeStatsValues,dirStatsNotReady,dirStatsServiceState}',
-    function isErrorsForItemsLocalProvider() {
-      const sizeStats = this.viewModel.completeLatestDirSizeStatsValues?.['all']?.[
+    function hasLocalProviderErrors() {
+      const sizeStats = this.viewModel.completeLatestDirSizeStatsValues?.all?.[
         this.currentProviderId
       ];
       if (
@@ -205,15 +202,15 @@ export default BaseTabModel.extend({
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isErrorsForItemsRemoteProvider: computed(
-    'isErrorsForItemsLocalProvider',
+  hasOnlyRemoteProvidersError: computed(
+    'hasLocalProviderErrors',
     'viewModel.{completeLatestDirSizeStatsValues,dirStatsNotReady,dirStatsServiceState}',
-    function isErrorsForItemsRemoteProvider() {
-      const sizeStats = this.viewModel.completeLatestDirSizeStatsValues?.['all'];
+    function hasOnlyRemoteProvidersError() {
+      const sizeStats = this.viewModel.completeLatestDirSizeStatsValues?.all;
       if (
         this.viewModel.dirStatsServiceState?.status !== 'enabled' ||
         this.viewModel.dirStatsNotReady ||
-        this.isErrorsForItemsLocalProvider ||
+        this.hasLocalProviderErrors ||
         !sizeStats
       ) {
         return false;

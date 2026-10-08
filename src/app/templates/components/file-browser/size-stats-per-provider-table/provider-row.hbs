@@ -69,16 +69,18 @@
       <OneIcon @icon="checkbox-filled-warning" class="error-occurs-icon">
         <OneTooltip @title={{tt this "fileCounters.providerOccursErrorsTip"}} />
       </OneIcon>
-    {{else if (and this.sizeStats.error (not-eq this.sizeStats.error.id "dirStatsDisabledForSpace"))}}
-      <OneIcon @icon="sign-warning-rounded" class="inline-icon-container warning-icon">
-        {{#if (eq this.sizeStats.error.id "noConnectionToPeerOneprovider")}}
-          <OneTooltip @title={{tt this "fileCounters.providerOfflineTip"}} />
-        {{/if}}
-      </OneIcon>
-    {{else if (and this.sizeStats.error (eq this.sizeStats.error.id "dirStatsDisabledForSpace"))}}
-      <OneIcon @icon="browser-info" class="info-icon">
-        <OneTooltip @title={{tt this "fileCounters.dirStatsDisabledTip"}} />
-      </OneIcon>
+    {{else if this.sizeStats.error}}
+      {{#if (not-eq this.sizeStats.error.id "dirStatsDisabledForSpace")}}
+        <OneIcon @icon="sign-warning-rounded" class="inline-icon-container warning-icon">
+          {{#if (eq this.sizeStats.error.id "noConnectionToPeerOneprovider")}}
+            <OneTooltip @title={{tt this "fileCounters.providerOfflineTip"}} />
+          {{/if}}
+        </OneIcon>
+      {{else}}
+        <OneIcon @icon="browser-info" class="info-icon">
+          <OneTooltip @title={{tt this "fileCounters.dirStatsDisabledTip"}} />
+        </OneIcon>
+      {{/if}}
     {{/if}}
   </td>
   {{#if this.sizeStats.error}}
@@ -86,11 +88,18 @@
       <FileBrowser::SizeStatsPerProviderTable::ErrorCell @sizeStats={{sizeStats}} />
     </td>
   {{else}}
-    <td class={{concat-classes "contains-value" (if this.isErrorIconShown "danger-text")}}>
+    <td
+      class={{concat-classes "contains-value" (if this.isErrorIconShown "danger-text")}}
+    >
       {{tt this "fileCounters.containsLabel"}}:
       {{this.stringifiedLatestElementsCount}}
     </td>
-    <td class={{concat-classes "logical-size-value" (if this.isErrorIconShown "danger-text")}}>
+    <td
+      class={{concat-classes
+        "logical-size-value"
+        (if this.isErrorIconShown "danger-text")
+      }}
+    >
       {{bytes-to-string this.sizeStats.logicalSize}}
       {{#if (gte this.sizeStats.logicalSize 1024)}}
         <span class="extra-info">
@@ -98,7 +107,12 @@
         </span>
       {{/if}}
     </td>
-    <td class={{concat-classes "physical-size-value" (if this.isErrorIconShown "danger-text")}}>
+    <td
+      class={{concat-classes
+        "physical-size-value"
+        (if this.isErrorIconShown "danger-text")
+      }}
+    >
       {{bytes-to-string this.sizeStats.totalPhysicalSize}}
       {{#if (gte this.sizeStats.totalPhysicalSize 1024)}}
         <span class="extra-info">
@@ -107,7 +121,12 @@
       {{/if}}
     </td>
     {{#if this.isVirtualSizeColumnShown}}
-      <td class={{concat-classes "virtual-size-value" (if this.isErrorIconShown "danger-text")}}>
+      <td
+        class={{concat-classes
+          "virtual-size-value"
+          (if this.isErrorIconShown "danger-text")
+        }}
+      >
         {{#if (eq this.sizeStats.virtualSize undefined)}}
           <SpinSpinnerBlock
             class="virtual-size-spinner"
