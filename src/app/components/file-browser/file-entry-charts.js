@@ -692,7 +692,7 @@ export default Component.extend(...mixins, {
         } else {
           who = getText('remoteProviders');
         }
-        tooltip += getText(`${translationPrefix}errorInfo`, { who }) + ' ';
+        tooltip += getText('errorInfo', { who }) + ' ';
       }
 
       if (this.hasIncompleteStats) {
