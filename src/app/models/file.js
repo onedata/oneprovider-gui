@@ -78,6 +78,8 @@ export const dirSizeStatsTimeSeriesNameGenerators = {
   logicalSize: 'logical_size',
   virtualSize: 'virtual_size',
   physicalSize: 'physical_size_',
+  fileErrorCount: 'file_error_count',
+  dirErrorCount: 'dir_error_count',
 };
 
 export const RuntimeProperties = Mixin.create({

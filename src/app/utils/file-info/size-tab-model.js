@@ -9,7 +9,7 @@
 import BaseTabModel from './base-tab-model';
 import { promise, eq, conditional, raw, and, not } from 'ember-awesome-macros';
 import { computed, get } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, equal } from '@ember/object/computed';
 import { resolve } from 'rsvp';
 import FileSizeViewModel from 'oneprovider-gui/utils/file-size-view-model';
 import { LegacyFileType } from 'onedata-gui-common/utils/file';
@@ -18,6 +18,7 @@ import {
   destroyableComputed,
   initDestroyableCache,
 } from 'onedata-gui-common/utils/destroyable-computed';
+import { inject as service } from '@ember/service';
 
 const FileSizeViewModelInTab = FileSizeViewModel.extend({
   /**
@@ -30,6 +31,8 @@ const FileSizeViewModelInTab = FileSizeViewModel.extend({
 });
 
 export default BaseTabModel.extend({
+  providerManager: service(),
+
   /**
    * @override
    */
@@ -95,8 +98,17 @@ export default BaseTabModel.extend({
   statusIcon: computed(
     'areSomeProvidersOffline',
     'isSizeStatsDisabled',
+    'isSizeStatsInitializing',
+    'hasLocalProviderErrors',
+    'hasOnlyRemoteProvidersError',
     function statusIcon() {
-      if (this.areSomeProvidersOffline) {
+      if (this.isSizeStatsInitializing) {
+        return 'checkbox-pending';
+      } else if (this.hasLocalProviderErrors) {
+        return 'checkbox-filled-warning';
+      } else if (this.areSomeProvidersOffline) {
+        return 'sign-warning-rounded';
+      } else if (this.hasOnlyRemoteProvidersError) {
         return 'sign-warning-rounded';
       } else if (!this.isSizeStatsDisabled) {
         return 'checkbox-filled';
@@ -110,8 +122,18 @@ export default BaseTabModel.extend({
   tabClass: computed(
     'areSomeProvidersOffline',
     'isSizeStatsDisabled',
+    'isSizeStatsInitializing',
+    'hasLocalProviderErrors',
+    'hasOnlyRemoteProvidersError',
     function tabClass() {
-      if (this.areSomeProvidersOffline) {
+      if (this.isSizeStatsInitializing) {
+        return 'tab-status-warning';
+      } else if (this.hasLocalProviderErrors) {
+        return 'tab-status-danger';
+      } else if (
+        this.areSomeProvidersOffline ||
+        this.hasOnlyRemoteProvidersError
+      ) {
         return 'tab-status-warning';
       } else if (!this.isSizeStatsDisabled) {
         return 'tab-status-success';
@@ -142,6 +164,71 @@ export default BaseTabModel.extend({
   isSizeStatsDisabled: computed('dirStatsServiceStatus', function isSizeStatsDisabled() {
     return ['disabled', 'stopping'].includes(this.dirStatsServiceStatus);
   }),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSizeStatsInitializing: equal('dirStatsServiceStatus', 'initializing'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  currentProviderId: computed(function currentProviderId() {
+    return this.providerManager.getCurrentProviderId();
+  }),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  hasLocalProviderErrors: computed(
+    'currentProviderId',
+    'viewModel.{completeLatestDirSizeStatsValues,dirStatsNotReady,dirStatsServiceState}',
+    function hasLocalProviderErrors() {
+      const sizeStats = this.viewModel.completeLatestDirSizeStatsValues?.all?.[
+        this.currentProviderId
+      ];
+      if (
+        this.viewModel.dirStatsServiceState?.status !== 'enabled' ||
+        this.viewModel.dirStatsNotReady ||
+        !this.currentProviderId ||
+        sizeStats?.type !== 'result'
+      ) {
+        return false;
+      }
+      return sizeStats?.dirErrorCount > 0 || sizeStats?.fileErrorCount > 0;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasOnlyRemoteProvidersError: computed(
+    'hasLocalProviderErrors',
+    'viewModel.{completeLatestDirSizeStatsValues,dirStatsNotReady,dirStatsServiceState}',
+    function hasOnlyRemoteProvidersError() {
+      const sizeStats = this.viewModel.completeLatestDirSizeStatsValues?.all;
+      if (
+        this.viewModel.dirStatsServiceState?.status !== 'enabled' ||
+        this.viewModel.dirStatsNotReady ||
+        this.hasLocalProviderErrors ||
+        !sizeStats
+      ) {
+        return false;
+      }
+
+      for (const sizeStatsPerProvider of Object.values(sizeStats)) {
+        if (sizeStatsPerProvider?.type === 'result') {
+          if (
+            sizeStatsPerProvider?.dirErrorCount > 0 ||
+            sizeStatsPerProvider?.fileErrorCount > 0
+          ) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+  ),
 
   /**
    * @type {ComputedProperty<boolean>}

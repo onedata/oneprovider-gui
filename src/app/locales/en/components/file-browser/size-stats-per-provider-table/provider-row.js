@@ -20,5 +20,8 @@ export default {
         plural: 'elements',
       },
     },
+    providerOccursErrorsTip: 'Errors occurred while calculating statistics for some files or directories on this provider, e.g. because they were not accessible due to problems with the storage backend.',
+    providerOfflineTip: 'Statistics from this provider could not be retrieved, so its values are not included in the totals.',
+    dirStatsDisabledTip: 'Directory size statistics are disabled on this provider, so its values are not included in the totals.',
   },
 };
