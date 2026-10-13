@@ -28,6 +28,10 @@
     margin-top: -0.3em
   }
 
+  .property-errors-occurs {
+    color: $color-one-danger;
+  }
+
   .current-size-section {
     .current-size-header {
       @include font-semibold();
@@ -44,6 +48,12 @@
         font-size: 1em;
         margin-left: 0.3em;
         color: $color-one-warning;
+      }
+      .header-info-danger {
+        vertical-align: middle;
+        font-size: 1.6em;
+        margin-left: 0.1em;
+        color: $color-one-danger;
       }
       .providers-count-warning span {
         @include font-semibold;
@@ -96,6 +106,7 @@
       .error-cell {
         position: relative;
         text-align: center;
+        font-style: italic;
       }
       .oneicon-sign-warning-rounded {
         font-size: 120%;
@@ -103,11 +114,30 @@
         vertical-align: middle;
         width: 1.2em;
       }
+      .error-occurs-icon {
+        color: $color-one-danger;
+        margin-left: 0.2em;
+        font-size: 1.6em;
+      }
+      .warning-icon {
+        color: $color-one-warning;
+        margin-left: 0.5em;
+        margin-top: 0.1em;
+      }
+      .info-icon {
+        margin-left: 0.2em;
+        margin-top: -0.05em;
+        font-size: 1.6em;
+        color: $color-one-light-gray;
+      }
       .dir-stats-icon {
         vertical-align: middle;
         font-size: 160%;
         width: auto;
         transform: translateY(-1px);
+      }
+      tbody tr .danger-text {
+        color: $color-one-danger;
       }
       .extra-info {
         opacity: $disabled-opacity;
@@ -119,6 +149,15 @@
       }
       .header {
         text-align: left;
+        display: flex;
+
+        .item-name {
+          @include font-regular;
+        }
+
+        &.current-provider .item-name {
+          @include font-semibold;
+        }
       }
     }
   }

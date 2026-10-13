@@ -600,10 +600,9 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<string>}
    */
   classProvidersCount: computed(
-    'providersCount',
-    'providersWithStatsCount',
+    'hasIncompleteStats',
     function classProvidersCount() {
-      if (this.providersWithStatsCount !== this.providersCount) {
+      if (this.hasIncompleteStats) {
         return 'providers-count-warning';
       } else {
         return 'providers-count';
@@ -616,14 +615,142 @@ export default Component.extend(...mixins, {
    */
   isHeaderWarningIconVisible: computed(
     'latestDirSizeStatsValues',
-    'providersCount',
-    'providersWithStatsCount',
+    'hasIncompleteStats',
+    'hasOnlyRemoteProvidersError',
     function isHeaderWarningIconVisible() {
       if (!this.latestDirSizeStatsValues) {
         return false;
       } else {
-        return this.providersWithStatsCount !== this.providersCount;
+        return this.hasOnlyRemoteProvidersError || this.hasIncompleteStats;
       }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isHeaderDangerousIconVisible: computed(
+    'latestDirSizeStatsValues',
+    'hasLocalProviderErrors',
+    function isHeaderDangerousIconVisible() {
+      if (!this.latestDirSizeStatsValues) {
+        return false;
+      } else {
+        return this.hasLocalProviderErrors;
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasIncompleteStats: computed(
+    'providersWithStatsCount',
+    'providersCount',
+    function hasIncompleteStats() {
+      return this.providersWithStatsCount !== this.providersCount;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  currentSizeIconTooltip: computed(
+    'isHeaderWarningIconVisible',
+    'isHeaderDangerousIconVisible',
+    'hasIncompleteStats',
+    'hasLocalProviderErrors',
+    'isRemoteProviderOccursErrors',
+    'isErrorOccurrencesShown',
+    function currentSizeIconTooltip() {
+      let tooltip = '';
+      if (!this.isHeaderWarningIconVisible && !this.isHeaderDangerousIconVisible) {
+        return tooltip;
+      }
+      const translationPrefix = 'currentSize.headerTooltips.';
+      const getText = (key, interpolations) => this.t(
+        `${translationPrefix}${key}`, interpolations
+      );
+
+      if (this.hasIncompleteStats) {
+        tooltip += getText('headerDataPartial') + ' ';
+        if (this.isErrorOccurrencesShown) {
+          tooltip += getText('additionally');
+        }
+      } else {
+        tooltip += getText('headerDataIncomplete');
+      }
+
+      if (this.isErrorOccurrencesShown) {
+        let who = '';
+        if (this.hasLocalProviderErrors && this.isRemoteProviderOccursErrors) {
+          who = getText('currentProvider') +
+            getText('and') +
+            getText('remoteProviders');
+        } else if (this.hasLocalProviderErrors) {
+          who = getText('currentProvider');
+        } else {
+          who = getText('remoteProviders');
+        }
+        tooltip += getText('errorInfo', { who }) + ' ';
+      }
+
+      if (this.hasIncompleteStats) {
+        tooltip += getText('actualSizeInfo');
+      }
+      return tooltip;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasLocalProviderErrors: computed(
+    'latestDirSizeStatsValues',
+    'currentProviderId',
+    function hasLocalProviderErrors() {
+      const currentProviderId = this.currentProviderId;
+      const currentProviderStats = this.latestDirSizeStatsValues?.[currentProviderId];
+      return currentProviderStats?.type === 'result' && (
+        currentProviderStats.fileErrorCount > 0 ||
+        currentProviderStats.dirErrorCount > 0
+      );
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasOnlyRemoteProvidersError: computed(
+    'hasLocalProviderErrors',
+    'isErrorOccurrencesShown',
+    function hasOnlyRemoteProvidersError() {
+      return !this.hasLocalProviderErrors && this.isErrorOccurrencesShown;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isRemoteProviderOccursErrors: computed(
+    'latestDirSizeStatsValues',
+    'currentProviderId',
+    function isRemoteProviderOccursErrors() {
+      for (
+        const [
+          providerId,
+          providerStats,
+        ] of Object.entries(this.latestDirSizeStatsValues ?? {})
+      ) {
+        if (
+          providerId !== this.currentProviderId &&
+          providerStats?.type === 'result' &&
+          (providerStats.fileErrorCount > 0 || providerStats.dirErrorCount > 0)
+        ) {
+          return true;
+        }
+      }
+      return false;
     }
   ),
 
@@ -771,6 +898,78 @@ export default Component.extend(...mixins, {
       } else {
         return '';
       }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  fileErrorCount: computed(
+    'availableDirSizeStatsValues',
+    function fileErrorCount() {
+      return this.availableDirSizeStatsValues.reduce(
+        (acc, dirStats) => acc + dirStats.fileErrorCount,
+        0,
+      );
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  dirErrorCount: computed(
+    'availableDirSizeStatsValues',
+    function dirErrorCount() {
+      return this.availableDirSizeStatsValues.reduce(
+        (acc, dirStats) => acc + dirStats.dirErrorCount,
+        0,
+      );
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isErrorOccurrencesShown: computed(
+    'fileErrorCount',
+    'dirErrorCount',
+    function isErrorOccurrencesShown() {
+      return this.fileErrorCount > 0 || this.dirErrorCount > 0;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  stringifiedErrorElementsCount: computed(
+    'fileErrorCount',
+    'dirErrorCount',
+    function stringifiedErrorElementsCount() {
+      const { fileErrorCount, dirErrorCount } = this;
+
+      const filesNounVer = fileErrorCount === 1 ? 'singular' : 'plural';
+      const dirNounVer = dirErrorCount === 1 ? 'singular' : 'plural';
+
+      return this.t('currentSize.fileCounters.elementsCount.template', {
+        fileCount: formatNumber(fileErrorCount),
+        dirCount: formatNumber(dirErrorCount),
+        fileNoun: this.t(`currentSize.fileCounters.elementsCount.file.${filesNounVer}`),
+        dirNoun: this.t(`currentSize.fileCounters.elementsCount.dir.${dirNounVer}`),
+      });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  errorOccurrencesTooltip: computed(
+    'hasIncompleteStats',
+    function errorOccurrencesTooltip() {
+      let tooltip = this.t('currentSize.errorOccurrencesTip');
+      if (this.hasIncompleteStats) {
+        tooltip += ' ' + this.t('currentSize.errorOccurrencesPartialDataTip');
+      }
+      return tooltip;
     }
   ),
 
