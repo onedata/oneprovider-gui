@@ -23,7 +23,17 @@
     <table class="current-size-table table table-info centered-text">
       <thead>
         <tr>
-          <td class="empty-cell-header"></td>
+          <td class="provider-cell-header">
+            {{tt this "provider"}}
+            <div
+              class="provider-sorting-trigger"
+              onclick={{action "onSortingIconClick"}}
+            >
+              <OneIcon
+              @icon="text-olist provider-sorting-icon"
+            />
+            </div>
+          </td>
           <td>
             {{tt this "fileCounters.containsLabel"}}
             <OneLabelTip @title={{tt this "containsTip"}} />
@@ -56,4 +66,9 @@
     </table>
   </div>
 {{/if}}
+<FileBrowser::SizeStatsPerProviderTable::ProviderSortingPopover
+  @isOpened={{sortingIconClick}}
+  @triggerSelector={{concat "#" elementId " .provider-sorting-trigger"}}
+  @sortingMethodChanged={{action "sortingMethodChanged"}}
+/>
 

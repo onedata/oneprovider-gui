@@ -159,6 +159,15 @@
           @include font-semibold;
         }
       }
+      .provider-cell-header {
+        display: flex;
+        justify-content: space-between;
+
+        .provider-sorting-icon {
+          font-size: 1.5em;
+          cursor: pointer;
+        }
+      }
     }
   }
 

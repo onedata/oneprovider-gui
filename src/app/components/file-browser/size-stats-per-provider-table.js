@@ -43,6 +43,10 @@ export default Component.extend(I18n, {
    */
   currentProviderId: undefined,
 
+  sortingIconClick: false,
+
+  sortingMethod: 'name',
+
   /**
    * @type {PromiseObject<Array<DirCurrentSizeStatsForProvider & { provider: Models.Provider }>>}
    */
@@ -69,8 +73,56 @@ export default Component.extend(I18n, {
     'dirSizeStatsValuesWithProviderProxy'
   ),
 
-  sortedDirSizeStatsValues: array.sort(
+  sortedByNameDirSizeStatsValues: array.sort(
     'dirSizeStatsValuesWithProvider',
     ['provider.name']
   ),
+
+  sortedByStatusDirSizeStatsValues: computed(
+    'dirSizeStatsValuesWithProvider',
+    function sortedByStatusDirSizeStatsValues() {
+      if (!this.dirSizeStatsValuesWithProvider) {
+        return [];
+      }
+      const stats = this.dirSizeStatsValuesWithProvider;
+
+      return [...stats].sort((a, b) => {
+        const sortingOrderDiff = this.sortingOrderByStatus(a) - this.sortingOrderByStatus(b);
+
+        if (sortingOrderDiff !== 0) {
+          return sortingOrderDiff;
+        }
+        return a.provider.name.localeCompare(b.provider.name);
+      });
+    }
+  ),
+
+  sortedDirSizeStatsValues: computed(
+    'sortingMethod',
+    'sortedByNameDirSizeStatsValues',
+    'sortedByStatusDirSizeStatsValues',
+    function sortedDirSizeStatsValues() {
+      if (this.sortingMethod === 'status') {
+        return this.sortedByStatusDirSizeStatsValues;
+      }
+      return this.sortedByNameDirSizeStatsValues;
+    }
+  ),
+
+  sortingOrderByStatus(stat) {
+    if (stat.type === 'error') {
+      return stat.error.id === 'dirStatsDisabledForSpace' ? 4 : 3;
+    } else {
+      return (stat.dirErrorCount > 0 || stat.fileErrorCount > 0) ? 2 : 1;
+    }
+  },
+
+  actions: {
+    onSortingIconClick() {
+      this.toggleProperty('sortingIconClick');
+    },
+    sortingMethodChanged(value) {
+      this.set('sortingMethod', value);
+    },
+  },
 });
