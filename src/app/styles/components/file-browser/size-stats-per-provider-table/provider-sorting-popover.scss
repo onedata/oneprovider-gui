@@ -1,6 +1,7 @@
-.webui-popover-provider-sorting-popover {
-  .sorting-popover-header {
-    margin-bottom: $padding-base-vertical;
+.webui-popover-provider-sorting {
+  .provider-sorting-popover-content {
+    padding-left: $padding-xs-horizontal;
+    padding-right: $padding-xs-horizontal;
   }
 
   .one-way-radio-group .radio-inline:first-child {

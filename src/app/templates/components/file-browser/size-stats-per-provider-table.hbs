@@ -27,11 +27,9 @@
             {{tt this "provider"}}
             <div
               class="provider-sorting-trigger"
-              onclick={{action "onSortingIconClick"}}
+              onclick={{action "openProviderSortingPopover"}}
             >
-              <OneIcon
-              @icon="text-olist provider-sorting-icon"
-            />
+              <OneIcon @icon="text-olist" class="provider-sorting-icon" />
             </div>
           </td>
           <td>

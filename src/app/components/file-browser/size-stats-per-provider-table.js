@@ -43,8 +43,14 @@ export default Component.extend(I18n, {
    */
   currentProviderId: undefined,
 
+  /**
+   * @type {boolean}
+   */
   sortingIconClick: false,
 
+  /**
+   * @type {'name'|'status'}
+   */
   sortingMethod: 'name',
 
   /**
@@ -73,21 +79,21 @@ export default Component.extend(I18n, {
     'dirSizeStatsValuesWithProviderProxy'
   ),
 
-  sortedByNameDirSizeStatsValues: array.sort(
+  dirSizeStatsValuesSortedByName: array.sort(
     'dirSizeStatsValuesWithProvider',
     ['provider.name']
   ),
 
-  sortedByStatusDirSizeStatsValues: computed(
+  dirSizeStatsValuesSortedByStatus: computed(
     'dirSizeStatsValuesWithProvider',
-    function sortedByStatusDirSizeStatsValues() {
+    function dirSizeStatsValuesSortedByStatus() {
       if (!this.dirSizeStatsValuesWithProvider) {
         return [];
       }
-      const stats = this.dirSizeStatsValuesWithProvider;
 
-      return [...stats].sort((a, b) => {
-        const sortingOrderDiff = this.sortingOrderByStatus(a) - this.sortingOrderByStatus(b);
+      return [...this.dirSizeStatsValuesWithProvider].sort((a, b) => {
+        const sortingOrderDiff =
+          this.sortingOrderByStatus(a) - this.sortingOrderByStatus(b);
 
         if (sortingOrderDiff !== 0) {
           return sortingOrderDiff;
@@ -99,13 +105,13 @@ export default Component.extend(I18n, {
 
   sortedDirSizeStatsValues: computed(
     'sortingMethod',
-    'sortedByNameDirSizeStatsValues',
-    'sortedByStatusDirSizeStatsValues',
+    'dirSizeStatsValuesSortedByName',
+    'dirSizeStatsValuesSortedByStatus',
     function sortedDirSizeStatsValues() {
       if (this.sortingMethod === 'status') {
-        return this.sortedByStatusDirSizeStatsValues;
+        return this.dirSizeStatsValuesSortedByStatus;
       }
-      return this.sortedByNameDirSizeStatsValues;
+      return this.dirSizeStatsValuesSortedByName;
     }
   ),
 
@@ -118,7 +124,7 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    onSortingIconClick() {
+    openProviderSortingPopover() {
       this.toggleProperty('sortingIconClick');
     },
     sortingMethodChanged(value) {

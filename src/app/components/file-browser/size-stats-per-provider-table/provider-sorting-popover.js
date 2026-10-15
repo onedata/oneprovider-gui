@@ -1,5 +1,5 @@
 /**
- * Renders sorting popover.
+ * Renders popover with options for sorting providers.
  *
  * @author Agnieszka Raczek
  * @copyright (C) 2026 Onedata (onedata.org)
@@ -10,6 +10,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -35,9 +36,17 @@ export default Component.extend(I18n, {
    */
   isOpened: false,
 
+  /**
+   * @type {'name'|'status'}
+   */
   sortingMethod: 'name',
 
-  sortingMethodChanged: undefined,
+  /**
+   * @type {Function}
+   * @param {string} value
+   * @returns {undefined}
+   */
+  sortingMethodChanged: notImplementedReject,
 
   /**
    * @type {Ember.ComputedProperty<Array<Object>>}
