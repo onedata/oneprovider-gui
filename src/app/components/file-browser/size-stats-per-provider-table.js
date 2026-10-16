@@ -46,7 +46,7 @@ export default Component.extend(I18n, {
   /**
    * @type {boolean}
    */
-  sortingIconClick: false,
+  isSortingIconClicked: false,
 
   /**
    * @type {'name'|'status'}
@@ -125,7 +125,7 @@ export default Component.extend(I18n, {
 
   actions: {
     openProviderSortingPopover() {
-      this.toggleProperty('sortingIconClick');
+      this.toggleProperty('isSortingIconClicked');
     },
     sortingMethodChanged(value) {
       this.set('sortingMethod', value);

@@ -10,7 +10,6 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/i18n';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
-import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -26,13 +25,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {String}
+   * @type {string}
    */
   triggerSelector: undefined,
 
   /**
    * @virtual optional
-   * @type {Boolean}
+   * @type {boolean}
    */
   isOpened: false,
 
@@ -42,11 +41,9 @@ export default Component.extend(I18n, {
   sortingMethod: 'name',
 
   /**
-   * @type {Function}
-   * @param {string} value
-   * @returns {undefined}
+   * @type {(value: string) => void}
    */
-  sortingMethodChanged: notImplementedReject,
+  sortingMethodChanged: undefined,
 
   /**
    * @type {Ember.ComputedProperty<Array<Object>>}

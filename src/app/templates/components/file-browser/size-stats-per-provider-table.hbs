@@ -65,7 +65,7 @@
   </div>
 {{/if}}
 <FileBrowser::SizeStatsPerProviderTable::ProviderSortingPopover
-  @isOpened={{sortingIconClick}}
+  @isOpened={{this.isSortingIconClicked}}
   @triggerSelector={{concat "#" elementId " .provider-sorting-trigger"}}
   @sortingMethodChanged={{action "sortingMethodChanged"}}
 />
