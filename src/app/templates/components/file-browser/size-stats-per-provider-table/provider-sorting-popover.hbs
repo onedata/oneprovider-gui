@@ -1,0 +1,24 @@
+<RenderLater @triggerRender={{this.isOpened}}>
+  <OneWebuiPopover
+    @popoverStyle="provider-sorting"
+    @open={{this.isOpened}}
+    @triggerSelector={{this.triggerSelector}}
+    @placement={{if (media "isMobile") "bottom" "auto"}}
+    as |popover|
+  >
+    <ClickOutside
+      @onClickOutside={{action (mut this.isOpened) false}}
+      @exceptSelector={{this.triggerSelector}}
+    >
+      <div class="provider-sorting-popover-content">
+        {{tt this "sorting"}}
+        <OneWayRadioGroup
+          @value={{this.sortingMethod}}
+          @options={{this.sortingMethodOptions}}
+          @update={{action "sortingMethodChanged"}}
+          @radioInline={{true}}
+        />
+      </div>
+    </ClickOutside>
+  </OneWebuiPopover>
+</RenderLater>

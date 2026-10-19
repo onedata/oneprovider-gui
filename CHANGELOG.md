@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13834 Added different sorting options to size stats
 * VFS-13670 Added showing file and dir error count in dir size stats
 * VFS-13835 Added badge local/remote to provider info popover
 * VFS-13750 Removed btn-info class from styles

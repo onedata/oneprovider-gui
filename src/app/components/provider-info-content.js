@@ -2,7 +2,7 @@
  * Content of popup with information about provider
  *
  * @author Agnieszka Raczek
- * @copyright (C) 2026: Onedata (onedata.org)
+ * @copyright (C) 2026 Onedata (onedata.org)
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
