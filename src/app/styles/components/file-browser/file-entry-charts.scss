@@ -103,6 +103,9 @@
       tbody td:not(:first-of-type), thead td:not(:first-of-type) {
         border-left: 1px solid $table-border-color;
       }
+      .provider-info {
+        min-width: 0;
+      }
       .error-cell {
         position: relative;
         text-align: center;

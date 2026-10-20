@@ -64,7 +64,10 @@
   </td>
 {{else}}
   <td class={{concat-classes "header" (if this.isCurrentProvider "current-provider")}}>
-    <RecordInfoWithIcon @record={{this.sizeStats.provider}} />
+    <RecordInfoWithIcon
+      @record={{this.sizeStats.provider}}
+      class="provider-info"
+    />
     {{#if this.isErrorIconShown}}
       <OneIcon @icon="checkbox-filled-warning" class="error-occurs-icon">
         <OneTooltip @title={{tt this "fileCounters.providerOccursErrorsTip"}} />

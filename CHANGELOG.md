@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13967 Fixed provider name truncation in size stats table
 * VFS-13670 Added showing file and dir error count in dir size stats
 * VFS-13726 Fixed wrongly displayed and disappearing inherited file badge for QoS when QoS column is enabled
 * VFS-13823 Fixed shared file API docs links
