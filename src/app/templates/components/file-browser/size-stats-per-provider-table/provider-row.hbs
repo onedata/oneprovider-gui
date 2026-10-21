@@ -64,27 +64,29 @@
   </td>
 {{else}}
   <td class={{concat-classes "header" (if this.isCurrentProvider "current-provider")}}>
-    <RecordInfoWithIcon
-      @record={{this.sizeStats.provider}}
-      class="provider-info"
-    />
-    {{#if this.isErrorIconShown}}
-      <OneIcon @icon="checkbox-filled-warning" class="error-occurs-icon">
-        <OneTooltip @title={{tt this "fileCounters.providerOccursErrorsTip"}} />
-      </OneIcon>
-    {{else if this.sizeStats.error}}
-      {{#if (not-eq this.sizeStats.error.id "dirStatsDisabledForSpace")}}
-        <OneIcon @icon="sign-warning-rounded" class="inline-icon-container warning-icon">
-          {{#if (eq this.sizeStats.error.id "noConnectionToPeerOneprovider")}}
-            <OneTooltip @title={{tt this "fileCounters.providerOfflineTip"}} />
-          {{/if}}
+    <div class="provider-cell">
+      <RecordInfoWithIcon
+        @record={{this.sizeStats.provider}}
+        class="provider-info"
+      />
+      {{#if this.isErrorIconShown}}
+        <OneIcon @icon="checkbox-filled-warning" class="error-occurs-icon">
+          <OneTooltip @title={{tt this "fileCounters.providerOccursErrorsTip"}} />
         </OneIcon>
-      {{else}}
-        <OneIcon @icon="browser-info" class="info-icon">
-          <OneTooltip @title={{tt this "fileCounters.dirStatsDisabledTip"}} />
-        </OneIcon>
+      {{else if this.sizeStats.error}}
+        {{#if (not-eq this.sizeStats.error.id "dirStatsDisabledForSpace")}}
+          <OneIcon @icon="sign-warning-rounded" class="inline-icon-container warning-icon">
+            {{#if (eq this.sizeStats.error.id "noConnectionToPeerOneprovider")}}
+              <OneTooltip @title={{tt this "fileCounters.providerOfflineTip"}} />
+            {{/if}}
+          </OneIcon>
+        {{else}}
+          <OneIcon @icon="browser-info" class="info-icon">
+            <OneTooltip @title={{tt this "fileCounters.dirStatsDisabledTip"}} />
+          </OneIcon>
+        {{/if}}
       {{/if}}
-    {{/if}}
+    </div>
   </td>
   {{#if this.sizeStats.error}}
     <td colspan={{if this.isVirtualSizeColumnShown "4" "3"}}>

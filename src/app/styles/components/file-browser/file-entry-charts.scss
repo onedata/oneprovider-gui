@@ -152,7 +152,9 @@
       }
       .header {
         text-align: left;
-        display: flex;
+        .provider-cell {
+          display: flex;
+        }
 
         .item-name {
           @include font-regular;
