@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-13982 Removed "contains" text from size stats table cells
 * VFS-13967 Fixed provider name truncation in size stats table
 * VFS-13834 Added different sorting options to size stats
 * VFS-13670 Added showing file and dir error count in dir size stats

@@ -15,6 +15,7 @@ import I18n from 'onedata-gui-common/mixins/i18n';
 export default Component.extend(I18n, {
   tagName: 'div',
   classNames: ['error-cell'],
+  classNameBindings: ['isStatsDisabled:stats-disabled'],
 
   i18n: service(),
   appProxy: service(),
@@ -60,5 +61,12 @@ export default Component.extend(I18n, {
     return this.get('appProxy').callParent('getProvidersUrl', {
       oneproviderId: providerId,
     });
+  }),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  isStatsDisabled: computed('sizeStats.error.id', function isStatsDisabled() {
+    return this.sizeStats.error?.id === 'dirStatsDisabledForSpace';
   }),
 });

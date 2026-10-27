@@ -33,6 +33,9 @@
         position: relative;
         text-align: center;
         font-style: italic;
+        &.stats-disabled {
+          font-style: normal;
+        }
       }
       .oneicon-sign-warning-rounded {
         font-size: 120%;
