@@ -8,7 +8,6 @@
   <div class="submit-buttons-container">
     <OneButton
       class="close-btn"
-      @type="default"
       @disabled={{or (not viewModel.isModified) viewModel.isSubmitting viewModel.disabled}}
       @onClick={{action "discard"}}
     >

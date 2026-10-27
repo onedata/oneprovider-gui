@@ -44,6 +44,16 @@ export default Component.extend(I18n, {
   currentProviderId: undefined,
 
   /**
+   * @type {boolean}
+   */
+  isSortingIconClicked: false,
+
+  /**
+   * @type {'name'|'status'}
+   */
+  sortingMethod: 'name',
+
+  /**
    * @type {PromiseObject<Array<DirCurrentSizeStatsForProvider & { provider: Models.Provider }>>}
    */
   dirSizeStatsValuesWithProviderProxy: promise.object(computed(
@@ -69,8 +79,56 @@ export default Component.extend(I18n, {
     'dirSizeStatsValuesWithProviderProxy'
   ),
 
-  sortedDirSizeStatsValues: array.sort(
+  dirSizeStatsValuesSortedByName: array.sort(
     'dirSizeStatsValuesWithProvider',
     ['provider.name']
   ),
+
+  dirSizeStatsValuesSortedByStatus: computed(
+    'dirSizeStatsValuesWithProvider',
+    function dirSizeStatsValuesSortedByStatus() {
+      if (!this.dirSizeStatsValuesWithProvider) {
+        return [];
+      }
+
+      return [...this.dirSizeStatsValuesWithProvider].sort((a, b) => {
+        const sortingOrderDiff =
+          this.sortingOrderByStatus(a) - this.sortingOrderByStatus(b);
+
+        if (sortingOrderDiff !== 0) {
+          return sortingOrderDiff;
+        }
+        return a.provider.name.localeCompare(b.provider.name);
+      });
+    }
+  ),
+
+  sortedDirSizeStatsValues: computed(
+    'sortingMethod',
+    'dirSizeStatsValuesSortedByName',
+    'dirSizeStatsValuesSortedByStatus',
+    function sortedDirSizeStatsValues() {
+      if (this.sortingMethod === 'status') {
+        return this.dirSizeStatsValuesSortedByStatus;
+      }
+      return this.dirSizeStatsValuesSortedByName;
+    }
+  ),
+
+  sortingOrderByStatus(stat) {
+    if (stat.type === 'error') {
+      return stat.error.id === 'dirStatsDisabledForSpace' ? 4 : 3;
+    } else {
+      return (stat.dirErrorCount > 0 || stat.fileErrorCount > 0) ? 2 : 1;
+    }
+  },
+
+  actions: {
+    openProviderSortingPopover() {
+      this.toggleProperty('isSortingIconClicked');
+    },
+    sortingMethodChanged(value) {
+      this.set('sortingMethod', value);
+    },
+  },
 });
