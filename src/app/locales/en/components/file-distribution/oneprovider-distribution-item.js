@@ -4,11 +4,11 @@ const unavailable = 'Storage location unavailable';
 
 export default {
   replicationInProgress: 'The data is being replicated to this Oneprovider.',
-  noReplicationInProgress: 'There is no data replication to this Oneprovider at the moment.',
+  noReplicationInProgress: 'There are no ongoing replications to this Oneprovider at the moment.',
   migrationInProgress: 'The data is being migrated from this Oneprovider.',
-  noMigrationInProgress: 'There is no data migration from this Oneprovider at the moment.',
+  noMigrationInProgress: 'There are no ongoing migrations from this Oneprovider at the moment.',
   evictionInProgress: 'The data is being evicted in this Oneprovider.',
-  noEvictionInProgress: 'There is no data eviction from this Oneprovider at the moment.',
+  noEvictionInProgress: 'There are no ongoing evictions from this Oneprovider at the moment.',
   replicateHere: 'Replicate here',
   migrate: 'Migrate...',
   evict: 'Evict',
