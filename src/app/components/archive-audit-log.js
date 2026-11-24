@@ -119,7 +119,7 @@ export default Component.extend(I18n, {
         return htmlSafe(
           `<p>${this.t('noLogs.notOnCurrentProvider')}</p>` +
           `<p>${this.t('noLogs.visitPrefix')} ` +
-          `<a href="${providerUrl}" class="navy underlined" target="_top">${providerName}</a>` +
+          `<a href="${providerUrl}" class="navigation-link underlined" target="_top">${providerName}</a>` +
           ` ${this.t('noLogs.visitSuffix')}</p>`
         );
       } else {

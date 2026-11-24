@@ -6,7 +6,7 @@
 {{#if (or (eq dataSourceType "file") (eq dataSourceType "dir"))}}
   {{#if href}}
     <a
-      class="transfer-file-name transfer-data-name azure"
+      class="transfer-file-name transfer-data-name navigation-link"
       href={{href}}
       target={{navigateTarget}}
       onclick={{action "stopEventPropagation" bubbles=false}}
@@ -27,7 +27,7 @@
   {{/if}}
 {{else if (eq dataSourceType "view")}}
   <a
-    class="transfer-db-index-name transfer-data-name azure"
+    class="transfer-db-index-name transfer-data-name navigation-link"
     onclick={{action "openDbViewModal" bubbles=false}}
   >
     {{name}}

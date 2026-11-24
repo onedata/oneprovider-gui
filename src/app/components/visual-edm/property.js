@@ -203,7 +203,7 @@ export default Component.extend(I18n, {
       }
 
       return tipString && htmlSafe(
-        anchorizeText(tipString, { class: 'navy text-underlined', target: '_blank' })
+        anchorizeText(tipString, { class: 'navigation-link', target: '_blank' })
       );
     }
   ),

@@ -45,10 +45,10 @@
     }
     .fb-breadcrumbs-dir-link {
       &:hover {
-        color: $color-one-mint;
+        color: var(--action-link-color);
       }
       .dir-name:hover {
-        color: darken($color-one-mint, 20%)
+        color: var(--action-link-hover-color);
       }
       .dir-name {
         display: inline-flex;
@@ -95,7 +95,7 @@
       }
     }
     .fb-breadcrumbs-dir-name:hover {
-      color: darken($color-one-mint, 20%);
+      color: var(--action-link-hover-color);
     }
     .space-name {
       padding-left: 0.45em;
