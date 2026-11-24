@@ -7,7 +7,7 @@
         <a
           target="_blank"
           href={{sharePublicUrl}}
-          class="navy text-underlined"
+          class="navigation-link"
         >{{tt this "shareNameDoesNotMatch.publicShareView"}}</a>.
         {{tt this "shareNameDoesNotMatch.single.update"
           metadataTitle=this.firstMetadataTitle
@@ -18,14 +18,13 @@
         <a
           target="_blank"
           href={{sharePublicUrl}}
-          class="navy text-underlined"
+          class="navigation-link"
         >{{tt this "shareNameDoesNotMatch.publicShareView"}}</a>.
         {{tt this "shareNameDoesNotMatch.multi.adjustName"}}
       {{/if}}
     </div>
     <div class="share-validation-buttons">
       <OneButton
-        @type="default"
         @size="sm"
         @onClick={{this.dismissName}}
       >

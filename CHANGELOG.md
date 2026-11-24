@@ -4,6 +4,8 @@
 
 ### Latest changes
 
+* VFS-13669 Added basic whitelabeling for tabs, links, checkboxes, toggles, tags and radio buttons
+* VFS-13750 Removed btn-info class from styles
 * VFS-13982 Removed "contains" text from size stats table cells
 * VFS-13967 Fixed provider name truncation in size stats table
 * VFS-13670 Added showing file and dir error count in dir size stats

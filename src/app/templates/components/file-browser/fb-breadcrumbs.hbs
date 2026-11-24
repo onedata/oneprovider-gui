@@ -74,7 +74,13 @@
   {{/each}}
   {{!-- last element - current dir --}}
   {{#if menuButtons.length}}
-    <a class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button black truncate {{if dirActionsOpen "active"}} {{if areItemsEmpty "fb-breadcrumbs-dir-root"}}"
+    <a
+      class={{concat-classes
+        "fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button"
+        "text-colored-link truncate"
+        (if this.dirActionsOpen "active")
+        (if this.areItemsEmpty "fb-breadcrumbs-dir-root")
+      }}
       data-dir-guid={{currentItem.file.entityId}}
       style={{lastItemStyle}}
     >
