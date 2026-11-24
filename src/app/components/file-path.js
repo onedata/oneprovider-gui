@@ -89,7 +89,7 @@ export default Component.extend(...mixins, {
    * Classname added to internal `<a>` element.
    * @type {String}
    */
-  anchorClassName: 'navy underlined',
+  anchorClassName: 'navigation-link underlined',
 
   displayedPathItemsCount: Number.MAX_SAFE_INTEGER,
 
