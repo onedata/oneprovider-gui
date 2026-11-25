@@ -8,7 +8,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { computed, get, defineProperty } from '@ember/object';
+import EmberObject, { computed, get, defineProperty, setProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { or, eq, raw, conditional, bool, and, not } from 'ember-awesome-macros';
 import _ from 'lodash';
@@ -416,19 +416,40 @@ export default EmberObject.extend(...mixins, {
         }
       }
       await savePromise;
-      await file.reload();
-      await this[updaterName]({ replace: true });
-      safeExec(this, function setAliasedValueProperty() {
-        this.set(currentName, this[originalName]);
-      });
+      // The write succeeded; a failing re-read (eg. no read permission) is not a write
+      // error.
+      try {
+        await file.reload();
+        await this[updaterName]({ replace: true });
+        safeExec(this, function setAliasedValueProperty() {
+          this.set(currentName, this[originalName]);
+        });
+      } catch (reloadError) {
+        // Known bug: if there is a reload error and we show metadata code editor anyway,
+        // it will be rendered from scratch, because of quickly showing error notice,
+        // because of updating proxy. Due to that, we will lose our editor state (eg.
+        // cursor position). Anyway, reimplementing this is not economic because it is a
+        // rare case.
+        console.error(
+          'Reloading file or metadata failed after save - user view may be outdated.'
+        );
+        // Write succeeded, so the saved value becomes the original one to clear isModified.
+        safeExec(this, function markSavedValueAsOriginal() {
+          const current = this[currentName];
+          setProperties(this[metadataOriginalProxyName(type)], {
+            content: current === emptyValue ? emptyValue : _.cloneDeep(current),
+            reason: null,
+            isRejected: false,
+            isFulfilled: true,
+          });
+        });
+      }
       if (file && get(file, 'hardlinkCount') > 1) {
         this.fileManager.fileParentRefresh(file);
       }
     } catch (error) {
       this.globalNotify.backendError(
-        this.t('updatingMetadata', {
-          type: this.t(`types.${type}`),
-        }),
+        this.t('updatingMetadata'),
         error
       );
       throw error;

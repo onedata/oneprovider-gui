@@ -4,6 +4,7 @@
 
 ### Latest changes
 
+* VFS-14072 Fixed confusing error message on file metadata save when user has no privileges to read them
 * VFS-13669 Added basic whitelabeling for tabs, links, checkboxes, toggles, tags and radio buttons
 * VFS-13750 Removed btn-info class from styles
 * VFS-13982 Removed "contains" text from size stats table cells
