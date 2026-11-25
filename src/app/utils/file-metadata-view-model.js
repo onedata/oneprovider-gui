@@ -435,8 +435,9 @@ export default EmberObject.extend(...mixins, {
         );
         // Write succeeded, so the saved value becomes the original one to clear isModified.
         safeExec(this, function markSavedValueAsOriginal() {
+          const current = this[currentName];
           setProperties(this[metadataOriginalProxyName(type)], {
-            content: _.cloneDeep(this[currentName]),
+            content: current === emptyValue ? emptyValue : _.cloneDeep(current),
             reason: null,
             isRejected: false,
             isFulfilled: true,
